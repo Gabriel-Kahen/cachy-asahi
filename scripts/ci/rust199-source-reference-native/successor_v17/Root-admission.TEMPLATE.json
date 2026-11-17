@@ -1,0 +1,384 @@
+{
+  "bootstrap": {
+    "network_during_qualification": null,
+    "provider_policy_reviewed": null,
+    "qualification_allowed": null,
+    "transfer_provider_policy": {
+      "bytes": 1261,
+      "member": "hosted/phase-transfer-provider-policy.json",
+      "sha256": "ac64464206b2e9e4165bfd6916395ea0873cbfbb25937011a8ae4ba301d94116"
+    },
+    "transfer_redirect_hosts": null
+  },
+  "claims": {
+    "hardware_acceptance": false,
+    "native_acceptance": false,
+    "release_acceptance": false,
+    "root_authenticated": false
+  },
+  "delivery": {
+    "holds_preserved": true,
+    "llvm_original": {
+      "accepted_by_root": null,
+      "bytes": 194327220,
+      "id": "14186236728",
+      "job": "132954847327",
+      "job_metadata_sha256": "ac25ad1abb405e53763b844e14030fbf9480097e03c15b47bfc65e3fad6d1767",
+      "members": [
+        {
+          "bytes": 192385078,
+          "container": "EXPORT_TAR",
+          "member": "output/cachy-asahi-llvm23-source-reference-23.1.1-1-aarch64.pkg.tar.zst",
+          "name": "cachy-asahi-llvm23-source-reference-23.1.1-1-aarch64.pkg.tar.zst",
+          "outer_member": {
+            "bytes": 195874304,
+            "member": "llvm-build/export.tar",
+            "sha256": "bfc854568b6b275c4baca4029a3c4a412f0b6a3d67faf5f958388426768d2de8"
+          },
+          "role": "llvm_archive",
+          "sha256": "689621ffa5261bdc7d382448529f6fa5d6e30f473d7470101cd0ab7d94140042"
+        }
+      ],
+      "metadata_sha256": "8ceb0eb943bf4cce78ba2ae323f249ef531f91ebca4bdcd1171e108bf922df8f",
+      "redirect_hosts": null,
+      "repository": "Gabriel-Kahen/cachy-asahi",
+      "run": "43760769287",
+      "sha256": "39378b519abce9168e1faf41313420fa24b9f15cb396e22ed774d3a62a2775b7",
+      "source": "031bf1634429446cd0068f4842d56af276cf40f4"
+    },
+    "root_proof_carrier": {
+      "accepted_by_root": null,
+      "bytes": 16919,
+      "id": "14204661562",
+      "job": "133143616248",
+      "job_metadata_sha256": "d5bdd3b742f316648893c9a5cb2298171412b0d9a85826411a0cd41b88a83eb4",
+      "members": [
+        {
+          "bytes": 119,
+          "container": "ZIP",
+          "member": "cachy-asahi-llvm23-source-reference-23.1.1-1-aarch64.pkg.tar.zst.sig",
+          "name": "cachy-asahi-llvm23-source-reference-23.1.1-1-aarch64.pkg.tar.zst.sig",
+          "outer_member": null,
+          "role": "llvm_signature",
+          "sha256": "ffe7946ad416f553c59c1ccc4eb9319b03164db2ea1fcb6c3439be94c1b98143"
+        },
+        {
+          "bytes": 437,
+          "container": "ZIP",
+          "member": "llvm260-TEST-public.asc",
+          "name": "public-test-key.asc",
+          "outer_member": null,
+          "role": "public_test_key",
+          "sha256": "759cb442a97309c58f7fed3a973c10e537281c4aca960470ed9513593debcf14"
+        },
+        {
+          "bytes": 949,
+          "container": "ZIP",
+          "member": "llvm260-TEST-verification.json",
+          "name": "public-test-verification.json",
+          "outer_member": null,
+          "role": "verification_proof",
+          "sha256": "2383ff5aaa753b6941195aef081d542d7a0455c367c16772bed3665fffd88bfb"
+        },
+        {
+          "bytes": 2337,
+          "container": "ZIP",
+          "member": "llvm260-reader7-binding.json",
+          "name": "llvm-v2-reader-binding.json",
+          "outer_member": null,
+          "role": "reader_binding",
+          "sha256": "7aa3860709dce214a866ac396f8429f17e2c1856bc61be25fd84bfec9bf78322"
+        },
+        {
+          "bytes": 3871,
+          "container": "ZIP",
+          "member": "llvm260-reader7-result.json",
+          "name": "llvm-v2-reader.json",
+          "outer_member": null,
+          "role": "reader_result",
+          "sha256": "ed368782d2f93a09d85380d62da4c5e63727547a2949cf8ae9e319508ac080a7"
+        },
+        {
+          "bytes": 7766,
+          "container": "ZIP",
+          "member": "llvm260-Root-decision.json",
+          "name": "llvm-root-decision.json",
+          "outer_member": null,
+          "role": "root_decision",
+          "sha256": "42c180bc40309a3ccbae2b4784c2ec9ce14e2652e98b033b73d6888cd05ca238"
+        },
+        {
+          "bytes": 320,
+          "container": "ZIP",
+          "member": "llvm260-source-audit.json",
+          "name": "source-audit.json",
+          "outer_member": null,
+          "role": "source_audit",
+          "sha256": "92e1f8155d17fa7ea43b995f84291a561251a0bda03755c4663e9945c39e3048"
+        }
+      ],
+      "metadata_sha256": "2a930dbfb30f3e17e77632c69d6af4657472c2083f6cbf1ae7f95b7ada52eaaa",
+      "redirect_hosts": null,
+      "repository": "Gabriel-Kahen/cachy-asahi",
+      "run": "43820939572",
+      "sha256": "2850fdb45deb820d2f44ff18d4a2c9ac82323fba5edeeddac6e7e629c6cf944b",
+      "source": "50ee5db18fba88bba19e7b2ac475dcdbd9fe4368"
+    },
+    "schema": 1,
+    "sources": "PINNED_HTTPS",
+    "stage0_carrier": {
+      "accepted_by_root": null,
+      "bytes": 108298650,
+      "id": "14209064603",
+      "job": "133185953890",
+      "job_metadata_sha256": "6a70e2025853828e6bbf8f1317fb55997aa892846599450c77169d9bcd8f0527",
+      "members": [
+        {
+          "bytes": 11116188,
+          "container": "ZIP",
+          "member": "cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "name": "cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "outer_member": null,
+          "role": "stage0:cargo-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "sha256": "5784379d73ac881d15a9e67eed2882cd58c747c276221c23cdf9aff37e015ff6"
+        },
+        {
+          "bytes": 30768752,
+          "container": "ZIP",
+          "member": "rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "name": "rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "outer_member": null,
+          "role": "stage0:rust-std-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "sha256": "a36f7ac98af20ef0ba6368aace0345efabbebaef7962eba99f47190fd256162d"
+        },
+        {
+          "bytes": 66413136,
+          "container": "ZIP",
+          "member": "rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "name": "rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "outer_member": null,
+          "role": "stage0:rustc-1.98.0-aarch64-unknown-linux-gnu.tar.xz",
+          "sha256": "00590657f2356d7163ca5ef295283523974c340fa21bb94b420ce794f29b358c"
+        }
+      ],
+      "metadata_sha256": "ba60e5bfabde9f58731df1bf085ed73acb62e8adb0eab34cd2dfeb1257359cde",
+      "redirect_hosts": null,
+      "repository": "Gabriel-Kahen/cachy-asahi",
+      "run": "43833994114",
+      "sha256": "2dc44f89c06281b3feda090ab1626341b5dadea10260c5c043cd844090214b5f",
+      "source": "1c2c21e563f1cb8d310d2007d4d40f02e9a3f0e6"
+    },
+    "status": "UNADMITTED"
+  },
+  "holds_preserved": true,
+  "llvm": {
+    "archive": {
+      "arch": "aarch64",
+      "bytes": 192385078,
+      "local_path": null,
+      "package": "cachy-asahi-llvm23-source-reference",
+      "path": "/inputs/cachy-asahi-llvm23-source-reference-23.1.1-1-aarch64.pkg.tar.zst",
+      "sha256": "689621ffa5261bdc7d382448529f6fa5d6e30f473d7470101cd0ab7d94140042",
+      "version": "23.1.1-1"
+    },
+    "artifact": {
+      "bytes": 194327220,
+      "id": "14186236728",
+      "metadata_sha256": "8ceb0eb943bf4cce78ba2ae323f249ef531f91ebca4bdcd1171e108bf922df8f",
+      "sha256": "39378b519abce9168e1faf41313420fa24b9f15cb396e22ed774d3a62a2775b7"
+    },
+    "original": {
+      "artifact_id": "14186236728",
+      "job": "132954847327",
+      "run": "43760769287",
+      "source": "031bf1634429446cd0068f4842d56af276cf40f4"
+    },
+    "policy": {
+      "bytes": 1114,
+      "resources": {
+        "active_minimum_disk_bytes": 1073741824,
+        "active_minimum_host_memory_bytes": 4294967296,
+        "actor_cpus": 2,
+        "actor_memory_bytes": 8589934592,
+        "actor_pids": 512,
+        "actor_seconds": 14400,
+        "actor_swap_bytes": 0,
+        "bootstrap_seconds": 4500,
+        "class": "HEAVY_NON_KERNEL",
+        "cleanup_seconds": 300,
+        "export_bytes": 4294967296,
+        "job_timeout_minutes": 360,
+        "log_bytes": 67108864,
+        "minimum_available_disk_bytes_per_device": 68719476736,
+        "minimum_available_inodes_per_device": 600000,
+        "minimum_host_available_memory_bytes": 12884901888,
+        "native_seconds": 19920,
+        "package_bytes": 2147483648,
+        "schema": 1,
+        "source_archive_body_bytes": 201326592,
+        "source_archive_requests_including_redirects": 4,
+        "source_intake_seconds": 600,
+        "status": "PROPOSAL_ONLY_ROOT_EXTERNAL_ADMISSION_REQUIRED",
+        "work_volume_initialization": {
+          "cap_add": [
+            "CHOWN"
+          ],
+          "cpus": 1,
+          "memory_bytes": 536870912,
+          "mounts": "ONLY_EXACT_OWNED_WORK_VOLUME_NOCOPY",
+          "network": "none",
+          "pids": 64,
+          "recursive": false,
+          "seconds": 120,
+          "swap_bytes": 0,
+          "user": "0:0"
+        }
+      },
+      "sha256": "e69b47708f171a63b7fcdcc413d6b53070f047e7240723f06115c02049c8b544"
+    },
+    "public_test_key": {
+      "bytes": 437,
+      "fingerprint": "BD0B3FBEB3035DB9DF46188E7EEEC20D9BDF4358",
+      "local_path": null,
+      "path": "/inputs/public-test-key.asc",
+      "sha256": "759cb442a97309c58f7fed3a973c10e537281c4aca960470ed9513593debcf14",
+      "trust_scope": "TEST_ONLY"
+    },
+    "publication": {
+      "M2": "NOT RUN",
+      "actual_observed_utc": "2026-11-15T20:28:33.746649+00:00",
+      "bytes": 40989000,
+      "files": 260,
+      "issuer": "Root",
+      "native": "NOT RUN",
+      "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r3",
+      "source": "031bf1634429446cd0068f4842d56af276cf40f4",
+      "source_map_sha256": "75426d36fae416d1bc3606b8d1a7165408964996bb6467e3223842612221e187",
+      "status": "PASS_COMPLETE_PUBLIC_GIT_READBACK_DATA_ONLY",
+      "tree": "a973e46f51174d1cc3523b66af7a7794b3e66c46"
+    },
+    "reader": {
+      "binding": {
+        "bytes": 2337,
+        "local_path": null,
+        "path": "/inputs/llvm-v2-reader-binding.json",
+        "sha256": "7aa3860709dce214a866ac396f8429f17e2c1856bc61be25fd84bfec9bf78322"
+      },
+      "program": {
+        "bytes": 13709,
+        "files": {
+          "architecture-profile.json": {
+            "bytes": 1109,
+            "sha256": "7ef21b06256f0a1f3098e01c58ebb2cbb67bf261a39582d0626a99693141a585"
+          },
+          "base.py": {
+            "bytes": 2723,
+            "sha256": "f362c51ddbf705b0a047a26a04ee2cc368061504116b6c050e6d8eac8d53f6e5"
+          },
+          "binding.TEMPLATE.json": {
+            "bytes": 975,
+            "sha256": "5add0fd3df90115655ce339db71c5d31724e5e174a4ed15bcf51035b59b3c9e5"
+          },
+          "buildinfo.py": {
+            "bytes": 6455,
+            "sha256": "1e86fbac17b2cf5dad23f59c12a6b39be60d8cbecc9288a071077a338c6ca37b"
+          },
+          "derivation.json": {
+            "bytes": 1419,
+            "sha256": "a3d3cbd053e9c4c2b8302db34ac85c7d5dbe9a8015492277388b071998993ba5"
+          },
+          "inverse-frame.json": {
+            "bytes": 4481,
+            "sha256": "fd6f8d80dc0b70fc1ab97e9afdf37db8828fc06f7a18cdb99e759b8d3a78c487"
+          },
+          "pins.json": {
+            "bytes": 9393,
+            "sha256": "7a01820333a4b855eec0b4a1a673657afc0261039df036a5e34ea51283278328"
+          },
+          "reader.py": {
+            "bytes": 13709,
+            "sha256": "936053e2e62a7c0a8c37772f083a22b59657db91746dcbc283f5aa73c74d9fcd"
+          },
+          "storage.py": {
+            "bytes": 4918,
+            "sha256": "8bd69167e5b3f6b1e200b53485c4630bdb48b717d5a24f2331418d4871652d77"
+          }
+        },
+        "path": "scripts/port/llvm23-native-independent-reader/v7/reader.py",
+        "sha256": "936053e2e62a7c0a8c37772f083a22b59657db91746dcbc283f5aa73c74d9fcd"
+      },
+      "result": {
+        "bytes": 3871,
+        "local_path": null,
+        "path": "/inputs/llvm-v2-reader.json",
+        "sha256": "ed368782d2f93a09d85380d62da4c5e63727547a2949cf8ae9e319508ac080a7"
+      }
+    },
+    "root_decision": {
+      "bytes": 7766,
+      "local_path": null,
+      "path": "/inputs/llvm-root-decision.json",
+      "sha256": "42c180bc40309a3ccbae2b4784c2ec9ce14e2652e98b033b73d6888cd05ca238"
+    },
+    "signature": {
+      "bytes": 119,
+      "local_path": null,
+      "path": "/inputs/cachy-asahi-llvm23-source-reference-23.1.1-1-aarch64.pkg.tar.zst.sig",
+      "sha256": "ffe7946ad416f553c59c1ccc4eb9319b03164db2ea1fcb6c3439be94c1b98143"
+    },
+    "source": {
+      "job": "132954847327",
+      "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r3",
+      "run": "43760769287",
+      "sha": "031bf1634429446cd0068f4842d56af276cf40f4"
+    },
+    "source_identity": {
+      "bytes": 40989000,
+      "files": 260,
+      "map_sha256": "75426d36fae416d1bc3606b8d1a7165408964996bb6467e3223842612221e187",
+      "operation": "llvm23-source-reference-native-v2",
+      "profile_sha256": "e558255048be9808a08f024cad0cd8b609f8239eafb1b497b08d8149f862c383",
+      "ref": "refs/heads/codex/llvm23-source-reference-native-v2-20261115-r3",
+      "sha": "031bf1634429446cd0068f4842d56af276cf40f4",
+      "tree": "a973e46f51174d1cc3523b66af7a7794b3e66c46"
+    },
+    "verification_proof": {
+      "bytes": 949,
+      "local_path": null,
+      "path": "/inputs/public-test-verification.json",
+      "sha256": "2383ff5aaa753b6941195aef081d542d7a0455c367c16772bed3665fffd88bfb"
+    }
+  },
+  "once": true,
+  "resources": null,
+  "retry": false,
+  "reviews": {
+    "bootstrap_image": null,
+    "build_resources": null,
+    "llvm_material": null,
+    "privacy": null,
+    "retirement": null,
+    "scheduler": null,
+    "source": null,
+    "stage0": null,
+    "trust": null,
+    "upstream_source": null
+  },
+  "schema": 5,
+  "source": {
+    "approval": null,
+    "job": null,
+    "map_sha256": null,
+    "ref": null,
+    "run": null,
+    "sha": null
+  },
+  "source_audit": {
+    "compiler_rt_libunwind_members_and_notices_reviewed": true,
+    "consumed_git_dependencies_and_paths_reviewed": true,
+    "library_cargo_config_sha256": "77e9219c27274120197571fd165cbe4121963b5ad3bc0b20b383c86ef0ce6c2b",
+    "retained_source_authentication_rejoined": true,
+    "status": "REVIEWED_FOR_THIS_PRIVATE_BUILD"
+  },
+  "status": "UNADMITTED"
+}
