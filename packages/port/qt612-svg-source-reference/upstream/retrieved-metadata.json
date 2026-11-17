@@ -1,0 +1,50 @@
+[
+  {
+    "path": "archive-mirrorlist.html",
+    "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtsvg-everywhere-src-6.12.0.tar.xz.mirrorlist",
+    "final_url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtsvg-everywhere-src-6.12.0.tar.xz.mirrorlist",
+    "status": 200,
+    "bytes": 7470,
+    "sha256": "82b40ad157c2fb40e1a57561acdabfb8f050d35f00fa712bf0cd6bf84a589a1b"
+  },
+  {
+    "path": "qt-6.12-security-index.html",
+    "url": "https://download.qt.io/official_releases/qt/6.12/",
+    "final_url": "https://download.qt.io/official_releases/qt/6.12/",
+    "status": 200,
+    "bytes": 5893,
+    "sha256": "a1f1d6aad3c72fd016ceb5cd3ff4f56ba5569bbbf24aed714a7e85a35f5849ae"
+  },
+  {
+    "path": "security-CVE-2026-8168.html",
+    "url": "https://www.qt.io/blog/security-advisory-cve-2026-8168",
+    "final_url": "https://www.qt.io/blog/security-advisory-cve-2026-8168",
+    "status": 200,
+    "bytes": 186869,
+    "sha256": "de37846eeb54a4c7e8518f71f0a1d766278bf73bfb2152dca18b94998964215e"
+  },
+  {
+    "path": "security-CVE-2026-6210.html",
+    "url": "https://www.qt.io/blog/security-advisory-type-confusion-and-heap-buffer-overflow-vulnerability-in-qt-svg-marker-handling",
+    "final_url": "https://www.qt.io/blog/security-advisory-type-confusion-and-heap-buffer-overflow-vulnerability-in-qt-svg-marker-handling",
+    "status": 200,
+    "bytes": 184256,
+    "sha256": "8329c1b6a8a25c3b94006ce9bbd1bf62756d23f14614bf0cf23de3b471484f6d"
+  },
+  {
+    "path": "git-v6.12.0-tag.html",
+    "url": "https://code.qt.io/cgit/qt/qtsvg.git/tag/?h=v6.12.0",
+    "final_url": "https://code.qt.io/cgit/qt/qtsvg.git/tag/?h=v6.12.0",
+    "status": 200,
+    "bytes": 5253,
+    "sha256": "90cbca77f4f0ae31d21cd68e7bdef42cfb71ad1d71fbb053cba1e4d91989aedc"
+  },
+  {
+    "path": "git-v6.12.0-cmake.conf",
+    "url": "https://code.qt.io/cgit/qt/qtsvg.git/plain/.cmake.conf?h=v6.12.0",
+    "final_url": "https://code.qt.io/cgit/qt/qtsvg.git/plain/.cmake.conf?h=v6.12.0",
+    "status": 200,
+    "bytes": 310,
+    "sha256": "babb32bd88e059e6436ad88f78f2c52a2136c99d183b544d57ec9cd516fa0ce6"
+  }
+]
