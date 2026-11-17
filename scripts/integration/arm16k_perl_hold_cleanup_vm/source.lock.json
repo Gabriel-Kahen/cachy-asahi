@@ -1,0 +1,48 @@
+{
+  "actual": {
+    "Root": null,
+    "Source_construction": null,
+    "VM": null,
+    "authority": null,
+    "lease": null,
+    "runtime": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 3289,
+      "mode": 420,
+      "sha256": "1e6cdc9907c6e9a6f622e4a02309b7427afc0340c10e75b141c070dfc92ab728"
+    },
+    "controller.patch": {
+      "bytes": 2691,
+      "mode": 420,
+      "sha256": "96602916166202acd26d5d251740942539c74226f628bdda34bf38be71324489"
+    },
+    "diagnosis.DATA.json": {
+      "bytes": 4160,
+      "mode": 420,
+      "sha256": "20776862780b0278c7d26475b72ac5f030bf839772e3d07ccc6ca0ae37f0d0ea"
+    },
+    "hold_cleanup.py": {
+      "bytes": 5795,
+      "mode": 420,
+      "sha256": "66a5a71d251c962746935e2af4470c745caeccd33cf6eb6ae3444e9696f3417e"
+    },
+    "proposal.py": {
+      "bytes": 1897,
+      "mode": 420,
+      "sha256": "979b1a8feaac98fac5cf8bc2226597ed75cd818151586dabd09bdb49341d6486"
+    },
+    "test_cleanup.py": {
+      "bytes": 10988,
+      "mode": 420,
+      "sha256": "2674bf89c4a2174375f1d8e57e99e980301d36e112b17880d78c91784cc2193a"
+    },
+    "validation.DATA.json": {
+      "bytes": 801,
+      "mode": 420,
+      "sha256": "4418349a9ad9e8841ed0a7ff1f3366054adfcbbc93677a6370f758336626bad6"
+    }
+  },
+  "kind": "UNISSUED_PERL_HOLD_CLEANUP_REPLACEMENT_PROPOSAL_V1"
+}

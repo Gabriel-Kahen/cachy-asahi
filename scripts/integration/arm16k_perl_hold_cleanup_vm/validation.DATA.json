@@ -1,0 +1,25 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Perl_preservation": null,
+    "Root": null,
+    "VM": null,
+    "native": null,
+    "release": null
+  },
+  "modeled": [
+    "complete exact normal HOLD path preserves failure and natural receipt joins",
+    "wrong nonce/image/authority, missing/forced QEMU, missing retirement and error ACK retain fallback"
+  ],
+  "real_socketpair": [
+    "two-second SocketIO timeout poisoning reproduced",
+    "healthy buffering0 has no readahead",
+    "2.1second ACK succeeds within unchanged5second total",
+    "fragmented/coalesced messages and short sends",
+    "deadline/EOF/duplicate/error/nonobject/nonfinite/cap/guard/descriptor refusal"
+  ],
+  "status": "PASS_PROPOSED_CODE_HOST_SOCKET_AND_MODEL_ONLY",
+  "tests": 12,
+  "unchanged_peer_controls": 2
+}

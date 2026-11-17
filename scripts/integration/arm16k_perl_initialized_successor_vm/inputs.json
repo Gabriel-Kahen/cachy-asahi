@@ -1,0 +1,108 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "fixture_source_cap_bytes": 4194304,
+  "kind": "PERL_INITIALIZED_SUCCESSOR_V1_IMMUTABLE_INPUTS",
+  "predecessor": {
+    "closed_leaf_bytes": 1546678,
+    "files": 145,
+    "source_lock": {
+      "bytes": 24055,
+      "sha256": "9dd3695b4892a740c3f1e9b878e41fe009e9fa66494be2db012275b71dd2f946"
+    }
+  },
+  "proposals": {
+    "cleanup": {
+      "commit": "c3289ac12770251f24aa6a6ccdb8ef3cd606953c",
+      "files": {
+        "README.md": {
+          "bytes": 3289,
+          "mode": 420,
+          "sha256": "1e6cdc9907c6e9a6f622e4a02309b7427afc0340c10e75b141c070dfc92ab728"
+        },
+        "controller.patch": {
+          "bytes": 2691,
+          "mode": 420,
+          "sha256": "96602916166202acd26d5d251740942539c74226f628bdda34bf38be71324489"
+        },
+        "diagnosis.DATA.json": {
+          "bytes": 4160,
+          "mode": 420,
+          "sha256": "20776862780b0278c7d26475b72ac5f030bf839772e3d07ccc6ca0ae37f0d0ea"
+        },
+        "hold_cleanup.py": {
+          "bytes": 5795,
+          "mode": 420,
+          "sha256": "66a5a71d251c962746935e2af4470c745caeccd33cf6eb6ae3444e9696f3417e"
+        },
+        "proposal.py": {
+          "bytes": 1897,
+          "mode": 420,
+          "sha256": "979b1a8feaac98fac5cf8bc2226597ed75cd818151586dabd09bdb49341d6486"
+        },
+        "source.lock.json": {
+          "bytes": 1317,
+          "mode": 420,
+          "sha256": "fc1062649a82bcab5c0324958fc8b1068eb43b1778bec734334c787ef09ba836"
+        },
+        "test_cleanup.py": {
+          "bytes": 10988,
+          "mode": 420,
+          "sha256": "2674bf89c4a2174375f1d8e57e99e980301d36e112b17880d78c91784cc2193a"
+        },
+        "validation.DATA.json": {
+          "bytes": 801,
+          "mode": 420,
+          "sha256": "4418349a9ad9e8841ed0a7ff1f3366054adfcbbc93677a6370f758336626bad6"
+        }
+      },
+      "map": {
+        "bytes": 1164,
+        "sha256": "f63ab3f2e1aaa0c5f5191df122a1e65a3607dafa2ad850324bb004c92eb11be8"
+      }
+    },
+    "metadata": {
+      "commit": "3f9b140e545d5a6fd5ac168d9d449167522e3102",
+      "files": {
+        "README.md": {
+          "bytes": 3488,
+          "mode": 420,
+          "sha256": "bb8e508de6782d1d8ac4f8272c978957ff4d1ab27bf2a03e71dc56d3e38f4104"
+        },
+        "guest/installed-metadata.sh": {
+          "bytes": 12805,
+          "mode": 420,
+          "sha256": "5db4bfbb965a8eeac391ff648c769fcafb16fb9366f7e8ce31d3c4975dc2d956"
+        },
+        "instrument.py": {
+          "bytes": 2870,
+          "mode": 420,
+          "sha256": "3b9f9db3c158e3c916b587b278a274fd635ce5bf0a536727fdca6edd21b34596"
+        },
+        "mapping.DATA.json": {
+          "bytes": 12546,
+          "mode": 420,
+          "sha256": "ec75939f46ae5705736b53a22f1a526f15857dcf5ac9c0af419ca129e6691221"
+        },
+        "test_instrument.py": {
+          "bytes": 10079,
+          "mode": 420,
+          "sha256": "4089809de95ad325487a7f07cdf7c6c4c9af9a0307f18966eb3d9474219bdc48"
+        }
+      },
+      "map": {
+        "bytes": 740,
+        "sha256": "e2e587e86849627b25e552c094b82ce0acc5c6e0b3147a6ef47ff04f8be09828"
+      }
+    }
+  },
+  "schema": 1
+}
