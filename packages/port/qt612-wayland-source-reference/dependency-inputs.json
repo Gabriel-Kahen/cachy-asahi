@@ -1,0 +1,217 @@
+{
+  "actual_native_prefix": null,
+  "files": {
+    "share/qt6/wayland/extensions/drm-egl-server-buffer.xml": {
+      "bytes": 774,
+      "sha256": "80c581c65de140bae525aa44dc98f701b812e75e92287aa345bd16fc7b4520a8"
+    },
+    "share/qt6/wayland/extensions/hardware-integration.xml": {
+      "bytes": 692,
+      "sha256": "6160d445b16d3e30237f240c6ab38ca110af08608fdaf95d55cbd2f1fad357d9"
+    },
+    "share/qt6/wayland/extensions/libhybris-egl-server-buffer.xml": {
+      "bytes": 1070,
+      "sha256": "e8d76a35feafe6dba0fbd346cef611c2fc6d1f912f351a727c0740dc7b960b86"
+    },
+    "share/qt6/wayland/extensions/qt-dmabuf-server-buffer.xml": {
+      "bytes": 1060,
+      "sha256": "90f198535161d059b88184dbf4145cfd51f80d3ce529514442453d2517ecf712"
+    },
+    "share/qt6/wayland/extensions/qt-text-input-method-unstable-v1.xml": {
+      "bytes": 11509,
+      "sha256": "d8fec614b1f11a1769c8f3d99f9c8e7bbd123a6bc6a120d10cfcf6cb9be77b26"
+    },
+    "share/qt6/wayland/extensions/qt-texture-sharing-unstable-v1.xml": {
+      "bytes": 808,
+      "sha256": "5cb043deca9c79eb7736c769ff9c50ed17be06244915d9cbc19161daa56dec5f"
+    },
+    "share/qt6/wayland/extensions/qt-vulkan-server-buffer-unstable-v1.xml": {
+      "bytes": 1499,
+      "sha256": "ff52356ddc57c63bfde3f35b11ec982446f8d0e681dbf03a60dbc5e2ed23d8ac"
+    },
+    "share/qt6/wayland/extensions/qt-windowmanager.xml": {
+      "bytes": 906,
+      "sha256": "9be2dc028de17f03b8d878bc50cc90c596450f30a737564b70642a2c56abed35"
+    },
+    "share/qt6/wayland/extensions/server-buffer-extension.xml": {
+      "bytes": 758,
+      "sha256": "d2a0e2760406aaf8bc062df18726474b32d60c51b2bf456c3c06c9ce0e84e3dc"
+    },
+    "share/qt6/wayland/extensions/shm-emulation-server-buffer.xml": {
+      "bytes": 1167,
+      "sha256": "3275deb7a561e897046d9d96c8d4bb54b5fdab8ce1782f4c9d6040cae899cd95"
+    },
+    "share/qt6/wayland/protocols/MIT_LICENSE.txt": {
+      "bytes": 1055,
+      "sha256": "a8341b9c90ef447a77f55d550e6691e370d3ac15d60edb584def356e348ab828"
+    },
+    "share/qt6/wayland/protocols/idle-inhibit/idle-inhibit-unstable-v1.xml": {
+      "bytes": 4017,
+      "sha256": "c2ac9f002c6669ca6c02eb9b587b8e9108e3ce6deab4a2de58b576f4f864ca38"
+    },
+    "share/qt6/wayland/protocols/linux-dmabuf/REUSE.toml": {
+      "bytes": 351,
+      "sha256": "128791d7c9442fa7fde6efa2118469d01115a54b21af8e306b2f0bf5d1ae4e0c"
+    },
+    "share/qt6/wayland/protocols/linux-dmabuf/linux-dmabuf-unstable-v1.xml": {
+      "bytes": 17878,
+      "sha256": "be1cc5194d050d346fdbbaf9966fdce5779a28beaafca8f7b93861eec20d1aa7"
+    },
+    "share/qt6/wayland/protocols/linux-dmabuf/linux-dmabuf-v1.xml": {
+      "bytes": 28562,
+      "sha256": "ef39de11196083a41e865737f71e89a9ce3d61b94d2dbbed9b156cd89d6bb97f"
+    },
+    "share/qt6/wayland/protocols/linux-dmabuf/qt_attribution.json": {
+      "bytes": 1536,
+      "sha256": "6dd0dbdb4e0fba8ac2a17700e462f1f2df53e4fe14a5ac6168ca4bc2c594cea5"
+    },
+    "share/qt6/wayland/protocols/presentation-time/REUSE.toml": {
+      "bytes": 179,
+      "sha256": "bc6af8bc72eaacd62679ef44460934fe5fe2ca90a717d46852bf7b836a4b5822"
+    },
+    "share/qt6/wayland/protocols/presentation-time/presentation-time.xml": {
+      "bytes": 12481,
+      "sha256": "57c15a794125d5c3b3d83f5069a10d96d23988cb464ae9f3635b7116a10ab481"
+    },
+    "share/qt6/wayland/protocols/presentation-time/qt_attribution.json": {
+      "bytes": 742,
+      "sha256": "c3af7f51726c7584d5e8ad74a29813d66cac6a215a9675da7cfc9a42f15c2d0a"
+    },
+    "share/qt6/wayland/protocols/scaler/REUSE.toml": {
+      "bytes": 167,
+      "sha256": "7151ec3aee23bb31d8a3b3e6f5ca3a94f6e45b9050b5bbad5d414b992f68b46c"
+    },
+    "share/qt6/wayland/protocols/scaler/qt_attribution.json": {
+      "bytes": 718,
+      "sha256": "8b7751412fc26d70f641d6bad9c6aadd406317cbf17359ffcc58651f58aa2fca"
+    },
+    "share/qt6/wayland/protocols/scaler/scaler.xml": {
+      "bytes": 9205,
+      "sha256": "345a63aba11ca36f59a39b8c9d0bbdcc055a23c89bf4b0cc99b237b5e47449f6"
+    },
+    "share/qt6/wayland/protocols/text-input/v2/HPND_LICENSE.txt": {
+      "bytes": 1095,
+      "sha256": "8172d52f3b7bba7d10af2f9134c63d0f699ba6b20a47e35f5ac45654c500bfd7"
+    },
+    "share/qt6/wayland/protocols/text-input/v2/REUSE.toml": {
+      "bytes": 263,
+      "sha256": "beed83e9d3b3956b898647c2ee6cee52872ebfc2b32dd6f38778823f3ad1627a"
+    },
+    "share/qt6/wayland/protocols/text-input/v2/qt_attribution.json": {
+      "bytes": 693,
+      "sha256": "197d9edcc6fb17d7bc2b230f7061ce0d2ef90fa4291c86e87ae2817e8f2809fe"
+    },
+    "share/qt6/wayland/protocols/text-input/v2/text-input-unstable-v2.xml": {
+      "bytes": 20209,
+      "sha256": "043f0a48903248552a4f140e365a4854612ea2770f10b32c93cf9795300309cc"
+    },
+    "share/qt6/wayland/protocols/text-input/v3/REUSE.toml": {
+      "bytes": 381,
+      "sha256": "42e32e46ccd312f5ce18df6dd237a5f0fc676480fdd19301ff319d91d3344476"
+    },
+    "share/qt6/wayland/protocols/text-input/v3/qt_attribution.json": {
+      "bytes": 927,
+      "sha256": "476225d10cb5789d993c38335c6cc442fdc19a8d91f1ceb7a3ddb50414a8e68a"
+    },
+    "share/qt6/wayland/protocols/text-input/v3/text-input-unstable-v3.xml": {
+      "bytes": 28120,
+      "sha256": "160815cda13c285a30df1971d8f0a5b3aac07071537df59916d2f748b18e4f59"
+    },
+    "share/qt6/wayland/protocols/viewporter/REUSE.toml": {
+      "bytes": 171,
+      "sha256": "867d032e1a82f0672e3b5ca6af9e5385822febbecac23610c36d51580da58053"
+    },
+    "share/qt6/wayland/protocols/viewporter/qt_attribution.json": {
+      "bytes": 758,
+      "sha256": "95139e441967bc289d174078f1ca0485363e8405bd8d06eb9946356c09c0a5e4"
+    },
+    "share/qt6/wayland/protocols/viewporter/viewporter.xml": {
+      "bytes": 8541,
+      "sha256": "d5da5c61107c53062c7a73093bd72676a0d643fa04eb1867411126600a75fc54"
+    },
+    "share/qt6/wayland/protocols/wayland/README": {
+      "bytes": 61,
+      "sha256": "e7cbe93a6aff03294673b1bd1c7e64e59911f718ca5a39fb9fa7018a8e11b2de"
+    },
+    "share/qt6/wayland/protocols/wayland/REUSE.toml": {
+      "bytes": 314,
+      "sha256": "d6412b6c9728ef516e93cfd55dbe6dfb21304bd1e26afcc7552a6c0193848485"
+    },
+    "share/qt6/wayland/protocols/wayland/qt_attribution.json": {
+      "bytes": 794,
+      "sha256": "d2b263d97853d72128987f55fb912fc197f488de003a8e4bbc53cae2549d0e6e"
+    },
+    "share/qt6/wayland/protocols/wayland/wayland.xml": {
+      "bytes": 153752,
+      "sha256": "6f8530cfd7c61b39fe15f608b1add851b5c4d2d16be55f88e20b5b42434a5945"
+    },
+    "share/qt6/wayland/protocols/wl-eglstream/REUSE.toml": {
+      "bytes": 209,
+      "sha256": "e23db0a26dea29326d2ce1005c7e9e1856484e5e29d5981d28d6275a0f6df246"
+    },
+    "share/qt6/wayland/protocols/wl-eglstream/qt_attribution.json": {
+      "bytes": 786,
+      "sha256": "2432510e17446887decd1fc58770aeeef060aff5331a8bfec7fb668555f3b347"
+    },
+    "share/qt6/wayland/protocols/wl-eglstream/wl-eglstream-controller.xml": {
+      "bytes": 1925,
+      "sha256": "4f077d75a626416ffc7566392ef155a9c1c2aad52da803d11c64da2fac6ffb87"
+    },
+    "share/qt6/wayland/protocols/xdg-decoration/REUSE.toml": {
+      "bytes": 176,
+      "sha256": "0b90658831d4df0031679c642fac81ac0054199d16b821ed6ee23c451c7691cd"
+    },
+    "share/qt6/wayland/protocols/xdg-decoration/qt_attribution.json": {
+      "bytes": 843,
+      "sha256": "b8d9102ff3c7eccd840f7d5332d072e41e95eb055a8a9f2e3719a83005879c86"
+    },
+    "share/qt6/wayland/protocols/xdg-decoration/xdg-decoration-unstable-v1.xml": {
+      "bytes": 8239,
+      "sha256": "965673e4963c1b854d415be6841e467e7c68ad486f100c621735aa625992587a"
+    },
+    "share/qt6/wayland/protocols/xdg-dialog/REUSE.toml": {
+      "bytes": 169,
+      "sha256": "ffda8ff86909a172a4c362915d5ea570c4d397226d27314ef61007568b867316"
+    },
+    "share/qt6/wayland/protocols/xdg-dialog/qt_attribution.json": {
+      "bytes": 566,
+      "sha256": "c7918fb63ad5be29e9a95db3464a7832224c7d904d21617ccfc689e6b0ab04c0"
+    },
+    "share/qt6/wayland/protocols/xdg-dialog/xdg-dialog-v1.xml": {
+      "bytes": 4828,
+      "sha256": "cdfa1601fb7d9bd78dbb33d007fcf4506c05a57179883fed9f144022b1b70963"
+    },
+    "share/qt6/wayland/protocols/xdg-output/REUSE.toml": {
+      "bytes": 175,
+      "sha256": "04b7b4c1a742651642248753c6987b536455f7223302d3f77ea27347c1504849"
+    },
+    "share/qt6/wayland/protocols/xdg-output/qt_attribution.json": {
+      "bytes": 813,
+      "sha256": "c5e4f132de8d08a75af02682bba3a9349a00f49b773e23ef5543648209b76658"
+    },
+    "share/qt6/wayland/protocols/xdg-output/xdg-output-unstable-v1.xml": {
+      "bytes": 9693,
+      "sha256": "363d547c3eefe8959160cac903ff90b311d4b183005557d73640d9df2cfd7f79"
+    },
+    "share/qt6/wayland/protocols/xdg-shell/REUSE.toml": {
+      "bytes": 950,
+      "sha256": "958c9d57aedecf34632965e6b22815570636dd518b50194e5e455ea89741673c"
+    },
+    "share/qt6/wayland/protocols/xdg-shell/qt_attribution.json": {
+      "bytes": 990,
+      "sha256": "e1367b44fe28fce2eee7656cda75203f4102662bb6aa370b3c9f3eb5a2cc3f82"
+    },
+    "share/qt6/wayland/protocols/xdg-shell/xdg-shell-unstable-v6.xml": {
+      "bytes": 45261,
+      "sha256": "15b9922317144e81aec6872ee0ed78d563efdba13ba88592bda71696120a41d2"
+    },
+    "share/qt6/wayland/protocols/xdg-shell/xdg-shell.xml": {
+      "bytes": 60418,
+      "sha256": "b72112a7a1f9b2ad94ffa59468753ced568d6e7b2069df94a9d437e488b8506e"
+    }
+  },
+  "kind": "QT612_WAYLAND_EXTERNAL_QTBASE_PROTOCOL_INPUTS_V1",
+  "qtbase_revision": "025bdad181de241e81bf853c8a2d7bf3d19261a9",
+  "schema": 1,
+  "source_legal_acceptance": null
+}

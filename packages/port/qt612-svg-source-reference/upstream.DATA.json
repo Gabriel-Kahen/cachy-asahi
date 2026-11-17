@@ -1,0 +1,142 @@
+{
+  "Root_acceptance": null,
+  "archive": {
+    "bytes": 2341876,
+    "filename": "qtsvg-everywhere-src-6.12.0.tar.xz",
+    "primary_mirrorlist": "upstream/archive-mirrorlist.html",
+    "publisher_checksum_verified": true,
+    "sha256": "e4ab39534ec97987b1b9b60ef7f4d3253d5912a69f8c713a01753174a4029331",
+    "signature_verification": "NOT RUN",
+    "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtsvg-everywhere-src-6.12.0.tar.xz"
+  },
+  "component": "qtsvg",
+  "git": {
+    "archive_cmake_conf_equals_tagged_git": true,
+    "archive_dot_tag_matches": true,
+    "commit": "883a58532078d003cefef0a549bfe9f885ce41f5",
+    "full_archive_git_tree_equivalence": "NOT ESTABLISHED",
+    "tag": "v6.12.0",
+    "tag_object": "0a753f450c4b4671cc97ef1c566512b9ab322382",
+    "url": "https://code.qt.io/qt/qtsvg.git"
+  },
+  "hardware_acceptance": false,
+  "kind": "QT612_SVG_PRIMARY_SOURCE_AUDIT_DATA_ONLY",
+  "license_audit": {
+    "build_spdx": "BSD-3-Clause",
+    "documentation_spdx": "LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only",
+    "example_spdx": "LicenseRef-Qt-Commercial OR BSD-3-Clause",
+    "library_spdx": "LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only",
+    "license_texts": 7,
+    "notice_bytes": 95646,
+    "notice_files": 12,
+    "notice_policy": "source-notices.json",
+    "notice_policy_sha256": "1452679ddb40231057ffe49771df2a48b241a36e5e29ed8cb36e4a6cf68d726c",
+    "qt_attribution_files": 0,
+    "reuse_policies": 3,
+    "runtime_third_party": {
+      "aggregation": "Aggregate in addition to Qt per-file licensing; zero qt_attribution.json files in archive.",
+      "body": "LICENSES/HPND-sell-variant.txt",
+      "component": "qsvghandler.cpp USC Information Sciences Institute contribution",
+      "policy": "src/svg/REUSE.toml",
+      "spdx": "HPND-sell-variant"
+    },
+    "scope": "Complete separate source license/policy bodies and embedded testasset comment custody; no installed-linkage or legal acceptance claim.",
+    "source_spdx_inventory": "upstream/spdx-source-inventory.json",
+    "testasset_only": {
+      "assets_with_notice_comments": 186,
+      "component": "W3C SVG1.2 test-suite assets",
+      "embedded_notice_inventory": "upstream/embedded-testasset-notices.json",
+      "notice": "tests/baseline/data/svg_12_testsuite/LICENSE.txt",
+      "scope": "Not selected runtime payload; some fixtures also contain embedded font-specific notices. Preserve complete original source archive; do not claim its notices are runtime linkage or blanket licensing for all assets."
+    },
+    "tests_spdx": "LicenseRef-Qt-Commercial OR GPL-3.0-only"
+  },
+  "native_acceptance": false,
+  "observed_at_utc": "2026-11-17T15:51:13.216099+00:00",
+  "official_foreign_recipe_correspondence": "HOLD; independent source reference does not recover missing official packaging provenance.",
+  "performance": "NOT MEASURED",
+  "release_acceptance": false,
+  "schema": 1,
+  "security_relevance": "SECURITY-RELEVANCE.DATA.json",
+  "source_configuration": {
+    "actual_configuration": "NOT RUN",
+    "bootstrap_cmake_minimum": "3.16",
+    "inherited_generated_names": "upstream/qtbase-helper-contract.json",
+    "literal_prerelease_segment": "alpha1",
+    "module_gate": "QT_FEATURE_xmlstreamreader and targets Qt::Gui/Qt::Widgets",
+    "module_version": "6.12.0",
+    "modules": {
+      "Svg": {
+        "compression": "system WrapZLIB when QT_FEATURE_system_zlib, otherwise Qt::ZlibPrivate",
+        "private": [
+          "CorePrivate",
+          "GuiPrivate"
+        ],
+        "private_module_interface": [
+          "CorePrivate",
+          "GuiPrivate"
+        ],
+        "public": [
+          "Core",
+          "Gui"
+        ]
+      },
+      "SvgWidgets": {
+        "graphics_svg_item_gate": "QT_FEATURE_graphicsview",
+        "no_private_module": true,
+        "private": [
+          "CorePrivate",
+          "GuiPrivate",
+          "WidgetsPrivate"
+        ],
+        "public": [
+          "Core",
+          "Gui",
+          "Svg",
+          "Widgets"
+        ]
+      }
+    },
+    "plugins": {
+      "qsvg": {
+        "gate": "QT_FEATURE_imageformatplugin",
+        "libraries": [
+          "Qt::Core",
+          "Qt::Gui",
+          "Qt::SvgPrivate"
+        ],
+        "type": "imageformats"
+      },
+      "qsvgicon": {
+        "libraries": [
+          "Qt::Core",
+          "Qt::CorePrivate",
+          "Qt::Gui",
+          "Qt::GuiPrivate",
+          "Qt::Svg"
+        ],
+        "type": "iconengines"
+      }
+    },
+    "private_api_requirement": "BuildInternals and CorePrivate/GuiPrivate/WidgetsPrivate must come from exact own QtBase6.12 development provider. Matching version labels alone do not establish private ABI/build compatibility.",
+    "qtbase_required_commit": "025bdad181de241e81bf853c8a2d7bf3d19261a9",
+    "root_find_package_optional": [
+      "Gui",
+      "Widgets",
+      "Xml",
+      "Network"
+    ],
+    "root_find_package_required": [
+      "BuildInternals",
+      "Core"
+    ],
+    "supported_qtbase_buildinternals_cmake_minimum": "3.25"
+  },
+  "source_snapshots": {
+    "files": 43,
+    "index": "upstream/source-retained-files.json",
+    "verification": "All retained source files byte-equal verified official archive"
+  },
+  "status": "SOURCE_AUDITED_NOT_CONFIGURED_OR_BUILT",
+  "version": "6.12.0"
+}

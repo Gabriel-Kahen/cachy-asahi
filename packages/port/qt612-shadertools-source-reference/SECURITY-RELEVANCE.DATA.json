@@ -1,0 +1,20 @@
+{
+  "Root_security_acceptance": null,
+  "base_provider_required_patches": [
+    "CVE-2026-105924",
+    "CVE-2026-105943",
+    "CVE-2026-116337"
+  ],
+  "direct_ShaderTools_patch_hrefs": [],
+  "direct_patches_selected": [],
+  "index": {
+    "bytes": 5863,
+    "sha256": "1122632b6d766da938a10930541830db0f69e51a103963ddf1d9903a13e6e83e",
+    "url": "https://download.qt.io/archive/qt/6.12/"
+  },
+  "schema": 1,
+  "scope": "Fixed own trusted shader inputs only; no external compiler invocations selected; bounded source/metadata audit is not a general untrusted shader safety claim",
+  "status": "FINITE_COMPONENT_RELEVANCE_ONLY_NOT_SECURITY_FRESHNESS_OR_VULNERABILITY_FREE",
+  "tool_security_reference": "https://doc.qt.io/qt-6/qt-tools-security.html",
+  "vendored_advisory_completeness": null
+}

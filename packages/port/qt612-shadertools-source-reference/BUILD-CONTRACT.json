@@ -1,0 +1,55 @@
+{
+  "RHI_header": "usr/include/qt6/QtShaderTools/6.12.0/QtShaderTools/rhi/qshaderbaker.h",
+  "Root_acceptance": null,
+  "SONAME": "libQt6ShaderTools.so.6",
+  "arch": "aarch64",
+  "bundled_SPIRV_Cross": "1a6169566c73d3da552748fc372fe2bbb856e46e",
+  "bundled_glslang": "16.3.0",
+  "cmake_macro": "usr/lib/cmake/Qt6ShaderToolsTools/Qt6ShaderToolsMacros.cmake",
+  "cmake_packages": [
+    "Qt6ShaderTools",
+    "Qt6ShaderToolsPrivate",
+    "Qt6ShaderToolsTools"
+  ],
+  "hardware": null,
+  "native": null,
+  "normal_base": "cachy-asahi-qt612-gui-server-source-reference=6.12.0",
+  "package": "cachy-asahi-qt612-shadertools-source-reference",
+  "pkgconfig": "usr/lib/pkgconfig/Qt6ShaderTools.pc",
+  "private_header": "usr/include/qt6/QtShaderTools/6.12.0/QtShaderTools/private/qspirvcompiler_p.h",
+  "public_header": "usr/include/qt6/QtShaderTools/qtshadertoolsglobal.h",
+  "qsb": "usr/lib/qt6/bin/qsb",
+  "release_commit": "bccd516b990a6396900051470ac86cc27a7042ea",
+  "release_tree": "00cf97838baca2f2b1a4833f6498ca39e6e073ec",
+  "schema": 1,
+  "shared_library": "usr/lib/libQt6ShaderTools.so.6.12.0",
+  "smoke": {
+    "external_flags_disallowed": [
+      "-O",
+      "--fxc",
+      "--metallib",
+      "--metallib-no-debug"
+    ],
+    "external_tools": false,
+    "output_sources": [
+      "SPIR-V100",
+      "GLSL100es",
+      "GLSL120",
+      "GLSL150",
+      "HLSL50",
+      "MSL12"
+    ],
+    "reflection": "explicit known shader inputs/outputs/uniforms/sampler; not GPU execution",
+    "stages": [
+      "vertex",
+      "fragment"
+    ],
+    "vertex_variants": [
+      "standard",
+      "batchable"
+    ],
+    "workflow": "qsb --qt6 and normal qt6_add_shaders defaults"
+  },
+  "tag_template": "$Format:%H$",
+  "version": "6.12.0"
+}
