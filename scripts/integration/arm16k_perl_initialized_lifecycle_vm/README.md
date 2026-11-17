@@ -1,4 +1,4 @@
-# Opt-in initialized Perl lifecycle Source constructor
+# Opt-in initialized Perl lifecycle Source constructor v2
 
 This family constructs a NEW lifecycle Source sibling from the exact10598-byte
 warmed Source65 lock `da1c8749…` and immutable initialized qualification family
@@ -8,9 +8,8 @@ The Source65 default cold gates remain unchanged and refuse present public9/SSH.
 
 The public r76 projection records a complete111-package readonly observation,
 41185448 artifact bytes and natural cleanup. It is DATA, not qualified lifecycle
-input. Fullscan bodies were not read during this development. All new Root
-qualification, input-decision, lifecycle-resource, authority, nonce, output,
-runtime and execution selections remain unavailable until Root supplies them.
+input. Fullscan bodies were not read during this development. Fresh Root lifecycle-resource, input-decision, authority, nonce, output,
+runtime and execution selections must bind the exact new Source.
 Case14 remains HOLD; M2/native/release/performance acceptance is NOT RUN.
 
 Construct Source (ordinary local code/data output only):
@@ -83,3 +82,20 @@ old cold descriptor refusal, initialized snapshot/descriptor mutation refusal,
 resource-tuple Source joins, and actual shell preservation/nonempty/privacy
 controls. No model certificate grants actual acceptance. Actual qualified fixture,
 new actor-tool/Root authority and lifecycle VM remain NOT RUN.
+
+
+Version 2 fixes actual r74 closure ingestion: only the `empty_closure` role uses
+its dedicated bounded decoder. Nonnegative finite numeric observations are
+allowed at `external.seconds` and the three exact
+`owned_absence_independently_verified[0..2].retirement.seconds` paths. Boolean,
+negative, nonfinite, overflow and misplaced fractional values refuse. Every other
+role keeps the immutable strict integer-only `contracts.load`; no frozen module
+is patched. Stable whole-body pins, ordinary single-link paths, duplicate-key
+refusal, byte caps and canonical JSON remain required. The unchanged f51c
+qualification still checks proof/raw/Source/privacy and natural retirement gates.
+The exact public7556-byte r74 closure passes this decoder and `empty_inputs`;
+this is input-decoding evidence, not Root qualification or lifecycle acceptance.
+
+This version requires a new constructed Source and fresh lifecycle Source-bound
+certificates. The previous readiness r1 Source and any6014-prefixed input
+acceptance remain specific to their old bytes. They are not carried forward.

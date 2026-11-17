@@ -10,14 +10,14 @@
   },
   "files": {
     "README.md": {
-      "bytes": 5577,
+      "bytes": 6625,
       "mode": 420,
-      "sha256": "b5461b2557d41fb75a721b1b4cb7a781adf99e40c747165765704f368e56d324"
+      "sha256": "aaa483b814fff43d3a304333ab31318b999c7717770e2f2d606c322be1e01c5a"
     },
     "constructor.py": {
       "bytes": 10216,
       "mode": 420,
-      "sha256": "e576f6def9b1babdc7af894f303dd1bef8812daab4fe13d834313b42ff7781d4"
+      "sha256": "fcc35684b4e9fe6907dc326048f7e3dc39c4beb7a22137c9ffa96dcda0cef33e"
     },
     "context.py": {
       "bytes": 2862,
@@ -35,9 +35,14 @@
       "sha256": "d4395faa3783943baf5f70bfc8ead53ab64c392e7774cdfbb95b22de393b0c78"
     },
     "integration.py": {
-      "bytes": 4589,
+      "bytes": 5866,
       "mode": 420,
-      "sha256": "c688bd4ae0cb75073bc89395e20653527eb83114df9f7de903fd39673a253474"
+      "sha256": "77c34c3a2cb256fb7d6907ad6b80213f1b87826555061842ef2f9929a885ee6e"
+    },
+    "test_empty_closure.py": {
+      "bytes": 4796,
+      "mode": 420,
+      "sha256": "cc2704562a90f91068853571ac1508bd864aedbe6496e9448d51d190c3cf6077"
     },
     "test_guest.py": {
       "bytes": 4842,
@@ -50,11 +55,11 @@
       "sha256": "c91d4f161f3eecbdce06e11d0ff7f2f915ef63069b624ea512181bf59d34e3d0"
     },
     "validation.DATA.json": {
-      "bytes": 1219,
+      "bytes": 1742,
       "mode": 420,
-      "sha256": "1df690e59a13a07b5f8a6b03cbd6989ecac389e57f7c935c3f4e50bd576b09fc"
+      "sha256": "e793e488d3bdc55a2b152111f8bb154e4ddbe894a3f5430b38c1c24fe8406111"
     }
   },
-  "kind": "ARM16K_PERL_INITIALIZED_LIFECYCLE_CONSTRUCTOR_SOURCE_V1",
+  "kind": "ARM16K_PERL_INITIALIZED_LIFECYCLE_CONSTRUCTOR_SOURCE_V2",
   "schema": 1
 }

@@ -91,7 +91,7 @@ def construct(legacy,initialized,output):
   for p in root.rglob('*'):
    if p.is_file():files[prefix+'/'+p.relative_to(root).as_posix()]=(p.read_bytes(),stat.S_IMODE(p.stat().st_mode))
  changed={k:dict(before=dict(**pin(base[k][0]),mode=base[k][1])if k in base else None,after=dict(**pin(v[0]),mode=v[1]))for k,v in files.items()if not k.startswith(('_legacy/','_initialized/'))and base.get(k)!=v}
- files['initialized-construction.DATA.json']=(canonical(dict(kind='NEW_OPT_IN_INITIALIZED_LIFECYCLE_SOURCE_V1',predecessor=SOURCE65,initialized=INITIALIZED,constructor=pin((HERE/'source.lock.json').read_bytes()),changes=changed,inverse='WHOLE_BYTE_MODE_EXACT_PREDECESSOR_UNDER__legacy',actual=dict(Root_qualification=None,fixture=None,authority=None,VM=None,ALPM=None,Perl_preservation=None,M2=None,release=None))),0o644)
+ files['initialized-construction.DATA.json']=(canonical(dict(kind='NEW_OPT_IN_INITIALIZED_LIFECYCLE_SOURCE_V2',predecessor=SOURCE65,initialized=INITIALIZED,constructor=pin((HERE/'source.lock.json').read_bytes()),changes=changed,inverse='WHOLE_BYTE_MODE_EXACT_PREDECESSOR_UNDER__legacy',actual=dict(Root_qualification=None,fixture=None,authority=None,VM=None,ALPM=None,Perl_preservation=None,M2=None,release=None))),0o644)
  lock=json.loads(original['source.lock.json'][0]);lock['files']={k:dict(**pin(raw),mode=mode)for k,(raw,mode)in sorted(files.items())};files['source.lock.json']=(canonical(lock),0o644)
  os.umask(0o077);out.mkdir(mode=0o700)
  for n,(raw,mode)in sorted(files.items()):

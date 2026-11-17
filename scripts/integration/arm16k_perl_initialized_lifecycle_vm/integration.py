@@ -13,10 +13,31 @@ def refs(materials):
  for row in v.values():
   K.keys(row,('path','bytes','sha256'),'closed selected qualification descriptor');K.need(K.pin(K.ordinary(row['path']))=={k:row[k]for k in('bytes','sha256')},'external exact qualification input pin')
  return v
+def empty_closure(K,path,cap=4*1024**2):
+ """Decode only the four observational seconds in the actual r74 closure."""
+ p=K.ordinary(path);before=K.pin(p,cap)
+ def unique(rows):
+  result={}
+  for k,v in rows:K.need(k not in result,'duplicate JSON field');result[k]=v
+  return result
+ def invalid(value):raise ValueError('nonfinite JSON: '+value)
+ raw=p.read_bytes();K.need(len(raw)<=cap and dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())==before,'stable bounded JSON read')
+ value=json.loads(raw,object_pairs_hook=unique,parse_constant=invalid)
+ timings={('external','seconds')}|{('owned_absence_independently_verified',i,'retirement','seconds')for i in range(3)}
+ def check(v,path=()):
+  if path in timings:K.need(type(v)in(int,float)and 0<=v<float('inf'),'finite nonnegative observational seconds')
+  elif type(v)is float:raise ValueError('noninteger JSON outside empty-closure observational seconds')
+  if type(v)is dict:
+   for k,w in v.items():check(w,path+(k,))
+  elif type(v)is list:
+   for i,w in enumerate(v):check(w,path+(i,))
+ check(value);K.need(type(value)is dict and raw==K.canonical(value),'canonical JSON object required');return value
+def input_value(K,role,path):
+ return empty_closure(K,path)if role=='empty_closure'else K.load(path,128*1024**2 if role=='scan'else 4*1024**2)
 def qualify(case,observed,cert,bindings,source):
  K=module('contracts');Q=initialized('qualification');K.keys(bindings,ROLES,'complete new initialized evidence tuple');v={}
  for n,row in bindings.items():
-  K.keys(row,('path','bytes','sha256'),'exact initialized input descriptor');p=K.ordinary(row['path']);K.need(K.pin(p)=={k:row[k]for k in('bytes','sha256')},'exact initialized qualification input');v[n]=K.load(p,128*1024**2 if n=='scan'else 4*1024**2)
+  K.keys(row,('path','bytes','sha256'),'exact initialized input descriptor');p=K.ordinary(row['path']);K.need(K.pin(p)=={k:row[k]for k in('bytes','sha256')},'exact initialized qualification input');v[n]=input_value(K,n,p)
  prior={n:v['qualification_'+n]for n in EVIDENCE};prior_case=v['qualification_case'];prior_observed=dict(observed,**{n:K.json_pin(prior[n])for n in EVIDENCE})
  result=Q.qualify(v['document'],v['scan'],v['empty_proof'],v['empty_closure'],prior_case,prior_observed,prior,v['scan_certificate'])
  lifecycle_join(K,Q,case,cert,prior_case,prior,source)
