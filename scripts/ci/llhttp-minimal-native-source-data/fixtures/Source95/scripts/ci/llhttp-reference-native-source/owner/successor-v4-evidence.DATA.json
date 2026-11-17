@@ -1,0 +1,168 @@
+{
+  "Root_acceptance": null,
+  "Root_closure_review": "PENDING",
+  "actual87_status": "HOLD",
+  "attempt": 1,
+  "cause": "UNKNOWN: the retained public files do not identify the writable path or root-mount cause.",
+  "cleanup": {
+    "errors": [],
+    "host_package_mutations": 0,
+    "owned_storage_absent": true,
+    "services": {
+      "daemon": {
+        "empty_twice": true,
+        "pidfd_exited": true,
+        "result": "success",
+        "state": "inactive",
+        "unit": "cachy-llhttp-reference-43bc0399518a2759258dcbf3130bf130-daemon.service"
+      },
+      "owner": {
+        "empty_twice": true,
+        "original_identity_verified": true,
+        "payload_exit": 2,
+        "payload_success": false,
+        "pidfd_exited": true,
+        "result": "exit-code",
+        "retirement": "STOPPED_EMPTY_FAILED_OWNER",
+        "state": "failed",
+        "unit": "cachy-llhttp-reference-43bc0399518a2759258dcbf3130bf130-owner.service",
+        "unit_reset": false
+      }
+    }
+  },
+  "files": {
+    "actual-domains.json": {
+      "bytes": 2325,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llhttp76-native-result-r1/public-files/llhttp-reference-owned-public-nb1_x126/actual-domains.json",
+      "sha256": "13e637b285f0035fb3d6a622a799485e7f85b32680b5cb5157b7d3e02d781955"
+    },
+    "command-012.json": {
+      "bytes": 1966,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llhttp76-native-result-r1/public-files/llhttp-reference-owned-public-nb1_x126/command-012.json",
+      "sha256": "71437216ad978c9a9c157c85c34568703a10bb7c3a660525909b39d6f8be6e5b"
+    },
+    "host-policy.json": {
+      "bytes": 792,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llhttp76-native-result-r1/public-files/llhttp-reference-owned-public-nb1_x126/host-policy.json",
+      "sha256": "9466297b5552413b2f59a8d0956a98e1782d871c5aa0e3187d5fd201c4d41284"
+    },
+    "host-tools.json": {
+      "bytes": 102182,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llhttp76-native-result-r1/public-files/llhttp-reference-owned-public-nb1_x126/host-tools.json",
+      "sha256": "54445b1d2724bd58b14a6e0549fee162ecfff9cc2d9ac1fd2eb117f46fb46ae9"
+    },
+    "owner-report.json": {
+      "bytes": 111763,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llhttp76-native-result-r1/public-files/llhttp-reference-owned-public-nb1_x126/owner-report.json",
+      "sha256": "88feb35446d2a93d7a44d6b3f7db195dabb90bf44deecd76ccfa2e979562d379"
+    },
+    "owner.log": {
+      "bytes": 268,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llhttp76-native-result-r1/public-files/llhttp-reference-owned-public-nb1_x126/owner.log",
+      "sha256": "091399d5abdb0c8d8e5b5f0c196b9975ddaeea7a8f4762dd312c80aa4bd4b654"
+    }
+  },
+  "job": "pair",
+  "missing_evidence": [
+    "owner /proc/self/mountinfo",
+    "owner per-path os.access W_OK for /, /tmp, /var/tmp, Source, work",
+    "owner per-path statvfs ST_RDONLY for /, /tmp, /var/tmp, Source, work"
+  ],
+  "native_pair": "NOT RUN",
+  "owner_failure": {
+    "message": "ordinary payload natural success required",
+    "type": "ValueError"
+  },
+  "payload_diagnostic": {
+    "exception": "ValueError",
+    "kind": "LLHTTP_PAYLOAD_PHASE_HASH_ONLY_V3",
+    "message_bytes": 64,
+    "message_prefix_bytes": 64,
+    "message_prefix_sha256": "fb486df27f93098ca0869bbefefdfc5eebd0260b10abfcc4fb1b8c1dfb3286bb",
+    "phase": "readonly-filesystem",
+    "truncated": false
+  },
+  "proposal": {
+    "actual": null,
+    "authority": "NONE",
+    "changed_code": [
+      "payload.py: fixed helper import and bounded record immediately before unchanged aggregate guard",
+      "data.py: finite metadata namespace upper bound 80 to 96; 2MiB byte cap unchanged"
+    ],
+    "diagnostic_only": true,
+    "forbidden_inferences": [
+      "cleanup success is not payload success",
+      "Source DATA construction is not Root closure certification",
+      "diagnostic output is not a confinement acceptance receipt",
+      "requested ProtectSystem/ReadOnlyPaths/ReadWritePaths are not owner namespace observations"
+    ],
+    "native_pair": "NOT RUN",
+    "policy_delta": "mount_class_diagnostics declaration only",
+    "preserved": [
+      "full hosted_owner.py including all requested systemd service arguments",
+      "numeric memory, swap, CPU, tasks, AS, timing and byte limits",
+      "original aggregate confinement guard byte-for-byte",
+      "held-source/base",
+      "controller, Go Docker CLI VA policy, retirement and zero host package mutations"
+    ],
+    "status": "SOURCE_DATA_ONLY"
+  },
+  "requested_owner_service": {
+    "argv": [
+      "/usr/bin/systemd-run",
+      "--quiet",
+      "--no-block",
+      "--description=cachy-llhttp-reference-owned-43bc0399518a2759258dcbf3130bf130-owner",
+      "--unit=cachy-llhttp-reference-43bc0399518a2759258dcbf3130bf130-owner.service",
+      "--property=Type=exec",
+      "--property=OOMPolicy=kill",
+      "--property=Restart=no",
+      "--property=KillMode=control-group",
+      "--property=TimeoutStopSec=5s",
+      "--property=RuntimeMaxSec=1290s",
+      "--property=MemoryMax=2147483648",
+      "--property=MemorySwapMax=0",
+      "--property=CPUQuota=100%",
+      "--property=CPUQuotaPeriodSec=100ms",
+      "--property=TasksMax=256",
+      "--property=LimitCORE=0",
+      "--property=StandardOutput=append:/home/runner/work/_temp/llhttp-reference-owned-v2/volume/owner.log",
+      "--property=StandardError=append:/home/runner/work/_temp/llhttp-reference-owned-v2/volume/owner.log",
+      "--property=ProtectSystem=strict",
+      "--property=ReadOnlyPaths=/tmp /var/tmp /sys/fs/cgroup",
+      "--uid=1001",
+      "--gid=1001",
+      "--property=NoNewPrivileges=yes",
+      "--property=LimitAS=2147483648",
+      "--property=RemainAfterExit=yes",
+      "--property=ReadWritePaths=/home/runner/work/_temp/llhttp-reference-owned-v2/volume/work",
+      "--",
+      "/usr/bin/python3.12",
+      "-I",
+      "-B",
+      "/home/runner/work/cachy-asahi/cachy-asahi/scripts/ci/llhttp-reference-native-source/owner/payload.py",
+      "/home/runner/work/_temp/llhttp-reference-owned-v2/volume/work/launch.json"
+    ],
+    "interpretation": "Retained requested systemd arguments; no per-path access, statvfs, or mount namespace observation was retained.",
+    "source": "command-012.json"
+  },
+  "retroactive_acceptance": false,
+  "run": "44048877765",
+  "source76": "28dae2796f6f50f42da19be89618c5fda0549d2c",
+  "source76_bytes": 1053728,
+  "source76_files": 76,
+  "source76_map": {
+    "bytes": 16377,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-llhttp76-source-r1/closed-source-tree/source-map.json",
+    "sha256": "8e6290fb7c916ba52d094d2a324b7ba77e8813c910a6e454a8f78f0aeda92d57"
+  },
+  "source76_tree": "ff131da635fc160b557c58ce0f716a997a918551",
+  "source_guard": {
+    "interpretation": "The phase, exception class, message byte count and SHA-256 match the exact aggregate writable-filesystem guard; its short-circuit result does not identify which path was writable.",
+    "message": "actual owner writable filesystem restricted to quota work domain",
+    "message_bytes": 64,
+    "message_sha256": "fb486df27f93098ca0869bbefefdfc5eebd0260b10abfcc4fb1b8c1dfb3286bb",
+    "source": "scripts/ci/llhttp-reference-native-source/owner/payload.py"
+  },
+  "status": "ACTUAL87_RETAINED_PUBLIC_DATA_AUDIT_ONLY"
+}
