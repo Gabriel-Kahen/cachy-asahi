@@ -17,6 +17,7 @@ BUILD_EDITS=(
  ("        name = 'cachy-asahi-' + os.urandom(8).hex()", "        name = 'cachy-llhttp-reference-' + os.environ['CACHY_LLHTTP_REFERENCE_NONCE'] + '-' + os.environ['CACHY_LLHTTP_REFERENCE_ATTEMPT']\n        if not re.fullmatch(r'cachy-llhttp-reference-[0-9a-f]{32}-[12]', name):\n            raise ValueError('fixed llhttp reference build identity required')"),
  ("                   '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only',", "                   '--label', 'org.cachy-asahi.llhttp-reference.nonce=' + os.environ['CACHY_LLHTTP_REFERENCE_NONCE'],\n                   '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only',"),
  ("'--memory', '4g', '--cpus', '4'", "'--memory', '4g', '--memory-swap', '4g', '--cpus', '4'"),
+ ("        paths = sorted(p for p in artifacts.glob('*.pkg.tar.*') if not p.name.endswith('.sig'))", "        paths = sorted(p for p in artifacts.glob('*.pkg.tar.*') if not p.name.endswith('.sig'))\n        if len(paths) != 1 or not paths[0].name.endswith('.pkg.tar.xz'):\n            raise ValueError('fixed llhttp XZ-only archive required before package inspection')"),
 )
 
 def need(value,why):
@@ -99,5 +100,15 @@ def plans(here,output,image):
     need(re.fullmatch('sha256:[0-9a-f]{64}',image),'actual immutable fresh bootstrap image')
     common=['--image',image,'--mode','native','--network','none','--source-date-epoch','1791748800','--timeout','300','--expected-packages',str(here/'expected349.lock'),'--reviewed-inputs',str(here/'reviewed-inputs.json')]
     builds=[['/usr/bin/python3','-I','-B',str(here/'runtime/scripts/build/build_llhttp-reference.py'),str(here/'recipe'),*common,'--output',str(output/('build-'+str(i)))]for i in(1,2)]
-    compare=['/usr/bin/python3','-I','-B',str(here/'runtime/scripts/build/compare_v2.py'),str(output/'build-1'),str(output/'build-2'),'--require-bytes']
+    compare=['/usr/bin/python3','-I','-B',str(here/'runtime/scripts/build/compare_llhttp.py'),str(output/'build-1'),str(output/'build-2'),'--require-bytes']
     return builds,compare
+
+
+COMPARE_BEFORE="    actual = {p.name for p in (path / 'artifacts').glob('*.pkg.tar.*') if not p.name.endswith('.sig')}"
+COMPARE_AFTER=COMPARE_BEFORE+"\n    if len(actual) != 1 or any(not name.endswith('.pkg.tar.xz') for name in actual):\n        raise ValueError('fixed llhttp XZ-only archive required before comparison inspection')"
+
+def projected_compare(raw):
+    text=raw.decode();need(text.count(COMPARE_BEFORE)==1 and COMPARE_AFTER not in text,'one finite XZ-only comparator gate')
+    text=text.replace(COMPARE_BEFORE,COMPARE_AFTER)
+    need(text.replace(COMPARE_AFTER,COMPARE_BEFORE).encode()==raw,'whole unchanged comparator inverse')
+    return text.encode()

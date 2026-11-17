@@ -18,14 +18,14 @@ s=importlib.util.spec_from_file_location('llhttp-reference_v2_data',HERE/'data.p
 def selected(root):
     rows={}
     for path in root.iterdir():
-        if path.name in ('volume','storage.img','ci-prerequisite-cache'):continue
+        if path.name in ('volume','storage.img'):continue
         if path.name=='evidence':
             D.need(path.is_dir() and not path.is_symlink(),'ordinary finite evidence directory')
             for leaf in path.rglob('*'):
                 D.need(not leaf.is_symlink(),'no evidence symlink')
                 if leaf.is_file():rows[str(leaf.relative_to(root))]=D.read(leaf,16*1024**2,empty=True)
         else:
-            D.need(re.fullmatch(r'(?:owner-report|actual-domains|host-tools|host-prerequisite)\.json|(?:owner|daemon)\.log|command-[0-9]{3}\.(?:json|bin)',path.name),
+            D.need(re.fullmatch(r'(?:owner-report|actual-domains|host-tools|host-policy)\.json|(?:owner|daemon)\.log|command-[0-9]{3}\.(?:json|bin)',path.name),
                    'unexpected root receipt filename')
             rows[path.name]=D.read(path,16*1024**2,empty=True)
         D.need(len(rows)<4096 and sum(map(len,rows.values()))<=15*1024**2,'complete bounded public receipt cap')

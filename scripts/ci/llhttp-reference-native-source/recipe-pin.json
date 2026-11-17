@@ -9,12 +9,12 @@
       "sha256": "711fe077e37a4843bdb7847e62fa404b9fb2a88fed6c9bcc0313887522ae3451"
     },
     "PKGBUILD": {
-      "bytes": 1460,
-      "sha256": "d251b94c918f949937d13338689b828a5f557cfbcf59236da5b2f6fdac3dc307"
+      "bytes": 1481,
+      "sha256": "836d067608c3e3b92b422ea0f3bb9852229fdd3334eff58069487b086d65cada"
     },
     "README.md": {
-      "bytes": 2157,
-      "sha256": "42e98ec91c7ba1912f2309f60d37947af793c9319790743d37f7df5e7013631c"
+      "bytes": 2510,
+      "sha256": "54b7467da625ab1b402a35a0ccc152f1aa12adc6636002d2ab0a3adf09a727f8"
     },
     "evidence/commands.json": {
       "bytes": 3211,
@@ -69,8 +69,8 @@
       "sha256": "779b59692c0f751fcecbde5cde5fa679e73a0542fef477804b17292cc32b0bd8"
     },
     "source.json": {
-      "bytes": 1012,
-      "sha256": "f5d63eeb7cbb645f23ac53a28a111fdc63338b28f2d1c8c1ab759bc441a65be0"
+      "bytes": 1058,
+      "sha256": "aec7486993e0c9bb189710f0e42a624430f5ab075f932ea695ab8a2fed566d6b"
     }
   },
   "installation": "NOT RUN",
@@ -80,7 +80,8 @@
     "sha256": "ebca854e0134cd256d673627c20499f42577eb74bacf08b9f25b626a73c91277"
   },
   "native_build": "NOT RUN",
-  "recipe_commit": "a01bbb900b3020101c986470e7b1096fb63599ce",
+  "package_archive_extension": ".pkg.tar.xz",
+  "recipe_commit": "7e4d4ce45b19e45b6241af6f4fd787e67a1cdf18",
   "recipe_origin": "ORIGINAL_PROJECT_RECIPE_NOT_ALARM_BINARY_CORRESPONDENCE",
   "recipe_path": "packages/libraries/cachy-asahi-llhttp-reference",
   "schema": 1,

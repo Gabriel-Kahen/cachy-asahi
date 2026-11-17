@@ -71,7 +71,7 @@ class Commands:
 
 def resource_observation(profile,parent):
     C.need(os.getuid()==os.geteuid()>0 and platform.system()=='Linux'and platform.machine()in('aarch64','arm64'),'ordinary genuine native ARM Linux host required')
-    C.need(all(shutil.which(n,path='/usr/bin:/bin')for n in('python3','docker','gpg','bsdtar','zstd')),'existing reviewed host Python/Docker/GPG/libarchive/zstd tools required; no host installs')
+    C.need(all(shutil.which(n,path='/usr/bin:/bin')for n in('python3','docker','gpg','zstd')),'existing reviewed host Python/Docker/GPG/zstd tools required; no host installs')
     available=int(next(line.split()[1]for line in Path('/proc/meminfo').read_text().splitlines()if line.startswith('MemAvailable:')))*1024
     disk=shutil.disk_usage(parent).free
     C.need(available>=profile['resources']['minimum_available_bytes']and disk>=profile['resources']['minimum_disk_bytes'],'fresh whole-host memory/disk minimum')
@@ -174,7 +174,7 @@ def execute(root,output,map_sha,admission,runtime):
             runner(argv,360,env={'CACHY_LLHTTP_REFERENCE_NONCE':nonce,'CACHY_LLHTTP_REFERENCE_ATTEMPT':str(attempt)})
             C.need(scope.listing(time.monotonic()+8)is None,'ordinary completed --rm build container absent')
         result=runner(compare,120);(output/'comparison.json').write_bytes(result.stdout)
-        finisher=C.module(HERE/'finish_pair.py','llhttp-reference_finisher');pair=finisher.finish(output/'build-1',output/'build-2',output/'comparison.json',image,runner);(output/'pair.json').write_text(json.dumps(pair,indent=2)+'\n')
+        finisher=C.module(HERE/'finish_pair.py','llhttp-reference_finisher');pair=finisher.finish(output/'build-1',output/'build-2',output/'comparison.json',image);(output/'pair.json').write_text(json.dumps(pair,indent=2)+'\n')
         C.verify_source(root,map_sha)
         report.update(natural_outcome='PASS_CURRENT_LLHTTP_REFERENCE_NATIVE_PAIR_AND_CHECKS',status='PAIR_PASSED_PENDING_CLEANUP',pair=pair)
     except BaseException as error:

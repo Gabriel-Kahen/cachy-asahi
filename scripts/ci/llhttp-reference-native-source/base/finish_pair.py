@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import stat
 import struct
+import tarfile
 
 HERE=Path(__file__).resolve().parent
 MARKER=b'llhttp: fragmented response and malformed length controls passed'
@@ -57,11 +58,29 @@ def elf(raw):
     need(not values.get(15) and not values.get(29),'no package RPATH/RUNPATH')
     return dict(machine=183,soname=soname,needed=needed,PT_LOAD=loads,structural16K=all(r['alignment']>=16384 and r['offset']%16384==r['vaddr']%16384 for r in loads),native16K='NOT RUN',M2='NOT RUN')
 
-def finish(first,second,comparison,image,runner):
+def archive_members(path,selected):
+    need(path.name==PACKAGE+'xz','fixed llhttp XZ-only archive basename')
+    raw=read(path);need(raw.startswith(b'\xfd7zXZ\x00'),'actual XZ compression only')
+    found={};names=set();total=0
+    with tarfile.open(fileobj=io.BytesIO(raw),mode='r|xz') as archive:
+        for member in archive:
+            name=str(Path(member.name.removeprefix('./')))
+            need(not name.startswith('/') and '..' not in Path(name).parts and name not in names and len(names)<512,'safe unique bounded native package namespace')
+            names.add(name);need(member.isdir() or member.isfile() or member.issym(),'ordinary llhttp package types only')
+            need(0<=member.size<=4*1024**2,'bounded package member');total+=member.size;need(total<=8*1024**2,'bounded complete XZ package')
+            if name in selected:
+                need(member.isfile(),'selected archive member must be regular')
+                with archive.extractfile(member) as stream:body=stream.read(member.size+1)
+                need(len(body)==member.size,'whole selected XZ member');found[name]=body
+    need(set(found)==set(selected),'complete five-member XZ inspection closure')
+    return raw,found
+
+
+def finish(first,second,comparison,image):
     need(re.fullmatch('sha256:[0-9a-f]{64}',image) and first.resolve()!=second.resolve(),'immutable image and distinct builds')
     reviewed=json.loads(read(HERE/'reviewed-inputs.json'));recipe=json.loads(read(HERE/'recipe-pin.json'));lock=pin(read(HERE/'expected349.lock'))['sha256'];records=[];observations=[]
     result=json.loads(read(comparison));need(result['status']=='contents-reproduced' and not result['errors'] and len(result['packages'])==1,'successful unchanged strict comparator')
-    name,values=next(iter(result['packages'].items()));need(name.startswith(PACKAGE) and all(values[k] is True for k in ('installed_contents_equal','pkginfo_equal','buildinfo_equal','bytes_equal')),'exact archive/payload/PKGINFO/BUILDINFO pair equality')
+    name,values=next(iter(result['packages'].items()));need(name==PACKAGE+'xz' and all(values[k] is True for k in ('installed_contents_equal','pkginfo_equal','buildinfo_equal','bytes_equal')),'exact archive/payload/PKGINFO/BUILDINFO pair equality')
     for root in (first,second):
         record=json.loads(read(root/'provenance.json'));need(record['status']=='built-package-static-pass' and record['exit_code']==0 and record['mode']=='native' and record['image_id']==image and record['recipe_inputs']==reviewed and record['expected_packages_sha256']==lock,'actual successful exact native build')
         need(record['builder_host_arch'] in ('arm64','aarch64'),'actual native Docker architecture')
@@ -73,10 +92,10 @@ def finish(first,second,comparison,image,runner):
         need(len(report['elf'])==1,'one shared ELF payload')
         library,geometry=next(iter(report['elf'].items()));need(library=='usr/lib/libllhttp.so.9.3.1' and not geometry['errors'],'fixed native library and inherited geometry gate')
         archive=root/'artifacts'/name
-        need(pin(read(archive))['sha256']==record['artifacts'][name]==report['sha256'],'current whole archive custody after comparator')
+        raw,bodies=archive_members(archive,('.PKGINFO','.BUILDINFO','.MTREE',recipe['license']['path'],library))
+        need(pin(raw)['sha256']==record['artifacts'][name]==report['sha256'],'current whole archive custody after comparator')
         observed={}
-        for member in ('.PKGINFO','.BUILDINFO','.MTREE',recipe['license']['path'],library):
-            body=runner(['/usr/bin/bsdtar','-xOf',str(archive),member],30).stdout
+        for member,body in bodies.items():
             need(pin(body)['sha256']==members[member]['sha256'],'whole actual archive member digest: '+member);observed[member]=pin(body)
             if member==recipe['license']['path']:need(pin(body)=={k:recipe['license'][k] for k in ('bytes','sha256')},'exact upstream MIT payload')
             if member=='.MTREE':

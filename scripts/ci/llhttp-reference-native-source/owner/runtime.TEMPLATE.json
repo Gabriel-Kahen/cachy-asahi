@@ -4,7 +4,7 @@
   "created_utc": null,
   "expires_utc": null,
   "external_supervision": null,
-  "host_prerequisites": null,
+  "host_tools": null,
   "issued_by": null,
   "kind": "ROOT_LLHTTP_REFERENCE_HOSTED_RUNTIME_V1",
   "nonce": null,

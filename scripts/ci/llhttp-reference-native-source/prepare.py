@@ -43,6 +43,8 @@ def construct(root,recipe_root,archive_path,output):
         for change in row['changes']:
             C.need(change['before'] in text,'whole finite derivation anchor');text=text.replace(change['before'],change['after'])
         actual=C.read(HERE/name);C.need(actual==text.encode() and C.pin(actual)==row['projected'],'whole reviewed derived framework: '+name)
+    removed=derivation['no_host_apt_seam']['deleted_original_host_prerequisite']
+    C.need(C.pin(C.read(root/removed['source_path']))=={k:removed[k] for k in ('bytes','sha256')},'exact original prerequisite removed only from new operation')
     recipe=C.load(HERE/'recipe-pin.json');proof=recipe['upstream'];raw=C.read(archive_path)
     archive_closure(raw,proof)
     expected=set(recipe['files']);base=recipe_root/recipe['recipe_path']
@@ -51,6 +53,7 @@ def construct(root,recipe_root,archive_path,output):
     recipe_bodies={}
     for name,pin in recipe['files'].items():
         body=C.read(base/name);C.need(C.pin(body)==pin,'exact original llhttp recipe: '+name);recipe_bodies[name]=body
+    C.need(b"PKGEXT='.pkg.tar.xz'" in recipe_bodies['PKGBUILD'],'literal original recipe pins XZ-only package format')
     recipe_bodies[proof['archive']['filename']]=raw
     profile=C.load(HERE/'base/profile.json');C.need(all(v is None for v in profile['actual'].values()),'unissued selectors')
     local=('contract.py','entry.py','finish_pair.py','profile.json','admission.TEMPLATE.json','runtime.TEMPLATE.json')
@@ -61,11 +64,12 @@ def construct(root,recipe_root,archive_path,output):
     base_bodies[BASE+'recipe-pin.json']=C.read(HERE/'recipe-pin.json')
     base_bodies[BASE+'reviewed-inputs.json']=encoded({n:C.pin(b)['sha256'] for n,b in sorted(recipe_bodies.items())})
     base_bodies[BASE+'runtime/scripts/build/build_llhttp-reference.py']=C.projected_build(base_bodies[BASE+'runtime/scripts/build/build_v2.py'])
+    base_bodies[BASE+'runtime/scripts/build/compare_llhttp.py']=C.projected_compare(base_bodies[BASE+'runtime/scripts/build/compare_v2.py'])
     base_bodies['LICENSE']=C.read(root/'LICENSE')
     base_map=encoded(dict(kind='LLHTTP_REFERENCE_MINIMAL_HOSTED_SOURCE_MAP_V1',files={n:dict(C.pin(b),mode=0o644) for n,b in sorted(base_bodies.items())},actual=profile['actual']))
     base_bodies[BASE+'source-map.json']=base_map
     bodies={'held-source/'+n:b for n,b in base_bodies.items()}
-    for n in ('admit.py','data.py','hosted_owner.py','host_tools.py','host_prerequisites.py','payload.py','retain.py','policy.json','admission.TEMPLATE.json','runtime.TEMPLATE.json'):bodies[OWNER+n]=C.read(HERE/'owner'/n)
+    for n in ('admit.py','data.py','hosted_owner.py','host_tools.py','payload.py','retain.py','policy.json','admission.TEMPLATE.json','runtime.TEMPLATE.json'):bodies[OWNER+n]=C.read(HERE/'owner'/n)
     for n in ('README.md','derivation.json','recipe-pin.json'):bodies[PREFIX+n]=C.read(HERE/n)
     bodies[WORKFLOW]=C.read(root/WORKFLOW);bodies['LICENSE']=C.read(root/'LICENSE')
     binding=dict(map=C.pin(base_map),files=len(base_bodies),bytes=sum(map(len,base_bodies.values())))
