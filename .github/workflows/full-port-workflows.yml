@@ -131,10 +131,47 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install Lua for window protocol model controls
         if: matrix.component == 'app-window'
+        timeout-minutes: 3
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y lua5.4
-          lua -v
+          set -euo pipefail
+          export LC_ALL=C
+          # Main17ce job133896328411 selected only an existing runtime library; lua was absent.
+          # Scope signed Noble main/universe sources to this Ubuntu24 CI setup.
+          lua_stage=$(mktemp -d "$RUNNER_TEMP/caa-lua.XXXXXXXX")
+          trap 'rm -f "$lua_stage/ubuntu.sources"' EXIT
+          mkdir "$lua_stage/sources.list.d"
+          cat > "$lua_stage/ubuntu.sources" <<'SOURCES'
+          Types: deb
+          URIs: https://archive.ubuntu.com/ubuntu
+          Suites: noble noble-updates
+          Components: main universe
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+          Types: deb
+          URIs: https://security.ubuntu.com/ubuntu
+          Suites: noble-security
+          Components: main universe
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          SOURCES
+          apt_options=(
+            -o "Dir::Etc::sourcelist=$lua_stage/ubuntu.sources"
+            -o "Dir::Etc::sourceparts=$lua_stage/sources.list.d"
+            -o 'APT::Get::List-Cleanup=0'
+          )
+          sudo apt-get "${apt_options[@]}" -o APT::Update::Error-Mode=any update
+          candidate=$(apt-cache "${apt_options[@]}" policy lua5.4 |
+            awk '$0 == "lua5.4:" {exact=1; next} exact && $1 == "Candidate:" {print $2; exit}')
+          [[ -n "$candidate" && "$candidate" != '(none)' ]]
+          # An exact name/version prevents APT's library-only regex fallback.
+          sudo apt-get "${apt_options[@]}" install --no-install-recommends -y "lua5.4=$candidate"
+          test -x /usr/bin/lua5.4
+          /usr/bin/lua5.4 -e 'assert(_VERSION == "Lua 5.4")'
+          /usr/bin/lua5.4 -v
+          # Existing model controls resolve `lua`; bind it to the verified executable.
+          mkdir "$lua_stage/bin"
+          ln -s /usr/bin/lua5.4 "$lua_stage/bin/lua"
+          printf '%s\n' "$lua_stage/bin" >> "$GITHUB_PATH"
       - name: Prepare short private operator temporary directory
         if: contains(fromJSON('["debugger", "support-bundle", "support-collection", "recovery-bundle", "security-operation", "advisory-cache", "support-package", "support-package2", "security-maintenance-package"]'), matrix.component)
         run: |
