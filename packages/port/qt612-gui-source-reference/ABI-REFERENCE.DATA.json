@@ -1,0 +1,488 @@
+{
+  "Root_acceptance": null,
+  "candidate_GNU_provider_closure": null,
+  "candidate_module_inventory": null,
+  "catalog": {
+    "bytes": 3972352,
+    "path": "scripts/ci/bankstown-qt3-source79-local-data/inputs/catalog333.DATA.json.gz",
+    "sha256": "a69964dc50033bad129e9cef490061db1a32de682ddd52779646fe831c97196d"
+  },
+  "kind": "QT612_GUI_FIVE_MODULES_HISTORICAL_ABI_REFERENCE_ONLY",
+  "modules": {
+    "EglFSDeviceIntegration": {
+      "SONAME": "libQt6EglFSDeviceIntegration.so.6",
+      "consumers": [
+        {
+          "consumer": "/usr/lib/libQt6EglFsKmsGbmSupport.so.6.12.0",
+          "needed": "libQt6EglFSDeviceIntegration.so.6",
+          "provider": "/usr/lib/libQt6EglFSDeviceIntegration.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/libQt6EglFsKmsSupport.so.6.12.0",
+          "needed": "libQt6EglFSDeviceIntegration.so.6",
+          "provider": "/usr/lib/libQt6EglFSDeviceIntegration.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/egldeviceintegrations/libqeglfs-emu-integration.so",
+          "needed": "libQt6EglFSDeviceIntegration.so.6",
+          "provider": "/usr/lib/libQt6EglFSDeviceIntegration.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/egldeviceintegrations/libqeglfs-kms-egldevice-integration.so",
+          "needed": "libQt6EglFSDeviceIntegration.so.6",
+          "provider": "/usr/lib/libQt6EglFSDeviceIntegration.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/egldeviceintegrations/libqeglfs-kms-integration.so",
+          "needed": "libQt6EglFSDeviceIntegration.so.6",
+          "provider": "/usr/lib/libQt6EglFSDeviceIntegration.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/egldeviceintegrations/libqeglfs-x11-integration.so",
+          "needed": "libQt6EglFSDeviceIntegration.so.6",
+          "provider": "/usr/lib/libQt6EglFSDeviceIntegration.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/platforms/libqeglfs.so",
+          "needed": "libQt6EglFSDeviceIntegration.so.6",
+          "provider": "/usr/lib/libQt6EglFSDeviceIntegration.so.6.12.0"
+        }
+      ],
+      "historical_entry": {
+        "bytes": 397232,
+        "elf": {
+          "interpreter": null,
+          "machine": 183,
+          "needed": [
+            "libEGL.so.1",
+            "libudev.so.1",
+            "libmtdev.so.1",
+            "libts.so.0",
+            "libinput.so.10",
+            "libxkbcommon.so.0",
+            "libQt6OpenGL.so.6",
+            "libQt6Gui.so.6",
+            "libOpenGL.so.0",
+            "libQt6Core.so.6",
+            "libstdc++.so.6",
+            "libc.so.6",
+            "ld-linux-aarch64.so.1"
+          ],
+          "rpath": [],
+          "rpath_present": false,
+          "runpath": [
+            "$ORIGIN"
+          ],
+          "runpath_present": true,
+          "soname": "libQt6EglFSDeviceIntegration.so.6"
+        },
+        "gnu_versions": {
+          "defines": [
+            "NonQt",
+            "Qt_6",
+            "Qt_6_PRIVATE_API",
+            "libQt6EglFSDeviceIntegration.so.6"
+          ],
+          "needs": {
+            "ld-linux-aarch64.so.1": [
+              "GLIBC_2.17"
+            ],
+            "libQt6Core.so.6": [
+              "Qt_6",
+              "Qt_6.12",
+              "Qt_6_PRIVATE_API"
+            ],
+            "libQt6Gui.so.6": [
+              "Qt_6",
+              "Qt_6_PRIVATE_API"
+            ],
+            "libQt6OpenGL.so.6": [
+              "Qt_6",
+              "Qt_6_PRIVATE_API"
+            ],
+            "libc.so.6": [
+              "GLIBC_2.17"
+            ],
+            "libinput.so.10": [
+              "LIBINPUT_0.12.0",
+              "LIBINPUT_1.19"
+            ],
+            "libstdc++.so.6": [
+              "CXXABI_1.3",
+              "CXXABI_1.3.9",
+              "GLIBCXX_3.4",
+              "GLIBCXX_3.4.30"
+            ],
+            "libudev.so.1": [
+              "LIBUDEV_183"
+            ],
+            "libxkbcommon.so.0": [
+              "V_0.5.0"
+            ]
+          }
+        },
+        "mode": 493,
+        "sha256": "5781dd43156cfec3c4ca5635ca2ea42691b689271aa4ed32e449865ab2e0bab2",
+        "type": "file"
+      },
+      "regular_path": "/usr/lib/libQt6EglFSDeviceIntegration.so.6.12.0"
+    },
+    "EglFsKmsGbmSupport": {
+      "SONAME": "libQt6EglFsKmsGbmSupport.so.6",
+      "consumers": [
+        {
+          "consumer": "/usr/lib/qt6/plugins/egldeviceintegrations/libqeglfs-kms-integration.so",
+          "needed": "libQt6EglFsKmsGbmSupport.so.6",
+          "provider": "/usr/lib/libQt6EglFsKmsGbmSupport.so.6.12.0"
+        }
+      ],
+      "historical_entry": {
+        "bytes": 265016,
+        "elf": {
+          "interpreter": null,
+          "machine": 183,
+          "needed": [
+            "libdrm.so.2",
+            "libQt6EglFsKmsSupport.so.6",
+            "libgbm.so.1",
+            "libQt6EglFSDeviceIntegration.so.6",
+            "libEGL.so.1",
+            "libudev.so.1",
+            "libQt6Gui.so.6",
+            "libQt6Core.so.6",
+            "libstdc++.so.6",
+            "libc.so.6",
+            "ld-linux-aarch64.so.1"
+          ],
+          "rpath": [],
+          "rpath_present": false,
+          "runpath": [
+            "$ORIGIN"
+          ],
+          "runpath_present": true,
+          "soname": "libQt6EglFsKmsGbmSupport.so.6"
+        },
+        "gnu_versions": {
+          "defines": [
+            "NonQt",
+            "Qt_6",
+            "Qt_6_PRIVATE_API",
+            "libQt6EglFsKmsGbmSupport.so.6"
+          ],
+          "needs": {
+            "ld-linux-aarch64.so.1": [
+              "GLIBC_2.17"
+            ],
+            "libQt6Core.so.6": [
+              "Qt_6",
+              "Qt_6.12"
+            ],
+            "libQt6EglFSDeviceIntegration.so.6": [
+              "Qt_6_PRIVATE_API"
+            ],
+            "libQt6EglFsKmsSupport.so.6": [
+              "Qt_6",
+              "Qt_6_PRIVATE_API"
+            ],
+            "libQt6Gui.so.6": [
+              "Qt_6",
+              "Qt_6_PRIVATE_API"
+            ],
+            "libc.so.6": [
+              "GLIBC_2.17",
+              "GLIBC_2.38"
+            ],
+            "libstdc++.so.6": [
+              "CXXABI_1.3",
+              "CXXABI_1.3.9",
+              "GLIBCXX_3.4",
+              "GLIBCXX_3.4.14"
+            ],
+            "libudev.so.1": [
+              "LIBUDEV_183"
+            ]
+          }
+        },
+        "mode": 493,
+        "sha256": "c5b0fd6cbc5622284e2d782426d756689879833bc9a05d9c51462b94bf4e224d",
+        "type": "file"
+      },
+      "regular_path": "/usr/lib/libQt6EglFsKmsGbmSupport.so.6.12.0"
+    },
+    "EglFsKmsSupport": {
+      "SONAME": "libQt6EglFsKmsSupport.so.6",
+      "consumers": [
+        {
+          "consumer": "/usr/lib/libQt6EglFsKmsGbmSupport.so.6.12.0",
+          "needed": "libQt6EglFsKmsSupport.so.6",
+          "provider": "/usr/lib/libQt6EglFsKmsSupport.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/egldeviceintegrations/libqeglfs-kms-egldevice-integration.so",
+          "needed": "libQt6EglFsKmsSupport.so.6",
+          "provider": "/usr/lib/libQt6EglFsKmsSupport.so.6.12.0"
+        }
+      ],
+      "historical_entry": {
+        "bytes": 198920,
+        "elf": {
+          "interpreter": null,
+          "machine": 183,
+          "needed": [
+            "libdrm.so.2",
+            "libQt6EglFSDeviceIntegration.so.6",
+            "libQt6Gui.so.6",
+            "libQt6Core.so.6",
+            "libstdc++.so.6",
+            "libc.so.6",
+            "ld-linux-aarch64.so.1"
+          ],
+          "rpath": [],
+          "rpath_present": false,
+          "runpath": [
+            "$ORIGIN"
+          ],
+          "runpath_present": true,
+          "soname": "libQt6EglFsKmsSupport.so.6"
+        },
+        "gnu_versions": {
+          "defines": [
+            "NonQt",
+            "Qt_6",
+            "Qt_6_PRIVATE_API",
+            "libQt6EglFsKmsSupport.so.6"
+          ],
+          "needs": {
+            "ld-linux-aarch64.so.1": [
+              "GLIBC_2.17"
+            ],
+            "libQt6Core.so.6": [
+              "Qt_6",
+              "Qt_6.12"
+            ],
+            "libQt6EglFSDeviceIntegration.so.6": [
+              "Qt_6_PRIVATE_API"
+            ],
+            "libQt6Gui.so.6": [
+              "Qt_6",
+              "Qt_6_PRIVATE_API"
+            ],
+            "libc.so.6": [
+              "GLIBC_2.17",
+              "GLIBC_2.38"
+            ],
+            "libstdc++.so.6": [
+              "CXXABI_1.3",
+              "CXXABI_1.3.9",
+              "GLIBCXX_3.4",
+              "GLIBCXX_3.4.14"
+            ]
+          }
+        },
+        "mode": 493,
+        "sha256": "90b71b5de880d46e56d29d518a3c37b1aa57d2f6facf7cc45a1ac4ab7a3e7563",
+        "type": "file"
+      },
+      "regular_path": "/usr/lib/libQt6EglFsKmsSupport.so.6.12.0"
+    },
+    "WaylandClient": {
+      "SONAME": "libQt6WaylandClient.so.6",
+      "consumers": [
+        {
+          "consumer": "/usr/lib/libQt6WlShellIntegration.so.6.12.0",
+          "needed": "libQt6WaylandClient.so.6",
+          "provider": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/platforms/libqwayland.so",
+          "needed": "libQt6WaylandClient.so.6",
+          "provider": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/wayland-decoration-client/libbradient.so",
+          "needed": "libQt6WaylandClient.so.6",
+          "provider": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/wayland-graphics-integration-client/libdmabuf-server.so",
+          "needed": "libQt6WaylandClient.so.6",
+          "provider": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/wayland-graphics-integration-client/libdrm-egl-server.so",
+          "needed": "libQt6WaylandClient.so.6",
+          "provider": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so",
+          "needed": "libQt6WaylandClient.so.6",
+          "provider": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/wayland-graphics-integration-client/libshm-emulation-server.so",
+          "needed": "libQt6WaylandClient.so.6",
+          "provider": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/wayland-graphics-integration-client/libvulkan-server.so",
+          "needed": "libQt6WaylandClient.so.6",
+          "provider": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/wayland-shell-integration/libfullscreen-shell-v1.so",
+          "needed": "libQt6WaylandClient.so.6",
+          "provider": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/wayland-shell-integration/libwl-shell-plugin.so",
+          "needed": "libQt6WaylandClient.so.6",
+          "provider": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+        },
+        {
+          "consumer": "/usr/lib/qt6/plugins/wayland-shell-integration/libxdg-shell.so",
+          "needed": "libQt6WaylandClient.so.6",
+          "provider": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+        }
+      ],
+      "historical_entry": {
+        "bytes": 1385760,
+        "elf": {
+          "interpreter": null,
+          "machine": 183,
+          "needed": [
+            "libwayland-client.so.0",
+            "libwayland-cursor.so.0",
+            "libQt6Gui.so.6",
+            "libQt6Core.so.6",
+            "libxkbcommon.so.0",
+            "libstdc++.so.6",
+            "libc.so.6",
+            "ld-linux-aarch64.so.1"
+          ],
+          "rpath": [],
+          "rpath_present": false,
+          "runpath": [
+            "$ORIGIN"
+          ],
+          "runpath_present": true,
+          "soname": "libQt6WaylandClient.so.6"
+        },
+        "gnu_versions": {
+          "defines": [
+            "NonQt",
+            "Qt_6",
+            "Qt_6_PRIVATE_API",
+            "libQt6WaylandClient.so.6"
+          ],
+          "needs": {
+            "ld-linux-aarch64.so.1": [
+              "GLIBC_2.17"
+            ],
+            "libQt6Core.so.6": [
+              "Qt_6",
+              "Qt_6.12",
+              "Qt_6_PRIVATE_API"
+            ],
+            "libQt6Gui.so.6": [
+              "Qt_6",
+              "Qt_6_PRIVATE_API"
+            ],
+            "libc.so.6": [
+              "GLIBC_2.17"
+            ],
+            "libstdc++.so.6": [
+              "CXXABI_1.3",
+              "CXXABI_1.3.9",
+              "GLIBCXX_3.4",
+              "GLIBCXX_3.4.14",
+              "GLIBCXX_3.4.30"
+            ],
+            "libxkbcommon.so.0": [
+              "V_0.5.0"
+            ]
+          }
+        },
+        "mode": 493,
+        "sha256": "243eb20f33044435e40adb17d69faf809cf53967c7dda06ddb1bc46668527c3b",
+        "type": "file"
+      },
+      "regular_path": "/usr/lib/libQt6WaylandClient.so.6.12.0"
+    },
+    "WlShellIntegration": {
+      "SONAME": "libQt6WlShellIntegration.so.6",
+      "consumers": [
+        {
+          "consumer": "/usr/lib/qt6/plugins/wayland-shell-integration/libwl-shell-plugin.so",
+          "needed": "libQt6WlShellIntegration.so.6",
+          "provider": "/usr/lib/libQt6WlShellIntegration.so.6.12.0"
+        }
+      ],
+      "historical_entry": {
+        "bytes": 67848,
+        "elf": {
+          "interpreter": null,
+          "machine": 183,
+          "needed": [
+            "libwayland-client.so.0",
+            "libQt6WaylandClient.so.6",
+            "libQt6Gui.so.6",
+            "libQt6Core.so.6",
+            "libstdc++.so.6",
+            "libc.so.6",
+            "ld-linux-aarch64.so.1"
+          ],
+          "rpath": [],
+          "rpath_present": false,
+          "runpath": [
+            "$ORIGIN"
+          ],
+          "runpath_present": true,
+          "soname": "libQt6WlShellIntegration.so.6"
+        },
+        "gnu_versions": {
+          "defines": [
+            "NonQt",
+            "Qt_6",
+            "Qt_6_PRIVATE_API",
+            "libQt6WlShellIntegration.so.6"
+          ],
+          "needs": {
+            "ld-linux-aarch64.so.1": [
+              "GLIBC_2.17"
+            ],
+            "libQt6Core.so.6": [
+              "Qt_6",
+              "Qt_6.12"
+            ],
+            "libQt6Gui.so.6": [
+              "Qt_6",
+              "Qt_6_PRIVATE_API"
+            ],
+            "libQt6WaylandClient.so.6": [
+              "Qt_6",
+              "Qt_6_PRIVATE_API"
+            ],
+            "libc.so.6": [
+              "GLIBC_2.17"
+            ],
+            "libstdc++.so.6": [
+              "CXXABI_1.3",
+              "CXXABI_1.3.9",
+              "GLIBCXX_3.4"
+            ]
+          }
+        },
+        "mode": 493,
+        "sha256": "d2961eeabe78c96f91931be02c511458803d2e257bea26ca8a96c9831f20e6ff",
+        "type": "file"
+      },
+      "regular_path": "/usr/lib/libQt6WlShellIntegration.so.6.12.0"
+    }
+  },
+  "official_qtbase_version": [
+    "6.12.0-3"
+  ],
+  "other54_components": "OUTSIDE_SCOPE_UPSTREAM_IMPLEMENTATIONS_EXIST_NO_FAILED_BUILD_ASSERTION",
+  "schema": 1,
+  "status": "PRESERVED_HISTORICAL_METADATA_NOT_CANDIDATE_BUILD_OR_OFFICIAL_RECIPE_CORRESPONDENCE"
+}

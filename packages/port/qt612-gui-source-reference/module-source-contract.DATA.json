@@ -1,0 +1,1170 @@
+{
+  "Root_acceptance": null,
+  "actual_build": null,
+  "actual_configure": null,
+  "actual_runtime": null,
+  "actual_stage": null,
+  "additional_plugin_scope": {
+    "additional_header_only_targets": [
+      "WaylandGlobalPrivate"
+    ],
+    "additional_shared_modules": [],
+    "additional_static_support_targets": [
+      "KmsSupportPrivate",
+      "DeviceDiscoverySupportPrivate",
+      "FbSupportPrivate"
+    ],
+    "evidence": [
+      "src/plugins/platforms/CMakeLists.txt:31-34",
+      "src/plugins/platforms/wayland/plugins/decorations/CMakeLists.txt:5",
+      "src/plugins/platforms/wayland/plugins/decorations/bradient/CMakeLists.txt:10-21",
+      "src/plugins/platforms/wayland/plugins/shellintegration/xdg-shell/CMakeLists.txt:10-46",
+      "src/plugins/platforms/eglfs/deviceintegration/CMakeLists.txt:37-39",
+      "src/plugins/platforms/eglfs/deviceintegration/eglfs_emu/CMakeLists.txt:8-25"
+    ],
+    "exact_built_plugin_set": "PENDING_ACTUAL_CONFIGURE_AND_STAGE",
+    "optional_feature_off_hints": [
+      "FEATURE_wayland_brcm",
+      "FEATURE_wayland_shm_emulation_server_buffer",
+      "FEATURE_wayland_drm_egl_server_buffer",
+      "FEATURE_wayland_dmabuf_server_buffer",
+      "FEATURE_wayland_libhybris_egl_server_buffer",
+      "FEATURE_wayland_vulkan_server_buffer",
+      "FEATURE_wayland_client_fullscreen_shell_v1"
+    ],
+    "required_with_proposed_features": [
+      "usr/lib/qt6/plugins/platforms/libqminimalegl.so",
+      "usr/lib/qt6/plugins/wayland-decoration-client/libbradient.so",
+      "usr/lib/qt6/plugins/wayland-shell-integration/libxdg-shell.so",
+      "usr/lib/qt6/plugins/egldeviceintegrations/libqeglfs-emu-integration.so"
+    ]
+  },
+  "base_recipe_commit": "69a02851b87ca29daf2e197101b66bf75ff61889",
+  "base_srcinfo": {
+    "build_additions_not_declared_by_base": [
+      "wayland-scanner supplied by wayland"
+    ],
+    "bytes": 2931,
+    "runtime_additions_not_declared_by_base": [
+      "libdrm",
+      "mesa",
+      "wayland",
+      "EGL provider as required by chosen ARM base"
+    ],
+    "sha256": "356e4c1b2ab034b5920ca4311f3a5b833c277e3713f6980322a5c2ddee734f22",
+    "target_dependency_resolution": "UNBOUND"
+  },
+  "conditional_features": {
+    "FEATURE_drm_atomic": "Optional atomic API; requires Libdrm_FOUND AND TEST_drm_atomic, not required by five module creation gates.",
+    "FEATURE_eglfs_egldevice": "Not required when eglfs_gbm is enabled.",
+    "FEATURE_eglfs_x11": "Not required for five modules.",
+    "FEATURE_wayland_egl": "Enable for Wayland EGL client buffer plugin; source condition also requires opengl and egl."
+  },
+  "fixed_reused_notice_and_patch_files": {
+    "CVE-2026-105924-qtbase-6.12.diff": {
+      "bytes": 5019,
+      "sha256": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b"
+    },
+    "CVE-2026-105943-qtbase-6.12.diff": {
+      "bytes": 2291,
+      "sha256": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+    },
+    "CVE-2026-116337-qtbase-6.12-0001.diff": {
+      "bytes": 3262,
+      "sha256": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12"
+    },
+    "CVE-2026-116337-qtbase-6.12-0002.diff": {
+      "bytes": 5186,
+      "sha256": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec"
+    },
+    "source-notices.json": {
+      "bytes": 20042,
+      "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+    }
+  },
+  "frozen_catalog_layout_reference": {
+    "compressed": {
+      "bytes": 3972352,
+      "sha256": "a69964dc50033bad129e9cef490061db1a32de682ddd52779646fe831c97196d"
+    },
+    "path": "scripts/ci/bankstown-qt3-source79-local-data/inputs/catalog333.DATA.json.gz",
+    "raw": {
+      "bytes": 27829517,
+      "sha256": "aa612232f6bf711b9d1137ec8e10c8aaca99d026f26fce2b1954f64c9973b673"
+    },
+    "role": "Historical layout corroboration only; not candidate stage or output acceptance."
+  },
+  "hardware_acceptance": false,
+  "host_pkgconfig_observation": {
+    "architecture": "x86_64",
+    "limitations": "Read-only host pkg-config and pacman ownership queries only. No library loading, scanner execution, configure, compilation, native ARM dependency availability or M2 compatibility established.",
+    "modules": {
+      "egl": {
+        "flags": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "-lEGL"
+        },
+        "owning_host_package": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "libglvnd"
+        },
+        "pcfile": "/usr/lib/pkgconfig/egl.pc",
+        "version": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "1.5"
+        }
+      },
+      "gbm": {
+        "flags": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "-lgbm"
+        },
+        "owning_host_package": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "mesa"
+        },
+        "pcfile": "/usr/lib/pkgconfig/gbm.pc",
+        "version": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "26.2.3-arch3.1"
+        }
+      },
+      "libdrm": {
+        "flags": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "-I/usr/include/libdrm -ldrm"
+        },
+        "owning_host_package": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "libdrm"
+        },
+        "pcfile": "/usr/lib/pkgconfig/libdrm.pc",
+        "version": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "2.4.134"
+        }
+      },
+      "wayland-client": {
+        "flags": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "-lwayland-client -lm"
+        },
+        "owning_host_package": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "wayland"
+        },
+        "pcfile": "/usr/lib/pkgconfig/wayland-client.pc",
+        "version": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "1.26.0"
+        }
+      },
+      "wayland-cursor": {
+        "flags": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "-lwayland-cursor"
+        },
+        "owning_host_package": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "wayland"
+        },
+        "pcfile": "/usr/lib/pkgconfig/wayland-cursor.pc",
+        "version": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "1.26.0"
+        }
+      },
+      "wayland-egl": {
+        "flags": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "-lwayland-egl -lwayland-client -lm"
+        },
+        "owning_host_package": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "wayland"
+        },
+        "pcfile": "/usr/lib/pkgconfig/wayland-egl.pc",
+        "version": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "18.1.0"
+        }
+      },
+      "wayland-scanner": {
+        "flags": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": ""
+        },
+        "owning_host_package": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "wayland"
+        },
+        "pcfile": "/usr/lib/pkgconfig/wayland-scanner.pc",
+        "version": {
+          "exit_code": 0,
+          "stderr": "",
+          "stdout": "1.26.0"
+        }
+      }
+    },
+    "observation_date": "2026-11-17"
+  },
+  "install_path_evidence": "Source CMake module/plugin naming/install rules plus observed frozen catalog layout only; no actual candidate stage exists.",
+  "kind": "QT612_GUI_FIVE_MODULE_SOURCE_CONTRACT_DATA_V1",
+  "modules": {
+    "EglFSDeviceIntegration": {
+      "cmake_config": "usr/lib/cmake/Qt6EglFSDeviceIntegrationPrivate/Qt6EglFSDeviceIntegrationPrivateConfig.cmake",
+      "conditions": [
+        "QT_FEATURE_eglfs",
+        "QT_FEATURE_egl",
+        "QT_FEATURE_opengl OR QT_FEATURE_openvg",
+        "EGL_FOUND",
+        "QT_FEATURE_dlopen on normal UNIX"
+      ],
+      "internal_module": true,
+      "library": "usr/lib/libQt6EglFSDeviceIntegration.so.6.12.0",
+      "links": [
+        "usr/lib/libQt6EglFSDeviceIntegration.so.6",
+        "usr/lib/libQt6EglFSDeviceIntegration.so"
+      ],
+      "native_targets": [
+        "EGL::EGL"
+      ],
+      "plugin_outputs": [
+        "usr/lib/qt6/plugins/platforms/libqeglfs.so"
+      ],
+      "public_pkgconfig_required": false,
+      "qt_targets": [
+        "Qt::CorePrivate",
+        "Qt::DeviceDiscoverySupportPrivate",
+        "Qt::FbSupportPrivate",
+        "Qt::GuiPrivate",
+        "Qt::OpenGLPrivate when opengl enabled"
+      ],
+      "required_headers": [
+        "usr/include/qt6/QtEglFSDeviceIntegration/6.12.0/QtEglFSDeviceIntegration/private/qeglfsdeviceintegration_p.h"
+      ],
+      "soname": "libQt6EglFSDeviceIntegration.so.6",
+      "source_refs": [
+        "src/plugins/platforms/CMakeLists.txt:31-34",
+        "src/gui/configure.cmake:1126-1139",
+        "src/plugins/platforms/eglfs/CMakeLists.txt:24-71"
+      ],
+      "target": "EglFSDeviceIntegrationPrivate"
+    },
+    "EglFsKmsGbmSupport": {
+      "cmake_config": "usr/lib/cmake/Qt6EglFsKmsGbmSupportPrivate/Qt6EglFsKmsGbmSupportPrivateConfig.cmake",
+      "conditions": [
+        "QT_FEATURE_eglfs_gbm",
+        "QT_FEATURE_eglfs",
+        "gbm_FOUND",
+        "QT_FEATURE_kms"
+      ],
+      "internal_module": true,
+      "library": "usr/lib/libQt6EglFsKmsGbmSupport.so.6.12.0",
+      "links": [
+        "usr/lib/libQt6EglFsKmsGbmSupport.so.6",
+        "usr/lib/libQt6EglFsKmsGbmSupport.so"
+      ],
+      "native_targets": [
+        "Libdrm::Libdrm",
+        "gbm::gbm"
+      ],
+      "plugin_outputs": [
+        "usr/lib/qt6/plugins/egldeviceintegrations/libqeglfs-kms-integration.so"
+      ],
+      "public_pkgconfig_required": false,
+      "qt_targets": [
+        "Qt::CorePrivate",
+        "Qt::EglFSDeviceIntegrationPrivate",
+        "Qt::EglFsKmsSupportPrivate",
+        "Qt::GuiPrivate",
+        "Qt::KmsSupportPrivate"
+      ],
+      "required_headers": [
+        "usr/include/qt6/QtEglFsKmsGbmSupport/6.12.0/QtEglFsKmsGbmSupport/private/qeglfskmsgbmdevice_p.h"
+      ],
+      "soname": "libQt6EglFsKmsGbmSupport.so.6",
+      "source_refs": [
+        "src/gui/configure.cmake:1148-1151",
+        "src/plugins/platforms/eglfs/deviceintegration/CMakeLists.txt:10-12",
+        "src/plugins/platforms/eglfs/deviceintegration/eglfs_kms/CMakeLists.txt:8-49"
+      ],
+      "target": "EglFsKmsGbmSupportPrivate"
+    },
+    "EglFsKmsSupport": {
+      "cmake_config": "usr/lib/cmake/Qt6EglFsKmsSupportPrivate/Qt6EglFsKmsSupportPrivateConfig.cmake",
+      "conditions": [
+        "QT_FEATURE_eglfs_egldevice OR QT_FEATURE_eglfs_gbm",
+        "QT_FEATURE_kms"
+      ],
+      "internal_module": true,
+      "library": "usr/lib/libQt6EglFsKmsSupport.so.6.12.0",
+      "links": [
+        "usr/lib/libQt6EglFsKmsSupport.so.6",
+        "usr/lib/libQt6EglFsKmsSupport.so"
+      ],
+      "native_targets": [
+        "Libdrm::Libdrm"
+      ],
+      "plugin_outputs": [],
+      "public_pkgconfig_required": false,
+      "qt_targets": [
+        "Qt::Core",
+        "Qt::CorePrivate",
+        "Qt::EglFSDeviceIntegrationPrivate",
+        "Qt::Gui",
+        "Qt::GuiPrivate",
+        "Qt::KmsSupportPrivate"
+      ],
+      "required_headers": [
+        "usr/include/qt6/QtEglFsKmsSupport/6.12.0/QtEglFsKmsSupport/private/qeglfskmsdevice_p.h"
+      ],
+      "soname": "libQt6EglFsKmsSupport.so.6",
+      "source_refs": [
+        "src/plugins/platforms/eglfs/deviceintegration/CMakeLists.txt:7-9",
+        "src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_support/CMakeLists.txt:8-28"
+      ],
+      "target": "EglFsKmsSupportPrivate"
+    },
+    "WaylandClient": {
+      "cmake_config": "usr/lib/cmake/Qt6WaylandClient/Qt6WaylandClientConfig.cmake",
+      "conditional_plugin_outputs": {
+        "QT_FEATURE_wayland_egl": [
+          "usr/lib/qt6/plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so"
+        ]
+      },
+      "conditions": [
+        "QT_FEATURE_wayland",
+        "QT_FEATURE_waylandscanner",
+        "TARGET Wayland::Client",
+        "TARGET Wayland::Scanner",
+        "QT_FEATURE_wayland_client for plugins"
+      ],
+      "internal_module": false,
+      "library": "usr/lib/libQt6WaylandClient.so.6.12.0",
+      "links": [
+        "usr/lib/libQt6WaylandClient.so.6",
+        "usr/lib/libQt6WaylandClient.so"
+      ],
+      "native_targets": [
+        "Wayland::Client",
+        "Wayland::Cursor when QT_FEATURE_cursor"
+      ],
+      "pkgconfig": "usr/lib/pkgconfig/Qt6WaylandClient.pc",
+      "plugin_outputs": [
+        "usr/lib/qt6/plugins/platforms/libqwayland.so"
+      ],
+      "qt_targets": [
+        "Qt::Core",
+        "Qt::Gui",
+        "Qt::CorePrivate",
+        "Qt::GuiPrivate",
+        "Qt::WaylandGlobalPrivate"
+      ],
+      "required_headers": [
+        "usr/include/qt6/QtWaylandClient/qwaylandclientextension.h",
+        "usr/include/qt6/QtWaylandClient/qtwaylandclientglobal.h",
+        "usr/include/qt6/QtWaylandClient/QtWaylandClient"
+      ],
+      "soname": "libQt6WaylandClient.so.6",
+      "source_refs": [
+        "src/plugins/platforms/wayland/CMakeLists.txt:9-108",
+        "src/plugins/platforms/wayland/CMakeLists.txt:199-204"
+      ],
+      "target": "WaylandClient"
+    },
+    "WlShellIntegration": {
+      "cmake_config": "usr/lib/cmake/Qt6WlShellIntegrationPrivate/Qt6WlShellIntegrationPrivateConfig.cmake",
+      "conditions": [
+        "QT_FEATURE_wayland_client",
+        "QT_FEATURE_wayland_client_wl_shell",
+        "TARGET Qt::WaylandClient"
+      ],
+      "internal_module": true,
+      "library": "usr/lib/libQt6WlShellIntegration.so.6.12.0",
+      "links": [
+        "usr/lib/libQt6WlShellIntegration.so.6",
+        "usr/lib/libQt6WlShellIntegration.so"
+      ],
+      "native_targets": [
+        "Wayland::Client",
+        "XKB::XKB when QT_FEATURE_xkbcommon"
+      ],
+      "plugin_outputs": [
+        "usr/lib/qt6/plugins/wayland-shell-integration/libwl-shell-plugin.so"
+      ],
+      "public_pkgconfig_required": false,
+      "qt_targets": [
+        "Qt::GuiPrivate",
+        "Qt::WaylandClientPrivate"
+      ],
+      "required_headers": [
+        "usr/include/qt6/QtWlShellIntegration/6.12.0/QtWlShellIntegration/private/qwaylandwlshellintegration_p.h"
+      ],
+      "soname": "libQt6WlShellIntegration.so.6",
+      "source_refs": [
+        "src/gui/configure.cmake:1618-1620",
+        "src/plugins/platforms/wayland/plugins/shellintegration/CMakeLists.txt:9-11",
+        "src/plugins/platforms/wayland/plugins/shellintegration/wl-shell/CMakeLists.txt:10-47"
+      ],
+      "target": "WlShellIntegrationPrivate"
+    }
+  },
+  "native_acceptance": false,
+  "native_dependency_map": {
+    "egl": {
+      "cmake_target": "EGL::EGL",
+      "headers": [
+        "EGL/egl.h"
+      ],
+      "host_package": "libglvnd",
+      "library": "libEGL.so",
+      "target_package_selection": "UNBOUND_VERIFY_ARM_EGL_PROVIDER"
+    },
+    "gbm": {
+      "cmake_target": "gbm::gbm",
+      "headers": [
+        "gbm.h"
+      ],
+      "library": "libgbm.so",
+      "proposed_arch_package": "mesa"
+    },
+    "libdrm": {
+      "cmake_target": "Libdrm::Libdrm",
+      "headers": [
+        "xf86drm.h"
+      ],
+      "library": "libdrm.so",
+      "proposed_arch_package": "libdrm"
+    },
+    "wayland-client": {
+      "cmake_target": "Wayland::Client",
+      "headers": [
+        "wayland-client.h"
+      ],
+      "library": "libwayland-client.so",
+      "minimum_wayland_version": "1.15",
+      "proposed_arch_package": "wayland"
+    },
+    "wayland-cursor": {
+      "cmake_target": "Wayland::Cursor",
+      "condition": "QT_FEATURE_cursor",
+      "headers": [
+        "wayland-cursor.h"
+      ],
+      "library": "libwayland-cursor.so",
+      "proposed_arch_package": "wayland"
+    },
+    "wayland-egl": {
+      "cmake_target": "Wayland::Egl",
+      "condition": "QT_FEATURE_wayland_egl plugin",
+      "headers": [
+        "wayland-egl.h"
+      ],
+      "library": "libwayland-egl.so",
+      "proposed_arch_package": "wayland"
+    },
+    "wayland-scanner": {
+      "build_tool": "wayland-scanner",
+      "cmake_target": "Wayland::Scanner",
+      "proposed_arch_package": "wayland"
+    }
+  },
+  "patch_count": 4,
+  "proposed_feature_requirements": {
+    "FEATURE_egl": "ON",
+    "FEATURE_eglfs": "ON",
+    "FEATURE_eglfs_gbm": "ON",
+    "FEATURE_gbm": "ON",
+    "FEATURE_kms": "ON",
+    "FEATURE_qtwaylandscanner": "ON",
+    "FEATURE_wayland": "ON",
+    "FEATURE_wayland_client": "ON",
+    "FEATURE_wayland_client_wl_shell": "ON",
+    "FEATURE_wayland_client_xdg_shell": "ON",
+    "FEATURE_wayland_egl": "ON",
+    "FEATURE_wayland_server": "OFF",
+    "FEATURE_waylandscanner": "ON"
+  },
+  "protocol_xml_contract": {
+    "bundled_inputs": {
+      "src/3rdparty/wayland/extensions/hardware-integration.xml": {
+        "bytes": 692,
+        "sha256": "6160d445b16d3e30237f240c6ab38ca110af08608fdaf95d55cbd2f1fad357d9"
+      },
+      "src/3rdparty/wayland/extensions/qt-text-input-method-unstable-v1.xml": {
+        "bytes": 11509,
+        "sha256": "d8fec614b1f11a1769c8f3d99f9c8e7bbd123a6bc6a120d10cfcf6cb9be77b26"
+      },
+      "src/3rdparty/wayland/extensions/qt-windowmanager.xml": {
+        "bytes": 906,
+        "sha256": "9be2dc028de17f03b8d878bc50cc90c596450f30a737564b70642a2c56abed35"
+      },
+      "src/3rdparty/wayland/extensions/server-buffer-extension.xml": {
+        "bytes": 758,
+        "sha256": "d2a0e2760406aaf8bc062df18726474b32d60c51b2bf456c3c06c9ce0e84e3dc"
+      },
+      "src/3rdparty/wayland/protocols/appmenu/appmenu.xml": {
+        "bytes": 1656,
+        "sha256": "5ec67ab2acc844dfbd90dcab5137d1653dfd3b5493ef084aab6fecd85bc9fa4d"
+      },
+      "src/3rdparty/wayland/protocols/color-management/color-management-v1.xml": {
+        "bytes": 75104,
+        "sha256": "6ab9082518639c7831899832789d1c5e7cde46ea470f46a4307514c679600f5b"
+      },
+      "src/3rdparty/wayland/protocols/cursor-shape/cursor-shape-v1.xml": {
+        "bytes": 8145,
+        "sha256": "3c82dade0a06d60b371aa8fa9078ad5e4ac7ad64d09300e0a81102d68ec775db"
+      },
+      "src/3rdparty/wayland/protocols/fractional-scale/fractional-scale-v1.xml": {
+        "bytes": 4636,
+        "sha256": "5941de5d28f427ecdadddc8623a6f6af0a30b0ab4726847236ba7a7652b81316"
+      },
+      "src/3rdparty/wayland/protocols/pointer-gestures/pointer-gestures-unstable-v1.xml": {
+        "bytes": 8367,
+        "sha256": "2adf3c975a9fdf552fb186c8c99d49d5c0c4feea35c924fdda56b9292d4736a0"
+      },
+      "src/3rdparty/wayland/protocols/pointer-warp/pointer-warp-v1.xml": {
+        "bytes": 3519,
+        "sha256": "1389e89c68c6f6d231fd2dcda57fa9c75c5230d0ac1deffa8d80a7648e197e66"
+      },
+      "src/3rdparty/wayland/protocols/session-management/xdg-session-management-v1.xml": {
+        "bytes": 14872,
+        "sha256": "28991609c18799b74bf4f57aaa064d9e253a5f879e07f7963885a3a7afb89dde"
+      },
+      "src/3rdparty/wayland/protocols/tablet/tablet-unstable-v2.xml": {
+        "bytes": 51707,
+        "sha256": "c74d1aa4e44c9e2873f924707bcaf0becaaa77bf5de081cb7a4d8b06bebc2219"
+      },
+      "src/3rdparty/wayland/protocols/text-input/v1/text-input-unstable-v1.xml": {
+        "bytes": 16320,
+        "sha256": "a3671b8e50ebe04f4d114c7b982763ae2964e44be163fb3e9eb30efca8a111b1"
+      },
+      "src/3rdparty/wayland/protocols/text-input/v2/text-input-unstable-v2.xml": {
+        "bytes": 20209,
+        "sha256": "043f0a48903248552a4f140e365a4854612ea2770f10b32c93cf9795300309cc"
+      },
+      "src/3rdparty/wayland/protocols/text-input/v3/text-input-unstable-v3.xml": {
+        "bytes": 28120,
+        "sha256": "160815cda13c285a30df1971d8f0a5b3aac07071537df59916d2f748b18e4f59"
+      },
+      "src/3rdparty/wayland/protocols/viewporter/viewporter.xml": {
+        "bytes": 8541,
+        "sha256": "d5da5c61107c53062c7a73093bd72676a0d643fa04eb1867411126600a75fc54"
+      },
+      "src/3rdparty/wayland/protocols/wayland/wayland.xml": {
+        "bytes": 153752,
+        "sha256": "6f8530cfd7c61b39fe15f608b1add851b5c4d2d16be55f88e20b5b42434a5945"
+      },
+      "src/3rdparty/wayland/protocols/wlr-data-control/wlr-data-control-unstable-v1.xml": {
+        "bytes": 12046,
+        "sha256": "5ac39552975b28d0ea42f636a79b7fc8e2d1fcfa31cbe173f549bd4b044ae2de"
+      },
+      "src/3rdparty/wayland/protocols/wp-primary-selection/wp-primary-selection-unstable-v1.xml": {
+        "bytes": 10469,
+        "sha256": "d568482ba84df6e531698b1f531810860995ca24d69495427fe43aee6017f52c"
+      },
+      "src/3rdparty/wayland/protocols/xdg-activation/xdg-activation-v1.xml": {
+        "bytes": 8344,
+        "sha256": "d960c1deaf44540aeef9d65e57298bcd16850f5522b6ae2ab7ae313fc9c7e4ca"
+      },
+      "src/3rdparty/wayland/protocols/xdg-decoration/xdg-decoration-unstable-v1.xml": {
+        "bytes": 8239,
+        "sha256": "965673e4963c1b854d415be6841e467e7c68ad486f100c621735aa625992587a"
+      },
+      "src/3rdparty/wayland/protocols/xdg-dialog/xdg-dialog-v1.xml": {
+        "bytes": 4828,
+        "sha256": "cdfa1601fb7d9bd78dbb33d007fcf4506c05a57179883fed9f144022b1b70963"
+      },
+      "src/3rdparty/wayland/protocols/xdg-foreign/xdg-foreign-unstable-v2.xml": {
+        "bytes": 9206,
+        "sha256": "625d83fbb068f48e69e739eafde507f10cdfe7480146f3ac10af9a2ddf551c80"
+      },
+      "src/3rdparty/wayland/protocols/xdg-output/xdg-output-unstable-v1.xml": {
+        "bytes": 9693,
+        "sha256": "363d547c3eefe8959160cac903ff90b311d4b183005557d73640d9df2cfd7f79"
+      },
+      "src/3rdparty/wayland/protocols/xdg-shell/xdg-shell.xml": {
+        "bytes": 60418,
+        "sha256": "b72112a7a1f9b2ad94ffa59468753ced568d6e7b2069df94a9d437e488b8506e"
+      },
+      "src/3rdparty/wayland/protocols/xdg-system-bell/xdg-system-bell-v1.xml": {
+        "bytes": 2698,
+        "sha256": "863c5efcb1a19961c019d23b9875ab84a158da802f5622f5ecc30522c6019330"
+      },
+      "src/3rdparty/wayland/protocols/xdg-toplevel-drag/xdg-toplevel-drag-v1.xml": {
+        "bytes": 6779,
+        "sha256": "9c08a8d239b3dc8099bd9adc5b2cd0e0f4151d65ad0beba3328b7f73ad5f09e6"
+      },
+      "src/3rdparty/wayland/protocols/xdg-toplevel-icon/xdg-toplevel-icon-v1.xml": {
+        "bytes": 9567,
+        "sha256": "791dbfed89280c1b8031689955a03e9b2da55601be3c5854a6198e38cea4978f"
+      }
+    },
+    "external_wayland_protocols_required_by_audited_generation_sites": false,
+    "generation_sites": [
+      "src/plugins/platforms/wayland/CMakeLists.txt:138-164",
+      "src/plugins/platforms/wayland/plugins/shellintegration/xdg-shell/CMakeLists.txt:37-46"
+    ],
+    "host_package_presence_not_build_requirement": true,
+    "host_wayland_protocols_pkgconfig_version": "1.49",
+    "limits": "No broader claim about other Qt repositories, compositor modules or unaudited configurations."
+  },
+  "qt_version": "6.12.0",
+  "release_acceptance": false,
+  "scanner_contract": {
+    "cross_compile_status": "NOT_AUDITED",
+    "external_qtwaylandscanner_required_for_native_build": false,
+    "external_system_tool": "Wayland::Scanner",
+    "host_unversioned_tool": "/usr/bin/qtwaylandscanner",
+    "host_unversioned_tool_is_qt6_evidence": false,
+    "host_unversioned_tool_owner": "qt5-wayland",
+    "protocol_macro_requires_both_targets": true,
+    "qt_tool": "Qt6::qtwaylandscanner",
+    "qt_tool_built_by_this_qtbase": true,
+    "qt_tool_output": "usr/lib/qt6/qtwaylandscanner",
+    "tool_cmake_package": "usr/lib/cmake/Qt6WaylandScannerTools/Qt6WaylandScannerToolsConfig.cmake"
+  },
+  "schema": 1,
+  "scope": {
+    "additional_modules": 5,
+    "candidate_additional_five_actual_outputs": "UNBOUND",
+    "official333_catalog": "IMMUTABLE_HOLD_UNCHANGED",
+    "official477_image": "IMMUTABLE_HOLD_UNCHANGED",
+    "other_frozen_catalog_modules_outside_candidate_scope": 54,
+    "outside_scope_modules_have_upstream_implementations": true,
+    "scope_count_interpretation": "Source-profile coverage comparison only. The other54 are outside this candidate; no failed build, absent actual payload or missing algorithm is asserted.",
+    "source79_final779": "IMMUTABLE_HOLD_UNCHANGED"
+  },
+  "source_files": {
+    "cmake/3rdparty/extra-cmake-modules/find-modules/FindEGL.cmake": {
+      "bytes": 6298,
+      "line_ranges": [
+        [
+          128,
+          145
+        ]
+      ],
+      "sha256": "16a2271453c492ba24371186f15e3a42b9a08090ccddd80a5ffb37569d00eae9"
+    },
+    "cmake/3rdparty/extra-cmake-modules/find-modules/FindWayland.cmake": {
+      "bytes": 5518,
+      "line_ranges": [
+        [
+          88,
+          103
+        ]
+      ],
+      "sha256": "4f36b47a07253b73b52b0317ce5d979ddb307d74fde6ada872328633e98ec9f3"
+    },
+    "cmake/3rdparty/extra-cmake-modules/find-modules/FindWaylandScanner.cmake": {
+      "bytes": 6377,
+      "line_ranges": [
+        [
+          84,
+          93
+        ]
+      ],
+      "sha256": "2fec87f46f602a0c9807ce100354fcbf217de0c10f92ed930b4eed7eeec4750d"
+    },
+    "cmake/3rdparty/kwin/FindLibdrm.cmake": {
+      "bytes": 5191,
+      "line_ranges": [
+        [
+          71,
+          105
+        ]
+      ],
+      "sha256": "06677f411e02857227ee054d05ae3b9f99497b070884b337a3467f1cbf8f79a3"
+    },
+    "cmake/3rdparty/kwin/Findgbm.cmake": {
+      "bytes": 4703,
+      "line_ranges": [
+        [
+          71,
+          100
+        ]
+      ],
+      "sha256": "1d2c00157a232cd39f6fd6177e7512bc1f7f2d0f8b6ee05af9b9001bb458ab85"
+    },
+    "cmake/QtModuleHelpers.cmake": {
+      "bytes": 91502,
+      "line_ranges": [
+        [
+          178,
+          191
+        ],
+        [
+          452,
+          458
+        ],
+        [
+          1577,
+          1586
+        ],
+        [
+          1879,
+          1887
+        ]
+      ],
+      "sha256": "31617f26c2d07b85d3e20aaaba5ab16f12a27a0bfac0dcfe4ab30ca7d8f97700"
+    },
+    "cmake/QtPluginHelpers.cmake": {
+      "bytes": 31067,
+      "line_ranges": [
+        [
+          124,
+          125
+        ],
+        [
+          489,
+          502
+        ]
+      ],
+      "sha256": "2d1b7fd34312932cfdaba5808c9922a288fec0020577be6d79f2a0de268be911"
+    },
+    "src/gui/configure.cmake": {
+      "bytes": 57268,
+      "line_ranges": [
+        [
+          39,
+          43
+        ],
+        [
+          112,
+          126
+        ],
+        [
+          245,
+          246
+        ],
+        [
+          987,
+          990
+        ],
+        [
+          1013,
+          1020
+        ],
+        [
+          1126,
+          1151
+        ],
+        [
+          1548,
+          1577
+        ],
+        [
+          1618,
+          1624
+        ],
+        [
+          1578,
+          1605
+        ]
+      ],
+      "sha256": "610ab871e23697d3f84da088cea322423ace5002a7b180982e5a674c6ab31943"
+    },
+    "src/platformsupport/CMakeLists.txt": {
+      "bytes": 465,
+      "line_ranges": [
+        [
+          4,
+          17
+        ]
+      ],
+      "sha256": "461114a25325dac9c4ff7494a82aaf96459acc28d1859ee4d5754672123052e0"
+    },
+    "src/platformsupport/devicediscovery/CMakeLists.txt": {
+      "bytes": 1423,
+      "line_ranges": [
+        [
+          8,
+          19
+        ]
+      ],
+      "sha256": "520df119b6cf17afeeb4e2e27b0636483ece2104f6deea654dd4a5793856a6ab"
+    },
+    "src/platformsupport/fbconvenience/CMakeLists.txt": {
+      "bytes": 769,
+      "line_ranges": [
+        [
+          8,
+          26
+        ]
+      ],
+      "sha256": "8da74c40d92805bbb7555295baac36dcc758738d2d377cab959a76308ec3328f"
+    },
+    "src/platformsupport/kmsconvenience/CMakeLists.txt": {
+      "bytes": 604,
+      "line_ranges": [
+        [
+          4,
+          23
+        ]
+      ],
+      "sha256": "f4467d3ab27e54aff63d455d3a46997138a925f0b64c7d1402f0931408530df2"
+    },
+    "src/plugins/platforms/CMakeLists.txt": {
+      "bytes": 1344,
+      "line_ranges": [
+        [
+          31,
+          34
+        ],
+        [
+          59,
+          61
+        ]
+      ],
+      "sha256": "94540a248f235c138409b43e5915a34c27d402b743de8d8cae25d9e7279db0cb"
+    },
+    "src/plugins/platforms/eglfs/CMakeLists.txt": {
+      "bytes": 3163,
+      "line_ranges": [
+        [
+          24,
+          49
+        ],
+        [
+          65,
+          71
+        ],
+        [
+          92,
+          106
+        ]
+      ],
+      "sha256": "7905e507f87948b2bb03102b39bc970be682426f3f73b3fcce5053671affbd2c"
+    },
+    "src/plugins/platforms/eglfs/api/qeglfsdeviceintegration_p.h": {
+      "bytes": 3818,
+      "line_ranges": [
+        [
+          1,
+          45
+        ]
+      ],
+      "sha256": "97e14d1f29cadff1a781ab8a0c61051132410ed00cbd53ac6acba9ca99e8cc6d"
+    },
+    "src/plugins/platforms/eglfs/deviceintegration/CMakeLists.txt": {
+      "bytes": 1008,
+      "line_ranges": [
+        [
+          7,
+          15
+        ],
+        [
+          37,
+          39
+        ]
+      ],
+      "sha256": "87691e407896c80df58159b6827fe8c106520f5413db55f41baeae7d5b13dd28"
+    },
+    "src/plugins/platforms/eglfs/deviceintegration/eglfs_emu/CMakeLists.txt": {
+      "bytes": 772,
+      "line_ranges": [
+        [
+          8,
+          25
+        ]
+      ],
+      "sha256": "1c741bb6671d1cdb28f81057c882652b6ba908b1480427673db9690f35aa0524"
+    },
+    "src/plugins/platforms/eglfs/deviceintegration/eglfs_kms/CMakeLists.txt": {
+      "bytes": 1580,
+      "line_ranges": [
+        [
+          8,
+          28
+        ],
+        [
+          33,
+          49
+        ]
+      ],
+      "sha256": "7e69c9f508a46be9de70b040732c12432715ae7abe680db4f6cc8f2ee2279371"
+    },
+    "src/plugins/platforms/eglfs/deviceintegration/eglfs_kms/qeglfskmsgbmdevice_p.h": {
+      "bytes": 2151,
+      "line_ranges": [
+        [
+          1,
+          45
+        ]
+      ],
+      "sha256": "2e77266eb33e1353c5ef7f337e6914f7083933b284840593d0f8da09d962b5b5"
+    },
+    "src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_support/CMakeLists.txt": {
+      "bytes": 877,
+      "line_ranges": [
+        [
+          8,
+          28
+        ]
+      ],
+      "sha256": "af124d986d9961adfcfd87d5e1706c0c531106cd8634b994d170ce5bdaa646e8"
+    },
+    "src/plugins/platforms/eglfs/deviceintegration/eglfs_kms_support/qeglfskmsdevice_p.h": {
+      "bytes": 1353,
+      "line_ranges": [
+        [
+          1,
+          45
+        ]
+      ],
+      "sha256": "76dd97bcd24dbbae891a93500a40ecb2106f504a2f412ba45c57c1d3a8c03049"
+    },
+    "src/plugins/platforms/minimalegl/CMakeLists.txt": {
+      "bytes": 1062,
+      "line_ranges": [
+        [
+          10,
+          27
+        ]
+      ],
+      "sha256": "dee81539222f05b7a00772c893e1cc4073fdc179d4904ce96768d4b72b8e633c"
+    },
+    "src/plugins/platforms/wayland/CMakeLists.txt": {
+      "bytes": 11386,
+      "line_ranges": [
+        [
+          9,
+          22
+        ],
+        [
+          33,
+          54
+        ],
+        [
+          94,
+          108
+        ],
+        [
+          125,
+          164
+        ],
+        [
+          199,
+          204
+        ],
+        [
+          238,
+          243
+        ]
+      ],
+      "sha256": "ae6c90a675cd1ebfa5f5aac9a66960ab6c3fcbf591a74ecaec5a40d53cebb94c"
+    },
+    "src/plugins/platforms/wayland/global/qwaylandclientextension.h": {
+      "bytes": 3210,
+      "line_ranges": [
+        [
+          1,
+          45
+        ]
+      ],
+      "sha256": "fb6bcdf52c4e5dc2a32363bf7c7332e608c804950a801d82b12ed1dbafce9546"
+    },
+    "src/plugins/platforms/wayland/plugins/CMakeLists.txt": {
+      "bytes": 261,
+      "line_ranges": [
+        [
+          6,
+          10
+        ]
+      ],
+      "sha256": "e79ad68a032c30e197144d4fd88292b8bf4a041e4cf0c47acac7daaad67395c5"
+    },
+    "src/plugins/platforms/wayland/plugins/decorations/CMakeLists.txt": {
+      "bytes": 143,
+      "line_ranges": [
+        [
+          4,
+          5
+        ]
+      ],
+      "sha256": "e9de927ef9459b1c5d14d036e8f3f5840607a2570b05d649e5d3b47044e50e53"
+    },
+    "src/plugins/platforms/wayland/plugins/decorations/bradient/CMakeLists.txt": {
+      "bytes": 685,
+      "line_ranges": [
+        [
+          10,
+          21
+        ]
+      ],
+      "sha256": "9d7a9c719c12911b821f08f5a65d52b1d15bacf801aa28a7cbfd2148932717f7"
+    },
+    "src/plugins/platforms/wayland/plugins/hardwareintegration/CMakeLists.txt": {
+      "bytes": 774,
+      "line_ranges": [
+        [
+          6,
+          12
+        ]
+      ],
+      "sha256": "487d51930ab52e6e167161bbef4808f7d771546226845d62c35cc21b401c06ee"
+    },
+    "src/plugins/platforms/wayland/plugins/hardwareintegration/wayland-egl/CMakeLists.txt": {
+      "bytes": 1195,
+      "line_ranges": [
+        [
+          9,
+          35
+        ]
+      ],
+      "sha256": "bf33174686245852e4860caa62f3d21b6b853719e9c51daf99cdd7a6e310033d"
+    },
+    "src/plugins/platforms/wayland/plugins/shellintegration/CMakeLists.txt": {
+      "bytes": 380,
+      "line_ranges": [
+        [
+          9,
+          14
+        ]
+      ],
+      "sha256": "2a754104507286ddea0c821dc74a67800ace9f2372db7bab11f3f69ad340e0ea"
+    },
+    "src/plugins/platforms/wayland/plugins/shellintegration/fullscreen-shell-v1/CMakeLists.txt": {
+      "bytes": 1290,
+      "line_ranges": [
+        [
+          10,
+          32
+        ]
+      ],
+      "sha256": "b4a6af92405d6074d1a38ce41889d6c249b42a02a0a9eaebac798a66977697cf"
+    },
+    "src/plugins/platforms/wayland/plugins/shellintegration/wl-shell/CMakeLists.txt": {
+      "bytes": 1562,
+      "line_ranges": [
+        [
+          10,
+          22
+        ],
+        [
+          30,
+          47
+        ]
+      ],
+      "sha256": "0e0dfe25b5c02b0868009a6801161d5c0aff9f3587d63e0c7c59322ac09176a1"
+    },
+    "src/plugins/platforms/wayland/plugins/shellintegration/wl-shell/qwaylandwlshellintegration_p.h": {
+      "bytes": 1246,
+      "line_ranges": [
+        [
+          1,
+          45
+        ]
+      ],
+      "sha256": "16bbf3c08674fdc188e57575c311b650e44726219014cc7be6f28b8ad4b97d88"
+    },
+    "src/plugins/platforms/wayland/plugins/shellintegration/xdg-shell/CMakeLists.txt": {
+      "bytes": 2528,
+      "line_ranges": [
+        [
+          10,
+          35
+        ],
+        [
+          37,
+          46
+        ],
+        [
+          54,
+          57
+        ]
+      ],
+      "sha256": "d9eca47eed4d297ccc22a09120b174f7bf0c5534b2cc195e5e241881c744c1e2"
+    },
+    "src/plugins/platforms/wayland/qtwaylandclientglobal.h": {
+      "bytes": 463,
+      "line_ranges": [
+        [
+          1,
+          17
+        ]
+      ],
+      "sha256": "08528359dfbe2885c9bf49939c8ad0bcc22c702c3e999eb71dbc2615af63ce4a"
+    },
+    "src/tools/CMakeLists.txt": {
+      "bytes": 1230,
+      "line_ranges": [
+        [
+          46,
+          48
+        ]
+      ],
+      "sha256": "12078b8807a13bb56e7354a77dc30350d491380632e6244a55f38243943ffccb"
+    },
+    "src/tools/configure.cmake": {
+      "bytes": 2896,
+      "line_ranges": [
+        [
+          46,
+          48
+        ]
+      ],
+      "sha256": "00b9e8e8fe8b1e8e99479fd88bea03842c0980eafea1246559a4f1fb3dc7f4e1"
+    },
+    "src/tools/qtwaylandscanner/CMakeLists.txt": {
+      "bytes": 1163,
+      "line_ranges": [
+        [
+          10,
+          23
+        ],
+        [
+          28,
+          32
+        ]
+      ],
+      "sha256": "b7f016c7a737fd536bc33e994151dfa251513aed7ae7823a38914f6d4db96a39"
+    },
+    "src/tools/qtwaylandscanner/Qt6WaylandClientMacros.cmake": {
+      "bytes": 5749,
+      "line_ranges": [
+        [
+          18,
+          24
+        ],
+        [
+          54,
+          74
+        ],
+        [
+          90,
+          113
+        ]
+      ],
+      "sha256": "3bc7b667c5c8dcd9f885e57ba4d6b276eca0f5b2471196ace171745c94a307cc"
+    }
+  },
+  "source_notice_count": 173,
+  "status": "SOURCE_AUDITED_NOT_CONFIGURED_BUILT_INSTALLED_OR_HARDWARE_TESTED",
+  "upstream_archive": {
+    "bytes": 51220268,
+    "filename": "qtbase-everywhere-src-6.12.0.tar.xz",
+    "sha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307"
+  }
+}

@@ -1,0 +1,106 @@
+# SPDX-License-Identifier: MIT
+# Independent source-reference candidate for a disposable TEST image only.
+# Does not correspond to the unrecovered foreign qt6-base6.12.0-3 recipe.
+pkgname=cachy-asahi-qt612-gui-source-reference
+pkgver=6.12.0
+pkgrel=1
+pkgdesc='Independent Qt6.12 GUI18 source candidate; TEST-only and unselected'
+arch=('aarch64')
+url='https://code.qt.io/cgit/qt/qtbase.git/'
+license=('GPL-3.0-only' 'LGPL-3.0-only' 'Qt-GPL-exception-1.0' 'LicenseRef-Qt-ThirdParty')
+depends=('brotli' 'dbus' 'double-conversion' 'fontconfig' 'freetype2' 'glib2'
+         'glibc' 'harfbuzz' 'icu' 'libb2' 'libgcc' 'libgl' 'libice'
+         'libjpeg-turbo' 'libpng' 'libsm' 'libstdc++' 'libx11' 'libxcb'
+         'libxkbcommon' 'libxkbcommon-x11' 'md4c>=0.5.3' 'md4c<0.6' 'openssl'
+         'pcre2' 'shared-mime-info' 'sqlite' 'xcb-util-cursor' 'xcb-util-image'
+         'xcb-util-keysyms' 'xcb-util-renderutil' 'xcb-util-wm' 'xdg-utils' 'zlib' 'zstd' 'libdrm' 'libglvnd' 'mesa' 'wayland>=1.15')
+makedepends=('gcc' 'cmake>=3.25' 'ninja' 'pkgconf' 'python' 'perl' 'patch')
+provides=("qt6-base=$pkgver" 'libQt6Core.so.6' 'libQt6Concurrent.so.6' 'libQt6DBus.so.6' 'libQt6Gui.so.6' 'libQt6Network.so.6' 'libQt6OpenGL.so.6' 'libQt6OpenGLWidgets.so.6' 'libQt6PrintSupport.so.6' 'libQt6Sql.so.6' 'libQt6Test.so.6' 'libQt6Widgets.so.6' 'libQt6Xml.so.6' 'libQt6XcbQpa.so.6' 'libQt6EglFSDeviceIntegration.so.6' 'libQt6EglFsKmsGbmSupport.so.6' 'libQt6EglFsKmsSupport.so.6' 'libQt6WaylandClient.so.6' 'libQt6WlShellIntegration.so.6')
+conflicts=('qt6-base' 'cachy-asahi-qt612-base-source-reference')
+options=('!lto' '!debug' '!staticlibs')
+PKGEXT='.pkg.tar.xz'
+source=("https://download.qt.io/archive/qt/6.12/$pkgver/submodules/qtbase-everywhere-src-$pkgver.tar.xz"
+        'configure.cmake'
+        'source-notices.json'
+        'source.py'
+        'check_stage.py'
+        'smoke.cpp'
+        'SmokeCMakeLists.txt'
+        'LICENSE.packaging'
+        'LICENSE.third-party'
+        'CVE-2026-116337-qtbase-6.12-0002.diff'
+        'CVE-2026-116337-qtbase-6.12-0001.diff'
+        'CVE-2026-105924-qtbase-6.12.diff'
+        'CVE-2026-105943-qtbase-6.12.diff'
+)
+sha256sums=('a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307'
+            '1d394895a6a9fd42944ff70c3cbf801cebc2986c3f52b4f49b2359c3d5d3f24a'
+            '3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda'
+            '402e4fde4bf176b92dda602d71d4ad1e1dbf0ee832347f0e6452ea9c53de6632'
+            '291053598bd806eed9be622f495d51725aae5f579f5f3241a83111ded254cee5'
+            '208e306973a4e3ee33f737071629a54b0a07ac029a632215c5e67960661ecbb1'
+            'e2786c21fdf000d5956fdf02b33d452d0c9d02c8459134b36a276618e3bc9533'
+            '67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa'
+            '277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585'
+            '83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec'
+            '74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12'
+            'c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b'
+            'dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099')
+
+prepare() {
+  local patchfile
+  for patchfile in CVE-2026-116337-qtbase-6.12-0002.diff \
+                   CVE-2026-116337-qtbase-6.12-0001.diff \
+                   CVE-2026-105924-qtbase-6.12.diff \
+                   CVE-2026-105943-qtbase-6.12.diff; do
+    patch --batch --forward --fuzz=0 -d "$srcdir/qtbase-everywhere-src-$pkgver" \
+      -p1 -i "$srcdir/$patchfile" || return
+  done
+  python "$srcdir/source.py" verify --root "$srcdir/qtbase-everywhere-src-$pkgver" \
+    --policy "$srcdir/source-notices.json" || return
+}
+
+_qt_single_job() {
+  if [[ "${MAX_JOBS-1}" != 1 || "${CMAKE_BUILD_PARALLEL_LEVEL-1}" != 1 ]]; then
+    printf '%s\n' 'Qt612 serial experiment requires MAX_JOBS=1 and CMAKE_BUILD_PARALLEL_LEVEL=1' >&2
+    return 1
+  fi
+  export MAX_JOBS=1 CMAKE_BUILD_PARALLEL_LEVEL=1
+}
+
+build() {
+  _qt_single_job || return
+  cmake -C "$srcdir/configure.cmake" -S "$srcdir/qtbase-everywhere-src-$pkgver" \
+    -B "$srcdir/build" -G Ninja || return
+  python "$srcdir/source.py" configuration --build "$srcdir/build" \
+    --profile "$srcdir/configure.cmake" || return
+  cmake --build "$srcdir/build" --parallel "$MAX_JOBS" || return
+}
+
+check() {
+  _qt_single_job || return
+  install -d "$srcdir/smoke-source" "$srcdir/smoke-home" || return
+  install -m644 "$srcdir/SmokeCMakeLists.txt" "$srcdir/smoke-source/CMakeLists.txt" || return
+  install -m644 "$srcdir/smoke.cpp" "$srcdir/smoke-source/smoke.cpp" || return
+  cmake -S "$srcdir/smoke-source" -B "$srcdir/smoke-build" -G Ninja \
+    -DQT612_BUILD_TREE="$srcdir/build" -DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF || return
+  cmake --build "$srcdir/smoke-build" --parallel "$MAX_JOBS" || return
+  HOME="$srcdir/smoke-home" QT_QPA_PLATFORM=offscreen \
+    QT_PLUGIN_PATH="$srcdir/build/lib/qt6/plugins" \
+    QT_QPA_PLATFORM_PLUGIN_PATH="$srcdir/build/lib/qt6/plugins/platforms" \
+    LD_LIBRARY_PATH="$srcdir/build/lib" timeout 60 "$srcdir/smoke-build/qt612-smoke" || return
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install "$srcdir/build" || return
+  python "$srcdir/source.py" install-notices --root "$srcdir/qtbase-everywhere-src-$pkgver" \
+    --policy "$srcdir/source-notices.json" --stage "$pkgdir" || return
+  install -Dm644 "$srcdir/LICENSE.packaging" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE.packaging" || return
+  install -Dm644 "$srcdir/LICENSE.third-party" \
+    "$pkgdir/usr/share/licenses/$pkgname/LicenseRef-Qt-ThirdParty.txt" || return
+  install -Dm644 "$srcdir/source-notices.json" \
+    "$pkgdir/usr/share/licenses/$pkgname/source-notices.json" || return
+  python "$srcdir/check_stage.py" --root "$pkgdir" \
+    --license-manifest "$srcdir/source-notices.json" > "$srcdir/stage-contract.json" || return
+}
