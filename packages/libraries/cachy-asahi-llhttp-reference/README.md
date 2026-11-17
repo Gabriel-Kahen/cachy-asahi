@@ -31,3 +31,9 @@ has no standalone CTest suite; this is a focused API check, not upstream npm tes
 See the sibling [libgit2 candidate](../cachy-asahi-libgit2-reference/README.md)
 for the shared finite native plan, source validator and host evidence. Native ARM
 pairs, 16K/M2 execution, package transactions and project TEST signing are NOT RUN.
+
+The recipe explicitly sets `PKGEXT='.pkg.tar.xz'` for the finite native
+XZ-only archive reader. Normal makepkg XZ compression parameters are unchanged.
+This packaging-format pin changes no build, check or package function; retained
+host build evidence predates the pin and remains host evidence only. No XZ
+package archive or native result is claimed.

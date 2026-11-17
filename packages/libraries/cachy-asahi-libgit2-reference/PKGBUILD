@@ -14,6 +14,7 @@ makedepends=('cmake>=3.25' 'ninja' 'pkgconf' 'python')
 provides=("libgit2=$epoch:$pkgver" 'libgit2.so')
 conflicts=('libgit2')
 options=('!lto' '!debug' '!staticlibs')
+PKGEXT='.pkg.tar.xz'
 _commit=49e408b3208bc3093757a1c2db938d3590f3f412
 source=("libgit2-$pkgver.tar.gz::https://codeload.github.com/libgit2/libgit2/tar.gz/$_commit"
         'smoke.c')
