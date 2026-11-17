@@ -1,0 +1,71 @@
+{
+  "M2": "NOT_TESTED",
+  "Root_acceptance": null,
+  "actual": {
+    "Root_review": null,
+    "bootstrap_artifact": null,
+    "bootstrap_job": null,
+    "build_artifact": null,
+    "build_job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "actual_kernel_private_success": null,
+  "constructor": {
+    "bytes": 2453,
+    "sha256": "142955314ad666bc437b425a8a4868ee9af593862c98fbe0d39423675fbc5fd1"
+  },
+  "inverse": {
+    "bytes": 75782,
+    "sha256": "8cc540cd9bac09c97cf1efbc41fea94f2e90bb0b074b87c573ff302c041f987c"
+  },
+  "kind": "INDEPENDENT_READER17_EXACT_CODE_DATA_ONLY",
+  "native": "NOT RUN",
+  "new_tool_runtime": "NOT_EMITTED_NOT_QUALIFIED",
+  "predecessor_reader_commit": "04345bbe82fd8e0571bb454589d4dd82b271b8a8",
+  "programs": {
+    "archives.py": {
+      "bytes": 17270,
+      "sha256": "90904de0bfe31886419e94823ce830c71b06db1bbd4557e3b687696d1b4901c0"
+    },
+    "bindings.py": {
+      "bytes": 10681,
+      "sha256": "c9110cc0d2673097160e7f0a0826c9e2436c9dc54b234d65d3a2c6e7c2e53455"
+    },
+    "elf.py": {
+      "bytes": 1720,
+      "sha256": "0d5adbfcca43700272b65462f69584f9c0a79d71c46ad5b6e037be56366773a2"
+    },
+    "evidence.py": {
+      "bytes": 49178,
+      "sha256": "f45601d3165ad91c5a264c7433ab714317894d2addf694b22531dbc2e9ead923"
+    },
+    "reader.py": {
+      "bytes": 27573,
+      "sha256": "6e3ebe9e8fdd6ad9ca60e44c20a7112d71121c47c6d36515f7bb90221df0c459"
+    },
+    "storage.py": {
+      "bytes": 36115,
+      "sha256": "e8dabc052092224d485e4e8ac2be121cbd98f5595a7bec27e6481eef0ac5a162"
+    }
+  },
+  "release_acceptance": false,
+  "request_template": {
+    "bytes": 4080,
+    "sha256": "5a8e38f34cda163f81102378752c18bf46285cc4ba873611d456d1fb6fe40d4a"
+  },
+  "schema": 17,
+  "source_constructor_commit": "bcbbc44095c301c9ec1a83ad5b0cb460db337603",
+  "source_contract": {
+    "bytes": 43757093,
+    "files": 367,
+    "map_sha256": "189430cae42422e8f50d8de38a41976d87a8b4a0fcec527a3949d6031eccc2f6",
+    "profile_sha256": "9b6410c6def95e8eb68cee44930ecab1f8a7c281432d71ae04d81b09c695c827",
+    "tree": "f846369139e03239d500cb737092b5eeb358c260"
+  },
+  "validation": {
+    "bytes": 2894,
+    "sha256": "0087a1d3eb3e1b936b3cbe3c888ad4ab893cc0273764b03f09087ae751c5564d"
+  }
+}

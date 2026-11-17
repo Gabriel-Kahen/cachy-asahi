@@ -1,0 +1,95 @@
+{
+  "M2": "NOT_TESTED",
+  "Original_GET": false,
+  "Root_acceptance": null,
+  "Source_executed": false,
+  "actors": false,
+  "actual": {
+    "Root_acceptance": null,
+    "bootstrap_job": null,
+    "build_job": null,
+    "grant": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "controls_per_interpreter": 34,
+  "controls_total": 68,
+  "interpreters": {
+    "python3.12": "3.12.13",
+    "python3.14": "3.14.7"
+  },
+  "kind": "INDEPENDENT_READER17_FOCUSED_HOST_DATA_VALIDATION_ONLY",
+  "lease": false,
+  "legacy_suites": "NOT_RERUN_UNCHANGED_PREDICATES_BYTE_PRESERVED",
+  "native_acceptance": false,
+  "network": false,
+  "producer_imported": false,
+  "release_acceptance": false,
+  "results": [
+    {
+      "bytes": 113,
+      "controls": 14,
+      "interpreter": "python3.12",
+      "log": "validation-logs/python3.12-test_timing.log",
+      "returncode": 0,
+      "sha256": "c0c1944b5e25857db25bbbf2e3ba4f42ff63e629f143cfe071fe5602025b40af",
+      "suite": "test_timing.py"
+    },
+    {
+      "bytes": 111,
+      "controls": 12,
+      "interpreter": "python3.12",
+      "log": "validation-logs/python3.12-test_source.log",
+      "returncode": 0,
+      "sha256": "478383c500d0f334369a31d6ed29ead8322ac5205d7f7c7c7fcde9ea25ee90dd",
+      "suite": "test_source.py"
+    },
+    {
+      "bytes": 106,
+      "controls": 8,
+      "interpreter": "python3.12",
+      "log": "validation-logs/python3.12-test_preservation.log",
+      "returncode": 0,
+      "sha256": "2e7e95d82618f1ea08b0a24d61f374c3b161fb04ee47113d6baab1ebd15ac0a2",
+      "suite": "test_preservation.py"
+    },
+    {
+      "bytes": 113,
+      "controls": 14,
+      "interpreter": "python3.14",
+      "log": "validation-logs/python3.14-test_timing.log",
+      "returncode": 0,
+      "sha256": "84a14bcc22e4adca76ded4a930a38d5521ff3c8464e7d3b3608a2a833bbeb334",
+      "suite": "test_timing.py"
+    },
+    {
+      "bytes": 111,
+      "controls": 12,
+      "interpreter": "python3.14",
+      "log": "validation-logs/python3.14-test_source.log",
+      "returncode": 0,
+      "sha256": "c055ed76d75e64996980a3d5437a9f77463cfde286d4ccf6f8b815b578057e49",
+      "suite": "test_source.py"
+    },
+    {
+      "bytes": 106,
+      "controls": 8,
+      "interpreter": "python3.14",
+      "log": "validation-logs/python3.14-test_preservation.log",
+      "returncode": 0,
+      "sha256": "8291979b307800a2411ed99e4708747c62ec4cba471072141b444acc35421016",
+      "suite": "test_preservation.py"
+    }
+  ],
+  "schema": 17,
+  "scope": "OFFLINE_DATA_NUMERIC_BOUNDARY_SOURCE_AST_FULL_INVERSES_AND_PRESERVATION_ONLY",
+  "source_contract": {
+    "bytes": 43757093,
+    "files": 367,
+    "map_sha256": "189430cae42422e8f50d8de38a41976d87a8b4a0fcec527a3949d6031eccc2f6",
+    "profile_sha256": "9b6410c6def95e8eb68cee44930ecab1f8a7c281432d71ae04d81b09c695c827",
+    "tree": "f846369139e03239d500cb737092b5eeb358c260"
+  },
+  "status": "PASS"
+}
