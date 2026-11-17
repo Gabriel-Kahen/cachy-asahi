@@ -12,7 +12,7 @@ import unittest
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
-spec = importlib.util.spec_from_file_location('developer_workflow', ROOT / 'scripts/workflows/developer_workflow.py')
+spec = importlib.util.spec_from_file_location('developer_workflow', ROOT / 'scripts/workflows/developer_workflow_diagnostics_v2.py')
 W = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(W)
 
@@ -44,7 +44,8 @@ class WorkflowTest(unittest.TestCase):
 
     def test_failed_command_retains_receipt_and_bounded_safe_log_context(self):
         raw = b'x'*3000 + b'\ncompiler: missing header\n\x1b[31m\xff\x00'
-        with self.assertRaises(W.Failure) as caught:
+        core = self.commands.core
+        with mock.patch.object(core, 'supervise', wraps=core.supervise) as supervised, self.assertRaises(W.Failure) as caught:
             self.python('import os;os.write(1,%r);raise SystemExit(7)' % raw)
         message = str(caught.exception)
         diagnostic = json.loads(message.split(': ', 1)[1])
@@ -58,6 +59,8 @@ class WorkflowTest(unittest.TestCase):
         self.assertTrue(receipt['output_complete'])
         self.assertIsNone(receipt['error'])
         self.assertEqual(diagnostic['cap_seconds'], 3)
+        self.assertEqual(diagnostic['cap_seconds'], supervised.call_args.kwargs['cap'])
+        self.assertIs(self.commands.core, core)
         self.assertEqual(diagnostic['expected'], 0)
         self.assertEqual(diagnostic['output_omitted_bytes'], len(raw) - 2048)
         self.assertEqual(diagnostic['output_tail'], raw[-2048:].decode('utf-8', 'backslashreplace'))
@@ -123,7 +126,7 @@ class WorkflowTest(unittest.TestCase):
         self.assertFalse(result['reaped'])
 
     def test_core_pin_refuses_changed_dependency(self):
-        with mock.patch.object(W, 'CORE_PIN', '0'*64):
+        with mock.patch.object(W._BASE, 'CORE_PIN', '0'*64):
             with self.assertRaisesRegex(ValueError, 'pin differs'):
                 W.load_core()
 
@@ -341,7 +344,7 @@ class ProjectWorkflowTest(unittest.TestCase):
         source = (ROOT / 'scripts/workflows/developer_workflow.py').read_text()
         nodes = {n.name: ast.get_source_segment(source, n) for n in ast.parse(source).body
                  if isinstance(n, (ast.FunctionDef, ast.ClassDef))}
-        wanted = {'load_core': 'd757ca96b9dd992e81d9151c87a1751314fac00b8eef80a146a773d9a8fe4391', 'Commands': 'b64ef526704e5b72c25c66060f7f17d66828e1921567bc2f969ac1fbba69d130', 'OnboardingAdapter': '5042050c3bff0c383e501a5a48bd7cce8fbe7e6e875a457db9c0949e0fcaba6f', 'IncrementalBuild': '3392355967138126c9c0104e60e858f8089ac00be9561ea68a8206cdc09be3fe', 'fixture_files': '0c787a8e74ead8232794af2482dc3d09991c5a36f47fa680b0d6552ee6dcd93d', 'journey': '1587efa37e4c6327adc8de6249709618978cb6555a806b92a75c95c87dfd5321'}
+        wanted = {'load_core': 'd757ca96b9dd992e81d9151c87a1751314fac00b8eef80a146a773d9a8fe4391', 'Commands': '7d2d520e99efe072791deddccddbf68c6dc8d66e3eabc3376425a2b40e9eb24b', 'OnboardingAdapter': '5042050c3bff0c383e501a5a48bd7cce8fbe7e6e875a457db9c0949e0fcaba6f', 'IncrementalBuild': '3392355967138126c9c0104e60e858f8089ac00be9561ea68a8206cdc09be3fe', 'fixture_files': '0c787a8e74ead8232794af2482dc3d09991c5a36f47fa680b0d6552ee6dcd93d', 'journey': '1587efa37e4c6327adc8de6249709618978cb6555a806b92a75c95c87dfd5321'}
         for name, digest in wanted.items():
             self.assertEqual(hashlib.sha256(nodes[name].encode()).hexdigest(), digest, name)
 
