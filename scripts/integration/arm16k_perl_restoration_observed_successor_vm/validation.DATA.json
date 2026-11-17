@@ -16,13 +16,17 @@
     "source_ref": null
   },
   "canonical_old_lock_exact_bytes": 69318,
-  "controls": 10,
-  "diagnostic_only": true,
+  "combined_real_fixture_delivery": true,
+  "controls": 13,
+  "diagnostic_only": false,
   "full_old_lock_copied": false,
   "full_old_root_copied": false,
   "full_predecessor_inverse_files": 387,
   "kind": "COMPACT_SOURCE387_SUCCESSOR_DATA_VALIDATION_V1",
-  "qmp_contract": null,
+  "qmp_contract": {
+    "bytes": 3170,
+    "sha256": "7eacaee7e668bb8dd99919bb078854f88b8ec2fd403322e94dc7ad7f3d834b3a"
+  },
   "skips": 0,
   "source_qualification": null,
   "status": "PASS_PHYSICAL_DATA_ONLY_ROOT_QUALIFICATION_HELD"

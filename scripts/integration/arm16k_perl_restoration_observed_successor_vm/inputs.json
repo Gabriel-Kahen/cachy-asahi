@@ -69,5 +69,25 @@
       "sha256": "06d227647cbbf5d357bcccccc77dde07344bea033880a87b5405e9679810b443"
     }
   },
-  "qmp": null
+  "qmp": {
+    "commit": "8880c0c6fbf9fb69f8ce293d67c960419a95240c",
+    "diagnostic_commit": "2bb56425413d011b6c6ca2cb153affc4c496b5a3",
+    "files": {
+      "component.DATA.json": {
+        "bytes": 3170,
+        "mode": 420,
+        "sha256": "7eacaee7e668bb8dd99919bb078854f88b8ec2fd403322e94dc7ad7f3d834b3a"
+      },
+      "hold_state_observations.py": {
+        "bytes": 13817,
+        "mode": 420,
+        "sha256": "9b0e64730ae8f32d32d5b783f659a0df3e555ba9f0cf325354d06ab25630ddfb"
+      },
+      "transform.py": {
+        "bytes": 4977,
+        "mode": 420,
+        "sha256": "b14ada5f8d2ae9889b1e6f25eed6b626fc08f4c67f8263d8043ae953b0f550a2"
+      }
+    }
+  }
 }

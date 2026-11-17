@@ -112,6 +112,19 @@ def authenticate_family(files,expected):
     lock=decode(files['source.lock.json'][0]);need(lock['files']==rows({n:r for n,r in files.items()if n!='source.lock.json'}),'closed original family map')
 
 
+def authenticate_component(files,expected):
+    need(type(files)is dict and type(expected)is dict and set(files)==set(expected['files'])and all(type(r)is tuple and len(r)==2 and type(r[0])is bytes and r[1]in(0o644,0o755)for r in files.values()),'typed exact3-file Gcomponent closure')
+    need(rows(files)==expected['files'],'exact frozen3-file Gcomponent contract/projector/runtime bytes/modes')
+    contract=decode(files['component.DATA.json'][0]);need(contract['predecessor']==dict(bytes=4106688,files=387,lock=dict(bytes=69318,sha256='06d227647cbbf5d357bcccccc77dde07344bea033880a87b5405e9679810b443'))and all(v is None for v in contract['actual'].values()),'Gexact387 base and unissued roles')
+    need([Path(r['path']).name for r in contract['deliver_only']]==['transform.py','hold_state_observations.py']and contract['fixed_delivery']['fixture']=='hold_state_observations.py'and contract['fixed_delivery']['mode']==0o644,'fixed Gdelivery filenames/mode')
+    for row in contract['deliver_only']:need({k:row[k]for k in('bytes','sha256','mode')}==expected['files'][Path(row['path']).name],'whole advertised deliver-only component pins')
+
+
+def component(path,expected):
+    need(path is not None,'explicit frozen Gcomponent path required; no default binding');path=ordinary(path);family=path.parent.parent/'arm16k_perl_guest_hold_qmp_successor'
+    files={'component.DATA.json':read(path),'transform.py':read(family/'transform.py'),'hold_state_observations.py':read(family/'hold_state_observations.py')};authenticate_component(files,expected);return files
+
+
 def compact_patch(before,after):
     a=before.splitlines(keepends=True);b=after.splitlines(keepends=True);offsets=[0]
     for line in b:offsets.append(offsets[-1]+len(line))
@@ -136,14 +149,18 @@ def project(predecessor,diagnostic,constructor,diagnostic_root,qmp=None):
     need(canonical(old)==predecessor['source.lock.json'][0],'original69318 canonical JSON byte identity proved before changes')
     need(len(predecessor)==387 and sum(len(b)for b,_ in predecessor.values())==4106688,'complete387 predecessor tuple')
     need(inputs['fixture_source_cap_bytes']==CAP and all(v is None for v in inputs['actual'].values()),'unchanged4MiB cap/unissued roles')
-    authenticate_family(diagnostic,inputs['diagnostic']);need(qmp is None and inputs['qmp']is None,'QMP composition requires separately frozen ready contract; never infer one')
+    authenticate_family(diagnostic,inputs['diagnostic']);authenticate_component(qmp,inputs['qmp'])
     need(not any(n.startswith(PREFIX)for n in predecessor),'new compact successor namespace')
     spec=importlib.util.spec_from_file_location('authenticated_restoration_diagnostic',diagnostic_root/'proposal.py');D=importlib.util.module_from_spec(spec);spec.loader.exec_module(D)
     before=predecessor['guest/root.sh'][0];after=D.transform(before);need(D.inverse(after)==before,'exact frozen501 one-leaf inverse')
-    result={n:r for n,r in predecessor.items()if n!='source.lock.json'};result['guest/root.sh']=after,predecessor['guest/root.sh'][1]
-    changes={'guest/root.sh':dict(before=rows({'guest/root.sh':predecessor['guest/root.sh']})['guest/root.sh'],after=rows({'guest/root.sh':result['guest/root.sh']})['guest/root.sh'],patch=compact_patch(before,after))}
-    manifest_name=PREFIX+'construction.DATA.json';added=[manifest_name]
-    manifest=dict(kind='UNISSUED_COMPACT_RESTORATION_DIAGNOSTIC_SUCCESSOR_V1',predecessor=inputs['predecessor'],original_lock_metadata={k:v for k,v in old.items()if k!='files'},canonical_predecessor_lock_byte_identity=True,diagnostic=dict(commit=inputs['diagnostic']['commit'],source_lock=inputs['diagnostic']['source_lock'],projection='ROOT_RUNTIME_INLINE_ONLY_ORIGINAL_FAMILY_AUTHENTICATED_EXTERNALLY'),qmp=None,constructor=pin(constructor['source.lock.json'][0]),changes=changes,added_membership=added,inverse='RESTORE_EXACT_CHANGED_BYTE_RANGES_AND_MODES_REMOVE_ADDED_MEMBERSHIP_REGENERATE_CANONICAL_387_LOCK',fixture_source_cap_bytes=CAP,source_qualification=None,actual=dict.fromkeys(ACTUAL))
+    G=types.ModuleType('authenticated_G387_component');G.__file__='/immutable_G_component/transform.py';exec(compile(qmp['transform.py'][0],G.__file__,'exec'),G.__dict__)
+    controller=G.transform_controller(predecessor['controller.py'][0]);adapter=G.transform_adapter(predecessor['adapter.py'][0]);need(G.inverse_controller(controller)==predecessor['controller.py'][0]and G.inverse_adapter(adapter)==predecessor['adapter.py'][0],'exact Gcontroller/adapter387 inverse')
+    projected={'guest/root.sh':(after,predecessor['guest/root.sh'][1]),'controller.py':(controller,predecessor['controller.py'][1]),'adapter.py':(adapter,predecessor['adapter.py'][1]),'hold_state_observations.py':qmp['hold_state_observations.py']}
+    result={n:r for n,r in predecessor.items()if n!='source.lock.json'};changes={}
+    for name,row in projected.items():
+        before_row=predecessor.get(name);result[name]=row;changes[name]=dict(before=rows({name:before_row})[name]if before_row else None,after=rows({name:row})[name],patch=compact_patch(before_row[0],row[0])if before_row else [])
+    manifest_name=PREFIX+'construction.DATA.json';added=sorted(set(projected)-set(predecessor)|{manifest_name})
+    manifest=dict(kind='UNISSUED_COMPACT_RESTORATION_DIAGNOSTIC_SUCCESSOR_V1',predecessor=inputs['predecessor'],original_lock_metadata={k:v for k,v in old.items()if k!='files'},canonical_predecessor_lock_byte_identity=True,diagnostic=dict(commit=inputs['diagnostic']['commit'],source_lock=inputs['diagnostic']['source_lock'],projection='ROOT_RUNTIME_INLINE_ONLY_ORIGINAL_FAMILY_AUTHENTICATED_EXTERNALLY'),qmp=dict(commit=inputs['qmp']['commit'],diagnostic_commit=inputs['qmp']['diagnostic_commit'],files=inputs['qmp']['files'],projection='ONLY_FIXED_RUNTIME_MODULE_CONTROLLER_AND_ADAPTER_DELIVERY'),constructor=pin(constructor['source.lock.json'][0]),changes=changes,added_membership=added,inverse='RESTORE_EXACT_CHANGED_BYTE_RANGES_AND_MODES_REMOVE_ADDED_MEMBERSHIP_REGENERATE_CANONICAL_387_LOCK',fixture_source_cap_bytes=CAP,source_qualification=None,actual=dict.fromkeys(ACTUAL))
     need(len(canonical(manifest))<=16384,'bounded compact inverse/provenance DATA');result[manifest_name]=canonical(manifest),0o644
     lock=dict(old,files=rows(result),actual=dict.fromkeys(old['actual']));result['source.lock.json']=canonical(lock),0o644
     need(sum(len(b)for b,_ in result.values())<=CAP,'exact full result cap computed before output mutation')
@@ -165,42 +182,42 @@ def inverse(files,expected):
     original['source.lock.json']=raw,0o644;closed(original,expected['source_lock']);need(len(original)==387 and sum(len(b)for b,_ in original.values())==4106688,'complete387 inverse tuple');return original
 
 
-def verify_export(root,expected,diagnostic_root,constructor_expected):
+def verify_export(root,expected,diagnostic_root,constructor_expected,qmp_component):
     constructor,inputs=own(constructor_expected);files=snapshot(root);closed(files,expected);diagnostic=snapshot(diagnostic_root);authenticate_family(diagnostic,inputs['diagnostic'])
-    old=inverse(files,inputs['predecessor']);replay=project(old,diagnostic,constructor,ordinary(diagnostic_root));need(replay==files,'deterministic runtime-only projection and compact whole387 inverse')
+    qmp=component(qmp_component,inputs['qmp']);old=inverse(files,inputs['predecessor']);replay=project(old,diagnostic,constructor,ordinary(diagnostic_root),qmp);need(replay==files,'deterministic runtime-only projection and compact whole387 inverse')
     for n,(body,_)in files.items():
         if n.endswith('.py'):compile(body,n,'exec')
     manifest=decode(files[PREFIX+'construction.DATA.json'][0]);total=sum(len(b)for b,_ in files.values());patch_bytes=sum(len(base64.b64decode(p['before_b64']))for c in manifest['changes'].values()for p in c['patch'])
     return dict(status='PASS_PHYSICAL_COMPACT_SOURCE_AND_WHOLE387_INVERSE_ONLY',files=len(files),closed_leaf_bytes=total,source_lock=expected,fixture_source_cap_bytes=CAP,remaining_source_bytes=CAP-total,changed_operational_leaves=sorted(manifest['changes']),retained_preimage_snippet_bytes=patch_bytes,full_old_lock_copied=False,full_old_root_copied=False,source_qualification=None,actual=dict.fromkeys(ACTUAL))
 
 
-def construct(predecessor_root,diagnostic_root,output,constructor_expected,qmp=None):
-    constructor,inputs=own(constructor_expected);need(qmp is None,'QMP contract unbound')
+def construct(predecessor_root,diagnostic_root,output,constructor_expected,qmp_component=None):
+    constructor,inputs=own(constructor_expected);qmp=component(qmp_component,inputs['qmp'])
     roots=[ordinary(p)for p in(predecessor_root,diagnostic_root)];out=ordinary(output)
     need(not out.exists()and out.parent.is_dir()and out.parent.stat().st_uid==os.getuid()and not out.parent.stat().st_mode&0o022,'fresh private owned output')
-    need(all(not out.is_relative_to(p)and not p.is_relative_to(out)for p in(*roots,HERE)),'output disjoint from immutable source inputs')
-    before=[snapshot(p)for p in roots];result=project(*before,constructor,roots[1])
-    need(all(snapshot(p)==s for p,s in zip(roots,before))and snapshot(HERE)==constructor,'all authenticated operands stable before first output mutation')
+    need(all(not out.is_relative_to(p)and not p.is_relative_to(out)for p in(*roots,HERE,ordinary(qmp_component).parent.parent)),'output disjoint from immutable source inputs')
+    before=[snapshot(p)for p in roots];result=project(*before,constructor,roots[1],qmp)
+    need(all(snapshot(p)==s for p,s in zip(roots,before))and snapshot(HERE)==constructor and component(qmp_component,inputs['qmp'])==qmp,'all authenticated operands stable before first output mutation')
     out.mkdir(mode=0o700)
     for name,(body,mode)in sorted(result.items()):
         p=out/name;p.parent.mkdir(parents=True,exist_ok=True)
         with p.open('xb')as f:f.write(body)
         p.chmod(mode)
-    return verify_export(out,pin(result['source.lock.json'][0]),roots[1],constructor_expected)
+    return verify_export(out,pin(result['source.lock.json'][0]),roots[1],constructor_expected,qmp_component)
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--constructor-lock-sha256',required=True);sub=p.add_subparsers(dest='command',required=True)
     c=sub.add_parser('construct')
-    for name in('predecessor','diagnostic','output'):c.add_argument('--'+name,type=Path,required=True)
+    for name in('predecessor','diagnostic','output','qmp-component'):c.add_argument('--'+name,type=Path,required=True)
     v=sub.add_parser('verify')
-    for name in('source','diagnostic'):v.add_argument('--'+name,type=Path,required=True)
+    for name in('source','diagnostic','qmp-component'):v.add_argument('--'+name,type=Path,required=True)
     v.add_argument('--source-lock-sha256',required=True);a=p.parse_args()
     try:
         raw=read(HERE/'source.lock.json')[0];expected=dict(bytes=len(raw),sha256=a.constructor_lock_sha256)
-        if a.command=='construct':answer=construct(a.predecessor,a.diagnostic,a.output,expected)
+        if a.command=='construct':answer=construct(a.predecessor,a.diagnostic,a.output,expected,a.qmp_component)
         else:
-            raw=read(a.source/'source.lock.json')[0];answer=verify_export(a.source,dict(bytes=len(raw),sha256=a.source_lock_sha256),a.diagnostic,expected)
+            raw=read(a.source/'source.lock.json')[0];answer=verify_export(a.source,dict(bytes=len(raw),sha256=a.source_lock_sha256),a.diagnostic,expected,a.qmp_component)
         print(json.dumps(answer,sort_keys=True,indent=2))
     except(OSError,ValueError,KeyError,TypeError)as error:p.exit(2,'compact Source DATA refusal: '+str(error)+'\n')
 if __name__=='__main__':main()
