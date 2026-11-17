@@ -1,0 +1,37 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 5025,
+      "mode": 420,
+      "sha256": "025136bde946a274a53f8efb44a685810ac38041140bc345d17fb4a8b3709346"
+    },
+    "constructor.py": {
+      "bytes": 13751,
+      "mode": 420,
+      "sha256": "924e73f2e584d0a90e9a202c74cd269aa063d74f660a87ee7700eaec76c6b9af"
+    },
+    "inputs.json": {
+      "bytes": 4025,
+      "mode": 420,
+      "sha256": "9bc624bc9dffe4faf1e6aca7c3d4f9368e25ceb377376c77354686c935069761"
+    },
+    "test_constructor.py": {
+      "bytes": 11209,
+      "mode": 420,
+      "sha256": "af49f9b020df5e908934b95b35d89a0ad9284edb5322f26df1488973abc2f767"
+    }
+  },
+  "kind": "UNISSUED_OBSERVED_HOLD_PERL_SUCCESSOR_CONSTRUCTOR_V1",
+  "schema": 1
+}

@@ -1,0 +1,408 @@
+{
+  "actual": {
+    "M2": null,
+    "Root_source": null,
+    "VM": null,
+    "predicate_cause": null,
+    "release": null
+  },
+  "generated": {
+    "guest/initialized-state.sh": {
+      "bytes": 10392,
+      "mode": 420,
+      "sha256": "62892aabba5849dac5fd882c1f969bdf64aa96603fe538da74d55d39f9e77f2b"
+    },
+    "guest/root.sh": {
+      "bytes": 20266,
+      "mode": 420,
+      "sha256": "03d5768c6831827451f079a9a3830fb9f2e74650f00bd158c3f62c721caca198"
+    }
+  },
+  "implicit": {
+    "E0": {
+      "after": " [[ -z $found && $(_initialized_identity \"$path\") == \"$before\" ]] || { _ig_diagnostic E0 13;return 1; }",
+      "before": " [[ -z $found && $(_initialized_identity \"$path\") == \"$before\" ]]"
+    },
+    "I0": {
+      "after": "_initialized_identity() { stat -c '%d:%i:%f:%u:%g:%h:%s:%y:%z' -- \"$1\" || { local _ig_diagnostic_rc=$?;_ig_diagnostic I0 \"${i:-14}\";return \"$_ig_diagnostic_rc\"; }; }",
+      "before": "_initialized_identity() { stat -c '%d:%i:%f:%u:%g:%h:%s:%y:%z' -- \"$1\"; }"
+    }
+  },
+  "index_scope": "0..13 existing initialized_paths order;14 descriptor/context or unset",
+  "predecessors": {
+    "guest/initialized-state.sh": {
+      "bytes": 6087,
+      "sha256": "164ad16f5b3dc732ad9a3d26b027b1b135f5a4f09fcd46961676328929b7095c"
+    },
+    "guest/root.sh": {
+      "bytes": 19694,
+      "sha256": "34e0134604fe6ddb1804f2fb3eb65feda2d99e7181488c77497830b37bfc87e9"
+    }
+  },
+  "public_nodes": [
+    "etc/.pwd.lock",
+    "etc/.updated",
+    "etc/audisp",
+    "etc/audit/plugins.d",
+    "etc/audit/rules.d",
+    "etc/ld.so.cache",
+    "etc/os-release",
+    "etc/udev/hwdb.bin",
+    "etc/vconsole.conf",
+    "etc",
+    "etc/audit",
+    "etc/udev",
+    "root",
+    "root/.ssh"
+  ],
+  "returns": [
+    {
+      "check": "R1",
+      "function": "_initialized_sha",
+      "index": "${i:-14}",
+      "line": 7,
+      "original": "_initialized_sha() { local v;v=$(sha256sum -- \"$1\") || return;printf '%s' \"${v%% *}\"; }",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R2",
+      "function": "_initialized_empty",
+      "index": "13",
+      "line": 11,
+      "original": " [[ -d $path && ! -L $path ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R3",
+      "function": "_initialized_empty",
+      "index": "13",
+      "line": 12,
+      "original": " before=$(_initialized_identity \"$path\") || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R4",
+      "function": "_initialized_empty",
+      "index": "13",
+      "line": 14,
+      "original": " found=$(find -P \"$path\" -xdev -mindepth 1 -maxdepth 1 -printf x -quit 2>/dev/null) || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R5",
+      "function": "_initialized_view",
+      "index": "${i:-14}",
+      "line": 19,
+      "original": " before=$(_initialized_identity \"$path\") || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R6",
+      "function": "_initialized_view",
+      "index": "${i:-14}",
+      "line": 21,
+      "original": "  f) [[ -f $path && ! -L $path ]] || return 2;payload=$(_initialized_sha \"$path\") || return;;",
+      "return_code": 2
+    },
+    {
+      "check": "R7",
+      "function": "_initialized_view",
+      "index": "${i:-14}",
+      "line": 21,
+      "original": "  f) [[ -f $path && ! -L $path ]] || return 2;payload=$(_initialized_sha \"$path\") || return;;",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R8",
+      "function": "_initialized_view",
+      "index": "${i:-14}",
+      "line": 22,
+      "original": "  d) [[ -d $path && ! -L $path ]] || return 2;;",
+      "return_code": 2
+    },
+    {
+      "check": "R9",
+      "function": "_initialized_view",
+      "index": "${i:-14}",
+      "line": 23,
+      "original": "  l) [[ -L $path ]] || return 2;payload=$(set -o pipefail;readlink -n -- \"$path\" | base64 -w0) || return;;",
+      "return_code": 2
+    },
+    {
+      "check": "R10",
+      "function": "_initialized_view",
+      "index": "${i:-14}",
+      "line": 23,
+      "original": "  l) [[ -L $path ]] || return 2;payload=$(set -o pipefail;readlink -n -- \"$path\" | base64 -w0) || return;;",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R11",
+      "function": "_initialized_view",
+      "index": "${i:-14}",
+      "line": 24,
+      "original": "  *) return 2;;",
+      "return_code": 2
+    },
+    {
+      "check": "R12",
+      "function": "_initialized_view",
+      "index": "${i:-14}",
+      "line": 26,
+      "original": " stamp=$(stat -c '%Y:%y' -- \"$path\") || return;seconds=${stamp%%:*};nanos=${stamp#*.};nanos=${nanos%% *}",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R13",
+      "function": "_initialized_view",
+      "index": "${i:-14}",
+      "line": 27,
+      "original": " [[ $seconds =~ ^-?[0-9]+$ && $nanos =~ ^[0-9]{9}$ ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R14",
+      "function": "_initialized_view",
+      "index": "${i:-14}",
+      "line": 28,
+      "original": " after=$(_initialized_identity \"$path\") || return;[[ $before == \"$after\" ]] || return 2",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R15",
+      "function": "_initialized_view",
+      "index": "${i:-14}",
+      "line": 28,
+      "original": " after=$(_initialized_identity \"$path\") || return;[[ $before == \"$after\" ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R16",
+      "function": "_initialized_attrs",
+      "index": "${i:-14}",
+      "line": 31,
+      "original": "_initialized_attrs() { local value;value=$(set -o pipefail;getfattr --no-dereference --absolute-names --dump --match='.*' -- \"$1\" | sha256sum) || return;printf '%s' \"${value%% *}\"; }",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R17",
+      "function": "_initialized_guard",
+      "index": "${i:-14}",
+      "line": 34,
+      "original": " [[ ${initialized_captured:-0} == 1 ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R18",
+      "function": "_initialized_guard",
+      "index": "${i:-14}",
+      "line": 35,
+      "original": " [[ $(_initialized_identity \"$D/initialized-state.tsv\") == \"$initialized_descriptor_identity\" && $(_initialized_identity \"$D/preboot-context.json\") == \"$initialized_context_identity\" ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R19",
+      "function": "_initialized_guard",
+      "index": "${i:-14}",
+      "line": 36,
+      "original": " _initialized_empty \"$initialized_prefix/root/.ssh\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R20",
+      "function": "_initialized_guard",
+      "index": "${i:-14}",
+      "line": 38,
+      "original": "  path=$initialized_prefix/${initialized_paths[$i]};before=$(_initialized_identity \"$path\") || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R21",
+      "function": "_initialized_guard",
+      "index": "${i:-14}",
+      "line": 39,
+      "original": "  [[ $(_initialized_view \"$i\") == \"${initialized_expected[$i]}\" ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R22",
+      "function": "_initialized_guard",
+      "index": "${i:-14}",
+      "line": 40,
+      "original": "  attrs=$(_initialized_attrs \"$path\") || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R23",
+      "function": "_initialized_guard",
+      "index": "${i:-14}",
+      "line": 41,
+      "original": "  [[ $attrs == \"${initialized_attrs[$i]}\" && $(_initialized_identity \"$path\") == \"$before\" ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R24",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 49,
+      "original": " [[ ${initialized_captured:-0} == 0 ]] || { _initialized_guard;return; }",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R25",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 50,
+      "original": " [[ -f $descriptor && ! -L $descriptor && $(stat -c '%u:%g:%h:%a' -- \"$descriptor\") == \"$owner:$owner:1:600\" && $(stat -c '%s' -- \"$descriptor\") -le 8192 ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R26",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 51,
+      "original": " [[ -f $context && ! -L $context && $(stat -c '%u:%g:%h:%a' -- \"$context\") == \"$owner:$owner:1:644\" && $(stat -c '%s' -- \"$context\") -le 4096 ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R27",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 52,
+      "original": " [[ $selected =~ ^[0-9a-f]{64}$ && $(_initialized_sha \"$descriptor\") == \"$selected\" ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R28",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 54,
+      "original": " exec {initialized_descriptor_fd}< \"$descriptor\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R29",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 55,
+      "original": " IFS= read -r line <&\"$initialized_descriptor_fd\" || return;bytes=$((${#line}+1));IFS=' ' read -r marker observed_nonce context_sha extra <<< \"$line\"",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R30",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 56,
+      "original": " [[ $line == \"PERL5423_INITIALIZED_STATE_V1 $nonce $context_sha\" && $nonce =~ ^[0-9a-f]{32}$ && $observed_nonce == \"$nonce\" && $context_sha =~ ^[0-9a-f]{64}$ && -z $extra && $(_initialized_sha \"$context\") == \"$context_sha\" ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R31",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 57,
+      "original": " _initialized_empty \"$prefix/root/.ssh\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R32",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 60,
+      "original": "  IFS= read -r line <&\"$initialized_descriptor_fd\" || return;bytes=$((bytes+${#line}+1));(( bytes <= 8192 )) || return 2",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R33",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 60,
+      "original": "  IFS= read -r line <&\"$initialized_descriptor_fd\" || return;bytes=$((bytes+${#line}+1));(( bytes <= 8192 )) || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R34",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 61,
+      "original": "  path=$prefix/${initialized_paths[$i]};before=$(_initialized_identity \"$path\") || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R35",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 62,
+      "original": "  [[ $(stat -c '%u:%g:%a' -- \"$path\") == \"$owner:$owner:${initialized_modes[$i]}\" && $(_initialized_view \"$i\") == \"$line\" ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R36",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 63,
+      "original": "  initialized_expected[$i]=$line;attrs=$(_initialized_attrs \"$path\") || return;initialized_attrs[$i]=$attrs",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "check": "R37",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 64,
+      "original": "  [[ $(_initialized_identity \"$path\") == \"$before\" ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R38",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 66,
+      "original": " if IFS= read -r extra <&\"$initialized_descriptor_fd\";then return 2;fi",
+      "return_code": 2
+    },
+    {
+      "check": "R39",
+      "function": "_initialized_capture",
+      "index": "${i:-14}",
+      "line": 67,
+      "original": " [[ -z $extra && $(stat -c '%s' -- \"$descriptor\") == \"$bytes\" && $(_initialized_identity \"$descriptor\") == \"$initialized_descriptor_identity\" && $(_initialized_identity \"$context\") == \"$initialized_context_identity\" ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R40",
+      "function": "initialized_capture",
+      "index": "${i:-14}",
+      "line": 72,
+      "original": " [[ $# == 0 ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "check": "R41",
+      "function": "initialized_capture",
+      "index": "${i:-14}",
+      "line": 78,
+      "original": " [[ $count == 1 ]] || return 2",
+      "return_code": 2
+    }
+  ],
+  "stages": [
+    "METADATA_RETURNED",
+    "COPY_DONE",
+    "REMOVE_DONE",
+    "ASSERT_USERS_ENTER",
+    "ASSERT_USERS_DONE",
+    "USER_DIR_DONE",
+    "INSTALLED_MARKER_DONE",
+    "SNAPSHOT_ENTER",
+    "SNAPSHOT_GUARD1_DONE",
+    "SNAPSHOT_META_DONE",
+    "SNAPSHOT_GUARD2_DONE",
+    "SNAPSHOT_XATTR_DONE",
+    "SNAPSHOT_GUARD3_DONE",
+    "SNAPSHOT_HASH_DONE",
+    "USERS_SNAPSHOT_DONE",
+    "USERS_META_MATCHED",
+    "USERS_HASH_MATCHED",
+    "USERS_XATTR_MATCHED"
+  ]
+}
