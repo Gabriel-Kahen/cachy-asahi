@@ -1,0 +1,199 @@
+{
+  "Root_selection": null,
+  "active_recipe_files": 15,
+  "archive": {
+    "bytes": 51220268,
+    "filename": "qtbase-everywhere-src-6.12.0.tar.xz",
+    "sha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307",
+    "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz"
+  },
+  "basis_commit": "b05267833d497ef034576741bf31968019a526c3",
+  "kind": "QT612_GUI_SERVER_SOURCE_INPUT_PINS_V1",
+  "native_pair": null,
+  "new_sources": {
+    "SERVER_DEPENDENCY_GUARD.cmake": {
+      "bytes": 830,
+      "sha256": "77ee32886383da2d2b7c30b03269c7c482a6386237ad7c0bc111dd960579e379"
+    }
+  },
+  "patch_order": [
+    "CVE-2026-116337-qtbase-6.12-0002.diff",
+    "CVE-2026-116337-qtbase-6.12-0001.diff",
+    "CVE-2026-105924-qtbase-6.12.diff",
+    "CVE-2026-105943-qtbase-6.12.diff"
+  ],
+  "reused": {
+    ".SRCINFO": {
+      "byte_identical": false,
+      "current": {
+        "bytes": 3856,
+        "sha256": "9c132b1d743040efcfad23401efee5879270fab91d71877fe0972d6501bdb445"
+      },
+      "original": {
+        "bytes": 3626,
+        "sha256": "22a70c92318dc7aaadbc9c30f8beb5098c7d6c4c734d8dbcca5ec12f138c91ea"
+      },
+      "source": "packages/port/qt612-gui-source-reference/.SRCINFO"
+    },
+    "CVE-2026-105924-qtbase-6.12.diff": {
+      "byte_identical": true,
+      "current": {
+        "bytes": 5019,
+        "sha256": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b"
+      },
+      "original": {
+        "bytes": 5019,
+        "sha256": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b"
+      },
+      "source": "packages/port/qt612-gui-source-reference/CVE-2026-105924-qtbase-6.12.diff"
+    },
+    "CVE-2026-105943-qtbase-6.12.diff": {
+      "byte_identical": true,
+      "current": {
+        "bytes": 2291,
+        "sha256": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+      },
+      "original": {
+        "bytes": 2291,
+        "sha256": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+      },
+      "source": "packages/port/qt612-gui-source-reference/CVE-2026-105943-qtbase-6.12.diff"
+    },
+    "CVE-2026-116337-qtbase-6.12-0001.diff": {
+      "byte_identical": true,
+      "current": {
+        "bytes": 3262,
+        "sha256": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12"
+      },
+      "original": {
+        "bytes": 3262,
+        "sha256": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12"
+      },
+      "source": "packages/port/qt612-gui-source-reference/CVE-2026-116337-qtbase-6.12-0001.diff"
+    },
+    "CVE-2026-116337-qtbase-6.12-0002.diff": {
+      "byte_identical": true,
+      "current": {
+        "bytes": 5186,
+        "sha256": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec"
+      },
+      "original": {
+        "bytes": 5186,
+        "sha256": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec"
+      },
+      "source": "packages/port/qt612-gui-source-reference/CVE-2026-116337-qtbase-6.12-0002.diff"
+    },
+    "LICENSE.packaging": {
+      "byte_identical": true,
+      "current": {
+        "bytes": 1070,
+        "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+      },
+      "original": {
+        "bytes": 1070,
+        "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+      },
+      "source": "packages/port/qt612-gui-source-reference/LICENSE.packaging"
+    },
+    "LICENSE.third-party": {
+      "byte_identical": true,
+      "current": {
+        "bytes": 639,
+        "sha256": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585"
+      },
+      "original": {
+        "bytes": 639,
+        "sha256": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585"
+      },
+      "source": "packages/port/qt612-gui-source-reference/LICENSE.third-party"
+    },
+    "PKGBUILD": {
+      "byte_identical": false,
+      "current": {
+        "bytes": 6145,
+        "sha256": "121f2ec8f25a8c935be16136cd3dc036603679fdaea2f1b95e45a7a2201f852b"
+      },
+      "original": {
+        "bytes": 5865,
+        "sha256": "7962cdc0d8648ae6f96b76f13bb2ae75cee5892940c93d57b8ee57f5163e9c95"
+      },
+      "source": "packages/port/qt612-gui-source-reference/PKGBUILD"
+    },
+    "SmokeCMakeLists.txt": {
+      "byte_identical": false,
+      "current": {
+        "bytes": 6902,
+        "sha256": "91036b0a511b570d7ce738584ff9607ae4e3d1f88fda3b0a926847ff260a79a1"
+      },
+      "original": {
+        "bytes": 4273,
+        "sha256": "e2786c21fdf000d5956fdf02b33d452d0c9d02c8459134b36a276618e3bc9533"
+      },
+      "source": "packages/port/qt612-gui-source-reference/SmokeCMakeLists.txt"
+    },
+    "check_stage.py": {
+      "byte_identical": false,
+      "current": {
+        "bytes": 22362,
+        "sha256": "35f410bf60af41f677f7a36d58cc5079ecf57dfde2b84f29dc1b006a4bf7f0da"
+      },
+      "original": {
+        "bytes": 19545,
+        "sha256": "291053598bd806eed9be622f495d51725aae5f579f5f3241a83111ded254cee5"
+      },
+      "source": "packages/port/qt612-gui-source-reference/check_stage.py"
+    },
+    "configure.cmake": {
+      "byte_identical": false,
+      "current": {
+        "bytes": 5695,
+        "sha256": "eaa27120efac20a30c6c8d256385532aa988af0dee00dd1f8117f24922674350"
+      },
+      "original": {
+        "bytes": 5696,
+        "sha256": "1d394895a6a9fd42944ff70c3cbf801cebc2986c3f52b4f49b2359c3d5d3f24a"
+      },
+      "source": "packages/port/qt612-gui-source-reference/configure.cmake"
+    },
+    "smoke.cpp": {
+      "byte_identical": false,
+      "current": {
+        "bytes": 3105,
+        "sha256": "cd504607ac0aec8aad372aad0387c60fb405a216addfa29d6ff2f16b93eaeb96"
+      },
+      "original": {
+        "bytes": 2876,
+        "sha256": "208e306973a4e3ee33f737071629a54b0a07ac029a632215c5e67960661ecbb1"
+      },
+      "source": "packages/port/qt612-gui-source-reference/smoke.cpp"
+    },
+    "source-notices.json": {
+      "byte_identical": true,
+      "current": {
+        "bytes": 20042,
+        "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+      },
+      "original": {
+        "bytes": 20042,
+        "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+      },
+      "source": "packages/port/qt612-gui-source-reference/source-notices.json"
+    },
+    "source.py": {
+      "byte_identical": false,
+      "current": {
+        "bytes": 6717,
+        "sha256": "efe21d53a77c92ea66997923529b4d6e34635db7f1cb760af99d01774bdb7870"
+      },
+      "original": {
+        "bytes": 5245,
+        "sha256": "402e4fde4bf176b92dda602d71d4ad1e1dbf0ee832347f0e6452ea9c53de6632"
+      },
+      "source": "packages/port/qt612-gui-source-reference/source.py"
+    }
+  },
+  "schema": 1,
+  "serial_basis_commit": "69a02851b87ca29daf2e197101b66bf75ff61889",
+  "source_count": 14,
+  "upstream_revision": "025bdad181de241e81bf853c8a2d7bf3d19261a9"
+}

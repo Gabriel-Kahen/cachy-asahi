@@ -1,0 +1,22 @@
+{
+  "files": {
+    "src/qml/Qt6QmlBuildInternals.cmake": {
+      "bytes": 17551,
+      "revision": "4332fbbb4c340463dc8cee36dda0c85d932122d8",
+      "role": "SMALL_NAMED_BUILD_HELPER_SOURCE_AUDIT_ONLY_NOT_DECLARATIVE_PROVIDER",
+      "sha256": "699b9035494afd822f4d95da12e2079b5d8b8064c0b64db2b453197ad403fbce",
+      "url": "https://raw.githubusercontent.com/qt/qtdeclarative/4332fbbb4c340463dc8cee36dda0c85d932122d8/src/qml/Qt6QmlBuildInternals.cmake"
+    },
+    "src/qml/Qt6QmlMacros.cmake": {
+      "bytes": 258880,
+      "revision": "4332fbbb4c340463dc8cee36dda0c85d932122d8",
+      "role": "SMALL_NAMED_BUILD_HELPER_SOURCE_AUDIT_ONLY_NOT_DECLARATIVE_PROVIDER",
+      "sha256": "03db83a43d724ffa3ae3320c0e0f63af03fe2be2c97112969e488cf2072bb9e9",
+      "url": "https://raw.githubusercontent.com/qt/qtdeclarative/4332fbbb4c340463dc8cee36dda0c85d932122d8/src/qml/Qt6QmlMacros.cmake"
+    }
+  },
+  "huge_bundle_downloaded": false,
+  "imported_or_executed": false,
+  "native_acceptance": false,
+  "schema": 1
+}

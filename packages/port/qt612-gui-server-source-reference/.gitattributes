@@ -1,0 +1,5 @@
+# Preserve byte-pinned upstream patches and exact generated observations.
+CVE-*.diff -whitespace
+evidence/host-CMakeCache.txt -whitespace
+evidence/host-configure.rawlog -whitespace
+evidence/generated/** -whitespace

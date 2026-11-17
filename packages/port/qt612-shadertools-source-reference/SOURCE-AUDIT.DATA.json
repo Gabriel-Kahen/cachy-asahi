@@ -1,0 +1,36 @@
+{
+  "M2": null,
+  "Root_acceptance": null,
+  "archive": {
+    "bytes": 1244684,
+    "sha256": "c7d84f436e1aaef39fdcadebf2bd71bdf24dc69497e13f2e0198873cbbfea2ab"
+  },
+  "archive_signature_authentication": null,
+  "archive_tag_equals_commit": true,
+  "base_provider": null,
+  "build": null,
+  "component_only": true,
+  "monolithic_bundle": false,
+  "native": null,
+  "primary_commit_tree_api": "upstream/commit.DATA.json",
+  "qsb_execution": null,
+  "release_commit": "bccd516b990a6396900051470ac86cc27a7042ea",
+  "release_tree": "00cf97838baca2f2b1a4833f6498ca39e6e073ec",
+  "schema": 1,
+  "selected_source": {
+    "bytes": 6795,
+    "sha256": "8b3605289a2c29fb2b9e2316fa17a31eb4c0662e5daff3687b0772d9f30628cf"
+  },
+  "shader_compile": null,
+  "source_notices": 19,
+  "source_tag_template": "$Format:%H$",
+  "status": "SOURCE_AUDITED_NOT_BUILT",
+  "vendors": {
+    "bytes": 9682834,
+    "files": 168,
+    "policy": {
+      "bytes": 29105,
+      "sha256": "a09705bc52dc9a8ea8c4e59b8fd1e92edc60ac7364a6a5916d6ea813ddae7b08"
+    }
+  }
+}

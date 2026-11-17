@@ -1,0 +1,21 @@
+{
+  "CMAKE_BUILD_PARALLEL_LEVEL": 1,
+  "Root_authority": null,
+  "Root_resource_profile": null,
+  "component_archive_bytes": 39221652,
+  "component_archive_member_bytes": 161250901,
+  "full_bundle": false,
+  "heavy_compile_requested": false,
+  "jobs": 1,
+  "measured_elapsed": null,
+  "measured_peak_RSS": null,
+  "native_build_pair": null,
+  "required_before_execution": [
+    "all normal dependency archives and signatures retrieved/authenticated",
+    "exact matching providers normally installed in isolated builder",
+    "Root-selected finite owner/daemon/storage/CPU/PID/deadline limits and lease",
+    "full source and two clean build output capacity qualified"
+  ],
+  "schema": 1,
+  "status": "CAPACITY_HOLD_UNMEASURED_NO_ROOT_RESOURCE_GRANT"
+}

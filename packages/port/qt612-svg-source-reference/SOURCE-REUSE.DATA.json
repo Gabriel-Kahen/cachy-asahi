@@ -1,0 +1,25 @@
+{
+  "changes": "source.py selects QtSvg tag/package, supports a smaller explicit profile and adds structural Qtbase/target preflights. The two MODEL test files and MIT license are unchanged. No frozen source file was edited.",
+  "files": {
+    "LICENSE.packaging": {
+      "bytes": 1070,
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+    },
+    "source.py": {
+      "bytes": 5246,
+      "sha256": "d6f033399cb039469622ea962a0aac45afdb6f8f203f1b45066d4dc0b3e40987"
+    },
+    "test_parallel.py": {
+      "bytes": 4432,
+      "sha256": "3499b567b73127925b846c91033c26241aeeffb4b55e35799b97440ebe9f434d"
+    },
+    "test_source.py": {
+      "bytes": 4282,
+      "sha256": "ccb1f1a2c794541e4259cda3b6b0cb8ad55230762a04397e8f7d1e8e9a6595c2"
+    }
+  },
+  "license": "MIT",
+  "schema": 1,
+  "source_commit": "69a02851b87ca29daf2e197101b66bf75ff61889",
+  "source_directory": "packages/port/qt612-source-reference"
+}

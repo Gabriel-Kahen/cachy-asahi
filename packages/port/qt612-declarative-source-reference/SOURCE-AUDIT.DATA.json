@@ -1,0 +1,27 @@
+{
+  "QML_modules": 47,
+  "Root_acceptance": null,
+  "archive": {
+    "bytes": 39221652,
+    "sha256": "311f3a2603e1973bb59baef9dfa740a376de713157d4782ee043681e889c9260"
+  },
+  "archive_tag_equals_commit_tree": true,
+  "build": null,
+  "commit_tree": "98324181f2eebf01e806603a01829a40b8683631",
+  "monolithic_bundle_acquired": false,
+  "native": null,
+  "notices": 23,
+  "peeled_release_commit": "4332fbbb4c340463dc8cee36dda0c85d932122d8",
+  "primary_archive_sha256_matches": true,
+  "required_features": 56,
+  "schema": 1,
+  "selected_source_manifest": {
+    "bytes": 24425,
+    "sha256": "7350f81eaaa128ec906e04592ae7f5cdcec58f330058e17d24fec8b84f73fde5"
+  },
+  "shared_modules": 17,
+  "signature_authentication": null,
+  "status": "SOURCE_AUDITED_NOT_BUILT",
+  "tag_object": "c3ab6d3094e8b843c6fc3e04ed3e0f40d4092447",
+  "tag_template": "$Format:%T$"
+}

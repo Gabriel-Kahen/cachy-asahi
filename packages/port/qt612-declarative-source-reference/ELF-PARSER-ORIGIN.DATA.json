@@ -1,0 +1,9 @@
+{
+  "function_bytes": 6581,
+  "function_sha256": "91f6e40dada9fc96a902e3c04b7941a9d0d389dbb358d76f61a06ea729b34216",
+  "license": "MIT",
+  "reuse": "EXACT_VERBATIM_AST_FUNCTION",
+  "source": "packages/port/qt612-wayland-source-reference/check_stage.py",
+  "source_bytes": 25436,
+  "source_sha256": "384df5ae3a9333152a482c50171b98a14a8a9e3a9be066b0f2d92437a8327670"
+}
