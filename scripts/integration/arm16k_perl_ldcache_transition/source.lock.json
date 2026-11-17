@@ -1,0 +1,56 @@
+{
+  "actual": {
+    "M2": null,
+    "Root_Source": null,
+    "VM": null,
+    "actor": null,
+    "authority": null,
+    "lease": null,
+    "lifecycle": null,
+    "release": null,
+    "runtime": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 6348,
+      "mode": 420,
+      "sha256": "962c9596b233328b379e71aed7d24277ad13740e05b9bd3a64e9b82d6c31fba9"
+    },
+    "baseline-public.DATA.json": {
+      "bytes": 751,
+      "mode": 420,
+      "sha256": "37bf1af739d2a4d1db48a7bea4a33d6d9a99bd7da0dbb5095c593bbae2736c41"
+    },
+    "provenance.DATA.json": {
+      "bytes": 2746,
+      "mode": 420,
+      "sha256": "8908f979f8500dea641d51342a00d234f5210010f1386b7cc1394e1812b903fa"
+    },
+    "recovery.py": {
+      "bytes": 6956,
+      "mode": 420,
+      "sha256": "511eeba48a8b983630ba0e01d1d4825d0928a166a52ea8730831151430ef89a0"
+    },
+    "request.TEMPLATE.json": {
+      "bytes": 1867,
+      "mode": 420,
+      "sha256": "b473871529084d66866bd5f8b1cd11e3aab23887b870182da575994de5a2e8d2"
+    },
+    "stat_decoder.py": {
+      "bytes": 4735,
+      "mode": 420,
+      "sha256": "5dc877fed4f409bee369ae773aff219e7130cf4aaf67ecdb20d7ad9bf54e5a92"
+    },
+    "test_recovery.py": {
+      "bytes": 5585,
+      "mode": 420,
+      "sha256": "b808d6ad6d33a43d96aaee6959f1c9ca8c0244ac77504ff8a185c7bff7d69147"
+    },
+    "validation.DATA.json": {
+      "bytes": 469,
+      "mode": 420,
+      "sha256": "777aaf090a935435e75b20e9d75c285e63f17ca318600076958c021cb26a1287"
+    }
+  },
+  "kind": "UNISSUED_R86_PUBLIC_LDCACHE_RECOVERY_PROPOSAL_V1"
+}
