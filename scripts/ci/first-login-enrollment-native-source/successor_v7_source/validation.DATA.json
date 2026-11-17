@@ -1,0 +1,114 @@
+{
+  "acceptance": {
+    "Reader": null,
+    "Root_acceptance": null,
+    "artifact": null,
+    "hardware": false,
+    "job": null,
+    "native": false,
+    "ref": null,
+    "release": false,
+    "run": null,
+    "source": null
+  },
+  "candidate": {
+    "bytes": 45962616,
+    "files": 205,
+    "program": {
+      "bytes": 15135,
+      "path": "scripts/ci/first-login-enrollment-native-source/successor_v7_source/program.json",
+      "sha256": "39f2c738f8cd40bd95ce074ed275c881d9e01644c6cf0c2dbd846665df72e847"
+    },
+    "prospective_tree": "3cf7e3c590cfa227b56335c85366ffb57f46e375",
+    "source_map": {
+      "bytes": 40793,
+      "sha256": "0bc42f13b906bba0a22eecd6f30c1536668f6221b728fa696ca441da54c68119"
+    }
+  },
+  "constructor_commit": "b96d5ba945e35df5c70c09d9580ec86c256476f0",
+  "diagnostic_contract": {
+    "arbitrary_urls_paths": false,
+    "error_text": false,
+    "http_status": "UNAVAILABLE_FROM_GIT_API",
+    "raw_stderr": false,
+    "secret_values": false
+  },
+  "held_capture_AST_equal": {
+    "execute": true,
+    "retain_stage_failure": true,
+    "retired_stderr": true,
+    "stage": true,
+    "stderr_identity": true
+  },
+  "historical_inverses": {
+    "139": {
+      "bytes": 43544563,
+      "files": 139,
+      "source_map": {
+        "bytes": 26734,
+        "sha256": "ec752108c451d056ebbe4caa97d629bad081c256d506a3d83722f47952a9005e"
+      },
+      "tree": "dcab30972b74d62df099d8ae12997dc0e557ff00"
+    },
+    "179": {
+      "bytes": 45330627,
+      "files": 179,
+      "source_map": {
+        "bytes": 35107,
+        "sha256": "063a34c64d9e9ad21e6c2bd5c4e0a147f88890061cd79fb13587bc1e37e9d7f4"
+      },
+      "tree": "5128864b3c17f230d5045361014b41ce31b72767"
+    },
+    "188": {
+      "bytes": 45544942,
+      "files": 188,
+      "source_map": {
+        "bytes": 37091,
+        "sha256": "ba06925244cd010ab2223325e2e324d4d3b469befbea5e7eb8e0de68383d4908"
+      },
+      "tree": "50bf7aab34ee5497f12d078709354aa69b0cdb9d"
+    },
+    "196": {
+      "bytes": 45726789,
+      "files": 196,
+      "source_map": {
+        "bytes": 38809,
+        "sha256": "a8f5ab1c1ceee9f3450634e14dd172d7421d6fe49d8e17ce680cb4cfe43da86a"
+      },
+      "tree": "e85302474308dbf579b79bd6d501f5ad86b66bbb"
+    }
+  },
+  "kind": "UNISSUED_SOURCE205_TRANSPORT_DIAGNOSTIC_VALIDATION_DATA_ONLY",
+  "local_data_reader_controls": {
+    "Root_acceptance": null,
+    "actor_attempts": 0,
+    "legacy_failure_data": 4,
+    "preserved_source196": 7,
+    "source205": 10
+  },
+  "model_checks": {
+    "constructor": 7,
+    "preserved_v6_capture": 8,
+    "preserved_v6_data": 7,
+    "transport": 18
+  },
+  "registry": {
+    "delegated_programs": 25,
+    "roles": 27,
+    "schema": 7,
+    "staging_materials": 5,
+    "total_materials": 64
+  },
+  "resource_proposal_AST_equal": true,
+  "schema": 1,
+  "source196_actual_failure": {
+    "command_ordinal": 2,
+    "parent_stderr": {
+      "bytes": 153,
+      "sha256": "6c008c501b82973a52fc3267e3f18ab28bcf0ef4f6996527c7b2e3939fc87c25"
+    },
+    "phase": "TRANSPORT_NATIVE248",
+    "underlying_cause": "UNKNOWN_NOT_RETAINED"
+  },
+  "transport_helpers_AST_equal": true
+}

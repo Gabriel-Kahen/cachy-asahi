@@ -519,15 +519,42 @@ DIAGNOSTIC_PHASES=('ENTRY','AUTHORIZE','SOURCE','NATIVE_CONTEXT','INPUTS','HELPE
 DIAGNOSTIC_FINAL=dict(Root_final_acceptance=None,independent_component_acceptance=False,hardware_acceptance=False,release_acceptance=False)
 
 
+TRANSPORT_PHASES=('ADMISSION','SETUP','METADATA_FETCH','METADATA_PROOF','REQUIRED_BLOBS_FETCH','COMPLETE_OBJECT_PROOF','MATERIALIZATION','FINAL_NAMESPACE_PROOF')
+TRANSPORT_OPERATIONS=('DELIVERY','VALIDATE_PROFILE','VALIDATE_POLICY','VALIDATE_URL','PATH_OPEN','RECEIPT_WRITE','GIT_INIT','GIT_FETCH_METADATA','GIT_FETCH_BLOBS','GIT_REV_PARSE','GIT_COMMIT_READ','GIT_TREE_READ','GIT_OBJECT_INVENTORY','GIT_BLOB_READ','GIT_UPDATE_REF','NAMESPACE_VERIFY','FILE_VERIFY','DEADLINE')
+TRANSPORT_ERRORS=('VALIDATION','OS_ERROR','TIMEOUT','UNICODE','JSON','CONTROL','OTHER')
+TRANSPORT_ERRNOS=(1,2,5,9,12,13,17,18,20,21,22,24,27,28,30,32,36,40,101,104,110,111,113)
+
+
+def transport_packet(value):
+    """Closed nested DATA; Git's API exposes no HTTP status or error text."""
+    if type(value) is not dict or set(value)!={'schema','kind','phase','operation','error_class','errno','command_ordinal','git_exit','git_timeout','http_status'}:return False
+    return (type(value['schema']) is int and value['schema']==1
+        and value['kind']=='CURRENT_RETAINED_TRANSPORT_FAILURE_V1'
+        and type(value['phase']) is str and value['phase'] in TRANSPORT_PHASES
+        and type(value['operation']) is str and value['operation'] in TRANSPORT_OPERATIONS
+        and type(value['error_class']) is str and value['error_class'] in TRANSPORT_ERRORS
+        and (value['errno'] is None or type(value['errno']) is int and value['errno'] in TRANSPORT_ERRNOS)
+        and (value['command_ordinal'] is None or type(value['command_ordinal']) is int and 0<=value['command_ordinal']<=1169)
+        and (value['git_exit'] is None or type(value['git_exit']) is int and -255<=value['git_exit']<=255)
+        and (value['git_timeout'] is None or type(value['git_timeout']) is bool)
+        and value['http_status'] is None)
+
+
 def diagnostic_packet(value):
-    need(type(value) is dict and set(value)=={'schema','kind','phase','reason','command_ordinal'}
-         and type(value['schema']) is int and value['schema']==1
-         and value['kind']=='CURRENT_MATERIAL_STAGE_FAILURE_V1'
+    need(type(value) is dict,'HOLD_DIAGNOSTIC_FIXED_PACKET')
+    schema=value.get('schema');nested=type(schema) is int and schema==2
+    keys={'schema','kind','phase','reason','command_ordinal'}|({'transport'} if nested else set())
+    need(set(value)==keys and type(schema) is int and schema in (1,2)
+         and value['kind']==('CURRENT_MATERIAL_STAGE_FAILURE_V2' if nested else 'CURRENT_MATERIAL_STAGE_FAILURE_V1')
          and type(value['phase']) is str and value['phase'] in DIAGNOSTIC_PHASES
          and type(value['reason']) is str and value['reason'] in ('PHASE_FAILED','COMMAND_FAILED')
          and (value['command_ordinal'] is None or type(value['command_ordinal']) is int
               and 0<=value['command_ordinal']<=26) and len(encoded(value))<=1024,
          'HOLD_DIAGNOSTIC_FIXED_PACKET')
+    if nested:
+        transport=value['transport']
+        need(transport is None or value['phase'] in ('CHILD','TRANSPORT_PUBLIC14','TRANSPORT_NATIVE248')
+             and transport_packet(transport),'HOLD_DIAGNOSTIC_FIXED_TRANSPORT')
     return value
 
 
@@ -775,6 +802,122 @@ def capture_source_contract(files,program):
     return dict(status='CAPTURE_SOURCE_CONTRACT_DATA_ONLY_V6',Root_authentication=False,Root_acceptance=None)
 
 
+
+TRANSPORT_PREFIX='scripts/ci/first-login-enrollment-native-source/successor_v7_source/'
+# Exact unissued Source205 from the committed finite constructor; no runtime grant.
+TRANSPORT_PROGRAM_PIN=dict(bytes=15135,sha256='39f2c738f8cd40bd95ce074ed275c881d9e01644c6cf0c2dbd846665df72e847')
+TRANSPORT_SOURCE=dict(files=205,bytes=45962616,tree='3cf7e3c590cfa227b56335c85366ffb57f46e375',
+    source_map=dict(bytes=40793,sha256='0bc42f13b906bba0a22eecd6f30c1536668f6221b728fa696ca441da54c68119'))
+TRANSPORT_COMMIT='b96d5ba945e35df5c70c09d9580ec86c256476f0'
+TRANSPORT_REPLACEMENTS={
+    'materials_stager':dict(member='scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py',bytes=43592,sha256='3ddfdb3f1981f154348ab67e051cec0ea2bedda04dbb3596a9b285797662ef51'),
+    'material_domain_executor':dict(member='scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py',bytes=44646,sha256='2df9c12d402e86187cd11e4b35e957b562dd2ccfc7c5229e21fc4d7d97e2e17f'),
+    'hosted_launcher':dict(member='scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py',bytes=68455,sha256='e6e8fdadc7dd125649a6c9f1bb393fed8a033bda0b8512f2f5c250345e54743f')}
+TRANSPORT_CONSTRUCTION={
+    TRANSPORT_PREFIX+'prepare.py':dict(bytes=11500,mode=0o644,sha256='a45f85f3412b099c8c59c0c2125b9071a2ee26e15bcb711c7fb2b97cefc8d56c'),
+    TRANSPORT_PREFIX+'README.md':dict(bytes=4535,mode=0o644,sha256='3eb359a9414e3f2ccfc130d8b02d2c3980c8065f3b59b716f0e3eaa881f91f61')}
+TRANSPORT_OPERANDS={
+    'materials_stager':TRANSPORT_PREFIX+'payload/stager.py',
+    'material_domain_executor':TRANSPORT_PREFIX+'payload/material_domain.py',
+    'hosted_launcher':TRANSPORT_PREFIX+'payload/hosted.py'}
+
+
+def transport_source_contract(files,program):
+    """Opaque whole-pinned v7 source, with inherited capture helpers sealed."""
+    texts={role:files[row['member']].decode('utf-8') for role,row in TRANSPORT_REPLACEMENTS.items()}
+    trees={role:ast.parse(raw) for role,raw in texts.items()}
+    for (role,name),digest in CAPTURE_HELPER_SHA256.items():
+        if role!='material_domain_executor':continue
+        nodes=trees[role].body
+        for part in name.split('.'):
+            matches=[n for n in nodes if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name==part]
+            need(len(matches)==1,'HOLD_TRANSPORT_CAPTURE_HELPER:'+name);node=matches[0];nodes=node.body
+        need(isinstance(node,ast.FunctionDef) and hashlib.sha256(ast.get_source_segment(texts[role],node).encode()).hexdigest()==digest,
+             'HOLD_TRANSPORT_SEALED_CAPTURE:'+name)
+    def declaration(role,name):
+        rows=[node.value for node in trees[role].body if isinstance(node,ast.Assign)
+              and any(isinstance(target,ast.Name) and target.id==name for target in node.targets)]
+        need(len(rows)==1,'HOLD_TRANSPORT_DECLARATION:'+name)
+        return ast.literal_eval(rows[0])
+    for role in TRANSPORT_REPLACEMENTS:
+        for name,wanted in (('TRANSPORT_PHASES',TRANSPORT_PHASES),('TRANSPORT_OPERATIONS',TRANSPORT_OPERATIONS),
+                            ('TRANSPORT_ERRORS',TRANSPORT_ERRORS),('TRANSPORT_ERRNOS',TRANSPORT_ERRNOS)):
+            need(tuple(declaration(role,name))==wanted,'HOLD_TRANSPORT_FINITE_DECLARATION:'+name)
+    need(declaration('materials_stager','FAILURE_KIND')=='CURRENT_MATERIAL_STAGE_FAILURE_V2'
+         and declaration('materials_stager','FAILURE_BYTES')==1024
+         and tuple(declaration('materials_stager','FAILURE_PHASES'))==DIAGNOSTIC_PHASES
+         and tuple(declaration('materials_stager','FAILURE_REASONS'))==('PHASE_FAILED','COMMAND_FAILED'),
+         'HOLD_TRANSPORT_STAGER_PACKET_CONTRACT')
+    declarations=[n.value for n in trees['hosted_launcher'].body if isinstance(n,ast.Assign)
+        and any(isinstance(t,ast.Name) and t.id=='MATERIAL_DOMAIN_PIN' for t in n.targets)]
+    need(len(declarations)==1,'HOLD_TRANSPORT_LITERAL_DOMAIN_PIN');value=declarations[0]
+    need(isinstance(value,ast.Call) and isinstance(value.func,ast.Name) and value.func.id=='dict' and not value.args
+         and len(value.keywords)==2 and {item.arg for item in value.keywords}=={'bytes','sha256'}
+         and same({item.arg:ast.literal_eval(item.value) for item in value.keywords},whole(program['roles']['material_domain_executor'])),
+         'HOLD_TRANSPORT_LITERAL_DOMAIN_PIN')
+    return dict(status='TRANSPORT_SOURCE_CONTRACT_DATA_ONLY_V7',Root_authentication=False,Root_acceptance=None)
+
+
+def transport_source_data(expected,files,*,delegated):
+    """Exact205→196 inverse precedes all preserved196→188→179→139 predicates."""
+    need(delegated is True,'HOLD_TRANSPORT_DELEGATED_ONLY')
+    need(type(TRANSPORT_SOURCE) is dict and type(TRANSPORT_PROGRAM_PIN) is dict
+         and type(TRANSPORT_REPLACEMENTS) is dict and set(TRANSPORT_REPLACEMENTS)==set(TRANSPORT_OPERANDS)
+         and type(TRANSPORT_CONSTRUCTION) is dict and type(TRANSPORT_COMMIT) is str
+         and re.fullmatch('[0-9a-f]{40}',TRANSPORT_COMMIT),'HOLD_TRANSPORT_PROFILE_NOT_SEALED')
+    raw=files['source.lock.json'];lock=receipt(raw);program_name=TRANSPORT_PREFIX+'program.json'
+    need(len(files)==TRANSPORT_SOURCE['files'] and sum(map(len,files.values()))==TRANSPORT_SOURCE['bytes']
+         and pin(raw)==TRANSPORT_SOURCE['source_map'] and expected['source']['program']==dict(path=program_name,**TRANSPORT_PROGRAM_PIN)
+         and pin(files[program_name])==TRANSPORT_PROGRAM_PIN,'HOLD_EXACT_TRANSPORT_SOURCE205')
+    rows=dict(lock['files']);rows.update({name:dict(mode=0o644,**pin(raw)) for name in ('source.lock.json','source-map.json')})
+    need(source_git_tree(files,rows)==TRANSPORT_SOURCE['tree'],'HOLD_TRANSPORT_WHOLE_SOURCE205_TREE')
+    original_raw=files['provenance/v7/source196-map.json'];old=receipt(original_raw)
+    need(pin(original_raw)==CAPTURE_SOURCE['source_map'] and lock['files']['provenance/v7/source196-map.json']['mode']==0o644
+         and {k:v for k,v in old.items() if k!='files'}=={k:v for k,v in lock.items() if k!='files'},
+         'HOLD_TRANSPORT_SOURCE196_BASIS')
+    backups={row['member']:'provenance/v7/original/'+row['member'] for row in TRANSPORT_REPLACEMENTS.values()}
+    added={'provenance/v7/rebind.json','provenance/v7/source196-map.json',*backups.values(),
+        *(TRANSPORT_PREFIX+n for n in ('prepare.py','README.md','program.json','inverse.json'))}
+    need(same(receipt(files[TRANSPORT_PREFIX+'inverse.json']),dict(schema=7,
+             kind='TRANSPORT_SOURCE_V7_TO_SOURCE196_INVERSE_DATA_ONLY',basis=CAPTURE_SOURCE,
+             remove=sorted(added),restore=backups,actual_acceptance=None))
+         and set(files)==set(old['files'])|added|{'source.lock.json','source-map.json'}
+         and not added&set(old['files']) and all(lock['files'][name]['mode']==0o644 for name in added),
+         'HOLD_TRANSPORT_EXACT_INVERSE_ROSTER')
+    restored={name:body for name,body in files.items() if name not in added|{'source.lock.json','source-map.json'}}
+    changes={}
+    for role,row in TRANSPORT_REPLACEMENTS.items():
+        name=row['member'];backup=backups[name]
+        need(lock['files'][name]==dict(mode=0o644,**whole(row)) and pin(files[name])==whole(row)
+             and dict(mode=lock['files'][backup]['mode'],**pin(files[backup]))==old['files'][name],
+             'HOLD_TRANSPORT_EXACT_REPLACEMENT_INVERSE')
+        restored[name]=files[backup]
+        changes[role]=dict(member=name,operand=TRANSPORT_OPERANDS[role],original=old['files'][name],
+            replacement=lock['files'][name],original_member=backup)
+    need(set(restored)==set(old['files']) and all(pin(body)==whole(old['files'][name])
+         and (name in backups or lock['files'][name]==old['files'][name]) for name,body in restored.items()),
+         'HOLD_TRANSPORT_COMPLETE_SOURCE196_INVERSE')
+    restored['source.lock.json']=restored['source-map.json']=original_raw
+    old_rows=dict(old['files']);old_rows.update({name:dict(mode=0o644,**pin(original_raw)) for name in ('source.lock.json','source-map.json')})
+    need(len(restored)==CAPTURE_SOURCE['files'] and sum(map(len,restored.values()))==CAPTURE_SOURCE['bytes']
+         and source_git_tree(restored,old_rows)==CAPTURE_SOURCE['tree'],'HOLD_TRANSPORT_WHOLE_SOURCE196_INVERSE')
+    actual=dict.fromkeys(('source','ref','run','job','Root_delegation','Root_trust','Root_resources','Root_runtime','actual_images','publication'))
+    need(same(receipt(files['provenance/v7/rebind.json']),dict(schema=7,
+             kind='COMMITTED_SOURCE196_TRANSPORT_DIAGNOSTIC_REBIND_V7',operation=OP,basis=CAPTURE_SOURCE,
+             transport_commit=TRANSPORT_COMMIT,replacements=changes,construction=TRANSPORT_CONSTRUCTION,actual=actual))
+         and all(lock['files'][name]==row and pin(files[name])==whole(row) for name,row in TRANSPORT_CONSTRUCTION.items()),
+         'HOLD_TRANSPORT_COMMITTED_PROVENANCE')
+    old_name=CAPTURE_PREFIX+'program.json';old_program=receipt(restored[old_name])
+    selection=dict(expected,source_lock_pin=pin(original_raw),binding=dict(expected['binding'],source_lock=pin(original_raw)),
+        source=dict(expected['source'],program=dict(path=old_name,**pin(restored[old_name]))),reader_pin=whole(old_program['roles']['public_reader']))
+    profile,checked,policy=source_data(selection,restored,delegated=True)
+    wanted=decode(encoded(checked));wanted.update(schema=7,kind='DELEGATED_CURRENT_TRANSPORT_PROGRAM_REGISTRY_V7',
+        transport_commit=TRANSPORT_COMMIT,transport_rebind_provenance=dict(member='provenance/v7/rebind.json',**pin(files['provenance/v7/rebind.json'])))
+    for role,row in TRANSPORT_REPLACEMENTS.items():wanted['roles'][role]=wanted['delegation_programs'][role]=row
+    need(same(receipt(files[program_name]),wanted),'HOLD_TRANSPORT_CANONICAL_PROGRAM_SELECTION')
+    transport_source_contract(files,wanted)
+    return profile,wanted,policy
+
 def source_data(expected,files,*,delegated=False):
     need(type(files) is dict and all(type(n) is str and type(v) is bytes for n,v in files.items()),'HOLD_SOURCE_BODIES')
     need(sum(map(len,files.values()))<=MAX_SOURCE and len(files)<=512,'HOLD_SOURCE_CAP')
@@ -803,6 +946,8 @@ def source_data(expected,files,*,delegated=False):
              'HOLD_CURRENT_PACKAGE_SCOPE')
         for name,row in recipe['files'].items():
             relative(name);need(pin(files[recipe['path']+'/'+name])==whole(row),'HOLD_RECIPE_SOURCE_BODY')
+    if program.get('schema')==7:
+        return transport_source_data(expected,files,delegated=delegated)
     if program.get('schema')==6:
         return capture_source_data(expected,files,delegated=delegated)
     if program.get('schema')==5:
@@ -1620,7 +1765,7 @@ def delegated_public_body(raw):
             return
         receipt(encoded(dict(value=value)))
         if type(value) is dict and value.get('kind')=='CURRENT_MATERIAL_STAGE_FAILURE_RECORD_V1':diagnostic_failure_record(raw)
-        elif type(value) is dict and value.get('kind')=='CURRENT_MATERIAL_STAGE_FAILURE_V1':diagnostic_packet(value)
+        elif type(value) is dict and value.get('kind') in ('CURRENT_MATERIAL_STAGE_FAILURE_V1','CURRENT_MATERIAL_STAGE_FAILURE_V2'):diagnostic_packet(value)
 
 
 def delegated_capsule_files(raw,expected):
