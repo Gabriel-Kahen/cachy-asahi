@@ -1,0 +1,28 @@
+{
+  "MODEL_controls_explicit": true,
+  "Python": [
+    "3.14.7",
+    "3.12.13"
+  ],
+  "Root_acceptance": null,
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null
+  },
+  "actual_baseline": true,
+  "actual_baseline_entries": 190,
+  "actual_cause": null,
+  "actual_restored": null,
+  "controls": 13,
+  "guest_guard_changed": false,
+  "kind": "STRICT_AUX_SEMANTICS_VALIDATION_V1",
+  "lifecycle_acceptance": null,
+  "selection": "UNSELECTED",
+  "skips": 0,
+  "status": "PASS_PURE_DATA_ONLY_RESTORED_OPERAND_MISSING"
+}

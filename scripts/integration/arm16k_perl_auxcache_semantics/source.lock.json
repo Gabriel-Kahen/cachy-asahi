@@ -1,0 +1,57 @@
+{
+  "Root_acceptance": null,
+  "files": {
+    "LICENSES.md": {
+      "bytes": 627,
+      "mode": 420,
+      "sha256": "9d1495deaeace94a8052cdbf54861915f00fc4df0a9885c0be3e4327464145ff"
+    },
+    "README.md": {
+      "bytes": 5335,
+      "mode": 420,
+      "sha256": "346773de04991f62014db51532929aadcd7954ba20310a68a310012058ede7e9"
+    },
+    "auxcache.py": {
+      "bytes": 6791,
+      "mode": 420,
+      "sha256": "39d91683505507f67250d1c8b5508f4d923fd1d71a13c4f7aaac404373adb52b"
+    },
+    "baseline-analysis.DATA.json": {
+      "bytes": 627,
+      "mode": 420,
+      "sha256": "b28a36673e452ea5390e0191c0146018eb11ee111bc3bae1aeb45104b4d244ab"
+    },
+    "baseline-aux.ACTUAL.bin": {
+      "bytes": 12313,
+      "mode": 420,
+      "sha256": "bf57218ea22ca530decf18bf8ec548c22ec96afb0afc423088a97fbb148149ed"
+    },
+    "inspect_public.py": {
+      "bytes": 1845,
+      "mode": 420,
+      "sha256": "43ac828fe3978fbeba8073825c7e29f4812c32000368eee74b1451f8ff4b8a27"
+    },
+    "primary.DATA.json": {
+      "bytes": 4336,
+      "mode": 420,
+      "sha256": "8e32b6c4fb4e275de0e9377c22a05aac53bf4b8ed9498e2a8ace20ac0c0e675e"
+    },
+    "provenance.DATA.json": {
+      "bytes": 781,
+      "mode": 420,
+      "sha256": "ff3c622845849037558c261326e6bdb3495b544f1d66a577e90bc297e1ff85c3"
+    },
+    "test_auxcache.py": {
+      "bytes": 7661,
+      "mode": 420,
+      "sha256": "f9ff6478f1bee41c9114109dcf2018c011dfcfd47639767001fd37c91a23b00f"
+    },
+    "validation.DATA.json": {
+      "bytes": 614,
+      "mode": 420,
+      "sha256": "356640ffe4477fb7d30fef53d712ea480c4cc615abe76e2748fe8b1df47a34f7"
+    }
+  },
+  "kind": "UNSELECTED_STRICT_ARM64_AUXCACHE_SEMANTICS_SOURCE_V1",
+  "lifecycle_acceptance": null
+}
