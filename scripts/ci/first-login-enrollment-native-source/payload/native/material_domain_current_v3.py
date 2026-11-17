@@ -381,6 +381,29 @@ def scope_retirement(E,row,nonce,closing=False):
         supervision_pin=pin(encoded(supervision)),scope_absence_pin=pin(encoded(absence)),**FINAL)
 
 
+def stderr_identity(stream):
+    info=os.fstat(stream.fileno())
+    return tuple(getattr(info,key)for key in('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size'))
+
+
+def retired_stderr(stream,identity,supervision,E):
+    """Freeze the held reservation, then read its written span, never its padding."""
+    expected=supervision.get('exit');need(type(expected)is int,'actual child exit before stderr capture')
+    E.natural(supervision,expected)
+    fd=stream.fileno();need(stderr_identity(stream)==identity,'same held stderr reservation after child retirement')
+    need(stat.S_ISREG(identity[2])and identity[3]==0 and identity[-1]==E.MAX_OUTPUT,'anonymous bounded stderr reservation')
+    required=fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK
+    need(fcntl.fcntl(fd,fcntl.F_GET_SEALS)&required==required,'fixed stderr capacity before capture')
+    # The shared open-file offset advances on child writes; st_size is the
+    # reserved capacity. Seal before observing either the span or its bytes.
+    fcntl.fcntl(fd,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_SEAL)
+    size=os.lseek(fd,0,os.SEEK_CUR);need(0<=size<E.MAX_OUTPUT,'complete bounded separate material stderr')
+    raw=os.pread(fd,size,0)
+    need(len(raw)==size and os.lseek(fd,0,os.SEEK_CUR)==size and stderr_identity(stream)==identity,
+         'whole stable written stderr span')
+    return raw
+
+
 class MaterialSession:
     def __init__(self,r,dependencies):
         self.r=r;self.root,self.d,self.policy,self.g,self.E,self.S,self.O=dependencies
@@ -396,7 +419,9 @@ class MaterialSession:
                 return dict(value)
             supervision=row.get('supervision');retirement_pin=pin(encoded(supervision))if type(supervision)is dict else None
             retired=(type(supervision)is dict and supervision.get('reaped')is True and supervision.get('ownership')=='REAPED'
-                and supervision.get('output_complete')is True and type(supervision.get('exit'))is int)
+                and supervision.get('output_complete')is True and type(supervision.get('exit'))is int
+                and supervision.get('group_census')=='EMPTY_TWICE'and supervision.get('signals')==[]
+                and supervision.get('timeout')is False and supervision.get('error')is None)
             complete=(stderr_complete is True and type(raw)is bytes and len(raw)<=self.E.MAX_OUTPUT
                 and stream_pin(row.get('stderr_pin'))==pin(raw)and retired)
             packet=failure_packet(raw)if complete else None
@@ -423,15 +448,15 @@ class MaterialSession:
             if not closing:
                 generator=sealed_secret_input(secrets,self.S.secret_names());stdin=next(generator)
             with E.stderr_buffer()as errors:
+                identity=stderr_identity(errors)
                 self.O.prepare()
                 if not closing:self.stage_submitted=True
                 child=subprocess.Popen(argv,stdin=stdin if stdin is not None else subprocess.DEVNULL,
                     stdout=subprocess.PIPE,stderr=errors,cwd=self.control,env=dict(PATH='/usr/bin:/usr/sbin:/bin',HOME=str(self.control),LC_ALL='C'),start_new_session=True)
                 result=self.O.supervise(child,cap=min(seconds+3,remaining(self.r['shared_timing'])-1),retirement=1,grace=.2,max_output=65536)
-                size=errors.tell();errors.seek(0);error_body=errors.read(E.MAX_OUTPUT)
-            raw=result.pop('output');row['supervision']=result;row['output_pin']=pin(raw);row['stderr_pin']=pin(error_body)
-            stderr_complete=(size==len(error_body)and size<E.MAX_OUTPUT)
-            need(size<E.MAX_OUTPUT,'complete bounded separate material stderr')
+                raw=result.pop('output');row['supervision']=result;row['output_pin']=pin(raw)
+                error_body=retired_stderr(errors,identity,result,E)
+                row['stderr_pin']=pin(error_body);stderr_complete=True
             E.natural(result);need(raw==b'','no material control stdout or secret diagnostics')
             row['scope_absence']=absent(self.d['nonce'],self.r['shared_timing']['deadline_monotonic'],closing);row['natural']=True
             return row

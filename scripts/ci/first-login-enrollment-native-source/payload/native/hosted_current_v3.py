@@ -280,7 +280,7 @@ def prerequisite_controller(args):
 
 BASE_FIELDS=('base_lock','bootstrap_profile','base_materials','supplemental_materials','keyring_materials')
 MATERIAL_STAGER_PIN=dict(bytes=35550,sha256='58c5d0842c17a914239b5f24e9e1ac2987ad8ec9ce9e2a03e63a04f2e2e99282')
-MATERIAL_DOMAIN_PIN=dict(bytes=40975,sha256='da8e397a63e02c11758d08bf2c45ecf14d94029f6311f4fcb4a09ad420624c8b')
+MATERIAL_DOMAIN_PIN=dict(bytes=42462,sha256='ead51cfa3bcf4b74fbccc8c469926c71fbb72edefcf9525b297e1737fde3ab8f')
 MATERIAL_SECRET_NAMES=tuple(['CACHY_OLD_FOUR_'+tag+'_%02d'%i for tag,count in(('JBIGKIT',2),('JBIGKIT_SIG',1),('LIBTIFF',15),('LIBTIFF_SIG',1))for i in range(1,count+1)]+['CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01','CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02','CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01'])
 
 
@@ -394,7 +394,9 @@ def material_stage_failure(plan):
         if value['stderr_pin']is not None:
             need(stream_pin(value['stderr_pin'])==stream_pin(row.get('stderr_pin'))and type(supervision)is dict
                  and supervision.get('reaped')is True and supervision.get('ownership')=='REAPED'
-                 and supervision.get('output_complete')is True and type(supervision.get('exit'))is int,'complete retired staging stderr pin')
+                 and supervision.get('output_complete')is True and type(supervision.get('exit'))is int
+                 and supervision.get('group_census')=='EMPTY_TWICE'and supervision.get('signals')==[]
+                 and supervision.get('timeout')is False and supervision.get('error')is None,'complete naturally retired staging stderr pin')
         packet=value['packet']
         if value['availability']=='AVAILABLE':
             need(session.stage_submitted is True and len(stage)==1,'packet belongs to the submitted owned staging child')
