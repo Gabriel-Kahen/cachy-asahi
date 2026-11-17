@@ -1,0 +1,69 @@
+name: Rust project TEST provider and v19 DATA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/rust-project-test-v19-data.yml'
+      - 'scripts/ci/rust199-source-reference-native/**'
+      - 'scripts/ci/management-tools-generic16k/signature_observer.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/rust-project-test-v19-data.yml'
+      - 'scripts/ci/rust199-source-reference-native/**'
+      - 'scripts/ci/management-tools-generic16k/signature_observer.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  data:
+    name: Actor-free TEST provider and v19 (${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Fetch only the explicit published zero-parent Source367
+        env:
+          SOURCE_INPUTS: ${{ runner.temp }}/rust-project-source367-inputs
+        run: |
+          set -euo pipefail
+          mkdir -m 700 "$SOURCE_INPUTS"
+          git init --bare "$SOURCE_INPUTS/repository"
+          git -c credential.helper= -C "$SOURCE_INPUTS/repository" fetch --depth=1 --no-tags \
+            https://github.com/Gabriel-Kahen/cachy-asahi.git \
+            8fb13c028cf043119f8324eb089c51d74e3891ee
+          git -C "$SOURCE_INPUTS/repository" cat-file commit \
+            8fb13c028cf043119f8324eb089c51d74e3891ee > "$SOURCE_INPUTS/Source367.commit"
+          git -c tar.umask=0022 -C "$SOURCE_INPUTS/repository" archive --format=tar \
+            --output="$SOURCE_INPUTS/Source367.tar" 8fb13c028cf043119f8324eb089c51d74e3891ee
+      - name: Check Source input and aggregate refusal boundaries
+        env:
+          RUST199_CI_SOURCE_ARCHIVE: ${{ runner.temp }}/rust-project-source367-inputs/Source367.tar
+          RUST199_CI_SOURCE_COMMIT: ${{ runner.temp }}/rust-project-source367-inputs/Source367.commit
+          TMPDIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          ulimit -v 524288
+          python -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/project_test_provider_v1/test_ci.py
+      - name: Run 65 controls and complete genuine Source inverses with actors denied
+        env:
+          SOURCE_INPUTS: ${{ runner.temp }}/rust-project-source367-inputs
+          EVIDENCE_OUTPUT: ${{ runner.temp }}/rust-project-test-v19-evidence
+          TMPDIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          python -I -B -Werror::ResourceWarning scripts/ci/rust199-source-reference-native/project_test_provider_v1/ci.py \
+            --source-archive "$SOURCE_INPUTS/Source367.tar" \
+            --source-commit "$SOURCE_INPUTS/Source367.commit" \
+            --output "$EVIDENCE_OUTPUT"
