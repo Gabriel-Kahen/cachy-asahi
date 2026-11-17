@@ -1,0 +1,233 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "baseline": {
+    "bytes": 17551,
+    "sha256": "0128a732a8b926232b5065374176194ea4a1f5c1628728037109bbdbb3d53215"
+  },
+  "fixture_source_cap_bytes": 4194304,
+  "kind": "PINNED_CACHE_LIFECYCLE_SUCCESSOR_INPUTS_V1",
+  "materials": {
+    "alpm-records.json": {
+      "bytes": 1385366,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-fullscan-trial-r1/actor-output/decoder-output/scan/alpm-records.json",
+      "sha256": "e3a19ffd3a8c2b732e4cc63d576612385dbace531bf35798a39a25c733e81af6"
+    },
+    "db_archive": {
+      "bytes": 1044852,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/platform/baseline-acquisition-20261012/cache/db5.3-5.3.28-7-aarch64.pkg.tar.xz",
+      "sha256": "0a787f952c0f7dd1493db437ab0dc3ffda6053cb6affa4ebf91caff185e586b4"
+    },
+    "namespace.json": {
+      "bytes": 13619268,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-fullscan-trial-r1/actor-output/decoder-output/scan/namespace.json",
+      "sha256": "9ce5346df993be2e56ca88a477f3c64731800a38ae6ce6dae7e34d272a4231c9"
+    },
+    "ownership.json": {
+      "bytes": 9984197,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-fullscan-trial-r1/actor-output/decoder-output/scan/ownership.json",
+      "sha256": "2b44340a338d699cee6638e15e1ebcbb1e6f691d4ea7780bc1324dc53a24b19b"
+    }
+  },
+  "predecessor": {
+    "closed_leaf_bytes": 3512147,
+    "files": 339,
+    "source_lock": {
+      "bytes": 60210,
+      "sha256": "7beb4deb63cbd03b34738b41463380b388e67c2a8015b81f7124866e80b17b13"
+    }
+  },
+  "proposal": {
+    "commit": "a91d16be7b901baed7a55f6007e0900a7712728d",
+    "files": {
+      "LICENSES.md": {
+        "bytes": 351,
+        "mode": 420,
+        "sha256": "ba501dd1212221f1b3812d5286d5b542caed472ed98624095ad610e78c5c6cfc"
+      },
+      "README.md": {
+        "bytes": 5130,
+        "mode": 420,
+        "sha256": "fbdce7b2d8b86e316043f9dad1a47654e809b5502ca4dc1852eb4f422ac30b65"
+      },
+      "actual-r90-cache.bin": {
+        "bytes": 17695,
+        "mode": 420,
+        "sha256": "eeb01c0c2d393aa9bf526a673fedfa331173573722827ec2f68849ccf997412c"
+      },
+      "actual-r90-observation.DATA.json": {
+        "bytes": 4212,
+        "mode": 420,
+        "sha256": "c9d2991730b65d1a22fac80d2a24b002915ff293efd8cbee877d86fb10fa0277"
+      },
+      "baseline-public.DATA.json": {
+        "bytes": 751,
+        "mode": 420,
+        "sha256": "37bf1af739d2a4d1db48a7bea4a33d6d9a99bd7da0dbb5095c593bbae2736c41"
+      },
+      "cache.py": {
+        "bytes": 5293,
+        "mode": 420,
+        "sha256": "8b89b9d6139b2e8153835cbca3e3312125dc01885e4bb5cc80901788d800c7b0"
+      },
+      "collect_public_providers.py": {
+        "bytes": 4213,
+        "mode": 420,
+        "sha256": "986822163bc4c08e2bc1cb0974d6d59ba0dd73c570d1635043be5bcff1b5f2d0"
+      },
+      "elf.py": {
+        "bytes": 1789,
+        "mode": 420,
+        "sha256": "6c6dcae84dd467f720aabd4a6de08a91a11cd60d2fd1ac8d765e5f6cb090118f"
+      },
+      "guest-cache-transition.sh": {
+        "bytes": 4236,
+        "mode": 420,
+        "sha256": "d8cb02a3c5ea73c838b8fcb4d656716169f844c988109b1165318b4ff53945d7"
+      },
+      "predecessor-initialized-state.sh": {
+        "bytes": 10392,
+        "mode": 420,
+        "sha256": "62892aabba5849dac5fd882c1f969bdf64aa96603fe538da74d55d39f9e77f2b"
+      },
+      "predecessor-root.sh": {
+        "bytes": 20266,
+        "mode": 420,
+        "sha256": "03d5768c6831827451f079a9a3830fb9f2e74650f00bd158c3f62c721caca198"
+      },
+      "primary/COPYING.LESSERv2": {
+        "bytes": 26419,
+        "mode": 420,
+        "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
+      },
+      "primary/COPYING.LIB": {
+        "bytes": 16,
+        "mode": 420,
+        "sha256": "9b2def8a1f95faf55a15ade459ba61d97183ebfb269b175e0e2eaed61bf9ebe3"
+      },
+      "primary/COPYINGv2": {
+        "bytes": 17984,
+        "mode": 420,
+        "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+      },
+      "primary/README.md": {
+        "bytes": 1579,
+        "mode": 420,
+        "sha256": "9f899208e5a65c07ddb3d0f6a6148bdb3e01b73b943cfe74f2c36a50495789f1"
+      },
+      "primary/acquisition.DATA.json": {
+        "bytes": 5762,
+        "mode": 420,
+        "sha256": "61cd471f91b6a2d3885a1761dcdfd1c8b19de053406459e85b601db84317223e"
+      },
+      "primary/exact-aarch64-dl-cache.h": {
+        "bytes": 1575,
+        "mode": 420,
+        "sha256": "897a9e0866d001bd39b65d6a90e4f5589993d7d6acd84e44d7bc90aded020840"
+      },
+      "primary/exact-cache.c": {
+        "bytes": 33233,
+        "mode": 420,
+        "sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      },
+      "primary/exact-commit.html": {
+        "bytes": 7760,
+        "mode": 420,
+        "sha256": "aaef0755a31045c6109e2a40b03fa1a8327a6a4a668460554d2c77265bc77485"
+      },
+      "primary/exact-dl-cache.c": {
+        "bytes": 15811,
+        "mode": 420,
+        "sha256": "b41065543cd93b202ccc9c72c3648339c35470d251bb36ba563d84c1733d3728"
+      },
+      "primary/exact-generic-ldconfig.h": {
+        "bytes": 3910,
+        "mode": 420,
+        "sha256": "fd259eebc671fb6c67db65dc011569182c68668cf33c1d97d10a5e9c526a81ed"
+      },
+      "primary/exact-stringtable.c": {
+        "bytes": 6878,
+        "mode": 420,
+        "sha256": "841665ac672f05c124032994b9080c7277da3d9f30cc7ce358d9d9dc3885341b"
+      },
+      "primary/gnu-release-availability": {
+        "bytes": 1018,
+        "mode": 420,
+        "sha256": "0a725eb20ceb526abf52d3129f03e0399afa0d97ffa1dd779bed42958ab23326"
+      },
+      "primary/release-commit.html": {
+        "bytes": 5009,
+        "mode": 420,
+        "sha256": "bc482403d0da72314421f17393b6ce53b3266f38124a0a55067c749d35747035"
+      },
+      "primary/source.lock.json": {
+        "bytes": 2584,
+        "mode": 420,
+        "sha256": "5e57dc1173bdea8a486edd7c2bf6dac18d95b2e2eb39526ef1a11823a3a11c51"
+      },
+      "primary/sourceware-release-cache.h": {
+        "bytes": 11281,
+        "mode": 420,
+        "sha256": "2f21cc57016e3086ed611a0fff9268ca080dcc4ea60cd47310423d820f14820e"
+      },
+      "primary/sourceware-revision-cache.h": {
+        "bytes": 11281,
+        "mode": 420,
+        "sha256": "2f21cc57016e3086ed611a0fff9268ca080dcc4ea60cd47310423d820f14820e"
+      },
+      "provenance.DATA.json": {
+        "bytes": 1813,
+        "mode": 420,
+        "sha256": "d2ce730d0630095559aa13512af69743d2153289004fcad912ab6dfaeb07f3fe"
+      },
+      "providers.DATA.json": {
+        "bytes": 180225,
+        "mode": 420,
+        "sha256": "654bfbc3adbcbc06780fe0e31c52b987eeb8ce14734297a4f0e1f319f5c76dda"
+      },
+      "providers.py": {
+        "bytes": 2222,
+        "mode": 420,
+        "sha256": "ec9968268f5135df822967f471c10cc562f7a640b17bc311c073a0ee82f5da12"
+      },
+      "source.lock.json": {
+        "bytes": 5648,
+        "mode": 420,
+        "sha256": "cb35ed85ef917e990fb0740dd3b06cd27b15382fdd5d2b8bbbfef6e1a4f6a3c7"
+      },
+      "test_semantics.py": {
+        "bytes": 9505,
+        "mode": 420,
+        "sha256": "35a1014aa6325bdac963db5aa28064f81f06b0565f850a9d08f436234f981e59"
+      },
+      "transform.py": {
+        "bytes": 3609,
+        "mode": 420,
+        "sha256": "56277327bae54c4652a73feb52fe6adb3539a4c47253dbe50580bce8b349e04e"
+      },
+      "transition.py": {
+        "bytes": 4952,
+        "mode": 420,
+        "sha256": "2798b614a7f992cc7d486d363638fc5525877d74bc65c77434ed9f08b50c1f3c"
+      },
+      "validation.DATA.json": {
+        "bytes": 869,
+        "mode": 420,
+        "sha256": "30726d404ebbe47286428be22cccbb0f3c8dca1693f77609946bf1aba1b4f784"
+      }
+    },
+    "source_lock": {
+      "bytes": 5648,
+      "sha256": "cb35ed85ef917e990fb0740dd3b06cd27b15382fdd5d2b8bbbfef6e1a4f6a3c7"
+    }
+  }
+}

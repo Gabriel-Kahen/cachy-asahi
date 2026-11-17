@@ -1,0 +1,27 @@
+{
+  "Python": [
+    "3.14.7",
+    "3.12.13"
+  ],
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "baseline": null,
+  "controls": 17,
+  "kind": "SOURCE339_CACHE_LIFECYCLE_CONSTRUCTOR_DATA_VALIDATION_V1",
+  "material_refs": null,
+  "physical_successor_export": "VERIFY_SEPARATELY",
+  "positive_actual_construction": "GENUINE_R91_BASELINE_DERIVED_AND_EXACT339_INVERSE",
+  "skips": 0,
+  "source_qualification": null,
+  "status": "PASS_POSITIVE_DATA_CONSTRUCTION_ONLY_ROOT_QUALIFICATION_HELD",
+  "whole339_model_inverse": true
+}
