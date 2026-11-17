@@ -1,0 +1,27 @@
+{
+  "Python": [
+    "3.14.7",
+    "3.12.13"
+  ],
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "baseline": null,
+  "controls": 14,
+  "kind": "SOURCE339_CACHE_LIFECYCLE_CONSTRUCTOR_DATA_VALIDATION_V1",
+  "material_refs": null,
+  "physical_successor_export": null,
+  "positive_actual_construction": null,
+  "skips": 0,
+  "source_qualification": null,
+  "status": "PASS_PASSIVE_CONTROLS_UNBOUND_BASELINE_BODY_MISSING",
+  "whole339_model_inverse": true
+}

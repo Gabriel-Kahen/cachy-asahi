@@ -1,0 +1,20 @@
+# Unissued Source339 cache lifecycle successor constructor
+
+This pure DATA constructor composes only frozen Source339 (339 files/3512147 bytes/60210-byte lock7beb4deb...) with the exact35-file a91d16be semantic proposal. The original4MiB fixture Source cap is unchanged. Baseline cache17551 bytes/SHA2560128a732a8b926232b5065374176194ea4a1f5c1628728037109bbdbb3d53215 is mandatory. Neither observed r90 bytes nor a hash/header alone can construct an accepted phase manifest. Default selection leaves baseline/material/source/output references NULL and refuses before material access or transform execution.
+
+The constructor authenticates complete predecessor, proposal and constructor byte/mode closures before importing the proposal, then verifies exact retained public namespace/ownership/ALPM JSON and db5.3 archive references. No Raw image, private guest path, actor, signature, lease, credential, Root role or runtime is accessed. These material pins do not issue a new Root baseline/source/runtime qualification or widen any old f51-qualified certificate. The existing qualification scripts, expected dependency/trust/payload/resource/ACK/deadline predicates remain byte-identical.
+
+Only operational `guest/initialized-state.sh` and `guest/root.sh` are replaced by the exact independently derived proposal transform. A new `expected-cache-transition.tsv` contains provider-derived installed hash/size and original baseline/restored pins. Every one of the35 semantic source leaves and complete constructor provenance is embedded under `_ldcache_transition/`, together with baseline public bytes and material pin records. The actual r90 sample retained inside the immutable proposal is a DATA control; it is never an input to phase derivation.
+
+The full deterministic result, including its new whole lock, is assembled and byte-counted in memory BEFORE any output creation or copy. More than4194304 bytes refuses. The old339 lock and added-membership manifest plus the two exact preimages already present in the semantic proposal provide the complete339 byte/mode inverse. Unchanged339 members are reused in place; no second Source339 copy or duplicate changed preimages are embedded.
+
+`construct` requires an explicit whole-pinned canonical selection DATA object. `selection.TEMPLATE.json` remains NULL/unissued. Its `materials` must exactly equal inputs.json and all public source/package bodies must match those pins. The baseline reference needs its actual independently extracted ordinary file path and exact fixed bytes/hash. Output must be fresh, private and disjoint. `verify` performs physical whole membership/bytes/modes, complete339 inverse, deterministic proposal replay and Python syntax compilation. It reports only physical source validity; all actual Root/CID/source-ref/runtime/nonce/VM/ALPM/M2/release fields remain NULL and fresh matching successor-case/namespace/material qualification is held.
+
+CLI pattern, after matching input bodies exist:
+
+```
+python3 -I -B constructor.py --constructor-lock-sha256 <whole constructor-lock SHA> construct --selection <explicit new DATA JSON> --selection-sha256 <whole selection SHA>
+python3 -I -B constructor.py --constructor-lock-sha256 <same SHA> verify --source <new physical source> --source-lock-sha256 <computed successor-lock SHA>
+```
+
+No actor or Root issuance is performed by either command. Until exact baseline bytes are available, readiness remains UNBOUND and no positive reconstruction/export claim is made. Controls that use MODEL changed leaves exercise inverse mechanics against all339 real predecessor members; they do not replace the missing baseline-positive control or establish guest lifecycle acceptance.

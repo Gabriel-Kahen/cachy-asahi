@@ -1,0 +1,46 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "Source_CID": null,
+    "VM": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null,
+    "source_ref": null
+  },
+  "files": {
+    "README.md": {
+      "bytes": 3691,
+      "mode": 420,
+      "sha256": "f272e9b3b527f58e3aea9f6569bb09fd917baa2d0de8a84d1019fbb07b44c0b2"
+    },
+    "constructor.py": {
+      "bytes": 17170,
+      "mode": 420,
+      "sha256": "e86318d770cf12ae93a4181a68524a80532cd75b639134aa6c534d9b5e9d8ac4"
+    },
+    "inputs.json": {
+      "bytes": 8196,
+      "mode": 420,
+      "sha256": "0a01f266975f4ca42277eac699be49a29d5070a21e3376959edb82538b75fa33"
+    },
+    "selection.TEMPLATE.json": {
+      "bytes": 370,
+      "mode": 420,
+      "sha256": "90165dbccbf3e845215000ea42374af8b4f65e1840d324c91f38c1f8a51987d9"
+    },
+    "test_constructor.py": {
+      "bytes": 6655,
+      "mode": 420,
+      "sha256": "a1253f7312e8d1b1e89a2f8302136c27d9d53b2cd61bc64f390f7e90992595f7"
+    },
+    "validation.DATA.json": {
+      "bytes": 612,
+      "mode": 420,
+      "sha256": "da0c85729f86816f689d6da3afc7c3a0f7af8ccb8242ad00ade23634d687dc2b"
+    }
+  },
+  "kind": "PURE_CACHE_LIFECYCLE_SUCCESSOR_CONSTRUCTOR_SOURCE_V1"
+}
