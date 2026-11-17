@@ -31,6 +31,9 @@ SUITES = {
     'libgit2-va': ('scripts/ci/libgit2-reference-native-source/successor_v2/test_data.py', 7),
     'fish-v5': ('scripts/ci/fish-config02-native-source/successor_v5/test_data.py', 8),
     'ci-guards': ('scripts/ci/native-successor-data/test_ci.py', 8),
+    'source85': ('scripts/ci/llhttp-reference-native-source/successor_v4/test_data.py', 7),
+    'filebackend': ('scripts/integration/arm16k_perl_ldcache_file_backend/test_chain.py', 10),
+    'semantic': ('scripts/integration/arm16k_perl_ldcache_semantic_transition/test_semantics.py', 16),
 }
 
 
@@ -139,7 +142,18 @@ def prepare(inputs, output):
     constructor.construct(output / 'fish48', output / 'fish50')
     files = fs.snapshot(output / 'fish50')
     need(identity(files, fs) == native['fish50']['expected'], 'exact unissued reconstructed Source50')
-    return dict(published_sources=sources, fish50=identity(files, fs), recipes=len(recipes), consumer_files=7)
+    diagnostic = fs.decode((HERE / 'diagnostic-cache-inputs.lock.json').read_bytes())
+    for name, spec in diagnostic['constructors'].items(): checked_file(ROOT / name, spec, fs)
+    for selection in diagnostic['suites'].values(): checked_file(ROOT / selection['path'], selection['whole_test_pin'], fs)
+    family = ROOT / 'scripts/ci/llhttp-reference-native-source'
+    load(family / 'successor_v2/prepare.py', 'ci_source68').construct(output / 'llhttp62', output / 'llhttp68')
+    load(family / 'successor_v3/prepare.py', 'ci_source76').construct(output / 'llhttp68', output / 'llhttp76')
+    source76 = identity(fs.snapshot(output / 'llhttp76'), fs)
+    need(source76 == diagnostic['source76_expected'], 'whole exact reconstructed Source76 tuple')
+    load(family / 'successor_v4/prepare.py', 'ci_source85_parent').parent_bodies(output / 'llhttp76')
+    return dict(published_sources=sources, fish50=identity(files, fs), recipes=len(recipes), consumer_files=7,
+                reconstructed_source76=source76, source76_publication_checked_here=False,
+                cache_baseline='HOLD_MISSING_ACTUAL_BASELINE_BODY', Root_authority=None)
 
 
 def temporary_parent(value, target):
@@ -192,7 +206,8 @@ def worker(name, inputs, data, receipt):
     attempts = install_fence()
     fs = filesystem(); native = fs.decode((HERE / 'native-fish-inputs.lock.json').read_bytes())
     lib = fs.decode((HERE / 'libgit2-inputs.lock.json').read_bytes())
-    os.environ.update(LLHTTP_VA_PARENT=str(data / 'llhttp62'), LIBGIT2_CONSUMER_ROOT=str(ROOT),
+    os.environ.update(LLHTTP_VA_PARENT=str(data / 'llhttp62'), LLHTTP_V4_PARENT=str(data / 'llhttp76'),
+                      LIBGIT2_CONSUMER_ROOT=str(ROOT),
                       LIBGIT2_DATA_RECIPE_ROOT=str(data / 'recipes'),
                       LIBGIT2_DATA_ARCHIVE=str(inputs / lib['upstream_archives']['libgit2']['filename']),
                       LLHTTP_DATA_ARCHIVE=str(inputs / lib['upstream_archives']['llhttp']['filename']))
@@ -211,6 +226,14 @@ def worker(name, inputs, data, receipt):
     if name == 'native-source':
         selection = native['native_source_controls']; native_members((ROOT / script).read_bytes(), selection)
         sys.argv += ['Controls.' + method for method in selection['registered_methods']]
+    if name in ('source85', 'filebackend', 'semantic'):
+        diagnostic = fs.decode((HERE / 'diagnostic-cache-inputs.lock.json').read_bytes())
+        selection = diagnostic['suites'][name]
+        need(selection['path'] == script and selection['registered_count'] == expected, 'exact new suite binding')
+        checked_file(ROOT / script, selection['whole_test_pin'], fs)
+        native_members((ROOT / script).read_bytes(), selection)
+        if selection['blocked_methods']:
+            sys.argv += ['Controls.' + method for method in selection['registered_methods']]
     if name == 'fish-v5':
         os.environ['TMPDIR'] = '/tmp'  # The unchanged author CLI explicitly requires /tmp or /dev/shm.
         sys.argv += ['--base', str(data / 'fish50')]
@@ -234,8 +257,9 @@ def run(inputs, output):
         info = os.fstat(fd); need(info.st_uid == os.getuid() and not info.st_mode & 0o022, 'owned output parent')
         os.mkdir(output.name, 0o700, dir_fd=fd)
     finally: os.close(fd)
-    report = dict(status='FAIL', tests=0, author_controls=72, CI_guards=8, suites=[], errors=[],
-                  blocked_native_controls=12, Root_authority=None, native='NOT RUN', M2='NOT RUN')
+    report = dict(status='FAIL', tests=0, author_controls=105, existing_controls=80, added_controls=33, CI_guards=8, suites=[], errors=[],
+                  blocked_native_controls=12, blocked_source85_actual87=1, blocked_semantic_model_shell=2,
+                  cache_baseline='HOLD_MISSING_ACTUAL_BASELINE_BODY', Root_authority=None, native='NOT RUN', M2='NOT RUN')
     try:
         # Setup imports only pinned pure constructors under the same actor boundary in its own worker.
         setup_log = output / 'prepare.rawlog'
@@ -254,7 +278,7 @@ def run(inputs, output):
             need(done.returncode == 0 and log.stat().st_size < 4 * 1024**2, 'suite failed: ' + name + '; see rawlog')
             row = fs.decode(receipt.read_bytes()); need(row['tests'] == SUITES[name][1] and row['skips'] == row['actor_attempts'] == 0, 'exact worker result')
             report['suites'].append(row); report['tests'] += row['tests']
-        need(report['tests'] == 80, 'all 72 author controls and eight CI guards')
+        need(report['tests'] == 113, 'all existing80 and new33 controls; zero skipped or model phase acceptance')
         report['status'] = 'PASS_SOURCE_DATA_ONLY'
     except Exception as error:
         report['errors'].append(type(error).__name__ + ': ' + str(error))
