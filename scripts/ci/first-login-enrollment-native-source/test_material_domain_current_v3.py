@@ -219,7 +219,7 @@ class Controls(unittest.TestCase):
             def private_input(v,names):
                 try:yield io.BytesIO(b'MODEL ONLY')
                 finally:v.clear()
-            with patch.object(M,'scope_tools',return_value=MODEL_SCOPE_TOOLS),patch.object(E,'require_runtime_capabilities'),patch.object(E,'inspect_tool',return_value={'MODEL':True}),patch.object(E,'checked_tool',side_effect=['/usr/bin/python3','/usr/bin/systemd-run','/usr/bin/sudo']),patch.object(E,'stderr_buffer',stream),patch.object(M,'sealed_secret_input',side_effect=private_input),patch.object(M.subprocess,'Popen',return_value=object()),patch.object(M,'absent',side_effect=AssertionError('no normal absence projection after forced result'))as absence:
+            with patch.object(M,'scope_tools',return_value=MODEL_SCOPE_TOOLS),patch.object(E,'require_runtime_capabilities'),patch.object(E,'inspect_tool',return_value={'MODEL':True}),patch.object(E,'checked_tool',side_effect=['/usr/bin/python3','/usr/bin/systemd-run','/usr/bin/sudo']),patch.object(E,'stderr_buffer',stream),patch.object(M,'stderr_identity',return_value=('MODEL',)),patch.object(M,'retired_stderr',return_value=b''),patch.object(M,'sealed_secret_input',side_effect=private_input),patch.object(M.subprocess,'Popen',return_value=object()),patch.object(M,'absent',side_effect=AssertionError('no normal absence projection after forced result'))as absence:
                 with self.subTest(mutation=mutation),self.assertRaises(ValueError):session.execute(secrets=values)
                 absence.assert_not_called()
             self.assertFalse(session.receipts[-1]['natural']);self.assertEqual(values,{})
@@ -239,7 +239,7 @@ class Controls(unittest.TestCase):
         calls=[];session.O=SimpleNamespace(prepare=lambda:calls.append('prepare'),supervise=lambda *a,**kw:dict(natural(),output=b''))
         @contextlib.contextmanager
         def errors():yield io.BytesIO()
-        with patch.object(M,'scope_tools',return_value=MODEL_SCOPE_TOOLS),patch.object(M.time,'monotonic',return_value=1000),patch.object(M.time,'time',return_value=2000),patch.object(E,'require_runtime_capabilities'),patch.object(E,'inspect_tool',return_value={}),patch.object(E,'checked_tool',side_effect=['/usr/bin/python3','/usr/bin/systemd-run','/usr/bin/sudo']),patch.object(E,'stderr_buffer',errors),patch.object(M.subprocess,'Popen',side_effect=lambda argv,**kw:calls.append(argv)or object()),patch.object(M,'absent',return_value=dict(absent_twice=True,scope='MODEL')):
+        with patch.object(M,'scope_tools',return_value=MODEL_SCOPE_TOOLS),patch.object(M.time,'monotonic',return_value=1000),patch.object(M.time,'time',return_value=2000),patch.object(E,'require_runtime_capabilities'),patch.object(E,'inspect_tool',return_value={}),patch.object(E,'checked_tool',side_effect=['/usr/bin/python3','/usr/bin/systemd-run','/usr/bin/sudo']),patch.object(E,'stderr_buffer',errors),patch.object(M,'stderr_identity',return_value=('MODEL',)),patch.object(M,'retired_stderr',return_value=b''),patch.object(M.subprocess,'Popen',side_effect=lambda argv,**kw:calls.append(argv)or object()),patch.object(M,'absent',return_value=dict(absent_twice=True,scope='MODEL')):
             receipt=session.execute(closing=True)
         self.assertTrue(receipt['natural']);self.assertTrue(receipt['scope_absence']['absent_twice'])
         self.assertIn('--property=RuntimeMaxSec=25s',calls[1]);self.assertEqual(calls[0],'prepare')

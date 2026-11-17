@@ -230,3 +230,76 @@ fixture. The62 existing non-boundary functions remain AST-source-exact. Details
 and whole tested input pins are in `reader_current_v3.source188.validation.json`.
 Updated executing Reader: 262891 bytes/SHA256
 `b1a78d5fdcddb6301f2193bff9661f4b6a5c43df02c41c9c738c8db0b424fa65`. These are DATA/source controls only.
+
+
+## Source196 written-span capture successor (schema6)
+
+The Source188 section above remains historical evidence. Source196 adds a
+separate exact schema6 DATA path for the written-span capture repair. Its closed
+source is196 files /45726789 bytes, tree
+`e85302474308dbf579b79bd6d501f5ad86b66bbb`; map aliases are38809 bytes /
+`a8f5ab1c1ceee9f3450634e14dd172d7421d6fe49d8e17ce680cb4cfe43da86a`, and the
+registry is14884 bytes /
+`15d1781d0b70805bab9bca89b2339650b90553c2413cf084bc42dfd57bc73628`.
+Root subsequently published Source196 as `0a49872473251ad289fc8a49f51f3a27334c0b35`
+on `refs/heads/codex/current-onboarding-staging-v6-20261116-r1`. This is source
+publication only. Actual execution, trusted Main and new registration selectors
+remain NULL; the closed Source and external unissued profile remain unchanged.
+The actual staging failure cause remains UNKNOWN.
+
+`capture_source_data` verifies the complete196-to188 inverse, canonical registry,
+namespace, modes, whole map/tree, two replacements, constructor and provenance.
+It then calls the preserved188-to179-to139 predicates.
+`capture_source_contract` reads six capture helper definitions as sealed AST
+source segments and verifies the literal hosted-to-domain pin. No Source helper
+is imported or executed by those Reader checks. The written span remains failed
+when the naturally retired child exits nonzero; diagnostic availability cannot
+satisfy a success or acceptance predicate.
+
+All69 prior Reader functions remain source-exact except the two-line schema6
+dispatch in `source_data`; the62 legacy non-boundary predicates remain unchanged.
+The old Reader tests and Source188 validation record remain byte-exact.
+The new executing Main Reader is271591 bytes /
+`068926ff18018ca49182d8ca9113291ca0e06b8a7a167b1e8b5dee21c454dd5d`.
+Source196 still contains its frozen248531-byte public Reader role
+`4f3ddd10cbe8c008254985e6ab82f8f3d8fa8c0b579d89c3d70c2dc70d399724` as DATA.
+Do not regenerate the closed Source196 against the new Main Reader.
+
+The native workflow contains no hardcoded expected launcher SHA: the whole
+expected pin comes from Root's request. The executing Main launcher must match
+that pin and the selected closed-Source program descriptor. Source196 requires
+the66263-byte launcher `f8387c748f31698b45656998248f099a8207bb58f7f9d7e70ef53a73be286d97`;
+the prior Source188 launcher was66059 bytes /
+`5685fa9149242fd878ce81ddbe4368a0f6317de71c654962311de4fdb631fa14`.
+The frozen Source196 workflow is8949 bytes /
+`4aaa31fae8b6665d502372467d3da5ceef0bb30553d2dfb1ac9f38a41fc90165`.
+Its bytes also remain unchanged in this Main integration, but frozen Source
+provenance and actual executing Main registration are distinct roles. Root must
+independently select the future published Main/Source revisions and Reader pin.
+The hosted request stays schema3, delegation stays schema4, and Source196's
+registry is schema6. No actual binding is issued by this change.
+
+Focused commands for genuine public DATA are:
+
+```sh
+python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/payload/native/test_reader_current_v3_source196.py \
+  --genuine-capture-source /absolute/Source196 --genuine-diagnostic-source /absolute/Source188
+python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v6_source/test_trusted_cascade.py \
+  --source-root /absolute/Source196 --profile /absolute/external-profile.json
+```
+
+CI preserves the existing Source188 audit, reconstructs Source196 from that
+exact basis and author441832e1's immutable committed operands, checks the complete
+unissued external profile, and compares its map with the exact newly published
+Source196 checkout before invoking these Main DATA controls. It does not issue
+execution authority. Eight real memfd/sealing/offset controls run in one separate
+Ubuntu24.04 OS-Python job using `/usr/bin/python3`, outside the setup-python
+matrix. The job reports its interpreter and checks required fd/sealing exports
+first; missing exports fail with HOLD, without installation, fallback or API
+synthesis. This adds one CI job/check. The portable Python3.12/3.14 matrix does
+not establish real-buffer coverage. Locally these eight controls passed on the
+system CPython3.14.7; the uv interpreters lacked required exports and held.
+New Reader/caller and all inverse
+checks are source/model DATA evidence only; native, hardware and release
+acceptance remain absent. Fresh test identities and results are recorded in
+`reader_current_v3.source196.validation.json`.
