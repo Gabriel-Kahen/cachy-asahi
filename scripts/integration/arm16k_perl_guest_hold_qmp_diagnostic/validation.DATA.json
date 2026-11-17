@@ -47,9 +47,9 @@
   "failures": 0,
   "files": {
     "README.md": {
-      "bytes": 4647,
+      "bytes": 6008,
       "mode": 420,
-      "sha256": "b6e6f7ffda5ee9a432f7b8cdd62effd77058ac51cfa92c22857ab145c4b8ec7f"
+      "sha256": "02edd32d1283e342d2122d05d9e3bce4fce6752f309322edfe1d4478fa1f838c"
     },
     "TRACE.md": {
       "bytes": 5693,
@@ -76,6 +76,11 @@
       "mode": 420,
       "sha256": "97b2b8689f627062e1ae80bb3b7047ae1925dc14c9799f684b32e5f2eb442457"
     },
+    "source387-component.DATA.json": {
+      "bytes": 3170,
+      "mode": 420,
+      "sha256": "7eacaee7e668bb8dd99919bb078854f88b8ec2fd403322e94dc7ad7f3d834b3a"
+    },
     "test_integration.py": {
       "bytes": 5154,
       "mode": 420,
@@ -85,6 +90,11 @@
       "bytes": 15899,
       "mode": 420,
       "sha256": "e8a1d7905f9ba224aab8a832d0fa86d5df57b21b25fae171f27ede262f7954cd"
+    },
+    "test_source387_projection.py": {
+      "bytes": 7332,
+      "mode": 420,
+      "sha256": "1ce63dfeccef7b0ec7c6ce80a152744222aa6a717b0dbf13cfa2ecbbe5563900"
     },
     "validation.stdout-stderr.txt": {
       "bytes": 3001,
@@ -107,6 +117,34 @@
   "original_source_unmodified": true,
   "private_home_Raw_credentials_serialpayload": false,
   "skips": 0,
+  "source387_component_verification": {
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-B",
+      "scripts/integration/arm16k_perl_guest_hold_qmp_diagnostic/test_source387_projection.py"
+    ],
+    "complete_inverse_bytes": 4106688,
+    "complete_inverse_files": 387,
+    "contract": "source387-component.DATA.json",
+    "cwd": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-guest-hold-qmp-successor-20261117",
+    "errors": 0,
+    "exit_code": 0,
+    "failures": 0,
+    "module": {
+      "bytes": 13817,
+      "mode": 420,
+      "sha256": "9b0e64730ae8f32d32d5b783f659a0df3e555ba9f0cf325354d06ab25630ddfb"
+    },
+    "projector": {
+      "bytes": 4977,
+      "mode": 420,
+      "sha256": "b14ada5f8d2ae9889b1e6f25eed6b626fc08f4c67f8263d8043ae953b0f550a2"
+    },
+    "standalone_physical_export": null,
+    "tests": 6,
+    "unified_constructor_owner": "Root otherworker"
+  },
   "source_trace_findings": {
     "concrete_causal_bug": null,
     "proven_gap": "Serial reading stops afterGuestHold; read-ahead/queue counts not observed",

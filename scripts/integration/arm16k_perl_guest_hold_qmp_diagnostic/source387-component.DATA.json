@@ -1,0 +1,84 @@
+{
+  "actual": {
+    "ALPM": null,
+    "M2": null,
+    "Root_authority": null,
+    "VM": null,
+    "case": null,
+    "nonce": null,
+    "release": null,
+    "runtime": null,
+    "source_CID": null
+  },
+  "api": {
+    "adapter": [
+      "transform_adapter(raw)",
+      "inverse_adapter(projected)"
+    ],
+    "adapter_composition": "Both helpers pin exact original387body. Unified owner merges disjoint additions against that original in one explicit order, using ADAPTER_NEEDLE and ADAPTER_ADDITION; do not call two whole-preimage transforms sequentially.",
+    "controller": [
+      "transform_controller(raw)",
+      "inverse_controller(projected)"
+    ]
+  },
+  "component_only_map": {
+    "bytes": 4122293,
+    "files": 388,
+    "not_final_composed_source": true,
+    "remaining_to4MiB": 72011
+  },
+  "constructor_base_commit": "11a6934061343ed97d9da9522dcfcaf81c0b4e33",
+  "deliver_only": [
+    {
+      "bytes": 4977,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-guest-hold-qmp-successor-20261117/scripts/integration/arm16k_perl_guest_hold_qmp_successor/transform.py",
+      "sha256": "b14ada5f8d2ae9889b1e6f25eed6b626fc08f4c67f8263d8043ae953b0f550a2"
+    },
+    {
+      "bytes": 13817,
+      "mode": 420,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-perl-guest-hold-qmp-successor-20261117/scripts/integration/arm16k_perl_guest_hold_qmp_successor/hold_state_observations.py",
+      "sha256": "9b0e64730ae8f32d32d5b783f659a0df3e555ba9f0cf325354d06ab25630ddfb"
+    }
+  ],
+  "diagnostic_commit": "2bb56425413d011b6c6ca2cb153affc4c496b5a3",
+  "fixed_delivery": {
+    "controller_read": "packet_dir/hold_state_observations.py; exactSourcebody/packetrow/actual644mode join before import",
+    "fixture": "hold_state_observations.py",
+    "guest_behavior": "Actor declaratively stages the extra case fixture file; module is executed only by host controller, not guest scripts",
+    "mode": 420,
+    "puts": 1,
+    "source": "hold_state_observations.py"
+  },
+  "focused_controls": {
+    "command": [
+      "/usr/bin/python3",
+      "-I",
+      "-B",
+      "scripts/integration/arm16k_perl_guest_hold_qmp_diagnostic/test_source387_projection.py"
+    ],
+    "errors": 0,
+    "exit": 0,
+    "failures": 0,
+    "includes": "actual adapter.contents temporary fixture delivery +exact hostloader path/mode/pin; full387inverse; unchanged5squit/retirementguards",
+    "tests": 6
+  },
+  "guest_root_and_initialized_unchanged": true,
+  "inverse": "Reverse exact one-site replacements and validate original bytepin; no full controller/adapter/oldmap copies required in unified Source",
+  "operational_changes": [
+    "controller.py",
+    "adapter.py"
+  ],
+  "predecessor": {
+    "bytes": 4106688,
+    "files": 387,
+    "lock": {
+      "bytes": 69318,
+      "sha256": "06d227647cbbf5d357bcccccc77dde07344bea033880a87b5405e9679810b443"
+    }
+  },
+  "standalone_constructor": "Draft constructor.py/test_constructor.py preserved uncommitted; no standalone physical export or actor; unified constructor owned by Root otherworker",
+  "status": "FROZEN_SOURCE387_QMP_COMPONENT_ONLY_NOT_UNIFIED_SOURCE",
+  "unchanged_original_nonlock_leaves": 384
+}

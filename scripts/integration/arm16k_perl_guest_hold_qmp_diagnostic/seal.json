@@ -4,9 +4,9 @@
   ],
   "files": {
     "README.md": {
-      "bytes": 4647,
+      "bytes": 6008,
       "mode": 420,
-      "sha256": "b6e6f7ffda5ee9a432f7b8cdd62effd77058ac51cfa92c22857ab145c4b8ec7f"
+      "sha256": "02edd32d1283e342d2122d05d9e3bce4fce6752f309322edfe1d4478fa1f838c"
     },
     "TRACE.md": {
       "bytes": 5693,
@@ -33,6 +33,11 @@
       "mode": 420,
       "sha256": "97b2b8689f627062e1ae80bb3b7047ae1925dc14c9799f684b32e5f2eb442457"
     },
+    "source387-component.DATA.json": {
+      "bytes": 3170,
+      "mode": 420,
+      "sha256": "7eacaee7e668bb8dd99919bb078854f88b8ec2fd403322e94dc7ad7f3d834b3a"
+    },
     "test_integration.py": {
       "bytes": 5154,
       "mode": 420,
@@ -43,10 +48,15 @@
       "mode": 420,
       "sha256": "e8a1d7905f9ba224aab8a832d0fa86d5df57b21b25fae171f27ede262f7954cd"
     },
-    "validation.DATA.json": {
-      "bytes": 3889,
+    "test_source387_projection.py": {
+      "bytes": 7332,
       "mode": 420,
-      "sha256": "4fe74f42e416ff7afb2f7cd9614ab63dcfdc62bb0613df6a85ef1d7b0eda58dc"
+      "sha256": "1ce63dfeccef7b0ec7c6ce80a152744222aa6a717b0dbf13cfa2ecbbe5563900"
+    },
+    "validation.DATA.json": {
+      "bytes": 5117,
+      "mode": 420,
+      "sha256": "7fca8b9157029daad34a460cb047f89bf6e2898ba6c1e5e780adfbe18e0f993c"
     },
     "validation.stdout-stderr.txt": {
       "bytes": 3001,
@@ -54,6 +64,6 @@
       "sha256": "b4b3c48774984ab408f3614436fa1aebe6153f3d404ebf1b679b5c0dc80ca598"
     }
   },
-  "schema": 1,
-  "status": "SEALED_UNISSUED_DIAGNOSTIC_PROPOSAL_NOT_COMPOSED_NOT_EXECUTED"
+  "schema": 2,
+  "status": "SEALED_UNISSUED_DIAGNOSTIC_AND_SOURCE387_COMPONENT_ONLY"
 }
