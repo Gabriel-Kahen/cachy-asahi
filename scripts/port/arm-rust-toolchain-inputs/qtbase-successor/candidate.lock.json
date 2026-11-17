@@ -1,0 +1,3387 @@
+{
+  "closure_status": "STRUCTURAL_AND_GNU_VERSION_NAMES_VERIFIED_NATIVE_UNRUN",
+  "explicit_candidate": "AUTHORIZED_SEPARATE_SUCCESSOR_NOT_FROZEN_MINUS2_EQUIVALENCE",
+  "limits": {
+    "new_archive_bytes": 536870912,
+    "new_packages": 100
+  },
+  "native_tools_profile": "NOT_PRODUCED",
+  "new_dependency_joins": [
+    {
+      "dependency": "adwaita-cursors",
+      "package": "adwaita-icon-theme",
+      "provider": "adwaita-cursors"
+    },
+    {
+      "dependency": "adwaita-icon-theme-legacy",
+      "package": "adwaita-icon-theme",
+      "provider": "adwaita-icon-theme-legacy"
+    },
+    {
+      "dependency": "hicolor-icon-theme",
+      "package": "adwaita-icon-theme",
+      "provider": "hicolor-icon-theme"
+    },
+    {
+      "dependency": "hicolor-icon-theme",
+      "package": "adwaita-icon-theme-legacy",
+      "provider": "hicolor-icon-theme"
+    },
+    {
+      "dependency": "bash",
+      "package": "at-spi2-core",
+      "provider": "bash"
+    },
+    {
+      "dependency": "dbus",
+      "package": "at-spi2-core",
+      "provider": "dbus"
+    },
+    {
+      "dependency": "glib2",
+      "package": "at-spi2-core",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "at-spi2-core",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gsettings-desktop-schemas",
+      "package": "at-spi2-core",
+      "provider": "gsettings-desktop-schemas"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "at-spi2-core",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libx11",
+      "package": "at-spi2-core",
+      "provider": "libx11"
+    },
+    {
+      "dependency": "libxi",
+      "package": "at-spi2-core",
+      "provider": "libxi"
+    },
+    {
+      "dependency": "libxtst",
+      "package": "at-spi2-core",
+      "provider": "libxtst"
+    },
+    {
+      "dependency": "systemd-libs",
+      "package": "at-spi2-core",
+      "provider": "systemd-libs"
+    },
+    {
+      "dependency": "xorg-xprop",
+      "package": "at-spi2-core",
+      "provider": "xorg-xprop"
+    },
+    {
+      "dependency": "bash",
+      "package": "avahi",
+      "provider": "bash"
+    },
+    {
+      "dependency": "dbus",
+      "package": "avahi",
+      "provider": "dbus"
+    },
+    {
+      "dependency": "expat",
+      "package": "avahi",
+      "provider": "expat"
+    },
+    {
+      "dependency": "gdbm",
+      "package": "avahi",
+      "provider": "gdbm"
+    },
+    {
+      "dependency": "glib2",
+      "package": "avahi",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "avahi",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libcap",
+      "package": "avahi",
+      "provider": "libcap"
+    },
+    {
+      "dependency": "libdaemon",
+      "package": "avahi",
+      "provider": "libdaemon"
+    },
+    {
+      "dependency": "libdbus-1.so=3-64",
+      "package": "avahi",
+      "provider": "dbus"
+    },
+    {
+      "dependency": "systemd-libs",
+      "package": "avahi",
+      "provider": "systemd-libs"
+    },
+    {
+      "dependency": "bash",
+      "package": "dconf",
+      "provider": "bash"
+    },
+    {
+      "dependency": "glib2",
+      "package": "dconf",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "dconf",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "dconf",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "glib2",
+      "package": "desktop-file-utils",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "desktop-file-utils",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libglib-2.0.so=0-64",
+      "package": "desktop-file-utils",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "gcc-libs",
+      "package": "double-conversion",
+      "provider": "gcc-libs"
+    },
+    {
+      "dependency": "glibc",
+      "package": "double-conversion",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "duktape",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glib2",
+      "package": "glib-networking",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "glib-networking",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gnutls",
+      "package": "glib-networking",
+      "provider": "gnutls"
+    },
+    {
+      "dependency": "gsettings-system-schemas",
+      "package": "glib-networking",
+      "provider": "gsettings-system-schemas"
+    },
+    {
+      "dependency": "libproxy",
+      "package": "glib-networking",
+      "provider": "libproxy"
+    },
+    {
+      "dependency": "adwaita-fonts",
+      "package": "gsettings-desktop-schemas",
+      "provider": "adwaita-fonts"
+    },
+    {
+      "dependency": "dconf",
+      "package": "gsettings-desktop-schemas",
+      "provider": "dconf"
+    },
+    {
+      "dependency": "gsettings-system-schemas=51.0-1",
+      "package": "gsettings-desktop-schemas",
+      "provider": "gsettings-system-schemas"
+    },
+    {
+      "dependency": "dconf",
+      "package": "gsettings-system-schemas",
+      "provider": "dconf"
+    },
+    {
+      "dependency": "bash",
+      "package": "gtk-update-icon-cache",
+      "provider": "bash"
+    },
+    {
+      "dependency": "gdk-pixbuf2",
+      "package": "gtk-update-icon-cache",
+      "provider": "gdk-pixbuf2"
+    },
+    {
+      "dependency": "glib2",
+      "package": "gtk-update-icon-cache",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "gtk-update-icon-cache",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "hicolor-icon-theme",
+      "package": "gtk-update-icon-cache",
+      "provider": "hicolor-icon-theme"
+    },
+    {
+      "dependency": "librsvg",
+      "package": "gtk-update-icon-cache",
+      "provider": "librsvg"
+    },
+    {
+      "dependency": "adwaita-fonts",
+      "package": "gtk3",
+      "provider": "adwaita-fonts"
+    },
+    {
+      "dependency": "adwaita-icon-theme",
+      "package": "gtk3",
+      "provider": "adwaita-icon-theme"
+    },
+    {
+      "dependency": "at-spi2-core",
+      "package": "gtk3",
+      "provider": "at-spi2-core"
+    },
+    {
+      "dependency": "cairo",
+      "package": "gtk3",
+      "provider": "cairo"
+    },
+    {
+      "dependency": "dconf",
+      "package": "gtk3",
+      "provider": "dconf"
+    },
+    {
+      "dependency": "desktop-file-utils",
+      "package": "gtk3",
+      "provider": "desktop-file-utils"
+    },
+    {
+      "dependency": "fontconfig",
+      "package": "gtk3",
+      "provider": "fontconfig"
+    },
+    {
+      "dependency": "fribidi",
+      "package": "gtk3",
+      "provider": "fribidi"
+    },
+    {
+      "dependency": "gdk-pixbuf2",
+      "package": "gtk3",
+      "provider": "gdk-pixbuf2"
+    },
+    {
+      "dependency": "glib2",
+      "package": "gtk3",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "gtk3",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gtk-update-icon-cache",
+      "package": "gtk3",
+      "provider": "gtk-update-icon-cache"
+    },
+    {
+      "dependency": "harfbuzz",
+      "package": "gtk3",
+      "provider": "harfbuzz"
+    },
+    {
+      "dependency": "iso-codes",
+      "package": "gtk3",
+      "provider": "iso-codes"
+    },
+    {
+      "dependency": "libcloudproviders",
+      "package": "gtk3",
+      "provider": "libcloudproviders"
+    },
+    {
+      "dependency": "libcolord",
+      "package": "gtk3",
+      "provider": "libcolord"
+    },
+    {
+      "dependency": "libcups",
+      "package": "gtk3",
+      "provider": "libcups"
+    },
+    {
+      "dependency": "libegl",
+      "package": "gtk3",
+      "provider": "libglvnd"
+    },
+    {
+      "dependency": "libepoxy",
+      "package": "gtk3",
+      "provider": "libepoxy"
+    },
+    {
+      "dependency": "libgl",
+      "package": "gtk3",
+      "provider": "libglvnd"
+    },
+    {
+      "dependency": "librsvg",
+      "package": "gtk3",
+      "provider": "librsvg"
+    },
+    {
+      "dependency": "libx11",
+      "package": "gtk3",
+      "provider": "libx11"
+    },
+    {
+      "dependency": "libxcomposite",
+      "package": "gtk3",
+      "provider": "libxcomposite"
+    },
+    {
+      "dependency": "libxcursor",
+      "package": "gtk3",
+      "provider": "libxcursor"
+    },
+    {
+      "dependency": "libxdamage",
+      "package": "gtk3",
+      "provider": "libxdamage"
+    },
+    {
+      "dependency": "libxext",
+      "package": "gtk3",
+      "provider": "libxext"
+    },
+    {
+      "dependency": "libxfixes",
+      "package": "gtk3",
+      "provider": "libxfixes"
+    },
+    {
+      "dependency": "libxi",
+      "package": "gtk3",
+      "provider": "libxi"
+    },
+    {
+      "dependency": "libxinerama",
+      "package": "gtk3",
+      "provider": "libxinerama"
+    },
+    {
+      "dependency": "libxkbcommon",
+      "package": "gtk3",
+      "provider": "libxkbcommon"
+    },
+    {
+      "dependency": "libxrandr",
+      "package": "gtk3",
+      "provider": "libxrandr"
+    },
+    {
+      "dependency": "libxrender",
+      "package": "gtk3",
+      "provider": "libxrender"
+    },
+    {
+      "dependency": "pango",
+      "package": "gtk3",
+      "provider": "pango"
+    },
+    {
+      "dependency": "shared-mime-info",
+      "package": "gtk3",
+      "provider": "shared-mime-info"
+    },
+    {
+      "dependency": "tinysparql",
+      "package": "gtk3",
+      "provider": "tinysparql"
+    },
+    {
+      "dependency": "wayland",
+      "package": "gtk3",
+      "provider": "wayland"
+    },
+    {
+      "dependency": "zlib",
+      "package": "gtk3",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "glib2",
+      "package": "json-glib",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "json-glib",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgio-2.0.so=0-64",
+      "package": "json-glib",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "libglib-2.0.so=0-64",
+      "package": "json-glib",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "libgobject-2.0.so=0-64",
+      "package": "json-glib",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "gcc-libs",
+      "package": "libb2",
+      "provider": "gcc-libs"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libb2",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glib2",
+      "package": "libcloudproviders",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libcloudproviders",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "libcloudproviders",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "gcc-libs",
+      "package": "libcolord",
+      "provider": "gcc-libs"
+    },
+    {
+      "dependency": "glib2",
+      "package": "libcolord",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libcolord",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "lcms2",
+      "package": "libcolord",
+      "provider": "lcms2"
+    },
+    {
+      "dependency": "systemd-libs",
+      "package": "libcolord",
+      "provider": "systemd-libs"
+    },
+    {
+      "dependency": "avahi",
+      "package": "libcups",
+      "provider": "avahi"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libcups",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gnutls",
+      "package": "libcups",
+      "provider": "gnutls"
+    },
+    {
+      "dependency": "sh",
+      "package": "libcups",
+      "provider": "bash"
+    },
+    {
+      "dependency": "zlib",
+      "package": "libcups",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libdaemon",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libepoxy",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libglvnd",
+      "package": "libepoxy",
+      "provider": "libglvnd"
+    },
+    {
+      "dependency": "libx11",
+      "package": "libepoxy",
+      "provider": "libx11"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libevdev",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "gcc-libs",
+      "package": "libgudev",
+      "provider": "gcc-libs"
+    },
+    {
+      "dependency": "glib2",
+      "package": "libgudev",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libgudev",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libglib-2.0.so=0-64",
+      "package": "libgudev",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "libgobject-2.0.so=0-64",
+      "package": "libgudev",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "libsystemd",
+      "package": "libgudev",
+      "provider": "systemd-libs"
+    },
+    {
+      "dependency": "libudev.so=1-64",
+      "package": "libgudev",
+      "provider": "systemd-libs"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libinput",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libevdev",
+      "package": "libinput",
+      "provider": "libevdev"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "libinput",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libwacom",
+      "package": "libinput",
+      "provider": "libwacom"
+    },
+    {
+      "dependency": "lua54",
+      "package": "libinput",
+      "provider": "lua54"
+    },
+    {
+      "dependency": "mtdev",
+      "package": "libinput",
+      "provider": "mtdev"
+    },
+    {
+      "dependency": "systemd-libs",
+      "package": "libinput",
+      "provider": "systemd-libs"
+    },
+    {
+      "dependency": "curl",
+      "package": "libproxy",
+      "provider": "curl"
+    },
+    {
+      "dependency": "duktape",
+      "package": "libproxy",
+      "provider": "duktape"
+    },
+    {
+      "dependency": "gcc-libs",
+      "package": "libproxy",
+      "provider": "gcc-libs"
+    },
+    {
+      "dependency": "glib2",
+      "package": "libproxy",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libproxy",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "brotli",
+      "package": "libsoup3",
+      "provider": "brotli"
+    },
+    {
+      "dependency": "glib-networking",
+      "package": "libsoup3",
+      "provider": "glib-networking"
+    },
+    {
+      "dependency": "glib2",
+      "package": "libsoup3",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libsoup3",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "krb5",
+      "package": "libsoup3",
+      "provider": "krb5"
+    },
+    {
+      "dependency": "libbrotlidec.so=1-64",
+      "package": "libsoup3",
+      "provider": "brotli"
+    },
+    {
+      "dependency": "libgio-2.0.so=0-64",
+      "package": "libsoup3",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "libglib-2.0.so=0-64",
+      "package": "libsoup3",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "libgobject-2.0.so=0-64",
+      "package": "libsoup3",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "libgssapi_krb5.so=2-64",
+      "package": "libsoup3",
+      "provider": "krb5"
+    },
+    {
+      "dependency": "libnghttp2",
+      "package": "libsoup3",
+      "provider": "libnghttp2"
+    },
+    {
+      "dependency": "libpsl",
+      "package": "libsoup3",
+      "provider": "libpsl"
+    },
+    {
+      "dependency": "libpsl.so=5-64",
+      "package": "libsoup3",
+      "provider": "libpsl"
+    },
+    {
+      "dependency": "libsysprof-capture",
+      "package": "libsoup3",
+      "provider": "libsysprof-capture"
+    },
+    {
+      "dependency": "sqlite",
+      "package": "libsoup3",
+      "provider": "sqlite"
+    },
+    {
+      "dependency": "zlib",
+      "package": "libsoup3",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "libsoup3",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libstemmer",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libtool",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "sh",
+      "package": "libtool",
+      "provider": "bash"
+    },
+    {
+      "dependency": "tar",
+      "package": "libtool",
+      "provider": "tar"
+    },
+    {
+      "dependency": "glib2",
+      "package": "libwacom",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libwacom",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libevdev",
+      "package": "libwacom",
+      "provider": "libevdev"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "libwacom",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libgudev",
+      "package": "libwacom",
+      "provider": "libgudev"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libxcomposite",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libx11",
+      "package": "libxcomposite",
+      "provider": "libx11"
+    },
+    {
+      "dependency": "libxfixes",
+      "package": "libxcomposite",
+      "provider": "libxfixes"
+    },
+    {
+      "dependency": "xorgproto",
+      "package": "libxcomposite",
+      "provider": "xorgproto"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libxdamage",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libx11",
+      "package": "libxdamage",
+      "provider": "libx11"
+    },
+    {
+      "dependency": "libxfixes",
+      "package": "libxdamage",
+      "provider": "libxfixes"
+    },
+    {
+      "dependency": "xorgproto",
+      "package": "libxdamage",
+      "provider": "xorgproto"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libxinerama",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libx11",
+      "package": "libxinerama",
+      "provider": "libx11"
+    },
+    {
+      "dependency": "libxext",
+      "package": "libxinerama",
+      "provider": "libxext"
+    },
+    {
+      "dependency": "xorgproto",
+      "package": "libxinerama",
+      "provider": "xorgproto"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libxkbcommon",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libxml2",
+      "package": "libxkbcommon",
+      "provider": "libxml2"
+    },
+    {
+      "dependency": "xkeyboard-config",
+      "package": "libxkbcommon",
+      "provider": "xkeyboard-config"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libxkbcommon-x11",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libxcb",
+      "package": "libxkbcommon-x11",
+      "provider": "libxcb"
+    },
+    {
+      "dependency": "libxkbcommon",
+      "package": "libxkbcommon-x11",
+      "provider": "libxkbcommon"
+    },
+    {
+      "dependency": "libxkbcommon.so=0-64",
+      "package": "libxkbcommon-x11",
+      "provider": "libxkbcommon"
+    },
+    {
+      "dependency": "glibc",
+      "package": "libxtst",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libx11",
+      "package": "libxtst",
+      "provider": "libx11"
+    },
+    {
+      "dependency": "libxext",
+      "package": "libxtst",
+      "provider": "libxext"
+    },
+    {
+      "dependency": "libxi",
+      "package": "libxtst",
+      "provider": "libxi"
+    },
+    {
+      "dependency": "xorgproto",
+      "package": "libxtst",
+      "provider": "xorgproto"
+    },
+    {
+      "dependency": "readline",
+      "package": "lua54",
+      "provider": "readline"
+    },
+    {
+      "dependency": "libcrypt.so=2-64",
+      "package": "mariadb-libs",
+      "provider": "libxcrypt"
+    },
+    {
+      "dependency": "libcrypto.so=3-64",
+      "package": "mariadb-libs",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "libpcre2-8.so=0-64",
+      "package": "mariadb-libs",
+      "provider": "pcre2"
+    },
+    {
+      "dependency": "libssl.so=3-64",
+      "package": "mariadb-libs",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "liburing",
+      "package": "mariadb-libs",
+      "provider": "liburing"
+    },
+    {
+      "dependency": "liburing.so=2-64",
+      "package": "mariadb-libs",
+      "provider": "liburing"
+    },
+    {
+      "dependency": "libxcrypt",
+      "package": "mariadb-libs",
+      "provider": "libxcrypt"
+    },
+    {
+      "dependency": "libz.so=1-64",
+      "package": "mariadb-libs",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "libzstd.so=1-64",
+      "package": "mariadb-libs",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "openssl",
+      "package": "mariadb-libs",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "pcre2",
+      "package": "mariadb-libs",
+      "provider": "pcre2"
+    },
+    {
+      "dependency": "zlib",
+      "package": "mariadb-libs",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "mariadb-libs",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "glibc",
+      "package": "md4c",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "mtdev",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "curl",
+      "package": "postgresql-libs",
+      "provider": "curl"
+    },
+    {
+      "dependency": "glibc",
+      "package": "postgresql-libs",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "krb5",
+      "package": "postgresql-libs",
+      "provider": "krb5"
+    },
+    {
+      "dependency": "libcrypto.so=3-64",
+      "package": "postgresql-libs",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "libcurl.so=4-64",
+      "package": "postgresql-libs",
+      "provider": "curl"
+    },
+    {
+      "dependency": "libgssapi_krb5.so=2-64",
+      "package": "postgresql-libs",
+      "provider": "krb5"
+    },
+    {
+      "dependency": "libldap",
+      "package": "postgresql-libs",
+      "provider": "libldap"
+    },
+    {
+      "dependency": "liblz4.so=1-64",
+      "package": "postgresql-libs",
+      "provider": "lz4"
+    },
+    {
+      "dependency": "libreadline.so=8-64",
+      "package": "postgresql-libs",
+      "provider": "readline"
+    },
+    {
+      "dependency": "libssl.so=3-64",
+      "package": "postgresql-libs",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "libz.so=1-64",
+      "package": "postgresql-libs",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "libzstd.so=1-64",
+      "package": "postgresql-libs",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "lz4",
+      "package": "postgresql-libs",
+      "provider": "lz4"
+    },
+    {
+      "dependency": "openssl",
+      "package": "postgresql-libs",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "readline",
+      "package": "postgresql-libs",
+      "provider": "readline"
+    },
+    {
+      "dependency": "zlib",
+      "package": "postgresql-libs",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "postgresql-libs",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "brotli",
+      "package": "qt6-base",
+      "provider": "brotli"
+    },
+    {
+      "dependency": "dbus",
+      "package": "qt6-base",
+      "provider": "dbus"
+    },
+    {
+      "dependency": "double-conversion",
+      "package": "qt6-base",
+      "provider": "double-conversion"
+    },
+    {
+      "dependency": "fontconfig",
+      "package": "qt6-base",
+      "provider": "fontconfig"
+    },
+    {
+      "dependency": "freetype2",
+      "package": "qt6-base",
+      "provider": "freetype2"
+    },
+    {
+      "dependency": "glib2",
+      "package": "qt6-base",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "qt6-base",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "harfbuzz",
+      "package": "qt6-base",
+      "provider": "harfbuzz"
+    },
+    {
+      "dependency": "icu",
+      "package": "qt6-base",
+      "provider": "icu"
+    },
+    {
+      "dependency": "krb5",
+      "package": "qt6-base",
+      "provider": "krb5"
+    },
+    {
+      "dependency": "libb2",
+      "package": "qt6-base",
+      "provider": "libb2"
+    },
+    {
+      "dependency": "libcups",
+      "package": "qt6-base",
+      "provider": "libcups"
+    },
+    {
+      "dependency": "libdrm",
+      "package": "qt6-base",
+      "provider": "libdrm"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "qt6-base",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libgl",
+      "package": "qt6-base",
+      "provider": "libglvnd"
+    },
+    {
+      "dependency": "libice",
+      "package": "qt6-base",
+      "provider": "libice"
+    },
+    {
+      "dependency": "libinput",
+      "package": "qt6-base",
+      "provider": "libinput"
+    },
+    {
+      "dependency": "libjpeg-turbo",
+      "package": "qt6-base",
+      "provider": "libjpeg-turbo"
+    },
+    {
+      "dependency": "libpng",
+      "package": "qt6-base",
+      "provider": "libpng"
+    },
+    {
+      "dependency": "libproxy",
+      "package": "qt6-base",
+      "provider": "libproxy"
+    },
+    {
+      "dependency": "libsm",
+      "package": "qt6-base",
+      "provider": "libsm"
+    },
+    {
+      "dependency": "libstdc++",
+      "package": "qt6-base",
+      "provider": "libstdc++"
+    },
+    {
+      "dependency": "liburing",
+      "package": "qt6-base",
+      "provider": "liburing"
+    },
+    {
+      "dependency": "libx11",
+      "package": "qt6-base",
+      "provider": "libx11"
+    },
+    {
+      "dependency": "libxcb",
+      "package": "qt6-base",
+      "provider": "libxcb"
+    },
+    {
+      "dependency": "libxkbcommon",
+      "package": "qt6-base",
+      "provider": "libxkbcommon"
+    },
+    {
+      "dependency": "libxkbcommon-x11",
+      "package": "qt6-base",
+      "provider": "libxkbcommon-x11"
+    },
+    {
+      "dependency": "md4c",
+      "package": "qt6-base",
+      "provider": "md4c"
+    },
+    {
+      "dependency": "mesa",
+      "package": "qt6-base",
+      "provider": "mesa"
+    },
+    {
+      "dependency": "mtdev",
+      "package": "qt6-base",
+      "provider": "mtdev"
+    },
+    {
+      "dependency": "openssl",
+      "package": "qt6-base",
+      "provider": "openssl"
+    },
+    {
+      "dependency": "pcre2",
+      "package": "qt6-base",
+      "provider": "pcre2"
+    },
+    {
+      "dependency": "qt6-translations",
+      "package": "qt6-base",
+      "provider": "qt6-translations"
+    },
+    {
+      "dependency": "shared-mime-info",
+      "package": "qt6-base",
+      "provider": "shared-mime-info"
+    },
+    {
+      "dependency": "sqlite",
+      "package": "qt6-base",
+      "provider": "sqlite"
+    },
+    {
+      "dependency": "systemd-libs",
+      "package": "qt6-base",
+      "provider": "systemd-libs"
+    },
+    {
+      "dependency": "tslib",
+      "package": "qt6-base",
+      "provider": "tslib"
+    },
+    {
+      "dependency": "wayland",
+      "package": "qt6-base",
+      "provider": "wayland"
+    },
+    {
+      "dependency": "xcb-util-cursor",
+      "package": "qt6-base",
+      "provider": "xcb-util-cursor"
+    },
+    {
+      "dependency": "xcb-util-image",
+      "package": "qt6-base",
+      "provider": "xcb-util-image"
+    },
+    {
+      "dependency": "xcb-util-keysyms",
+      "package": "qt6-base",
+      "provider": "xcb-util-keysyms"
+    },
+    {
+      "dependency": "xcb-util-renderutil",
+      "package": "qt6-base",
+      "provider": "xcb-util-renderutil"
+    },
+    {
+      "dependency": "xcb-util-wm",
+      "package": "qt6-base",
+      "provider": "xcb-util-wm"
+    },
+    {
+      "dependency": "xdg-utils",
+      "package": "qt6-base",
+      "provider": "xdg-utils"
+    },
+    {
+      "dependency": "zlib",
+      "package": "qt6-base",
+      "provider": "zlib"
+    },
+    {
+      "dependency": "zstd",
+      "package": "qt6-base",
+      "provider": "zstd"
+    },
+    {
+      "dependency": "acl",
+      "package": "tar",
+      "provider": "acl"
+    },
+    {
+      "dependency": "glibc",
+      "package": "tar",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "avahi",
+      "package": "tinysparql",
+      "provider": "avahi"
+    },
+    {
+      "dependency": "glib2",
+      "package": "tinysparql",
+      "provider": "glib2"
+    },
+    {
+      "dependency": "glibc",
+      "package": "tinysparql",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "icu",
+      "package": "tinysparql",
+      "provider": "icu"
+    },
+    {
+      "dependency": "json-glib",
+      "package": "tinysparql",
+      "provider": "json-glib"
+    },
+    {
+      "dependency": "libgcc",
+      "package": "tinysparql",
+      "provider": "libgcc"
+    },
+    {
+      "dependency": "libsoup3",
+      "package": "tinysparql",
+      "provider": "libsoup3"
+    },
+    {
+      "dependency": "libstemmer",
+      "package": "tinysparql",
+      "provider": "libstemmer"
+    },
+    {
+      "dependency": "libxml2",
+      "package": "tinysparql",
+      "provider": "libxml2"
+    },
+    {
+      "dependency": "sqlite",
+      "package": "tinysparql",
+      "provider": "sqlite"
+    },
+    {
+      "dependency": "glibc",
+      "package": "tslib",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "glibc",
+      "package": "unixodbc",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libltdl",
+      "package": "unixodbc",
+      "provider": "libtool"
+    },
+    {
+      "dependency": "readline",
+      "package": "unixodbc",
+      "provider": "readline"
+    },
+    {
+      "dependency": "glibc",
+      "package": "xcb-util",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libxcb",
+      "package": "xcb-util",
+      "provider": "libxcb"
+    },
+    {
+      "dependency": "glibc",
+      "package": "xcb-util-cursor",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libxcb",
+      "package": "xcb-util-cursor",
+      "provider": "libxcb"
+    },
+    {
+      "dependency": "xcb-util-image",
+      "package": "xcb-util-cursor",
+      "provider": "xcb-util-image"
+    },
+    {
+      "dependency": "xcb-util-renderutil",
+      "package": "xcb-util-cursor",
+      "provider": "xcb-util-renderutil"
+    },
+    {
+      "dependency": "glibc",
+      "package": "xcb-util-image",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libxcb",
+      "package": "xcb-util-image",
+      "provider": "libxcb"
+    },
+    {
+      "dependency": "xcb-util",
+      "package": "xcb-util-image",
+      "provider": "xcb-util"
+    },
+    {
+      "dependency": "glibc",
+      "package": "xcb-util-keysyms",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libxcb",
+      "package": "xcb-util-keysyms",
+      "provider": "libxcb"
+    },
+    {
+      "dependency": "glibc",
+      "package": "xcb-util-renderutil",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libxcb",
+      "package": "xcb-util-renderutil",
+      "provider": "libxcb"
+    },
+    {
+      "dependency": "glibc",
+      "package": "xcb-util-wm",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libxcb",
+      "package": "xcb-util-wm",
+      "provider": "libxcb"
+    },
+    {
+      "dependency": "file",
+      "package": "xdg-utils",
+      "provider": "file"
+    },
+    {
+      "dependency": "sh",
+      "package": "xdg-utils",
+      "provider": "bash"
+    },
+    {
+      "dependency": "glibc",
+      "package": "xorg-xprop",
+      "provider": "glibc"
+    },
+    {
+      "dependency": "libx11",
+      "package": "xorg-xprop",
+      "provider": "libx11"
+    }
+  ],
+  "new_packages": {
+    "adwaita-cursors": {
+      "arch": "any",
+      "archive": {
+        "bytes": 295516,
+        "sha256": "cd6e1e6e9ae223bedae40ec4135a161b37eaaa6b62ce2ff201c5af8b51939b67"
+      },
+      "depends": [],
+      "filename": "adwaita-cursors-51.0-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "CC-BY-SA-3.0 OR LGPL-3.0-only"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "f84fa45242eca32036da5b42f8a2a64e1a2175db65c897a834d97432a3b28449"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/adwaita-icon-theme"
+      ],
+      "version": "51.0-1"
+    },
+    "adwaita-fonts": {
+      "arch": "any",
+      "archive": {
+        "bytes": 2038816,
+        "sha256": "3a6f361315f4a2361a4f8f5776ba35578bad70b52fbd61331ec51db071bc893b"
+      },
+      "depends": [],
+      "filename": "adwaita-fonts-51.0-2-any.pkg.tar.xz",
+      "licenses_declared": [
+        "OFL-1.1"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "51e84dfb8f731f49afb3aa4eb4d577fe79515881efee6eb920ecbce39226a448"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/adwaita-fonts"
+      ],
+      "version": "51.0-2"
+    },
+    "adwaita-icon-theme": {
+      "arch": "any",
+      "archive": {
+        "bytes": 196204,
+        "sha256": "095a796743bfd6b3cbd1a1f6744d73383999739f55b8f5e4532fc8e4a6b78f89"
+      },
+      "depends": [
+        "adwaita-icon-theme-legacy",
+        "hicolor-icon-theme",
+        "adwaita-cursors"
+      ],
+      "filename": "adwaita-icon-theme-51.0-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "CC-BY-SA-3.0 OR LGPL-3.0-only"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "e01e44fddadc1ce0ad365d8b5f0203d0ab9b8e1a93b07b84afdf59a6bc4e4960"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/adwaita-icon-theme"
+      ],
+      "version": "51.0-1"
+    },
+    "adwaita-icon-theme-legacy": {
+      "arch": "any",
+      "archive": {
+        "bytes": 2275500,
+        "sha256": "bee29029e278e70571e3dc30112f18bbe046af8a66feea0af79c4f8978ad979d"
+      },
+      "depends": [
+        "hicolor-icon-theme"
+      ],
+      "filename": "adwaita-icon-theme-legacy-46.2-3-any.pkg.tar.xz",
+      "licenses_declared": [
+        "CC-BY-SA-3.0 OR LGPL-3.0-only"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "0e146d94c5c01f0373114479bae5bac60bcbe44e7d70ce5069acd0725f8c7f25"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/adwaita-icon-theme-legacy"
+      ],
+      "version": "46.2-3"
+    },
+    "at-spi2-core": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 547452,
+        "sha256": "71efadc123171229c74281323db4b04c594c5e31ee0d7dfcb680bf5d8d98c74b"
+      },
+      "depends": [
+        "bash",
+        "dbus",
+        "glib2",
+        "glibc",
+        "gsettings-desktop-schemas",
+        "libgcc",
+        "libx11",
+        "libxi",
+        "libxtst",
+        "systemd-libs",
+        "xorg-xprop"
+      ],
+      "filename": "at-spi2-core-2.62.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [
+        "at-spi2-atk=2.62.1-1",
+        "atk=2.62.1-1",
+        "libatk-1.0.so=0-64",
+        "libatk-bridge-2.0.so=0-64",
+        "libatspi.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "3386365fb23b962a5ce9612f8f5349c7cec9abee430bee2668334465e9ffd9c3"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/at-spi2-core"
+      ],
+      "version": "2.62.1-1"
+    },
+    "avahi": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 413888,
+        "sha256": "cc5397663792b8a6aeeb8879d44020e21f7dc8f3889e4bcab25cb976b0033481"
+      },
+      "depends": [
+        "bash",
+        "dbus",
+        "expat",
+        "gdbm",
+        "glib2",
+        "glibc",
+        "libcap",
+        "libdaemon",
+        "systemd-libs",
+        "libdbus-1.so=3-64"
+      ],
+      "filename": "avahi-1:0.9rc5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [
+        "libavahi-client.so=3-64",
+        "libavahi-common.so=3-64",
+        "libavahi-core.so=7-64",
+        "libavahi-glib.so=1-64",
+        "libavahi-gobject.so=0-64",
+        "libavahi-libevent.so=1-64",
+        "libavahi-ui-gtk3.so=0-64",
+        "libdns_sd.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "764a6b9ba1ac7ea6c72b6515645115e60b27b1029ac8205cfebfaeeb135f2612"
+      },
+      "url": [
+        "https://github.com/avahi/avahi"
+      ],
+      "version": "1:0.9rc5-1"
+    },
+    "dconf": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 107628,
+        "sha256": "f7da15ede101991696f9f9cd96d442f646c8abdf8c34f217cb7144cd60a8c3cd"
+      },
+      "depends": [
+        "bash",
+        "glib2",
+        "glibc",
+        "libgcc"
+      ],
+      "filename": "dconf-51.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [
+        "libdconf.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "4c60a92d0ad78233cabcae646e70d73350dd6f223e390b233cdb6e762ca931df"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/dconf"
+      ],
+      "version": "51.0-1"
+    },
+    "desktop-file-utils": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 44376,
+        "sha256": "89d97b1e9e0c265da1bf9120f39fb78122f4eb221dd1e5956b8d64326cf72eca"
+      },
+      "depends": [
+        "glib2",
+        "glibc",
+        "libglib-2.0.so=0-64"
+      ],
+      "filename": "desktop-file-utils-0.28-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "ad0f0d679412d445172d1fb2b023ba6e8aa8670f284378a88307790c5d5732e9"
+      },
+      "url": [
+        "https://www.freedesktop.org/wiki/Software/desktop-file-utils"
+      ],
+      "version": "0.28-1"
+    },
+    "double-conversion": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 52748,
+        "sha256": "f4d8f0db3a79d6cb06174920ec19cc1c1d943b7b019444be91c2685babc2d790"
+      },
+      "depends": [
+        "gcc-libs",
+        "glibc"
+      ],
+      "filename": "double-conversion-3.4.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-3-Clause"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "a28a327f3efd470a56e0720ad585addb7e7c222979b581064d05408e6b8fec1f"
+      },
+      "url": [
+        "https://github.com/google/double-conversion"
+      ],
+      "version": "3.4.0-1"
+    },
+    "duktape": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 163804,
+        "sha256": "1e3c597a3290017cfef0aec1300fc9a4212a5af3680857807431bf881f3cf64d"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "duktape-2.7.0-7-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libduktape.so=207-64",
+        "libduktaped.so=207-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "ec86f34a3fcc5993fe3dc9950fec5111b091ce805596e33c03012c31ff207c6f"
+      },
+      "url": [
+        "https://duktape.org/"
+      ],
+      "version": "2.7.0-7"
+    },
+    "glib-networking": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 141660,
+        "sha256": "601d60c1be70361d70cd7d6e700b996c0593fd0a66b77fbec4afd991a9946dec"
+      },
+      "depends": [
+        "glib2",
+        "glibc",
+        "gnutls",
+        "gsettings-system-schemas",
+        "libproxy"
+      ],
+      "filename": "glib-networking-1:2.90.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "b57b244a776005b58db7867b52e53a7e1c2793722a1b391c3973d4033e75f618"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/glib-networking"
+      ],
+      "version": "1:2.90.0-1"
+    },
+    "gsettings-desktop-schemas": {
+      "arch": "any",
+      "archive": {
+        "bytes": 843564,
+        "sha256": "87e806c8fb932c8d02c6a09cdd47af61a45b7901218f8a85826880a67becce57"
+      },
+      "depends": [
+        "gsettings-system-schemas=51.0-1",
+        "adwaita-fonts",
+        "dconf"
+      ],
+      "filename": "gsettings-desktop-schemas-51.0-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "39ec9d85826aac68cbec719196b08882c7d0ad00dd836ed6b139f9b4b2e1ca0a"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas"
+      ],
+      "version": "51.0-1"
+    },
+    "gsettings-system-schemas": {
+      "arch": "any",
+      "archive": {
+        "bytes": 6084,
+        "sha256": "1f09f0a13318507f2bdbe7a57b685dec1c2a7e400038d870511baeac03fce648"
+      },
+      "depends": [
+        "dconf"
+      ],
+      "filename": "gsettings-system-schemas-51.0-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "db263c748f66f96cccf63ece8caafe1b33e9a72281b2579771ab07d46120b376"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas"
+      ],
+      "version": "51.0-1"
+    },
+    "gtk-update-icon-cache": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 17076,
+        "sha256": "f7ad140667b8ca4ff352a31f7c7b624ec7d0f30bb7019cde8b091a2a05950452"
+      },
+      "depends": [
+        "bash",
+        "gdk-pixbuf2",
+        "glib2",
+        "glibc",
+        "hicolor-icon-theme",
+        "librsvg"
+      ],
+      "filename": "gtk-update-icon-cache-1:4.24.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "a26a03209254134ef95ce1c8d6cf2da888aeeb19848e0286961d351020af38b5"
+      },
+      "url": [
+        "https://www.gtk.org/"
+      ],
+      "version": "1:4.24.1-1"
+    },
+    "gtk3": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 8772520,
+        "sha256": "0c1ea65dd3683d5e1fdf1020f9157c09ac60638f99e11b13c5235a47ed4737d4"
+      },
+      "depends": [
+        "adwaita-fonts",
+        "adwaita-icon-theme",
+        "at-spi2-core",
+        "cairo",
+        "dconf",
+        "desktop-file-utils",
+        "fontconfig",
+        "fribidi",
+        "gdk-pixbuf2",
+        "glib2",
+        "glibc",
+        "harfbuzz",
+        "iso-codes",
+        "libcloudproviders",
+        "libcolord",
+        "libcups",
+        "libegl",
+        "libepoxy",
+        "libgl",
+        "librsvg",
+        "libx11",
+        "libxcomposite",
+        "libxcursor",
+        "libxdamage",
+        "libxext",
+        "libxfixes",
+        "libxi",
+        "libxinerama",
+        "libxkbcommon",
+        "libxrandr",
+        "libxrender",
+        "pango",
+        "shared-mime-info",
+        "tinysparql",
+        "wayland",
+        "zlib",
+        "gtk-update-icon-cache"
+      ],
+      "filename": "gtk3-1:3.24.52-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [
+        "gtk3-print-backends",
+        "libgailutil-3.so=0-64",
+        "libgdk-3.so=0-64",
+        "libgtk-3.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "15b3328c977a06aac5a862f249fd6ae6101d6e7eec2f7ba5cc3e3c227be5b2e2"
+      },
+      "url": [
+        "https://www.gtk.org/"
+      ],
+      "version": "1:3.24.52-2"
+    },
+    "iso-codes": {
+      "arch": "any",
+      "archive": {
+        "bytes": 3307468,
+        "sha256": "ca93043c3b5fe05f1f3886b3ad7ad5a68964303971edae967a8a82e8b850d010"
+      },
+      "depends": [],
+      "filename": "iso-codes-4.20.1-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-only"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "c076ab986dac942a6ae927a67b8229e1376c5ec8d38d823d79aaf8116c833171"
+      },
+      "url": [
+        "https://salsa.debian.org/iso-codes-team/iso-codes"
+      ],
+      "version": "4.20.1-1"
+    },
+    "json-glib": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 161472,
+        "sha256": "dc2a5ff08d3d7c8fcadeb820411aa31d5f1522e425045f6408fbf134db817d85"
+      },
+      "depends": [
+        "glib2",
+        "glibc",
+        "libglib-2.0.so=0-64",
+        "libgobject-2.0.so=0-64",
+        "libgio-2.0.so=0-64"
+      ],
+      "filename": "json-glib-1.10.8-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [
+        "libjson-glib-1.0.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "571507ccb1d96cd4242c530b10b36cb8b9f4416a5f85f24ee2a9867682509a13"
+      },
+      "url": [
+        "https://gnome.pages.gitlab.gnome.org/json-glib/"
+      ],
+      "version": "1.10.8-1"
+    },
+    "libb2": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 17316,
+        "sha256": "745b552a7d1d8c8d8e675bebfd38834c0ddfad99a413300382677c15c2b60495"
+      },
+      "depends": [
+        "gcc-libs",
+        "glibc"
+      ],
+      "filename": "libb2-0.98.1-3-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "CC0-1.0"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "5d48dccfc39f4873ca9cf4e5c0c7dac410badef35b3ebc03a8822f2a07ff8837"
+      },
+      "url": [
+        "https://blake2.net/"
+      ],
+      "version": "0.98.1-3"
+    },
+    "libcloudproviders": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 44368,
+        "sha256": "83dfe6750ccad57d0e453cd6df7dd4263ec3cd3362ae26db126a820ff829fd3f"
+      },
+      "depends": [
+        "libgcc",
+        "glib2",
+        "glibc"
+      ],
+      "filename": "libcloudproviders-0.4.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-3.0-or-later"
+      ],
+      "provides": [
+        "libcloudproviders.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "82dc44da6ccc2370f23f6d50425baa58816a099b3ddce67ac67b286548c99369"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/libcloudproviders"
+      ],
+      "version": "0.4.1-1"
+    },
+    "libcolord": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 169748,
+        "sha256": "79b5775b226ec0974454621e527094f0d59e7e5017b2c31c07871354de8fda0f"
+      },
+      "depends": [
+        "gcc-libs",
+        "glib2",
+        "glibc",
+        "lcms2",
+        "systemd-libs"
+      ],
+      "filename": "libcolord-1.4.8-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later"
+      ],
+      "provides": [
+        "libcolord.so=2-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "db3ec2b86c8727ed215866e3ca4a5c1f0de2257fb76fa4a7f0758930c4c841d6"
+      },
+      "url": [
+        "https://www.freedesktop.org/software/colord/"
+      ],
+      "version": "1.4.8-1"
+    },
+    "libcups": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 257476,
+        "sha256": "f280995b8d7426dc9f40c70ca8d19dead27aa8a116cfeb94afa0149028709e66"
+      },
+      "depends": [
+        "gnutls",
+        "avahi",
+        "glibc",
+        "zlib",
+        "sh"
+      ],
+      "filename": "libcups-2:2.4.20-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "Apache-2.0 WITH LLVM-exception AND BSD-3-Clause AND Zlib AND BSD-2-Clause"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "db214904615d2428f3c93556b6abe1e01fcb446d32c370c2765b2006a885c506"
+      },
+      "url": [
+        "https://openprinting.github.io/cups/"
+      ],
+      "version": "2:2.4.20-1"
+    },
+    "libdaemon": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 19340,
+        "sha256": "b96e8eb1604bf7901feb1addd2882cce2f366b504d919c9fc28a53f8c240243b"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libdaemon-0.14-6-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "909ed8b7a847850945d2cd740a546a24c2c8fae689acab3682633657f11b3eff"
+      },
+      "url": [
+        "http://0pointer.de/lennart/projects/libdaemon/"
+      ],
+      "version": "0.14-6"
+    },
+    "libepoxy": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 305076,
+        "sha256": "8bb73da9e2df09cf7798904a8709dfb49826a7a9c593a166cddd4a891a280724"
+      },
+      "depends": [
+        "glibc",
+        "libglvnd",
+        "libx11"
+      ],
+      "filename": "libepoxy-1.5.10-3-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libepoxy.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "8f9a4c233d4065dab5ff88a0eeeab276d92d124911432182a5be681cb12bb096"
+      },
+      "url": [
+        "https://github.com/anholt/libepoxy"
+      ],
+      "version": "1.5.10-3"
+    },
+    "libevdev": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 59536,
+        "sha256": "ae8696d15c24381baf9a98af8f2eaf76383926336c9be59175b16b129effae3c"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libevdev-1.14.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libevdev.so=2-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "102da7dcb9e32526f39ffa40594d7ebf03180f33ff3f8883c9331659d8c8baf0"
+      },
+      "url": [
+        "https://www.freedesktop.org/wiki/Software/libevdev/"
+      ],
+      "version": "1.14.0-1"
+    },
+    "libgudev": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 42040,
+        "sha256": "54ad35f53e669683ef336aec62c9173b343b51efd4b6a7d3eb022708c1dc3c7e"
+      },
+      "depends": [
+        "gcc-libs",
+        "glib2",
+        "glibc",
+        "libsystemd",
+        "libglib-2.0.so=0-64",
+        "libgobject-2.0.so=0-64",
+        "libudev.so=1-64"
+      ],
+      "filename": "libgudev-238-3-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [
+        "libgudev-1.0.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "0f296e7194ed47ed9c48fa9836417792984beb97a20a9ce3853fcd4b074846f5"
+      },
+      "url": [
+        "https://gitlab.gnome.org/GNOME/libgudev"
+      ],
+      "version": "238-3"
+    },
+    "libinput": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 212372,
+        "sha256": "defd6b2c7e9e5b9b2089eca649573c481be8b6066051353227190d723f299cc5"
+      },
+      "depends": [
+        "glibc",
+        "libevdev",
+        "libgcc",
+        "libwacom",
+        "lua54",
+        "mtdev",
+        "systemd-libs"
+      ],
+      "filename": "libinput-1.32.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libinput.so=10-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "a3c41630365eccd6c2105ccec2a08679b6f8b3c75c7acea13bbe0afe1dc256cf"
+      },
+      "url": [
+        "https://wayland.freedesktop.org/libinput/doc/latest/"
+      ],
+      "version": "1.32.0-1"
+    },
+    "libproxy": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 27912,
+        "sha256": "071afd9aaa0dc6f45f5e81e51c9122aacfadf85726962d013fdecb67cbfcec9b"
+      },
+      "depends": [
+        "curl",
+        "duktape",
+        "gcc-libs",
+        "glib2",
+        "glibc"
+      ],
+      "filename": "libproxy-0.5.12-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [
+        "libproxy.so=1-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "52bfddbeec58b0c8aeb50151ef838dde69e52ce89d829ee0f4c4119a2bae9b3c"
+      },
+      "url": [
+        "https://libproxy.github.io/libproxy/"
+      ],
+      "version": "0.5.12-1"
+    },
+    "libsoup3": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 392992,
+        "sha256": "64de7da632474a9b45e473731c9098e11379c5dc441e7ca1af91546dc0eabe7b"
+      },
+      "depends": [
+        "brotli",
+        "glib-networking",
+        "glib2",
+        "glibc",
+        "krb5",
+        "libnghttp2",
+        "libpsl",
+        "libsysprof-capture",
+        "sqlite",
+        "zlib",
+        "zstd",
+        "libbrotlidec.so=1-64",
+        "libgssapi_krb5.so=2-64",
+        "libglib-2.0.so=0-64",
+        "libgobject-2.0.so=0-64",
+        "libgio-2.0.so=0-64",
+        "libpsl.so=5-64"
+      ],
+      "filename": "libsoup3-3.8.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.0-or-later"
+      ],
+      "provides": [
+        "libsoup-3.0.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "c7cb940a538e22bffe3f3c32479417ae57570d0861355f21414b75b45e00f678"
+      },
+      "url": [
+        "https://libsoup.gnome.org/"
+      ],
+      "version": "3.8.0-1"
+    },
+    "libstemmer": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 125172,
+        "sha256": "c5ab5687f090d94c15b7a4b7288a58e5bf826921ad9cffa8d85bad1ce31284ba"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libstemmer-3.1.1-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "BSD-3-Clause"
+      ],
+      "provides": [
+        "libstemmer.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "6819029f59f619a44144c6c10868f5039c6469db3c7a907d05d184e024f40445"
+      },
+      "url": [
+        "https://snowballstem.org/"
+      ],
+      "version": "3.1.1-1"
+    },
+    "libtool": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 431772,
+        "sha256": "064e9d5e1dcd6840943e87964ea233694e9911d281e1747b6c7f885199dcaa86"
+      },
+      "depends": [
+        "sh",
+        "tar",
+        "glibc"
+      ],
+      "filename": "libtool-2.6.0+r23+gb08cb0a0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.0-or-later WITH Libtool-exception"
+      ],
+      "provides": [
+        "libltdl=2.6.0+r23+gb08cb0a0",
+        "libtool-multilib=2.6.0+r23+gb08cb0a0"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "32a29222eb6e86a63734af9519279cad84c2a2bb3c748e5c56f4763d2a96f0a7"
+      },
+      "url": [
+        "https://www.gnu.org/software/libtool"
+      ],
+      "version": "2.6.0+r23+gb08cb0a0-1"
+    },
+    "liburing": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 271192,
+        "sha256": "efb67ef7eed7b30bebebbe9420fbf67bbfd0676c2b731f30e47e544cdb73feaf"
+      },
+      "depends": [],
+      "filename": "liburing-2.15-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-only WITH Linux-syscall-note OR MIT",
+        "LGPL-2.0-or-later",
+        "MIT"
+      ],
+      "provides": [
+        "liburing.so=2-64",
+        "liburing-ffi.so=2-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "3a42d42b719abe319f541f2110fa2a77893ed21dfe9456df915d217b75b8e068"
+      },
+      "url": [
+        "https://github.com/axboe/liburing"
+      ],
+      "version": "2.15-1"
+    },
+    "libwacom": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 186028,
+        "sha256": "65244f94217eb53ae252696e94edc8767a7f9e00d2923a15bdf2e79ec6a5aa32"
+      },
+      "depends": [
+        "glib2",
+        "libevdev",
+        "libgudev",
+        "glibc",
+        "libgcc"
+      ],
+      "filename": "libwacom-2.20.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "938f1723d2c94b51eaaf730ba2e86a89d99ac050c12d1a49594b440d46135ddd"
+      },
+      "url": [
+        "https://github.com/linuxwacom/libwacom/wiki"
+      ],
+      "version": "2.20.0-1"
+    },
+    "libxcomposite": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 11676,
+        "sha256": "37f2d1eb8e2eeef41c0b6cc290aba66ed1783ada5657801929d5390893383978"
+      },
+      "depends": [
+        "libxfixes",
+        "xorgproto",
+        "libx11",
+        "glibc"
+      ],
+      "filename": "libxcomposite-0.4.7-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT",
+        "HPND-sell-variant"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "0908be5df7c311c397949b56929236af47e0a9d6c44e88d3657789941efa65ad"
+      },
+      "url": [
+        "https://xorg.freedesktop.org/"
+      ],
+      "version": "0.4.7-1"
+    },
+    "libxdamage": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 7376,
+        "sha256": "c10d529d8e1eb9e518eea2249d4250ea8f7a711f9ec15a644164b94a6b554955"
+      },
+      "depends": [
+        "libxfixes",
+        "xorgproto",
+        "libx11",
+        "glibc"
+      ],
+      "filename": "libxdamage-1.1.7-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "HPND-sell-variant"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "a9349d715a17843bafa31de0a1eb10a4d46f65cd7a17483a3a8cd1406ce1c207"
+      },
+      "url": [
+        "https://xorg.freedesktop.org/"
+      ],
+      "version": "1.1.7-1"
+    },
+    "libxinerama": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 9972,
+        "sha256": "3a44bdcbc01e68437ea76c8746051586bfda37a36f2c0c5613844eebf9eafdad"
+      },
+      "depends": [
+        "libxext",
+        "libx11",
+        "glibc",
+        "xorgproto"
+      ],
+      "filename": "libxinerama-1.1.6-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT",
+        "MIT-open-group",
+        "X11"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "b1fbc00a23308d661cefff826fcd85f5dd144e7310ee62ca7e993ae0dc7739ae"
+      },
+      "url": [
+        "https://xorg.freedesktop.org/"
+      ],
+      "version": "1.1.6-1"
+    },
+    "libxkbcommon": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 263628,
+        "sha256": "76b922d87d0af0011072b156464041ec5674f24ff1c78b7e85132fda72c9a7e7"
+      },
+      "depends": [
+        "glibc",
+        "libxml2",
+        "xkeyboard-config"
+      ],
+      "filename": "libxkbcommon-1.13.2-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libxkbcommon.so=0-64",
+        "libxkbregistry.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "728747f2821f46fa32a40da8a8a3ee08d5b968adfcbaf44b8dcec9954f60ab65"
+      },
+      "url": [
+        "https://xkbcommon.org/"
+      ],
+      "version": "1.13.2-1"
+    },
+    "libxkbcommon-x11": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 38984,
+        "sha256": "6f456540140a0abea3ac01502a6bb0419af81851d08d159879091a05962004fd"
+      },
+      "depends": [
+        "glibc",
+        "libxcb",
+        "libxkbcommon",
+        "libxkbcommon.so=0-64"
+      ],
+      "filename": "libxkbcommon-x11-1.13.2-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [
+        "libxkbcommon-x11.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "19c710ba91b69e76a7c515168fcd6fdf10b996fc8b787652726b666833be08f4"
+      },
+      "url": [
+        "https://xkbcommon.org/"
+      ],
+      "version": "1.13.2-1"
+    },
+    "libxtst": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 28736,
+        "sha256": "3ca6270ff04330650205339e2726c23616b31468a493642ba3df74af050ae888"
+      },
+      "depends": [
+        "libxext",
+        "libxi",
+        "libx11",
+        "glibc",
+        "xorgproto"
+      ],
+      "filename": "libxtst-1.2.5-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT-open-group",
+        "HPND-sell-variant",
+        "X11",
+        "HPND-doc",
+        "HPND-doc-sell"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "2f26dbe9d2a4aa42639e97e4f11b0270c2ba2247c6513890a2d517bd6d0465c2"
+      },
+      "url": [
+        "https://gitlab.freedesktop.org/xorg/lib/libxtst"
+      ],
+      "version": "1.2.5-1"
+    },
+    "lua54": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 295844,
+        "sha256": "a62e066b9be68ff57fcbacaef77a9b01abca19f8524a9896f4e90b2cae1f55ef"
+      },
+      "depends": [
+        "readline"
+      ],
+      "filename": "lua54-5.4.9-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "83bbdce7a17c08dbcb12c2ac1727a6e36ea0e3dd2bd93ff59647da8955d23bb4"
+      },
+      "url": [
+        "https://www.lua.org/"
+      ],
+      "version": "5.4.9-1"
+    },
+    "mariadb-libs": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 5802996,
+        "sha256": "d46dbb2c87e81fa527c0ac06848704ceed0d4a67f15f3677bad94600f5fec5b6"
+      },
+      "depends": [
+        "liburing",
+        "liburing.so=2-64",
+        "libxcrypt",
+        "libcrypt.so=2-64",
+        "openssl",
+        "libcrypto.so=3-64",
+        "libssl.so=3-64",
+        "pcre2",
+        "libpcre2-8.so=0-64",
+        "zlib",
+        "libz.so=1-64",
+        "zstd",
+        "libzstd.so=1-64"
+      ],
+      "filename": "mariadb-libs-13.0.2-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-only"
+      ],
+      "provides": [
+        "libmariadbclient",
+        "mariadb-connector-c",
+        "libmariadb.so=3-64",
+        "libmariadbd.so=19-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "68d72ba079dfb4fd09e0f5148678ecc77eec3ef480d9f5cf519f53b5c7a2278c"
+      },
+      "url": [
+        "https://mariadb.org/"
+      ],
+      "version": "13.0.2-2"
+    },
+    "md4c": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 80764,
+        "sha256": "14cc79f8a7f0b4c913068cd808717f8db2f6adb097738ade3b2e89b15caccf98"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "md4c-0.6.0-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "aa5a0215b7b4082dc3216c6b3b7a2a025a4be908eb3074a9f0e2e7acceda514e"
+      },
+      "url": [
+        "https://github.com/mity/md4c"
+      ],
+      "version": "0.6.0-2"
+    },
+    "mtdev": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 16448,
+        "sha256": "c6629223522c2e0f239fae28319c2519d4e584ea9dd4a0bd05ac3e830d445808"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "mtdev-1.1.7-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "886e4b62ba7ee748164d38806b127c1d6728191637f2f4e78b6e9f73d9e885b1"
+      },
+      "url": [
+        "https://bitmath.org/code/mtdev/"
+      ],
+      "version": "1.1.7-1"
+    },
+    "postgresql-libs": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1811396,
+        "sha256": "0f49343d7770e2fb407876dce2fba374d801531d18b047345828dc310aebab5b"
+      },
+      "depends": [
+        "curl",
+        "libcurl.so=4-64",
+        "glibc",
+        "krb5",
+        "libgssapi_krb5.so=2-64",
+        "libldap",
+        "lz4",
+        "liblz4.so=1-64",
+        "openssl",
+        "libcrypto.so=3-64",
+        "libssl.so=3-64",
+        "readline",
+        "libreadline.so=8-64",
+        "zlib",
+        "libz.so=1-64",
+        "zstd",
+        "libzstd.so=1-64"
+      ],
+      "filename": "postgresql-libs-18.6-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "PostgreSQL"
+      ],
+      "provides": [
+        "libecpg.so=6-64",
+        "libecpg_compat.so=3-64",
+        "libpgtypes.so=3-64",
+        "libpq.so=5-64",
+        "postgresql-client"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "72ed69123c001cfbb19e7e33ccedcd36aa5a16bd2b2ed91bc00fcc678d1b5b95"
+      },
+      "url": [
+        "https://www.postgresql.org/"
+      ],
+      "version": "18.6-2"
+    },
+    "qt6-base": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 15177820,
+        "sha256": "2777135b375ba82250896fa9a993926bf3c05b59dd22217f63d6a1391c1b4c31"
+      },
+      "depends": [
+        "brotli",
+        "dbus",
+        "double-conversion",
+        "fontconfig",
+        "freetype2",
+        "glib2",
+        "glibc",
+        "harfbuzz",
+        "icu",
+        "krb5",
+        "libb2",
+        "libcups",
+        "libdrm",
+        "libgcc",
+        "libgl",
+        "libice",
+        "libinput",
+        "libjpeg-turbo",
+        "libpng",
+        "libproxy",
+        "libsm",
+        "libstdc++",
+        "liburing",
+        "libx11",
+        "libxcb",
+        "libxkbcommon",
+        "libxkbcommon-x11",
+        "md4c",
+        "mesa",
+        "mtdev",
+        "openssl",
+        "pcre2",
+        "shared-mime-info",
+        "sqlite",
+        "systemd-libs",
+        "tslib",
+        "wayland",
+        "xcb-util-cursor",
+        "xcb-util-image",
+        "xcb-util-keysyms",
+        "xcb-util-renderutil",
+        "xcb-util-wm",
+        "xdg-utils",
+        "zlib",
+        "zstd",
+        "qt6-translations"
+      ],
+      "filename": "qt6-base-6.12.0-3-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-only",
+        "LGPL-3.0-only",
+        "LicenseRef-Qt-Commercial",
+        "Qt-GPL-exception-1.0"
+      ],
+      "provides": [
+        "libQt6Core.so.6"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "8db1bcda35923c7e719b2b82162521e59edc4aeb0ec45a270e94f0327a2673f5"
+      },
+      "url": [
+        "https://www.qt.io"
+      ],
+      "version": "6.12.0-3"
+    },
+    "qt6-translations": {
+      "arch": "any",
+      "archive": {
+        "bytes": 2010144,
+        "sha256": "51c3b96236aa9cccd06d27a79d62f76fb9921710ecc30db9612fcb280165bbc2"
+      },
+      "depends": [],
+      "filename": "qt6-translations-6.12.0-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-only",
+        "LGPL-3.0-only",
+        "LicenseRef-Qt-Commercial",
+        "Qt-GPL-exception-1.0"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "295fbca39a2b4f09cd7dbd2ddca83c090ceb87c2ef146a0159bdf5d1c46f5d7f"
+      },
+      "url": [
+        "https://www.qt.io"
+      ],
+      "version": "6.12.0-1"
+    },
+    "tar": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 736708,
+        "sha256": "8a9a195736b5cdac96c0511b6a6ea8417477552cf1ad24d904bf6476539b0ad3"
+      },
+      "depends": [
+        "glibc",
+        "acl"
+      ],
+      "filename": "tar-1.35-5-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-3.0-or-later"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "31c6640b34d6334c3e54aba802c53c67f235007435f7e373bb6eb99d2f43474e"
+      },
+      "url": [
+        "https://www.gnu.org/software/tar/"
+      ],
+      "version": "1.35-5"
+    },
+    "tinysparql": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 983076,
+        "sha256": "1c8b9c410a1acacade255e52b19de54fd022929dc48bdc36b021a86439fd8fb5"
+      },
+      "depends": [
+        "avahi",
+        "glib2",
+        "glibc",
+        "icu",
+        "json-glib",
+        "libgcc",
+        "libsoup3",
+        "libstemmer",
+        "libxml2",
+        "sqlite"
+      ],
+      "filename": "tinysparql-3.12.0-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later"
+      ],
+      "provides": [
+        "tracker3=3.12.0",
+        "libtinysparql-3.0.so=0-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "e4e2decb082534325b75251f6335dab9a41db1c25d5d9c73174c381290c9dc5d"
+      },
+      "url": [
+        "https://tinysparql.org/"
+      ],
+      "version": "3.12.0-1"
+    },
+    "tslib": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 100528,
+        "sha256": "ecad1c0c437edf05bdd8feff38a6e2e6c9647589f8eb148c88a51a8dad55f017"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "filename": "tslib-1.24-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "LGPL-2.1-only"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "2cd78f536a9c149c2e1fd3897ea79005577fa879a83f9fe3fd87fee16979622b"
+      },
+      "url": [
+        "https://github.com/kergoth/tslib"
+      ],
+      "version": "1.24-1"
+    },
+    "unixodbc": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 223308,
+        "sha256": "16be8b0f68c203c7d63b6c4fa7d3ea79a0666495ce69c290eff3b463af00e753"
+      },
+      "depends": [
+        "readline",
+        "libltdl",
+        "glibc"
+      ],
+      "filename": "unixodbc-2.3.14-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "provides": [
+        "libodbc.so=2-64",
+        "libodbccr.so=2-64",
+        "libodbcinst.so=2-64"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "466ff6e133fedbd720951a427b4c8091f71dc9401fe4b1d9036c230e47a4fcc7"
+      },
+      "url": [
+        "http://www.unixodbc.org/"
+      ],
+      "version": "2.3.14-1"
+    },
+    "xcb-util": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 11788,
+        "sha256": "acf6f8f974bb4c5aa982eb8e9f7e988704807b3db9d747ce98f6ca1ffaa17b5f"
+      },
+      "depends": [
+        "libxcb",
+        "glibc"
+      ],
+      "filename": "xcb-util-0.4.1-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "X11-distribute-modifications-variant"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "7368d38ce0e85f16ac04b81fd4cb76854beec3d82a7f6ae4726b3e73e523cd5e"
+      },
+      "url": [
+        "https://xcb.freedesktop.org"
+      ],
+      "version": "0.4.1-2"
+    },
+    "xcb-util-cursor": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 11580,
+        "sha256": "8db3ad73de0ad3714b3a25f3f1eceba9c0c60dd2d84c84357fa34fab6106083b"
+      },
+      "depends": [
+        "libxcb",
+        "xcb-util-renderutil",
+        "xcb-util-image",
+        "glibc"
+      ],
+      "filename": "xcb-util-cursor-0.1.6-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "7488a0dd54ac25bc91fa539edc64bdb383e4e892b035c11065f1d3589d627747"
+      },
+      "url": [
+        "https://cgit.freedesktop.org/xcb/util-cursor"
+      ],
+      "version": "0.1.6-1"
+    },
+    "xcb-util-image": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 17068,
+        "sha256": "e615d2753b21b48d40317c603a75f41c3a1c5ac06a159a7af2b35708a1cc13a6"
+      },
+      "depends": [
+        "libxcb",
+        "xcb-util",
+        "glibc"
+      ],
+      "filename": "xcb-util-image-0.4.1-3-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "X11-distribute-modifications-variant"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "21d19c6ebaefd78b4c6ac4e66f283209a1b951aaa4016cb86a20bb87e7fd3835"
+      },
+      "url": [
+        "https://xcb.freedesktop.org"
+      ],
+      "version": "0.4.1-3"
+    },
+    "xcb-util-keysyms": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 7568,
+        "sha256": "05bd273ab344ea9d8fd44d1688f8ac5aa009071672bbc8b50571c252c39dfe7a"
+      },
+      "depends": [
+        "libxcb",
+        "glibc"
+      ],
+      "filename": "xcb-util-keysyms-0.4.1-5-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "X11-distribute-modifications-variant"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "c72751b1efad2ced246a24619782929044c7bd22eb453d3594df2d2358e43c3d"
+      },
+      "url": [
+        "https://xcb.freedesktop.org"
+      ],
+      "version": "0.4.1-5"
+    },
+    "xcb-util-renderutil": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 9368,
+        "sha256": "87ab6eb530aaf6a2cf25af677ceb4493346ff319bb86e041afb9408e606784e3"
+      },
+      "depends": [
+        "libxcb",
+        "glibc"
+      ],
+      "filename": "xcb-util-renderutil-0.3.10-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "X11-distribute-modifications-variant",
+        "HPND-sell-variant"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "0722b9aedf43b8af580da0390eccbcd0beae1afd16207730b19d1007aa298560"
+      },
+      "url": [
+        "https://xcb.freedesktop.org"
+      ],
+      "version": "0.3.10-2"
+    },
+    "xcb-util-wm": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 31348,
+        "sha256": "cca68248ca0d4a83382cac35fec66e8965e121d792ab2cb54a048fd7f514b92e"
+      },
+      "depends": [
+        "libxcb",
+        "glibc"
+      ],
+      "filename": "xcb-util-wm-0.4.2-2-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "X11-distribute-modifications-variant"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "7202157dd0d1038bc074648e128d6abce34863136443e2c843fb08ce6cd4005e"
+      },
+      "url": [
+        "https://xcb.freedesktop.org"
+      ],
+      "version": "0.4.2-2"
+    },
+    "xdg-utils": {
+      "arch": "any",
+      "archive": {
+        "bytes": 60512,
+        "sha256": "afd760ce97e18f354c5893038327c70b72053c23b41e609c5351c5c22fc84cd8"
+      },
+      "depends": [
+        "sh",
+        "file"
+      ],
+      "filename": "xdg-utils-1.2.1-2-any.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "f91b68e6c87f340bb7429ed581c5cad541bcbf9000789bbeeb73f7782cf96990"
+      },
+      "url": [
+        "https://gitlab.freedesktop.org/xdg/xdg-utils"
+      ],
+      "version": "1.2.1-2"
+    },
+    "xkeyboard-config": {
+      "arch": "any",
+      "archive": {
+        "bytes": 843224,
+        "sha256": "6ee5de46d25850dee96be9c28f9870ea2ae0b19ac8fb3c2194d31b9649b03ecd"
+      },
+      "depends": [],
+      "filename": "xkeyboard-config-2.48-1-any.pkg.tar.xz",
+      "licenses_declared": [
+        "LicenseRef-xkeyboard-config"
+      ],
+      "provides": [
+        "xkbdata"
+      ],
+      "signature": {
+        "bytes": 566,
+        "sha256": "aaeeab21217c1f307f1c75165443c2274f215df788c456b21276bc670e41e95c"
+      },
+      "url": [
+        "https://gitlab.freedesktop.org/xkeyboard-config/xkeyboard-config"
+      ],
+      "version": "2.48-1"
+    },
+    "xorg-xprop": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 26412,
+        "sha256": "5ab8f4c95ee0772592be2f9efc5ebe876083202ad6a06515bcc81bd0f0b6a15a"
+      },
+      "depends": [
+        "libx11",
+        "glibc"
+      ],
+      "filename": "xorg-xprop-1.2.8-1-aarch64.pkg.tar.xz",
+      "licenses_declared": [
+        "MIT-open-group"
+      ],
+      "provides": [],
+      "signature": {
+        "bytes": 566,
+        "sha256": "4f7e3337bfacd65bae7687e8fcf59da4e7150f672316f9d4f2ab2cf68b646123"
+      },
+      "url": [
+        "https://gitlab.freedesktop.org/xorg/app/xprop"
+      ],
+      "version": "1.2.8-1"
+    }
+  },
+  "previous50_limit": "Retained in private limit-state.json; explicit Root authorization raised cap100",
+  "purpose": "bankstown-optional-qtbase6.12.0-3-input-candidate",
+  "routes": {
+    "adwaita-cursors": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/adwaita-cursors-51.0-1-any.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/adwaita-cursors-51.0-1-any.pkg.tar.xz"
+    ],
+    "adwaita-fonts": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/adwaita-fonts-51.0-2-any.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/adwaita-fonts-51.0-2-any.pkg.tar.xz"
+    ],
+    "adwaita-icon-theme": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/adwaita-icon-theme-51.0-1-any.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/adwaita-icon-theme-51.0-1-any.pkg.tar.xz"
+    ],
+    "adwaita-icon-theme-legacy": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/adwaita-icon-theme-legacy-46.2-3-any.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/adwaita-icon-theme-legacy-46.2-3-any.pkg.tar.xz"
+    ],
+    "at-spi2-core": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/at-spi2-core-2.62.1-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/at-spi2-core-2.62.1-1-aarch64.pkg.tar.xz"
+    ],
+    "avahi": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/avahi-1:0.9rc5-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/avahi-1:0.9rc5-1-aarch64.pkg.tar.xz"
+    ],
+    "dconf": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/dconf-51.0-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/dconf-51.0-1-aarch64.pkg.tar.xz"
+    ],
+    "desktop-file-utils": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/desktop-file-utils-0.28-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/desktop-file-utils-0.28-1-aarch64.pkg.tar.xz"
+    ],
+    "double-conversion": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/double-conversion-3.4.0-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/double-conversion-3.4.0-1-aarch64.pkg.tar.xz"
+    ],
+    "duktape": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/duktape-2.7.0-7-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/duktape-2.7.0-7-aarch64.pkg.tar.xz"
+    ],
+    "glib-networking": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/glib-networking-1:2.90.0-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/glib-networking-1:2.90.0-1-aarch64.pkg.tar.xz"
+    ],
+    "gsettings-desktop-schemas": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/gsettings-desktop-schemas-51.0-1-any.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/gsettings-desktop-schemas-51.0-1-any.pkg.tar.xz"
+    ],
+    "gsettings-system-schemas": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/gsettings-system-schemas-51.0-1-any.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/gsettings-system-schemas-51.0-1-any.pkg.tar.xz"
+    ],
+    "gtk-update-icon-cache": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/gtk-update-icon-cache-1:4.24.1-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/gtk-update-icon-cache-1:4.24.1-1-aarch64.pkg.tar.xz"
+    ],
+    "gtk3": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/gtk3-1:3.24.52-2-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/gtk3-1:3.24.52-2-aarch64.pkg.tar.xz"
+    ],
+    "iso-codes": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/iso-codes-4.20.1-1-any.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/iso-codes-4.20.1-1-any.pkg.tar.xz"
+    ],
+    "json-glib": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/json-glib-1.10.8-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/json-glib-1.10.8-1-aarch64.pkg.tar.xz"
+    ],
+    "libb2": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libb2-0.98.1-3-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libb2-0.98.1-3-aarch64.pkg.tar.xz"
+    ],
+    "libcloudproviders": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libcloudproviders-0.4.1-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libcloudproviders-0.4.1-1-aarch64.pkg.tar.xz"
+    ],
+    "libcolord": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libcolord-1.4.8-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libcolord-1.4.8-1-aarch64.pkg.tar.xz"
+    ],
+    "libcups": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libcups-2:2.4.20-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libcups-2:2.4.20-1-aarch64.pkg.tar.xz"
+    ],
+    "libdaemon": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libdaemon-0.14-6-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libdaemon-0.14-6-aarch64.pkg.tar.xz"
+    ],
+    "libepoxy": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libepoxy-1.5.10-3-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libepoxy-1.5.10-3-aarch64.pkg.tar.xz"
+    ],
+    "libevdev": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libevdev-1.14.0-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libevdev-1.14.0-1-aarch64.pkg.tar.xz"
+    ],
+    "libgudev": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libgudev-238-3-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libgudev-238-3-aarch64.pkg.tar.xz"
+    ],
+    "libinput": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libinput-1.32.0-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libinput-1.32.0-1-aarch64.pkg.tar.xz"
+    ],
+    "libproxy": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libproxy-0.5.12-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libproxy-0.5.12-1-aarch64.pkg.tar.xz"
+    ],
+    "libsoup3": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libsoup3-3.8.0-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libsoup3-3.8.0-1-aarch64.pkg.tar.xz"
+    ],
+    "libstemmer": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libstemmer-3.1.1-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libstemmer-3.1.1-1-aarch64.pkg.tar.xz"
+    ],
+    "libtool": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libtool-2.6.0+r23+gb08cb0a0-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/libtool-2.6.0+r23+gb08cb0a0-1-aarch64.pkg.tar.xz"
+    ],
+    "liburing": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/liburing-2.15-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/liburing-2.15-1-aarch64.pkg.tar.xz"
+    ],
+    "libwacom": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libwacom-2.20.0-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libwacom-2.20.0-1-aarch64.pkg.tar.xz"
+    ],
+    "libxcomposite": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxcomposite-0.4.7-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxcomposite-0.4.7-1-aarch64.pkg.tar.xz"
+    ],
+    "libxdamage": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxdamage-1.1.7-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxdamage-1.1.7-1-aarch64.pkg.tar.xz"
+    ],
+    "libxinerama": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxinerama-1.1.6-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxinerama-1.1.6-1-aarch64.pkg.tar.xz"
+    ],
+    "libxkbcommon": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxkbcommon-1.13.2-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxkbcommon-1.13.2-1-aarch64.pkg.tar.xz"
+    ],
+    "libxkbcommon-x11": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxkbcommon-x11-1.13.2-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxkbcommon-x11-1.13.2-1-aarch64.pkg.tar.xz"
+    ],
+    "libxtst": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxtst-1.2.5-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxtst-1.2.5-1-aarch64.pkg.tar.xz"
+    ],
+    "lua54": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/lua54-5.4.9-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/lua54-5.4.9-1-aarch64.pkg.tar.xz"
+    ],
+    "mariadb-libs": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/mariadb-libs-13.0.2-2-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/mariadb-libs-13.0.2-2-aarch64.pkg.tar.xz"
+    ],
+    "md4c": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/md4c-0.6.0-2-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/md4c-0.6.0-2-aarch64.pkg.tar.xz"
+    ],
+    "mtdev": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/mtdev-1.1.7-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/mtdev-1.1.7-1-aarch64.pkg.tar.xz"
+    ],
+    "postgresql-libs": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/postgresql-libs-18.6-2-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/postgresql-libs-18.6-2-aarch64.pkg.tar.xz"
+    ],
+    "qt6-base": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qt6-base-6.12.0-3-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/qt6-base-6.12.0-3-aarch64.pkg.tar.xz"
+    ],
+    "qt6-translations": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qt6-translations-6.12.0-1-any.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/qt6-translations-6.12.0-1-any.pkg.tar.xz"
+    ],
+    "tar": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/core/tar-1.35-5-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/tar-1.35-5-aarch64.pkg.tar.xz"
+    ],
+    "tinysparql": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/tinysparql-3.12.0-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/tinysparql-3.12.0-1-aarch64.pkg.tar.xz"
+    ],
+    "tslib": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/tslib-1.24-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/tslib-1.24-1-aarch64.pkg.tar.xz"
+    ],
+    "unixodbc": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/core/unixodbc-2.3.14-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/core/unixodbc-2.3.14-1-aarch64.pkg.tar.xz"
+    ],
+    "xcb-util": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/xcb-util-0.4.1-2-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/xcb-util-0.4.1-2-aarch64.pkg.tar.xz"
+    ],
+    "xcb-util-cursor": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/xcb-util-cursor-0.1.6-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/xcb-util-cursor-0.1.6-1-aarch64.pkg.tar.xz"
+    ],
+    "xcb-util-image": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/xcb-util-image-0.4.1-3-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/xcb-util-image-0.4.1-3-aarch64.pkg.tar.xz"
+    ],
+    "xcb-util-keysyms": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/xcb-util-keysyms-0.4.1-5-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/xcb-util-keysyms-0.4.1-5-aarch64.pkg.tar.xz"
+    ],
+    "xcb-util-renderutil": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/xcb-util-renderutil-0.3.10-2-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/xcb-util-renderutil-0.3.10-2-aarch64.pkg.tar.xz"
+    ],
+    "xcb-util-wm": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/xcb-util-wm-0.4.2-2-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/xcb-util-wm-0.4.2-2-aarch64.pkg.tar.xz"
+    ],
+    "xdg-utils": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/xdg-utils-1.2.1-2-any.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/xdg-utils-1.2.1-2-any.pkg.tar.xz"
+    ],
+    "xkeyboard-config": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/xkeyboard-config-2.48-1-any.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/xkeyboard-config-2.48-1-any.pkg.tar.xz"
+    ],
+    "xorg-xprop": [
+      "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/xorg-xprop-1.2.8-1-aarch64.pkg.tar.xz",
+      "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/xorg-xprop-1.2.8-1-aarch64.pkg.tar.xz"
+    ]
+  },
+  "schema": 1,
+  "signer_primary": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+  "source_legal_freshness_acceptance": "HELD"
+}

@@ -1,0 +1,15 @@
+{
+  "archive_pairs": 271,
+  "catalog": {
+    "bytes": 17533619,
+    "sha256": "63bc8a9aa3a33bc1f431e8cb853898370e9f2c4952f819db51aa514d130a6aa7"
+  },
+  "commit": "5f3e34579c77c68245616950f182d6dae8a5d747",
+  "descriptors_and1154joins": "PRESERVED",
+  "original_native_execution": "NOT_RUN",
+  "original_status": "INPUT_CHECKS_PASS_STRUCTURAL_CLOSURE_INCOMPLETE",
+  "original_unresolved_records": 12,
+  "prepared_bytes": 355001497,
+  "prepared_files": 542,
+  "schema": 1
+}

@@ -1,0 +1,193 @@
+{
+  "Root_final_acceptance": null,
+  "Root_issuance": null,
+  "actual_binding": null,
+  "actual_images": null,
+  "actual_selectors": {
+    "executor": null,
+    "image": null,
+    "inventory": null,
+    "job": null,
+    "profile": null,
+    "ref": null,
+    "root_selection_directory": null,
+    "run": null,
+    "source": null
+  },
+  "context": {
+    "max_context_age_seconds": 3960,
+    "max_delegation_seconds": 4320,
+    "metadata_max_bytes": 1048576,
+    "metadata_query_seconds": 30
+  },
+  "executor_current_v3": {
+    "Root_issuance": null,
+    "cleanup_seconds": 180,
+    "controller": {
+      "cpu.max": "100000 100000",
+      "memory.max": "536870912",
+      "memory.swap.max": "0",
+      "pids.max": "64"
+    },
+    "controller_AS_bytes": 536870912,
+    "controller_command_rows": 1024,
+    "controller_receipt_bytes": 3221225472,
+    "controller_seconds": 3960,
+    "host_reserve_bytes": 2147483648,
+    "kind": "CURRENT_ONBOARDING_OWNED_DOMAINS_PROPOSAL_V3",
+    "minimum_available_bytes": 12884901888,
+    "minimum_disk_bytes": 42949672960,
+    "owner_AS_bytes": 2147483648,
+    "owner_poll_seconds": 10,
+    "public_evidence_bytes": 536870912,
+    "review_state": "PROPOSED_REQUIRES_SEPARATE_ROOT_DELEGATION",
+    "service_seconds": 3780,
+    "setup_seconds": 180,
+    "shared_daemon": false,
+    "stage_seconds": 3600
+  },
+  "frozen_stage_limits": {
+    "admission_total_seconds": 1800,
+    "build_seconds": 180,
+    "builder_cpus": 4,
+    "builder_memory_bytes": 4294967296,
+    "builder_memory_swap_bytes": 4294967296,
+    "builder_pids": 512,
+    "builder_tmpfs_bytes": 4294967296,
+    "command_rows": 512,
+    "lifecycle_capabilities": [
+      "CHOWN",
+      "DAC_OVERRIDE",
+      "FOWNER",
+      "SETUID",
+      "SETGID"
+    ],
+    "owned_session_seconds": 600,
+    "retirement_reserve_seconds": 60
+  },
+  "hardware_acceptance": false,
+  "hosted_transport_v1": {
+    "Root_issuance": null,
+    "capture_commit": "441832e1d687255434c9001d603d400e4932f26a",
+    "controller_cleanup_already_in_controller_seconds": true,
+    "controller_cleanup_seconds": 180,
+    "controller_seconds": 3960,
+    "delegation_max_seconds": 4320,
+    "exact_Qt_recipe_correspondence": "HELD",
+    "input_custody": {
+      "kind": "EXTERNAL_ROOT_RETAINED_READONLY_MOUNT_V1",
+      "maximum_filesystem_bytes": 34359738368,
+      "maximum_filesystem_inodes": 20000,
+      "maximum_selected_files": 1024,
+      "mount_read_only": true,
+      "retained_through_controller_retirement": true,
+      "retirement_observed_here": false,
+      "retirement_owner": "Root"
+    },
+    "kind": "BANKSTOWN_QT3_HOSTED_PRESTAGED_TRANSPORT_V1",
+    "launcher_retirement_seconds": 30,
+    "preflight_seconds": 180,
+    "source72_unchanged": true,
+    "source_acceptance": "HELD",
+    "whole_launcher_seconds": 4170
+  },
+  "image_alpm_capabilities": [
+    "CHOWN",
+    "DAC_OVERRIDE",
+    "FOWNER",
+    "FSETID",
+    "SETUID",
+    "SETGID",
+    "SETFCAP",
+    "KILL"
+  ],
+  "image_domains": {
+    "daemon": {
+      "cpu.max": "400000 100000",
+      "memory.max": "6442450944",
+      "memory.swap.max": "0",
+      "pids.max": "768"
+    },
+    "owner": {
+      "cpu.max": "100000 100000",
+      "memory.max": "2147483648",
+      "memory.swap.max": "0",
+      "pids.max": "256"
+    }
+  },
+  "image_endpoint_template": "unix:///var/lib/cachy-current-{nonce}/volume/docker.sock",
+  "image_steps": {
+    "bootstrap_seconds": 1800,
+    "cleanup_seconds": 90,
+    "inspect_seconds": 15,
+    "stage_seconds": 180,
+    "verification_seconds": 60
+  },
+  "image_storage_bytes": 34359738368,
+  "independent_component_acceptance": false,
+  "key_freshness": "HELD",
+  "kind": "BANKSTOWN_QT3_HOSTED_POLICY_PROPOSAL_V1",
+  "legal": "HELD",
+  "normal_ALPM": {
+    "dependencies_checked": true,
+    "hooks": true,
+    "local_archives_only": true,
+    "package_code_suppression": false,
+    "scriptlets": true
+  },
+  "pending_interfaces": [
+    "GENUINE_EXTERNAL_ROOT_SOURCE_PROGRAM_POLICY_AND_INPUT_SELECTION",
+    "ACTUAL_POSTSTART_HOSTED_AND_KERNEL_DOMAIN_OBSERVATIONS",
+    "CURRENT_SEPARATE_PUBLIC_TRUST_SELECTION",
+    "ACTUAL477_IID_INVENTORY_AND_IMAGE_FILESYSTEM",
+    "EXTERNAL_ROOT_TRIAL_AND_PROFILE_SHA_LOCAL_DELIVERY",
+    "GENUINE_COMPLETE773_STAGING_AND_EXTERNAL_READONLY_MOUNT_CUSTODY",
+    "SEPARATE_ROOT_OWNED_INBOX_DELIVERY_DURING_EXECUTOR_LIFETIME",
+    "EXTERNAL_RETAINED_INPUT_MOUNT_RETIREMENT"
+  ],
+  "reference_basis": {
+    "context_commit": "88ca3568df958ee7707bee9869f632b1f5796498",
+    "executor_commit": "7778865cff20ae96e2b9a3579d3c95731e8e51e7",
+    "frozen_owner": {
+      "bytes": 46298,
+      "sha256": "f1a91dee080f76eff88409dd1fe893dc45a2084338017f367ec9874a462a612d"
+    },
+    "frozen_route": {
+      "bytes": 26320,
+      "sha256": "43db41de72822cb8f4d875b6c1d17ffd5062770616ed303f63e299c13478dd86"
+    },
+    "image_commit": "c33861f1fea8c87755015ae1a2a751728de3a738"
+  },
+  "release_acceptance": false,
+  "review_state": "PROPOSED_REQUIRES_SEPARATE_ROOT_DELEGATION",
+  "runtime": null,
+  "schema": 1,
+  "signature_policy": {
+    "Architecture": "aarch64",
+    "LocalFileSigLevel": "Required",
+    "Root_trust_admission": null,
+    "SigLevel": "Required",
+    "offline_verifier": true,
+    "public_certificates_only": true
+  },
+  "stage_capabilities": {
+    "qt3": {
+      "builder_cpus": 4,
+      "builder_memory_bytes": 4294967296,
+      "builder_pids": 512,
+      "command_rows": 512,
+      "max_command_seconds": 1800,
+      "total_seconds": 3600
+    }
+  },
+  "stage_capability_proposals": {
+    "qt3": {
+      "builder_cpus": 4,
+      "builder_memory_bytes": 4294967296,
+      "builder_pids": 512,
+      "command_rows": 512,
+      "max_command_seconds": 1800,
+      "total_seconds": 3600
+    }
+  }
+}
