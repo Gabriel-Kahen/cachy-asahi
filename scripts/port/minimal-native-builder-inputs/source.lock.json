@@ -1,0 +1,79 @@
+{
+  "Root_selection": null,
+  "files": {
+    "README.md": {
+      "bytes": 7095,
+      "mode": 420,
+      "sha256": "9cb1aec5df5bae920c9737f71a814d87945787ef7def3ec5720f180dc185dcb6"
+    },
+    "Root-authentication.TEMPLATE.json": {
+      "bytes": 402,
+      "mode": 420,
+      "sha256": "8dea9d29d0af6068a66470f409dfc460aafc9ffc1d2585586248383e90dfcaa6"
+    },
+    "acquire.py": {
+      "bytes": 6051,
+      "mode": 420,
+      "sha256": "0a7696d1dcf72e846b033337fe123ce762c31b2051a95b1b7727f8c247cbc04d"
+    },
+    "actual-intake.DATA.json": {
+      "bytes": 1732,
+      "mode": 420,
+      "sha256": "dc64d3eecedfd26f3277c8391d163abae9181b34bc7eb2cabfedbbd44e03e350"
+    },
+    "builder.lock.json": {
+      "bytes": 1189335,
+      "mode": 420,
+      "sha256": "c5c9f4450575b6c66f7991c48f9bb227e78ea1e605f57df0a46778ba9d4d6f65"
+    },
+    "expected206.lock": {
+      "bytes": 4048,
+      "mode": 420,
+      "sha256": "303cb32db7378e2cdd5d7645df1dc1f5e7a30fc9ea588f0d2867eede21127e66"
+    },
+    "export.py": {
+      "bytes": 2239,
+      "mode": 420,
+      "sha256": "9a4a7bfc23a2fcb9963a8b5e1962c964cf9cd0ac7ed0761a7d403d4e01471e5f"
+    },
+    "native-inputs.lock.json": {
+      "bytes": 236589,
+      "mode": 420,
+      "sha256": "629ef92976d17f13443897b0711a54ecb3e404eea4d0d997447407d76a9baf16"
+    },
+    "plan.py": {
+      "bytes": 9969,
+      "mode": 420,
+      "sha256": "a5bf57f0fc54069ca0703e4597c570b22c69694224b06b8507e51f97813e669a"
+    },
+    "preflight.py": {
+      "bytes": 6826,
+      "mode": 420,
+      "sha256": "ec7f5dca16c44ea9870347ba08f1d16681dca55b292b7c33181f6a91ffcd729a"
+    },
+    "primary.DATA.json": {
+      "bytes": 2027,
+      "mode": 420,
+      "sha256": "054adc2843e047f7918bc47610099eda5894500868a426305bb982dd6a718c6b"
+    },
+    "profile.DATA.json": {
+      "bytes": 1880,
+      "mode": 420,
+      "sha256": "89339cbe9821157e7a0e92ea358ad4e74a169f16245f528361b6202daabc7058"
+    },
+    "test_inputs.py": {
+      "bytes": 5837,
+      "mode": 420,
+      "sha256": "10b74f9a8fa748e47a8951086b6f31626bd4b976b39a885ea28af88fc260842d"
+    },
+    "validation.DATA.json": {
+      "bytes": 624,
+      "mode": 420,
+      "sha256": "fe9ebf9f53a51facdce1fdf7799b581c926ea5756d9ec2f1fc743b5195f7b19a"
+    }
+  },
+  "kind": "CLOSED_MINIMAL_NATIVE_BUILDER_INPUTS_CODE_AND_PROFILE_ONLY",
+  "native": null,
+  "schema": 1,
+  "signature_authentication": null
+}

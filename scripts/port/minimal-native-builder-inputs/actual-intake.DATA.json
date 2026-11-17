@@ -1,0 +1,43 @@
+{
+  "M2": null,
+  "Root_grants": null,
+  "Root_native_authority": null,
+  "Root_selection": null,
+  "actual_fit": null,
+  "all_exact_input_pins": true,
+  "bytes": 1473694724,
+  "cache": "/home/gabe/Documents/ChatGPT/cachy-asahi-minimal-native-builder-cache-20261117-r1/packages",
+  "full_package_metadata": {
+    "packages": 206,
+    "status": "PASS_MAINTAINED_COMPLETE_STREAMING_ARCHIVE_PARSER"
+  },
+  "kind": "ACTUAL_READONLY_INPUT_DATA_INTAKE_ONLY",
+  "live_storage_reserve": 2147483648,
+  "native": null,
+  "operands": 422,
+  "records": {
+    "acquisition-with-catalogs.DATA.json": {
+      "bytes": 68251,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-minimal-native-builder-plan-20261117-r6/acquisition-with-catalogs.DATA.json",
+      "sha256": "001a8e7213858a3ff92379f8b489d214c5b08ac505ec5b44aa98384f17c05aed"
+    },
+    "acquisition.DATA.json": {
+      "bytes": 67857,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-minimal-native-builder-plan-20261117-r6/acquisition.DATA.json",
+      "sha256": "6cdb119d3180012a8f43e0f73f1907d72d9bcb6d81f7b556401ae068d5786853"
+    },
+    "material-check.DATA.json": {
+      "bytes": 204,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi-minimal-native-builder-plan-20261117-r6/material-check.DATA.json",
+      "sha256": "e13386f6f7dd4e7ac41d946b417e4af44b840f63e94b6954d9ea92db107fd34c"
+    }
+  },
+  "repeatable_manifest": "BYTE_IDENTICAL_INDEPENDENT_RECONSTRUCTION",
+  "signature_authentication": null,
+  "source_manifest": {
+    "bytes": 1189335,
+    "sha256": "c5c9f4450575b6c66f7991c48f9bb227e78ea1e605f57df0a46778ba9d4d6f65"
+  },
+  "status": "COMPLETE_RETRIEVED_DATA_AND_PACKAGE_METADATA_AUTHENTICATION_UNISSUED",
+  "storage_remaining_bytes": 13288902656
+}
