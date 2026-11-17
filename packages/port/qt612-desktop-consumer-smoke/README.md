@@ -1,6 +1,7 @@
 # Qt 6.12 installed desktop consumers
 
-Source-only candidate. **Not configured, compiled, installed, or executed.**
+Source-only candidate. The host's Qt 6.11.2 failed the exact 6.12.0
+configuration check. A matching provider build and runtime are still pending.
 The three checks below must all succeed against one normally installed Qt
 6.12.0 family. Missing providers, mismatched versions, missing plugins, failed
 pixels, missing reflection, or a protocol timeout are failures; there are no
@@ -27,16 +28,15 @@ providers first, then run from this directory:
 cmake -S . -B /owned/qt612-desktop-consumer-build -G Ninja \
   -DQT612_INSTALLED_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
 cmake --build /owned/qt612-desktop-consumer-build --parallel 1
-ctest --test-dir /owned/qt612-desktop-consumer-build --output-on-failure
+ctest --test-dir /owned/qt612-desktop-consumer-build --no-tests=error --verbose
 ```
 
 Use a fresh owned build directory. No command installs packages, changes system
 configuration, opens a public socket, or launches a physical desktop session.
-CTest gives each executable ten seconds; the protocol's internal deadline is
-shorter. Preserve full configure/build/test output, exit statuses, installed
-package identities and loaded-provider evidence. A single printed marker does
-not establish that the other consumers ran. No native runner, signing grant,
-provider receipt, lease or Root acceptance is created here.
+CTest gives each executable ten seconds. The protocol has a two-second internal
+deadline. Preserve full configure, build and test output, exit statuses,
+installed package identities and loaded-provider evidence. Require all three
+CTest passes and the corresponding markers in `INTERFACE.DATA.json`.
 
 `INTERFACE.DATA.json` pins the source candidates expected by C's complete-family
 adapter. This project only accepts installed `/usr` package discovery and exact

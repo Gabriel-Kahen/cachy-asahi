@@ -2,24 +2,24 @@
   "schema": 1,
   "files": {
     "CMakeLists.txt": {
-      "bytes": 5780,
-      "sha256": "81851c84d77f6da305e77e616a940c7f57005e1c729ad6237aacb5b3091bb24b"
+      "bytes": 5956,
+      "sha256": "4509ebcdc6e6776d6e59d5c42f9ed0191388ac5db5a9e062b96f3e4177c1ca9d"
     },
     "INTERFACE.DATA.json": {
-      "bytes": 812,
-      "sha256": "c4d751e7f570f15d83aa21aee0d43ef4d3f41c974c78e2b4905c27fa85b148f4"
+      "bytes": 1073,
+      "sha256": "d9d067d6dfec26c5dc2a16726f42252e388e771e128e5969468c8b6de533d89c"
     },
     "LICENSE": {
       "bytes": 1081,
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "README.md": {
-      "bytes": 4281,
-      "sha256": "acf6b219aa4b9cc62cced93baf67bb374751c6948e56b9fe91118112a2de4cb1"
+      "bytes": 4287,
+      "sha256": "773ea10b3d36dc534d80fb90583aecf5b072d685be3198289154ae4b317679c1"
     },
     "SOURCE-AUDIT.DATA.json": {
-      "bytes": 5599,
-      "sha256": "497ff0d36e2511e86a679f20c8e188d20e657e3929eb004fffac11f4a7268b12"
+      "bytes": 6288,
+      "sha256": "3468168dd3c8eea343b9a92684a73a5b59cc7b2b81339f39b1835b749d4ab77a"
     },
     "Scene.qml": {
       "bytes": 862,
@@ -58,8 +58,8 @@
       "sha256": "f19a2323b8b51e0d7a1cd46ab6d54e8c2b2b975ac1c9ebe25d6b12dc4967df22"
     },
     "test_data.py": {
-      "bytes": 4683,
-      "sha256": "b53f8266b7b4e9bafe3c89e1e45298e32f0c863e7fe04bd9c58a495eb49d0a05"
+      "bytes": 4982,
+      "sha256": "d004aabf26ac63284a4d02656314ab55bd6737165fd857c0917489b6c4d503fb"
     }
   }
 }

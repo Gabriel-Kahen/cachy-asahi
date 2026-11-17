@@ -43,6 +43,10 @@ class SourceData(unittest.TestCase):
             self.assertRegex(revision, r"^[0-9a-f]{40}$")
         self.assertEqual(set(data["checks"]), {
             "qt612-desktop-render", "qt612-desktop-shader", "qt612-desktop-protocol"})
+        self.assertEqual(set(data["success_markers"]), set(data["checks"]))
+        for name, marker in data["success_markers"].items():
+            source = (ROOT / (name.removeprefix("qt612-desktop-") + ".cpp")).read_text()
+            self.assertEqual(source.count(f'std::puts("{marker}");'), 1)
         self.assertTrue(data["required_all_checks"])
         for field in ("configure", "build", "render", "shader_reflection", "protocol_exchange",
                       "native", "asahi_m2", "root_acceptance"):

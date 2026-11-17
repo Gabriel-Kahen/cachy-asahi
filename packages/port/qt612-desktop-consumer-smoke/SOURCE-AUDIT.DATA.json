@@ -107,6 +107,20 @@
           "sha256": "7ffdd78b53df53bbc020ffb5744bdfec4438d02a87cff2416cb58b1606259e8c"
         }
       }
+    },
+    "qtshadertools": {
+      "revision": "bccd516b990a6396900051470ac86cc27a7042ea",
+      "retrieval": "read exact members of the pinned ShaderTools source archive",
+      "files": {
+        "src/shadertools/qspirvshader.cpp": {
+          "bytes": 53442,
+          "sha256": "04b5b9d22c6f67cf1cf556bfb625ef75a619d3317a101af5048211dd895a3292"
+        },
+        "tools/qsb/Qt6ShaderToolsMacros.cmake": {
+          "bytes": 18743,
+          "sha256": "a320c770197eaf469540ffa3fd018e692ebe1a0d1f3ada021f10b7822a5f0864"
+        }
+      }
     }
   },
   "findings": [
@@ -114,7 +128,8 @@
     "QShader and QShaderDescription expose the serialized data and exact reflected fields used here.",
     "Both Qt scanner macros generate the same protocol C basename; separate generation and one compiled definition are required.",
     "SVG plugin advertises SVG reading and constructs QSvgIOHandler.",
-    "All seven tested compositor QML type names are declared by the exact QtWayland source; no compositor object is created."
+    "All seven tested compositor QML type names are declared by the exact QtWayland source; no compositor object is created.",
+    "ShaderTools reflects the named uniform block and instance separately and records the declared SPIR-V member size, offset and matrix stride."
   ],
   "api_audit": "source-reviewed",
   "configure": null,
