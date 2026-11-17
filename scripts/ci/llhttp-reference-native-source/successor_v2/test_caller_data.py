@@ -24,7 +24,7 @@ from contextlib import ExitStack
 from datetime import datetime, timezone
 from unittest.mock import patch
 
-HERE = Path(os.environ.get('LLHTTP_VA_CALLER','/home/gabe/Documents/ChatGPT/cachy-asahi-llhttp-go-va-canonical-ONCE-DRAFT-20261117-r2'))
+HERE = Path(os.environ.get('LLHTTP_VA_CALLER','/home/gabe/Documents/ChatGPT/cachy-asahi-llhttp-go-va-canonical-ONCE-DRAFT-20261117-r3'))
 PACKET = HERE / 'packet/operator-DRAFT'
 BASE = Path('/home/gabe/Documents/ChatGPT/cachy-asahi-llhttp-canonical-ONCE-DRAFT-20261117-r1/packet/operator-DRAFT')
 PUBLIC = Path('/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114')

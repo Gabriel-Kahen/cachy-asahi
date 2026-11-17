@@ -49,13 +49,22 @@ def construct(parent,source,output):
     new['ROOT-INPUTS.UNISSUED.json']=P.encode(dict(status='UNISSUED_NEW_GO_DOCKER_CLI_VA_OPERATION',source=None,ref=None,publication=None,registration=None,runtime54_profile=None,operational_context=None,role_label=None,nonce=None,created_utc=None,expires_utc=None,output=None,documents_output=None,current_retirement=None,live_domains=None,custody=None,resources=None,source349_cache=None,Root_entry='NOT RUN'))
     binding=dict(source_root=str(source),source_CID=None,source_ref=None,tree=P.tree(bodies),source_map=P.pin(bodies['source-map.json']),source_files=68,source_bytes=sum(map(len,bodies.values())),owner_program=new_program,policy=P.pin(new_policy),workflow_body=P.pin(bodies['.github/workflows/native-arm-llhttp-reference-source.yml']),runtime54_profile=None,Root_authority=None,Root_entry='NOT RUN',native_ARM='NOT RUN')
     new['binding.DATA.json']=P.encode(binding)
+    new['HANDOFF.md']=b'''# Unissued finite Docker VA caller
+
+This complete canonical operator/primitive/issuer/joiner derives from the held Source62 caller; full-files-inverse.DATA.json restores every inherited body. binding.DATA.json records the exact new Source68 map/tree/program/policy. No actual Source CID/ref, registration refresh, runtime54, Root context, role label, grants, nonce, output or dispatch is selected. ROOT-INPUTS.UNISSUED.json and templates remain refusing.
+
+Root must first publish/read back this exact Source68 and independently review the Docker-only2GiB VA declaration while retaining controller soft512MiB/cgroup512MiB and all other limits. Fresh whole-byte-pinned registration, current retirement/domain/custody/resource/Source349-cache context and runtime54 attestation remain required, followed by real Root issuance. The same canonical runtime54/custody/EMPTY/Main-CAS/CLOSE_ONLY/one-POST guards remain. Issuer/config help is safe to inspect; do not invoke issuance/entry without Root's actual operands.
+
+The local x86_64 Go CLI startup probe is not ARM qualification; native startup/build/signing/installation/M2/performance/release remain unaccepted. This preparation performed no Root role, lock, secret access, push, POST or native actor.
+'''
+    new['packet-seal.DATA.json']=P.encode(dict(status='SOURCE68_GO_CLI_VA_CANONICAL_CALLER_DRAFT_ONLY',files={n:dict(P.pin(b),mode=0o600)for n,b in sorted(new.items())},Root_authority=None,role_label=None,actual_POSTs=0))
     output.mkdir(mode=0o700)
     for name,raw in new.items():
         path=output/name;path.parent.mkdir(parents=True,exist_ok=True)
         with path.open('xb')as stream:stream.write(raw)
         path.chmod(0o600)
     for path in output.rglob('*.py'):ast.parse(path.read_bytes(),filename=str(path))
-    return dict(files=len(new),bytes=sum(map(len,new.values())),binding=binding,operator=P.pin(new[op]),primitive=P.pin(new[prim]),issuer=P.pin(new['issue_root_packet.DRAFT.py']))
+    return dict(files=len(new),bytes=sum(map(len,new.values())),binding=binding,operator=P.pin(new[op]),primitive=P.pin(new[prim]),issuer=P.pin(new['issue_root_packet.DRAFT.py']),seal=P.pin(new['packet-seal.DATA.json']))
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
