@@ -1,0 +1,172 @@
+{
+  "Original_control": {
+    "artifact": 14294311784,
+    "bytes": 4310,
+    "sha256": "c7c7f4ac4abf663f5e4c040fa3493dd2838c8a09832490f32b47c3b3c55d5acd"
+  },
+  "Original_job_log": {
+    "bytes": 68461,
+    "raw_log_handoff": false,
+    "sha256": "14b27e43c7e63504bf6a4dcd3bb9432c02eaeda0e6e22a97a699c01e9370ae0b",
+    "underlying_child_error_text": "NOT_RETAINED"
+  },
+  "Root_final_acceptance": null,
+  "attempt": 1,
+  "failure": {
+    "phase": "material_stage",
+    "reason": "VALIDATION_REFUSED"
+  },
+  "failure_type": "ValueError",
+  "fixed_parent_packet_exact_stderr_hash_match": true,
+  "hardware": null,
+  "issuer": "Root",
+  "job": 133780403506,
+  "kind": "ACTUAL_SOURCE196_TRANSPORT_FAILURE_PUBLIC_PROJECTION",
+  "launcher_status": "HOLD",
+  "material_children_after_cleanup": {
+    "children": [
+      {
+        "kind": "STAGE",
+        "natural_success": false,
+        "output_pin": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "scope_absent_twice": false,
+        "stderr_pin": {
+          "bytes": 153,
+          "sha256": "6c008c501b82973a52fc3267e3f18ab28bcf0ef4f6996527c7b2e3939fc87c25"
+        },
+        "supervision": {
+          "exit": 2,
+          "group_census": "EMPTY_TWICE",
+          "output_complete": true,
+          "ownership": "REAPED",
+          "reaped": true,
+          "signals_observed": false,
+          "supervisor_error": false,
+          "timeout": false
+        }
+      },
+      {
+        "kind": "CLOSE",
+        "natural_success": true,
+        "output_pin": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "scope_absent_twice": true,
+        "stderr_pin": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "supervision": {
+          "exit": 0,
+          "group_census": "EMPTY_TWICE",
+          "output_complete": true,
+          "ownership": "REAPED",
+          "reaped": true,
+          "signals_observed": false,
+          "supervisor_error": false,
+          "timeout": false
+        }
+      }
+    ],
+    "stage_submitted": true,
+    "state": "CLOSED"
+  },
+  "material_domain_cleanup": {
+    "Root_final_acceptance": null,
+    "closed": true,
+    "hardware_acceptance": false,
+    "independent_component_acceptance": false,
+    "input_storage_absent": true,
+    "release_acceptance": false,
+    "scope_absent": true
+  },
+  "material_failure_before_cleanup": {
+    "children": [
+      {
+        "kind": "STAGE",
+        "natural_success": false,
+        "output_pin": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "scope_absent_twice": false,
+        "stderr_pin": {
+          "bytes": 153,
+          "sha256": "6c008c501b82973a52fc3267e3f18ab28bcf0ef4f6996527c7b2e3939fc87c25"
+        },
+        "supervision": {
+          "exit": 2,
+          "group_census": "EMPTY_TWICE",
+          "output_complete": true,
+          "ownership": "REAPED",
+          "reaped": true,
+          "signals_observed": false,
+          "supervisor_error": false,
+          "timeout": false
+        }
+      }
+    ],
+    "source_failure": {
+      "Root_final_acceptance": null,
+      "availability": "AVAILABLE",
+      "context_pin": {
+        "bytes": 5035,
+        "sha256": "ab23b531f31c21bb645562e6bf757d118670822adbee74e598ebd2a1dab1a1a4"
+      },
+      "hardware_acceptance": false,
+      "independent_component_acceptance": false,
+      "kind": "CURRENT_MATERIAL_STAGE_FAILURE_RECORD_V1",
+      "packet": {
+        "command_ordinal": 2,
+        "kind": "CURRENT_MATERIAL_STAGE_FAILURE_V1",
+        "phase": "TRANSPORT_NATIVE248",
+        "reason": "COMMAND_FAILED",
+        "schema": 1
+      },
+      "record_pin": {
+        "bytes": 1070,
+        "sha256": "f441f16f24f655b1b92eb82155211b8110511d54dbcd256c30f2b686e5526212"
+      },
+      "release_acceptance": false,
+      "request_pin": {
+        "bytes": 32348,
+        "sha256": "6cd54dc62c288ce858c26bd99faeb69d01e726d4d1fdf21e3cac803a12a8f389"
+      },
+      "retirement_pin": {
+        "bytes": 224,
+        "sha256": "73cb91dddcdb493d598635f83c877fc74b313e11f1b5d78b26b6e04a36660a2c"
+      },
+      "schema": 1,
+      "status": "DIAGNOSTIC_ONLY",
+      "stderr_pin": {
+        "bytes": 153,
+        "sha256": "6c008c501b82973a52fc3267e3f18ab28bcf0ef4f6996527c7b2e3939fc87c25"
+      },
+      "stdout_pin": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "source_hold": {
+      "pin": {
+        "bytes": 202,
+        "sha256": "ce41790111469e86b7be5c28020d04a6da5854e38ee340a6c5275606db5a8032"
+      },
+      "source_reason": "NOT_EMITTED_IN_HOLD_RECEIPT",
+      "status": "HOLD_PARTIAL_OWNED_DATA_CLOSEONLY"
+    },
+    "stage_submitted": true,
+    "state": "HOLD_CLOSEONLY"
+  },
+  "native_acceptance": false,
+  "observed_utc": "2026-11-17T02:59:26.963994+00:00",
+  "release": null,
+  "run": 44005696349,
+  "source": "0a49872473251ad289fc8a49f51f3a27334c0b35",
+  "stage_capture_fix": "PASSED_REAL_ZERO_STDOUT_AND_153_STDERR_WRITTEN_EXTENTS_AND_EXIT2_RETIREMENT",
+  "underlying_native248_failure_cause": "UNKNOWN_NOT_RETAINED; 153B is fixed parent diagnostic, not raw child stderr"
+}
