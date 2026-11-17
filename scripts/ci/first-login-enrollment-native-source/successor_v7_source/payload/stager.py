@@ -113,7 +113,7 @@ def transport_failure(error,T):
  local=outer[0].f_locals;core=local.get('C');delivery=local.get('delivery');phase=getattr(delivery,'phase',None)
  # Fixed operation sites in the unchanged whole-pinned46708771 transport.
  # No traceback line, filename, source text or local payload is serialized.
- sites={75:'VALIDATE_PROFILE',76:'VALIDATE_PROFILE',89:'PATH_OPEN',90:'PATH_OPEN',121:'PATH_OPEN',122:'RECEIPT_WRITE',
+ sites={75:'DELIVERY',76:'VALIDATE_POLICY',89:'PATH_OPEN',90:'PATH_OPEN',121:'PATH_OPEN',122:'RECEIPT_WRITE',
   129:'GIT_INIT',144:'GIT_FETCH_METADATA',146:'GIT_REV_PARSE',147:'GIT_REV_PARSE',148:'GIT_COMMIT_READ',149:'GIT_COMMIT_READ',
   151:'GIT_COMMIT_READ',152:'GIT_COMMIT_READ',153:'GIT_TREE_READ',157:'GIT_TREE_READ',158:'GIT_TREE_READ',159:'GIT_TREE_READ',
   163:'GIT_TREE_READ',180:'GIT_OBJECT_INVENTORY',184:'GIT_FETCH_BLOBS',187:'GIT_OBJECT_INVENTORY',191:'PATH_OPEN',192:'PATH_OPEN',

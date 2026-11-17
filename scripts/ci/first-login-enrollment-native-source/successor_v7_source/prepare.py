@@ -19,9 +19,9 @@ SOURCE196=dict(files=196,bytes=45726789,tree='e85302474308dbf579b79bd6d501f5ad86
     source_map=dict(bytes=38809,sha256='a8f5ab1c1ceee9f3450634e14dd172d7421d6fe49d8e17ce680cb4cfe43da86a'))
 V6_PIN=dict(bytes=10836,sha256='4cc618d1259732bd83013d012d600b913a330a6233e82f33c5803a4d72637138')
 REPLACEMENTS={
-    'materials_stager':dict(member=FAMILY+'/payload/native/stage_materials_current_v3_python_v1.py',bytes=43592,sha256='3ddfdb3f1981f154348ab67e051cec0ea2bedda04dbb3596a9b285797662ef51'),
-    'material_domain_executor':dict(member=FAMILY+'/payload/native/material_domain_current_v3.py',bytes=44646,sha256='2df9c12d402e86187cd11e4b35e957b562dd2ccfc7c5229e21fc4d7d97e2e17f'),
-    'hosted_launcher':dict(member=FAMILY+'/payload/native/hosted_current_v3.py',bytes=68455,sha256='e6e8fdadc7dd125649a6c9f1bb393fed8a033bda0b8512f2f5c250345e54743f')}
+    'materials_stager':dict(member=FAMILY+'/payload/native/stage_materials_current_v3_python_v1.py',bytes=43583,sha256='da365c903750c47b7465cfb8002f3a110747497d5755bd4b7eb903c410355289'),
+    'material_domain_executor':dict(member=FAMILY+'/payload/native/material_domain_current_v3.py',bytes=44646,sha256='af2efcc9f2b58af8c02e8de92e4a3a8704f90c34aea8109ce2a3725bd5600b04'),
+    'hosted_launcher':dict(member=FAMILY+'/payload/native/hosted_current_v3.py',bytes=68455,sha256='d491626c309a4b0f1fc198fa1cc8515d2412326d0e4fb9947332590d9de0132e')}
 OPERANDS={role:PREFIX+'/payload/'+name for role,name in (
     ('materials_stager','stager.py'),('material_domain_executor','material_domain.py'),('hosted_launcher','hosted.py'))}
 

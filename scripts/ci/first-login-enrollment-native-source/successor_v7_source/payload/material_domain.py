@@ -19,7 +19,7 @@ import time
 API='CURRENT_ONBOARDING_MATERIAL_DOMAIN_V3'
 CLOSE_SECONDS=90
 EXECUTOR_PIN=dict(bytes=53735,sha256='aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a')
-STAGER_PIN=dict(bytes=43592,sha256='3ddfdb3f1981f154348ab67e051cec0ea2bedda04dbb3596a9b285797662ef51')
+STAGER_PIN=dict(bytes=43583,sha256='da365c903750c47b7465cfb8002f3a110747497d5755bd4b7eb903c410355289')
 OWNED_SHA='83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
 INPUT_METADATA={'staging_base_lock':dict(member='bootstrap/scripts/ci/inputs.lock.json',bytes=328101,sha256='beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'),
     'staging_bootstrap_profile':dict(member='native/input-profile.json',bytes=168201,sha256='2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c')}
