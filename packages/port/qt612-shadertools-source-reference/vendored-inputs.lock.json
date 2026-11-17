@@ -1,0 +1,678 @@
+{
+  "files": {
+    "src/3rdparty/SPIRV-Cross/COPYRIGHT.txt": {
+      "bytes": 243,
+      "sha256": "afe3458e2431963def8b2c1520d342566725a07b46344aa34c5d327531bf2873"
+    },
+    "src/3rdparty/SPIRV-Cross/GLSL.std.450.h": {
+      "bytes": 3073,
+      "sha256": "6f56e094663fded4435ab1d3d8c24d72adb3bf82832fc002ecf0a0d4d96543e9"
+    },
+    "src/3rdparty/SPIRV-Cross/LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "src/3rdparty/SPIRV-Cross/Makefile": {
+      "bytes": 908,
+      "sha256": "c4672a66fa6b8b51003a35ac396cc3aac5010fcac0b54b82b42de4a6d0e328dd"
+    },
+    "src/3rdparty/SPIRV-Cross/NonSemanticShaderDebugInfo100.h": {
+      "bytes": 7918,
+      "sha256": "f22e8ce116c326c81ad4d0cc99b8da7b95f8fb800de77c11f7129bd04d251299"
+    },
+    "src/3rdparty/SPIRV-Cross/REUSE.toml": {
+      "bytes": 111,
+      "sha256": "af89cdc46b7589aaff2a331c6886d10b832bbfcbbac5f518a250a1a6d7785377"
+    },
+    "src/3rdparty/SPIRV-Cross/qt_attribution.json": {
+      "bytes": 749,
+      "sha256": "1fa6880b74fc9393debabc0b3b910e238acaefc409e1dfdd4a275c5cc481d800"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv.h": {
+      "bytes": 322100,
+      "sha256": "864168c306010725dbebb394b7bd7040d4221ac1b4ec05ad092f0c16b1eec702"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv.hpp": {
+      "bytes": 313308,
+      "sha256": "7bd1d7261f6eaa0c73cdbd8506f3c03d04df96891c86abb480cd88791042aa11"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cfg.cpp": {
+      "bytes": 17523,
+      "sha256": "e565ab177ae4531db893917951d9ac4f1135799ee5bee384c8ad879de564a596"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cfg.hpp": {
+      "bytes": 4170,
+      "sha256": "75f5f76b2c2d5ad0bcae1dafe0cabf589df544cc0a7a5d254d29115cfb991b4a"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_common.hpp": {
+      "bytes": 52548,
+      "sha256": "257b7158bddc533070bd71cf8f5d4ba1c8057709e71333cced5c7a0cba36387e"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cpp.cpp": {
+      "bytes": 16085,
+      "sha256": "1e9824f798382296198e01243c4bb529b7d4acd42b09257eeb4edf15bffc32f4"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cpp.hpp": {
+      "bytes": 2637,
+      "sha256": "689fd45a5241b3f29c9702f566a2c9467d42748de4072e0849d602eae66ada06"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cross.cpp": {
+      "bytes": 180533,
+      "sha256": "646af29451b94c9fa219db4068f89627053e8d9354d10c96ad04e97bb1ea12bb"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cross.hpp": {
+      "bytes": 53957,
+      "sha256": "503ad44a4bb5a2e71b7ac624804f2d2f9d73b73b94c2ed59593b02b165376bf8"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cross_c.cpp": {
+      "bytes": 95870,
+      "sha256": "8ce20d7a2fe5159447b002eddbe8d1c7e24a7b60c7ef2fe8ac8d72fa146be04d"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cross_c.h": {
+      "bytes": 55185,
+      "sha256": "8939834efb802521ad36f97f2afd83fa03a0daecbefc2124c4e56be77d126d4f"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cross_containers.hpp": {
+      "bytes": 18023,
+      "sha256": "81c28e562046fc518a57be4e7eb9af836d3b05a6d9fb3f766a671638c275441f"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cross_error_handling.hpp": {
+      "bytes": 2700,
+      "sha256": "af7ceaa02741ed3cb9a8c8dd347d428f7a27f82d41ac57dbc5ad0dbaab8a368f"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cross_parsed_ir.cpp": {
+      "bytes": 27076,
+      "sha256": "ff5b6b6f718c527f52bf4d02c412d16bad4240805e9cf777cb07ae41eadf9c5b"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cross_parsed_ir.hpp": {
+      "bytes": 9608,
+      "sha256": "0f5115f3e87e0a9fafa950c6f854c29a6ac472b08ac36ecd3f0e0c55791fcff2"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cross_util.cpp": {
+      "bytes": 2621,
+      "sha256": "9f9ce212e5d796c7833a20baba3898bd81083cc278a804996bda91718275d263"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_cross_util.hpp": {
+      "bytes": 1402,
+      "sha256": "0942b0bae888eb986685adaf2d6741d15d4811711056d8dbc68fa80f40d18480"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_glsl.cpp": {
+      "bytes": 689004,
+      "sha256": "8d2720a7ac804a16ed8ffe6f707522aabe646a82db5b768d16003e20e953fcdf"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_glsl.hpp": {
+      "bytes": 53962,
+      "sha256": "1ec495ee2ac557ea42b9018f05a974758b7330ddd2e584e1349dd7b764c67411"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_hlsl.cpp": {
+      "bytes": 223227,
+      "sha256": "0af2a071090afa1bfc052c317dc0d3d45598905b9cc1070db6805ca4969f361b"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_hlsl.hpp": {
+      "bytes": 17433,
+      "sha256": "34ac76c97052a40a3f5a7e5f4b0a2ba2fc439bee684a072b619db2c367368552"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_msl.cpp": {
+      "bytes": 763284,
+      "sha256": "cd3e8da6582a68261f44bd674ff32f2c02373436a38a4cf2fdc2c5794135d3b3"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_msl.hpp": {
+      "bytes": 69425,
+      "sha256": "a0cd2c9afbc4c11e592e83d44986daaf240f2f50b439d052ef68c769adb0481c"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_parser.cpp": {
+      "bytes": 43279,
+      "sha256": "57b7db682a64de50d6c2450348092e42221bcc9785765622fda896b33d2a5baa"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_parser.hpp": {
+      "bytes": 2633,
+      "sha256": "e5cc214ad1d87bd78183f2e72a902c0fb994dc18e7aa6e83e86cb2875708c2f2"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_reflect.cpp": {
+      "bytes": 22622,
+      "sha256": "3b77c7e3e36535650cc1a1c02b1786e176e4876535878e4cf947aa3e74f4233c"
+    },
+    "src/3rdparty/SPIRV-Cross/spirv_reflect.hpp": {
+      "bytes": 2548,
+      "sha256": "67e8a1a03f4f4e03a1a9fcd247b789c74488976d43be3d3ef0b442b94fa621ba"
+    },
+    "src/3rdparty/glslang/COPYRIGHT.txt": {
+      "bytes": 314,
+      "sha256": "7a0986b241205c038dcea76b343dd9b7030a424b644a7d59585200824831dae8"
+    },
+    "src/3rdparty/glslang/LICENSE.txt": {
+      "bytes": 54705,
+      "sha256": "adb783e734e906d1f46db5df29991dbde84bdb0ceab502ac2febb44fe3c2b5f4"
+    },
+    "src/3rdparty/glslang/README.md": {
+      "bytes": 20619,
+      "sha256": "907557b6ec0663fe7380dc04a7ef349e16dc32a687f67ec28e835a0121374aad"
+    },
+    "src/3rdparty/glslang/REUSE.toml": {
+      "bytes": 733,
+      "sha256": "c76ebf9239cbb7da17c6c8236967a697cafcd38eaa8d4c6efc1163d01ffd4e65"
+    },
+    "src/3rdparty/glslang/SPIRV/CInterface/spirv_c_interface.cpp": {
+      "bytes": 4312,
+      "sha256": "9d0fe5d27fe206996582346449987feebc51b8e29266ca78244d1000435cd2e3"
+    },
+    "src/3rdparty/glslang/SPIRV/GLSL.ext.AMD.h": {
+      "bytes": 3616,
+      "sha256": "28b306c7d15734d5e91ea771118beb70009a8469d97333964a3f50fb4a877a42"
+    },
+    "src/3rdparty/glslang/SPIRV/GLSL.ext.ARM.h": {
+      "bytes": 1769,
+      "sha256": "8f0b42d1dac85bce425306931eac64bce4b82c10fdf18bb2bf8b7d74ce42969b"
+    },
+    "src/3rdparty/glslang/SPIRV/GLSL.ext.EXT.h": {
+      "bytes": 2911,
+      "sha256": "e9cd8720fc282d000b39dc104520fc3572f5408df60eb5d93bde40c59bdcfa7c"
+    },
+    "src/3rdparty/glslang/SPIRV/GLSL.ext.KHR.h": {
+      "bytes": 5432,
+      "sha256": "087aa7065c064ccbb279f9226dc572ab6a7539cc6088001bf690a7dd9bbe88eb"
+    },
+    "src/3rdparty/glslang/SPIRV/GLSL.ext.NV.h": {
+      "bytes": 4421,
+      "sha256": "84e0224d9de73aff31e04aa54e8fb164ea5f467b5ef0dd188386adc3973236bc"
+    },
+    "src/3rdparty/glslang/SPIRV/GLSL.ext.QCOM.h": {
+      "bytes": 2114,
+      "sha256": "921865a3779ba09708a9e153915eeb47d5f346ca96aff415ce01bfb805b5730a"
+    },
+    "src/3rdparty/glslang/SPIRV/GLSL.std.450.h": {
+      "bytes": 4126,
+      "sha256": "5624630f79e4ca38e51c1bec8d8eb835ab4784cfcbd4930ef88cc507f2e4551b"
+    },
+    "src/3rdparty/glslang/SPIRV/GlslangToSpv.cpp": {
+      "bytes": 557071,
+      "sha256": "1c0d51359fa8d81e74b082b9425766d18500872fae83dfd6a1e04cb5cbfef934"
+    },
+    "src/3rdparty/glslang/SPIRV/GlslangToSpv.h": {
+      "bytes": 2949,
+      "sha256": "364d40e1d488d6c36aa7dff62fd2625a69a3e714a165838c44ef6b57a9ededb8"
+    },
+    "src/3rdparty/glslang/SPIRV/InReadableOrder.cpp": {
+      "bytes": 5751,
+      "sha256": "ce78bbc75dd02d663037e850a7031fda7abb84ad343de2d797ef8b26a2d221b2"
+    },
+    "src/3rdparty/glslang/SPIRV/Logger.cpp": {
+      "bytes": 2731,
+      "sha256": "86719c99fc5b248601cbff0e444c22c6b0be7b8a7165858785af9db9ed27dd22"
+    },
+    "src/3rdparty/glslang/SPIRV/Logger.h": {
+      "bytes": 2740,
+      "sha256": "0a6a1f0a8c50e8dabb01e0d5c4047e3d0976d3a5a968e26a03224c882d40664f"
+    },
+    "src/3rdparty/glslang/SPIRV/NonSemanticDebugPrintf.h": {
+      "bytes": 1858,
+      "sha256": "df2648aced548b7f72a95420406ebe54ad9c6b459c67a5f5222a769ca0c0ca8a"
+    },
+    "src/3rdparty/glslang/SPIRV/NonSemanticShaderDebugInfo.h": {
+      "bytes": 7688,
+      "sha256": "8032a7ffd5a1e82535817ff2f4dc19d41aa1f0342f34740f9511170269216e6f"
+    },
+    "src/3rdparty/glslang/SPIRV/SPVRemapper.cpp": {
+      "bytes": 56286,
+      "sha256": "594f4b0697390ea9dcd9d54e0d6e2ff15704f114e0d330a6d8e5fb06ab168066"
+    },
+    "src/3rdparty/glslang/SPIRV/SPVRemapper.h": {
+      "bytes": 12096,
+      "sha256": "308c3bc072cd08b38683157752734e98cb968ee101238c15272b1d7f9df9c886"
+    },
+    "src/3rdparty/glslang/SPIRV/SpvBuilder.cpp": {
+      "bytes": 196845,
+      "sha256": "e1f9bd93ac63bbf8e33784328fbb169601b1aeec0c0158f2012da5fca3fd8036"
+    },
+    "src/3rdparty/glslang/SPIRV/SpvBuilder.h": {
+      "bytes": 57273,
+      "sha256": "9370ba6ac0b4a25b3d43a63567083244af2a2db8fc6831e4506b39eeb0b20d02"
+    },
+    "src/3rdparty/glslang/SPIRV/SpvPostProcess.cpp": {
+      "bytes": 28508,
+      "sha256": "42d2b973ca31c518fbe9afd4fec9b9df014c3acb2d81887bb650fec034acf7f3"
+    },
+    "src/3rdparty/glslang/SPIRV/SpvTools.cpp": {
+      "bytes": 13481,
+      "sha256": "9fe883fa9443c8a75ea9c903f4f2a08fef7dd7532563d7820679cb0d4e0dac48"
+    },
+    "src/3rdparty/glslang/SPIRV/SpvTools.h": {
+      "bytes": 5335,
+      "sha256": "c82f1fe244bebbf806d3a008955bd3fbbc562399dd5b3adad99e5df3c675d5f0"
+    },
+    "src/3rdparty/glslang/SPIRV/bitutils.h": {
+      "bytes": 3316,
+      "sha256": "82df79b2b848b2aa86cd7f973a7bb076eb4ba4db21a6abe5aca35baf6488bd31"
+    },
+    "src/3rdparty/glslang/SPIRV/disassemble.cpp": {
+      "bytes": 38745,
+      "sha256": "bf56d93788f01de4cbe83d9adb74bcb08d88d0a56fc2883c8d42f3319025d76c"
+    },
+    "src/3rdparty/glslang/SPIRV/disassemble.h": {
+      "bytes": 1982,
+      "sha256": "eac9c7213408196d29fed8517fb97515411e8a2eed2880daafb75bfce578eb1c"
+    },
+    "src/3rdparty/glslang/SPIRV/doc.cpp": {
+      "bytes": 273258,
+      "sha256": "c7eb48447edc67bce79ca45424694a8c9510bc40ad7cc74d9a0d481f76249097"
+    },
+    "src/3rdparty/glslang/SPIRV/doc.h": {
+      "bytes": 8119,
+      "sha256": "a7da1877d10838a293c71303cbe96bc30af3e0a21a3ea84ef54bcc687e7b4013"
+    },
+    "src/3rdparty/glslang/SPIRV/hex_float.h": {
+      "bytes": 43134,
+      "sha256": "81074d68bec213b9ce5862ae10076f9ab9fd77bacec5c01cd11cc90c863ebfac"
+    },
+    "src/3rdparty/glslang/SPIRV/spirv.hpp11": {
+      "bytes": 289415,
+      "sha256": "39d93c8f3e8a0e0a89741df8b008e20f4f241495d2312338aee5b36b2dfc1eba"
+    },
+    "src/3rdparty/glslang/SPIRV/spvIR.h": {
+      "bytes": 22770,
+      "sha256": "c759c8b4979482894ac7ce20506eda53547b737fcc7610514f1359151d84653f"
+    },
+    "src/3rdparty/glslang/SPIRV/spvUtil.h": {
+      "bytes": 3469,
+      "sha256": "4e68812f192608db6db51c84e3822ee2ab0e607e9285128e8a51309d0287ab62"
+    },
+    "src/3rdparty/glslang/glslang/CInterface/glslang_c_interface.cpp": {
+      "bytes": 20121,
+      "sha256": "521c80700a22229496940920298a560d00200216bd3c98efc537e715b02efd71"
+    },
+    "src/3rdparty/glslang/glslang/ExtensionHeaders/GL_EXT_shader_realtime_clock.glsl": {
+      "bytes": 1769,
+      "sha256": "158a7f91338df7dfb8b15fba445fcba20f0b34a391634c51dbf55062e74711fb"
+    },
+    "src/3rdparty/glslang/glslang/GenericCodeGen/CodeGen.cpp": {
+      "bytes": 2662,
+      "sha256": "216cccce207aa02789ab0dd11748bd0e2c2a840dfa7b1302e2451db827970fe8"
+    },
+    "src/3rdparty/glslang/glslang/GenericCodeGen/Link.cpp": {
+      "bytes": 2806,
+      "sha256": "38ad713a14ccaee90a9c7fded955b228fe4b5a13a502d4337e8c69a0b08c409b"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslAttributes.cpp": {
+      "bytes": 7108,
+      "sha256": "df2b47e09847719e199f72c22ce4d6da9d02c2738d498e7dcd49e2cbd2b3bf11"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslAttributes.h": {
+      "bytes": 2132,
+      "sha256": "94a28534961e659d0f5514cf3b98656f0a85ee1f563b98d038538ab305c203c5"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslGrammar.cpp": {
+      "bytes": 143065,
+      "sha256": "c457ac5ab47b96ed8e92311214658633d1a3b967bd99fe8189c25f0757230e81"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslGrammar.h": {
+      "bytes": 6781,
+      "sha256": "4da3c69880804ed5911c2931132d1d62129ae5837df6a5a6a022bc1f90944df0"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslOpMap.cpp": {
+      "bytes": 5697,
+      "sha256": "e1a3072adecd80bbae197e6b63a6f34d82533b58d107cf3db0c7bd5bea29b89c"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslOpMap.h": {
+      "bytes": 2327,
+      "sha256": "896cad548a57e96340550e368d878e98a96db2e2d88e887874bb74fddb0911a9"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslParseHelper.cpp": {
+      "bytes": 442364,
+      "sha256": "3a4e2b185e274b666690b88edda6451f1b366cb6d3dbe30deec7c759bbb10e00"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslParseHelper.h": {
+      "bytes": 28657,
+      "sha256": "9335316cb367ecee17fe2eb580e1484a828d4297ed8a8bb3af056055230a1eb5"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslParseables.cpp": {
+      "bytes": 86242,
+      "sha256": "f72040b9f00074cee2ad1b2c736d99b5b4fe7cfb610f298e795f0a876654f926"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslParseables.h": {
+      "bytes": 2622,
+      "sha256": "3220743695faf837f90a0edd22dd7f986838e506b651883676c024a81207a54e"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslScanContext.cpp": {
+      "bytes": 34905,
+      "sha256": "350badf6cf4d1e4284500884199bc5359ffb422673d869402adebde688175bd2"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslScanContext.h": {
+      "bytes": 3888,
+      "sha256": "4b155120fcbb24d156a0735a0dc8b185f72eb28c5d313a5190475cf7dd6d86cd"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslTokenStream.cpp": {
+      "bytes": 4497,
+      "sha256": "27f1a79111db236537738a7deea15d87ad3b6dec4548c70f8dacda641b2c1cad"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslTokenStream.h": {
+      "bytes": 3856,
+      "sha256": "2b9bdd2a57d7b63adc127bca36a9bc77e61c8c9dc8256f449a132f55aed47df1"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/hlslTokens.h": {
+      "bytes": 9628,
+      "sha256": "4f2ff3a7e2b9f0087a86e2914b0d8cf8a5e477ff91d8e07fb25471a7cf73cb79"
+    },
+    "src/3rdparty/glslang/glslang/HLSL/pch.h": {
+      "bytes": 1957,
+      "sha256": "2482840ce912d58ef94c2fbe11b8dadefea04ee10e91d0a234fde767e81eb4a8"
+    },
+    "src/3rdparty/glslang/glslang/Include/BaseTypes.h": {
+      "bytes": 23623,
+      "sha256": "09538a783ce352f03517d0efb6534e81340d99693053195f3b5bc4a7846a90d7"
+    },
+    "src/3rdparty/glslang/glslang/Include/Common.h": {
+      "bytes": 9501,
+      "sha256": "8b37eddfe981e2c89bef9d10e95f2003bd7db930e59b33a6c68f6a70004d76b6"
+    },
+    "src/3rdparty/glslang/glslang/Include/ConstantUnion.h": {
+      "bytes": 36331,
+      "sha256": "4e704d7e292c935cb8b41b682444582d77c5756d69e9eab073c35d9d4ba5cdb5"
+    },
+    "src/3rdparty/glslang/glslang/Include/InfoSink.h": {
+      "bytes": 6288,
+      "sha256": "10fe3b64db95c246a11f116f532785131d0faec6ce85ed44adf7fb9f8685e339"
+    },
+    "src/3rdparty/glslang/glslang/Include/InitializeGlobals.h": {
+      "bytes": 1909,
+      "sha256": "71b1f5219cce947882ed4a1cba91f4b54e590a7ee0eb488799ec3d00693ab10f"
+    },
+    "src/3rdparty/glslang/glslang/Include/PoolAlloc.h": {
+      "bytes": 12406,
+      "sha256": "6eb44e2529440472f6cd576cb95c0e9faf1324d0f78f1c643301a34201c44b15"
+    },
+    "src/3rdparty/glslang/glslang/Include/ResourceLimits.h": {
+      "bytes": 5664,
+      "sha256": "a8b162ebbbf953334ee86464c5020bb606be7def97e2bc2edc7dbb435c9560af"
+    },
+    "src/3rdparty/glslang/glslang/Include/ShHandle.h": {
+      "bytes": 6368,
+      "sha256": "8639fc9e627da72ec52155e0279757e3050a9acee1e3e1b1699ace1135e7a3a5"
+    },
+    "src/3rdparty/glslang/glslang/Include/SpirvIntrinsics.h": {
+      "bytes": 4468,
+      "sha256": "19b06fa21f9563d90ed3a3a7e8608285f58db835fd35d37c06d913c09e5fd008"
+    },
+    "src/3rdparty/glslang/glslang/Include/Types.h": {
+      "bytes": 124526,
+      "sha256": "0c2d2a6d8063688858535092c7a70fa7ab9cfe12c021b35fa0d367722060e2d2"
+    },
+    "src/3rdparty/glslang/glslang/Include/arrays.h": {
+      "bytes": 12398,
+      "sha256": "29266c798076aea06858b1a1e18884e01ee6b517746623ee7bb2813707662d5a"
+    },
+    "src/3rdparty/glslang/glslang/Include/glslang_c_interface.h": {
+      "bytes": 12889,
+      "sha256": "c9cc37d924c314920856847f01c96a79bc98ecf08c8f44f3a184be9bf1b4af02"
+    },
+    "src/3rdparty/glslang/glslang/Include/glslang_c_shader_types.h": {
+      "bytes": 9409,
+      "sha256": "5a1cf6ca4b0a2ae63b11e3ca00fecf922f328a2967a853cc51bfe034a26933ab"
+    },
+    "src/3rdparty/glslang/glslang/Include/intermediate.h": {
+      "bytes": 64517,
+      "sha256": "cee723fffeaabe10d40685d342556152ee2bbde02abf5151977ac6809da9f31d"
+    },
+    "src/3rdparty/glslang/glslang/Include/visibility.h": {
+      "bytes": 2345,
+      "sha256": "0e48f93441577e0e45afca8e425f0ace7765fb5e135d9d505c12961a3edc68ac"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/Constant.cpp": {
+      "bytes": 52691,
+      "sha256": "f06db1326aeb5a756fc92ee2661811d5da8185dc3b8b0de59def6106e91d8778"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/InfoSink.cpp": {
+      "bytes": 3197,
+      "sha256": "57d077c284a70b1d0260c13b52879d574edc1f2c9f82fa419c7b6bde7812000f"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/Initialize.cpp": {
+      "bytes": 658510,
+      "sha256": "2daa80b4414f0bed1a2c0c60c767d33c9bf433090a35aa678bc9683343577d1b"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/Initialize.h": {
+      "bytes": 5656,
+      "sha256": "65272ac045dcbe14d982765fd05a6ad7653f13224d27eef814ff34acd6477132"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/IntermTraverse.cpp": {
+      "bytes": 8877,
+      "sha256": "e354db3eb4ca276bcf0f58ff85b5dca8084ff5180d40c55409fed27ff68a8c26"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/Intermediate.cpp": {
+      "bytes": 136686,
+      "sha256": "a1d7321b140296769ef7d4b4dc6ab4aa13bfe024c0753f3bf523f7ebf1852f11"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/LiveTraverser.h": {
+      "bytes": 8509,
+      "sha256": "bd66501239249a60e6a9ba7c250047c776b365d22248d466280dc2cd20c07383"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/ParseContextBase.cpp": {
+      "bytes": 28764,
+      "sha256": "6c4bf2b2daae3edb2db9a3ab4e0fb9ec4941a54abea9a9af9fd463bfe759edee"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/ParseHelper.cpp": {
+      "bytes": 561743,
+      "sha256": "fd436b1d3c6d34988f82d117a24625771d8c84f6f617c774344d79081c1e45a0"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/ParseHelper.h": {
+      "bytes": 35551,
+      "sha256": "b6c27361f539870f67ef5e966b0bc9def5b12d84254922df59ba1810805913fe"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/PoolAlloc.cpp": {
+      "bytes": 9337,
+      "sha256": "0dfd3d9a6c05cb7f70c6b2e97202b7e9d30773734ef87317a52f7d040b6e88ff"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/RemoveTree.cpp": {
+      "bytes": 3319,
+      "sha256": "a89e02cd637243974effa533cabf495375a0f8c9c3d2624b1745621c8147c77c"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/RemoveTree.h": {
+      "bytes": 1759,
+      "sha256": "c81d22f60cfe4eeb4b23f600e5c8f4c0561060b4a294406aa62ff3c476804189"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/Scan.cpp": {
+      "bytes": 71652,
+      "sha256": "398e74924e28b78bed634a2c1c68a1a46b444fcc061773738eec6ca42677c9e4"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/Scan.h": {
+      "bytes": 9752,
+      "sha256": "d65c9edcfbcbaac994044ede3ee387c814b4ca7f867bc2bbca39a238e197302c"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/ScanContext.h": {
+      "bytes": 3840,
+      "sha256": "0e9f70ec5a623aea8b08f76a26d574cf1f973485025c17cb54533c4c1ce22b8c"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/ShaderLang.cpp": {
+      "bytes": 86080,
+      "sha256": "eaa3f12fe76d885b4444e660c9501809ea8df851216a4ec00a073d447e22789f"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/SpirvIntrinsics.cpp": {
+      "bytes": 12983,
+      "sha256": "0e2c27ff767457f8f45d0dc5bf8ecaae86b6f4d986499e1b970464ba2cc5692c"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/SymbolTable.cpp": {
+      "bytes": 19383,
+      "sha256": "8781e361211c597d01b92ee85d5cb180848ec76b8a061c5e199f1d0e62b70f59"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/SymbolTable.h": {
+      "bytes": 39037,
+      "sha256": "76708e1e1d4ed767f280cf0c442f1b25629abd224cc6024f45cbda9f85fda326"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/Versions.cpp": {
+      "bytes": 78620,
+      "sha256": "4cb0ca808939ed18c836637f64fd2017f27ac25281075d5443392ac669794122"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/Versions.h": {
+      "bytes": 28508,
+      "sha256": "41d8c38e49d5f117684f719f2e096d12b105308a31bb07dedc7bcfced83fb22e"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/attribute.cpp": {
+      "bytes": 12733,
+      "sha256": "c64a10923b291779e72f1f975ea5f9a68c59ba8f7ed08ff1ea853d71618996d3"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/attribute.h": {
+      "bytes": 4609,
+      "sha256": "b78d02d8906869f6bdeca9f0f0310f781398e706772c6da0eaeb5f445da7cc4c"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/gl_types.h": {
+      "bytes": 10171,
+      "sha256": "f5f31cbb457a6ae11eb42dd14773c5ab6d39fe06dc6bbab52df5f663f1c5cdba"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/glslang.y": {
+      "bytes": 186053,
+      "sha256": "7668d3acd29161bc5528ed728d33eeff9b6ba4100d8e95b2650e4431a54282be"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/glslang_tab.cpp": {
+      "bytes": 692953,
+      "sha256": "a029bf7d7c2cbe41a6eaec2b332fea04f4fc9ea17d65e4e51347d186447f8335"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/glslang_tab.cpp.h": {
+      "bytes": 29920,
+      "sha256": "a9dfdcb7c7a51029d6252ffa444d428ffa630e55cbcd1f047e837ec7ebb0067e"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/intermOut.cpp": {
+      "bytes": 91442,
+      "sha256": "eb45ab345098340247e3627ca566071602ad9d254f334e61ae7e26d9a1d5c972"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/iomapper.cpp": {
+      "bytes": 82591,
+      "sha256": "f8afc231d209c324db93de14f48bba9bfe721b176253fe5517417c9672a62045"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/iomapper.h": {
+      "bytes": 10815,
+      "sha256": "e7c843ecd69aeb984e431690a33c7c0ce421277ded26a9473e83a0282fa2031f"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/limits.cpp": {
+      "bytes": 6463,
+      "sha256": "71ff5c38f4c6df5c692cd7f93eb7757fd4e27deba660bbe2f49a09e8985b6b7b"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/linkValidate.cpp": {
+      "bytes": 130737,
+      "sha256": "f4374949ecbfc5d62b6d8a87f98d6d347246e490ec18fd70b9e94c694c62e039"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/localintermediate.h": {
+      "bytes": 57309,
+      "sha256": "853a0c79dcaf70bde0269ec4b9c39516a79d04bb634373c2eb8fb3c0c6f19366"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/parseConst.cpp": {
+      "bytes": 7623,
+      "sha256": "c80dac2d18a334d8b9d3707b89bb94d7c57a481f120fdf903f090c6f2207ac66"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/parseVersions.h": {
+      "bytes": 11024,
+      "sha256": "35a09d69cefbd29b241682477f36d88022ee4a3db9aea901e9dd1253c53c95e4"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/pch.h": {
+      "bytes": 1896,
+      "sha256": "c67ca4f0988c3dfb7f805b68e69734d5eabdb038ee4c2645e263d14d69bdbf69"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/preprocessor/Pp.cpp": {
+      "bytes": 52490,
+      "sha256": "bd3d011833fd340ecad152ea41af335d4a880d500698c6940e56434d784d6ec7"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/preprocessor/PpAtom.cpp": {
+      "bytes": 6758,
+      "sha256": "4caf0c88d8592f9e83da7492511c2ba33465d7cbe9757e75a4bc9caa68943374"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/preprocessor/PpContext.cpp": {
+      "bytes": 5289,
+      "sha256": "e8485f37329970b521ad2fe5c61a9628731a84cb9a40a89f095d6ae7d9bdfe30"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/preprocessor/PpContext.h": {
+      "bytes": 28173,
+      "sha256": "c78b036bc23da1e5ee6ab2b323ac6b1ec302350f5b1c9844fb87d3c592eb10d7"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/preprocessor/PpScanner.cpp": {
+      "bytes": 58711,
+      "sha256": "49a2a5966926a6a6bd926c09f898aa974617cf1b6bcc68718310ffc34e33d12a"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/preprocessor/PpTokens.cpp": {
+      "bytes": 6710,
+      "sha256": "2784e4cd48a083c15e0bc7f4ee5825d0ac5b6233791c9a2519467c46e5b52920"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/preprocessor/PpTokens.h": {
+      "bytes": 5846,
+      "sha256": "a955edb4305280b8f03661a0589d0d20b2ec5bfaddef0d52474e742875136738"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/propagateNoContraction.cpp": {
+      "bytes": 40944,
+      "sha256": "5a89424f16a508e5af2159375e0a3d1e0d2518f683bcdb75d64359274644ef14"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/propagateNoContraction.h": {
+      "bytes": 2472,
+      "sha256": "8e8afaa66b11ba31986c3040393cb414b35feb13c64784798164a6f807996013"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/reflection.cpp": {
+      "bytes": 56783,
+      "sha256": "aa671769e82a9eefe6a31787d6e6449c3d68087c1d4bdb6f835d1626028017da"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/reflection.h": {
+      "bytes": 8522,
+      "sha256": "2e482ad180776f02a8a7679110928ac1208ea4be5ae69df36f6dc03bd352afb3"
+    },
+    "src/3rdparty/glslang/glslang/MachineIndependent/span.h": {
+      "bytes": 3346,
+      "sha256": "0e378a8a47857fcbb2ae96d80fc33143fc1971ec9f3ec622891da6ec802ec1c0"
+    },
+    "src/3rdparty/glslang/glslang/OSDependent/Unix/ossource.cpp": {
+      "bytes": 2192,
+      "sha256": "7e74b080841076af8f0c2515edfe82d719cfe2b3454229983254ab35973defad"
+    },
+    "src/3rdparty/glslang/glslang/OSDependent/Windows/main.cpp": {
+      "bytes": 2324,
+      "sha256": "476e42b18f7e0bdb309c0d7714eed314c810759701ff9dcd0df7c9baece06a81"
+    },
+    "src/3rdparty/glslang/glslang/OSDependent/Windows/ossource.cpp": {
+      "bytes": 2370,
+      "sha256": "6ed9acb70a780fb739873e695bb67166a8a05ab6ffedacd4e4656b9180ba7e0e"
+    },
+    "src/3rdparty/glslang/glslang/OSDependent/osinclude.h": {
+      "bytes": 1856,
+      "sha256": "c075b68afb50370af40f1e5cf42f90d8de1e67c760c3693a3e4614aadea110bd"
+    },
+    "src/3rdparty/glslang/glslang/Public/ResourceLimits.h": {
+      "bytes": 2563,
+      "sha256": "593344b4ac7bf3e9e0e30c93762c37d941d9c3d7d804756fd96cb8a8e0d4bac9"
+    },
+    "src/3rdparty/glslang/glslang/Public/ShaderLang.h": {
+      "bytes": 44679,
+      "sha256": "2cbf607ecaf03c928d6a821598546459ef3435bd7720a3e22c2dfe2a398d63fb"
+    },
+    "src/3rdparty/glslang/glslang/Public/resource_limits_c.h": {
+      "bytes": 2394,
+      "sha256": "4e01ee67e30be094659e9579db280005fc92a97ac3f57644a7827ff8fcc8fba8"
+    },
+    "src/3rdparty/glslang/glslang/ResourceLimits/ResourceLimits.cpp": {
+      "bytes": 34462,
+      "sha256": "76a0f7ec427e3516a4e36438acefe200ae694014dfaadeded19eb930f76618dc"
+    },
+    "src/3rdparty/glslang/glslang/ResourceLimits/resource_limits_c.cpp": {
+      "bytes": 2149,
+      "sha256": "c5835b20b9cbc18fa52434b7e757d7d2542b499c3cc0986a776c610c9d165f67"
+    },
+    "src/3rdparty/glslang/glslang/build_info.h": {
+      "bytes": 2895,
+      "sha256": "1947f0ad2209f53dd35cc964ed6fa5520ed3af0cd6600b9132791d5417c7cf07"
+    },
+    "src/3rdparty/glslang/glslang/updateGrammar": {
+      "bytes": 1707,
+      "sha256": "2899008d86d3d22fabb3f8fd5b63fd9591211aa417005b43533f73c7b4606ea7"
+    },
+    "src/3rdparty/glslang/qt_attribution.json": {
+      "bytes": 907,
+      "sha256": "0815efd96ce336ce862c461a64946436ddbe9027e9a8988f73fb96d8aab282af"
+    },
+    "src/3rdparty/patches/SPIRV-Cross/0001-SPIRV-Cross-Fix-build-on-INTEGRITY-and-QNX.patch": {
+      "bytes": 1257,
+      "sha256": "307e2341fdd69c2b49b1b5f47d34796bb45b4d75ec2e144a48e9cdda91594cc1"
+    },
+    "src/3rdparty/patches/SPIRV-Cross/0003-Use-localeconv-for-VxWorks-instead-of-unavailable-nl_langinfo.patch": {
+      "bytes": 1086,
+      "sha256": "85a2345c1026a0cc75195c2051612e772e1467339215c4afcaa36e1764775612"
+    },
+    "src/3rdparty/patches/glslang/0001-Patch-glslang-16.0.1-and-restore-SPVRemapper.patch": {
+      "bytes": 130415,
+      "sha256": "f2d4ee4727cd11bb962c4f2449372eb1e6ddd35254b16388dd21c7947db127a5"
+    }
+  },
+  "schema": 1,
+  "scope": "EXACT_COMPONENT_ARCHIVE_VENDOR_BYTES_NO_SYSTEM_SUBSTITUTION"
+}

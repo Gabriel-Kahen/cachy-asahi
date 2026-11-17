@@ -1,0 +1,11 @@
+LicenseRef-Qt-ThirdParty: preserve the complete source-notices.json input set.
+ShaderTools library files permit the recorded Qt LGPL/GPL choices; qsb.cpp is
+GPL-3.0-only WITH Qt-GPL-exception-1.0 (or the separate commercial option).
+Bundled glslang16.3.0 includes BSD-3-Clause, LicenseRef-MIT-Khronos-old,
+Apache-2.0, GPL-3.0-or-later WITH Bison-exception-2.2, and AML-glslang terms.
+Bundled SPIRV-Cross1a6169566c73d3da552748fc372fe2bbb856e46e records
+Apache-2.0 AND LicenseRef-MIT-Khronos-old. Original LICENSES, attribution,
+LICENSE and COPYRIGHT files are preserved; this summary does not replace them.
+Versions above are the actual Qt attribution records; exact input bytes are
+pinned by the component archive and vendored-inputs.lock.json. No provenance
+claim is made about a separately distributed system glslang or SPIRV package.
