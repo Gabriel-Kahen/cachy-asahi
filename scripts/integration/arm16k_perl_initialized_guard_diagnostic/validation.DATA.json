@@ -1,0 +1,33 @@
+{
+  "ALPM": null,
+  "M2": null,
+  "Perl_preservation": null,
+  "Root_authority": null,
+  "Root_source": null,
+  "VM": null,
+  "actor": null,
+  "actual_r83_predicate_cause": null,
+  "all14_selected_nodes_retain_strict_refusal": true,
+  "full_two_leaf_byte_inverses": true,
+  "kind": "UNISSUED_INITIALIZED_GUARD_POST_METADATA_DIAGNOSTIC_SOURCE_ONLY",
+  "new_filesystem_read_scope": false,
+  "nonce": null,
+  "python": {
+    "3.12": {
+      "bytes": 2340,
+      "failures": 0,
+      "sha256": "0b2df119f565767ca3462a5afb6717d98a98949eb8e82db2d1acf7a8b19490c7",
+      "skips": 0,
+      "tests": 14
+    },
+    "3.14": {
+      "bytes": 2340,
+      "failures": 0,
+      "sha256": "b0b129ab44a58f2e1c61a275206db9677c2d1bcb1c37c6c1e4a8110b8403cb8a",
+      "skips": 0,
+      "tests": 14
+    }
+  },
+  "release": null,
+  "status": "PASS_SOURCE_AND_ORDINARY_TEMPORARY_TREES_ONLY"
+}
