@@ -8,8 +8,20 @@ REVISION='4332fbbb4c340463dc8cee36dda0c85d932122d8'
 TREE='98324181f2eebf01e806603a01829a40b8683631'
 def need(ok,why):
  if not ok:raise ValueError(why)
-def ordinary(p,cap=4*1024**2):
- p=Path(p);need(not any(q.is_symlink()for q in(p,*p.parents)),'ordinary non-symlink path');s=p.stat();need(stat.S_ISREG(s.st_mode)and s.st_nlink==1 and 0<s.st_size<=cap,'finite single-link file');b=p.read_bytes();need(s==p.stat()and len(b)==s.st_size,'stable complete bytes');return b
+def ordinary(path, cap=4 * 1024**2):
+    path = Path(path)
+    need(not any(p.is_symlink() for p in (path, *path.parents)), 'ordinary non-symlink path')
+    before = path.lstat()
+    need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and 0 < before.st_size <= cap,
+         'finite single-link file')
+    body = path.read_bytes()
+    # Reading can change atime without changing the input.
+    fields = ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_uid', 'st_gid',
+              'st_size', 'st_mtime_ns', 'st_ctime_ns')
+    after = path.lstat()
+    need(len(body) == before.st_size and all(getattr(before, k) == getattr(after, k) for k in fields),
+         'stable complete bytes')
+    return body
 def document(p):return json.loads(ordinary(p))
 def verify(root,policy):
  root=Path(root);rows=document(policy);need(set(rows)=={'schema_version','source_notices'}and rows['schema_version']==1 and 1<=len(rows['source_notices'])<=512,'closed notice schema');need(ordinary(root/'.tag').decode().strip()==TREE,'exact release source tree (upstream .tag uses %T)' );need(b'set(QT_REPO_MODULE_VERSION "6.12.0")'in ordinary(root/'.cmake.conf'),'exact source version')

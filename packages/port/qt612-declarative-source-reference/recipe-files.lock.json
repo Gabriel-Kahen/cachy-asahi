@@ -7,7 +7,7 @@
     ".SRCINFO": {
       "bytes": 2582,
       "mode": 420,
-      "sha256": "17b18d75b4c2e47b21719456d0ec6eee3edc39e86a45beb6801e42d1d4a7e33f"
+      "sha256": "67a6f0546eb21864eea013128b379bc91d71fc29108d11b7cfec4c0003f29dfe"
     },
     ".gitattributes": {
       "bytes": 144,
@@ -42,7 +42,7 @@
     "PKGBUILD": {
       "bytes": 5141,
       "mode": 420,
-      "sha256": "7cdde9165997e2a7ef3db8e943f52d27402c99ef84e7e0ddb555ab0c9f4099d1"
+      "sha256": "03d5a388bea9c5cb8a94811342af62fe14f93366fddc03a4a89ff8261349e660"
     },
     "PROVIDER-INTERFACE.DATA.json": {
       "bytes": 1358,
@@ -135,9 +135,9 @@
       "sha256": "9a4517652e61d0e1d57ac631da239419f71fd9875dcb053e9f2812d43b531882"
     },
     "source.py": {
-      "bytes": 4275,
+      "bytes": 4666,
       "mode": 420,
-      "sha256": "a9d50bf47a64eaf458a778b9e1b336ce20990eeacf62e01f877f26d647d05fc9"
+      "sha256": "331b8e39858ab5ea6769344f73996f5111cac13095e4c9028499c1aa63b0a660"
     },
     "test_recipe.py": {
       "bytes": 10447,
