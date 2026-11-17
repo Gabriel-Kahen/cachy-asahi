@@ -1,0 +1,201 @@
+{
+  "admission_kind": "ROOT_FISH02_NO_HOST_APT_ADMISSION_V4",
+  "fixed_context": {
+    "GITHUB_ACTIONS": "true",
+    "GITHUB_EVENT_NAME": "workflow_dispatch",
+    "GITHUB_JOB": "pair",
+    "GITHUB_REPOSITORY": "Gabriel-Kahen/cachy-asahi",
+    "GITHUB_RUN_ATTEMPT": "1",
+    "RUNNER_ARCH": "ARM64",
+    "RUNNER_OS": "Linux"
+  },
+  "host_tools": {
+    "host_package_mutations": 0,
+    "kind": "EXISTING_NATIVE_HOST_TOOLS_ONLY_V1",
+    "member_inspection": "PYTHON_STDLIB_TARFILE_XZ_ONLY",
+    "names": [
+      "systemd-run",
+      "systemctl",
+      "dockerd",
+      "docker",
+      "fallocate",
+      "losetup",
+      "mkfs.ext4",
+      "mount",
+      "umount",
+      "python3",
+      "gpg",
+      "zstd"
+    ],
+    "package_format": ".pkg.tar.xz",
+    "package_manager_invocations": 0
+  },
+  "normal_pair": {
+    "archive": ".pkg.tar.xz",
+    "builds": 2,
+    "comparison_require_bytes": true,
+    "complete_predecessor_chain": [
+      62,
+      60,
+      57,
+      53,
+      50,
+      48
+    ],
+    "distinct_clean_environments": true,
+    "makepkg_checks_required": true,
+    "mode": "NORMAL_NATIVE_OFFLINE_TWO_CLEAN_BUILDS",
+    "package": {
+      "check_required": true,
+      "epoch": 1791748800,
+      "name": "cachy-asahi-fish-config",
+      "payload_files": 3,
+      "recipe": "recipe",
+      "version": "0.1.0-2"
+    },
+    "preserved_inverse_pins": {
+      "scripts/ci/fish-config02-native-source/successor_v2/source48-inverse.json": {
+        "bytes": 197996,
+        "sha256": "bf7a37f6ca2a36acc234cecc8c7291bc2cb6927f4a435de48e98c8ea36ca655d"
+      },
+      "scripts/ci/fish-config02-native-source/successor_v2/source50-inverse.json": {
+        "bytes": 68915,
+        "sha256": "eb6aa4609b35fc77abcf9fb1e9b97181a3c53200e8c20bda884e702782dc6622"
+      },
+      "scripts/ci/fish-config02-native-source/successor_v2/source53-inverse.json": {
+        "bytes": 76975,
+        "sha256": "d0e6c3930d2e5cee61a51b08c508cf55762d65e4b31acd2bca12ace4ba43dfe1"
+      },
+      "scripts/ci/fish-config02-native-source/successor_v2/source57-inverse.json": {
+        "bytes": 54157,
+        "sha256": "75f5461662f040b05f4db903baf2f2399897e0a4fd55c247f2650d63c31659d8"
+      },
+      "scripts/ci/fish-config02-native-source/successor_v2/source60-inverse.json": {
+        "bytes": 82520,
+        "sha256": "0fdb77413d026a868a1f24ff9cdf623214e55093fb68fea0cad953de1ede36ef"
+      }
+    },
+    "protected_file_pins": {
+      "held-source32/scripts/ci/fish-config02-native-source/entry.py": {
+        "bytes": 19714,
+        "sha256": "0a6d80c8e3f8133235a18330210f86ecfe9a4da595783e020f0f4dedce71148f"
+      },
+      "held-source32/scripts/ci/fish-config02-native-source/finish_pair.py": {
+        "bytes": 3401,
+        "sha256": "f6a10e289503044880b77c601afce4729286c5678c480adf936c7ad89427e0bb"
+      },
+      "held-source32/scripts/ci/fish-config02-native-source/profile.json": {
+        "bytes": 6173,
+        "sha256": "da47e99fcd93591c14a5640bc698ac66a44359aadf4bd543de5a718501e7e2f0"
+      },
+      "held-source32/scripts/ci/fish-config02-native-source/recipe/PKGBUILD": {
+        "bytes": 1090,
+        "sha256": "b82441d862bb5b9853c87ec6ac925e58e03129b51fe7f104d884eca9f80b4df4"
+      },
+      "held-source32/scripts/ci/fish-config02-native-source/recipe/check-config.py": {
+        "bytes": 3034,
+        "sha256": "8dca732bd86f93e3b125b9575b172adfe3a80aa7f830924cdea328bf81b94c49"
+      },
+      "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/build/build_fish02.py": {
+        "bytes": 14092,
+        "sha256": "0fb88871886dfbc1ede2e2c1fe0ec6408475c0a48acf0c98da74fb8fed61409b"
+      },
+      "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/build/compare_fish_xz.py": {
+        "bytes": 6667,
+        "sha256": "83f5b90abe76462e912419205aa937084b0d94e600e11f9be5be7d4fb29020ec"
+      },
+      "held-source32/scripts/ci/fish-config02-native-source/runtime/scripts/ci/native_arm.py": {
+        "bytes": 28877,
+        "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
+      },
+      "scripts/ci/fish-config02-native-source/successor_v2/data.py": {
+        "bytes": 26495,
+        "sha256": "c4f6aa7552a8c852dc685ba4cf19846ba6501365c5d1de4547af07b35f163da8"
+      },
+      "scripts/ci/fish-config02-native-source/successor_v2/host_context.py": {
+        "bytes": 4176,
+        "sha256": "96ab4d1472153cd7d2bdaaaceb6ed93c5685bea707e81eb496ba533184f41c8e"
+      },
+      "scripts/ci/fish-config02-native-source/successor_v2/hosted_owner.py": {
+        "bytes": 28601,
+        "sha256": "038514142008650602574d6cb0df30295ef095caf1c4ca19d24ff0954e75753c"
+      },
+      "scripts/ci/fish-config02-native-source/successor_v2/payload.py": {
+        "bytes": 5057,
+        "sha256": "c799e9d6054504cd122f89035ad6dce982ff3fec17b85b4abd3a3e7d9e7d9f8c"
+      },
+      "scripts/ci/fish-config02-native-source/successor_v2/source-ro-binding.json": {
+        "bytes": 2907,
+        "sha256": "d94ad2fad74df463aa765cacff0b47891ca5637ec3e589d7157a68a1ccfe929e"
+      }
+    },
+    "signature_policies": {
+      "LocalFileSigLevel": "Required",
+      "SigLevel": "Required"
+    }
+  },
+  "publication_fields": [
+    "cid",
+    "ref",
+    "workflow_id",
+    "public_readback_receipt"
+  ],
+  "ref_pattern": "refs/heads/codex/fish02-no-host-apt-v4-source-[A-Za-z0-9._-]{1,80}",
+  "resources": {
+    "build_seconds": 300,
+    "builder_cpus": 4,
+    "builder_memory_bytes": 4294967296,
+    "builder_memory_swap_bytes": 4294967296,
+    "builder_pids": 512,
+    "builder_tmpfs_bytes": 4294967296,
+    "cleanup_seconds": 90,
+    "command_output_bytes": 16777216,
+    "host_reserve_bytes": 2147483648,
+    "minimum_available_bytes": 7516192768,
+    "minimum_disk_bytes": 10737418240,
+    "owner_process_AS_bytes": 2147483648,
+    "pair_seconds": 1200
+  },
+  "root_binding_fields": [
+    "canonical_framework_runtime54_pin",
+    "canonical_caller_pin",
+    "Main_CAS",
+    "source_public_readback",
+    "workflow_registration",
+    "root_admission",
+    "root_runtime",
+    "canonical_role",
+    "nonce",
+    "lease",
+    "two_full_global_EMPTY_sweeps",
+    "freshness_receipt",
+    "retirement_receipt",
+    "native_run",
+    "native_job"
+  ],
+  "runtime_kind": "ROOT_FISH02_NO_HOST_APT_RUNTIME_V4",
+  "source": {
+    "bytes": 1220725,
+    "files": 62,
+    "owner_program": {
+      "bytes": 5739,
+      "sha256": "55835b0a6e83f6f37c7b55c683c175d5d471417a4e35aa36a6de36b9859daeed"
+    },
+    "policy": {
+      "bytes": 3906,
+      "sha256": "56b16edb7b0c961ede67a06b2b4dc4699248a7ce378083c74d24a4ace4e696a8"
+    },
+    "source_map": {
+      "bytes": 13251,
+      "sha256": "399d833c468d1d932d1e689cc634ca0be50cd0b32dd674fce3e9b0ce17dd66b3"
+    },
+    "tree": "3c8a238723718c6c6534f6adc5cf020e2275ecc4"
+  },
+  "workflow": {
+    "path": ".github/workflows/native-arm-fish-config02-source-v4.yml",
+    "pin": {
+      "bytes": 5894,
+      "sha256": "10106a96ee4425227373a7ad0e95cc72935fbf88d83c87d296fd7a4c492c89fe"
+    }
+  }
+}
