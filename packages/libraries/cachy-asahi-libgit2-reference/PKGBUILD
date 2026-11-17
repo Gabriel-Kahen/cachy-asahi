@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: MIT
+# Original development recipe; not recovered ALARM packaging.
+pkgname=cachy-asahi-libgit2-reference
+pkgver=1.9.7
+pkgrel=1
+epoch=1
+pkgdesc='Original libgit2 source provider development candidate; unselected'
+arch=('aarch64')
+url='https://github.com/libgit2/libgit2'
+# Full upstream COPYING includes the linking exception and bundled notices.
+license=('LicenseRef-libgit2')
+depends=('glibc' 'openssl' 'libssh2' 'pcre2' 'zlib' 'llhttp=9.3.1')
+makedepends=('cmake>=3.25' 'ninja' 'pkgconf' 'python')
+provides=("libgit2=$epoch:$pkgver" 'libgit2.so')
+conflicts=('libgit2')
+options=('!lto' '!debug' '!staticlibs')
+_commit=49e408b3208bc3093757a1c2db938d3590f3f412
+source=("libgit2-$pkgver.tar.gz::https://codeload.github.com/libgit2/libgit2/tar.gz/$_commit"
+        'smoke.c')
+sha256sums=('173c45822177d73bb1a97555d864ad04a3e0486eb0bc3455443a4669a35d8aa2'
+            'b64f177cc8f5a8c0ecb33b68779c7495e081a47e385eedde3b61e9ab509181d2')
+
+build() {
+  cmake -S "$srcdir/libgit2-$_commit" -B "$srcdir/build" -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_TESTS=ON -DBUILD_CLI=OFF -DBUILD_EXAMPLES=OFF \
+    -DUSE_HTTP_PARSER=llhttp -DUSE_HTTPS=OpenSSL -DUSE_SSH=libssh2 \
+    -DREGEX_BACKEND=pcre2 -DUSE_BUNDLED_ZLIB=OFF -DUSE_GSSAPI=OFF \
+    -DENABLE_REPRODUCIBLE_BUILDS=ON || return
+  cmake --build "$srcdir/build" || return
+}
+
+check() {
+  ctest --test-dir "$srcdir/build" --output-on-failure --timeout 600 -R '^(offline|util)$' || return
+  cc "$srcdir/smoke.c" -I"$srcdir/libgit2-$_commit/include" \
+    -L"$srcdir/build" -Wl,-rpath,"$srcdir/build" -lgit2 \
+    -o "$srcdir/smoke" || return
+  local scratch
+  scratch=$(mktemp -d "$srcdir/smoke-repo.XXXXXXXX") || return
+  "$srcdir/smoke" "$scratch/repo.git"
+  local result=$?
+  rm -rf -- "$scratch"
+  return "$result"
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install "$srcdir/build" || return
+  install -Dm644 "$srcdir/libgit2-$_commit/COPYING" \
+    "$pkgdir/usr/share/licenses/$pkgname/COPYING" || return
+  install -Dm644 "$srcdir/libgit2-$_commit/AUTHORS" \
+    "$pkgdir/usr/share/licenses/$pkgname/AUTHORS" || return
+}

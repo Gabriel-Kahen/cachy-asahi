@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "upstream_repository": "https://github.com/nodejs/llhttp",
+  "upstream_tag": "release/v9.3.1",
+  "upstream_commit": "4fce8cac9433aa4728428bb3b26880d32ad05c88",
+  "source": {
+    "filename": "llhttp-9.3.1.tar.gz",
+    "url": "https://codeload.github.com/nodejs/llhttp/tar.gz/4fce8cac9433aa4728428bb3b26880d32ad05c88",
+    "bytes": 39211,
+    "sha256": "ac1d762ad696e05cc6f8be52465632a2700af662b4682b2e6d13228d92fd5c09",
+    "archive_prefix": "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88"
+  },
+  "source_authentication": "HTTPS primary upstream archive; checksum measured locally; upstream tag resolved with git ls-remote. No upstream detached signature verified.",
+  "recipe_origin": "Original project recipe, not recovered ALARM recipe; no correspondence claim to foreign binary.",
+  "selected_for_release": false,
+  "native_build": "NOT RUN",
+  "native16K": "NOT RUN",
+  "M2_13": "NOT RUN",
+  "M2_15": "NOT RUN",
+  "project_TEST_signing": "NOT RUN",
+  "installation": "NOT RUN"
+}
