@@ -1,0 +1,162 @@
+{
+  "Root_acceptance": null,
+  "Root_grants": null,
+  "host_execution": "X86_64_HOST_ONLY_NOT_AARCH64_GUEST_EXECUTION",
+  "installed_packages": 111,
+  "inventory": {
+    "bytes": 143492,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/port/arm16k-first-login-ui-inputs/baseline111.json",
+    "sha256": "7a57dce67a65f58e5d1ece471879424ef819ee2bd6226a42452aeccb4a899f6e"
+  },
+  "kind": "FIXED_PUBLIC_BASE111_TOOL_CORRESPONDENCE_DATA_ONLY",
+  "namespace": {
+    "bytes": 13588955,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-baseline-observation-r1/retained-DATA/scan/namespace.json",
+    "sha256": "fd776225730129b10380f9e7a83b59a989674ebdf7962a4c345dca892fc0f55b"
+  },
+  "ownership": {
+    "bytes": 9984197,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-baseline-observation-r1/retained-DATA/scan/ownership.json",
+    "sha256": "2b44340a338d699cee6638e15e1ebcbb1e6f691d4ea7780bc1324dc53a24b19b"
+  },
+  "perl_package_present": false,
+  "python_package_present": false,
+  "selection": "UNSELECTED",
+  "tools": {
+    "usr/bin/bash": {
+      "namespace": {
+        "atime": 1794708503,
+        "atime_ns": 0,
+        "crtime": 1794708503,
+        "crtime_ns": 0,
+        "ctime": 1794708503,
+        "ctime_ns": 0,
+        "gid": 0,
+        "inode": 253,
+        "links": 1,
+        "mode": 493,
+        "mtime": 1781156286,
+        "mtime_ns": 0,
+        "sha256": "b78c3c42443dbf176e9b4b1018bfbba496e7d0fa63d962e7a6f144b6c88bfa2c",
+        "size": 1194408,
+        "type": "file",
+        "uid": 0,
+        "xattrs": {}
+      },
+      "owners": [
+        "bash"
+      ],
+      "packages": {
+        "bash": "5.3.15-1"
+      }
+    },
+    "usr/bin/gawk": {
+      "namespace": {
+        "atime": 1783890729,
+        "atime_ns": 0,
+        "crtime": 1794708503,
+        "crtime_ns": 0,
+        "ctime": 1794708503,
+        "ctime_ns": 0,
+        "gid": 0,
+        "inode": 406,
+        "links": 2,
+        "mode": 493,
+        "mtime": 1783890729,
+        "mtime_ns": 0,
+        "sha256": "7d8005827bbaeb55bdbd9a93e16936e9d7ca59928ce101d1bd661cceee5b4986",
+        "size": 1383304,
+        "type": "file",
+        "uid": 0,
+        "xattrs": {}
+      },
+      "owners": [
+        "gawk"
+      ],
+      "packages": {
+        "gawk": "5.4.1-1"
+      }
+    },
+    "usr/bin/head": {
+      "namespace": {
+        "atime": 1784153228,
+        "atime_ns": 0,
+        "crtime": 1794708503,
+        "crtime_ns": 0,
+        "ctime": 1794708503,
+        "ctime_ns": 0,
+        "gid": 0,
+        "inode": 498,
+        "links": 1,
+        "mode": 493,
+        "mtime": 1784153228,
+        "mtime_ns": 0,
+        "sha256": "58dff93556cac697ab776ae0a235143066330cc2a54139da59604e07ac6c4d31",
+        "size": 68032,
+        "type": "file",
+        "uid": 0,
+        "xattrs": {}
+      },
+      "owners": [
+        "coreutils"
+      ],
+      "packages": {
+        "coreutils": "9.11-2"
+      }
+    },
+    "usr/bin/od": {
+      "namespace": {
+        "atime": 1784153228,
+        "atime_ns": 0,
+        "crtime": 1794708503,
+        "crtime_ns": 0,
+        "ctime": 1794708503,
+        "ctime_ns": 0,
+        "gid": 0,
+        "inode": 691,
+        "links": 1,
+        "mode": 493,
+        "mtime": 1784153228,
+        "mtime_ns": 0,
+        "sha256": "1741f48a52d10c9263e35c77928bd11a10a2fc4386bb877058ab503769aa03e8",
+        "size": 133592,
+        "type": "file",
+        "uid": 0,
+        "xattrs": {}
+      },
+      "owners": [
+        "coreutils"
+      ],
+      "packages": {
+        "coreutils": "9.11-2"
+      }
+    },
+    "usr/bin/sha256sum": {
+      "namespace": {
+        "atime": 1784153228,
+        "atime_ns": 0,
+        "crtime": 1794708503,
+        "crtime_ns": 0,
+        "ctime": 1794708503,
+        "ctime_ns": 0,
+        "gid": 0,
+        "inode": 815,
+        "links": 1,
+        "mode": 493,
+        "mtime": 1784153228,
+        "mtime_ns": 0,
+        "sha256": "c3eddb264575994406a709f19477af2d25ec2bd811c7566fdbc527070776b850",
+        "size": 68032,
+        "type": "file",
+        "uid": 0,
+        "xattrs": {}
+      },
+      "owners": [
+        "coreutils"
+      ],
+      "packages": {
+        "coreutils": "9.11-2"
+      }
+    }
+  }
+}
