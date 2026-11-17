@@ -86,6 +86,7 @@ class Controls(unittest.TestCase):
         self.assertFalse((self.root/'a'/(C.PREFIX+'host_prerequisites.py')).exists())
         self.assertFalse((self.root/'a'/(C.PREFIX+'trust_diagnostic.py')).exists())
         self.assertTrue((self.root/'a'/C.NEW_WF).is_file())
+        self.assertIn(b'group: native-arm-fish-config02-source-v2\n',(self.root/'a'/C.NEW_WF).read_bytes())
 
     def test_bytecode_enabled_caller_never_changes_predecessor(self):
         base=self.root/'base';shutil.copytree(BASE,base);names=C.namespace(base)

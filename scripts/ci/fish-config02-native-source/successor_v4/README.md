@@ -65,7 +65,8 @@ bootloader, platform, package default or old workflow is changed here.
 validates the complete pinned48-file namespace before constructing the new one.
 Only this new family supplies operational overlays. The new workflow is emitted
 inside the generated closed Source, requiring separate Root publication and
-registration; no maintained .github workflow is edited.
+registration; its shared Fish concurrency group remains unchanged. No maintained
+.github workflow is edited.
 
 The computed output has fifty files. The legacy `held-source32/` path now holds
 33 explicitly derived base files; it is not relabeled as unchanged Source32.

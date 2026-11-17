@@ -85,7 +85,9 @@ def construct(base,output):
     for name in ('host_prerequisites.py','trust_diagnostic.py'):del bodies[PREFIX+name]
     workflow=bodies.pop(OLD_WF)
     need(workflow.count(b'native-arm-fish-config02-source-v2')==2,'exact inherited workflow name/group seams')
-    workflow=workflow.replace(b'native-arm-fish-config02-source-v2',b'native-arm-fish-config02-source-v4')
+    # Register a new workflow while retaining the shared Fish serialization lane.
+    workflow=workflow.replace(b'name: native-arm-fish-config02-source-v2\n',b'name: native-arm-fish-config02-source-v4\n')
+    need(b'group: native-arm-fish-config02-source-v2\n' in workflow,'preserved shared Fish concurrency group')
     workflow=workflow.replace(b'Admitted Ubuntu24 libarchive prerequisite then owned current Fish02 pair',b'Existing native host tools then owned current Fish02 XZ pair')
     workflow=workflow.replace(b'fish02-owned-v2',b'fish02-no-host-apt-v4')
     bodies[NEW_WF]=workflow
