@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: MIT
+name: Native successor source DATA
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/native-successor-data.yml'
+      - 'scripts/ci/native-successor-data/**'
+      - 'scripts/ci/bankstown-qt3-source79-adoption-data/**'
+      - 'scripts/ci/llhttp-reference-native-source/**'
+      - 'scripts/ci/libgit2-reference-native-source/**'
+      - 'scripts/ci/fish-config02-native-source/**'
+      - 'scripts/ci/rust199-source-reference-native/**'
+      - 'scripts/ci/management-tools-generic16k/signature_observer.py'
+      - 'scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock'
+      - 'scripts/virtual/owned_process.py'
+      - 'scripts/integration/arm16k_systemd_tcg_guest/frozen/reference_controller.py'
+      - 'scripts/build/build_v2.py'
+      - 'scripts/build/compare_v2.py'
+      - 'scripts/build/container-entry-v2.sh'
+      - 'scripts/build/source_materials.py'
+      - 'scripts/checks/package_checks.py'
+      - 'scripts/ci/inputs.lock.json'
+      - 'scripts/ci/log_evidence.py'
+      - 'scripts/ci/native_arm.py'
+      - 'scripts/ci/old_four_seed.py'
+      - 'scripts/maintenance/source_cache.py'
+      - 'scripts/release/source_delivery.py'
+      - 'scripts/port/arm-rust-toolchain-inputs/source-closure/history-search/licenses/redaction-plan.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/native-successor-data.yml'
+      - 'scripts/ci/native-successor-data/**'
+      - 'scripts/ci/bankstown-qt3-source79-adoption-data/**'
+      - 'scripts/ci/llhttp-reference-native-source/**'
+      - 'scripts/ci/libgit2-reference-native-source/**'
+      - 'scripts/ci/fish-config02-native-source/**'
+      - 'scripts/ci/rust199-source-reference-native/**'
+      - 'scripts/ci/management-tools-generic16k/signature_observer.py'
+      - 'scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock'
+      - 'scripts/virtual/owned_process.py'
+      - 'scripts/integration/arm16k_systemd_tcg_guest/frozen/reference_controller.py'
+      - 'scripts/build/build_v2.py'
+      - 'scripts/build/compare_v2.py'
+      - 'scripts/build/container-entry-v2.sh'
+      - 'scripts/build/source_materials.py'
+      - 'scripts/checks/package_checks.py'
+      - 'scripts/ci/inputs.lock.json'
+      - 'scripts/ci/log_evidence.py'
+      - 'scripts/ci/native_arm.py'
+      - 'scripts/ci/old_four_seed.py'
+      - 'scripts/maintenance/source_cache.py'
+      - 'scripts/release/source_delivery.py'
+      - 'scripts/port/arm-rust-toolchain-inputs/source-closure/history-search/licenses/redaction-plan.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  data:
+    name: 72 author DATA controls and 8 CI guards (${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Acquire only pinned public Git DATA and two upstream source archives
+        env:
+          INPUTS: ${{ runner.temp }}/successor-public-inputs
+        run: |
+          set -euo pipefail
+          python -I -B -Werror::ResourceWarning scripts/ci/native-successor-data/acquire.py --output "$INPUTS"
+      - name: Verify inputs and run isolated source-only controls without actors
+        env:
+          INPUTS: ${{ runner.temp }}/successor-public-inputs
+          EVIDENCE: ${{ runner.temp }}/successor-data-evidence
+        run: |
+          set -euo pipefail
+          python -I -B -Werror::ResourceWarning scripts/ci/native-successor-data/ci.py \
+            --inputs "$INPUTS" --output "$EVIDENCE"
