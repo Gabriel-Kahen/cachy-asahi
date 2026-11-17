@@ -1,0 +1,51 @@
+{
+  "Root_acceptance": null,
+  "files": {
+    "README.md": {
+      "bytes": 1654,
+      "mode": 420,
+      "sha256": "8658346f221f7924933563c1d2ad34f8b3027f14224a54b4c178a0cf0613c304"
+    },
+    "actual-r89-chain.DATA.json": {
+      "bytes": 2047,
+      "mode": 420,
+      "sha256": "22015f36053b76c295e9adcbba31c2aa6ebf94764dfe2f7fa9a21abc27fe5c60"
+    },
+    "chain.py": {
+      "bytes": 3399,
+      "mode": 420,
+      "sha256": "92124af769a9b19d08702ff8c30d733ae9981616ce747ecb212eab3d87a2bae2"
+    },
+    "predecessor-observe_initialized.py": {
+      "bytes": 5179,
+      "mode": 420,
+      "sha256": "79b988dc3169d3b524fc08f61c936780ff90ee90ecc8f9aed60eb9ef888a0d6c"
+    },
+    "predecessor-recovery.py": {
+      "bytes": 7058,
+      "mode": 420,
+      "sha256": "7043db0083232132cf6daeb5d6973d5f159e74644c9a5d25af0c8b884054849b"
+    },
+    "provenance.DATA.json": {
+      "bytes": 1068,
+      "mode": 420,
+      "sha256": "8bbf5f85ef1044e9051fc8a5b22af285a0842f8ca78efad4a58f99330f7cd054"
+    },
+    "test_chain.py": {
+      "bytes": 4251,
+      "mode": 420,
+      "sha256": "b8f2b8f0af37bd9aa6d510f6ffe3aba46011686556a5f6a065fd8a5572272b7a"
+    },
+    "transform.py": {
+      "bytes": 1946,
+      "mode": 420,
+      "sha256": "6036904a53e4d913ec3c87c8dab9f7ac08bc25df359249614b1baab64674f3a3"
+    },
+    "validation.DATA.json": {
+      "bytes": 290,
+      "mode": 420,
+      "sha256": "cbb3a4f4037808c9f934628808e89dc47d9be41d34f0dd9a52ff78907235a55c"
+    }
+  },
+  "kind": "PASSIVE_EXACT_FILE_BACKEND_SOURCE_V1"
+}
