@@ -29,8 +29,8 @@ class Controls(unittest.TestCase):
  record=B.Controls.record
  safe_record=B.Controls.safe_record
  @contextlib.contextmanager
- def child(self,session,raw=b'',exit=2,stdout=b'',mutation=None,after=None):
-  events=[];held=[]
+ def child(self,session,raw=b'',exit=2,stdout=b'',mutation=None,after=None,write_limit=None):
+  events=[];held=[];read_written_span=os.pread
   def private(values,names):
    try:yield None
    finally:values.clear()
@@ -43,9 +43,21 @@ class Controls(unittest.TestCase):
   def supervise(child,**kw):
    self.assertEqual(kw['max_output'],65536);self.assertEqual(kw['retirement'],1)
    self.assertGreater(kw['cap'],0);self.assertLessEqual(kw['cap'],3603)
-   try:os.write(child.writer,raw)
+   submitted=raw if write_limit is None else raw[:write_limit]
+   before=os.lseek(child.writer,0,os.SEEK_CUR);written=None;write_errno=None
+   try:written=os.write(child.writer,submitted)
    except OSError as error:
-    self.assertEqual(error.errno,errno.EPERM);events.append('BOUNDED_WRITE_REFUSED')
+    write_errno=error.errno;self.assertEqual(write_errno,errno.EPERM);events.append('BOUNDED_WRITE_REFUSED')
+   offset=os.lseek(child.writer,0,os.SEEK_CUR)
+   self.assertEqual(offset,os.lseek(child.stream.fileno(),0,os.SEEK_CUR));self.assertEqual(before,0)
+   if write_errno is None:
+    self.assertIs(type(written),int);self.assertTrue(0<=written<=len(submitted));self.assertEqual(offset,written)
+   else:self.assertIsNone(written);self.assertEqual(offset,before)
+   self.assertTrue(0<=offset<=E.MAX_OUTPUT)
+   # Keep this MODEL observation separate from production pread fault injection.
+   span=read_written_span(child.writer,offset,0);self.assertEqual(span,submitted[:offset])
+   self.write_observation=dict(requested_bytes=len(raw),submitted_bytes=len(submitted),returned_count=written,
+    errno=write_errno,writer_offset=offset,shared_offset=child.stream.tell(),written_pin=M.pin(span))
    events.append('MODEL_REAP_EMPTY_TWICE')
    row=B.outcome(exit,stdout)
    if mutation is not None:mutation(child,row)
@@ -82,15 +94,32 @@ class Controls(unittest.TestCase):
   self.assertEqual(projected['stderr_pin'],M.pin(raw));self.assertNotIn(b'PRIVATE OUTPUT',M.encoded(projected));self.assertNotIn(B.CANARY.encode(),M.encoded(projected))
  def test_short_malformed_truncated_extra_zero_and_oversize_packets_are_unavailable(self):
   good=S.failure_packet(dict(phase='TOOLS',reason='PHASE_FAILED',command_ordinal=None))
-  for raw in(b'',b'x',good[:-1],good+b'\0',good+b'\n',b'{',b'\xff',b'x'*1025,b'x'*E.MAX_OUTPUT,b'x'*(E.MAX_OUTPUT+1)):
-   with self.subTest(length=len(raw)):
-    session=self.session()
-    with self.child(session,raw):
-     with self.assertRaises(ValueError):session.stage(secrets=self.values())
+  (self.control/'private').mkdir();M.write(self.control/'private/context.json',self.r['context'])
+  cases=[(raw,None)for raw in(b'',b'x',good[:-1],good+b'\0',good+b'\n',b'{',b'\xff',b'x'*1025,b'x'*E.MAX_OUTPUT,b'x'*(E.MAX_OUTPUT+1))]
+  # Deterministic short-write MODEL: submit a real capacity-sized prefix of a
+  # larger logical body. This does not claim the hosted syscall returned short.
+  cases.append((b'x'*(E.MAX_OUTPUT+1),E.MAX_OUTPUT))
+  for raw,write_limit in cases:
+   with self.subTest(length=len(raw),write_limit=write_limit):
+    session=self.session();values=self.values()
+    def growth_refusal(child,row):
+     self.assertEqual(self.write_observation['returned_count'],E.MAX_OUTPUT)
+     self.assertEqual(self.write_observation['shared_offset'],E.MAX_OUTPUT)
+     with self.assertRaises(OSError)as denied:os.write(child.writer,b'x')
+     self.assertEqual(denied.exception.errno,errno.EPERM)
+     self.assertEqual(os.lseek(child.writer,0,os.SEEK_CUR),E.MAX_OUTPUT)
+    with self.child(session,raw,write_limit=write_limit,mutation=growth_refusal if write_limit is not None else None):
+     with self.assertRaises(ValueError):session.stage(secrets=values)
     record=self.record();self.safe_record(record,'UNAVAILABLE');self.assertIsNone(record['packet'])
-    if len(raw)<E.MAX_OUTPUT:self.assertEqual(session.receipts[0]['stderr_pin'],M.pin(raw))
-    elif len(raw)==E.MAX_OUTPUT:self.assertIsNone(record['stderr_pin'])
-    else:self.assertEqual(record['stderr_pin'],M.pin(b''))
+    observation=self.write_observation
+    expected_pin=observation['written_pin']if observation['shared_offset']<E.MAX_OUTPUT else None
+    self.assertEqual(record['stderr_pin'],expected_pin)
+    self.assertEqual(session.receipts[0].get('stderr_pin'),expected_pin)
+    self.assertEqual(session.state,'HOLD_CLOSEONLY');self.assertEqual(values,{})
+    self.assertEqual(session.receipts[0]['supervision']['exit'],2);self.assertFalse(session.receipts[0]['natural'])
+    projected=L.material_stage_failure(SimpleNamespace(control=self.control,material_session=session))
+    self.assertEqual(projected['availability'],'UNAVAILABLE');self.assertIsNone(projected['packet'])
+    self.assertEqual(projected['stderr_pin'],expected_pin)
     session.request.unlink();(self.control/'material-stage-failure.json').unlink()
  def test_zero_suffix_is_payload_and_never_stripped_to_fabricate_packet(self):
   raw=S.failure_packet(dict(phase='ENTRY',reason='PHASE_FAILED',command_ordinal=None))+b'\0'*17
