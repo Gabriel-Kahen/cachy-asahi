@@ -1,0 +1,141 @@
+{
+  "M2": null,
+  "Root_acceptance": null,
+  "Source_lock": {
+    "bytes": 60210,
+    "sha256": "7beb4deb63cbd03b34738b41463380b388e67c2a8015b81f7124866e80b17b13"
+  },
+  "VM_acceptance": null,
+  "all_tools_naturally_reaped": true,
+  "cache_observation": {
+    "Root_acceptance": null,
+    "VM_acceptance": null,
+    "baseline_changed_fields": {
+      "etc": [
+        "mtime",
+        "mtime_ns"
+      ],
+      "etc/ld.so.cache": [
+        "inode",
+        "size",
+        "mtime",
+        "mtime_ns",
+        "sha256"
+      ]
+    },
+    "cache": {
+      "bytes": 17695,
+      "sha256": "eeb01c0c2d393aa9bf526a673fedfa331173573722827ec2f68849ccf997412c"
+    },
+    "cache_header": "GLIBC_NEW_1_1",
+    "lifecycle_acceptance": null,
+    "nodes": {
+      "etc": {
+        "atime": 1785933514,
+        "atime_ns": 0,
+        "gid": 0,
+        "inode": 16,
+        "links": 38,
+        "mode": 493,
+        "mtime": 1794903943,
+        "mtime_ns": 652000000,
+        "size": 4096,
+        "type": "directory",
+        "uid": 0
+      },
+      "etc/ld.so.cache": {
+        "atime": 1794903943,
+        "atime_ns": 720000000,
+        "gid": 0,
+        "inode": 32714,
+        "links": 1,
+        "mode": 420,
+        "mtime": 1794903943,
+        "mtime_ns": 636000000,
+        "sha256": "eeb01c0c2d393aa9bf526a673fedfa331173573722827ec2f68849ccf997412c",
+        "size": 17695,
+        "type": "file",
+        "uid": 0
+      }
+    },
+    "provider_correspondence": "PENDING_ROOT_COMPARISON_WITH_FROZEN_NAMESPACE",
+    "status": "OBSERVED_TWO_PUBLIC_PATHS_ONLY_NOT_TRANSITION_ACCEPTANCE",
+    "xattrs": "NOT_OBSERVED_BY_STAT_OR_BODY_DUMP"
+  },
+  "commands": 7,
+  "files": {
+    "cache-after.log": {
+      "bytes": 597,
+      "sha256": "c4ec88a3c6e1299a42dbc0aae98de196639310576cff536826a08b5e2048a652"
+    },
+    "cache-after.retirement.json": {
+      "bytes": 410,
+      "sha256": "c9022dc2834bc2e6c5f2d4b91856e65eca42b6de8f14cb7793926a57b95cfe9a"
+    },
+    "cache-before.log": {
+      "bytes": 597,
+      "sha256": "8bf4cba0640ecb34e934e1433b9d6790433eb563a41044eea6ed33a4fcfba93f"
+    },
+    "cache-before.retirement.json": {
+      "bytes": 410,
+      "sha256": "8157613909aef2d7129879902c8895aa314896b287193b3efc7c3a53e5bb98e0"
+    },
+    "cache-body.log": {
+      "bytes": 28,
+      "sha256": "39d3f7d7e1d6a0cf79f994dfd852b1567b5997db9b95f0ae2df3108d364f2623"
+    },
+    "cache-body.retirement.json": {
+      "bytes": 429,
+      "sha256": "ff24edfd21ec24e5bb9b85967c0c54011291661eb092a23ed42b238604d143ac"
+    },
+    "cache.bin": {
+      "bytes": 17695,
+      "sha256": "eeb01c0c2d393aa9bf526a673fedfa331173573722827ec2f68849ccf997412c"
+    },
+    "chain.log": {
+      "bytes": 2047,
+      "sha256": "22015f36053b76c295e9adcbba31c2aa6ebf94764dfe2f7fa9a21abc27fe5c60"
+    },
+    "chain.retirement.json": {
+      "bytes": 449,
+      "sha256": "178bc67f6e6e8d17fb45ef950d48330984fc7386d35b7032403de7de54c8e9c6"
+    },
+    "convert.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "convert.retirement.json": {
+      "bytes": 479,
+      "sha256": "9ef86962b6414c9740abcfedb490a9eb6715195b828dec9a2c88b7fe273e9a4c"
+    },
+    "etc-after.log": {
+      "bytes": 575,
+      "sha256": "82867c73f768dcf6675a7b2075f51a9f515edd90e493751c6b3e92bd78c9a03b"
+    },
+    "etc-after.retirement.json": {
+      "bytes": 399,
+      "sha256": "a0b3cd097db2f26529b89d4baa37d841db612cd2df96d2a23fad319991741371"
+    },
+    "etc-before.log": {
+      "bytes": 575,
+      "sha256": "82867c73f768dcf6675a7b2075f51a9f515edd90e493751c6b3e92bd78c9a03b"
+    },
+    "etc-before.retirement.json": {
+      "bytes": 398,
+      "sha256": "453b55c88689263bb0430b8db66cd17692be88f97917eec5bba9e47a49a94706"
+    },
+    "observation.raw": {
+      "bytes": 1610612736,
+      "sha256": "1209c042e5fe61b8a763cce95501de90f344aac638f200817c90581547c18dcb"
+    }
+  },
+  "kind": "OBSERVED_R86_PUBLIC_LDCACHE_RECOVERY_DATA_V1",
+  "lifecycle_acceptance": null,
+  "release": null,
+  "request": {
+    "bytes": 2169,
+    "sha256": "901a090b13584760f84db4fcf080d4c7f8900cc41d73d38a4d600555af3c81e9"
+  },
+  "status": "PUBLIC_CACHE_PARENT_DATA_NOT_LIFECYCLE_ACCEPTANCE",
+  "tools_reverified": true
+}
