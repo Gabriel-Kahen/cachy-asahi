@@ -236,7 +236,12 @@ def signed_input_plan(lock,baseline,recipe):
 
 
 def native_gate(*args,**kwargs):
-    raise ValueError('QT612_SOURCE_ONLY_NO_OPERATIONAL_RUNTIME_OR_ROOT_AUTHORITY')
+    if args or not kwargs:
+        raise ValueError('QT612_SOURCE_ONLY_NO_OPERATIONAL_RUNTIME_OR_ROOT_AUTHORITY')
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('qt612_complete_producer',HERE/'producer.py')
+    producer = importlib.util.module_from_spec(spec);spec.loader.exec_module(producer)
+    return producer.native_gate(**kwargs)
 
 
 def construct(*,framework,diagnostic_basis,output,recipe_selection=None,recipe_selection_pin=None,recipe_root=None):
