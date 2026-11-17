@@ -35,7 +35,7 @@ class Composition(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory(prefix='audio-result-MODEL-'); self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name); self.source = self.root / 'source'; self.source.mkdir()
         self.materialized = self.root / 'image-root'; self.materialized.mkdir()
-        self.now = time.monotonic(); self.pin = H.pin(b'MODEL_READER'); nonce = 'a' * 64
+        self.now = 1000.0; self.pin = H.pin(b'MODEL_READER'); nonce = 'a' * 64
         binding = dict(source='b' * 40, ref='refs/heads/codex/MODEL', run='123', job='456', attempt=1, source_lock=H.pin(b'MODEL_SOURCE78_MAP'))
         context = dict(binding=binding, nonce=nonce, policy_pin=H.pin(b'MODEL_POLICY'), observed_epoch=110)
         descriptor = lambda body: dict(member='MODEL/' + body.decode(), **H.pin(body))
@@ -121,13 +121,16 @@ class Composition(unittest.TestCase):
         records['observation'] = self.ref('observation', H.encoded(self.observation)); return records
 
     def check(self):
-        with patch.object(Q, 'retained_commands') as commands, patch.object(Q, 'static_artifacts', return_value=self.data['build']['artifact']) as static:
+        with patch.object(time, 'monotonic', return_value=self.now), patch.object(Q, 'retained_commands') as commands, patch.object(Q, 'static_artifacts', return_value=self.data['build']['artifact']) as static:
             result = Q.qualify(self.state, self.records(), reader_pin=self.pin, now_monotonic=self.now)
             commands.assert_called_once(); static.assert_called_once(); return result
 
     def test_model_composition_keeps_all_holds_and_calls_static_boundary(self):
-        result = self.check(); self.assertFalse(result['native_acceptance']); self.assertEqual(result['M2'], 'NOT_RUN')
-        self.assertEqual(result['inventory_joins']['inventory_count'], 477); self.assertIsNone(result['Root_final_acceptance'])
+        # A fresh runner may have less than100 seconds of monotonic uptime.
+        for host_uptime in (0.01, 50.0, 1e9):
+            with self.subTest(host_uptime=host_uptime), patch.object(time, 'monotonic', return_value=host_uptime):
+                result = self.check(); self.assertFalse(result['native_acceptance']); self.assertEqual(result['M2'], 'NOT_RUN')
+                self.assertEqual(result['inventory_joins']['inventory_count'], 477); self.assertIsNone(result['Root_final_acceptance'])
 
     def test_actual_file_checks_are_mandatory(self):
         Path(self.data['image']['filesystem']['archive']['path']).unlink()
