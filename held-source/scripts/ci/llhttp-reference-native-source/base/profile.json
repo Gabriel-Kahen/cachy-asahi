@@ -1,0 +1,111 @@
+{
+  "actual": {
+    "Root_admission": null,
+    "dispatch": null,
+    "image": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "runtime": null,
+    "source": null
+  },
+  "base_commit": "44234c090fd93909aea8f6c54b4ef4f949eb0aef",
+  "expected349_sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453",
+  "held_inputs": {
+    "expected349.lock": {
+      "bytes": 6800,
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453",
+      "source_path": "scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock"
+    },
+    "runtime/owned_process.py": {
+      "bytes": 25140,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f",
+      "source_path": "scripts/virtual/owned_process.py"
+    },
+    "runtime/reference_controller.py": {
+      "bytes": 14117,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc",
+      "source_path": "scripts/integration/arm16k_systemd_tcg_guest/frozen/reference_controller.py"
+    },
+    "runtime/scripts/build/build_v2.py": {
+      "bytes": 13242,
+      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43",
+      "source_path": "scripts/build/build_v2.py"
+    },
+    "runtime/scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b",
+      "source_path": "scripts/build/compare_v2.py"
+    },
+    "runtime/scripts/build/container-entry-v2.sh": {
+      "bytes": 2447,
+      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a",
+      "source_path": "scripts/build/container-entry-v2.sh"
+    },
+    "runtime/scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a",
+      "source_path": "scripts/build/source_materials.py"
+    },
+    "runtime/scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a",
+      "source_path": "scripts/checks/package_checks.py"
+    },
+    "runtime/scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+      "source_path": "scripts/ci/inputs.lock.json"
+    },
+    "runtime/scripts/ci/log_evidence.py": {
+      "bytes": 1708,
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5",
+      "source_path": "scripts/ci/log_evidence.py"
+    },
+    "runtime/scripts/ci/native_arm.py": {
+      "bytes": 28877,
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba",
+      "source_path": "scripts/ci/native_arm.py"
+    },
+    "runtime/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7",
+      "source_path": "scripts/ci/old_four_seed.py"
+    },
+    "runtime/scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3",
+      "source_path": "scripts/maintenance/source_cache.py"
+    },
+    "runtime/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
+      "source_path": "scripts/release/source_delivery.py"
+    }
+  },
+  "inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "kind": "LLHTTP_REFERENCE_HOSTED_NATIVE_SOURCE_V1",
+  "package": {
+    "check_required": true,
+    "epoch": 1791748800,
+    "name": "cachy-asahi-llhttp-reference",
+    "recipe": "recipe",
+    "version": "9.3.1-1"
+  },
+  "resources": {
+    "build_seconds": 300,
+    "builder_cpus": 4,
+    "builder_memory_bytes": 4294967296,
+    "builder_memory_swap_bytes": 4294967296,
+    "builder_pids": 512,
+    "builder_tmpfs_bytes": 4294967296,
+    "cleanup_seconds": 90,
+    "command_output_bytes": 16777216,
+    "host_reserve_bytes": 2147483648,
+    "minimum_available_bytes": 7516192768,
+    "minimum_disk_bytes": 10737418240,
+    "owner_process_AS_bytes": 2147483648,
+    "pair_seconds": 1200
+  },
+  "schema_version": 1
+}
