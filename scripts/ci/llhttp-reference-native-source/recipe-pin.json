@@ -1,0 +1,158 @@
+{
+  "files": {
+    ".SRCINFO": {
+      "bytes": 744,
+      "sha256": "e19a13ca095f2febeb9957aab028b695439fb466317dee930489b156fb049639"
+    },
+    ".gitattributes": {
+      "bytes": 98,
+      "sha256": "711fe077e37a4843bdb7847e62fa404b9fb2a88fed6c9bcc0313887522ae3451"
+    },
+    "PKGBUILD": {
+      "bytes": 1460,
+      "sha256": "d251b94c918f949937d13338689b828a5f557cfbcf59236da5b2f6fdac3dc307"
+    },
+    "README.md": {
+      "bytes": 2157,
+      "sha256": "42e98ec91c7ba1912f2309f60d37947af793c9319790743d37f7df5e7013631c"
+    },
+    "evidence/commands.json": {
+      "bytes": 3211,
+      "sha256": "fef47689e72203f5596a243046733530aab96a4d534df945488cf57e25606dd6"
+    },
+    "evidence/elf-dynamic.txt": {
+      "bytes": 1375,
+      "sha256": "26d615c09419789be52d8c02044a7a7a47ac336140bab39ed8dda179d28ef5e1"
+    },
+    "evidence/elf-header.txt": {
+      "bytes": 957,
+      "sha256": "d7cc24b7f37a8b837c072b00c7b05e45511b2c569697d042bdcc63518d84fd21"
+    },
+    "evidence/host-result.json": {
+      "bytes": 1863,
+      "sha256": "4e5d75a52b35405460cdceb913b9edb8ef2cc735aec5d4309814bef48a69c5af"
+    },
+    "evidence/llhttp-0.log": {
+      "bytes": 915,
+      "sha256": "8a701262defd6977dbff62990ee3365ebae4393631631c4da825215d567725dd"
+    },
+    "evidence/llhttp-1.log": {
+      "bytes": 310,
+      "sha256": "309f8d6fd37b950322b5cc5eaed44b08c197a83bdb113b265d5398c2f3e331c8"
+    },
+    "evidence/llhttp-2.log": {
+      "bytes": 986,
+      "sha256": "b6479416065c0a66a751161b699f5daeb71c585d8a0aaa4251c268e1dd69fc7f"
+    },
+    "evidence/makepkg-host-architecture-refusal.log": {
+      "bytes": 88,
+      "sha256": "f4ebe9cd7aa6436795045e8d1143ebc4035265b21dd153d82ce4a94949ea9105"
+    },
+    "evidence/makepkg-verifysource.log": {
+      "bytes": 265,
+      "sha256": "f26431fd2314a5e49157ba763e888d87a6d9edd8fc63d638f677becd6af0a344"
+    },
+    "evidence/package-function-stage.log": {
+      "bytes": 1091,
+      "sha256": "12d64f0e77f652d04b27782cf96ff58cb2a0681362553499fe0dc6c6efbe5597"
+    },
+    "evidence/package-function-staged-paths.txt": {
+      "bytes": 574,
+      "sha256": "335d3c4c2d250ca7cf36c0343ca91f847422ec1b40df499650cc52398c86a6b7"
+    },
+    "evidence/staged-paths.txt": {
+      "bytes": 413,
+      "sha256": "96cdc008c280d5f0c08581bba3471cfc3fb6a4589215c1ab9873bf73fba7b2f4"
+    },
+    "smoke.c": {
+      "bytes": 988,
+      "sha256": "779b59692c0f751fcecbde5cde5fa679e73a0542fef477804b17292cc32b0bd8"
+    },
+    "source.json": {
+      "bytes": 1012,
+      "sha256": "f5d63eeb7cbb645f23ac53a28a111fdc63338b28f2d1c8c1ab759bc441a65be0"
+    }
+  },
+  "installation": "NOT RUN",
+  "license": {
+    "bytes": 1105,
+    "path": "usr/share/licenses/cachy-asahi-llhttp-reference/LICENSE-MIT",
+    "sha256": "ebca854e0134cd256d673627c20499f42577eb74bacf08b9f25b626a73c91277"
+  },
+  "native_build": "NOT RUN",
+  "recipe_commit": "a01bbb900b3020101c986470e7b1096fb63599ce",
+  "recipe_origin": "ORIGINAL_PROJECT_RECIPE_NOT_ALARM_BINARY_CORRESPONDENCE",
+  "recipe_path": "packages/libraries/cachy-asahi-llhttp-reference",
+  "schema": 1,
+  "signature": "NOT RUN",
+  "upstream": {
+    "archive": {
+      "bytes": 39211,
+      "filename": "llhttp-9.3.1.tar.gz",
+      "sha256": "ac1d762ad696e05cc6f8be52465632a2700af662b4682b2e6d13228d92fd5c09"
+    },
+    "commit": "4fce8cac9433aa4728428bb3b26880d32ad05c88",
+    "members": {
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/.gitignore": {
+        "bytes": 13,
+        "mode": 436,
+        "sha256": "d118cf9e6a25026dcd748402d3b30a1bcd40be31ff4e50176049b2e5dd66b379"
+      },
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/CMakeLists.txt": {
+        "bytes": 3340,
+        "mode": 436,
+        "sha256": "943c522fdaf8105ef7f19d55067c42a65c04a74e364c708e7e516636880ce986"
+      },
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/LICENSE": {
+        "bytes": 1105,
+        "mode": 436,
+        "sha256": "ebca854e0134cd256d673627c20499f42577eb74bacf08b9f25b626a73c91277"
+      },
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/LICENSE-MIT": {
+        "bytes": 1105,
+        "mode": 436,
+        "sha256": "ebca854e0134cd256d673627c20499f42577eb74bacf08b9f25b626a73c91277"
+      },
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/README.md": {
+        "bytes": 20711,
+        "mode": 436,
+        "sha256": "e5afb7396c6c8ee5bef314dce190078aba961e1619953c402ddb384746b801b6"
+      },
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/common.gypi": {
+        "bytes": 1157,
+        "mode": 436,
+        "sha256": "1919f4e07942b292aeef3517027ebb3bfa622da23b4c0a9d43e64503d0197731"
+      },
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/include/llhttp.h": {
+        "bytes": 30650,
+        "mode": 436,
+        "sha256": "a812a1aa52c07532d163dad7725c1c135235c43ce2c954ede39b48e99d830d61"
+      },
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/libllhttp.pc.in": {
+        "bytes": 279,
+        "mode": 436,
+        "sha256": "da9fcba148203c88879e152579036e9e5e1ca3f9862e3b445542ae960cce2209"
+      },
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/llhttp.gyp": {
+        "bytes": 397,
+        "mode": 436,
+        "sha256": "b7ff2f4064bc761d1ad0e7fb28964ab4cc5dd4ff817288162f785f9d42f4454e"
+      },
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/src/api.c": {
+        "bytes": 13152,
+        "mode": 436,
+        "sha256": "2c8e26df05af120323130b388d9afd102f793fba84f59f3765f018d24144eb78"
+      },
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/src/http.c": {
+        "bytes": 5209,
+        "mode": 436,
+        "sha256": "a1f2b23168f8e9b5bfa464c89027d3ca259fc649ae3d7e72bfff997d1aeb5d72"
+      },
+      "llhttp-4fce8cac9433aa4728428bb3b26880d32ad05c88/src/llhttp.c": {
+        "bytes": 315859,
+        "mode": 436,
+        "sha256": "8abf28b888089ee6c21fe2fa616e8ec5d6224f83e518aaf68579256ed4600c9a"
+      }
+    }
+  }
+}
