@@ -1,0 +1,421 @@
+{
+  "actual": {
+    "M2": null,
+    "Root_source": null,
+    "VM": null,
+    "predicate_cause": null,
+    "release": null
+  },
+  "generated": {
+    "bytes": 12805,
+    "mode": 420,
+    "sha256": "5db4bfbb965a8eeac391ff648c769fcafb16fb9366f7e8ce31d3c4975dc2d956"
+  },
+  "predecessor": {
+    "bytes": 8662,
+    "sha256": "565b6373d9feb9d37db048ad175b3f986af9e3bcf6ede413131f1cb05c508c11"
+  },
+  "returns": [
+    {
+      "category": "PREDICATE",
+      "line": 15,
+      "ordinal": 1,
+      "original": " [[ $# == 2 && -d $packet && ! -L $packet && -d $output && ! -L $output ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 16,
+      "ordinal": 2,
+      "original": " declare -F same_bytes > /dev/null || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 24,
+      "ordinal": 3,
+      "original": "  [[ -f $path && ! -L $path && $(stat -c %s -- \"$path\") -le 4194304 ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 27,
+      "ordinal": 4,
+      "original": "  [[ ! -e $path && ! -L $path ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "COMMAND",
+      "line": 33,
+      "ordinal": 5,
+      "original": " pacman -Ql > \"$global\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "PREDICATE",
+      "line": 34,
+      "ordinal": 6,
+      "original": " [[ $(stat -c %s -- \"$global\") -le 16777216 ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 36,
+      "ordinal": 7,
+      "original": "  global_count=$((global_count+1));(( global_count <= 131072 )) || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 37,
+      "ordinal": 8,
+      "original": "  [[ $line == *' '* ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 39,
+      "ordinal": 9,
+      "original": "  [[ $owner =~ ^[A-Za-z0-9@._+:-]+$ && $member == /* && $member != *$'\\t'* && $member != *$'\\r'* ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 42,
+      "ordinal": 10,
+      "original": "  [[ ! ${entries[\"$key\"]+present} ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 45,
+      "ordinal": 11,
+      "original": " (( global_count > 0 )) || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 47,
+      "ordinal": 12,
+      "original": "  count=$((count+1));(( count <= 65536 )) || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 48,
+      "ordinal": 13,
+      "original": "  [[ -z $extra && $mode =~ ^[0-7]{3,4}$ && $uid =~ ^[0-9]+$ && $gid =~ ^[0-9]+$ && ${#path} -le 4096 ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 49,
+      "ordinal": 14,
+      "original": "  [[ $path =~ ^/[A-Za-z0-9._+/@:~-]+$ && ( $path == \"$prefix/\"* || ( $path == \"$prefix\" && $kind == d ) ) && $path != \"$prefix/local/\"* ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 50,
+      "ordinal": 15,
+      "original": "  [[ $path != *'//'* && $path != */./* && $path != */../* && $path != */. && $path != */.. && ! ${kinds[\"$path\"]+present} ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 52,
+      "ordinal": 16,
+      "original": "   f) [[ -f $path && ! -L $path && $target == - ]] || return 1;;",
+      "return_code": 1
+    },
+    {
+      "category": "PREDICATE",
+      "line": 53,
+      "ordinal": 17,
+      "original": "   d) [[ -d $path && ! -L $path && $target == - ]] || return 1;;",
+      "return_code": 1
+    },
+    {
+      "category": "PREDICATE",
+      "line": 54,
+      "ordinal": 18,
+      "original": "   l) [[ -L $path && $target =~ ^[A-Za-z0-9._+/-]+$ && ${#target} -le 4096 ]] || return 1;symlinks+=(\"$path\");;",
+      "return_code": 1
+    },
+    {
+      "category": "PREDICATE",
+      "line": 55,
+      "ordinal": 19,
+      "original": "   *) return 2;;",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 61,
+      "ordinal": 20,
+      "original": " (( count > 0 )) || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "COMMAND",
+      "line": 62,
+      "ordinal": 21,
+      "original": " printf '%s\\n' \"${paths[@]}\" | sort -u > \"$listed\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 63,
+      "ordinal": 22,
+      "original": " same_bytes \"$expected\" \"$listed\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "PREDICATE",
+      "line": 70,
+      "ordinal": 23,
+      "original": "   bytes=$((${#value}+1));(( bytes <= 4097 )) || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "COMMAND",
+      "line": 71,
+      "ordinal": 24,
+      "original": "   if (( ${#batch[@]} >= 128 || batch_bytes+bytes > 16384 ));then im_flush \"$action\" \"$destination\" || return;batch=();batch_bytes=0;fi",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 74,
+      "ordinal": 25,
+      "original": "  if (( ${#batch[@]} ));then im_flush \"$action\" \"$destination\" || return;fi",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "PREDICATE",
+      "line": 81,
+      "ordinal": 26,
+      "original": "   *) return 2;;",
+      "return_code": 2
+    },
+    {
+      "category": "COMMAND",
+      "line": 85,
+      "ordinal": 27,
+      "original": " im_batches stat \"$stats\" \"${paths[@]}\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 86,
+      "ordinal": 28,
+      "original": " im_batches canonical \"$resolved\" \"${parents[@]}\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 87,
+      "ordinal": 29,
+      "original": " im_batches link \"$rawlinks\" \"${symlinks[@]}\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 88,
+      "ordinal": 30,
+      "original": " im_batches canonical \"$resolvedlinks\" \"${symlinks[@]}\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "PREDICATE",
+      "line": 92,
+      "ordinal": 31,
+      "original": "  IFS= read -r -d '' field <&7 && [[ $field == \"$path\" ]] || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 93,
+      "ordinal": 32,
+      "original": "  IFS= read -r -d '' actual_mode <&7 && IFS= read -r -d '' actual_uid <&7 && IFS= read -r -d '' actual_gid <&7 && IFS= read -r -d '' hex <&7 && IFS= read -r -d '' dev <&7 && IFS= read -r -d '' inode <&7 && IFS= read -r -d '' links <&7 || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 94,
+      "ordinal": 33,
+      "original": "  [[ $actual_mode == \"${modes[\"$path\"]}\" && $actual_uid == \"${uids[\"$path\"]}\" && $actual_gid == \"${gids[\"$path\"]}\" && $hex =~ ^[0-9a-f]{1,8}$ && $dev =~ ^[0-9]+$ && $inode =~ ^[0-9]+$ && $links =~ ^[0-9]+$ ]] || return 1",
+      "return_code": 1
+    },
+    {
+      "category": "PREDICATE",
+      "line": 96,
+      "ordinal": 34,
+      "original": "  case ${kinds[\"$path\"]} in f) (( kind == 0100000 )) || return 1;;d) (( kind == 0040000 )) || return 1;;l) (( kind == 0120000 )) || return 1;;esac",
+      "return_code": 1
+    },
+    {
+      "category": "PREDICATE",
+      "line": 96,
+      "ordinal": 35,
+      "original": "  case ${kinds[\"$path\"]} in f) (( kind == 0100000 )) || return 1;;d) (( kind == 0040000 )) || return 1;;l) (( kind == 0120000 )) || return 1;;esac",
+      "return_code": 1
+    },
+    {
+      "category": "PREDICATE",
+      "line": 96,
+      "ordinal": 36,
+      "original": "  case ${kinds[\"$path\"]} in f) (( kind == 0100000 )) || return 1;;d) (( kind == 0040000 )) || return 1;;l) (( kind == 0120000 )) || return 1;;esac",
+      "return_code": 1
+    },
+    {
+      "category": "PREDICATE",
+      "line": 99,
+      "ordinal": 37,
+      "original": " field=;if IFS= read -r -d '' field <&7 || [[ -n $field ]];then return 2;fi",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 102,
+      "ordinal": 38,
+      "original": " for parent in \"${parents[@]}\";do IFS= read -r -d '' canonical <&7 && [[ $canonical == /* && ${#canonical} -le 4096 ]] || return 2;canonical_parents[\"$parent\"]=$canonical;done",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 103,
+      "ordinal": 39,
+      "original": " field=;if IFS= read -r -d '' field <&7 || [[ -n $field ]];then return 2;fi",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 107,
+      "ordinal": 40,
+      "original": "  IFS= read -r -d '' target <&7 && IFS= read -r -d '' canonical <&8 || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 108,
+      "ordinal": 41,
+      "original": "  [[ $target == \"${targets[\"$path\"]}\" && $canonical == \"$prefix/\"* ]] || return 1",
+      "return_code": 1
+    },
+    {
+      "category": "PREDICATE",
+      "line": 110,
+      "ordinal": 42,
+      "original": " field=;if IFS= read -r -d '' field <&7 || [[ -n $field ]];then return 2;fi",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 111,
+      "ordinal": 43,
+      "original": " field=;if IFS= read -r -d '' field <&8 || [[ -n $field ]];then return 2;fi",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 118,
+      "ordinal": 44,
+      "original": "  [[ $'\\n'${owners[\"$canonical\"]-} == *$'\\nperl\\n'* ]] || return 1",
+      "return_code": 1
+    },
+    {
+      "category": "PREDICATE",
+      "line": 121,
+      "ordinal": 45,
+      "original": "  hard_count=$((hard_count+1));(( hard_count <= 65536 )) || return 2",
+      "return_code": 2
+    },
+    {
+      "category": "PREDICATE",
+      "line": 122,
+      "ordinal": 46,
+      "original": "  [[ -z $extra && ${kinds[\"$path\"]-} == f && ${kinds[\"$target\"]-} == f && -f $path && ! -L $path && -f $target && ! -L $target ]] || return 1",
+      "return_code": 1
+    },
+    {
+      "category": "PREDICATE",
+      "line": 123,
+      "ordinal": 47,
+      "original": "  [[ ${stat_dev[\"$path\"]}:${stat_inode[\"$path\"]} == \"${stat_dev[\"$target\"]}:${stat_inode[\"$target\"]}\" && ${stat_links[\"$path\"]} -ge 2 ]] || return 1",
+      "return_code": 1
+    },
+    {
+      "category": "COMMAND",
+      "line": 129,
+      "ordinal": 48,
+      "original": " im_batches stat \"$stats_after\" \"${paths[@]}\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 130,
+      "ordinal": 49,
+      "original": " im_batches link \"$rawlinks_after\" \"${symlinks[@]}\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 131,
+      "ordinal": 50,
+      "original": " im_batches canonical \"$resolvedlinks_after\" \"${symlinks[@]}\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 132,
+      "ordinal": 51,
+      "original": " same_bytes \"$stats\" \"$stats_after\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 133,
+      "ordinal": 52,
+      "original": " same_bytes \"$rawlinks\" \"$rawlinks_after\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 134,
+      "ordinal": 53,
+      "original": " same_bytes \"$resolvedlinks\" \"$resolvedlinks_after\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 135,
+      "ordinal": 54,
+      "original": " pacman -Qlq perl | sed 's:/$::' | sort -u > \"$inventory\" || return",
+      "return_code": "UNCHANGED"
+    },
+    {
+      "category": "COMMAND",
+      "line": 136,
+      "ordinal": 55,
+      "original": " same_bytes \"$expected\" \"$inventory\" || return",
+      "return_code": "UNCHANGED"
+    }
+  ],
+  "stages": {
+    "1": "LOAD",
+    "2": "ENTRY",
+    "3": "INPUTS",
+    "4": "GLOBAL_OWNERS",
+    "5": "METADATA",
+    "6": "COLLECT",
+    "7": "STAT_STREAM",
+    "8": "PARENT_STREAM",
+    "9": "LINK_STREAM",
+    "10": "OWNERSHIP",
+    "11": "HARDLINKS",
+    "12": "RECHECK",
+    "13": "INVENTORY",
+    "14": "COMPLETE"
+  }
+}
