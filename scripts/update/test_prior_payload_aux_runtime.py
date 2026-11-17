@@ -19,7 +19,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -44,16 +44,16 @@ def load_lifecycle():
     global life
     if life is not None:return
     logical=HERE/'test_prior_aux_lifecycle.py'
-    path=Path(os.environ.get('CACHY_ASAHI_LIFECYCLE_FIXTURE',str(logical)))
+    path=logical
     fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
     with os.fdopen(fd,'rb') as stream:
         info=os.fstat(stream.fileno())
-        runtime.strict.need(info.st_size==22252,'accepted 3ab6007b lifecycle helper required')
-        source=stream.read(22253)
-    runtime.strict.need(hashlib.sha256(source).hexdigest()=='8fd402e691ab28f294710e54a2a60fe0456545894be90c5c2477761d094a14b1',
-                        'accepted lifecycle helper source changed')
+        runtime.strict.need(info.st_size==23994,'cleanup-corrected 0cd45dff lifecycle helper required')
+        source=stream.read(23995)
+    runtime.strict.need(hashlib.sha256(source).hexdigest()=='6c24c1993d29a895f3bab137a2b0af248da3b5dc7728f3e334d2b2fda34b074e',
+                        'cleanup-corrected lifecycle helper source changed')
     life=ModuleType('_payload_host_TEST_lifecycle');life.__file__=str(logical)
-    # Captured helper code uses this checkout's engine, not external adjacency.
+    # Only this checkout's exact corrected helper can define the actor boundary.
     exec(compile(source,str(path),'exec'),life.__dict__)
     life.source_loaded_from=str(path.resolve())
 
@@ -79,6 +79,54 @@ def build(directory):
 
 
 def script(version):return ('#!/'+PROVIDER+'\nSCRIPT-V'+str(version)+'\n').encode()
+
+
+class SourceBinding(unittest.TestCase):
+    """Source/binding and delegation controls; no compiler, crypto or ALPM."""
+    def test_corrected_local_helper_ignores_external_override(self):
+        with patch(__name__+'.life',None),patch.dict(os.environ,CACHY_ASAHI_LIFECYCLE_FIXTURE='/unreviewed/external.py'):
+            load_lifecycle()
+            self.assertEqual(life.source_loaded_from,str(HERE/'test_prior_aux_lifecycle.py'))
+            self.assertEqual(life.HERE,HERE)
+            self.assertIsNot(life.main,actual_main)
+
+    def test_old_or_changed_helper_refuses_before_module_execution(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            for size in (22252,23994):
+                (root/'test_prior_aux_lifecycle.py').write_bytes(b'x'*size)
+                with self.subTest(size=size),patch(__name__+'.HERE',root),patch(__name__+'.life',None),\
+                     patch(__name__+'.ModuleType') as execute_module:
+                    with self.assertRaises(ValueError):load_lifecycle()
+                    execute_module.assert_not_called()
+
+    def test_actual_entry_delegates_one_case_and_restores_scope(self):
+        sandbox,evidence=Path('/MODEL/sandbox'),Path('/MODEL/evidence')
+        original_argv=sys.argv;old_case,old_run=object(),object();binaries,expected=object(),object()
+        helper=SimpleNamespace(CASES=old_case,run_case=old_run,need=runtime.strict.need)
+        def main():
+            self.assertEqual(sys.argv[1:],['--sandbox',str(sandbox),'--evidence',str(evidence)])
+            self.assertEqual(helper.CASES,('static-native-script',))
+            return helper.run_case(sandbox,evidence,helper.CASES[0],'signer',b'public','sign')
+        helper.main=main
+        with patch(__name__+'.life',helper),patch(__name__+'.load_lifecycle'),\
+             patch(__name__+'.build',return_value=binaries) as compile_fixture,\
+             patch.object(shutil,'copytree') as copy_build,\
+             patch(__name__+'.actual_case',return_value=expected) as run:
+            self.assertIs(actual_main(sandbox,evidence),expected)
+        compile_fixture.assert_called_once_with(sandbox/'build')
+        copy_build.assert_called_once_with(sandbox/'build',evidence/'build')
+        run.assert_called_once_with(sandbox,evidence,binaries,'signer',b'public','sign')
+        self.assertIs(helper.CASES,old_case);self.assertIs(helper.run_case,old_run);self.assertIs(sys.argv,original_argv)
+
+    def test_delegated_primary_failure_survives_scope_restoration(self):
+        error=RuntimeError('MODEL primary');old_case,old_run=object(),object();original_argv=sys.argv
+        def main():raise error
+        helper=SimpleNamespace(CASES=old_case,run_case=old_run,main=main)
+        with patch(__name__+'.life',helper),patch(__name__+'.load_lifecycle'):
+            with self.assertRaises(RuntimeError) as raised:actual_main(Path('/MODEL/sandbox'),Path('/MODEL/evidence'))
+        self.assertIs(raised.exception,error);self.assertIs(helper.CASES,old_case)
+        self.assertIs(helper.run_case,old_run);self.assertIs(sys.argv,original_argv)
 
 
 def archive(path,entries,version,sign,*,pax=None,metadata='',control=None):
@@ -294,8 +342,8 @@ def actual_case(sandbox,evidence,binaries,signer,public,sign):
             trace=evidence/'helper-trace.jsonl';gdb=evidence/'observe.gdb';life.gdb_script(gdb,trace)
             row=life.supervision.run(['/usr/bin/gdb','-nx','-nh','--batch','-x',str(gdb),'--args',
                 '/usr/bin/python3','-I','-B',str(Path(__file__).resolve()),'--actual-worker',str(request)],
-                env={'PATH':'/usr/bin:/bin','HOME':str(case),'TMPDIR':str(sandbox/'tmp'),'LC_ALL':'C',
-                     'CACHY_ASAHI_LIFECYCLE_FIXTURE':life.source_loaded_from},cwd=str(case),timeout=45,output_limit=1024**2)
+                env={'PATH':'/usr/bin:/bin','HOME':str(case),'TMPDIR':str(sandbox/'tmp'),'LC_ALL':'C'},
+                cwd=str(case),timeout=45,output_limit=1024**2)
             for name in ('stdout','stderr'):(evidence/('worker.'+name)).write_bytes(row.pop(name))
             (evidence/'supervision.json').write_bytes(encoded(row))
             life.need(row['termination'] is None and row['returncode']==0 and row['direct_child_reaped'],'native apply worker failed')
@@ -325,29 +373,20 @@ def actual_case(sandbox,evidence,binaries,signer,public,sign):
         life.need(report['cleanup']=='PASS-owned-workspace-removed','copied root retirement failed')
         summary['copy']=report;(evidence/'actual-summary.json').write_bytes(encoded(summary))
     shutil.rmtree(case)
+    return summary
 
 
 def actual_main(sandbox,evidence):
     load_lifecycle()
-    fence=life.fenced();mapping=Path('/proc/self/uid_map').read_text().split()
-    life.need(os.getuid()==0 and len(mapping)==3 and mapping[0]=='0' and int(mapping[1])>0 and mapping[2]=='1','owned mapped user namespace required')
-    interfaces={l.split(':',1)[0].strip() for l in Path('/proc/net/dev').read_text().splitlines() if ':' in l}
-    life.need(interfaces=={'lo'} and not any(sandbox.iterdir()),'fresh private network/sandbox required')
-    subprocess.run(['/usr/bin/mount','-t','tmpfs','-o','size=67108864,nr_inodes=20000,nodev,nosuid,mode=0700','tmpfs',str(sandbox)],check=True,timeout=5)
-    status=dict(status='FAIL',fence=fence,profile=life.PROFILE,production_ARM_closure='NOT EXERCISED')
-    try:
-        (sandbox/'tmp').mkdir(mode=0o700);os.environ['TMPDIR']=str(sandbox/'tmp')
+    def native_case(sandbox,evidence,mode,signer,public,sign):
+        life.need(mode=='static-native-script','one exact native TEST case required')
         binaries=build(sandbox/'build');shutil.copytree(sandbox/'build',evidence/'build')
-        with life.signing(sandbox/'keys') as (signer,public,sign):actual_case(sandbox,evidence,binaries,signer,public,sign)
-        status['status']='PASS actual static native/script TEST lifecycle'
-    finally:
-        status['peak']={n:(Path(fence['group'])/n).read_text().strip() for n in ('memory.peak','pids.peak')}
-        status['key_retirement']=life.retire_agents(sandbox,evidence);os.chdir(HERE)
-        unmounted=subprocess.run(['/usr/bin/umount',str(sandbox)],capture_output=True,timeout=5)
-        status['unmount']=unmounted.returncode
-        if unmounted.returncode:status['status']='FAIL-cleanup'
-        (evidence/'lifecycle.json').write_bytes(encoded(status))
-        life.need(unmounted.returncode==0,'private native fixture unmount failed')
+        return actual_case(sandbox,evidence,binaries,signer,public,sign)
+    # Reuse the corrected actor/cleanup boundary instead of duplicating finally.
+    argv=[str(Path(__file__).resolve()),'--sandbox',str(sandbox),'--evidence',str(evidence)]
+    with patch.object(sys,'argv',argv),patch.object(life,'CASES',('static-native-script',)),\
+         patch.object(life,'run_case',native_case):
+        return life.main()
 
 
 if __name__=='__main__':

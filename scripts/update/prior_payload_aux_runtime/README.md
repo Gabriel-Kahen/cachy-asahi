@@ -79,7 +79,7 @@ provides its own observed exit evidence.
 
 ## Focused checks and actual TEST transaction
 
-Ordinary `test_prior_payload_aux_runtime.py -v` runs19 focused cases using fresh
+`test_prior_payload_aux_runtime.py Focused -v` runs19 focused cases using fresh
 real TEST signatures and unchanged pinned host ALPM read-only handles, with an
 explicitly inert auxiliary fixture. It compiles fixed original MIT C fixtures
 using existing `/usr/bin/cc -static -fno-pie -no-pie -Os -Wl,--build-id=none
@@ -101,14 +101,18 @@ No packages are installed on the host. Before/after maps, inputs, compilation
 receipts, actual execution outputs, result flags, helper trace and cleanup are
 exported. No private signing key is exported.
 
-This actor deliberately reuses the accepted lifecycle helper from commit
-`3ab6007b93e037bdf072642f55147d26aff78959` (22252bytes,
-SHA256 `8fd402e691ab28f294710e54a2a60fe0456545894be90c5c2477761d094a14b1`).
-That file is absent from this candidate's base361ed74e. Co-adopt it at
-`scripts/update/test_prior_aux_lifecycle.py`, or set
-`CACHY_ASAHI_LIFECYCLE_FIXTURE` to its exact absolute file. The loader checks
-captured bytes and executes them against this checkout's engine. Ordinary tests
-do not require the helper. Its existing host TEST profile pins unchanged
+The integrated actor binds only the local corrected lifecycle helper from commit
+`0cd45dffa47f37d2050affdc4045ceeb03e7cde5` (23994bytes,
+SHA256 `6c24c1993d29a895f3bab137a2b0af248da3b5dc7728f3e334d2b2fda34b074e`).
+This source derives from the accepted fixture author
+`3ab6007b93e037bdf072642f55147d26aff78959`; both authors/commits are retained.
+The loader checks captured local bytes and executes them against this checkout's
+engine. External helper-path overrides are ignored; the uncorrected local helper
+is refused.
+The payload actor supplies one fixed case to the corrected `main` boundary,
+sharing its namespace/cgroup guards, key lifecycle and independent cleanup/report
+attempts. It no longer duplicates the older brittle cleanup block. The existing
+host TEST profile pins unchanged
 libalpm16.0.1, x86_64 ldconfig and libc; it validates original ARM comparator
 source/binding separately, overrides host helper/scan pins explicitly, and
 requires both caches RAW_EQUAL. **Comparator-to-running-host-helper source
@@ -127,11 +131,30 @@ GPG/GPGCONF, C compiler/static libc, GDB with Python, mount/umount and unshare.
 Agents, owned mount, copied workspace and scope are retired; no canonical actor,
 lease, network fetch, host keys/trust, operational workflow or shared CI is used.
 
-The recorded host run passed all19 focused checks and one genuine static
-native/script TEST lifecycle. The old executable/script produced V1; the new
+`test_prior_payload_aux_runtime.py SourceBinding -v` adds4 source controls for
+the local corrected binding, old/altered helper refusal, one-case delegation and
+restoration of scoped patches on success/primary failure. Together with E's
+9 modeled cleanup controls, these are registered in the separate dispatch-only
+`updater-payload-source.yml` workflow on Python3.12/3.14, requiring an exact
+reviewed source commit. An audit hook denies subprocess, exec/fork/spawn, socket
+creation and ctypes library/symbol actors during the selected imports/tests.
+The workflow does not run `Focused`, compile payloads, execute ALPM/helper or
+claim target coverage. Full payload CI needs a reviewed compiler/static-libc
+closure and exact ALPM TEST profile; the existing composition image lacks the
+compiler. Actual TEST CI additionally needs the exact host profile, ptrace,
+namespace and cgroup/tmpfs contract. Existing shared workflows are unchanged.
+
+The earlier author0ac904b9 run passed19 focused checks and one genuine static
+native/script TEST lifecycle using the original3ab6007b helper; that historical
+evidence remains valid for that version. A fresh integrated run using corrected
+0cd45dff passed19 focused,4 binding and9 modeled cleanup controls plus one real
+static native/script TEST lifecycle. The old executable/script produced V1; the
+new
 executable/script/alias produced V2 with exit0. Actual helper hash/exit0,
-commit/checkpoint, raw cache equality and cleanup passed. Peak memory was
-271130624bytes and peak tasks32. These results establish this bounded host
+commit/checkpoint, raw cache equality and cleanup passed. Fresh integrated peak
+memory was
+230326272bytes and peak tasks32. Independent cleanup/report status was PASS.
+These results establish this bounded host
 fixture only. Dynamic payload support, complete Asahi/full587 composition,
 production ARM helper coverage, native ARM/M2 hardware, rollback, release
 acceptance and performance gains remain unestablished.
