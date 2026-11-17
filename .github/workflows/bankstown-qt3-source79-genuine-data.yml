@@ -25,12 +25,12 @@ jobs:
           - '3.14'
     env:
       PYTHONDONTWRITEBYTECODE: '1'
-      TMPDIR: ${{ runner.temp }}/bankstown-source79-genuine-${{ matrix.python }}
     steps:
       - name: Require actual immutable Source CID before checkout
         id: selected
         env:
           SELECTED_SOURCE79: ${{ inputs.source79_commit }}
+          TMPDIR: ${{ runner.temp }}/bankstown-source79-genuine-${{ matrix.python }}
         run: |
           python3 -I -B - <<'PY'
           import os,re
@@ -41,6 +41,7 @@ jobs:
               stream.write('commit='+selected+'\n')
           PY
           mkdir -m 700 "$TMPDIR"
+          printf 'TMPDIR=%s\n' "$TMPDIR" >> "$GITHUB_ENV"
       - name: Checkout reviewed DATA-check code at the selected workflow revision
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
