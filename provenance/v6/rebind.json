@@ -1,0 +1,69 @@
+{
+  "actual": {
+    "Root_delegation": null,
+    "Root_resources": null,
+    "Root_runtime": null,
+    "Root_trust": null,
+    "actual_images": null,
+    "job": null,
+    "publication": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "basis": {
+    "bytes": 45544942,
+    "files": 188,
+    "source_map": {
+      "bytes": 37091,
+      "sha256": "ba06925244cd010ab2223325e2e324d4d3b469befbea5e7eb8e0de68383d4908"
+    },
+    "tree": "50bf7aab34ee5497f12d078709354aa69b0cdb9d"
+  },
+  "capture_commit": "441832e1d687255434c9001d603d400e4932f26a",
+  "construction": {
+    "scripts/ci/first-login-enrollment-native-source/successor_v6_source/README.md": {
+      "bytes": 3020,
+      "mode": 420,
+      "sha256": "1955067799b963434117e49f4a1f5b00977eb0b284e445185de0ed4ef37a7cc5"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v6_source/prepare.py": {
+      "bytes": 10836,
+      "mode": 420,
+      "sha256": "4cc618d1259732bd83013d012d600b913a330a6233e82f33c5803a4d72637138"
+    }
+  },
+  "kind": "COMMITTED_SOURCE188_WRITTEN_SPAN_CAPTURE_REBIND_V6",
+  "operation": "first-login-enrollment-ui-current-v2",
+  "replacements": {
+    "hosted_launcher": {
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+      "original": {
+        "bytes": 66059,
+        "mode": 420,
+        "sha256": "5685fa9149242fd878ce81ddbe4368a0f6317de71c654962311de4fdb631fa14"
+      },
+      "original_member": "provenance/v6/original/scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+      "replacement": {
+        "bytes": 66263,
+        "mode": 420,
+        "sha256": "f8387c748f31698b45656998248f099a8207bb58f7f9d7e70ef53a73be286d97"
+      }
+    },
+    "material_domain_executor": {
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
+      "original": {
+        "bytes": 40975,
+        "mode": 420,
+        "sha256": "da8e397a63e02c11758d08bf2c45ecf14d94029f6311f4fcb4a09ad420624c8b"
+      },
+      "original_member": "provenance/v6/original/scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
+      "replacement": {
+        "bytes": 42462,
+        "mode": 420,
+        "sha256": "ead51cfa3bcf4b74fbccc8c469926c71fbb72edefcf9525b297e1737fde3ab8f"
+      }
+    }
+  },
+  "schema": 6
+}

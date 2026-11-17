@@ -1,0 +1,906 @@
+{
+  "actual": {
+    "Root_resources": null,
+    "Root_runtime": null,
+    "Root_signing": null,
+    "Root_trust": null,
+    "actual_images": null,
+    "artifact": null,
+    "dispatch_grant": null,
+    "job": null,
+    "publication": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "files": {
+    ".github/workflows/native-arm-current-onboarding-delegated-v3.yml": {
+      "bytes": 8949,
+      "mode": 420,
+      "sha256": "4aaa31fae8b6665d502372467d3da5ceef0bb30553d2dfb1ac9f38a41fc90165"
+    },
+    "bootstrap/scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "bootstrap/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "mode": 420,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json": {
+      "bytes": 195440,
+      "mode": 420,
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "bootstrap/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json": {
+      "bytes": 1510,
+      "mode": 420,
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+    },
+    "bootstrap/scripts/ci/setup6-retained-helpers/legacy_prefill.py": {
+      "bytes": 5986,
+      "mode": 420,
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+    },
+    "bootstrap/scripts/ci/setup6-retained-helpers/prepare.py": {
+      "bytes": 3749,
+      "mode": 420,
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+    },
+    "carrier/inputs/catalog/official-archive-signature-inputs.json": {
+      "bytes": 23061,
+      "mode": 420,
+      "sha256": "5ec5464fbd51646888f23155b943ffb2ba0f398259af1fec6bcf22b2e526fe1d"
+    },
+    "carrier/inputs/catalog/official-closure.json": {
+      "bytes": 219097,
+      "mode": 420,
+      "sha256": "1371ca4e461ac0ffa9533eda6a1ecf5ba9ccd001042ebbfe6c410b5c19928996"
+    },
+    "carrier/inputs/inputs.DRAFT.json": {
+      "bytes": 2276,
+      "mode": 420,
+      "sha256": "3df51b7511fc940b8dfa952af2d7802bf82c6b37127bba0122ff921eca50f84e"
+    },
+    "carrier/inputs/materials/official/00.archive": {
+      "bytes": 2868,
+      "mode": 420,
+      "sha256": "f8a67e6a893e09ece9d9611112b46259df1d947b8d57ac9f118a00eb955780b9"
+    },
+    "carrier/inputs/materials/official/00.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "846fa0db2dd76d4e805b19b010143412522a630eb5235f9b00692c1541bba957"
+    },
+    "carrier/inputs/materials/official/01.archive": {
+      "bytes": 133600,
+      "mode": 420,
+      "sha256": "ea1a152ebe20cecf157378c8917e04b976e89287e2471dd20117b3923b3f0ebb"
+    },
+    "carrier/inputs/materials/official/01.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "da757cee8ccfe106f13a7fa9fdb285d43eda5598090de98b4e1487afd149769c"
+    },
+    "carrier/inputs/materials/official/02.archive": {
+      "bytes": 30644,
+      "mode": 420,
+      "sha256": "fe0d6a936340bf8b6752d96f198f130ad0fdbc39521dd71257346f297a0287ae"
+    },
+    "carrier/inputs/materials/official/02.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "1005c1451e791578a49d6873cb333d678d1f30b94c3e74847018a4315f0b16c7"
+    },
+    "carrier/inputs/materials/official/03.archive": {
+      "bytes": 103788,
+      "mode": 420,
+      "sha256": "2f928a829385d79626cba58fcc111f8f930d1ae951d83f405813a3886ab9ec7b"
+    },
+    "carrier/inputs/materials/official/03.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "ee7224f1aaff41b75eb745daae70accc83502c7e64e0eed954f9312403e4e498"
+    },
+    "carrier/inputs/materials/official/04.archive": {
+      "bytes": 55036,
+      "mode": 420,
+      "sha256": "6b4eaa0f2c31b5901b14b306bb4607842dbc3e2c9d5658ad719a1001b8bc5216"
+    },
+    "carrier/inputs/materials/official/04.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "f0ee57cb95aa34bd7850443d2760ca5ce0cb0b78606d61cb27e9ddd67d35aacf"
+    },
+    "carrier/inputs/materials/official/05.archive": {
+      "bytes": 2720860,
+      "mode": 420,
+      "sha256": "9db399b8bec60e6a80367e45db11b31294714eca3383c3bf2d6a4420bc099747"
+    },
+    "carrier/inputs/materials/official/05.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "06aa876a924bb907892b22d43d544d5d5d08f20e93846302ed52fdfc628a05ec"
+    },
+    "carrier/inputs/materials/official/06.archive": {
+      "bytes": 2278616,
+      "mode": 420,
+      "sha256": "31a012f8a70288e403ca0a7a6ff2bcab9e4f1d4baaa4b17be76315e2485dd19a"
+    },
+    "carrier/inputs/materials/official/06.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "96469a6c5bcd11d59c0c91cd9ca0be10da2274fe89d6ef59741f6b06007910f6"
+    },
+    "carrier/inputs/materials/official/07.archive": {
+      "bytes": 1980512,
+      "mode": 420,
+      "sha256": "33bd6339676ccadab9d8aa3bf91985eee89ea805722d48e070d4190d257a8892"
+    },
+    "carrier/inputs/materials/official/07.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "a2423cc280a094ef9a44b9c1166bb5541cd6fb629c419839ddab5d96e4a02077"
+    },
+    "carrier/inputs/materials/official/08.archive": {
+      "bytes": 10656560,
+      "mode": 420,
+      "sha256": "a9c34b926a251f4d610ede9bd4f38d61a2097358ba477a743ff72a882f5278d2"
+    },
+    "carrier/inputs/materials/official/08.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "53b25890ae4490dd6a4c04ee9ef24a92b16cf78d31ff8cac77c14c1a5bd996dd"
+    },
+    "carrier/inputs/materials/official/09.archive": {
+      "bytes": 121972,
+      "mode": 420,
+      "sha256": "38e6d7fdc0882f8b08e2d2e15c9e686607bdde6e01d48c54c7bd191a31f60ebf"
+    },
+    "carrier/inputs/materials/official/09.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "7fcfa673ee1522fe5f73fc0f85c89e41b094d3b6247c960b160c5332e005bed3"
+    },
+    "carrier/inputs/materials/official/10.archive": {
+      "bytes": 27772,
+      "mode": 420,
+      "sha256": "47ada079f0ae6043f028ed6bf225ab26f085a40e06c6367a78580f058ea6e61b"
+    },
+    "carrier/inputs/materials/official/10.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "7523f9f7ad17cad22829849ebce4bbe09ff1aa8b1091d0402333892bda807867"
+    },
+    "carrier/inputs/materials/official/11.archive": {
+      "bytes": 178880,
+      "mode": 420,
+      "sha256": "c9c9715f03a1b4bbbd9e03c203275f4571a4c8b6bd1e5307eafc02ebf1789fed"
+    },
+    "carrier/inputs/materials/official/11.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "b5dbda31283ec1f96e64172e429f9c29295bf84ae074d3d642970edf6c18259d"
+    },
+    "carrier/inputs/materials/official/12.archive": {
+      "bytes": 301848,
+      "mode": 420,
+      "sha256": "b6c6565ddb510373b211b62ae6c773c7608d39c4d799416c38a45e6a1549c61d"
+    },
+    "carrier/inputs/materials/official/12.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "4c4a5d773f203a6df57e6fbc74b4beac62c7af44690e88ef415985d7b0f8798e"
+    },
+    "carrier/inputs/materials/official/13.archive": {
+      "bytes": 271192,
+      "mode": 420,
+      "sha256": "efb67ef7eed7b30bebebbe9420fbf67bbfd0676c2b731f30e47e544cdb73feaf"
+    },
+    "carrier/inputs/materials/official/13.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "3a42d42b719abe319f541f2110fa2a77893ed21dfe9456df915d217b75b8e068"
+    },
+    "carrier/inputs/materials/official/14.archive": {
+      "bytes": 193448,
+      "mode": 420,
+      "sha256": "208f2b00046c22544855390ae9359ac59a13f375ab1d6d1e3f50ee875ae9db61"
+    },
+    "carrier/inputs/materials/official/14.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "77c200e2cc6618be6ac79615e012a1902fbfda7b2ae05bbe1d0a71c802f25a4f"
+    },
+    "carrier/inputs/materials/official/15.archive": {
+      "bytes": 35444,
+      "mode": 420,
+      "sha256": "03abeee4ba4b04cd0f6457ea60005e84701fd929bdd57d1a1be9034101c15243"
+    },
+    "carrier/inputs/materials/official/15.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "0b05ea1f18099c07f602f0375bf7d66c872014ac30268cec9ba0b625b2716ca1"
+    },
+    "carrier/inputs/materials/official/16.archive": {
+      "bytes": 83656,
+      "mode": 420,
+      "sha256": "b28ebc082254c63fbbd9aac1e2ec9bae8e78fe7243682e875df537906ecb5971"
+    },
+    "carrier/inputs/materials/official/16.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "334df3c15796e8571a5539c4ea111372dc1f7e5c2c699c942824c2a505b95803"
+    },
+    "carrier/inputs/materials/official/17.archive": {
+      "bytes": 302292,
+      "mode": 420,
+      "sha256": "17d187c9a6381bf1bb991f5d98e1c3b19b636ed7bd05b5f4d6601bf41b19868f"
+    },
+    "carrier/inputs/materials/official/17.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "d79eeac99a2d2d98e87e9d0fa2295dfee224a1c0f22e1368829f69ddbcedc062"
+    },
+    "carrier/inputs/materials/official/18.archive": {
+      "bytes": 300132,
+      "mode": 420,
+      "sha256": "49b8991906522d676aafc7588c6a1760dfe5b2316e3c4168ac8a62ea01bf7d1f"
+    },
+    "carrier/inputs/materials/official/18.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "fda744068c82534c0879b3f02bc5c378f0c57d4e7cc7648252f75e618f197d80"
+    },
+    "carrier/inputs/materials/official/19.archive": {
+      "bytes": 378412,
+      "mode": 420,
+      "sha256": "5103e65332731cb568fd163b2d9fa074ebe2e821507c044e61048385a9a27c66"
+    },
+    "carrier/inputs/materials/official/19.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "7ecdf542ca896eaf7e4d764bb663540ca2f933c827afada303047db6dd8fab83"
+    },
+    "carrier/inputs/materials/official/20.archive": {
+      "bytes": 164352,
+      "mode": 420,
+      "sha256": "aac2d10b977d9a0e7f7e45a4dd0799aa0256f6df2a32baf8231cd027b342e993"
+    },
+    "carrier/inputs/materials/official/20.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "c54f2edbc46f7ec2fddb001cec49804d233d66a1d1b140d26cbc3c668f07d969"
+    },
+    "carrier/inputs/materials/official/21.archive": {
+      "bytes": 464240,
+      "mode": 420,
+      "sha256": "e1f5f15d6455a3b9787775e5c6f33c0223154aef94d837b1ed52f4651705c7c6"
+    },
+    "carrier/inputs/materials/official/21.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "ae7b3353f11313b3541ad44585ee6ed1efae0f9f179d24340dce5da1c51a55c2"
+    },
+    "carrier/inputs/materials/official/22.archive": {
+      "bytes": 116916,
+      "mode": 420,
+      "sha256": "67dc11eed1288b37ff3afdf8ed590f2ac4ec75ad3fb740f4984d93fd3c0628a7"
+    },
+    "carrier/inputs/materials/official/22.signature": {
+      "bytes": 566,
+      "mode": 420,
+      "sha256": "df37455d9f34fbf0071266c01749b7a4e8e2c07ad88dbbc2117f8fe07fea5ca7"
+    },
+    "carrier/inputs/materials/setup8/archive": {
+      "bytes": 33900,
+      "mode": 420,
+      "sha256": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47"
+    },
+    "carrier/inputs/public/setup8-current.Root-decision.json": {
+      "bytes": 2738,
+      "mode": 420,
+      "sha256": "4e91900673960d585619718b4a3bf945bbfb83f2b26239327d230f14498a2433"
+    },
+    "carrier/inputs/public/setup8-current.asc": {
+      "bytes": 437,
+      "mode": 420,
+      "sha256": "01ffe16c6215c2030914d0cfc7f27f14ae15cb58da1e4723ac1651c423c1e289"
+    },
+    "carrier/inputs/public/setup8-current.sig": {
+      "bytes": 119,
+      "mode": 420,
+      "sha256": "76c8b8e40006e67cc846a8346206516afaaac58140469112e98d36ac7c1de587"
+    },
+    "carrier/inputs/public/setup8-current.verification.json": {
+      "bytes": 945,
+      "mode": 420,
+      "sha256": "88e3475858e0d5273316916a8f5acf59d851a89d7d2e47b61e28ecc07a045713"
+    },
+    "carrier/inputs/signed-lifecycle-inputs.DRAFT.json": {
+      "bytes": 10553,
+      "mode": 420,
+      "sha256": "bf70c983e915efb84a78a48e4df547cba4786e795ba4b558dd637d0a164afa32"
+    },
+    "carrier/inputs/stage-vectors.json": {
+      "bytes": 40232,
+      "mode": 420,
+      "sha256": "55b86d25d57f793af7ef9adfebf43da3d163485e5299cb6e32cb4ecfe0ce0245"
+    },
+    "carrier/inputs/stages/backend.expected.lock": {
+      "bytes": 6826,
+      "mode": 420,
+      "sha256": "7d05c8b129307cc7e61ca2e3a3480fe9b295dbb7346807de257bec92fd965f4c"
+    },
+    "carrier/inputs/stages/lifecycle.expected.lock": {
+      "bytes": 7285,
+      "mode": 420,
+      "sha256": "e6bf41adc68e99a33e6948de7524c152ec4cc888c4da1a0abff95dd8c9de0ba4"
+    },
+    "carrier/inputs/stages/ui.expected.lock": {
+      "bytes": 7343,
+      "mode": 420,
+      "sha256": "09e237283df4878e11e988194d77affda8ba26ce8c2b222928d439d2814ec322"
+    },
+    "inputs/delegated-materials-v4.json": {
+      "bytes": 16637,
+      "mode": 420,
+      "sha256": "ae9c4fab9ecc166b4c8ca821496309bf239449fef1c1b3ebd4246a5ecfc15082"
+    },
+    "inputs/material-staging-materials-v4.json": {
+      "bytes": 1191,
+      "mode": 420,
+      "sha256": "14e42d5067d37b12941c679ed93f2ab8e7e7b38bb28e36fa720448938a72566f"
+    },
+    "inputs/materials.json": {
+      "bytes": 12718,
+      "mode": 420,
+      "sha256": "77912a1d834b3bcbe1ba2441aab1e49d51ba8622a07fb257eb1c834fdf98064c"
+    },
+    "inputs/public-carrier.tar": {
+      "bytes": 21329920,
+      "mode": 420,
+      "sha256": "941cdf20972228fac1492e80f17c1aa4aa1a0c4caf6157ad7d698e75ee2a77db"
+    },
+    "inputs/stages/backend.expected.lock": {
+      "bytes": 6826,
+      "mode": 420,
+      "sha256": "7d05c8b129307cc7e61ca2e3a3480fe9b295dbb7346807de257bec92fd965f4c"
+    },
+    "inputs/stages/baseline349.expected.lock": {
+      "bytes": 6800,
+      "mode": 420,
+      "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+    },
+    "inputs/stages/lifecycle.expected.lock": {
+      "bytes": 7285,
+      "mode": 420,
+      "sha256": "e6bf41adc68e99a33e6948de7524c152ec4cc888c4da1a0abff95dd8c9de0ba4"
+    },
+    "inputs/stages/ui.expected.lock": {
+      "bytes": 7343,
+      "mode": 420,
+      "sha256": "09e237283df4878e11e988194d77affda8ba26ce8c2b222928d439d2814ec322"
+    },
+    "native/input-profile.json": {
+      "bytes": 168201,
+      "mode": 420,
+      "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
+    },
+    "native/retained_transport.py": {
+      "bytes": 12375,
+      "mode": 420,
+      "sha256": "46708771ccb93bbfe22c4f449f3a54052bc9494c4fb572e10b0853b5aa47bdef"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/.SRCINFO": {
+      "bytes": 2060,
+      "mode": 420,
+      "sha256": "ddbb60e0ecde42612edbb796139d44531d039b35a7a30d184315908958b26b5f"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/NOTICE": {
+      "bytes": 384,
+      "mode": 420,
+      "sha256": "dfa0e6f1fef4442602ca136c68f6e7eb23f887c0e799a2500792df26affc3012"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/PKGBUILD": {
+      "bytes": 2703,
+      "mode": 420,
+      "sha256": "5e034915e807e2ccc27909aced7b4dfa7b9f287aeee2756fa523196d7e40e713"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/README.md": {
+      "bytes": 7362,
+      "mode": 420,
+      "sha256": "067cfe135d87f12581d2e785ae34d750fb5158c11c8716ec496798dc3e1a762c"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/RESULTS.md": {
+      "bytes": 6906,
+      "mode": 420,
+      "sha256": "5ceb60c70538fc205d3ceb7e9644e9bb3b9084b5df2110cab23df345711d1f4b"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/bridge.py": {
+      "bytes": 17446,
+      "mode": 420,
+      "sha256": "91c565b0a525343c12e5563c4d126a571232a56c536806d4ccca07050392a2db"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/cachy-asahi-first-login-ui": {
+      "bytes": 432,
+      "mode": 420,
+      "sha256": "0943cc4063c4a802d5c835676c056a2e3320e93732208295bfd80f0d26aa5883"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/first-login-entry-fixture": {
+      "bytes": 296,
+      "mode": 420,
+      "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/first-login-fixture.py": {
+      "bytes": 10534,
+      "mode": 420,
+      "sha256": "b4505e393a2913048136c16b62a4355da133c32536cbae60a1c3c65f4483b1d6"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/gui.py": {
+      "bytes": 13454,
+      "mode": 420,
+      "sha256": "4065166093f380a186ca45b29298ffb61ce10d57fb31e05ba2c201d6628aece5"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/io.github.GabrielKahen.CachyAsahiFirstLogin.desktop": {
+      "bytes": 247,
+      "mode": 420,
+      "sha256": "c21993e58240c62ac724c8310ab70c10db72d95abd94f4ecdfb3af3e82716f30"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/setup8-fixture.py": {
+      "bytes": 45116,
+      "mode": 420,
+      "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/source-provenance.json": {
+      "bytes": 3136,
+      "mode": 420,
+      "sha256": "fd2bcb2d61acc077f41ab8e5ec3956760739c40c25366521995c2fe3041de3da"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/test_bridge.py": {
+      "bytes": 20204,
+      "mode": 420,
+      "sha256": "b730cbe9b2d27d08b6354eab591ad09d3592a9e8d4a10744cb96a4cf519f9009"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/test_delivery.py": {
+      "bytes": 7467,
+      "mode": 420,
+      "sha256": "a0757d0a5180881a40c57dd2f061723981374d17bb2f603f14a2b90560440b5e"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/test_gui.py": {
+      "bytes": 10458,
+      "mode": 420,
+      "sha256": "0cf676397194a9615db973f4328d4bf60714b9dc8874aeb2d598942b5a395981"
+    },
+    "packages/tools/cachy-asahi-first-login-ui02/test_support.py": {
+      "bytes": 2571,
+      "mode": 420,
+      "sha256": "7385480f0fa3d111bebbc2d09614f6f989cad6d31586db492be3c93b41712225"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/.SRCINFO": {
+      "bytes": 1704,
+      "mode": 420,
+      "sha256": "be5253a32d7444065ea876455c0bb99ea1ffc47759bce864431abaf07018a2f7"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/NOTICE": {
+      "bytes": 430,
+      "mode": 420,
+      "sha256": "6aa0a8736adb815343fe56d530df8caa77605896e1eb8984c40e3cc669d86b35"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/PKGBUILD": {
+      "bytes": 2509,
+      "mode": 420,
+      "sha256": "1d605572877a82a94aae8acf9fc56decc24be4c2dd3df2d331da1979643c78a5"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/README.md": {
+      "bytes": 5579,
+      "mode": 420,
+      "sha256": "e426fcf02296865fb6367fd04d200a4333dab58e66c943a9be5f7a0f5f2eb697"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/RESULTS.md": {
+      "bytes": 2459,
+      "mode": 420,
+      "sha256": "b5394763e0f3598008fdc508aaa1349dc3764fb4a47733c34e9a0a74e35504f8"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/cachy-asahi-first-login": {
+      "bytes": 296,
+      "mode": 420,
+      "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/check-sync.py": {
+      "bytes": 1575,
+      "mode": 420,
+      "sha256": "929c60ebb939c7ea4d46d74ddedcaa219fb53285bce25c85ea8d71595d952e48"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/first_login.py": {
+      "bytes": 10534,
+      "mode": 420,
+      "sha256": "b4505e393a2913048136c16b62a4355da133c32536cbae60a1c3c65f4483b1d6"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/setup8-fixture.py": {
+      "bytes": 45116,
+      "mode": 420,
+      "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/source-provenance.json": {
+      "bytes": 2365,
+      "mode": 420,
+      "sha256": "e73d53d59030b7722cdde23488b4ebcda4a3d6a60d5fa295012ba289d2364c10"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/test_delivery.py": {
+      "bytes": 9022,
+      "mode": 420,
+      "sha256": "e5bfb628033dd373e583770071c367138960dc381041f2819469c9b879fe1b69"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/test_first_login.py": {
+      "bytes": 13819,
+      "mode": 420,
+      "sha256": "d90dc4f08c3522a425ad8b2fd33b4da5d592260330b8049bb46f65289a18045c"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/.SRCINFO": {
+      "bytes": 1458,
+      "mode": 420,
+      "sha256": "37c875abef3f6be050b42ba37dab12418f6ce31a3cd97dd4386a2e4d5ad70f35"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/NOTICE": {
+      "bytes": 509,
+      "mode": 420,
+      "sha256": "66c974199c3c94b0383dc296133883530307e89b7e54815e59d87543c1da70d0"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/PKGBUILD": {
+      "bytes": 2482,
+      "mode": 420,
+      "sha256": "d19396daa200ff812a0238f6608577f545e204420b80ed95f61f6f4df41e4cbe"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/README.md": {
+      "bytes": 5094,
+      "mode": 420,
+      "sha256": "5c6afde675e8630b357f65f4c303de333b482f70a7ae340115e7dbb76ca335f0"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/cachy-asahi-repository-enrollment": {
+      "bytes": 1595,
+      "mode": 420,
+      "sha256": "11ce3cea6422c5b97c1e9cc97f8cd5abddddfb3199becf8a4c2ad8c74cb432a9"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/payload-map.json": {
+      "bytes": 1821,
+      "mode": 420,
+      "sha256": "f12d121d5f9e26f74b33263668b78b98d746a84c028e17a1c9d1696c375a8d05"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/private-source.tar.gz": {
+      "bytes": 37798,
+      "mode": 420,
+      "sha256": "3ad158d06e0a084bf734beac5b8e76d622e354fb690ae8bed4af67a60c44222b"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/source-provenance.json": {
+      "bytes": 5087,
+      "mode": 420,
+      "sha256": "ce5d7a77744b9ea35d42dc92332888b88e52019e88789d242fd47cdb5af747cb"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/test_package.py": {
+      "bytes": 19521,
+      "mode": 420,
+      "sha256": "052a3b274326929d87f273a74959094fe092e47bffea3f9416ddc46258ce096e"
+    },
+    "packages/tools/cachy-asahi-repository-enrollment-v4/test_release.py": {
+      "bytes": 43541,
+      "mode": 420,
+      "sha256": "7ee9e693d4574c6bb11dcc927937475742b9fa7a6f8e988608532c1e1bab5f2e"
+    },
+    "provenance/current-v2-source.lock.json": {
+      "bytes": 11868,
+      "mode": 420,
+      "sha256": "749f31930c0584f9f06d8ea610cdf95032577b2325bfbc1ae96c88c060e8ae8f"
+    },
+    "provenance/owner-closure.json": {
+      "bytes": 2118,
+      "mode": 420,
+      "sha256": "6211506eb9b1483f276314b9e8c0c23e9b338ffa332f2efa899c9e1949446977"
+    },
+    "provenance/public-carrier-manifest.json": {
+      "bytes": 34026,
+      "mode": 420,
+      "sha256": "f24c5df62655b05ad6bc94f2b32e69eac186adb300de584f4c84c87f5f5201c9"
+    },
+    "provenance/v4/delegated-closure.json": {
+      "bytes": 10941,
+      "mode": 420,
+      "sha256": "fccc5402ed1325dab2c8bc503018a3662537a3868dea81d0118b07abaa1012de"
+    },
+    "provenance/v4/v3-source-map.json": {
+      "bytes": 26734,
+      "mode": 420,
+      "sha256": "ec752108c451d056ebbe4caa97d629bad081c256d506a3d83722f47952a9005e"
+    },
+    "reviewed/enrollment.json": {
+      "bytes": 977,
+      "mode": 420,
+      "sha256": "2c1c199c6080eecb1334d4a095b6da10c19ae23378d79d770994a7718a21d84b"
+    },
+    "reviewed/first-login.json": {
+      "bytes": 1137,
+      "mode": 420,
+      "sha256": "b52e62949f89e0fe4030ca21965cc97de931447c77233755804bf5c4430feb3a"
+    },
+    "reviewed/ui.json": {
+      "bytes": 1617,
+      "mode": 420,
+      "sha256": "87de39be7d9182c560dc0c7bbc5d39488437b8c8715ef34b00b9d66775481177"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "mode": 420,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "mode": 420,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "mode": 420,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "mode": 420,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "scripts/ci/first-login-enrollment-native-source/inputs/public14-profile.json": {
+      "bytes": 3024,
+      "mode": 420,
+      "sha256": "5fe4761bc96d21ec388322ead3b97c735d2f689c38061c560afc90a2143de346"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/base_inputs_current_v3.py": {
+      "bytes": 18820,
+      "mode": 420,
+      "sha256": "9e35c3ae6c3e1e9596f54806279d05cc77ae6a2cb5fb284d469df549e1d3abc6"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/build-tools-contract-v2.json": {
+      "bytes": 28609,
+      "mode": 420,
+      "sha256": "b38f63e2b2a4d3af501540da4251d29db65d9b1226052429df6e428d418dde33"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/build_tools_alpm_v2.py": {
+      "bytes": 27087,
+      "mode": 420,
+      "sha256": "d4197495e0281aecfd590e76ed908cd1fcf46b1934bc02709e47a7dac49abb73"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/build_tools_tools_v2.py": {
+      "bytes": 34468,
+      "mode": 420,
+      "sha256": "eb1ff0ee8aefc2c0e32b38520e1bf0dabcbb9308081a24e2f9c378366a3cab13"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/delegated_context_v4.py": {
+      "bytes": 43482,
+      "mode": 420,
+      "sha256": "2d08f9572b3f5f89d3ebac2b32e6d41a00ff4929739c35780c7c96a1d3d3b21d"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/host_prerequisites_current_v3.py": {
+      "bytes": 13750,
+      "mode": 420,
+      "sha256": "521163f6f9504edaa573fa079751d7714065bea2ceef69428e8bc7585e361daa"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py": {
+      "bytes": 55970,
+      "mode": 420,
+      "sha256": "d11f91cc316ca1e3513d53a66a8bc93d97f1403e618ab93922911f5b31e62a2c"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/image_current_v3.py": {
+      "bytes": 55783,
+      "mode": 420,
+      "sha256": "f4e590532d7f6115f830215810f9dee5f2a1eb714351a9a7e572d22c5a255f90"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/inputs_current_v3.py": {
+      "bytes": 45247,
+      "mode": 420,
+      "sha256": "ddc4f0da13c4e9d7ab58f2c3fe318343082f320dae105e069336ecb24c4c49cb"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py": {
+      "bytes": 36172,
+      "mode": 420,
+      "sha256": "dda088c77150046b3822db81e329e00a0afa72db3e10c3c1b74cd1e50bc2e0c3"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/owned_current_v3.policy.PROPOSAL.json": {
+      "bytes": 8366,
+      "mode": 420,
+      "sha256": "1177da4f3bfc36f8ebe8802ca6956adf3d0230511aa827bdac933688d83f0767"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/owned_executor_current_v3.py": {
+      "bytes": 53735,
+      "mode": 420,
+      "sha256": "aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/owner_current_v2.py": {
+      "bytes": 46298,
+      "mode": 420,
+      "sha256": "f1a91dee080f76eff88409dd1fe893dc45a2084338017f367ec9874a462a612d"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/owner_delegated_v3.py": {
+      "bytes": 68320,
+      "mode": 420,
+      "sha256": "4196aa414d7711a5e56c0a73f63282db712fffdfccdd9206e5b4e69f9605c7ad"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/reader_current_v3.py": {
+      "bytes": 248531,
+      "mode": 420,
+      "sha256": "4f3ddd10cbe8c008254985e6ab82f8f3d8fa8c0b579d89c3d70c2dc70d399724"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/retention_current_v3.py": {
+      "bytes": 44006,
+      "mode": 420,
+      "sha256": "738360745901f1938be1e6a893ce45131c3f1f825421991522cfee3c66ed8c6a"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/retention_delegated_v4.py": {
+      "bytes": 56142,
+      "mode": 420,
+      "sha256": "0aed986194a009fd1dcce5b244b1c6ccb1e0c11667a9674bdf12c657cc1c9fe7"
+    },
+    "scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py": {
+      "bytes": 32266,
+      "mode": 420,
+      "sha256": "d0c0764b1b7a92bb55dce63ba55314bb84ace4533434afcc47b1e23205e1cac9"
+    },
+    "scripts/ci/first-login-enrollment-native-source/prepare.py": {
+      "bytes": 15159,
+      "mode": 420,
+      "sha256": "f0c9d7aaaad08ab78130aae3fb4b3e6b1856173f6b5c8e3ee83163d8b5ede395"
+    },
+    "scripts/ci/first-login-enrollment-native-source/profile.json": {
+      "bytes": 62259,
+      "mode": 420,
+      "sha256": "ad874751a48cfd7e7d94f5d38d79caa138679be067cb113ead35150f0d3c78fa"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/inputs.TEMPLATE.json": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "c0756e0f6b9a8aff76e4d254f2c6ec7cbbad69586cb873a98c73998e659f72e1"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/native.py": {
+      "bytes": 13703,
+      "mode": 420,
+      "sha256": "cde384acd8574ddfcb07f7316ad4d24349f5b958ac6b2cea48a3a6aff480c827"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/owned_route.py": {
+      "bytes": 26320,
+      "mode": 420,
+      "sha256": "43db41de72822cb8f4d875b6c1d17ffd5062770616ed303f63e299c13478dd86"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/prepare.py": {
+      "bytes": 4598,
+      "mode": 420,
+      "sha256": "259e90e6677403fb50b1b500cece835b273ccc8a717a20f3c6f8606dd3533ef3"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v2/profile.json": {
+      "bytes": 21679,
+      "mode": 420,
+      "sha256": "8ad3641649e395b1202363e3368f713f65252a743b12e3a8d69430e4f82bc171"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v3/README.md": {
+      "bytes": 5488,
+      "mode": 420,
+      "sha256": "dbc1a75868fa889961cba0739366a74eea952cb64f57ccdbcf38e30189c1ca88"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v3/common.py": {
+      "bytes": 6699,
+      "mode": 420,
+      "sha256": "72cb64a9fc62340147ef5a203f6b6dd9f82efe0231ad2b6f76a1248c8a022930"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v3/dispatch.py": {
+      "bytes": 5361,
+      "mode": 420,
+      "sha256": "816ae26ae2475c6b650d865b8be48b3c30813c02bc7d29511480ccc7b1d934ea"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v3/operation-registry.json": {
+      "bytes": 962,
+      "mode": 420,
+      "sha256": "82433cdae4856bf03f9d09c0bd586351a3b31a18ef610c3a733061738e8f5345"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v3/owner-closure.TEMPLATE.json": {
+      "bytes": 257,
+      "mode": 420,
+      "sha256": "7cd3a6b501fab8095c07979054565c6477a059aee9f87040f28cb47baf6f7189"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v3/owner-program.json": {
+      "bytes": 16205,
+      "mode": 420,
+      "sha256": "d310b539a4c018d399ea383b7224434730ea695c956f1c582c54e459f7834fdd"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v3/prepare.py": {
+      "bytes": 19990,
+      "mode": 420,
+      "sha256": "85af9d4ddd3df614f417b849566f166e6f063bbf16c93ead531e5e5fdb2c577f"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v4/route.py": {
+      "bytes": 16196,
+      "mode": 420,
+      "sha256": "78be10c869556ecc0cd07e7ddc0b94016c3fae0cc02b1470420861808289cdee"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v4/validate_build.py": {
+      "bytes": 7798,
+      "mode": 420,
+      "sha256": "dd2fd5a390b7764b753817044e60b8ea088cb6b704e80503f53d4b6335559d84"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v4_source/README.md": {
+      "bytes": 18794,
+      "mode": 420,
+      "sha256": "bf25449ff07be241cd208434e70d8ec6f646411925432449972a0955eb3b78d7"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v4_source/inverse.json": {
+      "bytes": 3364,
+      "mode": 420,
+      "sha256": "2e6f127dde59bfcb0b8b36a85f3d8dbf21b8fd804e2a827c80957f0f7b9682a5"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v4_source/prepare.py": {
+      "bytes": 36564,
+      "mode": 420,
+      "sha256": "72ab4cd782f4bb2376a4fbc8642b4e783b56f2663685b87e4727eae1efbb78df"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v4_source/program.json": {
+      "bytes": 14384,
+      "mode": 420,
+      "sha256": "e33e63fc54cfc005fa8bf8eb006220a640027c869403a82bca90b013f7aeb508"
+    },
+    "scripts/ci/first-login-enrollment-native-source/successor_v4_source/source139-owner-closure.json": {
+      "bytes": 2118,
+      "mode": 420,
+      "sha256": "6211506eb9b1483f276314b9e8c0c23e9b338ffa332f2efa899c9e1949446977"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/host_prerequisites.py": {
+      "bytes": 13845,
+      "mode": 420,
+      "sha256": "4bef653f0e999876e8dd1e74e7d61b808182f7528f4f50ce6444e14f6ff33d64"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/host_tools.py": {
+      "bytes": 5273,
+      "mode": 420,
+      "sha256": "5f980d2df87cebdf264167e7be7220485a6fcc555667782d31316da0d08aef72"
+    },
+    "scripts/ci/fish-config02-native-source/successor_v2/hosted_owner.py": {
+      "bytes": 31464,
+      "mode": 420,
+      "sha256": "7f4d2a68f13a2439a4363cfb154553dc9e721a88dc985080dd290d44583ad634"
+    },
+    "scripts/ci/log_evidence.py": {
+      "bytes": 1708,
+      "mode": 420,
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5"
+    },
+    "scripts/maintenance/retained_git_transport.py": {
+      "bytes": 25334,
+      "mode": 420,
+      "sha256": "9b90c423fd67c261d8be1dddd8450df5b927b6dbaba9972c4daff8c0da2836b7"
+    },
+    "scripts/virtual/owned_process.py": {
+      "bytes": 25140,
+      "mode": 493,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "scripts/workflows/developer_workflow.py": {
+      "bytes": 29699,
+      "mode": 420,
+      "sha256": "531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba"
+    }
+  },
+  "kind": "CURRENT_ONBOARDING_CLOSED_SOURCE_V3",
+  "operation": "first-login-enrollment-ui-current-v2",
+  "schema": 1
+}
