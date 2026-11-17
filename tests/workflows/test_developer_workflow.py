@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Focused real-child and failure controls; source-only checkout invocation."""
 import importlib.util
+import json
 import os
 from pathlib import Path
 import shutil
@@ -11,7 +12,7 @@ import unittest
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
-spec = importlib.util.spec_from_file_location('developer_workflow', ROOT / 'scripts/workflows/developer_workflow.py')
+spec = importlib.util.spec_from_file_location('developer_workflow', ROOT / 'scripts/workflows/developer_workflow_diagnostics_v2.py')
 W = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(W)
 
@@ -40,6 +41,37 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(self.commands.records[0]['supervision']['exit'], 7)
         with self.assertRaises(W.Failure):
             self.python('pass', 'nonzero')
+
+    def test_failed_command_retains_receipt_and_bounded_safe_log_context(self):
+        raw = b'x'*3000 + b'\ncompiler: missing header\n\x1b[31m\xff\x00'
+        core = self.commands.core
+        with mock.patch.object(core, 'supervise', wraps=core.supervise) as supervised, self.assertRaises(W.Failure) as caught:
+            self.python('import os;os.write(1,%r);raise SystemExit(7)' % raw)
+        message = str(caught.exception)
+        diagnostic = json.loads(message.split(': ', 1)[1])
+        receipt = diagnostic['supervision']
+        self.assertEqual(receipt['exit'], 7)
+        self.assertFalse(receipt['timeout'])
+        self.assertEqual(receipt['signals'], [])
+        self.assertTrue(receipt['reaped'])
+        self.assertEqual(receipt['ownership'], 'REAPED')
+        self.assertEqual(receipt['group_census'], 'EMPTY_TWICE')
+        self.assertTrue(receipt['output_complete'])
+        self.assertIsNone(receipt['error'])
+        self.assertEqual(diagnostic['cap_seconds'], 3)
+        self.assertEqual(diagnostic['cap_seconds'], supervised.call_args.kwargs['cap'])
+        self.assertIs(self.commands.core, core)
+        self.assertEqual(diagnostic['expected'], 0)
+        self.assertEqual(diagnostic['output_omitted_bytes'], len(raw) - 2048)
+        self.assertEqual(diagnostic['output_tail'], raw[-2048:].decode('utf-8', 'backslashreplace'))
+        self.assertIn('compiler: missing header', message)
+        self.assertFalse(any(ord(c) < 32 for c in message))
+        self.assertLess(len(message), 14*1024)
+        row = json.loads((self.logs / 'commands.json').read_text())[0]
+        self.assertFalse(row['success'])
+        self.assertEqual(receipt, row['supervision'])
+        self.assertEqual((self.logs / diagnostic['log']).read_bytes(), raw)
+        self.assertEqual(diagnostic['log_pin'], W.pin(raw))
 
     def test_timeout_fails_and_reaps(self):
         with self.assertRaises(W.Failure):
@@ -94,7 +126,7 @@ class WorkflowTest(unittest.TestCase):
         self.assertFalse(result['reaped'])
 
     def test_core_pin_refuses_changed_dependency(self):
-        with mock.patch.object(W, 'CORE_PIN', '0'*64):
+        with mock.patch.object(W._BASE, 'CORE_PIN', '0'*64):
             with self.assertRaisesRegex(ValueError, 'pin differs'):
                 W.load_core()
 
