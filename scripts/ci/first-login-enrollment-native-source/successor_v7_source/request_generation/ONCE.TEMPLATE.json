@@ -1,0 +1,30 @@
+{
+  "actual": {
+    "Root_acceptance": null,
+    "hardware_acceptance": false,
+    "job": null,
+    "main_selectors_authentication": "UNVERIFIED_DATA_ONLY",
+    "native_acceptance": false,
+    "release_acceptance": false,
+    "run": null,
+    "source_publication_authentication": "UNVERIFIED_DATA_ONLY"
+  },
+  "approved": null,
+  "authority": null,
+  "dispatch_ready": false,
+  "expires_epoch": null,
+  "issued_epoch": null,
+  "issuer": null,
+  "kind": "UNISSUED_SOURCE205_ONCE_REQUEST_PLAN_V1",
+  "main": null,
+  "once": true,
+  "publication": null,
+  "request_templates": null,
+  "resources": null,
+  "retry": false,
+  "root_profile": null,
+  "route_hold": "CANONICAL_MAIN_V7_LAUNCHER_AND_WORKFLOW_ADOPTION_REQUIRED",
+  "schema": 1,
+  "source": null,
+  "status": "UNISSUED"
+}
