@@ -30,6 +30,8 @@ closed-overlay whole byte/hash pin, independently issued output/actor/runtime
 selection and fresh custody. It binds Source339/7beb, image529, immutable qemu-img
 and debugfs expected pins, the exact backing1610612736B/
 49da69b9262e089e08aa84063ed14ca13e66189f9c1e396616ab5f5cb5e24b81 and fixed resources.
+Overlay logical input cap4GiB is distinct from the proposed256MiB allocated cap;
+Root must measure/review both, never equate sparse EOF with actual allocation.
 A JSON issuer string is not an authenticated Root grant; Root's existing wrapper
 must bind the exact request/Source/tool hashes and actual owned execution envelope.
 

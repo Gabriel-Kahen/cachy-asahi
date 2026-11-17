@@ -27,6 +27,7 @@
   "output": null,
   "overlay": {
     "allocated_cap_bytes": 268435456,
+    "logical_cap_bytes": 4294967296,
     "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-perl-initialized-FIRST-trial-r3/boot-output/overlay.qcow2",
     "pin": null
   },

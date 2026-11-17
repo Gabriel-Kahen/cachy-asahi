@@ -23,7 +23,7 @@ def valid_pin(value):return type(value)is dict and set(value)=={'bytes','sha256'
 def declared(value):
  need(type(value)is dict and set(value)=={'kind','issued_by','accepted','Source_lock','image','overlay','backing','tools','resources','output','actual'},'closed two-path recovery schema')
  need(value['kind']=='ROOT_READONLY_R86_PUBLIC_LDCACHE_RECOVERY_V1'and value['Source_lock']==SOURCE and value['image']==IMAGE and value['tools']==TOOLS and value['resources']==RESOURCES,'fixed Source339/image529/tool/resource expectations')
- need(type(value['overlay'])is dict and set(value['overlay'])=={'path','pin','allocated_cap_bytes'}and value['overlay']['allocated_cap_bytes']==268435456,'bounded selected closed overlay')
+ need(type(value['overlay'])is dict and set(value['overlay'])=={'path','pin','logical_cap_bytes','allocated_cap_bytes'}and value['overlay']['logical_cap_bytes']==4294967296 and value['overlay']['allocated_cap_bytes']==268435456,'bounded selected closed overlay')
  need(type(value['backing'])is dict and set(value['backing'])=={'path','pin'}and value['backing']['pin']==BACKING,'exact known backing raw tuple')
  need(type(value['actual'])is dict and all(v is None for v in value['actual'].values()),'no fabricated observation or acceptance')
  return value
@@ -31,7 +31,7 @@ def declared(value):
 def require_issued(value):
  declared(value)
  need(value['issued_by']=='Root'and value['accepted']is True,'Root must separately issue exact recovery; no default actor')
- need(valid_pin(value['overlay']['pin'])and value['overlay']['pin']['bytes']<=268435456,'Root whole closed-overlay pin')
+ need(valid_pin(value['overlay']['pin'])and value['overlay']['pin']['bytes']<=value['overlay']['logical_cap_bytes'],'Root whole closed-overlay pin')
  for item in (value['overlay']['path'],value['backing']['path'],value['output']):
   need(type(item)is str and item.startswith('/')and '..'not in Path(item).parts and not any(ord(c)<32 for c in item),'literal selected Root input/output paths')
  return value
