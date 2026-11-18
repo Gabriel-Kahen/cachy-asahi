@@ -49,6 +49,24 @@ scope and both owned containers absent twice. Its receipt SHA-256 is
 The controller report SHA-256 is
 `ef06917ac13e89ecdb5aecdb2c71bfaeddae8a4cddc2a936183eaa9fd4c3b6ba`.
 
+## Missing signature and signed recovery
+
+A third disposable 16 KiB AArch64 VM ran the opt-in recovery case from
+controller commit `a4fbabaf`. After removing the nine overlays, it presented
+the exact `cachy-asahi-fish-autopair` archive in guest scratch without its
+detached signature. Pacman refused the local archive with exit 1 under the
+same required-signature policy. The complete 574-package lock and the local
+database file fingerprint manifest matched byte for byte across the refusal.
+The database manifest SHA-256 was
+`3577962dbb5baf2b2ec2dd15f5dfb2e74cfa2245b85022a0f59089d597b5bdb3`.
+
+The signed retry restored all 583 packages. Independent readback verified
+the four inventory checkpoints, all 48 original evidence files, and the
+absence of the VM and both owned containers. The controller report SHA-256
+is `757cce8c0c0b8b50b28038e32fdcf462770d662acc765a92651fb10da5a0333e`.
+The terminal receipt SHA-256 is
+`61779d85e8feca5a4cea4c128abd24cf456e3a29b37639f41aa7854c05e0f1f5`.
+
 These runs cover the selected test staging in a generic emulated guest. A
 previous-release upgrade, Asahi boot and desktop, physical M2 validation and
 production release acceptance remain pending.

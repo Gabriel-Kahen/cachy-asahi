@@ -71,7 +71,8 @@ def absolute(path):
     return path
 
 
-def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issuer=None, lifecycle=False):
+def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issuer=None, lifecycle=False,
+            signature_recovery=False):
     paths = {key:absolute(value) for key,value in
              dict(staging=staging,preflight=preflight,kernel=kernel,config=config,baseline=baseline,output=output).items()}
     for key,path in paths.items():
@@ -82,14 +83,17 @@ def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issu
         pinned(paths[key],ref)
     packet = T.choose(paths["staging"],selected_lock=T.PINS)
     receipt = T.read(paths["preflight"],packet["authenticated_preflight"],cap=128<<10)
-    plan = T.guest_plan(T.admit(packet,receipt,T.pin(receipt)),nonce,lifecycle=lifecycle)
+    plan = T.guest_plan(T.admit(packet,receipt,T.pin(receipt)),nonce,lifecycle=lifecycle,
+                        signature_recovery=signature_recovery)
     authority = dict(kind=KIND,issuer=issuer,nonce=nonce,actor_image=ACTOR_IMAGE,
                 paths={key:str(path) for key,path in paths.items()},
                 preflight=packet["authenticated_preflight"], plan=T.pin(T.encoded(plan)),
                 references={key:dict(bytes=value[0],sha256=value[1]) for key,value in REFERENCES.items()},
                 tools=tool_pins(), source=source_pins())
-    if lifecycle:
+    if lifecycle or signature_recovery:
         authority["lifecycle"] = True
+    if signature_recovery:
+        authority["signature_recovery"] = True
     return authority
 
 
@@ -341,7 +345,8 @@ class Controller:
 
     def authenticate(self, selection, *, plan_sha256, worker, nonce):
         actor_boundary(self.paths)
-        actual = binding(**self.paths,nonce=nonce,issuer="Root",lifecycle=self.authority.get("lifecycle") is True)
+        actual = binding(**self.paths,nonce=nonce,issuer="Root",lifecycle=self.authority.get("lifecycle") is True,
+                         signature_recovery=self.authority.get("signature_recovery") is True)
         T.need(self.authority==selection==actual and actual["plan"]["sha256"]==plan_sha256
                and actual["source"]["scripts/install/overlay583_trial/trial.py"]==worker,
                "Root authority, reviewed operands or trial binding differ")
@@ -451,6 +456,7 @@ def main():
     for key in ("staging","preflight","kernel","config","baseline","output","nonce"):
         bind.add_argument("--"+key,required=True)
     bind.add_argument("--lifecycle",action="store_true")
+    bind.add_argument("--signature-recovery",action="store_true")
     run = sub.add_parser("run")
     run.add_argument("--authority",required=True)
     run.add_argument("--authority-sha256",required=True)
@@ -464,7 +470,8 @@ def main():
     actor = Controller(authority)
     value = T.run_owned(actor,staging=actor.paths["staging"],preflight=actor.paths["preflight"],
                         preflight_pin=authority["preflight"],nonce=authority["nonce"],selection=authority,
-                        lifecycle=authority.get("lifecycle") is True)
+                        lifecycle=authority.get("lifecycle") is True,
+                        signature_recovery=authority.get("signature_recovery") is True)
     T.need(load_authority(args["authority"],args["authority_sha256"])==authority,
            "Root authority changed during the trial")
     value.update(emulation="QEMU_TCG_AARCH64_16K",nonce=authority["nonce"],

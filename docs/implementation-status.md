@@ -1,6 +1,6 @@
 # Implementation and acceptance status
 
-November 17 — [The offline Overlay583 install, removal and signed reinstall passed on emulated ARM16K](validation/offline-overlay583-emulated-install-20261117.md).
+November 17 — [The offline Overlay583 lifecycle and missing-signature recovery passed on emulated ARM16K](validation/offline-overlay583-emulated-install-20261117.md).
 
 November 17 — [Perl 5.42.3-1.3 passed its emulated AArch64 16 KiB lifecycle on Source391](validation/perl5423-emulated-arm16k-lifecycle-20261117.md).
 

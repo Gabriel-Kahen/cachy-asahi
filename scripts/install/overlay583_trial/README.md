@@ -108,6 +108,25 @@ The rehearsal covers package inventory and local database consistency in a
 disposable guest. Asahi installation, hardware validation and release
 acceptance remain separate.
 
+## Rehearse signature refusal and recovery
+
+Bind a fresh selection with `controller.py bind --signature-recovery`.
+This includes the lifecycle and adds one negative control after the
+verified 574-package state. The guest copies the selected
+`cachy-asahi-fish-autopair` archive to private scratch, confirms that the
+copy has the pinned bytes, and gives pacman the archive without its detached
+signature. It uses the same private keyring and `LocalFileSigLevel = Required
+TrustedOnly`. The controller requires exit 1 and the missing-signature
+diagnostic for that exact copy.
+
+The guest fingerprints the files in the local package database immediately
+before and after the attempt. It proceeds only if those fingerprints match,
+the exact 574-package lock survives, and the database check passes. It then
+reinstalls all nine packages from the original signed repositories and
+verifies the final 583-package lock and database. The report pins both
+database snapshots and records the original refusal and package inventories.
+An unexpected outcome stops at HOLD and retains the original evidence.
+
 The passive preparation ran against real staging. The focused fixture suites
 exercise the plan, ownership bridge, controller and evidence readers without
 launching an actor. Root issuance and the first real transaction remain

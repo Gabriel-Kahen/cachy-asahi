@@ -4,6 +4,7 @@
 import argparse
 from contextlib import ExitStack
 import hashlib
+from itertools import islice
 import json
 import os
 from pathlib import Path
@@ -36,6 +37,11 @@ LIFECYCLE_HOLD_EXIT = 75
 INSTALL_PASS = "PASS_DISPOSABLE_PACMAN_TRANSACTION_ONLY"
 LIFECYCLE_PASS = "PASS_DISPOSABLE_OVERLAY583_LIFECYCLE_ONLY"
 LIFECYCLE_HOLD = "HOLD_DISPOSABLE_OVERLAY583_LIFECYCLE"
+RECOVERY_PASS = "PASS_DISPOSABLE_OVERLAY583_SIGNATURE_RECOVERY_ONLY"
+PROBE_PACKAGE = "cachy-asahi-fish-autopair"
+PROBE_ROLE = "signature-refusal"
+DB_BEFORE = "refusal-db-before.json"
+DB_AFTER = "refusal-db-after.json"
 HOOK_FAILURE = re.compile(rb"(?im)^error: (?:failed to execute|command failed)")
 
 
@@ -257,7 +263,17 @@ def lifecycle_operands(packet):
     return base_lock, "".join(overlay).encode("ascii"), "".join(resolution).encode("ascii")
 
 
-def guest_plan(packet, nonce, *, lifecycle=False):
+def probe_operand(packet):
+    row = packet["packages"].get(PROBE_PACKAGE)
+    need(row is not None and row["repo"]==OVERLAY_REPO,"Selected overlay refusal operand required")
+    name = f'{PROBE_PACKAGE}-{row["version"]}-any.pkg.tar.xz'
+    relative = REPOS[OVERLAY_REPO]+"/"+name
+    need(relative in packet["files"] and relative+".sig" in packet["files"],
+         "Original signed archive and detached signature required")
+    return relative, WORK/"signature-probe"/name
+
+
+def guest_plan(packet, nonce, *, lifecycle=False, signature_recovery=False):
     need(packet["preflight"] is not None and re.fullmatch("[0-9a-f]{32}",nonce or ""),
          "Selected preflight and guest nonce required")
     options = ["--config",str(CONFIG),"--root",str(TARGET),"--dbpath",str(TARGET/"var/lib/pacman"),
@@ -273,7 +289,7 @@ def guest_plan(packet, nonce, *, lifecycle=False):
                     ["query",[*command,"--query"],60],
                     ["check",[*command,"--database","--check"],60],
                 ])
-    if lifecycle:
+    if lifecycle or signature_recovery:
         lifecycle_operands(packet)
         names = [name for name,row in sorted(packet["packages"].items()) if row["repo"]==OVERLAY_REPO]
         repo_names = [OVERLAY_REPO+"/"+name for name in names]
@@ -290,6 +306,15 @@ def guest_plan(packet, nonce, *, lifecycle=False):
             ["query-restored",[*command,"--query"],60],
             ["check-restored",[*command,"--database","--check"],60],
         ]
+        if signature_recovery:
+            _, probe = probe_operand(packet)
+            plan["signature_recovery"] = True
+            position = next(i for i,row in enumerate(plan["operations"]) if row[0]=="reinstall-plan")
+            plan["operations"][position:position] = [
+                [PROBE_ROLE,[*command,"--upgrade","--noconfirm","--",str(probe)],120],
+                ["query-refused",[*command,"--query"],60],
+                ["check-refused",[*command,"--database","--check"],60],
+            ]
     return plan
 
 
@@ -303,6 +328,8 @@ def evidence_names(plan):
     snapshots = {"installed.lock", "result.json", "pacman.log"}
     if plan.get("lifecycle"):
         snapshots.update(("removed.lock","reinstalled.lock"))
+    if plan.get("signature_recovery"):
+        snapshots.update(("refused.lock",DB_BEFORE,DB_AFTER))
     return snapshots | {
         f"{role}.{stream}" for role in roles for stream in ("stdout", "stderr")
     }
@@ -321,6 +348,8 @@ def role_outputs(plan, target):
             "remove-plan":(removed,None), "query-base":(baseline,"removed.lock"),
             "reinstall-plan":(resolution,None), "query-restored":(target,"reinstalled.lock"),
         })
+        if plan.get("signature_recovery"):
+            expected["query-refused"] = baseline,"refused.lock"
     return expected
 
 
@@ -367,7 +396,8 @@ def guest(plan_sha256, worker_sha256):
     plan = decode(raw)
     packet, nonce = plan["packet"], plan["nonce"]
     lifecycle = plan.get("lifecycle") is True
-    need(raw==encoded(plan) and plan==guest_plan(packet,nonce,lifecycle=lifecycle)
+    recovery = plan.get("signature_recovery") is True
+    need(raw==encoded(plan) and plan==guest_plan(packet,nonce,lifecycle=lifecycle,signature_recovery=recovery)
          and Path("/proc/cmdline").read_text().split().count("cachy_overlay583_nonce="+nonce)==1,
          "Exact owned guest boot nonce required")
     start = time.monotonic()
@@ -415,7 +445,7 @@ def execute_guest(plan, lock, observed, deadline):
                                     stdin=subprocess.DEVNULL if contents is None else None,
                                     stdout=stdout, stderr=stderr, timeout=min(remaining,seconds), check=False)
         commands.append(dict(role=role,argv=argv,exit=result.returncode))
-        need(result.returncode==0, f"Guest command failed: {role} (exit {result.returncode})")
+        need(result.returncode==expected_exit(role), f"Guest command failed: {role} (exit {result.returncode})")
 
     def transaction():
         nonlocal phase
@@ -433,7 +463,10 @@ def execute_guest(plan, lock, observed, deadline):
         # File-repository refresh may create ALPM's database version marker only.
         for role,argv,seconds in plan["operations"]:
             phase = role
-            run_operation(role,argv,seconds,expected,run,env,config if lifecycle else None)
+            if role==PROBE_ROLE:
+                run_signature_probe(packet,argv,seconds,run,env,config,observed)
+            else:
+                run_operation(role,argv,seconds,expected,run,env,config if lifecycle else None)
         phase = "seal"
         unchanged(observed)
         check_repos(IN,packet["files"],packet["aliases"])
@@ -460,7 +493,8 @@ def execute_guest(plan, lock, observed, deadline):
                 raise
             hold = hold or "trust-retirement"
             print(f"overlay583 guest trust-retirement: {error}",file=sys.stderr,flush=True)
-    result = dict(status=LIFECYCLE_HOLD if hold else LIFECYCLE_PASS if lifecycle else INSTALL_PASS,
+    passed = RECOVERY_PASS if plan.get("signature_recovery") else LIFECYCLE_PASS if lifecycle else INSTALL_PASS
+    result = dict(status=LIFECYCLE_HOLD if hold else passed,
                   nonce=plan["nonce"],plan=pin(encoded(plan)),commands=commands,Root_acceptance=None)
     if hold:
         result["phase"] = hold
@@ -476,7 +510,7 @@ def run_operation(role, argv, seconds, expected, run, env, config):
         ordinary(TARGET/"var/lib/pacman")
         if role=="reinstall":
             need(not list(ordinary(WORK/"lifecycle-cache").iterdir()),"Reinstall cache must start empty")
-    if role in ("install","remove","reinstall"):
+    if role in ("install","remove",PROBE_ROLE,"reinstall"):
         with ExitStack() as mounts:
             target_api_mounts(TARGET,env,mounts)
             run(role,argv,seconds)
@@ -498,6 +532,63 @@ def run_operation(role, argv, seconds, expected, run, env, config):
 def check_hooks(output, role, observed=None):
     stderr = read(output/(role+".stderr"),cap=8*1024**2,observed=observed)
     need(not HOOK_FAILURE.search(stderr),"Pacman reported a failed scriptlet or hook: "+role)
+
+
+def expected_exit(role):
+    return 1 if role==PROBE_ROLE else 0
+
+
+def local_database_snapshot(root):
+    root = ordinary(root)
+    lock = root.parent/"db.lck"
+    need(not lock.exists() and not lock.is_symlink(),"Stopped pacman database required for refusal readback")
+    seen = {str(root):identity(root.lstat())}
+    entries = sorted(islice(root.iterdir(),576))
+    version = root/"ALPM_DB_VERSION"
+    need(len(entries)==575 and version in entries,"Expected exact local 574-package database namespace")
+    files = {"ALPM_DB_VERSION":read(version,cap=1024,collect=False,observed=seen)}
+    remaining = 128*1024**2-files["ALPM_DB_VERSION"]["bytes"]
+    for package in entries:
+        if package==version:
+            continue
+        need(NAME.fullmatch(package.name) and ordinary(package).is_dir(),"Invalid local database package directory")
+        seen[str(package)] = identity(package.lstat())
+        members = list(islice(package.iterdir(),17))
+        need(2<=len(members)<=16 and {"desc","files"}<={path.name for path in members},
+             "Invalid local database package entries")
+        for member in members:
+            need(NAME.fullmatch(member.name),"Invalid local database member")
+            operand = read(member,cap=min(8*1024**2,remaining),collect=False,observed=seen)
+            files[str(member.relative_to(root))] = operand
+            remaining -= operand["bytes"]
+    unchanged(seen)
+    need(not lock.exists() and not lock.is_symlink(),"Unstable local database")
+    return encoded(files)
+
+
+def check_signature_refusal(output, probe, observed=None):
+    raw = read(output/(PROBE_ROLE+".stderr"),cap=8*1024**2,observed=observed)
+    errors = [line for line in raw.splitlines() if line.startswith(b"error:")]
+    expected = f"error: '{probe}': package missing required signature".encode("ascii")
+    need(errors==[expected],"Pacman did not refuse the exact local archive for its missing signature")
+
+
+def run_signature_probe(packet, argv, seconds, run, env, config, observed):
+    relative, probe = probe_operand(packet)
+    signed = packet["files"][relative]
+    probe.parent.mkdir(mode=0o700)
+    with probe.open("xb") as scratch:
+        scratch.write(read(IN/relative,signed,cap=2*1024**2,observed=observed))
+    need(list(probe.parent.iterdir())==[probe],"Unsigned probe must own exactly the copied archive")
+    read(probe,signed,cap=2*1024**2,collect=False)
+    local = TARGET/"var/lib/pacman/local"
+    before = local_database_snapshot(local)
+    (OUTPUT/DB_BEFORE).write_bytes(before)
+    run_operation(PROBE_ROLE,argv,seconds,{},run,env,config)
+    after = local_database_snapshot(local)
+    (OUTPUT/DB_AFTER).write_bytes(after)
+    check_signature_refusal(OUTPUT,probe)
+    need(before==after,"Unsigned probe changed the local package database")
 
 
 def command_ledger(plan):
@@ -527,8 +618,31 @@ def read_lifecycle_outputs(output, plan, completed, observed):
                 snapshots.add(role)
     return {stage:dict(package_count=count,lock=pin(expected[query][0])) for stage,count,query,check in (
         ("before_remove",583,"query","check"),("after_remove",574,"query-base","check-base"),
+        ("after_refusal",574,"query-refused","check-refused"),
         ("after_reinstall",583,"query-restored","check-restored"),
     ) if query in snapshots and check in completed}
+
+
+def read_refusal(output, plan, completed, observed):
+    if PROBE_ROLE not in completed:
+        return None
+    probe = next(argv[-1] for role,argv,_ in plan["operations"] if role==PROBE_ROLE)
+    check_signature_refusal(output,probe,observed)
+    before = read(output/DB_BEFORE,cap=8*1024**2,observed=observed)
+    database = decode(before)
+    need(type(database) is dict and "ALPM_DB_VERSION" in database
+         and len({name.split("/",1)[0] for name in database if "/" in name})==574
+         and len(database)>=1149 and before==encoded(database),"Invalid local database evidence")
+    need(all(isinstance(row,dict) and set(row)=={"bytes","sha256"} and type(row["bytes"]) is int
+             and 0<=row["bytes"]<=8*1024**2 and isinstance(row["sha256"],str) and HEX.fullmatch(row["sha256"])
+             for row in database.values()),"Invalid local database file pins")
+    unchanged_db = pin(before)
+    read(output/DB_AFTER,unchanged_db,cap=8*1024**2,observed=observed)
+    packet = plan["packet"]
+    relative, _ = probe_operand(packet)
+    return dict(package=PROBE_PACKAGE,probe=probe,archive=packet["files"][relative],
+                expected_exit=expected_exit(PROBE_ROLE),
+                diagnostic="package missing required signature",local_database=unchanged_db)
 
 
 def read_lifecycle_result(output, plan, result, held, observed):
@@ -537,7 +651,9 @@ def read_lifecycle_result(output, plan, result, held, observed):
     allowed = evidence_names(plan)
     need("result.json" in available and available <= allowed and (held or available==allowed),
          "Missing or extra guest evidence")
-    expected_status = LIFECYCLE_HOLD if held else LIFECYCLE_PASS
+    recovery = plan.get("signature_recovery") is True
+    passed = RECOVERY_PASS if recovery else LIFECYCLE_PASS
+    expected_status = LIFECYCLE_HOLD if held else passed
     outcome_field = "phase" if held else "installed_lock"
     need(set(result)=={"status","nonce","plan","commands","Root_acceptance",outcome_field}
          and result["status"]==expected_status and result["nonce"]==plan["nonce"]
@@ -564,23 +680,32 @@ def read_lifecycle_result(output, plan, result, held, observed):
             record = ledger[index]
             need(type(record) is dict and set(record)=={"role","argv","exit"}
                  and record["role"]==role and record["argv"]==argv and type(record["exit"]) is int
-                 and (index>=completed_count or record["exit"]==0) and logs<=available,
+                 and (index>=completed_count or record["exit"]==expected_exit(role)) and logs<=available,
                  "Guest lifecycle command ledger differs")
     attempted = {role for role,_ in expected[:attempt_count]}
     for role,name in (("query","installed.lock"),("query-base","removed.lock"),
+                      ("query-refused","refused.lock"),
                       ("query-restored","reinstalled.lock")):
         if role not in attempted:
             need(name not in available,"Unexpected snapshot after lifecycle hold")
     need(not any(name.endswith((".stdout",".stderr")) for name in available & allowed),
          "Unexpected logs after lifecycle hold")
+    need(PROBE_ROLE in attempted or not ({DB_BEFORE,DB_AFTER} & available),
+         "Unexpected local database snapshots before the unsigned probe")
     snapshots = read_lifecycle_outputs(output,plan,completed,observed)
+    refusal = read_refusal(output,plan,completed,observed) if recovery else None
     files = {name:read(output/name,cap=8*1024**2,collect=False,observed=observed)
              for name in sorted(available)}
     need(sum(row["bytes"] for row in files.values()) <= 32*1024**2, "Guest evidence byte budget exceeded")
     unchanged(observed)
-    return dict(status=LIFECYCLE_HOLD if held else "MATCHED_DISPOSABLE_OVERLAY583_LIFECYCLE_EVIDENCE",
+    matched = ("MATCHED_DISPOSABLE_OVERLAY583_SIGNATURE_RECOVERY_EVIDENCE" if recovery
+               else "MATCHED_DISPOSABLE_OVERLAY583_LIFECYCLE_EVIDENCE")
+    report = dict(status=LIFECYCLE_HOLD if held else matched,
                 phase=phase,verified_locks=snapshots,files=files,Root_acceptance=None,
                 Asahi_installation=None,M2=None)
+    if recovery:
+        report["signature_refusal"] = refusal
+    return report
 
 
 def read_result(output, plan, *, held=False):
@@ -618,13 +743,14 @@ def read_result(output, plan, *, held=False):
                 Asahi_installation=None,M2=None)
 
 
-def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection, lifecycle=False):
+def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection, lifecycle=False,
+              signature_recovery=False):
     """Bridge to a selected VM owner. The owner authenticates all actual authority."""
     need(getattr(executor,"API",None)=="ROOT_OWNED_OVERLAY583_VM_V1","Owned disposable ARM VM executor required")
     staging = ordinary(staging)
     packet = choose(staging,selected_lock=PINS)
     plan = guest_plan(admit(packet,read(preflight,preflight_pin,cap=128*1024),preflight_pin),
-                      nonce,lifecycle=lifecycle)
+                      nonce,lifecycle=lifecycle,signature_recovery=signature_recovery)
     worker = ordinary(HERE/"trial.py")
     worker_pin = read(worker,collect=False,cap=128*1024)
     plan_sha = pin(encoded(plan))["sha256"]
@@ -639,7 +765,7 @@ def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection, 
     need(choose(staging,selected_lock=PINS)==packet,"Repository operands changed during the trial")
     read(worker,worker_pin,cap=128*1024,collect=False)
     if result.get("held") is True:
-        need(lifecycle,"Lifecycle opt-in required for hold evidence")
+        need(plan.get("lifecycle"),"Lifecycle opt-in required for hold evidence")
         return read_result(result["evidence"],plan,held=True)
     return read_result(result["evidence"],plan)
 
