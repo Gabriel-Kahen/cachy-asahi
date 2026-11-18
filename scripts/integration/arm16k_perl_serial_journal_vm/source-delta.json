@@ -2,8 +2,8 @@
   "changes": {
     "actor.py": {
       "after": {
-        "bytes": 23766,
-        "sha256": "59707aadad0da17faca172f46016bb15fea23483b3115d5de183376394c9aef6"
+        "bytes": 23853,
+        "sha256": "ebc898c8c1199d436015e31c180ef9525fbcfcea9fc1c343b8a94e3b5b646874"
       },
       "before": {
         "bytes": 22885,
@@ -68,6 +68,21 @@
           "before": [
             " preservation=I.preserve(before,after,cert['baseline_certificate']['inventory'],cert['runtime_certificate'])\n",
             " # Bounded exact ordinary DATA only, read from the disposable verification copy.\n"
+          ]
+        },
+        {
+          "after": [
+            " 'RESULT_MEMBERSHIP':'exact durable result membership',\n",
+            " 'RECEIPT_MEMBERSHIP':'exact reviewed receipt allowlist',\n",
+            " 'CACHE_RECEIPT_MISMATCH':'exact matching before/after cache receipt size and SHA256',\n",
+            " 'RETAINED_NODE':'ordinary root-owned single-link nonexecutable guest DATA',\n",
+            " 'RETAINED_SIZE':'bounded selected DATA file',\n"
+          ],
+          "before": [
+            " 'RESULT_MEMBERSHIP':'exact durable result membership',\n",
+            " 'RECEIPT_MEMBERSHIP':'exact reviewed receipt allowlist',\n",
+            " 'RETAINED_NODE':'ordinary root-owned single-link nonexecutable guest DATA',\n",
+            " 'RETAINED_SIZE':'bounded selected DATA file',\n"
           ]
         }
       ]
@@ -188,10 +203,103 @@
         }
       ]
     },
+    "retention.py": {
+      "after": {
+        "bytes": 7052,
+        "sha256": "d7fd778f7b046e93f406413db7d6439127ba17b2b752b174317b9ef84ed24b7c"
+      },
+      "before": {
+        "bytes": 6935,
+        "sha256": "19a6d9b0bf563d15ebe9a8e16255282fbd6d238d5afd92fd826f8eb2c8e6377e"
+      },
+      "replace": [
+        {
+          "after": [
+            "  required.update('official-'+n+'.log'for n in('source-import','selected-export','import-stop','import','secret','keys','ownertrust','signature','stop'))\n",
+            " if runtime['restoration_allowances']['pacman_log_before']is None:required.add('pacman-log-before.absent')\n",
+            " return required\n",
+            "\n",
+            "def select(nodes,runtime,limits):\n",
+            " K=module('contracts');P=module('proof');required=receipt_names(runtime)\n",
+            " results=set(P.LOGS)|{'outputs.sha256','summary.env','before-alpm-provider-observation.tsv'}\n",
+            " results.update(str(i)+'.elf'for i,p in enumerate(sorted(p for p in runtime['elfs']if runtime['files'][p]['owner']=='perl')))\n"
+          ],
+          "before": [
+            "  required.update('official-'+n+'.log'for n in('source-import','selected-export','import-stop','import','secret','keys','ownertrust','signature','stop'))\n",
+            " if runtime['restoration_allowances']['pacman_log_before']is None:required.add('pacman-log-before.absent')\n",
+            " pairs=[{n+'.saved',n+'.absent'}for n in('_etc_ld.so.cache','_var_cache_ldconfig_aux-cache')]\n",
+            " return required,pairs,{'ldconfig-directory.absent'}\n",
+            "\n",
+            "def select(nodes,runtime,limits):\n",
+            " K=module('contracts');P=module('proof');required,pairs,optional=receipt_names(runtime)\n",
+            " results=set(P.LOGS)|{'outputs.sha256','summary.env','before-alpm-provider-observation.tsv'}\n",
+            " results.update(str(i)+'.elf'for i,p in enumerate(sorted(p for p in runtime['elfs']if runtime['files'][p]['owner']=='perl')))\n"
+          ]
+        },
+        {
+          "after": [
+            "  names=set(rows)\n",
+            "  if group=='results':K.need(names==results,'exact durable result membership')\n",
+            "  else:K.need(names==required,'exact reviewed receipt allowlist')\n",
+            "  K.need(len(rows)<=128,'bounded flat DATA count')\n",
+            "  for name,row in rows.items():\n"
+          ],
+          "before": [
+            "  names=set(rows)\n",
+            "  if group=='results':K.need(names==results,'exact durable result membership')\n",
+            "  else:\n",
+            "   K.need(required<=names and names<=required|optional|set().union(*pairs),'exact reviewed receipt allowlist')\n",
+            "   K.need(all(len(names&pair)==1 for pair in pairs),'one saved/absent receipt per cache path')\n",
+            "  K.need(len(rows)<=128,'bounded flat DATA count')\n",
+            "  for name,row in rows.items():\n"
+          ]
+        },
+        {
+          "after": [
+            "   if name.endswith('.absent'):K.need(row['size']==0,'empty absence marker')\n",
+            "   selected[group+'/'+name]=row\n",
+            " before=selected['receipts/before.cache'];after=selected['receipts/after.cache']\n",
+            " K.need(before['size']==after['size'] and K.sha(before.get('sha256')) and before['sha256']==after.get('sha256'),\n",
+            "        'exact matching before/after cache receipt size and SHA256')\n",
+            " K.need(sum(r['size']for r in selected.values())+MANIFEST_CAP<=min(limits['guest_output_cap_bytes'],limits['logs_cap_bytes']),'combined results/receipts/manifest byte budget')\n",
+            " return dict(sorted(selected.items()))\n"
+          ],
+          "before": [
+            "   if name.endswith('.absent'):K.need(row['size']==0,'empty absence marker')\n",
+            "   selected[group+'/'+name]=row\n",
+            " K.need(sum(r['size']for r in selected.values())+MANIFEST_CAP<=min(limits['guest_output_cap_bytes'],limits['logs_cap_bytes']),'combined results/receipts/manifest byte budget')\n",
+            " return dict(sorted(selected.items()))\n"
+          ]
+        },
+        {
+          "after": [
+            "  for name in names:\n",
+            "   relative=group+'/'+name;row=value['files'][relative];K.keys(row,('bytes','sha256','mode'),'retained file')\n",
+            "   p=K.ordinary(root/name);st=p.lstat()\n",
+            "   K.need(stat.S_ISREG(st.st_mode)and st.st_nlink==1 and stat.S_IMODE(st.st_mode)==row['mode']==0o600,\n",
+            "          'ordinary exact retained host DATA')\n",
+            "   observed=K.pin(p,24*1024**2)\n",
+            "   K.need(observed=={k:row[k]for k in('bytes','sha256')},'ordinary exact retained host DATA')\n",
+            "   synthetic[PREFIX+relative]=dict(type='file',links=1,uid=0,gid=0,mode=0o600,\n",
+            "                                   size=observed['bytes'],sha256=observed['sha256'])\n",
+            " selected=select(synthetic,runtime,limits)\n",
+            " K.need(set(selected)==set(value['files'])and len(selected)==reference['files']and sum(r['size']for r in selected.values())==reference['bytes'],'complete retained manifest totals')\n"
+          ],
+          "before": [
+            "  for name in names:\n",
+            "   relative=group+'/'+name;row=value['files'][relative];K.keys(row,('bytes','sha256','mode'),'retained file')\n",
+            "   p=K.ordinary(root/name);st=p.lstat();K.need(stat.S_ISREG(st.st_mode)and st.st_nlink==1 and stat.S_IMODE(st.st_mode)==row['mode']==0o600 and K.pin(p,24*1024**2)=={k:row[k]for k in('bytes','sha256')},'ordinary exact retained host DATA')\n",
+            "   synthetic[PREFIX+relative]=dict(type='file',links=1,uid=0,gid=0,mode=0o600,size=st.st_size)\n",
+            " selected=select(synthetic,runtime,limits)\n",
+            " K.need(set(selected)==set(value['files'])and len(selected)==reference['files']and sum(r['size']for r in selected.values())==reference['bytes'],'complete retained manifest totals')\n"
+          ]
+        }
+      ]
+    },
     "test_controls.py": {
       "after": {
-        "bytes": 86277,
-        "sha256": "290ff521407b7c0df4fd0f2843ac3e75f73d018f00e67a104ea91e451358ac62"
+        "bytes": 87578,
+        "sha256": "15c66bc69b414958005104691006a37895292269a417e206d6997127acd949b8"
       },
       "before": {
         "bytes": 86189,
@@ -240,13 +348,105 @@
             "  wire=prefix+phase('INSTALLED',P.INSTALLED)*2+phase('PROBE',P.PROBE)\n",
             "  with self.assertRaisesRegex(ValueError,'out-of-order'):P.journey(B.Serial(Stream(),time.monotonic()+5),'SYNTHETIC_PASSWORD',base,nonce,lambda data,n:session)\n"
           ]
+        },
+        {
+          "after": [
+            "  limits=dict(log_bytes=1024**2,guest_output_cap_bytes=256*1024**2,logs_cap_bytes=64*1024**2)\n",
+            "  packet=dict(nonce='a'*32,Source_lock=pin('source'));case_pin=pin('packet')\n",
+            "  required=T.receipt_names(rt);names={'receipts/'+n for n in required}\n",
+            "  self.assertEqual(len(required),67)\n",
+            "  names|={'results/'+n for n in F.LOGS}|{'results/'+n for n in('outputs.sha256','summary.env','before-alpm-provider-observation.tsv')}\n",
+            "  names|={'results/'+str(i)+'.elf'for i,p in enumerate(sorted(p for p in rt['elfs']if rt['files'][p]['owner']=='perl'))}\n",
+            "  nodes={T.PREFIX+g:dict(type='directory',uid=0,gid=0,mode=0o700)for g in('results','receipts')};content={}\n",
+            "  for i,name in enumerate(sorted(names),1):\n",
+            "   body=(b'' if name.endswith('.absent') else b'MODEL_CACHE_SNAPSHOT' if name in ('receipts/before.cache','receipts/after.cache')\n",
+            "         else ('MODEL_DATA_'+name).encode());content[i]=body\n",
+            "   nodes[T.PREFIX+name]=dict(inode=i,type='file',links=1,uid=0,gid=0,mode=0o600,size=len(body),sha256=hashlib.sha256(body).hexdigest())\n",
+            "  class Reader:\n"
+          ],
+          "before": [
+            "  limits=dict(log_bytes=1024**2,guest_output_cap_bytes=256*1024**2,logs_cap_bytes=64*1024**2)\n",
+            "  packet=dict(nonce='a'*32,Source_lock=pin('source'));case_pin=pin('packet')\n",
+            "  required,pairs,optional=T.receipt_names(rt);names={'receipts/'+n for n in required|{sorted(pair)[0]for pair in pairs}}\n",
+            "  names|={'results/'+n for n in F.LOGS}|{'results/'+n for n in('outputs.sha256','summary.env','before-alpm-provider-observation.tsv')}\n",
+            "  names|={'results/'+str(i)+'.elf'for i,p in enumerate(sorted(p for p in rt['elfs']if rt['files'][p]['owner']=='perl'))}\n",
+            "  nodes={T.PREFIX+g:dict(type='directory',uid=0,gid=0,mode=0o700)for g in('results','receipts')};content={}\n",
+            "  for i,name in enumerate(sorted(names),1):\n",
+            "   body=b''if name.endswith('.absent')else ('MODEL_DATA_'+name).encode();content[i]=body\n",
+            "   nodes[T.PREFIX+name]=dict(inode=i,type='file',links=1,uid=0,gid=0,mode=0o600,size=len(body),sha256=hashlib.sha256(body).hexdigest())\n",
+            "  class Reader:\n"
+          ]
+        },
+        {
+          "after": [
+            "   with self.assertRaises(ValueError):T.verify(out,ref,rt,packet,case_pin,limits)\n",
+            "   alias.unlink();T.verify(out,ref,rt,packet,case_pin,limits)\n",
+            "   cache='receipts/after.cache';path=out/cache\n",
+            "   for body in (b'MODEL_CACHE_MUTATION',b'SHORT'):\n",
+            "    path.write_bytes(body)\n",
+            "    changed=copy.deepcopy(manifest);changed['files'][cache].update(K.pin(path))\n",
+            "    (out/T.MANIFEST).write_bytes(K.canonical(changed))\n",
+            "    changed_ref=dict(ref,manifest=K.pin(out/T.MANIFEST),bytes=sum(r['bytes'] for r in changed['files'].values()))\n",
+            "    with self.assertRaisesRegex(ValueError,'cache receipt size and SHA256'):\n",
+            "     T.verify(out,changed_ref,rt,packet,case_pin,limits)\n",
+            "  remove_names=T.receipt_names(modeled()[3]);rollback_names=T.receipt_names(modeled(rollback=True)[3])\n",
+            "  self.assertIn('remove.log',remove_names);self.assertNotIn('rollback.log',remove_names);self.assertIn('rollback.log',rollback_names);self.assertNotIn('remove.log',rollback_names)\n",
+            "  key=T.PREFIX+'receipts/base.lock'\n"
+          ],
+          "before": [
+            "   with self.assertRaises(ValueError):T.verify(out,ref,rt,packet,case_pin,limits)\n",
+            "   alias.unlink();T.verify(out,ref,rt,packet,case_pin,limits)\n",
+            "  remove_names=T.receipt_names(modeled()[3])[0];rollback_names=T.receipt_names(modeled(rollback=True)[3])[0]\n",
+            "  self.assertIn('remove.log',remove_names);self.assertNotIn('rollback.log',remove_names);self.assertIn('rollback.log',rollback_names);self.assertNotIn('remove.log',rollback_names)\n",
+            "  key=T.PREFIX+'receipts/base.lock'\n"
+          ]
+        },
+        {
+          "after": [
+            "   bad=copy.deepcopy(nodes);bad[key].update(change)\n",
+            "   with self.assertRaises(ValueError):T.select(bad,rt,limits)\n",
+            "  for name in('secret.key','nested/file','failure.env','ldconfig-directory.absent',\n",
+            "              '_etc_ld.so.cache.saved','_etc_ld.so.cache.absent',\n",
+            "              '_var_cache_ldconfig_aux-cache.saved','_var_cache_ldconfig_aux-cache.absent'):\n",
+            "   bad=copy.deepcopy(nodes);bad[T.PREFIX+'receipts/'+name]=dict(nodes[key])\n",
+            "   with self.assertRaises(ValueError):T.select(bad,rt,limits)\n"
+          ],
+          "before": [
+            "   bad=copy.deepcopy(nodes);bad[key].update(change)\n",
+            "   with self.assertRaises(ValueError):T.select(bad,rt,limits)\n",
+            "  for name in('secret.key','nested/file','failure.env'):\n",
+            "   bad=copy.deepcopy(nodes);bad[T.PREFIX+'receipts/'+name]=dict(nodes[key])\n",
+            "   with self.assertRaises(ValueError):T.select(bad,rt,limits)\n"
+          ]
+        },
+        {
+          "after": [
+            "  with self.assertRaises(ValueError):T.select(bad,rt,limits)\n",
+            "  with self.assertRaises(ValueError):T.select(nodes,rt,dict(limits,logs_cap_bytes=65536))\n",
+            "  for fields in (dict(size=5),dict(sha256='e'*64),dict(sha256=None)):\n",
+            "   bad=copy.deepcopy(nodes);bad[T.PREFIX+'receipts/after.cache'].update(fields)\n",
+            "   with tempfile.TemporaryDirectory()as tmp:\n",
+            "    out=Path(tmp)\n",
+            "    with self.assertRaisesRegex(ValueError,'cache receipt size and SHA256') as failure:\n",
+            "     T.export(Reader(),bad,out,rt,limits,packet,case_pin,lambda:None)\n",
+            "    self.assertEqual(module('actor').failure_fields(failure.exception,rt)['code'],'CACHE_RECEIPT_MISMATCH')\n",
+            "    self.assertEqual(list(out.iterdir()),[])\n",
+            "  with tempfile.TemporaryDirectory()as tmp:\n",
+            "   original=content[nodes[key]['inode']];content[nodes[key]['inode']]=b'WRONG'\n"
+          ],
+          "before": [
+            "  with self.assertRaises(ValueError):T.select(bad,rt,limits)\n",
+            "  with self.assertRaises(ValueError):T.select(nodes,rt,dict(limits,logs_cap_bytes=65536))\n",
+            "  with tempfile.TemporaryDirectory()as tmp:\n",
+            "   original=content[nodes[key]['inode']];content[nodes[key]['inode']]=b'WRONG'\n"
+          ]
         }
       ]
     }
   },
-  "kind": "PERL_ARM16K_SERIAL_JOURNAL_SOURCE_DELTA_V1",
+  "kind": "PERL_ARM16K_SERIAL_JOURNAL_RETENTION_SOURCE_DELTA_V1",
   "successor_lock": {
     "bytes": 60211,
-    "sha256": "10dfe1c1534880f524aac6d1fa6f37e732671c5a51d7bdc8d7c085be4cf5198a"
+    "sha256": "b294b396c747195c14e7328b7ef3444a0f3249aaf2ef289c5edf943660c290d1"
   }
 }

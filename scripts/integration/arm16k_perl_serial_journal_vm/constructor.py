@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -I -B
 # SPDX-License-Identifier: MIT
-"""Build the unissued Perl serial and journal successor from exact Source339."""
+"""Build the unissued Perl serial, journal and retention successor from exact Source339."""
 import argparse
 import json
 import os
@@ -14,7 +14,7 @@ ROOT = HERE.parents[2]
 LOCK = 'source.lock.json'
 SOURCE339 = dict(bytes=3512147, files=339, lock=dict(
     bytes=60210, sha256='7beb4deb63cbd03b34738b41463380b388e67c2a8015b81f7124866e80b17b13'))
-CHANGED = {'actor.py', 'protocol.py', 'test_controls.py'}
+CHANGED = {'actor.py', 'protocol.py', 'retention.py', 'test_controls.py'}
 
 
 def load(path):
@@ -73,8 +73,8 @@ def construct(predecessor, output):
                sum(len(raw) for raw, _ in files.values()) == SOURCE339['bytes'],
                'exact physical Source339 tuple')
     delta = codec.decode(codec.read(HERE / 'source-delta.json')[0])
-    codec.need(delta['kind'] == 'PERL_ARM16K_SERIAL_JOURNAL_SOURCE_DELTA_V1' and
-               delta['changes'].keys() == CHANGED, 'exact serial and journal delta scope')
+    codec.need(delta['kind'] == 'PERL_ARM16K_SERIAL_JOURNAL_RETENTION_SOURCE_DELTA_V1' and
+               delta['changes'].keys() == CHANGED, 'exact serial, journal and retention delta scope')
     del files[LOCK]
     for name, change in delta['changes'].items():
         before, mode = files[name]

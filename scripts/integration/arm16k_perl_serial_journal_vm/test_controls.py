@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -I -B
 # SPDX-License-Identifier: MIT
-"""Actor-free controls for the Perl serial and persistent journal successor."""
+"""Actor-free controls for the Perl serial, journal and retention successor."""
 import copy
 import hashlib
 import importlib.util
@@ -86,6 +86,8 @@ class Controls(unittest.TestCase):
         cls.addClassCleanup(temporary.cleanup)
         work = Path(temporary.name)
         cls.predecessor = cls.constructor.tracked_predecessor(work / 'tracked')
+        # The inherited fixture imports ctypes, whose initializer opens the Python process.
+        importlib.import_module('ctypes')
         sys.addaudithook(fence)
         cls.source = work / 'source'
         cls.pin = cls.constructor.construct(cls.predecessor, cls.source)
@@ -99,7 +101,8 @@ class Controls(unittest.TestCase):
         successor = leaves(self.source)
         self.assertEqual(set(successor), set(original))
         changed = {name for name in original if successor[name] != original[name]}
-        self.assertEqual(changed, {'actor.py', 'protocol.py', 'test_controls.py', 'source.lock.json'})
+        self.assertEqual(changed, {'actor.py', 'protocol.py', 'retention.py', 'test_controls.py',
+                                   'source.lock.json'})
         self.assertEqual({n: mode for n, (_, mode) in successor.items()},
                          {n: mode for n, (_, mode) in original.items()})
         old_lock = original['source.lock.json'][0]
@@ -115,6 +118,15 @@ class Controls(unittest.TestCase):
             self.constructor.construct(self.predecessor, self.source)
         self.assertEqual(leaves(self.source), successor)
         self.assertEqual(leaves(self.predecessor), original)
+
+    def test_initialized_and_legacy_retention_contracts(self):
+        modern = self.source / 'retention.py'
+        self.assertEqual(file_pin(modern.read_bytes()),
+                         dict(bytes=7052, sha256='d7fd778f7b046e93f406413db7d6439127ba17b2b752b174317b9ef84ed24b7c'))
+        for root in (self.source, self.source / '_legacy'):
+            with self.subTest(runtime=root.name):
+                model = module(root, 'test_controls').Controls('test_closed_retained_export_roundtrip_and_refusals')
+                model.debug()
 
     def test_tampered_predecessor_refuses_before_output(self):
         with tempfile.TemporaryDirectory(prefix='perl-journal-mismatched-source-') as name:
