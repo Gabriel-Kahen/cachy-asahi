@@ -39,7 +39,7 @@ HELPERS = {
     f"{C.FAMILY}/pipeline.py": "9a1c8ead909e0a72ca435188e075eff9107dd0700c375db0c6c76db7d69b8024",
     f"{C.FAMILY}/source.py": "ffe26712c63d7f826cdb2185f3c05b1a049534ea81aa4c04a835f4e9e90051ce",
     f"{C.FAMILY}/runner_inputs.py": "6441ca1d47bdb10d0ac8c514f2677e934fa8b6ce05fe4324e21c289989528201",
-    f"{C.FAMILY}/acquire_runner_inputs.py": "a7315c5924eb557f2a8c4dd277ba158e36a95068413c3b63a90d2148721d68e7",
+    f"{C.FAMILY}/acquire_runner_inputs.py": "4c771a358f3a65c10cad3e940b886e768e5cdd4771c21dab8ae5aaae07f6ad3a",
 }
 
 
@@ -66,6 +66,18 @@ class Stage(Enum):
     STORAGE_ALLOCATION_READBACK = auto()
     OWNED_VOLUME_JOIN = auto()
     INPUT_ACQUISITION = auto()
+    INPUT_TRANSFER_WINDOW = auto()
+    INPUT_PORTABLE_COPY = auto()
+    R128_LOG_TOKEN = auto()
+    R128_LOG_API = auto()
+    R128_LOG_REDIRECT = auto()
+    R128_LOG_BODY = auto()
+    R128_LOG_PIN = auto()
+    INPUT_TRUST_STAGING = auto()
+    ACQUISITION_INPUT_CHECK = auto()
+    R128_PACKAGE_REPLAY = auto()
+    PUBLIC_INPUT_RETRIEVAL = auto()
+    ACQUIRED_INPUT_COMMIT = auto()
     INPUT_BINDING = auto()
     INPUT_EXPOSURE = auto()
     ORDINARY_SERVICE_HANDOFF = auto()
@@ -78,12 +90,15 @@ class Stage(Enum):
 
 class ControllerTrace:
     stage = Stage.ROOT_IDENTITY
+    acquisition_detail = None
 
     def mark(self, name):
         self.stage = Stage[name]
 
     def hold(self):
         print("HOLD_QT612_PAIR: " + self.stage.name, file=sys.stderr, flush=True)
+        if self.acquisition_detail is not None:
+            print("HOLD_QT612_ACQUISITION: " + self.acquisition_detail, file=sys.stderr, flush=True)
 
 
 def load(path, name):
@@ -98,12 +113,19 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
-def fetch(url, cap, *, token=None, timeout=8):
+class HTTPReadRefused(ValueError):
+    def __init__(self, status):
+        self.reason = f"HTTP_{status}" if type(status) is int and 100 <= status <= 599 else "HTTP_REFUSAL"
+        super().__init__("SELECTED_HTTP_READ_REFUSED")
+
+
+def fetch(url, cap, *, token=None, timeout=8, mark=lambda _: None):
     headers = {"Accept-Encoding": "identity", "User-Agent": "cachy-asahi-qt612-owner"}
     if url.startswith(API):
         headers["Accept"] = "application/vnd.github+json"
     if token is not None:
         C.need(url == LOG_URL and re.fullmatch("[A-Za-z0-9_]{20,250}", token), "EXACT_R128_READ_CUSTODY")
+        mark("R128_LOG_API")
         headers["Authorization"] = "Bearer " + token
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
     try:
@@ -111,13 +133,15 @@ def fetch(url, cap, *, token=None, timeout=8):
     except urllib.error.HTTPError as error:
         with error:
             if token is None or error.code != 302:
-                raise ValueError("SELECTED_HTTP_READ_REFUSED") from None
+                raise HTTPReadRefused(error.code) from None
             target = error.headers.get("Location", "")
+        mark("R128_LOG_REDIRECT")
         endpoint = urllib.parse.urlsplit(target)
         C.need(endpoint.scheme == "https" and endpoint.username is None and endpoint.password is None
                and endpoint.port in (None, 443) and not endpoint.fragment
                and re.fullmatch(r"[a-z0-9]{1,63}\.blob\.core\.windows\.net", endpoint.hostname or ""),
                "EXACT_R128_SIGNED_DOWNLOAD_REDIRECT")
+        mark("R128_LOG_BODY")
         return fetch(target, cap, timeout=timeout)
     with response:
         C.need(response.status == 200 and response.headers.get("Content-Encoding", "identity") == "identity",
@@ -245,22 +269,30 @@ def portable_plan(acquire, paths, approval):
     return max(1_752_637_011, sum(row["pin"]["bytes"] for row in targets.values()))
 
 
-def transfer_function(acquire, paths, approval, deadline):
+def transfer_function(acquire, paths, approval, deadline, trace):
     def transfer(*, owned_workspace, device, inode, mount_id, portable, output):
+        trace.mark("INPUT_TRANSFER_WINDOW")
         remaining = math.floor(deadline - time.monotonic())
         with acquire.time_limit(remaining):
+            trace.mark("INPUT_PORTABLE_COPY")
             shutil.copytree(paths["portable_selection"].parent, portable)
             work = output.parent
             md4c = work/"md4c-input"
             md4c.mkdir(mode=0o700)
             log = work/"r128-original.log"
+            trace.mark("R128_LOG_TOKEN")
             token = os.environ.pop(TOKEN, "")
             C.need(token, "EXACT_R128_ACTIONS_READ_TOKEN_REQUIRED")
             try:
-                body = fetch(LOG_URL, C.R128_LOG["bytes"], token=token)
+                body = fetch(LOG_URL, C.R128_LOG["bytes"], token=token, mark=trace.mark)
+            except HTTPReadRefused as error:
+                trace.acquisition_detail = error.reason
+                raise
             finally:
                 del token
+            trace.mark("R128_LOG_PIN")
             C.need(C.pin(body) == C.R128_LOG, "EXACT_R128_LOG_ORIGINAL")
+            trace.mark("INPUT_TRUST_STAGING")
             C.write(log, body)
             route = work/"public-route-plan.json"
             C.write(route, C.read(paths["route_plan"], C.MIB, approval["inputs"]["route_plan"]))
@@ -271,7 +303,10 @@ def transfer_function(acquire, paths, approval, deadline):
                         route_plan_sha256=approval["inputs"]["route_plan"]["sha256"],
                         md4c_cert_bytes=C.CERTIFICATE["bytes"], md4c_cert_sha256=C.CERTIFICATE["sha256"])
             try:
-                return acquire.acquire(options, owned_workspace, acquire.open_public())
+                return acquire.acquire(options, owned_workspace, acquire.open_public(), mark=trace.mark)
+            except acquire.AcquisitionError as error:
+                trace.acquisition_detail = f"LEAF_{error.ordinal:04d} {error.reason}"
+                raise
             finally:
                 log.unlink()
                 route.unlink()
@@ -603,7 +638,7 @@ def root_dispatch(args, trace):
     with retained["container_runtime"].Cancellation() as cancellation:
         try:
             prepared = launch.reserve_and_bind(owner, acquire.R,
-                transfer_function(acquire, paths, approval, ends["transfer"]),
+                transfer_function(acquire, paths, approval, ends["transfer"], trace),
                 selection_sha256=approval["inputs"]["portable_selection"]["sha256"], logical_bytes=logical_bytes,
                 stage=trace.mark)
             trace.mark("ORDINARY_SERVICE_HANDOFF")

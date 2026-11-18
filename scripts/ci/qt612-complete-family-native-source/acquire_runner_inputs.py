@@ -46,10 +46,32 @@ KEYRING = "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/"
 QT_MIRROR = "https://qt.mirror.constant.com/archive/qt/6.12/6.12.0/submodules/"
 LIMIT = 2 * 1024**3
 PUBLIC_HOSTS = {"raw.githubusercontent.com", "ca.us.mirror.archlinuxarm.org", "qt.mirror.constant.com"}
+PUBLIC_GUARDS = {"EXACT_PUBLIC_HTTPS_ROUTE_REQUIRED", "EXACT_HTTP_BODY_REQUIRED", "HTTP_CONTENT_LENGTH_MISMATCH",
+                 "HTTP_BODY_OVER_LIMIT", "HTTP_WHOLE_INPUT_PIN_MISMATCH", "SAFE_ACQUIRED_RELATIVE_PATH",
+                 "ACQUIRED_LEAF_REPLACED"}
 
 
 class AcquisitionError(ValueError):
     """Only bounded, safe acquisition diagnostics reach stderr."""
+
+    def __init__(self, name, ordinal, error):
+        self.ordinal = ordinal
+        self.reason = public_failure(error)
+        super().__init__(f"{name}: {self.reason}")
+
+
+def public_failure(error):
+    if isinstance(error, urllib.error.HTTPError) and type(error.code) is int and 100 <= error.code <= 599:
+        return f"HTTP_{error.code}"
+    if isinstance(error, TimeoutError):
+        return "PUBLIC_TIMEOUT"
+    if isinstance(error, urllib.error.URLError):
+        return "PUBLIC_TRANSPORT"
+    if isinstance(error, OSError):
+        return "PUBLIC_IO"
+    if type(error) is ValueError and len(error.args) == 1 and type(error.args[0]) is str and error.args[0] in PUBLIC_GUARDS:
+        return error.args[0]
+    return "PUBLIC_VALIDATION"
 
 
 def diagnostic(error):
@@ -240,7 +262,8 @@ def time_limit(seconds):
         signal.signal(signal.SIGALRM, previous)
 
 
-def acquire(args, workspace, open_url):
+def acquire(args, workspace, open_url, *, mark=lambda _: None):
+    mark("ACQUISITION_INPUT_CHECK")
     portable, plan, md4c, output = map(M.ordinary, (args.portable, args.route_plan, args.md4c_input, args.output))
     log = M.ordinary(args.r128_job_log) if args.r128_job_log else None
     operands = (portable, plan, md4c) + ((log,) if log else ())
@@ -260,19 +283,22 @@ def acquire(args, workspace, open_url):
     M.stream(md4c / (ARCHIVE + ".sig"), chosen["signature"], observed, cap=65_536)
     if log:
         need(not (md4c / ARCHIVE).exists(), "EXACTLY_ONE_MD4C_BODY_SOURCE")
+        mark("R128_PACKAGE_REPLAY")
         raw = M.stream(log, R128_ORIGINAL, observed, cap=R128_ORIGINAL["bytes"], collect=True)
         body = r128_package(raw, chosen["archive"])
     else:
         body = M.stream(md4c / ARCHIVE, chosen["archive"], observed, cap=4 * 1024**2, collect=True)
 
+    mark("PUBLIC_INPUT_RETRIEVAL")
     with tempfile.TemporaryDirectory(prefix=".qt-acquisition-", dir=workspace) as temporary:
         writer = M.Writer(Path(temporary) / "ready")
         try:
-            for name, row in sorted(targets.items()):
+            for ordinal, (name, row) in enumerate(sorted(targets.items()), 1):
                 try:
                     materialize(writer, name, lambda out: receive(open_url, row["url"], row["pin"], out))
                 except (OSError, ValueError) as error:
-                    raise AcquisitionError(f"{name}: {diagnostic(error)}") from None
+                    raise AcquisitionError(name, ordinal, error) from None
+            mark("ACQUIRED_INPUT_COMMIT")
             writer.put(f"operands/dependencies/{ARCHIVE}", raw=body)
             writer.put(f"operands/dependencies/{ARCHIVE}.sig", source=md4c / (ARCHIVE + ".sig"),
                        expected=chosen["signature"], observed=observed)
