@@ -199,3 +199,88 @@ remaining unapproved; top-level original metadata may still correctly say FAIL.
 `proposed_metadata_prepare_status` in the CLI summary and
 `proposed_maintenance.metadata_prepare_status` in the report distinguish them.
 Invalid proposals or failed proposed preparation return1.
+
+## Map authenticated Overlay583 archives to a held candidate
+
+`staged_archives.py` reads an existing composition report and its original
+contract. It reopens the exact Overlay583 repository files and joins the pinned
+authenticated preflight. For each candidate package, it compares the name,
+version, architecture, filename, size and SHA-256. An exact archive can supply
+candidate bytes only when the detached signature also matches the candidate
+catalog, the recorded signer is from the historical ALARM scope, and the
+candidate version preserves any original protected tuple.
+
+```sh
+status=0
+python3 -I -B scripts/port/supported-composition/staged_archives.py \
+  --contract "$contract" --contract-sha256 "$contract_sha256" \
+  --composition "$report" --composition-sha256 "$report_sha256" \
+  --staging "$overlay583" \
+  --preflight "$preflight" --preflight-sha256 "$preflight_sha256" \
+  --output "$output" || status=$?
+test "$status" -eq 2
+```
+
+The report preserves repository choices, original blockers and any optional
+unapproved maintenance inventory. It reports absent archives, different
+versions or bytes, missing catalog pins, TEST signing and protected conflicts.
+An exact match supplies archive bytes only. The command keeps the result on
+HOLD and exits 2 after writing it. Input refusals exit 1. Fresh signature trust,
+source correspondence, Asahi installation, hardware and release remain held.
+
+Run the mapping separately with the retained contract/report pair for each
+profile. Both candidate inventories have 626 packages and preserve the 201
+original protected versions. The separate three-package maintenance proposal
+still holds Python 3.14.8-1 against protected 3.14.7-1.
+
+| Profile | Exact Overlay583 pairs | Catalog operands outside staging | Qt6 Base |
+| --- | ---: | ---: | --- |
+| Original | 330 | 35 | `6.12.0-2` archive body remains missing. |
+| Optional, unapproved | 331 | 34 | `6.12.0-3` matches its own catalog archive and signature. |
+
+The original proposal has 28 missing `extra` operands with exact catalog
+archive and signature pins, and seven `asahi-alarm` operands with exact archive
+pins awaiting detached-signature authentication. There are no missing `core`
+operands in this held profile. The report separately identifies 259 observed
+Asahi base rows that need archive-to-installed-payload binding and two project
+candidates with distinct source requirements.
+
+List the exact catalog operands for a later intake review.
+
+```sh
+jq '.original.missing_catalog_intake_operands' "$output"
+```
+
+Each operand is produced by the existing
+`scripts/platform/authenticate_missing.py::archive_spec` parser. The
+`authenticate_missing.py` command's v1 contract still requires its historical
+150 missing rows and separate Python operand. This mapping supplies the same
+individual operand shape for a separately reviewed intake.
+
+### Retained addition-input readback
+
+The private capsule for the optional Qt profile contains **367 verified
+archive/signature pairs** totaling 593,004,670 bytes. It combines 331 exact
+Overlay583 pairs, 34 subsequently authenticated catalog pairs, and two project
+pairs signed with scoped TEST keys. The 367 inputs cover 365 added names and the
+unapproved NetworkManager and Perl updates. The 259 unchanged observed Asahi
+base packages are outside the addition set. The original metadata policy still
+fails and the optional Qt profile remains unapproved. Production trust,
+installation, rollback and physical M2 validation remain open.
+
+With `ASAHI_ADD_CAPSULE` set to the absolute path of the retained private
+capsule, verify its seal and readback locally.
+
+```sh
+(
+  set -e
+  cd "${ASAHI_ADD_CAPSULE:?set the retained private capsule directory}"
+  printf '%s  %s\n' \
+    dc91526a2416ec4c160d73b5f01491065bfb87501df73de995ca665dee85acc7 \
+    SEAL.DATA.sha256 | sha256sum --check --strict --quiet
+  sha256sum --check --strict --quiet SEAL.DATA.sha256
+  jq -e '.pairs == 367 and .ordinary_artifacts == 734 and .bytes == 593004670
+    and .graph_archive_objects_rehashed and (.original_policy_accepted == false)
+    and .installed_Asahi == null and .physical_M2 == null' READBACK.DATA.json
+)
+```

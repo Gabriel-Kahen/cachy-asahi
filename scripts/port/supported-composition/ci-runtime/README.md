@@ -100,9 +100,10 @@ Docker build was run for it; the new offline image install and suites still need
 the separately owned hosted check.
 
 The image defaults to UID/GID 65534. `run.py` refuses root and any libalpm version
-other than 16.0.1, prints actual runtime identity/scope, and runs only
-`test_compose.py` and `test_maintenance.py`, each with a 120-second timeout and
-`-I -B -Werror::ResourceWarning`. It reads the bind-mounted checkout and writes
+other than 16.0.1, prints the runtime identity and scope, and runs the
+composition, maintenance, staged archive mapping, and signed operand assembly
+suites. Each uses a 120-second timeout and `-I -B -Werror::ResourceWarning`.
+The runner reads the bind-mounted checkout and writes
 only disposable user state under container `/tmp` and `/dev/shm`. Linux shared
 memory tmpfs supplies the real read-induced-atime regression even when host
 `/tmp` has noatime. No checkout content or host state is modified.
