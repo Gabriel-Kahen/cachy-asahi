@@ -8,6 +8,7 @@
         "scripts/integration/arm16k_perl_hold_cleanup_vm/**",
         "scripts/integration/arm16k_perl_initialized_successor_vm/**",
         "scripts/integration/arm16k_perl_observed_hold_successor_vm/**",
+        "scripts/integration/arm16k_perl_serial_journal_vm/**",
         "scripts/integration/arm16k_perl_initialized_guard_diagnostic/**",
         "scripts/integration/arm16k_perl_initialized_lifecycle_vm/**",
         "scripts/integration/arm16k_perl_installed_metadata_diagnostic/**",
@@ -25,6 +26,7 @@
         "scripts/integration/arm16k_perl_hold_cleanup_vm/**",
         "scripts/integration/arm16k_perl_initialized_successor_vm/**",
         "scripts/integration/arm16k_perl_observed_hold_successor_vm/**",
+        "scripts/integration/arm16k_perl_serial_journal_vm/**",
         "scripts/integration/arm16k_perl_initialized_guard_diagnostic/**",
         "scripts/integration/arm16k_perl_initialized_lifecycle_vm/**",
         "scripts/integration/arm16k_perl_installed_metadata_diagnostic/**",
@@ -75,6 +77,11 @@
             "PYTHONDONTWRITEBYTECODE": "1"
           },
           "run": "set -euo pipefail\nulimit -t 180 -v 1048576 -f 16384 -n 128\ntimeout --signal=TERM --kill-after=5s 180s python3 -I -B -Werror::ResourceWarning scripts/ci/perl-observed-hold-source339/check.py\n"
+        },
+        {
+          "name": "Check the initialized serial, journal and receipt successor",
+          "timeout-minutes": 4,
+          "run": "set -euo pipefail\nulimit -t 180 -v 1048576 -f 16384 -n 128\ntimeout --signal=TERM --kill-after=5s 180s python3 -I -B -Werror::ResourceWarning scripts/integration/arm16k_perl_serial_journal_vm/test_controls.py\n"
         }
       ]
     }
