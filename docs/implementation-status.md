@@ -10,14 +10,13 @@
 | Asahi maintenance, emulated AArch64 with 16 KiB pages | R132 ran signed transactions on the exact Asahi Minimal filesystem copy with a generic kernel. The inventory changed 261 → 626 → 626. The reverse transaction restored the original Python, NetworkManager and Perl versions and retained all 365 additions. The guest restored the original initramfs and matched all 362 boot and mount entries. The proposal remains unapproved. [R132 validation](validation/asahi626-maintenance-emulated-arm16k-20261118.md) |
 | Qtbase 6.12, emulated AArch64 with 16 KiB pages | Q3 verified the signed dependency transactions, reached the exact 356-package inventory and passed ordinary-user configure against system md4c. The Markdown importer compiled and QtCore linked with 16 KiB-compatible load segments. QtGui and the full build remain open. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md) · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md) |
 
-The Current606 R8 minimal desktop rehearsal booted the emulated AArch64 guest
-with 16 KiB pages and the exact 606-package lock. The PCI virtio keyboard
-bound successfully, and the **View report** action that stopped R4 passed.
-Independent review verified 11 of 15 required frames and all 15 runtime
-cleanup records before the producer retired. R8 remains held because the
-guest lacked the required IPv6 proc interface before the full installed
-verifier could run. The overlay case remains unrun.
-[Current606 R8 rehearsal](validation/current606-minimal-emulated-arm16k-r8-20261118.md) · [Earlier R4 hold](validation/current606-minimal-emulated-arm16k-r4-20261118.md)
+The Current606 R10 minimal desktop rehearsal booted the exact 606-package
+AArch64 guest with 16 KiB pages, passed the DNS checks that stopped R8, and
+produced all 15 independently verified and visually reviewed desktop frames.
+The final installed-package recheck timed out after the payload traversal
+covered 114,247 nodes. Runtime and producer cleanup passed. Minimal
+acceptance remains held and the overlay case remains unrun.
+[Current606 R10 rehearsal](validation/current606-minimal-emulated-arm16k-r10-20261118.md) · [Earlier R8 IPv6 hold](validation/current606-minimal-emulated-arm16k-r8-20261118.md)
 
 Production repository staging with an approved release signer, stable
 promotion, installed Asahi kernel boot and recovery, both physical M2 Air
