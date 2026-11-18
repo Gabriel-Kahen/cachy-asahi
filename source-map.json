@@ -629,6 +629,11 @@
       "mode": 420,
       "sha256": "383281940f6a181152dcb37f80691bb30879f4191414a915d2c2386e7d73acdb"
     },
+    "provenance/transport-boundary-v1/Source207-inverse.DATA.json": {
+      "bytes": 86303,
+      "mode": 420,
+      "sha256": "5ddfa383d1c274e10004e0b4d29bb53dc14d7901d38240409b377ceeb7d7ac4a"
+    },
     "provenance/v4/delegated-closure.json": {
       "bytes": 10941,
       "mode": 420,
@@ -780,9 +785,9 @@
       "sha256": "521163f6f9504edaa573fa079751d7714065bea2ceef69428e8bc7585e361daa"
     },
     "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py": {
-      "bytes": 68455,
+      "bytes": 68904,
       "mode": 420,
-      "sha256": "2466d2f5244a7a2a6e22adde9d856f734a28d5753828c4030daffeb80c565b71"
+      "sha256": "15ae1014c5fb35f80d85ab6574b692d150c0f58c7610c81b0ab7e3279a4651eb"
     },
     "scripts/ci/first-login-enrollment-native-source/payload/native/image_current_v3.py": {
       "bytes": 55783,
@@ -795,9 +800,9 @@
       "sha256": "ddc4f0da13c4e9d7ab58f2c3fe318343082f320dae105e069336ecb24c4c49cb"
     },
     "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py": {
-      "bytes": 44646,
+      "bytes": 45095,
       "mode": 420,
-      "sha256": "f6f44432af8b699529108ae73d194cd766934c43b0c424b6453d6ee38e85d471"
+      "sha256": "c21b54beb987a5aa2f9869a40c24a0cd71c3a77f71d2b7703183127eb9b1aa60"
     },
     "scripts/ci/first-login-enrollment-native-source/payload/native/owned_current_v3.policy.PROPOSAL.json": {
       "bytes": 8366,
@@ -835,9 +840,9 @@
       "sha256": "0aed986194a009fd1dcce5b244b1c6ccb1e0c11667a9674bdf12c657cc1c9fe7"
     },
     "scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py": {
-      "bytes": 45425,
+      "bytes": 47757,
       "mode": 420,
-      "sha256": "fcdcc703b99083f5dfb8b29026718d54fc99015c7c66b5b320e2da1d7a8cb1cc"
+      "sha256": "ce14a0e432802b9067a0dbfb21b5092e667b07e180733503062779ddb275f435"
     },
     "scripts/ci/first-login-enrollment-native-source/prepare.py": {
       "bytes": 15159,
@@ -1002,7 +1007,7 @@
     "scripts/ci/first-login-enrollment-native-source/successor_v7_source/program.json": {
       "bytes": 15135,
       "mode": 420,
-      "sha256": "6b275a8634b95e83471dc7ff4c187fae200789e9989c92c456ad3723455658dd"
+      "sha256": "7f78a0ca8836a6bc9418a6f18bdd9319a9ddc4c8f94fabfa2aa22f47704c0b57"
     },
     "scripts/ci/fish-config02-native-source/successor_v2/host_prerequisites.py": {
       "bytes": 13845,

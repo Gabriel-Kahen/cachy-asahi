@@ -61,9 +61,9 @@
       "sha256": "521163f6f9504edaa573fa079751d7714065bea2ceef69428e8bc7585e361daa"
     },
     "hosted_launcher": {
-      "bytes": 68455,
+      "bytes": 68904,
       "member": "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
-      "sha256": "2466d2f5244a7a2a6e22adde9d856f734a28d5753828c4030daffeb80c565b71"
+      "sha256": "15ae1014c5fb35f80d85ab6574b692d150c0f58c7610c81b0ab7e3279a4651eb"
     },
     "image": {
       "bytes": 55783,
@@ -86,9 +86,9 @@
       "sha256": "f1a91dee080f76eff88409dd1fe893dc45a2084338017f367ec9874a462a612d"
     },
     "material_domain_executor": {
-      "bytes": 44646,
+      "bytes": 45095,
       "member": "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
-      "sha256": "f6f44432af8b699529108ae73d194cd766934c43b0c424b6453d6ee38e85d471"
+      "sha256": "c21b54beb987a5aa2f9869a40c24a0cd71c3a77f71d2b7703183127eb9b1aa60"
     },
     "material_transport": {
       "bytes": 12375,
@@ -96,9 +96,9 @@
       "sha256": "46708771ccb93bbfe22c4f449f3a54052bc9494c4fb572e10b0853b5aa47bdef"
     },
     "materials_stager": {
-      "bytes": 45425,
+      "bytes": 47757,
       "member": "scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py",
-      "sha256": "fcdcc703b99083f5dfb8b29026718d54fc99015c7c66b5b320e2da1d7a8cb1cc"
+      "sha256": "ce14a0e432802b9067a0dbfb21b5092e667b07e180733503062779ddb275f435"
     },
     "owned_process": {
       "bytes": 25140,
@@ -212,9 +212,9 @@
       "sha256": "521163f6f9504edaa573fa079751d7714065bea2ceef69428e8bc7585e361daa"
     },
     "hosted_launcher": {
-      "bytes": 68455,
+      "bytes": 68904,
       "member": "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
-      "sha256": "2466d2f5244a7a2a6e22adde9d856f734a28d5753828c4030daffeb80c565b71"
+      "sha256": "15ae1014c5fb35f80d85ab6574b692d150c0f58c7610c81b0ab7e3279a4651eb"
     },
     "image": {
       "bytes": 55783,
@@ -232,9 +232,9 @@
       "sha256": "ddc4f0da13c4e9d7ab58f2c3fe318343082f320dae105e069336ecb24c4c49cb"
     },
     "material_domain_executor": {
-      "bytes": 44646,
+      "bytes": 45095,
       "member": "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
-      "sha256": "f6f44432af8b699529108ae73d194cd766934c43b0c424b6453d6ee38e85d471"
+      "sha256": "c21b54beb987a5aa2f9869a40c24a0cd71c3a77f71d2b7703183127eb9b1aa60"
     },
     "material_transport": {
       "bytes": 12375,
@@ -242,9 +242,9 @@
       "sha256": "46708771ccb93bbfe22c4f449f3a54052bc9494c4fb572e10b0853b5aa47bdef"
     },
     "materials_stager": {
-      "bytes": 45425,
+      "bytes": 47757,
       "member": "scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py",
-      "sha256": "fcdcc703b99083f5dfb8b29026718d54fc99015c7c66b5b320e2da1d7a8cb1cc"
+      "sha256": "ce14a0e432802b9067a0dbfb21b5092e667b07e180733503062779ddb275f435"
     },
     "owned_process": {
       "bytes": 25140,

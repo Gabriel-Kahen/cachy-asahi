@@ -38,8 +38,8 @@ FAILURE_KIND='CURRENT_MATERIAL_STAGE_FAILURE_V2'
 FAILURE_BYTES=1024
 FAILURE_PHASES=('ENTRY','AUTHORIZE','SOURCE','NATIVE_CONTEXT','INPUTS','HELPERS','TOOLS','STORAGE','SCOPE','TRANSPORT_PUBLIC14','TRANSPORT_NATIVE248','PRIVATE_SEED','PUBLIC14_PREPARE','NATIVE248_PREPARE','DOWNLOAD','COMPLETE517','FINALIZE','CHILD')
 FAILURE_REASONS=('PHASE_FAILED','COMMAND_FAILED')
-TRANSPORT_PHASES=('ADMISSION','SETUP','METADATA_FETCH','METADATA_PROOF','REQUIRED_BLOBS_FETCH','COMPLETE_OBJECT_PROOF','MATERIALIZATION','FINAL_NAMESPACE_PROOF')
-TRANSPORT_OPERATIONS=('DELIVERY','VALIDATE_PROFILE','VALIDATE_POLICY','VALIDATE_URL','PATH_OPEN','RECEIPT_WRITE','GIT_INIT','GIT_FETCH_METADATA','GIT_FETCH_BLOBS','GIT_REV_PARSE','GIT_COMMIT_READ','GIT_TREE_READ','GIT_OBJECT_INVENTORY','GIT_BLOB_READ','GIT_UPDATE_REF','NAMESPACE_VERIFY','FILE_VERIFY','DEADLINE')
+TRANSPORT_PHASES=('ADMISSION','SETUP','METADATA_FETCH','METADATA_PROOF','REQUIRED_BLOBS_FETCH','COMPLETE_OBJECT_PROOF','MATERIALIZATION','FINAL_NAMESPACE_PROOF','STAGING_SUPERVISION')
+TRANSPORT_OPERATIONS=('DELIVERY','VALIDATE_PROFILE','VALIDATE_POLICY','VALIDATE_URL','PATH_OPEN','RECEIPT_WRITE','GIT_INIT','GIT_FETCH_METADATA','GIT_FETCH_BLOBS','GIT_REV_PARSE','GIT_COMMIT_READ','GIT_TREE_READ','GIT_OBJECT_INVENTORY','GIT_BLOB_READ','GIT_UPDATE_REF','NAMESPACE_VERIFY','FILE_VERIFY','DEADLINE','STAGING_COMMAND_GUARD','STAGING_CHILD_START','STAGING_CHILD_WAIT','STAGING_CHILD_CENSUS','STAGING_CHILD_OUTPUT','STAGING_CHILD_RETIREMENT','STAGING_CHILD_FRAME','STAGING_CHILD_ADMISSION')
 TRANSPORT_ERRORS=('VALIDATION','OS_ERROR','TIMEOUT','UNICODE','JSON','CONTROL','OTHER')
 TRANSPORT_ERRNOS=(1,2,5,9,12,13,17,18,20,21,22,24,27,28,30,32,36,40,101,104,110,111,113)
 
@@ -52,6 +52,8 @@ def transport_packet(value):
  if value['errno']is not None and(type(value['errno'])is not int or value['errno']not in TRANSPORT_ERRNOS):return False
  if value['command_ordinal']is not None and(type(value['command_ordinal'])is not int or not 0<=value['command_ordinal']<1170):return False
  if value['git_exit']is not None and(type(value['git_exit'])is not int or not -255<=value['git_exit']<=255):return False
+ if (value['phase']=='STAGING_SUPERVISION')!=value['operation'].startswith('STAGING_'):return False
+ if value['phase']=='STAGING_SUPERVISION' and not(value['command_ordinal']is value['git_exit']is value['git_timeout']is None):return False
  return (value['git_timeout']is None or type(value['git_timeout'])is bool)and value['http_status']is None
 # Exact Source139 parent helpers. Preserve paths: their original relative imports
 # and canonical/owned-process resolution must not resolve outside reviewed code.
@@ -94,7 +96,7 @@ def failure_packet(diagnostic):
  need(len(raw)<=FAILURE_BYTES,'unchanged failure packet bound');return raw
 
 
-def transport_failure(error,T):
+def transport_failure(error,T=None):
  """Read finite facts only from exact frozen transport/core code objects."""
  value=dict(schema=1,kind='CURRENT_RETAINED_TRANSPORT_FAILURE_V1',phase='ADMISSION',operation='DELIVERY',
   error_class='OTHER',errno=None,command_ordinal=None,git_exit=None,git_timeout=None,http_status=None)
@@ -105,6 +107,7 @@ def transport_failure(error,T):
  elif isinstance(error,ValueError):value['error_class']='VALIDATION'
  elif isinstance(error,(KeyboardInterrupt,SystemExit)):value['error_class']='CONTROL'
  if isinstance(error,OSError)and type(error.errno)is int and error.errno in TRANSPORT_ERRNOS:value['errno']=error.errno
+ if T is None:return value
  frames=[];points={};tb=error.__traceback__
  while tb is not None and len(frames)<64:
   frames.append(tb.tb_frame);points[id(tb.tb_frame)]=tb.tb_lineno;tb=tb.tb_next
@@ -151,13 +154,26 @@ def transport_failure(error,T):
  need(transport_packet(value),'finite classified transport DATA');return value
 
 
+def scoped_transport_failure(diagnostic,error,operation):
+ """Retain fixed staging-side facts with no native Git result or raw streams."""
+ if diagnostic is None or diagnostic.get('transport') is not None:return
+ if diagnostic.get('phase') not in ('TRANSPORT_PUBLIC14','TRANSPORT_NATIVE248','CHILD'):return
+ value=transport_failure(error)
+ value.update(phase='STAGING_SUPERVISION',operation=operation)
+ if transport_packet(value):diagnostic['transport']=value
+
+
+def complete_transport_child(row):
+ return (type(row)is dict and type(row.get('exit'))is int and row['exit']!=0
+  and row.get('reaped')is True and row.get('ownership')=='REAPED'and row.get('group_census')=='EMPTY_TWICE'
+  and row.get('output_complete')is True and row.get('signals')==[]and row.get('timeout')is False and row.get('error')is None)
+
+
 def retain_transport_failure(diagnostic,row,raw):
  """Only a complete naturally retired failed transport child may contribute."""
  try:
   if type(diagnostic)is not dict or diagnostic.get('phase')not in('TRANSPORT_PUBLIC14','TRANSPORT_NATIVE248'):return False
-  if type(row)is not dict or type(row.get('exit'))is not int or row['exit']==0:return False
-  if not(row.get('reaped')is True and row.get('ownership')=='REAPED'and row.get('group_census')=='EMPTY_TWICE'
-   and row.get('output_complete')is True and row.get('signals')==[]and row.get('timeout')is False and row.get('error')is None):return False
+  if not complete_transport_child(row):return False
   if type(raw)is not bytes or not 0<len(raw)<=FAILURE_BYTES:return False
   packet=decoded(raw)
   if raw!=failure_packet(dict(phase=packet['phase'],reason=packet['reason'],command_ordinal=packet['command_ordinal'],transport=packet['transport'])):return False
@@ -321,6 +337,7 @@ class Runner:
   need(time.monotonic()+seconds<self.end,'entire held original command budget fits shared deadline')
   index=len(self.rows);stdout=self.out/('command-%02d.stdout'%index);stderr=self.out/('command-%02d.stderr'%index)
   child=None;row=None;failure=None;finish=time.monotonic()+seconds
+  monitor='STAGING_CHILD_START'
   environment=dict(PATH='/usr/bin:/usr/sbin:/bin',HOME=str(self.out/'empty-home'),LC_ALL='C',PYTHONDONTWRITEBYTECODE='1')
   if env is not None:environment.update(env)
   def limits():
@@ -329,27 +346,52 @@ class Runner:
   with stdout.open('xb')as so,stderr.open('xb')as se:
    try:
     self.O.prepare();child=subprocess.Popen(argv,stdin=subprocess.DEVNULL,stdout=so,stderr=se,cwd=self.out,env=environment,start_new_session=True,preexec_fn=limits)
+    monitor='STAGING_CHILD_WAIT'
     while os.waitid(os.P_PID,child.pid,os.WEXITED|os.WNOWAIT|os.WNOHANG)is None:
-     census(self.out,finish-2);need(os.fstat(so.fileno()).st_size+os.fstat(se.fileno()).st_size<=131072,'finite child diagnostics');time.sleep(.05)
-   except BaseException as error:failure=error
+     monitor='STAGING_CHILD_CENSUS'
+     census(self.out,finish-2)
+     monitor='STAGING_CHILD_OUTPUT'
+     need(os.fstat(so.fileno()).st_size+os.fstat(se.fileno()).st_size<=131072,'finite child diagnostics')
+     time.sleep(.05);monitor='STAGING_CHILD_WAIT'
+   except BaseException as error:
+    failure=error;scoped_transport_failure(self._diagnostic,error,monitor)
    finally:
     environment.clear()
     if env is not None:env.clear()
     if child is not None:
      left=finish-time.monotonic()
      if left<=0 and failure is None:failure=TimeoutError('original command budget exhausted; retirement only')
-     row=self.O.supervise(child,cap=max(.1,left),retirement=min(.4,max(.05,left/2)),grace=.01,streams=(),max_output=0)
+     try:
+      row=self.O.supervise(child,cap=max(.1,left),retirement=min(.4,max(.05,left/2)),grace=.01,streams=(),max_output=0)
+     except BaseException as error:
+      scoped_transport_failure(self._diagnostic,error,'STAGING_CHILD_RETIREMENT');raise
   try:
-   need(stdout.stat().st_size+stderr.stat().st_size<=131072,'complete bounded diagnostics')
-   raw=stdout.read_bytes();record=dict(argv=argv,natural=False,Root_acceptance=None)
+   try:
+    need(stdout.stat().st_size+stderr.stat().st_size<=131072,'complete bounded diagnostics')
+    raw=stdout.read_bytes()
+   except BaseException as error:
+    scoped_transport_failure(self._diagnostic,error,'STAGING_CHILD_OUTPUT');raise
+   record=dict(argv=argv,natural=False,Root_acceptance=None)
    # Never retain raw private-seed stdout/stderr or environment values.
-   if failure is not None:raise failure
+   if failure is not None:
+    scoped_transport_failure(self._diagnostic,failure,'STAGING_CHILD_RETIREMENT');raise failure
    try:natural(row)
-   except BaseException:
-    try:retain_transport_failure(self._diagnostic,row,stderr.read_bytes())
-    except BaseException:pass
+   except BaseException as error:
+    complete=complete_transport_child(row)
+    if complete:
+     try:
+      # Examine a finite complete frame; never copy any raw child stderr.
+      with stderr.open('rb') as stream:
+       retain_transport_failure(self._diagnostic,row,stream.read(FAILURE_BYTES+1))
+     except BaseException:pass
+    operation='STAGING_CHILD_FRAME' if complete else 'STAGING_CHILD_RETIREMENT'
+    observed=TimeoutError() if type(row)is dict and row.get('timeout')is True else error
+    scoped_transport_failure(self._diagnostic,observed,operation)
     raise
-   record['natural']=True;self.rows.append(record);census(self.out,self.end)
+   record['natural']=True;self.rows.append(record)
+   try:census(self.out,self.end)
+   except BaseException as error:
+    scoped_transport_failure(self._diagnostic,error,'STAGING_CHILD_CENSUS');raise
    if self._diagnostic is not None:diagnostic_phase(self._diagnostic,self._diagnostic['phase'])
    return raw
   finally:stdout.unlink();stderr.unlink()
@@ -476,6 +518,7 @@ def stage_materials(*,source_root,delegation_raw,delegation_sha256,context,grant
   return _stage_materials(source_root=source_root,delegation_raw=delegation_raw,delegation_sha256=delegation_sha256,context=context,
    grant_raw=grant_raw,grant_sha256=grant_sha256,output=output,secret_provider=secret_provider,base_lock=base_lock,bootstrap_profile=bootstrap_profile,_diagnostic=diagnostic)
  except BaseException as error:
+  scoped_transport_failure(diagnostic,error,'STAGING_COMMAND_GUARD')
   emit_failure(diagnostic,error);raise
  finally:
   if type(secret_provider)is OneShotSecrets:secret_provider.close()
@@ -547,4 +590,6 @@ if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('mode',choices=('transport','prepare','private-seed','download'));p.add_argument('--request',type=Path,required=True);p.add_argument('--request-sha256',required=True);p.add_argument('--which',choices=('public14','native248'));a=p.parse_args()
  try:child_main(a.mode,a.request,a.request_sha256,a.which)
  except BaseException as error:
-  emit_failure(dict(phase='CHILD',reason='PHASE_FAILED',command_ordinal=None,transport=getattr(error,'_current_transport_failure',None)));raise SystemExit(2)from None
+  diagnostic=dict(phase='CHILD',reason='PHASE_FAILED',command_ordinal=None,transport=getattr(error,'_current_transport_failure',None))
+  if a.mode=='transport':scoped_transport_failure(diagnostic,error,'STAGING_CHILD_ADMISSION')
+  emit_failure(diagnostic);raise SystemExit(2)from None
