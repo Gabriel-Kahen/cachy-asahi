@@ -322,6 +322,15 @@ jobs:
           python3 -I -B -Werror::ResourceWarning "$lane/test_prepare.py"
           python3 -I -B -Werror::ResourceWarning "$lane/test_rehearsal.py"
           python3 -I -B -Werror::ResourceWarning scripts/integration/qt612_rootfs_trust_check/test_check.py
+      - name: Check offline Qtbase compile continuation and link preflight
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        run: |
+          lane=scripts/integration/qt612_md4c_compile
+          bash -n "$lane/guest.sh"
+          for test in test_prepare.py test_actor.py test_readback.py test_storage.py; do
+            python3 -I -B -Werror::ResourceWarning "$lane/$test"
+          done
+          python3 -I -B -Werror::ResourceWarning scripts/integration/qt612_base_16k_link_preflight/test_preflight.py
       - name: Check explicit lock and ordered suspend without a desktop session
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |

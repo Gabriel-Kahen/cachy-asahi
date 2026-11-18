@@ -27,3 +27,10 @@ SHA-256 `f60a619b67c097cb90cbcbdd24ba35dc23c367a735c26430583685e4d1729f21`.
 This result covers dependency installation and configure in the emulator.
 The full Qt build, native 16 KiB hardware, and physical M2 validation remain
 unrun. [Portable rehearsal](../../scripts/integration/qt612_base_16k_rehearsal/README.md)
+
+The separate r4 guest compiled the Markdown importer against the installed
+system md4c. The independent reader verified the resulting 79,240-byte
+AArch64 object and its executable relocation to `md_parse`. The next link
+checkpoint is QtCore, which requires 321 commands in the retained Ninja
+graph. [Importer result](../../scripts/integration/qt612_md4c_compile/README.md#historical-actual-validation),
+[QtCore link preflight](../../scripts/integration/qt612_base_16k_link_preflight/README.md)
