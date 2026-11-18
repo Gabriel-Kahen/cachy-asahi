@@ -1,12 +1,14 @@
 # Implementation and acceptance status
 
+November 18 — [Reproducible native AArch64 builds passed for md4c 0.5.3 and Fish 0.1.0-2](validation/native-fish-md4c-reproducibility-20261118.md). The exact md4c package has a scoped TEST signature for the Qt fixture. Fish passed the signed upgrade, ordinary-user CDPATH regression and rollback in an emulated ARM guest with 16 KiB pages. All 583 package versions were restored.
+
 November 17 — [Offline Overlay583 installation, removal, signature recovery, the Setup7-to-Setup8 upgrade, and installed shell first login passed on emulated ARM16K](validation/offline-overlay583-emulated-install-20261117.md).
 
 November 17 — [Perl 5.42.3-1.3 passed its emulated AArch64 16 KiB lifecycle on Source391](validation/perl5423-emulated-arm16k-lifecycle-20261117.md).
 
 November16: [LLVM23.1.1 native ARM4K source-reference build and smoke checks pass independent qualification](validation/llvm23-native-source-reference-20261116.md), including the complete package and100 ELF objects. This is one build, with no clean-build pair, global ALPM installation, native16K/M2, performance or release acceptance. Private TEST signing and durable public proof retention remain pending.
 
-November15: Fish0.1.0-2 fixes `caa_mcd` entering a CDPATH-selected directory instead of the directory it just created. Real-shell controls and a normal host package build pass with the semantic regression in `check()`; the old configuration fails that check before packaging. Current native ARM qualification is **NOT RUN**. The prior0.1.0-1 pair remains separate evidence. See the [candidate results](../packages/shells/cachy-asahi-fish-config/README.md) and [package inventory](../manifests/packages.toml).
+November 15 — Fish 0.1.0-2 fixes `caa_mcd` entering a CDPATH-selected directory after creating a local directory. Real-shell controls and a host package build passed. The old configuration failed the semantic check before packaging. The [candidate results](../packages/shells/cachy-asahi-fish-config/README.md) document that host test and the separate older pair. The [November 18 native pair](validation/native-fish-md4c-reproducibility-20261118.md) qualifies the current build. See also the [package inventory](../manifests/packages.toml).
 
 November 15: [The Perl 5.42.3 native ARM4K pair is Root accepted for build reproducibility](validation/perl5423-native-arm4k-pair-20261115.md): both complete upstream harnesses pass and the two 22,071,176-byte packages are byte-identical. The result records 157 whole-file skips and fakeroot warnings per build; external XS, installation/removal, native 16K, M2 and release remain open. [The separate ARM16K UI-seat kernel cross-build also passes](validation/arm16k-ui-seat-reference-kernel-build-20261115.md), adding virtio keyboard input to the tested RTC configuration; its first guest boot and real seat remain NOT RUN.
 
