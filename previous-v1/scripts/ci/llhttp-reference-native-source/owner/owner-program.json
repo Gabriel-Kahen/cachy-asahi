@@ -1,0 +1,81 @@
+{
+  "base_source_map_sha256": "3dfec4fbafe1d247c3df121f21c8510d279ae9f5aeb5c664500a045a47b6569b",
+  "files": {
+    ".github/workflows/native-arm-llhttp-reference-source.yml": {
+      "bytes": 6201,
+      "mode": 420,
+      "sha256": "2ba05dea048406382cf0285c1a73f56b8671c8a322ffd2636ae41ddc64d82c99"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/llhttp-reference-native-source/README.md": {
+      "bytes": 7414,
+      "mode": 420,
+      "sha256": "97629e002c6f7603bf8c0379f446188217d835ade06bf691ca79c6b990af3853"
+    },
+    "scripts/ci/llhttp-reference-native-source/derivation.json": {
+      "bytes": 184590,
+      "mode": 420,
+      "sha256": "53a8a1a3afd943e1debaace6caf3c8ef2edfb117548302f480002951aab82f2d"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/admission.TEMPLATE.json": {
+      "bytes": 697,
+      "mode": 420,
+      "sha256": "f9ebc42af36bd7ce889739084451281c4493a3268128b82982b093276c56bae3"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/admit.py": {
+      "bytes": 1099,
+      "mode": 420,
+      "sha256": "7e1e2c9c0170134ed96d4109a0fabcc913d882271eb76aea6f847050cac29055"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/base-binding.json": {
+      "bytes": 153,
+      "mode": 420,
+      "sha256": "6bce998dd74cac41863756bffa93f15c74fdf92a08fb8d0f9421bf731cdd32f5"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/data.py": {
+      "bytes": 10359,
+      "mode": 420,
+      "sha256": "6682a4773f95424e0235887791907cf561682f004b5768886559a2f01381687b"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/host_tools.py": {
+      "bytes": 5149,
+      "mode": 420,
+      "sha256": "e1240ce75fd6b9403a228500f2cc59812acf8b2cd7007baec8b5e0425eadfbf7"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/hosted_owner.py": {
+      "bytes": 27378,
+      "mode": 420,
+      "sha256": "f50742d4bf0ef40539cf73f26dd9a7f47cb7b1a9f5ab87c7dad31c2b1dad2c81"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/payload.py": {
+      "bytes": 4295,
+      "mode": 420,
+      "sha256": "5f0b529b664f7ac25b29adc0e56d41fb87283e508a7cdece7287b80c0cdffb55"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/policy.json": {
+      "bytes": 1347,
+      "mode": 420,
+      "sha256": "1652ee524c5b75e1a5f1c9267ead5a2843d3f033b26b43adb71c68c8c95aa16a"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/retain.py": {
+      "bytes": 3100,
+      "mode": 420,
+      "sha256": "d32069fa45010720beaebd51842ee81aca74b9d339c04a8e5dc2a308504fe101"
+    },
+    "scripts/ci/llhttp-reference-native-source/owner/runtime.TEMPLATE.json": {
+      "bytes": 786,
+      "mode": 420,
+      "sha256": "c06f180ce9d44a978864ee1ef8fbc4649efd5949400a8a59f03a7c32acba4d20"
+    },
+    "scripts/ci/llhttp-reference-native-source/recipe-pin.json": {
+      "bytes": 5911,
+      "mode": 420,
+      "sha256": "fa2a40483a92afad09ae8c3caae1dd578d1e3efab30148c5a8cb144d3ecf8b34"
+    }
+  },
+  "schema": 1
+}

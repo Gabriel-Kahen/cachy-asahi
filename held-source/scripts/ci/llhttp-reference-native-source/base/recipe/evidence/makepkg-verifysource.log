@@ -1,0 +1,7 @@
+==> Making package: cachy-asahi-llhttp-reference 9.3.1-1 (Mon Nov 16 23:53:15 2026)
+==> Retrieving sources...
+  -> Found llhttp-9.3.1.tar.gz
+  -> Found smoke.c
+==> Validating source files with sha256sums...
+    llhttp-9.3.1.tar.gz ... Passed
+    smoke.c ... Passed
