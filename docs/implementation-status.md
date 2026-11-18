@@ -11,13 +11,13 @@
 | Python 3.14.8 | One independently verified native AArch64 4 KiB build supplied the TEST-signed package for an emulated ARM16K upgrade and rollback. The original compiled consumer ran on both Python versions, `_tkinter` passed, and the guest restored all 626 package versions and the original Python library bytes. [Native build and guest rehearsal](validation/python3148-native-r4-and-asahi628-20261118.md) |
 | Qtbase 6.12, emulated AArch64 with 16 KiB pages | Q3 verified the signed dependency transactions, reached the exact 356-package inventory and passed ordinary-user configure against system md4c. The Markdown importer compiled and QtCore linked with 16 KiB-compatible load segments. QtGui and the full build remain open. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md) · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md) |
 
-The Current606 R10 minimal desktop rehearsal booted the exact 606-package
-AArch64 guest with 16 KiB pages, passed the DNS checks that stopped R8, and
-produced all 15 independently verified and visually reviewed desktop frames.
-The final installed-package recheck timed out after the payload traversal
-covered 114,247 nodes. Runtime and producer cleanup passed. Minimal
+The Current606 R12 minimal desktop rehearsal completed all 15 desktop frames,
+including the read-only stored DNS report. The final verifier finished both
+installed-system scans and rejected a difference from the pre-session
+snapshot. The retained evidence authenticates the failed comparison. Minimal
 acceptance remains held and the overlay case remains unrun.
-[Current606 R10 rehearsal](validation/current606-minimal-emulated-arm16k-r10-20261118.md) · [Earlier R8 IPv6 hold](validation/current606-minimal-emulated-arm16k-r8-20261118.md)
+[Current606 R12 rehearsal](validation/current606-minimal-emulated-arm16k-r12-20261118.md)
+· [Earlier R10 verifier timeout](validation/current606-minimal-emulated-arm16k-r10-20261118.md)
 
 Production repository staging with an approved release signer, stable
 promotion, installed Asahi kernel boot and recovery, both physical M2 Air
