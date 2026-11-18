@@ -1427,12 +1427,17 @@ host_package_bytes = 19471
 host_package_sha256 = "d4b7291afedc2af95d89f3975c77c45e417125bf23818cbfd1dc7d53fb464839"
 prior_candidate_version = "0.1.0-1"
 prior_host_evidence = "docs/validation/first-login-host-20261114.md"
-native_build = "NOT RUN"
+native_build = "PASS two clean hosted AArch64 builds with 4 KiB pages and 14 normal makepkg cases per build. The unsigned any archives are byte-identical."
+native_build_commit = "6b3e2fa44618a0eefc6bda3bc2d9b4f7c4411cf8"
+native_run = 44310776063
+native_evidence = "docs/validation/first-login-v2-native-arm4k-20261118.md"
+native_package_bytes = 10764
+native_package_sha256 = "0e7b995347f9ae7ea04fc9ece42f5f8a1bbdeb86e5c9d6b1ceb4e480eedd2a51"
 installation = "PASS offline TEST-signed install and removal of the x86_64-host-built any archive in an AArch64 QEMU TCG guest with 16 KiB pages. Exact 583, 584, and 583 package inventories matched. The ordinary-user journey exercised installed Setup8, Fish and Zsh, recovery, and user-edit preservation."
 installation_source = "3a415e51ad5380ff20cde6455fc9c51255d268ff"
 installation_receipt_sha256 = "ecac10d2adc379c22dd23eac6f0f8fce933194a4dd5f31fa74cf4bde33d4773a"
 hardware_validation = "NOT RUN"
-next_step = "Run a native ARM pair, the supported Asahi package transaction, a first graphical login, and acceptance on both M2 Air sizes."
+next_step = "Exercise the native archive in the supported Asahi package transaction, a first graphical login, and acceptance on both M2 Air sizes."
 
 [[packages]]
 name = "cachy-asahi-session-lock"
