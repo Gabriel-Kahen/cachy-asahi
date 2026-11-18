@@ -332,6 +332,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_image_lifecycle_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/md4c053-reference-native-source/test_runtime.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/md4c053-reference-native-source/test_finish.py
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/qt612-complete-family-native-source -p 'test_*.py'
       - name: Restore exact composition archive inputs
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         id: composition-inputs
