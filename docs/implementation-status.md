@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+November 18 — The minimal206 llhttp 9.3.1 pair passed two clean native AArch64 builds with 4 KiB pages. Both produced the same XZ package, and the scoped image and builder cleanup passed. Acceptance covers the build pair. [Minimal206 r12 validation](validation/llhttp-minimal206-native-arm4k-20261118.md)
+
 November 18 — Qt 6.12 base completed signed dependency installation and ordinary-user configure on emulated AArch64 with 16 KiB pages. The exact inventory went 165→349→356, and CMake selected system md4c. The full Qt build and hardware validation remain unrun. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md)
 
 November 18 — R132 completed the signed Asahi maintenance rehearsal on emulated AArch64 with 16 KiB pages. The inventory went 261→626→626. Reversing the Python, NetworkManager and Perl upgrades retained all 365 additions. The guest restored the original initramfs and matched all 362 boot and mount entries. R131 remains on hold. The proposal is unapproved, and installed Asahi kernel boot and physical M2 validation remain open. [R132 validation](validation/asahi626-maintenance-emulated-arm16k-20261118.md)
