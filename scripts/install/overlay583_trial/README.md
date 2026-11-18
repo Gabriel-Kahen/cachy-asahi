@@ -8,8 +8,8 @@ authenticates those inputs and resolves all 583 repository-qualified packages.
 ## Inspect the selected staging
 
 ```sh
-stage=/home/gabe/Documents/ChatGPT/cachy-asahi-staging-install-lock-20261117-overlay583
-receipt=/home/gabe/Documents/ChatGPT/cachy-asahi-staging-install-lock-20261117-preflight583-results/retained583.json
+stage=/absolute/staged-overlay583
+receipt=/absolute/preflight-evidence/retained583.json
 python3 -I -B scripts/install/overlay583_trial/trial.py prepare \
   --staging "$stage" --preflight "$receipt" \
   --preflight-sha256 efbd1147613ab68721a05268c7973282936b5b61de09268c84f473b02566a3c7
