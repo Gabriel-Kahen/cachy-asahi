@@ -29,6 +29,9 @@ KIND = "SOURCE205_BACKEND_CHECKPOINT_UNISSUED_V1"
 SUCCESSOR_SELECTION = "SOURCE206_BACKEND_DATA_SELECTION_V1"
 SUCCESSOR_KIND = "SOURCE206_BACKEND_CHECKPOINT_UNISSUED_V1"
 QUALIFICATION_SELECTION = "SOURCE206_BACKEND_QUALIFICATION_SELECTION_V1"
+DATA_SELECTORS = {SELECTION: 205, SUCCESSOR_SELECTION: 206, "SOURCE207_BACKEND_DATA_SELECTION_V1": 207}
+QUALIFICATION_SELECTORS = {QUALIFICATION_SELECTION: 206, "SOURCE207_BACKEND_QUALIFICATION_SELECTION_V1": 207}
+CHECKPOINT_KINDS = {KIND: 205, SUCCESSOR_KIND: 206, "SOURCE207_BACKEND_CHECKPOINT_UNISSUED_V1": 207}
 SOURCE196_HOLD = "CONSUMED_HOLD_NATIVE248_TRANSPORT_COMMAND2_FAILURE_AFTER_WORKING_V6_CAPTURE"
 CAPS = {role: C.MAX_BYTES for role in ("publication", "source196_close", "profile", "registration",
                                       "launcher", "provenance_operand", "workflow")} | {"reader": 1 << 20}
@@ -67,7 +70,7 @@ def assembler_template():
                 retention=None)
 
 
-def prepare(selection, inputs, pins, *, successor=False):
+def prepare(selection, inputs, pins, *, successor=False, source_version=None):
     """Prepare unissued DATA from independently pinned metadata and Main bodies."""
     C.shape(selection, ("source", "main", "workflow_id"), "HOLD_STATIC_SELECTORS")
     C.shape(selection["source"], ("cid", "ref"), "HOLD_STATIC_SOURCE")
@@ -81,14 +84,16 @@ def prepare(selection, inputs, pins, *, successor=False):
         raw = inputs[role]
         C.need(type(raw) is bytes and C.pin(raw) == pins[role], "HOLD_STATIC_" + role.upper() + "_PIN")
 
-    basis = C.S.SOURCE if successor else R.SOURCE205
-    reader_member = C.S.READER["member"] if successor else C.READER
-    if successor:
-        C.need(pins["publication"] == C.S.PUBLICATION
-               and selection["source"] == dict(cid=C.S.CID, ref=C.S.REF)
-               and selection["workflow_id"] == C.S.WORKFLOW_ID, "HOLD_PUBLISHED_SOURCE206_SELECTOR")
-        C.need(pins["reader"] == {field: C.S.READER[field] for field in ("bytes", "sha256")},
-               "HOLD_EXACT_SOURCE206_MAIN_READER")
+    number, roles = C.source_roles(successor, source_version)
+    basis = roles.SOURCE if roles else R.SOURCE205
+    reader_member = roles.READER["member"] if roles else C.READER
+    launcher_pin = roles.CORE if number == 207 else C.CORE
+    if roles:
+        C.need(pins["publication"] == roles.PUBLICATION
+               and selection["source"] == dict(cid=roles.CID, ref=roles.REF)
+               and selection["workflow_id"] == roles.WORKFLOW_ID, f"HOLD_PUBLISHED_SOURCE{number}_SELECTOR")
+        C.need(pins["reader"] == {field: roles.READER[field] for field in ("bytes", "sha256")},
+               f"HOLD_EXACT_SOURCE{number}_MAIN_READER")
 
     publication = observation(inputs["publication"])
     prior = observation(inputs["source196_close"])
@@ -103,7 +108,7 @@ def prepare(selection, inputs, pins, *, successor=False):
            and publication["native"] == "NOT RUN"
            and all(C.same(publication[key], basis[key]) for key in ("tree", "files", "bytes"))
            and publication["source_map_sha256"] == basis["source_map"]["sha256"],
-           "HOLD_EXACT_PUBLISHED_SOURCE206" if successor else "HOLD_EXACT_PUBLISHED_SOURCE205")
+           f"HOLD_EXACT_PUBLISHED_SOURCE{number}")
     C.need(prior["status"] == SOURCE196_HOLD and prior["Source"] == R.SOURCE196 and prior["issuer"] == "Root"
            and C.integer(prior["run"], 1) and C.integer(prior["job"], 1)
            and type(prior["attempt"]) is int and prior["attempt"] == 1 and prior["retry"] is False
@@ -113,7 +118,8 @@ def prepare(selection, inputs, pins, *, successor=False):
            and workflow["path"] == C.WORKFLOW and workflow["state"] == "active"
            and workflow["name"] == "Current onboarding delegated private v3",
            "HOLD_ACTIVE_WORKFLOW_METADATA")
-    C.need(pins["launcher"] == pins["provenance_operand"] == C.CORE and pins["workflow"] == C.WORKFLOW_PIN,
+    C.need(pins["launcher"] == launcher_pin and pins["provenance_operand"] == C.CORE
+           and pins["workflow"] == C.WORKFLOW_PIN,
            "HOLD_EXACT_CANONICAL_MAIN_ADOPTION")
     parsed = ast.parse(inputs["reader"])
     functions = {node.name for node in parsed.body if isinstance(node, ast.FunctionDef)}
@@ -124,7 +130,7 @@ def prepare(selection, inputs, pins, *, successor=False):
                     ("reader", reader_member), ("workflow", C.WORKFLOW))}
     main_selectors = dict(schema=1, kind="EXPLICIT_MAIN_REQUEST_SELECTORS_DATA_ONLY",
                           commit=main["cid"], **descriptors)
-    publication_kind = "SOURCE206_PUBLICATION_READBACK_DATA_ONLY" if successor else "SOURCE205_PUBLICATION_READBACK_DATA_ONLY"
+    publication_kind = f"SOURCE{number}_PUBLICATION_READBACK_DATA_ONLY"
     projected = dict(schema=1, kind=publication_kind,
                      status=publication["status"], source=source["cid"], ref=source["ref"],
                      **basis, profile=pins["profile"])
@@ -132,20 +138,20 @@ def prepare(selection, inputs, pins, *, successor=False):
     request_plan = R.render(published_source_cid=source["cid"], source_ref=source["ref"], main_commit=main["cid"],
                             profile_raw=inputs["profile"], profile_sha256=pins["profile"]["sha256"],
                             publication_raw=publication_raw, publication_sha256=C.pin(publication_raw)["sha256"],
-                            main_raw=main_raw, main_sha256=C.pin(main_raw)["sha256"], successor=successor)
+                            main_raw=main_raw, main_sha256=C.pin(main_raw)["sha256"], source_version=number)
     request_plan["request_templates"]["delegation"]["stage"] = STAGE
-    R.unissued(request_plan, successor=successor)
-    scaffolds = C.templates(successor=successor)
+    R.unissued(request_plan, source_version=number)
+    scaffolds = C.templates(source_version=number)
     case = scaffolds["Root-case.TEMPLATE.json"]
     case["source"].update(source)
     case["main"].update(main, **{role: descriptors[role] for role in ("launcher", "reader", "workflow")})
     case.update(workflow_id=selection["workflow_id"], stage=STAGE)
     assembler = assembler_template()
     root_operands = dict(ROOT_OPERANDS)
-    if successor:
-        assembler["test_trust"].update(public_key=dict(C.S.TEST_PUBLIC_KEY), fingerprint=C.S.TEST_FINGERPRINT)
-        root_operands["readback"] = "Fresh exact Source206 and selected Main Reader readback"
-    return dict(schema=1, kind=SUCCESSOR_KIND if successor else KIND, status="UNISSUED_BACKEND_CHECKPOINT_DATA",
+    if roles:
+        assembler["test_trust"].update(public_key=dict(roles.TEST_PUBLIC_KEY), fingerprint=roles.TEST_FINGERPRINT)
+        root_operands["readback"] = f"Fresh exact Source{number} and selected Main Reader readback"
+    return dict(schema=1, kind=f"SOURCE{number}_BACKEND_CHECKPOINT_UNISSUED_V1", status="UNISSUED_BACKEND_CHECKPOINT_DATA",
                 dispatch_ready=False, stage=STAGE, native248_command_ordinal=2,
                 standalone_transport_stage=False, previous_source196_cause=prior["underlying_child_cause"],
                 observations=pins, observed_canonical_main_adoption=True, live_registration_proof=None,
@@ -162,7 +168,7 @@ def qualify_backend(checkpoint_raw, checkpoint_pin, operands, expected_pins, *, 
     C.need(type(checkpoint_raw) is bytes and len(checkpoint_raw) <= C.MAX_BYTES
            and C.pin(checkpoint_raw) == checkpoint_pin, "HOLD_STATIC_CHECKPOINT_PIN")
     checkpoint = C.decode(checkpoint_raw)
-    C.need(checkpoint["kind"] in (KIND, SUCCESSOR_KIND) and checkpoint["authority"] is None
+    C.need(checkpoint["kind"] in CHECKPOINT_KINDS and checkpoint["authority"] is None
            and checkpoint["stage"] == STAGE and checkpoint["dispatch_ready"] is False,
            "HOLD_UNISSUED_BACKEND_CHECKPOINT")
     case_raw = operands["case"]
@@ -170,7 +176,7 @@ def qualify_backend(checkpoint_raw, checkpoint_pin, operands, expected_pins, *, 
     C.need(type(case_raw) is bytes and len(case_raw) <= C.MAX_BYTES and C.pin(case_raw) == case_pin,
            "HOLD_EXTERNAL_CASE_PIN")
     case = C.decode(case_raw)
-    C.need((checkpoint["kind"] == SUCCESSOR_KIND) == C.source206_case(case), "HOLD_CHECKPOINT_CASE_KIND")
+    C.need(CHECKPOINT_KINDS[checkpoint["kind"]] == C.case_version(case), "HOLD_CHECKPOINT_CASE_KIND")
     for key in ("source", "main", "stage", "workflow_id", "operation", "group", "resources"):
         C.need(C.same(case[key], checkpoint["root_case"][key]), "HOLD_CHECKPOINT_CASE_" + key.upper())
     qualified = C.qualify(operands, expected_pins, now=now, core_raw=core_raw, profile_raw=profile_raw)
@@ -212,7 +218,9 @@ def qualify_selection(value, now):
     caps = dict.fromkeys(C.OPERANDS, C.MAX_BYTES) | dict(
         request=C.LIMITS["request_bytes"], checkpoint=C.MAX_BYTES, core=C.MAX_BYTES, profile=C.MAX_BYTES)
     files, pins = read_roles(value["files"], caps)
-    C.need(C.decode(files["checkpoint"])["kind"] == SUCCESSOR_KIND, "HOLD_QUALIFICATION_SOURCE206")
+    number = QUALIFICATION_SELECTORS.get(value["kind"])
+    C.need(number is not None and CHECKPOINT_KINDS.get(C.decode(files["checkpoint"])["kind"]) == number,
+           f"HOLD_QUALIFICATION_SOURCE{number}")
     result = qualify_backend(files["checkpoint"], pins["checkpoint"], {key: files[key] for key in C.OPERANDS},
                              {key: pins[key] for key in C.OPERANDS}, now=now,
                              core_raw=files["core"], profile_raw=files["profile"])
@@ -234,14 +242,14 @@ def main():
     value = C.decode(raw)
     C.need(type(value) is dict and type(value.get("schema")) is int and value["schema"] == 1,
            "HOLD_LOCAL_SELECTION_SCHEMA")
-    if value.get("kind") == QUALIFICATION_SELECTION:
+    if value.get("kind") in QUALIFICATION_SELECTORS:
         result = qualify_selection(value, args.now)
     else:
         C.shape(value, ("schema", "kind", "selection", "files"), "HOLD_LOCAL_SELECTION_SCHEMA")
-        C.need(value["kind"] in (SELECTION, SUCCESSOR_SELECTION) and args.now is None,
+        C.need(value["kind"] in DATA_SELECTORS and args.now is None,
                "HOLD_LOCAL_SELECTION_KIND")
         inputs, pins = read_roles(value["files"], CAPS)
-        result = prepare(value["selection"], inputs, pins, successor=value["kind"] == SUCCESSOR_SELECTION)
+        result = prepare(value["selection"], inputs, pins, source_version=DATA_SELECTORS[value["kind"]])
     sys.stdout.buffer.write(C.encoded(result))
 
 

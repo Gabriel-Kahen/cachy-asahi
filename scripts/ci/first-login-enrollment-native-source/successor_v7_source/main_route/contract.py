@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Pure DATA qualification for an externally Root-selected Source205 or Source206 ONCE case.
+"""Pure DATA qualification for an externally Root-selected Source205, Source206 or Source207 ONCE case.
 
 No clock lookup, filesystem/lease/process observation, request issuance or HTTP.
 Provided Root assertions are checked for consistency, never authenticated here.
@@ -13,15 +13,16 @@ from pathlib import Path, PurePosixPath
 import re
 from urllib.parse import urlsplit
 
-def load_source206():
-    path = Path(__file__).resolve().parent.parent / "request_generation/source206.py"
-    spec = importlib.util.spec_from_file_location("source206_contract_roles", path)
+def load_source(number):
+    path = Path(__file__).resolve().parents[1] / f"request_generation/source{number}.py"
+    spec = importlib.util.spec_from_file_location(f"source{number}_contract_roles", path)
     source = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(source)
     return source
 
 
-S = load_source206()
+S = load_source(206)
+S207 = load_source(207)
 
 FAMILY='scripts/ci/first-login-enrollment-native-source/'
 LAUNCHER=FAMILY+'payload/native/hosted_current_v3.py'
@@ -110,39 +111,55 @@ def canonical_lease(lease):
         and integer(lease['mtime_ns'],1,2**63-1)and integer(lease['ctime_ns'],1,2**63-1),'HOLD_CANONICAL_LEASE')
 
 
-def source206_case(case):
-    return type(case)is dict and case.get('kind') == S.CASE_KIND
+def case_roles(case):
+    kind = case.get('kind') if type(case) is dict else None
+    return {S.CASE_KIND: S, S207.CASE_KIND: S207}.get(kind) if type(kind) is str else None
+
+
+def case_version(case):
+    roles = case_roles(case)
+    return roles.NUMBER if roles else 205
+
+
+def source_roles(successor, source_version):
+    need(type(successor) is bool and (source_version is None
+         or not successor and type(source_version) is int and source_version in (205, 206, 207)),
+         'HOLD_EXPLICIT_SOURCE_VERSION')
+    number = source_version if source_version is not None else (206 if successor else 205)
+    return number, {205: None, 206: S, 207: S207}[number]
 
 
 def validate_case(case,now):
-    successor = source206_case(case)
-    basis = S.SOURCE if successor else SOURCE205
-    program = S.PROGRAM if successor else PROGRAM
-    profile = S.PROFILE if successor else PROFILE
-    issued(case,S.CASE_KIND if successor else 'ROOT_SOURCE205_ONCE_CASE_V1',('schema','kind','issuer','approved','case_id','source','main','workflow_id','operation','group','stage','nonce','issued_epoch','expires_epoch','canonical_lease','resources','pins'),now)
+    roles = case_roles(case)
+    number = roles.NUMBER if roles else 205
+    basis = roles.SOURCE if roles else SOURCE205
+    program = roles.PROGRAM if roles else PROGRAM
+    profile = roles.PROFILE if roles else PROFILE
+    issued(case,roles.CASE_KIND if roles else 'ROOT_SOURCE205_ONCE_CASE_V1',('schema','kind','issuer','approved','case_id','source','main','workflow_id','operation','group','stage','nonce','issued_epoch','expires_epoch','canonical_lease','resources','pins'),now)
     need(hexid(case['case_id'],64)and hexid(case['nonce'],64)and case['operation']==OPERATION and case['group']==GROUP
         and case['stage']in ('backend','ui','lifecycle')and integer(case['workflow_id'],1),'HOLD_CASE_SELECTORS')
     source=case['source'];shape(source,('cid','ref',*basis,'program','profile'),'HOLD_SOURCE_SHAPE')
-    if successor:
-        need((source['cid'],source['ref'],case['stage'],case['workflow_id'])==(S.CID,S.REF,'backend',S.WORKFLOW_ID),
-             'HOLD_SOURCE206_BACKEND_SELECTORS')
-        need(case['expires_epoch']<=S.TEST_ROLE_EXPIRES,'HOLD_SOURCE206_TEST_ROLE_EXPIRY')
+    if roles:
+        need((source['cid'],source['ref'],case['stage'],case['workflow_id'])==(roles.CID,roles.REF,'backend',roles.WORKFLOW_ID),
+             f'HOLD_SOURCE{number}_BACKEND_SELECTORS')
+        need(case['expires_epoch']<=roles.TEST_ROLE_EXPIRES,f'HOLD_SOURCE{number}_TEST_ROLE_EXPIRY')
     need(hexid(source['cid'],40)and source['cid']not in (SOURCE196,CONSTRUCTOR)
         and type(source['ref'])is str and re.fullmatch('refs/heads/codex/[A-Za-z0-9._/-]+',source['ref'])
         and all(part not in ('','.','..')and not part.startswith('.')and not part.endswith('.lock')for part in source['ref'].split('/'))
         and not source['ref'].endswith('.')and same({k:source[k]for k in basis},basis)
         and same(source['program'],program)and same(source['profile'],profile),
-        'HOLD_SOURCE206_IDENTITY' if successor else 'HOLD_SOURCE205_IDENTITY')
+        f'HOLD_SOURCE{number}_IDENTITY')
     main=case['main'];shape(main,('cid','tree','launcher','reader','reader_contract','workflow'),'HOLD_MAIN_SHAPE')
     need(hexid(main['cid'],40)and main['cid']!=source['cid']and hexid(main['tree'],40),'HOLD_MAIN_SELECTOR')
-    descriptor(main['launcher'],LAUNCHER);need(same(main['launcher'],dict(member=LAUNCHER,**CORE)),'HOLD_MAIN_V7_ADOPTION')
-    if successor:
-        need(same(main['reader'],S.READER)and main['reader_contract']==S.READER_CONTRACT,
-             'HOLD_SOURCE206_MAIN_READER_CONTRACT')
+    launcher_pin = roles.CORE if number == 207 else CORE
+    descriptor(main['launcher'],LAUNCHER);need(same(main['launcher'],dict(member=LAUNCHER,**launcher_pin)),'HOLD_MAIN_V7_ADOPTION')
+    if roles:
+        need(same(main['reader'],roles.READER)and main['reader_contract']==roles.READER_CONTRACT,
+             f'HOLD_SOURCE{number}_MAIN_READER_CONTRACT')
     else:
         descriptor(main['reader'],READER);need(main['reader_contract']=='SOURCE205_FINITE_TRANSPORT_V2','HOLD_MAIN_READER_CONTRACT')
     descriptor(main['workflow'],WORKFLOW);need(same(main['workflow'],dict(member=WORKFLOW,**WORKFLOW_PIN)),'HOLD_MAIN_WORKFLOW')
-    resources = dict(RESOURCES, policy=S.POLICY) if successor else RESOURCES
+    resources = dict(RESOURCES, policy=roles.POLICY) if roles else RESOURCES
     need(same(case['resources'],resources),'HOLD_CASE_RESOURCE_POLICY')
     canonical_lease(case['canonical_lease'])
     shape(case['pins'],OPERANDS[1:],'HOLD_CASE_PIN_ROSTER')
@@ -188,14 +205,14 @@ def validate_runtime(runtime,case,now):
     need(same(census_identity(sweeps[0]['runs']),census_identity(sweeps[1]['runs'])),'HOLD_NONCONVERGED_CENSUS')
 
 
-def core_request(core_raw,request_raw):
+def core_request(core_raw,request_raw,*,core_pin=CORE):
     """Run the unchanged whole-pinned Core.request with bounded in-memory IO.
 
     Only ten pure predicate definitions and two literal resource declarations are
     compiled. Imports, program loaders and every operational entry are excluded.
     This does not attest a runtime file, Main checkout or executing wrapper.
     """
-    need(type(core_raw)is bytes and pin(core_raw)==CORE,'HOLD_CORE_BODY')
+    need(type(core_raw)is bytes and pin(core_raw)==core_pin,'HOLD_CORE_BODY')
     names={'need','pin','encoded','decode','whole','descriptor','request','prerequisite_selected','material_selected','assembly_request'}
     tree=ast.parse(core_raw);functions=[node for node in tree.body if isinstance(node,ast.FunctionDef)and node.name in names]
     declarations=[node for node in tree.body if isinstance(node,ast.Assign)and len(node.targets)==1
@@ -211,40 +228,42 @@ def core_request(core_raw,request_raw):
     return scope['request'](marker,pin(request_raw)['sha256'])
 
 
-def validate_successor_test_role(assembler, case):
+def validate_successor_test_role(assembler, case, roles):
     trust = assembler['test_trust']
-    need(trust['fingerprint']==S.TEST_FINGERPRINT and same(trust['public_key'],S.TEST_PUBLIC_KEY),
-         'HOLD_SOURCE206_TEST_CERTIFICATE')
+    need(trust['fingerprint']==roles.TEST_FINGERPRINT and same(trust['public_key'],roles.TEST_PUBLIC_KEY),
+         f'HOLD_SOURCE{roles.NUMBER}_TEST_CERTIFICATE')
     ref = trust['Root_admission']
-    shape(ref,('json','pin'),'HOLD_SOURCE206_TEST_APPROVAL_REFERENCE')
-    need(type(ref['json'])is str,'HOLD_SOURCE206_TEST_APPROVAL_REFERENCE')
+    shape(ref,('json','pin'),f'HOLD_SOURCE{roles.NUMBER}_TEST_APPROVAL_REFERENCE')
+    need(type(ref['json'])is str,f'HOLD_SOURCE{roles.NUMBER}_TEST_APPROVAL_REFERENCE')
     raw = ref['json'].encode()
-    need(len(raw)<=8192 and pin(raw)==whole(ref['pin'],8192),'HOLD_SOURCE206_TEST_APPROVAL_PIN')
+    need(len(raw)<=8192 and pin(raw)==whole(ref['pin'],8192),f'HOLD_SOURCE{roles.NUMBER}_TEST_APPROVAL_PIN')
     approval = decode(raw)
     need(type(approval)is dict and approval.get('issuer')=='Root' and approval.get('approved')is True
          and approval.get('scope')=='CURRENT_ONBOARDING_IMAGE_INPUT_TRUST_ONLY'
-         and approval.get('fingerprint')==S.TEST_FINGERPRINT,
-         'HOLD_SOURCE206_TEST_APPROVAL')
+         and approval.get('fingerprint')==roles.TEST_FINGERPRINT,
+         f'HOLD_SOURCE{roles.NUMBER}_TEST_APPROVAL')
     # The hosted launcher resolves only the declared Source descriptor here.
     # Inside the inline admission JSON the assembler compares the resolved path.
     key = approval.get('public_key')
-    shape(key,('path','bytes','sha256'),'HOLD_SOURCE206_TEST_APPROVAL_CERTIFICATE')
+    shape(key,('path','bytes','sha256'),f'HOLD_SOURCE{roles.NUMBER}_TEST_APPROVAL_CERTIFICATE')
     path = key['path']
     need(type(path)is str and re.fullmatch(r'/[A-Za-z0-9_./-]{1,1023}',path)
          and str(PurePosixPath(path))==path and '..' not in PurePosixPath(path).parts
-         and path.endswith('/'+S.TEST_PUBLIC_KEY['member'])
-         and all(same(key[field],S.TEST_PUBLIC_KEY[field]) for field in ('bytes','sha256')),
-         'HOLD_SOURCE206_TEST_APPROVAL_CERTIFICATE')
+         and path.endswith('/'+roles.TEST_PUBLIC_KEY['member'])
+         and all(same(key[field],roles.TEST_PUBLIC_KEY[field]) for field in ('bytes','sha256')),
+         f'HOLD_SOURCE{roles.NUMBER}_TEST_APPROVAL_CERTIFICATE')
     need(integer(approval.get('issued_epoch'),0,case['issued_epoch'])
-         and integer(approval.get('expires_epoch'),case['expires_epoch'],S.TEST_ROLE_EXPIRES),
-         'HOLD_SOURCE206_TEST_APPROVAL_EXPIRY')
+         and integer(approval.get('expires_epoch'),case['expires_epoch'],roles.TEST_ROLE_EXPIRES),
+         f'HOLD_SOURCE{roles.NUMBER}_TEST_APPROVAL_EXPIRY')
 
 
 def validate_request(request_raw,case,core_raw,profile):
-    successor = source206_case(case)
-    policy = S.POLICY if successor else POLICY
-    source_map = S.SOURCE['source_map'] if successor else SOURCE205['source_map']
-    need(len(request_raw)<=LIMITS['request_bytes'],'HOLD_REQUEST_CAP');request=core_request(core_raw,request_raw)
+    roles = case_roles(case)
+    policy = roles.POLICY if roles else POLICY
+    source_map = roles.SOURCE['source_map'] if roles else SOURCE205['source_map']
+    launcher_pin = roles.CORE if roles is S207 else CORE
+    need(len(request_raw)<=LIMITS['request_bytes'],'HOLD_REQUEST_CAP')
+    request=core_request(core_raw,request_raw,core_pin=launcher_pin)
     need(request['trusted_main_commit']==case['main']['cid']and same(request['launcher'],case['main']['launcher'])
         and request['staged_inputs']is None and request['staged_root']is None,'HOLD_REQUEST_MAIN')
     d=decode(request['delegation_json'].encode());shape(d,('schema','kind','issuer','approved','scope','binding','stage','nonce','issued_epoch','expires_epoch','programs','materials','policy','capability','context_limits','hosted','image_ids',*FINAL),'HOLD_DELEGATION_SHAPE')
@@ -283,6 +302,10 @@ def validate_request(request_raw,case,core_raw,profile):
         for url in urls:
             parsed=urlsplit(url);need(parsed.scheme=='https'and parsed.hostname and parsed.port in (None,443)
                 and not(parsed.username or parsed.password or parsed.query or parsed.fragment),'HOLD_PUBLIC_REDIRECT')
+    if roles is S207:
+        need(set(redirects)==roles.DOWNLOAD_FILENAMES
+             and all(redirects[name]==[] for name in roles.DIRECT_DOWNLOAD_FILENAMES),
+             'HOLD_SOURCE207_FIXED_DOWNLOAD_ROUTES')
     assembly=selection['assembler_request'];need(type(assembly)is dict and set(assembly)=={'json','pin'}and type(assembly['json'])is str
         and 0<len(assembly['json'].encode())<=8192 and pin(assembly['json'].encode())==assembly['pin'],'HOLD_ASSEMBLER_PIN')
     assembler=decode(assembly['json'].encode())
@@ -294,8 +317,8 @@ def validate_request(request_raw,case,core_raw,profile):
     for name in ('official_trust','test_trust'):
         trust=assembler[name];shape(trust,('public_key','fingerprint','Root_admission'),'HOLD_ASSEMBLER_TRUST')
         need(all(trust[key]is not None for key in trust),'HOLD_ASSEMBLER_TRUST_UNISSUED')
-    if successor:
-        validate_successor_test_role(assembler,case)
+    if roles:
+        validate_successor_test_role(assembler,case,roles)
         need(assembler['products']=={} and assembler['retention'] is None,
              'HOLD_EXACT_FIRST_BACKEND_PRODUCTS_AND_RETENTION')
     return request
@@ -310,10 +333,10 @@ def qualify(operands,expected_pins,*,now,core_raw,profile_raw):
         whole(expected_pins[name],cap);need(type(raw)is bytes and 0<len(raw)<=cap and pin(raw)==expected_pins[name],'HOLD_EXTERNAL_'+name.upper()+'_PIN')
         values[name]=decode(raw)
     case=values['case'];validate_case(case,now)
-    successor = source206_case(case)
-    profile_pin = S.PROFILE if successor else PROFILE
-    need(type(profile_raw)is bytes and pin(profile_raw)==profile_pin,
-         'HOLD_EXACT_SOURCE206_PROFILE' if successor else 'HOLD_EXACT_SOURCE205_PROFILE')
+    roles = case_roles(case)
+    number = roles.NUMBER if roles else 205
+    profile_pin = roles.PROFILE if roles else PROFILE
+    need(type(profile_raw)is bytes and pin(profile_raw)==profile_pin,f'HOLD_EXACT_SOURCE{number}_PROFILE')
     profile=decode(profile_raw)
     need(all(same(case['pins'][name],expected_pins[name])for name in OPERANDS[1:]),'HOLD_CASE_OPERAND_PINS')
     for name,kind in (('admission','ROOT_SOURCE205_ONCE_ADMISSION_V1'),('registration','ROOT_SOURCE205_WORKFLOW_REGISTRATION_V1'),('readback','ROOT_SOURCE205_READBACK_V1'),('once','ROOT_SOURCE205_ONCE_GUARD_V1')):
@@ -351,18 +374,20 @@ def qualify(operands,expected_pins,*,now,core_raw,profile_raw):
         once=True,retry=False,uncertain_outcome='RECONCILE_ONLY_NEVER_REDISPATCH')
 
 
-def templates(*,successor=False):
+def templates(*,successor=False,source_version=None):
     """Unissued scaffolds only; these values cannot qualify for an actor."""
-    basis = S.SOURCE if successor else SOURCE205
-    program = S.PROGRAM if successor else PROGRAM
-    profile = S.PROFILE if successor else PROFILE
-    reader = copy.deepcopy(S.READER) if successor else dict(member=READER,bytes=None,sha256=None)
-    reader_contract = S.READER_CONTRACT if successor else 'SOURCE205_FINITE_TRANSPORT_V2'
-    resources = dict(RESOURCES,policy=S.POLICY) if successor else RESOURCES
+    number, roles = source_roles(successor, source_version)
+    basis = roles.SOURCE if roles else SOURCE205
+    program = roles.PROGRAM if roles else PROGRAM
+    profile = roles.PROFILE if roles else PROFILE
+    reader = copy.deepcopy(roles.READER) if roles else dict(member=READER,bytes=None,sha256=None)
+    reader_contract = roles.READER_CONTRACT if roles else 'SOURCE205_FINITE_TRANSPORT_V2'
+    launcher_pin = roles.CORE if number == 207 else CORE
+    resources = dict(RESOURCES,policy=roles.POLICY) if roles else RESOURCES
     return {
-        'Root-case.TEMPLATE.json':dict(schema=1,kind=S.CASE_KIND if successor else 'ROOT_SOURCE205_ONCE_CASE_V1',issuer=None,approved=None,case_id=None,
+        'Root-case.TEMPLATE.json':dict(schema=1,kind=roles.CASE_KIND if roles else 'ROOT_SOURCE205_ONCE_CASE_V1',issuer=None,approved=None,case_id=None,
             source=dict(cid=None,ref=None,**copy.deepcopy(basis),program=copy.deepcopy(program),profile=copy.deepcopy(profile)),
-            main=dict(cid=None,tree=None,launcher=dict(member=LAUNCHER,**CORE),reader=reader,reader_contract=reader_contract,workflow=dict(member=WORKFLOW,**WORKFLOW_PIN)),
+            main=dict(cid=None,tree=None,launcher=dict(member=LAUNCHER,**launcher_pin),reader=reader,reader_contract=reader_contract,workflow=dict(member=WORKFLOW,**WORKFLOW_PIN)),
             workflow_id=None,operation=OPERATION,group=GROUP,stage=None,nonce=None,issued_epoch=None,expires_epoch=None,
             canonical_lease=dict(path=LEASE_PATH,dev=None,inode=None,uid=None,gid=None,mode=0o644,nlink=1,bytes=0,mtime_ns=None,ctime_ns=None),
             resources=copy.deepcopy(resources),pins=dict.fromkeys(OPERANDS[1:])),

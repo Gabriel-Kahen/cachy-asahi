@@ -11,15 +11,16 @@ from pathlib import Path
 import re
 import stat
 
-def load_source206():
-    path = Path(__file__).resolve().with_name("source206.py")
-    spec = importlib.util.spec_from_file_location("source206_roles", path)
+def load_source(number):
+    path = Path(__file__).resolve().with_name(f"source{number}.py")
+    spec = importlib.util.spec_from_file_location(f"source{number}_roles", path)
     source = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(source)
     return source
 
 
-S = load_source206()
+S = load_source(206)
+S207 = load_source(207)
 
 FAMILY='scripts/ci/first-login-enrollment-native-source/'
 PREFIX=FAMILY+'successor_v7_source/'
@@ -86,8 +87,17 @@ def checked(raw,digest):
     return decode(raw)
 
 
-def template(*, successor=False):
-    return dict(schema=1,kind='UNISSUED_SOURCE206_ONCE_REQUEST_PLAN_V1' if successor else 'UNISSUED_SOURCE205_ONCE_REQUEST_PLAN_V1',status='UNISSUED',once=True,retry=False,
+def source_roles(successor, source_version):
+    need(type(successor) is bool and (source_version is None
+         or not successor and type(source_version) is int and source_version in (205, 206, 207)),
+         'closed Source version')
+    number = source_version if source_version is not None else (206 if successor else 205)
+    return number, {205: None, 206: S, 207: S207}[number]
+
+
+def template(*, successor=False, source_version=None):
+    number, _ = source_roles(successor, source_version)
+    return dict(schema=1,kind=f'UNISSUED_SOURCE{number}_ONCE_REQUEST_PLAN_V1',status='UNISSUED',once=True,retry=False,
         issuer=None,approved=None,issued_epoch=None,expires_epoch=None,authority=None,resources=None,
         dispatch_ready=False,route_hold='CANONICAL_MAIN_V7_LAUNCHER_AND_WORKFLOW_ADOPTION_REQUIRED',
         source=None,main=None,publication=None,root_profile=None,request_templates=None,
@@ -95,14 +105,16 @@ def template(*, successor=False):
             Root_acceptance=None,native_acceptance=False,hardware_acceptance=False,release_acceptance=False))
 
 
-def render(*,published_source_cid,source_ref,main_commit,profile_raw,profile_sha256,publication_raw,publication_sha256,main_raw,main_sha256,successor=False):
-    source = S.SOURCE if successor else SOURCE205
-    program = S.PROGRAM if successor else PROGRAM
-    profile_pin = S.PROFILE if successor else PROFILE_PIN
-    selected_reader = S.READER['member'] if successor else READER
-    publication_kind = 'SOURCE206_PUBLICATION_READBACK_DATA_ONLY' if successor else 'SOURCE205_PUBLICATION_READBACK_DATA_ONLY'
-    if successor:
-        need((published_source_cid,source_ref)==(S.CID,S.REF),'exact published C908 Source206 selector')
+def render(*,published_source_cid,source_ref,main_commit,profile_raw,profile_sha256,publication_raw,publication_sha256,main_raw,main_sha256,successor=False,source_version=None):
+    number, roles = source_roles(successor, source_version)
+    source = roles.SOURCE if roles else SOURCE205
+    program = roles.PROGRAM if roles else PROGRAM
+    profile_pin = roles.PROFILE if roles else PROFILE_PIN
+    selected_reader = roles.READER['member'] if roles else READER
+    launcher_pin = roles.CORE if number == 207 else LAUNCHER_PIN
+    publication_kind = f'SOURCE{number}_PUBLICATION_READBACK_DATA_ONLY'
+    if roles:
+        need((published_source_cid,source_ref)==(roles.CID,roles.REF),f'exact published C908 Source{number} selector')
     for value in (published_source_cid,main_commit):need(type(value)is str and re.fullmatch('[0-9a-f]{40}',value),'required explicit full Source and Main CID')
     need(published_source_cid not in (SOURCE196,CONSTRUCTOR,main_commit),'Source205 is distinct from Source196, constructor and Main')
     need(type(source_ref)is str and re.fullmatch('refs/heads/codex/[A-Za-z0-9._/-]+',source_ref)
@@ -123,7 +135,7 @@ def render(*,published_source_cid,source_ref,main_commit,profile_raw,profile_sha
         for role,row in rows.items():need(type(role)is str and re.fullmatch('[A-Za-z0-9_]+',role),'finite descriptor role');descriptor(row)
     need(not set(profile['materials'])&set(profile['staging_materials']),'original59 and staging5 remain distinct')
     need(set(profile['delegation_programs'])==set(PROGRAM_ROLES)and set(profile['staging_materials'])==set(STAGING_ROLES),'fixed Source205 role rosters')
-    need(profile['delegation_programs'].get('hosted_launcher')==dict(member=LAUNCHER,**LAUNCHER_PIN),'v7 Source launcher whole body')
+    need(profile['delegation_programs'].get('hosted_launcher')==dict(member=LAUNCHER,**launcher_pin),'v7 Source launcher whole body')
     publication=checked(publication_raw,publication_sha256)
     need(type(publication)is dict and set(publication)=={'schema','kind','status','source','ref','tree','files','bytes','source_map','profile'}
         and type(publication['schema'])is int and publication['schema']==1
@@ -138,11 +150,11 @@ def render(*,published_source_cid,source_ref,main_commit,profile_raw,profile_sha
         and type(selected['schema'])is int and selected['schema']==1 and selected['kind']=='EXPLICIT_MAIN_REQUEST_SELECTORS_DATA_ONLY'
         and selected['commit']==main_commit,'explicit selected Main DATA')
     for key in ('launcher','provenance_operand','reader','workflow'):descriptor(selected[key])
-    need(selected['launcher']==dict(member=LAUNCHER,**LAUNCHER_PIN)
+    need(selected['launcher']==dict(member=LAUNCHER,**launcher_pin)
         and selected['provenance_operand']==dict(member=OPERAND,**LAUNCHER_PIN)
         and selected['reader']['member']==selected_reader,'future canonical Main v7 body plus separate operand; no v6/new-path fallback')
-    if successor:
-        need(selected['reader']==S.READER,'exact Source206 Main Reader whole body')
+    if roles:
+        need(selected['reader']==roles.READER,f'exact Source{number} Main Reader whole body')
     workflow=selected['workflow']['member'];need(workflow.startswith('.github/workflows/')and workflow.endswith('.yml'),'explicit Main workflow whole selector')
     need(selected['reader']['bytes']<=1024**2 and selected['workflow']['bytes']<=MAX_INPUT,'finite Main Reader and workflow')
     binding=dict(source=published_source_cid,ref=source_ref,source_lock=source['source_map'],run=None,job=None,attempt=1)
@@ -152,19 +164,19 @@ def render(*,published_source_cid,source_ref,main_commit,profile_raw,profile_sha
         capability=None,context_limits=None,hosted=None,image_ids=dict(backend=None,ui=None,lifecycle=None),
         Root_final_acceptance=None,independent_component_acceptance=False,hardware_acceptance=False,release_acceptance=False)
     launch=dict(schema=3,kind='ROOT_AUTHORIZED_CURRENT_HOSTED_LAUNCH_V3',issuer=None,approved=None,
-        trusted_main_commit=main_commit,launcher=dict(member=LAUNCHER,**LAUNCHER_PIN),delegation_json=None,
+        trusted_main_commit=main_commit,launcher=dict(member=LAUNCHER,**launcher_pin),delegation_json=None,
         delegation_pin=None,staged_inputs=None,staged_root=None,control_name=None,authorization=None,material_staging=None)
     grant=dict(schema=3,kind='ROOT_CURRENT_COMPLETE517_STAGING_V3',issuer=None,approved=None,
         source=published_source_cid,ref=source_ref,source_lock=source['source_map'],nonce=None,policy=None,
         issued_epoch=None,expires_epoch=None,redirect_urls=None,secret_provider='CALLER_ONE_SHOT_EXACT22',scope='COMPLETE517_PUBLIC_DATA_ONLY',storage_parent=None)
-    result=template(successor=successor);result.update(source=dict(cid=published_source_cid,ref=source_ref,**source,program=program),
+    result=template(source_version=number);result.update(source=dict(cid=published_source_cid,ref=source_ref,**source,program=program),
         main=selected,publication=dict(receipt_pin=pin(publication_raw),authenticity='UNVERIFIED_DATA_ONLY'),root_profile=pin(profile_raw),
         request_templates=dict(launch=launch,delegation=delegation,material_grant=grant))
     need(len(encoded(result))<=MAX_OUTPUT,'bounded unissued output');return copy.deepcopy(result)
 
 
-def unissued(plan,*,successor=False):
-    base=template(successor=successor);need(type(plan)is dict and set(plan)==set(base),'closed unissued output schema')
+def unissued(plan,*,successor=False,source_version=None):
+    base=template(successor=successor,source_version=source_version);need(type(plan)is dict and set(plan)==set(base),'closed unissued output schema')
     for key in ('schema','kind','status','once','retry','issuer','approved','issued_epoch','expires_epoch','authority','resources','dispatch_ready','route_hold','actual'):
         need(encoded(plan[key])==encoded(base[key]),'unissued authority/route fields cannot change')
     def walk(value):
