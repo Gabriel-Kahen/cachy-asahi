@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: MIT
 """Offline controls. No process, lock, socket or native entry is permitted."""
 
+from contextlib import redirect_stderr
+from io import StringIO
 import os
 from pathlib import Path
 import stat
@@ -134,6 +136,65 @@ class AdapterTest(unittest.TestCase):
             finally:
                 observed_umask = os.umask(previous_umask)
             self.assertEqual(observed_umask, 0o022)
+
+    def test_owned_storage_checks_absence_before_inherited_exclusive_open(self):
+        sys.path.insert(0, str(REPO/C.HOSTED))
+        launch = E.load(REPO/C.HOSTED/"launch.py", "qt612_storage_bridge_control")
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp)
+            image = output/"storage.img"
+            stages = []
+            policy = dict(minimum_disk_bytes=launch.capacity.MINIMUM_BYTES,
+                          storage_bytes=launch.capacity.STORAGE_BYTES,
+                          host_reserve_bytes=launch.capacity.RESERVE_BYTES,
+                          minimum_available_bytes=10*launch.capacity.GIB)
+            original_lstat = Path.lstat
+            observation = dict(path=str(output), device=output.stat().st_dev, inode=output.stat().st_ino,
+                               mount=42, readonly=False, free_bytes=policy["minimum_disk_bytes"])
+
+            def root_file(path):
+                row = original_lstat(path)
+                if path != image:
+                    return row
+                fields = ("st_mode", "st_dev", "st_ino", "st_nlink", "st_size", "st_blocks")
+                return SimpleNamespace(st_uid=0, **{name:getattr(row,name) for name in fields})
+
+            def allocate(argv, *_):
+                self.assertEqual(argv, ["/usr/bin/fallocate", "--length", str(policy["storage_bytes"]), "--", str(image)])
+                self.assertEqual(stat.S_IMODE(image.stat().st_mode), 0o600)
+                raise ValueError("fixture allocation stop")
+
+            def inherited_setup():
+                fd = os.open(image, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+                os.close(fd)
+                controller.run(["/usr/bin/fallocate", "--length", str(policy["storage_bytes"]), "--", str(image)], 60)
+
+            controller = SimpleNamespace(out=output, policy=policy, run=allocate, setup=inherited_setup,
+                                         tool=lambda name:"/usr/bin/"+name)
+            args = dict(selection_sha256="a"*64, logical_bytes=1, stage=stages.append)
+            with patch.object(launch.os, "getuid", return_value=0), patch.object(launch.os, "geteuid", return_value=0), \
+                 patch.object(launch.capacity, "observe", return_value=observation), patch.object(Path, "lstat", root_file):
+                with self.assertRaisesRegex(ValueError, "fixture allocation stop"):
+                    launch.reserve_and_bind(controller, None, None, **args)
+                self.assertEqual(stages, ["STORAGE_FRESHNESS", "OWNED_HOST_SETUP",
+                                          "STORAGE_ALLOCATION_ADMISSION", "STORAGE_ALLOCATION"])
+                self.assertIs(controller.run, allocate)
+                with self.assertRaisesRegex(ValueError, "reservation must be fresh"):
+                    launch.reserve_and_bind(controller, None, None, **args)
+                self.assertEqual(stages[-1], "STORAGE_FRESHNESS")
+
+    def test_controller_diagnostic_emits_only_finite_stage(self):
+        def fail(_args, trace):
+            trace.mark("STORAGE_ALLOCATION_ADMISSION")
+            raise ValueError("private token and directory /tmp/credential")
+
+        args = [item for name in ("workflow-root","runtime-source","r128-source","approval","output")
+                for item in ("--"+name, "/fixture")]
+        args += ["--approval-sha256", "a"*64, "--runner-uid", "1001", "--runner-gid", "1001"]
+        stderr = StringIO()
+        with patch.object(E, "root_dispatch", side_effect=fail), redirect_stderr(stderr):
+            self.assertEqual(E.main(args), 2)
+        self.assertEqual(stderr.getvalue(), "HOLD_QT612_PAIR: STORAGE_ALLOCATION_ADMISSION\n")
 
     def test_root_356_readback_before_binding(self):
         approval, env = fixture()

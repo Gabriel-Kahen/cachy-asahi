@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import re
+import stat
 import time
 from types import ModuleType
 
@@ -88,7 +89,7 @@ def expose_readonly_tree(root):
         entry.chmod(0o555)
 
 
-def reserve_and_bind(controller, runner_inputs, transfer, *, selection_sha256, logical_bytes):
+def reserve_and_bind(controller, runner_inputs, transfer, *, selection_sha256, logical_bytes, stage):
     """Enter the exact owned controller, then acquire and bind inside its volume."""
     need(os.getuid() == os.geteuid() == 0, "Root-owned native controller required")
     output, policy = Path(controller.out), controller.policy
@@ -99,23 +100,44 @@ def reserve_and_bind(controller, runner_inputs, transfer, *, selection_sha256, l
          "Unchanged native hosted memory, disk reservation and reserve required")
     evidence = {}
     original_run = controller.run
+    image = output/"storage.img"
+    stage("STORAGE_FRESHNESS")
+    fresh = capacity.require_before(output)
 
     def observe_allocation(argv, *args, **kwargs):
         if Path(argv[0]).name != "fallocate":
             return original_run(argv, *args, **kwargs)
+        stage("STORAGE_ALLOCATION_ADMISSION")
         need(not evidence and argv == [controller.tool("fallocate"), "--length",
-             str(capacity.STORAGE_BYTES), "--", str(output/"storage.img")],
+             str(capacity.STORAGE_BYTES), "--", str(image)],
              "One exact naturally supervised storage allocation")
-        evidence["before"] = capacity.require_before(output)
+        # Inherited setup's O_EXCL open has just created its empty private file.
+        current = capacity.observe(output)
+        before = image.lstat()
+        need(all(current[key] == fresh[key] for key in ("path", "device", "inode", "mount"))
+             and not current["readonly"] and current["free_bytes"] >= capacity.MINIMUM_BYTES
+             and stat.S_ISREG(before.st_mode) and stat.S_IMODE(before.st_mode) == 0o600
+             and before.st_uid == 0 and before.st_dev == current["device"]
+             and before.st_nlink == 1 and before.st_size == 0 and before.st_blocks == 0,
+             "Same verified filesystem and exact fresh private allocation file")
+        evidence["before"] = current
+        stage("STORAGE_ALLOCATION")
         result = original_run(argv, *args, **kwargs)
-        evidence["after"] = capacity.require_after(output, evidence["before"])
+        stage("STORAGE_ALLOCATION_READBACK")
+        after = capacity.require_after(output, current)
+        found = image.lstat()
+        need((before.st_dev,before.st_ino) == (found.st_dev,found.st_ino), "Same allocation file after reservation")
+        evidence["after"] = after
+        stage("OWNED_HOST_SETUP")
         return result
 
     controller.run = observe_allocation
     try:
+        stage("OWNED_HOST_SETUP")
         daemon, memory, disk = controller.setup()
     finally:
         controller.run = original_run
+    stage("OWNED_VOLUME_JOIN")
     owned = capacity.require_transfer_volume(output, evidence["after"], logical_bytes)
     layout = output/"volume"
     work = layout/"work"
@@ -127,16 +149,19 @@ def reserve_and_bind(controller, runner_inputs, transfer, *, selection_sha256, l
     need(all(not os.path.lexists(path) for path in (portable, acquired)),
          "Fresh bulk transfer destinations on the loop")
     with runner_inputs.owned_workspace(layout, identity["device"], identity["inode"], identity["mount"]):
+        stage("INPUT_ACQUISITION")
         acquisition = transfer(owned_workspace=layout, device=identity["device"], inode=identity["inode"],
                                mount_id=identity["mount"], portable=portable, output=acquired)
         need(acquisition["status"] == "ACQUIRED_QT_RUNNER_INPUT_BYTES_ONLY"
              and acquisition["selection_sha256"] == selection_sha256
              and acquisition["GPG"] == "NOT_RUN" and acquisition["Root_acceptance"] is None,
              "Complete scoped acquisition byte receipt required")
+        stage("INPUT_BINDING")
         receipt = runner_inputs.bind_inputs(portable, selection_sha256, operands, framework, work/"bound", layout)
     need(receipt["status"] == "BOUND_RUNNER_SOURCE_DATA_ONLY" and receipt["base_roles"] == 517
          and receipt["packages"] == 7 and receipt["GPG"] == "NOT_RUN",
          "Exact selected 517 and seven dependency input bindings required")
+    stage("INPUT_EXPOSURE")
     bound = work/"bound"
     source = bound/"Source-DATA"
     for public in (source, operands, acquired/"trust"):

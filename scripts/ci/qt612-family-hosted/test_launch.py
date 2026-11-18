@@ -49,8 +49,12 @@ class LaunchTests(unittest.TestCase):
             control.run(args, 20)
 
     def test_exact_operation_order_and_mount_for_bind(self):
-        output = Path("/owned")
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        output = Path(temporary.name)
+        image = output/"storage.img"
         events = []
+        stages = []
         model = SimpleNamespace(out=output, policy={
             "minimum_disk_bytes":capacity.MINIMUM_BYTES, "storage_bytes":capacity.STORAGE_BYTES,
             "host_reserve_bytes":capacity.RESERVE_BYTES, "minimum_available_bytes":10*capacity.GIB})
@@ -58,8 +62,11 @@ class LaunchTests(unittest.TestCase):
         model.run = lambda argv, _: events.append(("allocate", argv))
 
         def setup():
+            fd = os.open(image, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+            os.close(fd)
+            events.append("exclusive-create")
             model.run(["/usr/bin/fallocate", "--length", str(capacity.STORAGE_BYTES), "--",
-                       str(output/"storage.img")], 60)
+                       str(image)], 60)
             events.append("mounted")
             return {"pid":5}, 15, 12
 
@@ -81,19 +88,39 @@ class LaunchTests(unittest.TestCase):
             return dict(status="BOUND_RUNNER_SOURCE_DATA_ONLY", base_roles=517, packages=7, GPG="NOT_RUN")
 
         inputs = SimpleNamespace(owned_workspace=workspace, bind_inputs=bind)
+        info = output.stat()
+        original_lstat = Path.lstat
+
+        def model_file(path):
+            row = original_lstat(path)
+            if path != image:
+                return row
+            fields = ("st_mode", "st_dev", "st_ino", "st_nlink", "st_size", "st_blocks")
+            return SimpleNamespace(st_uid=0, **{name:getattr(row,name) for name in fields})
+
+        def census(_):
+            events.append("allocation-admission" if image.exists() else "fresh")
+            return dict(path=str(output), device=info.st_dev, inode=info.st_ino, mount=6,
+                        readonly=False, free_bytes=capacity.MINIMUM_BYTES)
+
         with patch("os.getuid", return_value=0), patch("os.geteuid", return_value=0), \
-                patch.object(capacity, "require_before", side_effect=lambda _: events.append("before") or {}), \
+                patch.object(capacity, "observe", side_effect=census), patch.object(Path, "lstat", model_file), \
                 patch.object(capacity, "require_after", side_effect=lambda *_: events.append("after") or {}), \
                 patch.object(capacity, "require_transfer_volume", return_value={"volume":{
                     "device":2, "inode":5, "mount":7}}), \
                 patch.object(launch, "expose_readonly_tree") as expose, patch.object(Path, "chmod"):
-            result = launch.reserve_and_bind(model, inputs, transfer, selection_sha256="a"*64, logical_bytes=180)
+            result = launch.reserve_and_bind(model, inputs, transfer, selection_sha256="a"*64,
+                                             logical_bytes=180, stage=stages.append)
         self.assertEqual([e[0] if isinstance(e, tuple) else e for e in events],
-                         ["before", "allocate", "after", "mounted", "workspace", "transfer", "bind", "workspace-reread"])
-        self.assertEqual(events[4], ("workspace", output/"volume", 2, 5, 7))
-        self.assertEqual(events[5][1], dict(owned_workspace=output/"volume", device=2, inode=5, mount_id=7,
+                         ["fresh", "exclusive-create", "allocation-admission", "allocate", "after", "mounted",
+                          "workspace", "transfer", "bind", "workspace-reread"])
+        self.assertEqual(stages, ["STORAGE_FRESHNESS", "OWNED_HOST_SETUP", "STORAGE_ALLOCATION_ADMISSION",
+                                  "STORAGE_ALLOCATION", "STORAGE_ALLOCATION_READBACK", "OWNED_HOST_SETUP",
+                                  "OWNED_VOLUME_JOIN", "INPUT_ACQUISITION", "INPUT_BINDING", "INPUT_EXPOSURE"])
+        self.assertEqual(events[6], ("workspace", output/"volume", 2, 5, 7))
+        self.assertEqual(events[7][1], dict(owned_workspace=output/"volume", device=2, inode=5, mount_id=7,
                                              portable=output/"volume/work/portable", output=output/"volume/work/acquired"))
-        self.assertEqual(events[6][1], (output/"volume/work/portable", "a"*64, output/"volume/work/acquired/operands",
+        self.assertEqual(events[8][1], (output/"volume/work/portable", "a"*64, output/"volume/work/acquired/operands",
                          output/"volume/work/acquired/framework", output/"volume/work/bound", output/"volume"))
         self.assertEqual(result["source"], output/"volume/work/bound/Source-DATA")
         self.assertEqual([c.args[0] for c in expose.call_args_list],
@@ -101,10 +128,12 @@ class LaunchTests(unittest.TestCase):
 
     def test_rejects_weakened_host_policy_before_any_setup(self):
         model = SimpleNamespace(out="/owned", setup=Mock(), policy={"minimum_disk_bytes":0})
+        stage = Mock()
         with patch("os.getuid", return_value=0), patch("os.geteuid", return_value=0):
             with self.assertRaisesRegex(ValueError, "Unchanged native"):
-                launch.reserve_and_bind(model, None, None, selection_sha256="a"*64, logical_bytes=180)
+                launch.reserve_and_bind(model, None, None, selection_sha256="a"*64, logical_bytes=180, stage=stage)
         model.setup.assert_not_called()
+        stage.assert_not_called()
 
 
 class SignedDependenciesTests(unittest.TestCase):
