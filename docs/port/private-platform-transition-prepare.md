@@ -43,12 +43,14 @@ The source manifest is a reviewed, checksum-bound JSON document:
  files: {"scripts/platform/prepare_transition.py": SHA256, ...}}
 ```
 
-Its exact16 repo-relative paths are `prepare_transition.SOURCE_FILES`: the
-original15-source planner runtime plus the new entrypoint. It includes actual
-verification, status parsing, process control, package-check, preview and release
-implementations. Every hash is checked before assessment/authentication and
-again before reporting. Executed entrypoint/planner paths must match the bound
-runtime paths. Preserve reviewed hashes instead of silently refreshing them.
+The 17 repo-relative paths in the current checkout are specified by
+`prepare_transition.SOURCE_FILES`. The closure includes verification, status
+parsing, process control, package checks, preview and release helpers, plus
+`scripts/platform/installed_payload_correspondence.py` for the planner’s
+[retained kernel fallback check](platform-transition.md#explicit-policy-and-recovery-assets).
+Every hash is checked before assessment and authentication and again before
+reporting. Executed entrypoint and planner paths must match the bound runtime
+paths. Review and pin a successor closure when selecting a new runtime.
 
 Before any project helper import, the entrypoint creates a fresh private
 bytecode-cache prefix and propagates it to workers; bytecode writes are disabled.
