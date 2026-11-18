@@ -1,0 +1,623 @@
+{
+  "audit_date": "2026-10-11",
+  "build_script_execution": "NOT RUN",
+  "cargo_execution": "NOT RUN",
+  "cargo_lock_sha256": "0f12cdc2bd6e3838d67b08f0566f75f477bc83121196cf14d0ea5ce07faa3753",
+  "complete_notice_entries": 4,
+  "distribution_accepted": false,
+  "entries": [
+    {
+      "blockers": [
+        "Historical source explicitly declares MIT but has no complete permission/copyright notice at the matched revision. Do not invent a copyright notice or apply an unrelated/later source license without evidence."
+      ],
+      "declared_spdx": "MIT",
+      "distribution_accepted": false,
+      "grant_basis": "Matching historical Cargo.toml explicitly declares MIT and names Steven Sheldon as author; no source header, full license text or copyright-year notice was found in the exact upstream archive.",
+      "integration_required": "Retain exact full license and author notices in corresponding-source/license collection and final package; native build/distribution compatibility is separate.",
+      "name": "block",
+      "notice_status": "INCOMPLETE",
+      "notices": [],
+      "preferred_branch_for_notice_collection": null,
+      "registry_source_archive_sha256": "0d8c1fef690941d3e7788d328517591fecc684c084084702d6ff1641e993699a",
+      "retained_declarations": [
+        {
+          "expression": "MIT",
+          "kind": "upstream package license declaration",
+          "path": "Cargo.toml",
+          "sha256": "24df2f33b48c9e756a4f864f882c1ab07a159b6c2b790f45af2e8162499b6719"
+        }
+      ],
+      "source_comparison": {
+        "byte_identical_file_count": 4,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": true,
+          "registry_manifest_sha256": "24df2f33b48c9e756a4f864f882c1ab07a159b6c2b790f45af2e8162499b6719",
+          "upstream_manifest_sha256": "24df2f33b48c9e756a4f864f882c1ab07a159b6c2b790f45af2e8162499b6719",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/block-matched-files.json",
+        "matched_files_manifest_sha256": "4dd14dab4c0f02faa43ac068c5b4fa11862d41987f9674cf08696671f30e35d3",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "upstream_pin": {
+        "archive_bytes": 5618,
+        "archive_sha256": "41307468f6ea30759b6397441af749aa23666863c894a6cfbd996cda0e4056d3",
+        "archive_url": "https://codeload.github.com/SSheldon/rust-block/tar.gz/47178790cfc9d4a8b092051d8b413b78bd31254a",
+        "basis": "matching immutable upstream release/history revision; no crate VCS provenance asserted",
+        "commit": "47178790cfc9d4a8b092051d8b413b78bd31254a",
+        "repository": "https://github.com/SSheldon/rust-block",
+        "subdirectory": ""
+      },
+      "version": "0.1.6"
+    },
+    {
+      "blockers": [],
+      "declared_spdx": "MIT OR Apache-2.0",
+      "distribution_accepted": false,
+      "grant_basis": "Exact parser README expressly offers MIT or Apache-2.0 and points to parent license files; matching parent LICENSE-MIT carries Ferrous Systems copyright and full MIT permission text.",
+      "integration_required": "Retain exact full license and author notices in corresponding-source/license collection and final package; native build/distribution compatibility is separate.",
+      "name": "defmt-parser",
+      "notice_status": "COMPLETE SOURCE EVIDENCE",
+      "notices": [
+        {
+          "bytes": 1053,
+          "contains_full_text_for": "MIT",
+          "copyright_lines": [
+            "Copyright (c) Ferrous Systems"
+          ],
+          "full_notice_text": "Copyright (c) Ferrous Systems\n\nPermission is hereby granted, free of charge, to any\nperson obtaining a copy of this software and associated\ndocumentation files (the \"Software\"), to deal in the\nSoftware without restriction, including without\nlimitation the rights to use, copy, modify, merge,\npublish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software\nis furnished to do so, subject to the following\nconditions:\n\nThe above copyright notice and this permission notice\nshall be included in all copies or substantial portions\nof the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF\nANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR\nIN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE.",
+          "retained_full_text_path": "/tmp/cachy-update-extra-cargo-notices/defmt-parser/LICENSE-MIT",
+          "sha256": "2710a622a896bba67356913d4d0492cab5465f61b2ecce6d880aeb483834fb50",
+          "upstream_path": "LICENSE-MIT",
+          "url": "https://raw.githubusercontent.com/knurling-rs/defmt/4a8cdb44891ed57b8ff5a023b6bec7137c48708f/LICENSE-MIT"
+        },
+        {
+          "bytes": 10850,
+          "contains_full_text_for": "Apache-2.0",
+          "copyright_lines": [
+            "copyright notice that is included in or attached to the work",
+            "copyright license to reproduce, prepare Derivative Works of,"
+          ],
+          "retained_full_text_path": "/tmp/cachy-update-extra-cargo-notices/defmt-parser/LICENSE-APACHE",
+          "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90",
+          "upstream_path": "LICENSE-APACHE",
+          "url": "https://raw.githubusercontent.com/knurling-rs/defmt/4a8cdb44891ed57b8ff5a023b6bec7137c48708f/LICENSE-APACHE"
+        }
+      ],
+      "preferred_branch_for_notice_collection": "MIT",
+      "registry_source_archive_sha256": "10d60334b3b2e7c9d91ef8150abfb6fa4c1c39ebbcf4a81c2e346aad939fee3e",
+      "retained_declarations": [
+        {
+          "expression": "MIT OR Apache-2.0",
+          "kind": "upstream package license declaration",
+          "path": "Cargo.toml",
+          "sha256": "c4c4df5b09e53450267eacadf1f7f6a0d3d5fc463bc450e199f0d06eba8e6ab3"
+        },
+        {
+          "kind": "explicit source text (not a compatibility ruling)",
+          "matched_lines": [
+            {
+              "line": 25,
+              "text": "Licensed under either of"
+            }
+          ],
+          "path": "README.md",
+          "sha256": "a40aae66ea32ccd2b2c30ea976d4ac02fab1025a8dece8bfae6aa83bdcfd9c0e"
+        }
+      ],
+      "source_comparison": {
+        "byte_identical_file_count": 6,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": true,
+          "registry_manifest_sha256": "c4c4df5b09e53450267eacadf1f7f6a0d3d5fc463bc450e199f0d06eba8e6ab3",
+          "upstream_manifest_sha256": "5d5c0e139cf4076aad5d1f8b992a7b8c9095f5443dab0f9d1da020101adea245",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/defmt-parser-matched-files.json",
+        "matched_files_manifest_sha256": "9c83888a0f7860a240430a86b53893672b075e527d0eba26c61a50a01973d84c",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "upstream_pin": {
+        "archive_bytes": 560161,
+        "archive_sha256": "0e5f4244d6418305ed6fc363c86c7e1e2effa72744cc14605384b69e69479bfc",
+        "archive_url": "https://codeload.github.com/knurling-rs/defmt/tar.gz/4a8cdb44891ed57b8ff5a023b6bec7137c48708f",
+        "basis": "retained crate .cargo_vcs_info.json",
+        "commit": "4a8cdb44891ed57b8ff5a023b6bec7137c48708f",
+        "repository": "https://github.com/knurling-rs/defmt",
+        "subdirectory": "parser"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "blockers": [
+        "Historical source explicitly declares MIT but has no complete permission/copyright notice at the matched revision. Do not invent a copyright notice or apply an unrelated/later source license without evidence."
+      ],
+      "declared_spdx": "MIT",
+      "distribution_accepted": false,
+      "grant_basis": "Matching historical Cargo.toml explicitly declares MIT and names Steven Sheldon as author; no source header, full license text or copyright-year notice was found in the exact upstream archive.",
+      "integration_required": "Retain exact full license and author notices in corresponding-source/license collection and final package; native build/distribution compatibility is separate.",
+      "later_license_not_accepted": {
+        "commit": "d9a3e539642bd90e07df458d226b19cdfa606863",
+        "reason": "Fred Potter added a license in 2020 citing registry MIT intention; it accompanies changed 1.0.0 source and is not an exact source match to locked 0.0.6. Copyright (c) 2020 Steven Sheldon is not adopted as a historical notice.",
+        "sha256": "aced7b57e474a63edb5a724954222bf7659c01ceef0e648a03af799582991db7",
+        "url": "https://raw.githubusercontent.com/SSheldon/malloc_buf/d9a3e539642bd90e07df458d226b19cdfa606863/LICENSE"
+      },
+      "name": "malloc_buf",
+      "notice_status": "INCOMPLETE",
+      "notices": [],
+      "preferred_branch_for_notice_collection": null,
+      "registry_source_archive_sha256": "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb",
+      "retained_declarations": [
+        {
+          "expression": "MIT",
+          "kind": "upstream package license declaration",
+          "path": "Cargo.toml",
+          "sha256": "d87624d9d117489bd49dbaeb70077a0721e00ac2a76eb371faec818a92da5661"
+        }
+      ],
+      "source_comparison": {
+        "byte_identical_file_count": 1,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": false,
+          "packaging_difference": "Registry legacy manifest adds exclude=[\".gitignore\"] absent at release tag; sole source file matches byte-for-byte and version/author/license/dependency declarations match.",
+          "registry_manifest_sha256": "d87624d9d117489bd49dbaeb70077a0721e00ac2a76eb371faec818a92da5661",
+          "upstream_manifest_sha256": "1c70c91688d9850272e43cee9b189ffe3fe667151d7caf576a36a720f8b28194",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/malloc_buf-matched-files.json",
+        "matched_files_manifest_sha256": "5b8e7558dbe7aa3a30f151300b484391e5d389a5551ba890f27e203cdcf2bd50",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "upstream_pin": {
+        "archive_bytes": 1384,
+        "archive_sha256": "9149a293334084c8adda5a139f3b882d0a564f6953d1b2ea5216a10974b21352",
+        "archive_url": "https://codeload.github.com/SSheldon/malloc_buf/tar.gz/a7811e5f4c6f9685dd57ad9bfe34e9bf6b0ba4f9",
+        "basis": "matching immutable upstream release/history revision; no crate VCS provenance asserted",
+        "commit": "a7811e5f4c6f9685dd57ad9bfe34e9bf6b0ba4f9",
+        "repository": "https://github.com/SSheldon/malloc_buf",
+        "subdirectory": ""
+      },
+      "version": "0.0.6"
+    },
+    {
+      "blockers": [
+        "Historical source explicitly declares MIT but has no complete permission/copyright notice at the matched revision. Do not invent a copyright notice or apply an unrelated/later source license without evidence."
+      ],
+      "declared_spdx": "MIT",
+      "distribution_accepted": false,
+      "grant_basis": "Matching historical Cargo.toml explicitly declares MIT and names Steven Sheldon as author; no source header, full license text or copyright-year notice was found in the exact upstream archive.",
+      "integration_required": "Retain exact full license and author notices in corresponding-source/license collection and final package; native build/distribution compatibility is separate.",
+      "name": "objc-foundation",
+      "notice_status": "INCOMPLETE",
+      "notices": [],
+      "preferred_branch_for_notice_collection": null,
+      "registry_source_archive_sha256": "1add1b659e36c9607c7aab864a76c7a4c2760cd0cd2e120f3fb8b952c7e22bf9",
+      "retained_declarations": [
+        {
+          "expression": "MIT",
+          "kind": "upstream package license declaration",
+          "path": "Cargo.toml",
+          "sha256": "27c851b122617cfbf263603bcf05d637aaddbc87c12c2e78f8f91675739928a8"
+        }
+      ],
+      "source_comparison": {
+        "byte_identical_file_count": 12,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": true,
+          "registry_manifest_sha256": "27c851b122617cfbf263603bcf05d637aaddbc87c12c2e78f8f91675739928a8",
+          "upstream_manifest_sha256": "27c851b122617cfbf263603bcf05d637aaddbc87c12c2e78f8f91675739928a8",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/objc-foundation-matched-files.json",
+        "matched_files_manifest_sha256": "a43cbbb7def643088b1c973a85c8ce228fb62a4eb7715d98d64c483cc3dd89e4",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "upstream_pin": {
+        "archive_bytes": 9265,
+        "archive_sha256": "e8dcb8550d94b6c9dab6c229c01703df1d39288023899e893f7f447efe6d8481",
+        "archive_url": "https://codeload.github.com/SSheldon/rust-objc-foundation/tar.gz/0c157a59b7931430ed5ac7839381470b0c516d3c",
+        "basis": "matching immutable upstream release/history revision; no crate VCS provenance asserted",
+        "commit": "0c157a59b7931430ed5ac7839381470b0c516d3c",
+        "repository": "https://github.com/SSheldon/rust-objc-foundation",
+        "subdirectory": ""
+      },
+      "version": "0.1.1"
+    },
+    {
+      "blockers": [
+        "Historical source explicitly declares MIT but has no complete permission/copyright notice at the matched revision. Do not invent a copyright notice or apply an unrelated/later source license without evidence."
+      ],
+      "declared_spdx": "MIT",
+      "distribution_accepted": false,
+      "grant_basis": "Matching historical Cargo.toml explicitly declares MIT and names Steven Sheldon as author; no source header, full license text or copyright-year notice was found in the exact upstream archive.",
+      "integration_required": "Retain exact full license and author notices in corresponding-source/license collection and final package; native build/distribution compatibility is separate.",
+      "name": "objc_id",
+      "notice_status": "INCOMPLETE",
+      "notices": [],
+      "preferred_branch_for_notice_collection": null,
+      "registry_source_archive_sha256": "c92d4ddb4bd7b50d730c215ff871754d0da6b2178849f8a2a2ab69712d0c073b",
+      "retained_declarations": [
+        {
+          "expression": "MIT",
+          "kind": "upstream package license declaration",
+          "path": "Cargo.toml",
+          "sha256": "7d444ee847aa9b34cbe6cddeaf4001b28be86b28c2855e09c2e7fbfa797a66dd"
+        }
+      ],
+      "source_comparison": {
+        "byte_identical_file_count": 4,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": true,
+          "registry_manifest_sha256": "7d444ee847aa9b34cbe6cddeaf4001b28be86b28c2855e09c2e7fbfa797a66dd",
+          "upstream_manifest_sha256": "8a219f5fdd84d366e0298e543d5a0c537d68ff2aceb0459698c047c4ffc082dc",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/objc_id-matched-files.json",
+        "matched_files_manifest_sha256": "c4ba3439008f0bd819657becec47e913db0ffc5e37299ac14b601a4bbd786014",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "upstream_pin": {
+        "archive_bytes": 3047,
+        "archive_sha256": "a6d6adf9f3afed35520e648199cfe9273b251b840fb05ab0bbe189bed7cfeb3f",
+        "archive_url": "https://codeload.github.com/SSheldon/rust-objc-id/tar.gz/6527cdf28fef2b155c67c1681f548ecfd794003c",
+        "basis": "matching immutable upstream release/history revision; no crate VCS provenance asserted",
+        "commit": "6527cdf28fef2b155c67c1681f548ecfd794003c",
+        "repository": "https://github.com/SSheldon/rust-objc-id",
+        "subdirectory": ""
+      },
+      "version": "0.1.1"
+    },
+    {
+      "blockers": [],
+      "declared_spdx": "MIT OR Apache-2.0 OR LGPL-2.1-or-later",
+      "distribution_accepted": false,
+      "grant_basis": "AUTHORS is already in the registry crate and matches the VCS revision; explicit project triple grant, complete MIT permission text and copyright holders occur in AUTHORS rather than a LICENSE-named file.",
+      "integration_required": "Retain exact full license and author notices in corresponding-source/license collection and final package; native build/distribution compatibility is separate.",
+      "name": "r-efi",
+      "notice_status": "COMPLETE SOURCE EVIDENCE",
+      "notices": [
+        {
+          "bytes": 3733,
+          "contains_full_text_for": "MIT",
+          "copyright_lines": [
+            "COPYRIGHT: (ordered alphabetically)",
+            "Copyright (C) 2017-2023 Red Hat, Inc.",
+            "Copyright (C) 2019-2023 Microsoft Corporation",
+            "Copyright (C) 2022-2023 David Rheinsberg"
+          ],
+          "full_notice_text": "LICENSE:\n        This project is triple-licensed under the MIT License, the Apache\n        License, Version 2.0, and the GNU Lesser General Public License,\n        Version 2.1+.\n\nAUTHORS-MIT:\n        Permission is hereby granted, free of charge, to any person obtaining a\n        copy of this software and associated documentation files (the\n        \"Software\"), to deal in the Software without restriction, including\n        without limitation the rights to use, copy, modify, merge, publish,\n        distribute, sublicense, and/or sell copies of the Software, and to\n        permit persons to whom the Software is furnished to do so, subject to\n        the following conditions:\n\n        The above copyright notice and this permission notice shall be included\n        in all copies or substantial portions of the Software.\n\n        THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS\n        OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\n        MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.\n        IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\n        CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,\n        TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE\n        SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\nAUTHORS-ASL:\n        Licensed under the Apache License, Version 2.0 (the \"License\");\n        you may not use this file except in compliance with the License.\n        You may obtain a copy of the License at\n\n                http://www.apache.org/licenses/LICENSE-2.0\n\n        Unless required by applicable law or agreed to in writing, software\n        distributed under the License is distributed on an \"AS IS\" BASIS,\n        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n        See the License for the specific language governing permissions and\n        limitations under the License.\n\nAUTHORS-LGPL:\n        This program is free software; you can redistribute it and/or modify it\n        under the terms of the GNU Lesser General Public License as published\n        by the Free Software Foundation; either version 2.1 of the License, or\n        (at your option) any later version.\n\n        This program is distributed in the hope that it will be useful, but\n        WITHOUT ANY WARRANTY; without even the implied warranty of\n        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU\n        Lesser General Public License for more details.\n\n        You should have received a copy of the GNU Lesser General Public License\n        along with this program; If not, see <http://www.gnu.org/licenses/>.\n\nCOPYRIGHT: (ordered alphabetically)\n        Copyright (C) 2017-2023 Red Hat, Inc.\n        Copyright (C) 2019-2023 Microsoft Corporation\n        Copyright (C) 2022-2023 David Rheinsberg\n\nAUTHORS: (ordered alphabetically)\n        Alan Egerton <eggyal@gmail.com>\n        Alex James <theracermaster@gmail.com>\n        Ayush Singh <ayushsingh1325@gmail.com>\n        Boris-Chengbiao Zhou <bobo1239@web.de>\n        Bret Barkelew <bret@corthon.com>\n        Christopher Zurcher <christopher.zurcher@microsoft.com>\n        David Rheinsberg <david@readahead.eu>\n        Dmitry Mostovenko <trueberserker@gmail.com>\n        Hiroki Tokunaga <tokusan441@gmail.com>\n        Joe Richey <joerichey@google.com>\n        John Schock <joschock@microsoft.com>\n        Michael Kubacki <michael.kubacki@microsoft.com>\n        Oliver Smith-Denny <osde@microsoft.com>\n        Richard Wiedenh\u00f6ft <richard@wiedenhoeft.xyz>\n        Rob Bradford <robert.bradford@intel.com>, <rbradford@rivosinc.com>\n        Tom Gundersen <teg@jklm.no>\n        Trevor Gross <tmgross@umich.edu>\n",
+          "retained_full_text_path": "/tmp/cachy-update-extra-cargo-notices/r-efi/AUTHORS",
+          "sha256": "d027e91dbc9cdbb2f1190068e498bd6b61cff022b6a032b191021ba658d96111",
+          "upstream_path": "AUTHORS",
+          "url": "https://raw.githubusercontent.com/r-efi/r-efi/7e1b0322d31d625f81a5656096330934f9cd835d/AUTHORS"
+        }
+      ],
+      "preferred_branch_for_notice_collection": "MIT",
+      "registry_source_archive_sha256": "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf",
+      "retained_declarations": [
+        {
+          "expression": "MIT OR Apache-2.0 OR LGPL-2.1-or-later",
+          "kind": "upstream package license declaration",
+          "path": "Cargo.toml",
+          "sha256": "a021f9fb0645cc5de5770cf7f41594c1deff4b388eca933b289752aa52666829"
+        }
+      ],
+      "source_comparison": {
+        "byte_identical_file_count": 66,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": true,
+          "registry_manifest_sha256": "a021f9fb0645cc5de5770cf7f41594c1deff4b388eca933b289752aa52666829",
+          "upstream_manifest_sha256": "b8e89c393831c2161b6d390bd40422910ac34f02903ad39edd85ec38d4513fef",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/r-efi-matched-files.json",
+        "matched_files_manifest_sha256": "cf16440b50262ec3303cf0604a4d8902031ce4ffd589d9f4e39618a13a61ca5c",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "upstream_pin": {
+        "archive_bytes": 65426,
+        "archive_sha256": "c4c0ce4a68412706de70ba2b5711e0f521aee82f6e72fdc1a6e0a7a89dc017cf",
+        "archive_url": "https://codeload.github.com/r-efi/r-efi/tar.gz/7e1b0322d31d625f81a5656096330934f9cd835d",
+        "basis": "retained crate .cargo_vcs_info.json",
+        "commit": "7e1b0322d31d625f81a5656096330934f9cd835d",
+        "repository": "https://github.com/r-efi/r-efi",
+        "subdirectory": ""
+      },
+      "version": "6.0.0"
+    },
+    {
+      "blockers": [],
+      "declared_spdx": "MIT/Apache-2.0",
+      "distribution_accepted": false,
+      "grant_basis": "Matched build.rs/src/lib.rs expressly offer MIT or Apache-2.0 with full license-file links. Matching upstream root LICENSE-MIT/APACHE supplies those texts. All bundled import archives also match this revision; byte identity is not their independent build/provenance acceptance.",
+      "integration_required": "Retain exact full license and author notices in corresponding-source/license collection and final package; native build/distribution compatibility is separate.",
+      "name": "winapi-i686-pc-windows-gnu",
+      "notice_status": "COMPLETE SOURCE EVIDENCE",
+      "notices": [
+        {
+          "bytes": 1068,
+          "contains_full_text_for": "MIT",
+          "copyright_lines": [
+            "Copyright (c) 2015 The winapi-rs Developers"
+          ],
+          "full_notice_text": "Copyright (c) 2015 The winapi-rs Developers\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+          "retained_full_text_path": "/tmp/cachy-update-extra-cargo-notices/winapi-i686-pc-windows-gnu/LICENSE-MIT",
+          "sha256": "5b19674a1db628a475850a131956ed49521b744e3dda8f5a94141f9aba681219",
+          "upstream_path": "LICENSE-MIT",
+          "url": "https://raw.githubusercontent.com/retep998/winapi-rs/9497609ef44cc9bcd16cd2411c0ee6ccaf5483aa/LICENSE-MIT"
+        },
+        {
+          "bytes": 11357,
+          "contains_full_text_for": "Apache-2.0",
+          "copyright_lines": [
+            "copyright notice that is included in or attached to the work",
+            "copyright license to reproduce, prepare Derivative Works of,"
+          ],
+          "retained_full_text_path": "/tmp/cachy-update-extra-cargo-notices/winapi-i686-pc-windows-gnu/LICENSE-APACHE",
+          "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
+          "upstream_path": "LICENSE-APACHE",
+          "url": "https://raw.githubusercontent.com/retep998/winapi-rs/9497609ef44cc9bcd16cd2411c0ee6ccaf5483aa/LICENSE-APACHE"
+        }
+      ],
+      "preferred_branch_for_notice_collection": "MIT",
+      "registry_source_archive_sha256": "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6",
+      "retained_declarations": [
+        {
+          "expression": "MIT/Apache-2.0",
+          "kind": "upstream package license declaration",
+          "path": "Cargo.toml",
+          "sha256": "9652222664ffc7e2a26fdcdebdce0917a455b39d8fbcbf451bf0b011a3067bf7"
+        },
+        {
+          "kind": "explicit source text (not a compatibility ruling)",
+          "matched_lines": [
+            {
+              "line": 2,
+              "text": "// Licensed under the Apache License, Version 2.0"
+            }
+          ],
+          "path": "build.rs",
+          "sha256": "4344ce95f51197e1377429cd9ef7a8e3f97d39546776705857991f2f9416f545"
+        },
+        {
+          "kind": "explicit source text (not a compatibility ruling)",
+          "matched_lines": [
+            {
+              "line": 2,
+              "text": "// Licensed under the Apache License, Version 2.0"
+            }
+          ],
+          "path": "src/lib.rs",
+          "sha256": "79212a91f610f8a77aa6ed4cc77212c2531eeb35630388bf07323cc328fcca42"
+        }
+      ],
+      "source_comparison": {
+        "byte_identical_file_count": 1390,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": true,
+          "registry_manifest_sha256": "9652222664ffc7e2a26fdcdebdce0917a455b39d8fbcbf451bf0b011a3067bf7",
+          "upstream_manifest_sha256": "5257d6f5283ab052b6af51f578a8c74e14c31deb53a7c6cd9e6fa16135d57eb3",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/winapi-i686-pc-windows-gnu-matched-files.json",
+        "matched_files_manifest_sha256": "58c528d7e7f326a46bbb9144e18e07a80bc2a200c25ebf9220948a3aa2ec1d2e",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "source_copyright_notices": [
+        {
+          "lines": [
+            "// Copyright \u00a9 2016-2018 winapi-rs developers",
+            "// Licensed under the Apache License, Version 2.0",
+            "// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license",
+            "// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.",
+            "// All files in the project carrying such notice may not be copied, modified, or distributed",
+            "// except according to those terms."
+          ],
+          "path": "build.rs"
+        },
+        {
+          "lines": [
+            "// Copyright \u00a9 2016 winapi-rs developers",
+            "// Licensed under the Apache License, Version 2.0",
+            "// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license",
+            "// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.",
+            "// All files in the project carrying such notice may not be copied, modified, or distributed",
+            "// except according to those terms."
+          ],
+          "path": "src/lib.rs"
+        }
+      ],
+      "upstream_pin": {
+        "archive_bytes": 8126403,
+        "archive_sha256": "a31a5a37536489a2f6136bdbc32a0c6d2d454150c528c081e40fec6c438ca70e",
+        "archive_url": "https://codeload.github.com/retep998/winapi-rs/tar.gz/9497609ef44cc9bcd16cd2411c0ee6ccaf5483aa",
+        "basis": "matching immutable upstream release/history revision; no crate VCS provenance asserted",
+        "commit": "9497609ef44cc9bcd16cd2411c0ee6ccaf5483aa",
+        "repository": "https://github.com/retep998/winapi-rs",
+        "subdirectory": "i686"
+      },
+      "version": "0.4.0"
+    },
+    {
+      "blockers": [],
+      "declared_spdx": "MIT/Apache-2.0",
+      "distribution_accepted": false,
+      "grant_basis": "Matched build.rs/src/lib.rs expressly offer MIT or Apache-2.0 with full license-file links. Matching upstream root LICENSE-MIT/APACHE supplies those texts. All bundled import archives also match this revision; byte identity is not their independent build/provenance acceptance.",
+      "integration_required": "Retain exact full license and author notices in corresponding-source/license collection and final package; native build/distribution compatibility is separate.",
+      "name": "winapi-x86_64-pc-windows-gnu",
+      "notice_status": "COMPLETE SOURCE EVIDENCE",
+      "notices": [
+        {
+          "bytes": 1068,
+          "contains_full_text_for": "MIT",
+          "copyright_lines": [
+            "Copyright (c) 2015 The winapi-rs Developers"
+          ],
+          "full_notice_text": "Copyright (c) 2015 The winapi-rs Developers\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+          "retained_full_text_path": "/tmp/cachy-update-extra-cargo-notices/winapi-x86_64-pc-windows-gnu/LICENSE-MIT",
+          "sha256": "5b19674a1db628a475850a131956ed49521b744e3dda8f5a94141f9aba681219",
+          "upstream_path": "LICENSE-MIT",
+          "url": "https://raw.githubusercontent.com/retep998/winapi-rs/9497609ef44cc9bcd16cd2411c0ee6ccaf5483aa/LICENSE-MIT"
+        },
+        {
+          "bytes": 11357,
+          "contains_full_text_for": "Apache-2.0",
+          "copyright_lines": [
+            "copyright notice that is included in or attached to the work",
+            "copyright license to reproduce, prepare Derivative Works of,"
+          ],
+          "retained_full_text_path": "/tmp/cachy-update-extra-cargo-notices/winapi-x86_64-pc-windows-gnu/LICENSE-APACHE",
+          "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
+          "upstream_path": "LICENSE-APACHE",
+          "url": "https://raw.githubusercontent.com/retep998/winapi-rs/9497609ef44cc9bcd16cd2411c0ee6ccaf5483aa/LICENSE-APACHE"
+        }
+      ],
+      "preferred_branch_for_notice_collection": "MIT",
+      "registry_source_archive_sha256": "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f",
+      "retained_declarations": [
+        {
+          "expression": "MIT/Apache-2.0",
+          "kind": "upstream package license declaration",
+          "path": "Cargo.toml",
+          "sha256": "a88605a11db5def9b6cf73398e83b3edb72228cb43ea935729fac5cd33cec22c"
+        },
+        {
+          "kind": "explicit source text (not a compatibility ruling)",
+          "matched_lines": [
+            {
+              "line": 2,
+              "text": "// Licensed under the Apache License, Version 2.0"
+            }
+          ],
+          "path": "build.rs",
+          "sha256": "b4ab421e1dc98159dd4440813cdaf7d9ea98278324bc6118d0f7cf378933f371"
+        },
+        {
+          "kind": "explicit source text (not a compatibility ruling)",
+          "matched_lines": [
+            {
+              "line": 2,
+              "text": "// Licensed under the Apache License, Version 2.0"
+            }
+          ],
+          "path": "src/lib.rs",
+          "sha256": "79212a91f610f8a77aa6ed4cc77212c2531eeb35630388bf07323cc328fcca42"
+        }
+      ],
+      "source_comparison": {
+        "byte_identical_file_count": 1419,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": true,
+          "registry_manifest_sha256": "a88605a11db5def9b6cf73398e83b3edb72228cb43ea935729fac5cd33cec22c",
+          "upstream_manifest_sha256": "d158846cdb1259d606bfbeb050e386484cb18f14db41478568114eddb76ec43e",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/winapi-x86_64-pc-windows-gnu-matched-files.json",
+        "matched_files_manifest_sha256": "3c69f9cf22f034234e7ab3bb4a06e3204b7a1ab01578db6ce8ac553f870e588c",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "source_copyright_notices": [
+        {
+          "lines": [
+            "// Copyright \u00a9 2016-2018 winapi-rs developers",
+            "// Licensed under the Apache License, Version 2.0",
+            "// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license",
+            "// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.",
+            "// All files in the project carrying such notice may not be copied, modified, or distributed",
+            "// except according to those terms."
+          ],
+          "path": "build.rs"
+        },
+        {
+          "lines": [
+            "// Copyright \u00a9 2016 winapi-rs developers",
+            "// Licensed under the Apache License, Version 2.0",
+            "// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT license",
+            "// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your option.",
+            "// All files in the project carrying such notice may not be copied, modified, or distributed",
+            "// except according to those terms."
+          ],
+          "path": "src/lib.rs"
+        }
+      ],
+      "upstream_pin": {
+        "archive_bytes": 8126403,
+        "archive_sha256": "a31a5a37536489a2f6136bdbc32a0c6d2d454150c528c081e40fec6c438ca70e",
+        "archive_url": "https://codeload.github.com/retep998/winapi-rs/tar.gz/9497609ef44cc9bcd16cd2411c0ee6ccaf5483aa",
+        "basis": "matching immutable upstream release/history revision; no crate VCS provenance asserted",
+        "commit": "9497609ef44cc9bcd16cd2411c0ee6ccaf5483aa",
+        "repository": "https://github.com/retep998/winapi-rs",
+        "subdirectory": "x86_64"
+      },
+      "version": "0.4.0"
+    }
+  ],
+  "incomplete_notice_entries": 4,
+  "kind": "Supplementary data-only Cargo notice audit",
+  "license_compatibility_review": "NOT RUN",
+  "native_build": "NOT RUN",
+  "remaining_blockers": [
+    {
+      "blockers": [
+        "Historical source explicitly declares MIT but has no complete permission/copyright notice at the matched revision. Do not invent a copyright notice or apply an unrelated/later source license without evidence."
+      ],
+      "name": "block",
+      "version": "0.1.6"
+    },
+    {
+      "blockers": [
+        "Historical source explicitly declares MIT but has no complete permission/copyright notice at the matched revision. Do not invent a copyright notice or apply an unrelated/later source license without evidence."
+      ],
+      "name": "malloc_buf",
+      "version": "0.0.6"
+    },
+    {
+      "blockers": [
+        "Historical source explicitly declares MIT but has no complete permission/copyright notice at the matched revision. Do not invent a copyright notice or apply an unrelated/later source license without evidence."
+      ],
+      "name": "objc-foundation",
+      "version": "0.1.1"
+    },
+    {
+      "blockers": [
+        "Historical source explicitly declares MIT but has no complete permission/copyright notice at the matched revision. Do not invent a copyright notice or apply an unrelated/later source license without evidence."
+      ],
+      "name": "objc_id",
+      "version": "0.1.1"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "Eight missing standalone license-file entries. No main audit, vendor, lock, recipe or manifest edits."
+}

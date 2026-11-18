@@ -1,0 +1,82 @@
+{
+  "LICENSE": {
+    "bytes": 1081,
+    "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+  },
+  "NOTICE.md": {
+    "bytes": 1018,
+    "sha256": "6a3649fc4e0d0ee18a7399ada57d9fa8c1b8c97232ba46efd5da511c72a74141"
+  },
+  "README.md": {
+    "bytes": 5928,
+    "sha256": "8adfe6bcbbf4e923e7211ed2d0fec62f999c05d1e2cfc87fa8c30f38397c1f29"
+  },
+  "archive_prefill.py": {
+    "bytes": 4717,
+    "sha256": "2090bd8098783834ac7b11a19eb3d8cd047b7de5b01f77ddc4bb60cd57bea726"
+  },
+  "caller-adoption.json": {
+    "bytes": 1591,
+    "sha256": "af0304c071a79910b0206b347e697190305307b7aec920770db40fd2b40654c3"
+  },
+  "carrier-profile.json": {
+    "bytes": 195440,
+    "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+  },
+  "compiler6-profile.json": {
+    "bytes": 1898,
+    "sha256": "74a1ee6d14507f35f52692da7cac580a993c9a2fe2a64cf1d7766f830a3693d1"
+  },
+  "compiler_policy.py": {
+    "bytes": 11090,
+    "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
+  },
+  "compiler_prefill.py": {
+    "bytes": 4486,
+    "sha256": "a0d9e765deb7d31f6b4e1d608cb0459a0244e19990a1da2b83452d7c53202810"
+  },
+  "control-evidence.json": {
+    "bytes": 4140,
+    "sha256": "ae9aca642ea8d8ad9e69ba1251898e6cfb85db0248c8243202cc29c3651dd5be"
+  },
+  "desktop574-inputs.lock.json": {
+    "bytes": 623664,
+    "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+  },
+  "genuine-publications.json": {
+    "bytes": 219793,
+    "sha256": "64e56c2631b40625a39eeba2306d0e9ee3e48c81f48563eff844a01ac26eb72d"
+  },
+  "index.json": {
+    "bytes": 184344,
+    "sha256": "51a53c9e0d9eab1728f350f9ab8d3d7b8932891ab0ed68c7876a1440166ff486"
+  },
+  "legacy-prefill-profile.json": {
+    "bytes": 1510,
+    "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+  },
+  "legacy_prefill.py": {
+    "bytes": 5986,
+    "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+  },
+  "native-inputs.lock.json": {
+    "bytes": 328101,
+    "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+  },
+  "prepare.py": {
+    "bytes": 3749,
+    "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+  },
+  "seed.py": {
+    "bytes": 6658,
+    "sha256": "76b787fa71b121ec1bf83b86e4d5db849913614bc90e03239b869d7061af1db4"
+  },
+  "test_cli.py": {
+    "bytes": 5285,
+    "sha256": "3e768a7ed16c5533411207559be747dfae0649b6d7bbdfb47914b447a49ad7dd"
+  },
+  "test_seed.py": {
+    "bytes": 2644,
+    "sha256": "0f4e34d3cb7024b656b3288b22eb0e6303b642153bb7d571841617329ac6cf0c"
+  }
+}

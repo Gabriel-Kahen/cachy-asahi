@@ -1,0 +1,28 @@
+{
+  "GUI_prerequisite": "CURRENT_GUI_FAIL_NOT_ACCEPTED_SEPARATE",
+  "expected604_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+  "fresh600": {
+    "carrier_source": "fd42f51b6c32a1cca69df5699760ed2a9e39329f",
+    "decision": {
+      "bytes": 3332,
+      "path": "payload/fresh600.json",
+      "sha256": "bea4b56374ef779756ffdc3e0aba680e3c74fac7316257c2433eb14417f210ef"
+    },
+    "run_id": "38965999704",
+    "source_sha": "3cbd856315adb30ba7a1b9246739a520c19c9728"
+  },
+  "native604": {
+    "carrier_source": "1c953fb9b1f9442f40895f886b659534424345ce",
+    "decision": {
+      "bytes": 2671,
+      "path": "payload/native604.json",
+      "sha256": "8243e27085a098a695f2036864aaf8b04b21fb648aff88631f724d4249a194fe"
+    },
+    "input_policy_sha256": "c8e6fe7f944d18dec2503b45b83c8b2f2553f50e15350507fc0b5ceb3087193a",
+    "run_id": "39005723200",
+    "source_manifest_sha256": "61048018e95c262ecd911ffc4150bbbb3e4857b65dee4f4a69a44016c59e2302",
+    "source_sha": "61a75ac08c735871aac85db5db40e9acac989ddc"
+  },
+  "schema_version": 1,
+  "status": "ROOT_BOUND_CURRENT604_NATIVE_ACCEPTANCE"
+}

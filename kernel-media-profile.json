@@ -1,0 +1,279 @@
+{
+  "actual": null,
+  "files": {
+    "NOTICE.md": {
+      "bytes": 697,
+      "sha256": "f146d28684e6450f28784f772cfcd9f09e3942a9c7d46743a2e060075325ad4c"
+    },
+    "build-source/.github/workflows/native-arm-build.yml": {
+      "bytes": 2815,
+      "sha256": "d9e0655990d9423fce3b75987f1c3eac7ebc7688f15af4498d14d13cc0e3b9bb"
+    },
+    "build-source/.github/workflows/native-arm-ksm2-kernel.yml": {
+      "bytes": 2815,
+      "sha256": "d9e0655990d9423fce3b75987f1c3eac7ebc7688f15af4498d14d13cc0e3b9bb"
+    },
+    "build-source/scripts/ci/ksm2-kernel-native/fixtures/baseline.config": {
+      "bytes": 64022,
+      "sha256": "9729936f8a2a3ffa3edf1e3f689dbb56426795f733c73d83a9e4ee94ee8d7aa5"
+    },
+    "build-source/scripts/ci/ksm2-kernel-native/fixtures/configuration-proof.json": {
+      "bytes": 2981,
+      "sha256": "9f21c73803a6a31d745b86b5fa602d0bcb1297a295fd86e2ac9d28a6076f3236"
+    },
+    "build-source/scripts/ci/ksm2-kernel-native/fixtures/ksm.config": {
+      "bytes": 64050,
+      "sha256": "958f956770acf57925fe7274145897efbba71a5a26a134d7d53b3826a3056642"
+    },
+    "build-source/scripts/ci/ksm2-kernel-native/input-policy.json": {
+      "bytes": 645,
+      "sha256": "fc926cd8cd0c0970bdaf32f68035cc5c599e529248bf62f69e46e9b7082b2866"
+    },
+    "build-source/scripts/ci/ksm2-kernel-native/ksm_profile.py": {
+      "bytes": 5229,
+      "sha256": "42722dab543afde8da9d047569ce9b1f7f1fe0bf2219c6d5e2c33893f664c685"
+    },
+    "build-source/scripts/ci/ksm2-kernel-native/lane.py": {
+      "bytes": 11954,
+      "sha256": "77d5a8c657d31310dfbb4fcca4050a7c7063f0051b0f1fd65767f530da1881ae"
+    },
+    "build-source/scripts/ci/ksm2-kernel-native/runtime.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "build-source/scripts/ci/ksm2-kernel-native/source-manifest.json": {
+      "bytes": 2764,
+      "sha256": "f9901c25b09612d493b3a7751ca15a07133090b07f99e337c27c904c50add927"
+    },
+    "build-source/scripts/ci/ksm2-kernel-native/test_advice.py": {
+      "bytes": 2635,
+      "sha256": "6cc80c03dc17f492b474c7d1dd5f47359e2a0e7c86e2df10f4c7f4d444b19890"
+    },
+    "build-source/scripts/ci/ksm2-kernel-native/test_lane.py": {
+      "bytes": 6666,
+      "sha256": "d4fc2b25eac182d836a257b307d0025a1ae110c8f8ff1cbcd800d933fb1ba2d4"
+    },
+    "build-source/scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "build-source/scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "build-source/scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "build-source/scripts/ci/managed-gui-generic16k/run.py": {
+      "bytes": 10493,
+      "sha256": "64e279b7ce4b04f115a7e1897377ce59ea5c15010a97a0f22cf16e35ce5e7e46"
+    },
+    "build-source/scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "build-source/scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "build-source/scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    },
+    "custody.json": {
+      "bytes": 8844,
+      "sha256": "ef4aff67db86a902ed807ed3d950b4c2c58d50d3ffb2037605e6900e4eb34ce1"
+    },
+    "index.json": {
+      "bytes": 10522,
+      "sha256": "b72d262b0c9fa8439edccebd4a9a9327b7b54a600ac592047dc4c25ced343ff3"
+    },
+    "media/Image": {
+      "bytes": 8884232,
+      "sha256": "039fbeaff5942de2317f47feec30a5c073691edf5f8cef8849b25d08006d4ddb"
+    },
+    "media/Image.header": {
+      "bytes": 64,
+      "sha256": "88e21a4947e11f150950cd4ffbf62e5b09f18fbb0a41c1fbe10beee596697604"
+    },
+    "media/acquisition.json": {
+      "bytes": 1849,
+      "sha256": "2850b28a900a16fcb23f77024d191417cc3acff7d139b2ab05ab478cd5baedbc"
+    },
+    "media/archive-header.bin": {
+      "bytes": 64,
+      "sha256": "7b55a2f470041a15cdb0a883366ddd1c1ebc6167bd940bf89eba49b316659cd6"
+    },
+    "media/baseline-build-receipt.json": {
+      "bytes": 5534,
+      "sha256": "5c6656c600b89dc4b1da2d1b96d7b2d9e1319e4f44a61091268ba7a94f4f2d5c"
+    },
+    "media/baseline-controller.json": {
+      "bytes": 692,
+      "sha256": "ed19c50312403a683c627acc03d484db98aa43f84a3edefffad8d240e779065f"
+    },
+    "media/baseline-controller.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "media/baseline-controller.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "media/baseline.config": {
+      "bytes": 63765,
+      "sha256": "c1ba2738d00616e289582033cc9638a804e964ae8d542ec3dfaf51e25cbf8606"
+    },
+    "media/build-receipt.json": {
+      "bytes": 6955,
+      "sha256": "fdd538c9e3c73f906da0c82f0b381b0385306a52d0dc1539ab13ceaa69938398"
+    },
+    "media/build.log": {
+      "bytes": 59594,
+      "sha256": "d4af282252b62fb5b52378612c04025cdaecd0b01d2257735bb1541439e68bc4"
+    },
+    "media/build_kernel.py": {
+      "bytes": 12899,
+      "sha256": "7372ebfece249fae202652f3c3bb419f730bd0e466dc076907270dac1ac873ed"
+    },
+    "media/candidate-controller.json": {
+      "bytes": 684,
+      "sha256": "b972eec3758962f523d19e9c838a73291fd5b46143a4935ffc6a35b527866fc9"
+    },
+    "media/candidate-controller.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "media/candidate-controller.stdout": {
+      "bytes": 6955,
+      "sha256": "fdd538c9e3c73f906da0c82f0b381b0385306a52d0dc1539ab13ceaa69938398"
+    },
+    "media/config": {
+      "bytes": 63793,
+      "sha256": "5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9"
+    },
+    "media/configuration-delta.json": {
+      "bytes": 574,
+      "sha256": "27c0a7e0919843056a85bf4c8786cdee2b7ceed909154611a3dd526f1741ddac"
+    },
+    "media/configure.log": {
+      "bytes": 962,
+      "sha256": "dde62ad7c925ef366882cad11b172b825e670a3bc3dd8531ae14beaf0d140114"
+    },
+    "media/controller.json": {
+      "bytes": 1727,
+      "sha256": "0ea8e5764272141524631e7bf727a7d7e1d623bc6f41fa5efe0c5f3650c7130b"
+    },
+    "media/diagnostic.fragment": {
+      "bytes": 1885,
+      "sha256": "c482bd228f969e3424cb256a41512f12a0fc9d0f72eb25d70228108b3df329ae"
+    },
+    "media/kernel-artifacts.json": {
+      "bytes": 5699,
+      "sha256": "e11098ddab0e45bc9fec297bae2b6f8b22530835b9e8b60e177af48ca87f982f"
+    },
+    "media/kernel-profile.json": {
+      "bytes": 870,
+      "sha256": "32f07f6b229f0049cc71f8483977f9cdf371ff5ff1efff949659189637892569"
+    },
+    "media/kernel.fragment": {
+      "bytes": 1846,
+      "sha256": "f4a6dc3fbebd5f0e184422cddc490e47e6737d208c55b7df255b678604fe9267"
+    },
+    "media/ordered-cleanup.json": {
+      "bytes": 129,
+      "sha256": "062bc47b993a0966a6fcd8d3b16ebf0c1eecef35b534625dbc8ac879525c490e"
+    },
+    "media/source-manifest.json": {
+      "bytes": 2764,
+      "sha256": "f9901c25b09612d493b3a7751ca15a07133090b07f99e337c27c904c50add927"
+    },
+    "media/source-proof.json": {
+      "bytes": 433,
+      "sha256": "20d54194a75dbf33a92e2b0ca6e86578dc3e37d56361ac54256eb0afb054904c"
+    },
+    "original-custody/Root-acceptance-proof.json": {
+      "bytes": 4844,
+      "sha256": "a3555f799e5e4e58934413e2794c2d575d2c10a499b43b2f7a5c8cfd219c5e50"
+    },
+    "original-custody/Root-acceptance.json": {
+      "bytes": 1651,
+      "sha256": "882d0c24882fda0b99a5041e6ea31a8c6f34ab2d758c585f8cc22d57a69bacf6"
+    },
+    "original-custody/Root-committed-publication.json": {
+      "bytes": 263,
+      "sha256": "87c4b492dcc718cbe8249847cb3d340f3df5998312902ff7d7c142d7551181be"
+    },
+    "original-custody/Root-git-source-authorization.json": {
+      "bytes": 3340,
+      "sha256": "30914e2f949957ffadc2b4fb063ada82f034cc9262282e470c4d78d73e80ab4c"
+    },
+    "original-custody/artifacts.json": {
+      "bytes": 772,
+      "sha256": "9f29c63f5f741daf7f0f92959cbd04f918c018a3f6fee1d6b090297b0372955b"
+    },
+    "original-custody/collection-outcome.json": {
+      "bytes": 776,
+      "sha256": "53304c36b39e77917372133ff615fea293a39d34741bda90c3d298709f7e5b98"
+    },
+    "original-custody/run.json": {
+      "bytes": 12976,
+      "sha256": "db0cc695bca34d98a5170582a089046bcda1420f90b76b095a4a8998b6bf7355"
+    },
+    "original-custody/source-authorization.json": {
+      "bytes": 3191,
+      "sha256": "58e10754c8a3473cde2777285f2a28924191d1258beb7a3ddebc2a8a726ad223"
+    },
+    "primary-receipt.json": {
+      "bytes": 3733,
+      "sha256": "9502e920f0663ed0bc909b3bbba46c19bda0eb4c5c8ad4e2f6fa46e309a9b656"
+    },
+    "primary/COPYING": {
+      "bytes": 496,
+      "sha256": "fb5a425bd3b3cd6071a3a9aff9909a859e7c1158d54d32e07658398cd67eb6a0"
+    },
+    "primary/LICENSES/exceptions/Linux-syscall-note": {
+      "bytes": 1258,
+      "sha256": "8e378ab93586eb55135d3bc119cce787f7324f48394777d00c34fa3d0be3303f"
+    },
+    "primary/LICENSES/preferred/GPL-2.0": {
+      "bytes": 18600,
+      "sha256": "8780e78a1a737e127f25a65f6d95269bffd36158dc261114de7859b490bfc5aa"
+    },
+    "primary/arch/arm64/Kconfig": {
+      "bytes": 88260,
+      "sha256": "eb68af2f4d189ff950a5b9ce392afef8dc8e068636c19a851798fac09fd63124"
+    },
+    "primary/arch/arm64/include/uapi/asm/hwcap.h": {
+      "bytes": 4859,
+      "sha256": "f1f7d0d218620306b4a6be91153623b7b9460e132f754d378030a621b0cd7569"
+    },
+    "primary/arch/arm64/kernel/cpufeature.c": {
+      "bytes": 145646,
+      "sha256": "900435e3356a95bf4d7c3286c97a7b19d53192941898cb4e6ed9ad1fe6b8bb15"
+    },
+    "primary/arch/arm64/kernel/pi/idreg-override.c": {
+      "bytes": 10715,
+      "sha256": "749bb2b397543cae21fd1f4446e92b92c5a17f8dabc354618a0154cccc3cd108"
+    },
+    "primary/arch/arm64/lib/memset.S": {
+      "bytes": 4929,
+      "sha256": "3f13114283d30974642c88413ee02a2911761528ea634f1fa0cdaac385d937af"
+    },
+    "primary/arch/arm64/tools/cpucaps": {
+      "bytes": 2239,
+      "sha256": "29ae4b1f7f30bac65fc64fa050259fda7b0f5d8ee175a2bd97153bb71c0eca6b"
+    }
+  },
+  "paths": {
+    "Image": "media/Image",
+    "config": "media/config",
+    "profile": "media/kernel-profile.json"
+  },
+  "ready": true,
+  "ref": "codex/current606-gui16-kernel-media-v1",
+  "source": "5a643db838759d7cf574e596efbcd45b1df96984",
+  "status": "BOUND_ORIGINAL_KSM_DIAGNOSTIC16K_INPUTS_ONLY_NOT_GUI_ACCEPTANCE",
+  "tree": "f678cbc8338c0e0a29c09be08de8f5c6830e6741"
+}

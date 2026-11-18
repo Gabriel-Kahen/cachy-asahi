@@ -1,0 +1,51 @@
+{
+  "actual": null,
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE.md": {
+      "bytes": 594,
+      "sha256": "df8d0a7b653ef2e26008429e53fdf7f65c79f805d7f5ed461f06fa2e429134c4"
+    },
+    "audit_tooling.py": {
+      "bytes": 7045,
+      "sha256": "6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc"
+    },
+    "index.json": {
+      "bytes": 27996,
+      "sha256": "715f3be2555d4c34de620e7d50fcfe524e2c520c4cb253538137b3976ce0ab49"
+    },
+    "licenses/libgit2/COPYING": {
+      "bytes": 72970,
+      "sha256": "e0938121c0554985fe17196ac38fc590d149268e9c46e0c0e7a2eae1354fae71"
+    },
+    "licenses/llhttp/LICENSE": {
+      "bytes": 1105,
+      "sha256": "ebca854e0134cd256d673627c20499f42577eb74bacf08b9f25b626a73c91277"
+    },
+    "original-extension.lock.json": {
+      "bytes": 14048,
+      "sha256": "287b627528f3fd9cf4a63ef3a3bbf269e83f83d35c87dd3b3efd69e91a92a56f"
+    },
+    "packages/libgit2-1:1.9.7-1-aarch64.pkg.tar.xz": {
+      "bytes": 768812,
+      "sha256": "cacbf38f50e09c1fa4a8a94bb5dae5d7719dc4b7a4262a8a8e94f9d001bc0842"
+    },
+    "packages/libgit2-1:1.9.7-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "2d4e15982858794428446596475c285c54aa1d3fc7cccb27b57d5e310153729b"
+    },
+    "packages/llhttp-9.3.1-1-aarch64.pkg.tar.xz": {
+      "bytes": 28604,
+      "sha256": "ffcd28cd2f93b1c5e6676ff9e842d6f6e3d54e6290a57cab0f8447f77459026a"
+    },
+    "packages/llhttp-9.3.1-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "b721df9fe91b661aad949ba19925968aa3265639399d65d766cbaf27ee87eb65"
+    }
+  },
+  "ref": "codex/current606-bootstrap-legacy2-v1",
+  "source": "21fc63c33a27c70426230e915bedd229318a4411"
+}

@@ -1,0 +1,87 @@
+{
+  "artifacts": {
+    "sanitized": {
+      "complete_member_bytes_modes_metadata_parity": "PASS",
+      "exact_tar_parity": "PASS",
+      "member_ledger_sha256": "32d012f986e2d813d659d520da83005b83d20fc747cc6c57472f8490dc46e83d",
+      "members": 98,
+      "new_bytes": 1044578,
+      "new_sha256": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
+      "notice_bytes": 0,
+      "notice_files": 0,
+      "notice_ledger_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "old_bytes": 171941,
+      "old_sha256": "7abf6d1a0c738f1e9e2d3ac4d388f9e222e26ad91e95ef9f1710f1d3fae10b3e",
+      "tar_bytes": 1044480,
+      "tar_sha256": "cb1a9d4d27a7105fedeee561704da7dee217bb994fe13e28d4df0991ce890c7f"
+    },
+    "vendor": {
+      "complete_member_bytes_modes_metadata_parity": "PASS",
+      "exact_tar_parity": "PASS",
+      "member_ledger_sha256": "89fecbde27a12b306f6315c120ed6c660e260fd5a5696b14de91c63aa0ae1caa",
+      "members": 11739,
+      "new_bytes": 323117153,
+      "new_sha256": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c",
+      "notice_bytes": 11735034,
+      "notice_files": 1113,
+      "notice_ledger_sha256": "93cd01d60b6db262c8424364882d2084105ab853966e5983c07ceee497fe74f3",
+      "old_bytes": 46238716,
+      "old_sha256": "f02cd712c34a3467d63ff933396ea23e5ec5e0386e90701643006e0904c92f2c",
+      "tar_bytes": 323092480,
+      "tar_sha256": "56c18f093e6d0fe5454b6998b9b4f647bdfa9442e3221250a140a479ccd10ab3"
+    }
+  },
+  "auditors_sha256": {
+    "audit-cargo.py": "b4bfefccda42394602f899a2d6fa9b3ba4153dbe77282518c06a79d323fc153f",
+    "audit-source.py": "81d1b0d8ab88b3094f123f6a8d1112c58d2d36361d9c347d9ec5365a8cb85a2e"
+  },
+  "implementation_sha256": "ad049022c111aeafac20921e3d84f4ad16894deea85c65722ac07ffc4708ccb5",
+  "independent_review": {
+    "artifacts": {
+      "sanitized": {
+        "decoded_bytes": 1044480,
+        "decoded_sha256": "cb1a9d4d27a7105fedeee561704da7dee217bb994fe13e28d4df0991ce890c7f",
+        "full_metadata_types_and_payloads_equal": true,
+        "member_ledger_sha256": "32d012f986e2d813d659d520da83005b83d20fc747cc6c57472f8490dc46e83d",
+        "members": 98,
+        "new_sha256": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
+        "notice_bytes": 0,
+        "notice_files": 0,
+        "notice_ledger_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "old_sha256": "7abf6d1a0c738f1e9e2d3ac4d388f9e222e26ad91e95ef9f1710f1d3fae10b3e",
+        "status": "PASS"
+      },
+      "vendor": {
+        "decoded_bytes": 323092480,
+        "decoded_sha256": "56c18f093e6d0fe5454b6998b9b4f647bdfa9442e3221250a140a479ccd10ab3",
+        "full_metadata_types_and_payloads_equal": true,
+        "member_ledger_sha256": "89fecbde27a12b306f6315c120ed6c660e260fd5a5696b14de91c63aa0ae1caa",
+        "members": 11739,
+        "new_sha256": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c",
+        "notice_bytes": 11735034,
+        "notice_files": 1113,
+        "notice_ledger_sha256": "93cd01d60b6db262c8424364882d2084105ab853966e5983c07ceee497fe74f3",
+        "old_sha256": "f02cd712c34a3467d63ff933396ea23e5ec5e0386e90701643006e0904c92f2c",
+        "status": "PASS"
+      }
+    },
+    "decision": "PASS logical/source/notice transport parity; licensing/build acceptance unchanged",
+    "implementation_and_frozen_auditor_pins": "PASS",
+    "native_compilation": "NOT RUN",
+    "original_all_target_audit_sha256": "01d8fdc321d58f0153019b576db5abfd3e4a66320d5c26507cb40df7e9ff7ff8",
+    "publication": "NOT ACCEPTED",
+    "review": "independent streaming artifact transport parity",
+    "schema_version": 1,
+    "source_audit_changed_fields": [
+      "sanitized_sha256"
+    ]
+  },
+  "kind": "reviewed deterministic gzip transport revision",
+  "member_ledger_encoding": "JSON object member.name -> {sha256,size,mode,uid,gid,mtime,uname,gname,pax_headers}; UTF-8 sort_keys=True separators comma colon",
+  "native_compilation": "NOT RUN",
+  "publication": "NOT ACCEPTED",
+  "schema_version": 1,
+  "source_audit_change": "sanitized_sha256 only; all source/artwork/grant/lock evidence identical",
+  "transport": "gzip-stored-v1",
+  "unchanged_all_target_audit_sha256": "01d8fdc321d58f0153019b576db5abfd3e4a66320d5c26507cb40df7e9ff7ff8"
+}

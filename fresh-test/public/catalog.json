@@ -1,0 +1,89 @@
+{
+  "GUI": "NOT_RUN",
+  "Root_acceptance": null,
+  "expires": 1796201072,
+  "hardware": "NOT_RUN",
+  "inputs": {
+    "dns2": {
+      "carrier": "native73",
+      "path": "payload/dns2-original/packages/dns2/a/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz",
+      "pin": {
+        "bytes": 15632,
+        "sha256": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d"
+      }
+    },
+    "doctor": {
+      "carrier": "held77",
+      "path": "payload/signed/cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz",
+      "pin": {
+        "bytes": 13708,
+        "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482"
+      }
+    },
+    "held77-index": {
+      "carrier": "held77",
+      "path": "payload/index.json",
+      "pin": {
+        "bytes": 34490,
+        "sha256": "4e6a8fb3285a53dacd2ce06348b40238b32256df40ecc8b5e07a93fb5b0310b6"
+      }
+    },
+    "native73-index": {
+      "carrier": "native73",
+      "path": "payload/index.json",
+      "pin": {
+        "bytes": 59625,
+        "sha256": "131ef3552ab652bb30a5d2e60fa201f3715603c9bacad7d39d3d320933e2695f"
+      }
+    },
+    "orphans": {
+      "carrier": "held77",
+      "path": "payload/signed/cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz",
+      "pin": {
+        "bytes": 18900,
+        "sha256": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02"
+      }
+    },
+    "welcome5": {
+      "carrier": "native73",
+      "path": "payload/native7/retained/packages/cachy-asahi-welcome-a/cachy-asahi-welcome-0.1.0-7-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 39904,
+        "sha256": "3dec4a467a712908e5f06a481ca7b3206a232c4cf2fc3cc1d933bf3389e2ee35"
+      }
+    }
+  },
+  "key_created": 1794991472,
+  "nonce": "d60dd84ad843ae6dcdc97b15713f359d",
+  "producer": "ROOT_LOCAL_TEST_SIGNING_ONLY",
+  "purpose": "ROOT_CURRENT_TEST_SIGNATURE_CATALOG_V2",
+  "schema_version": 2,
+  "signatures": {
+    "dns2": {
+      "bytes": 310,
+      "sha256": "adeafdbe4b87b3a67dcb399295292178891537ef4bfe9f2953c07f647f5fb6d9"
+    },
+    "doctor": {
+      "bytes": 310,
+      "sha256": "964b8dfebb559dbd16509fe73e3451ece512fbc4b84dda7a0e5455d72edae4ea"
+    },
+    "held77-index": {
+      "bytes": 310,
+      "sha256": "3ae5fedb737006523f657ac96aeb55b48be42a776d979e05c40badab57faf735"
+    },
+    "native73-index": {
+      "bytes": 310,
+      "sha256": "aabce37b5c52da6761a3c7d6e26384095d6925c9460e3ea8a084236ff6381db3"
+    },
+    "orphans": {
+      "bytes": 310,
+      "sha256": "c15065fbf529c368f9f55b7bddd072dc5e8b347d341c2518fbaa8fb2fc34987e"
+    },
+    "welcome5": {
+      "bytes": 310,
+      "sha256": "07ccf233b14bdb941095bc5aaa0c26479f36163e35869e79c4c87111c55e598c"
+    }
+  },
+  "signer": "7F17A10021208924CCB32A70DEB2CB5E7C601EE9",
+  "uid": "CACHY-ASAHI TEST ONLY d60dd84ad843ae6dcdc97b15713f359d <test-only@invalid.example>"
+}

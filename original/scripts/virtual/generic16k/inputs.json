@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "inputs": [
+    {
+      "name": "kernel",
+      "filename": "kernel.tar.gz",
+      "url": "https://github.com/AsahiLinux/linux/archive/asahi-7.1.13-3.tar.gz",
+      "bytes": 262965559,
+      "sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+      "allowed_hosts": [
+        "github.com",
+        "codeload.github.com"
+      ],
+      "source_evidence": "artifacts/platform/kernel-history-20261012/kernel-source-archive.json",
+      "source_revision": "94fb23346d522edf53722357c426a3e58030beea"
+    },
+    {
+      "name": "rootfs",
+      "filename": "rootfs.tar.gz",
+      "url": "https://ca.us.mirror.archlinuxarm.org/os/multi/ArchLinuxARM-2026.08-aarch64-rootfs.tar.gz",
+      "bytes": 829367415,
+      "sha256": "42a4eeaa038994ffd31fa173256ef2f0ef511358eeb41b9ea1f8626391b9b319",
+      "allowed_hosts": [
+        "ca.us.mirror.archlinuxarm.org"
+      ],
+      "source_evidence": "scripts/ci/maintained-desktop574-inputs.json#rootfs",
+      "source_revision": "ArchLinuxARM-2026.08-aarch64-rootfs"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "restore/action.yml": {
+      "bytes": 1589,
+      "git_blob": "3c5e5aeae0bba2d2e1b58b05768cf7e023dc835f",
+      "sha256": "61905d8302128bb10c34397b7147058ade82ce2b85816b1531f31d65f3918c56"
+    },
+    "save/action.yml": {
+      "bytes": 776,
+      "git_blob": "6696d458e9dfe68967b7064a77a50b460291df47",
+      "sha256": "9f3f665720a6cfc4d47b7994e316ab5b12b39a5b0a2dea5d179baa012e50f46a"
+    }
+  },
+  "repository": "actions/cache",
+  "scope": "Official public GitHub API exact-commit metadata; dependency pin and declared Node20 entrypoints verified, no runtime executed.",
+  "verified_commit": "0057852bfaa89a56745cba8c7296529d2fc39830"
+}

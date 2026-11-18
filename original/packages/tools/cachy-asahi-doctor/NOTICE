@@ -1,0 +1,10 @@
+cachy-asahi doctor 0.1.0
+Original MIT implementation by cachy-asahi contributors, 2026.
+
+Device-tree board identifiers and diagnostic scope follow this project's
+scripts/hardware/capture-baseline.py, protected Asahi policy declarations and
+M6 tools-functionality inventory. This standalone command does not import the
+broader capture/acquisition tools. No CachyOS/chwd/kdump implementation is reused.
+
+This is an observation tool, not hardware validation, production-trust approval
+or an automatic repair/installation system. See README.md for collection limits.

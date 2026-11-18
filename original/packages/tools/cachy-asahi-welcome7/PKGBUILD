@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: MIT
+# Original project sources; SHA256 pins below are the source snapshot.
+pkgname=cachy-asahi-welcome
+pkgver=0.1.0
+pkgrel=7
+pkgdesc='Independent GTK3 welcome, offline guidance and read-only management checks'
+arch=('aarch64')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('gtk3>=3.24' 'glib2>=2.74' 'at-spi2-core')
+makedepends=('gcc' 'make' 'pkgconf')
+checkdepends=('python')
+optdepends=('alacritty: Terminal launch action' 'thunar: Files launch action'
+            'cachy-asahi-setup: optional configuration preview and recovery guidance'
+            'cachy-asahi-update: optional separately configured updater guidance'
+            'cachy-asahi-doctor: optional local observation report'
+            'cachy-asahi-orphans: optional installed metadata assessment'
+            'cachy-asahi-dns>=0.1.0-2: optional read-only stored profile discovery'
+            'cachy-asahi-boot-report>=0.1.0-1: optional read-only visible boot history')
+source=('boot-fixtures.h' 'test_boot_history.c' 'test_report_work.c' 'test_management_ui.c' 'management.c' 'management.h' 'management-report.c' 'management-report.h' 'test_management.c' 'test_management_report.c' 'welcome.c' 'status.c' 'status.h' 'Makefile' 'test_status.c' 'test_cli.py' 'check_source.py' 'README.md' 'first-run.txt' 'updates.txt' 'recovery.txt' 'io.github.GabrielKahen.CachyAsahiWelcome.desktop' 'cachy-asahi-welcome.svg' 'NOTICE' 'LICENSE')
+sha256sums=(
+    'ea5469eb9ad83177abdaffd00db29ef7a038533a9183b74b2ca54080c40fc34f'
+    '5e304fa5c732fd571d80f02ee4bca7ad5992cdee8a7b410cbeff757fe66654f2'
+    '0cb5df7b5e3c302c1732a5f85f684421a58c34404582300fb47f24d580e48ea2'
+    '7a36a9b3213250a65ad1db624adef980c4990b29c6475473dd2646bea44e667a'
+    '215617fdd97f719198521e8a3f1772e86e1b32f0fcf4d567b5174668d908e4de'
+    '88df4de05a8799043fcb2da540bf32eb479ccbb2b2101a05c64a765357118893'
+    '0444c703af23404733d802bd90b1e6dbdabc4bd19012d2bbd5bd0ca7edfb06b6'
+    '0163de5b5894c2c1b0302d81799687bc07ea0abbb850f6b2fd0dd4fc1e5a02ca'
+    '87096d177fc6a207bb9330852153b83dc9f25deb01035c7dfadc82b5392c65eb'
+    'f60e4915427dba8244a99f803a63c24a58b807accf3a0c9f958f85496af73212'
+    '278f754609f26ccbae7ae332a002ea91f56c11032f1035c99d4e6c10db38f09a'
+    '2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf'
+    'da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78'
+    '5852aae746876364ecba6efb022976e9d88d50fd2a0c4b41afbaabba64ff8e2c'
+    '710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e'
+    '722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972'
+    'f45431c9a93c03b64fe4d817eb48b077e68b48a68b9ae45e15a65f7636b5225c'
+    '9a0696f2cc47fcad88637b50ea31cea9577786a89a9a552d54273148e6a45800'
+    '2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb'
+    'fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8'
+    '09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2'
+    '2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441'
+    '0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73'
+    '824d3bd893458e840530c044d3899b43debca97cd5f5b9ebcf9cbd4785c9d6f0'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+build() {
+    make -C "$srcdir" PREFIX=/usr
+}
+
+check() {
+    make -C "$srcdir" PREFIX=/usr RECIPE_ROOT="$startdir" check
+}
+
+package() {
+    make -C "$srcdir" PREFIX=/usr DESTDIR="$pkgdir" install
+}

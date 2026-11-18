@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-dns
+pkgver=0.1.0
+pkgrel=2
+pkgdesc='Explicit per-connection NetworkManager DNS discovery, preview and prior-setting undo'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'networkmanager>=1.44')
+source=('cachy-asahi-dns' 'test_dns.py' 'check_source.py' 'README.md' 'source-provenance.json' 'NOTICE' 'LICENSE')
+sha256sums=(
+    'd708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88'
+    'c9f93d49bcf6d9c15cd6b2b098972c4494dee5774b1ed1a707c981bfbb8c6cc2'
+    '78b3080f5ee9c3a003de0719eff08ad85f6f862db608d9a3465ddcb40028b265'
+    'a8192e1e96fe1bc5a8cfe0269dcef7961b79e590a50a9c93ddb9921e8c349582'
+    '9f5af4c43a17754de5f9e2e77b0f271c74993a5f519b0c73094b103b744b2470'
+    '1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -I -B "$srcdir/check_source.py" --recipe-root "$startdir" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_dns.py"
+}
+
+package() {
+    [[ -n $pkgdir && $pkgdir != / ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-dns" "$pkgdir/usr/bin/cachy-asahi-dns" || return
+    local file
+    for file in README.md source-provenance.json; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/doc/$pkgname/$file" || return
+    done
+    for file in NOTICE LICENSE; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/licenses/$pkgname/$file" || return
+    done
+}

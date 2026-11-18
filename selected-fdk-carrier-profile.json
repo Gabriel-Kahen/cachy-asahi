@@ -1,0 +1,127 @@
+{
+  "actual": null,
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 577,
+      "sha256": "5c481c351dc7af92e04226fdc24bd18ea249ca67a05e33ab6a42e85e87fec1ea"
+    },
+    "fdk-aac-3.0.0-selected-source.tar": {
+      "bytes": 17387520,
+      "sha256": "1065c4b30e0c2deee7965faa0257e10ac482a2516d51b5b8f17b1406b3ecb2f4"
+    },
+    "index.json": {
+      "bytes": 4508,
+      "sha256": "46082dc88395e65e9d86df33039ab0434d099f024c7b997a582a2dd3e57ff36e"
+    },
+    "recipe/.SRCINFO": {
+      "bytes": 3014,
+      "sha256": "6ac621f81e2d31f7e6dfa468f70b31d0218169be61f479044ccc83c440c058f1"
+    },
+    "recipe/COPYRIGHTS-and-LICENSES": {
+      "bytes": 85821,
+      "sha256": "a0a52a99bef6dea5c370711f17ed1c02e8b0989a4c167f4e54a36368987428c0"
+    },
+    "recipe/LICENSE.MIT": {
+      "bytes": 1081,
+      "sha256": "4d263ff2b095160e3b9244a132d248234241b83eed71b849decef6a3ba3fa795"
+    },
+    "recipe/NOTICE.classic": {
+      "bytes": 4447,
+      "sha256": "95ec80da40b4af12ad4c4f3158c9cfb80f2479f3246e4260cb600827cc8c7836"
+    },
+    "recipe/NOTICE.xhe-aac": {
+      "bytes": 4721,
+      "sha256": "bf3e762249027586195def2b2e904901b42c8b7fab455fc66bf365f70d08de6d"
+    },
+    "recipe/PKGBUILD": {
+      "bytes": 4793,
+      "sha256": "774803633213d77e9879005608ff23528b6780465c7bd00f3234430c9a7346df"
+    },
+    "recipe/PUBLICATION.md": {
+      "bytes": 5723,
+      "sha256": "0db09f321999befabe795066a388c271db786377d312a3f60c84424cb7685efa"
+    },
+    "recipe/README.md": {
+      "bytes": 5521,
+      "sha256": "724fffb8b56e40db668959fd5911d87c96529813499f6f63c5fdb37f69c76d09"
+    },
+    "recipe/build-codec.py": {
+      "bytes": 9231,
+      "sha256": "3cf179f60283138e4afffb4abfe1dce1e9113366fc322bcc73386fa489941c3a"
+    },
+    "recipe/build-layout.json": {
+      "bytes": 169975,
+      "sha256": "1ca4cdc6d8070216cc7797f91d254ce6abd2eefbe3c1457beeeb47862b6599dc"
+    },
+    "recipe/check-built.py": {
+      "bytes": 2501,
+      "sha256": "f6d1e1ca8cb85da4d2555de82a08624960dfd70b00eea09dfa35e61645d694f9"
+    },
+    "recipe/codec-smoke.c": {
+      "bytes": 5997,
+      "sha256": "70735f85644927e0427d12fbda21d6515fdab1bb9c19b5105abe654218b9af96"
+    },
+    "recipe/inner_observation.py": {
+      "bytes": 23435,
+      "sha256": "a5074240e9072c6fff15efd86d80d521d775ef0e1c2475ebe1710a3165df6c2a"
+    },
+    "recipe/materialize.py": {
+      "bytes": 2889,
+      "sha256": "2c040e37b8f0b47213484c7834b70e030528dc5fe3277fecda989455862e0d75"
+    },
+    "recipe/publication.py": {
+      "bytes": 7800,
+      "sha256": "257a1fe6e567209e318fd29691501076de4566c9a536157e7d91a1002eef48d4"
+    },
+    "recipe/select-source.py": {
+      "bytes": 7494,
+      "sha256": "b7d9d047ffa87d6ec5e1fd26efb2d52dbf533d7f0359eee8874905e57c1511c7"
+    },
+    "recipe/selected-source-manifest.json": {
+      "bytes": 144255,
+      "sha256": "3eb66e2e1632cf65044f9250c7460b1effe0de3217f83b573b4e23885772fc29"
+    },
+    "recipe/source-provenance.json": {
+      "bytes": 10225,
+      "sha256": "2f5d3c3124bdc564e9183aac8a534e51ac03c078f8312395370b8454b435cae3"
+    },
+    "recipe/source_check.py": {
+      "bytes": 9753,
+      "sha256": "3825fb36450ab96bc761bdb7c86075cfbe2d80cf28b95ebda18aafbbf6b6895b"
+    },
+    "recipe/stage.py": {
+      "bytes": 1663,
+      "sha256": "ef987ac2cdf9abacd52dc44cc57d62d033a4adce7c4ec09b411d91ff5470448b"
+    },
+    "recipe/test_build.py": {
+      "bytes": 22830,
+      "sha256": "4e3b98524bb4635f657cc67013122fa45727dacd943ee74765c19717e53b04c2"
+    },
+    "recipe/test_inner_observation.py": {
+      "bytes": 31065,
+      "sha256": "d62929e72e38b864fd430fdd71b7b8479f97f6180ef629627cc6b76210b103af"
+    },
+    "recipe/test_publication.py": {
+      "bytes": 13797,
+      "sha256": "64130b1723b73d0269112283c2441d3db0c661c603f239bdc9b86c20794cca04"
+    },
+    "recipe/test_source.py": {
+      "bytes": 35725,
+      "sha256": "d1de6ee9687b7fa71e2023cb3bdb53b7a69094541a1ac986dcda9a15b8cedddc"
+    },
+    "reviewed-inputs.json": {
+      "bytes": 2254,
+      "sha256": "fdf058ae985338d74dcec7cee88c3cc41f43a6f2cff7ccf7bdb8fedbc710d662"
+    },
+    "template-inputs.json": {
+      "bytes": 2147,
+      "sha256": "231201eb684938480cf87f8e43dd192294b2273343b4d7ae4a73ba7ac983b6cb"
+    }
+  },
+  "ref": "codex/current606-fdk-selected-source-v1",
+  "source": "b48ba616f131ed26520d134064c046ba3d8cfbbe"
+}

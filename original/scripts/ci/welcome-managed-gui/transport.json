@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "checkout_source": "8a38b3fd5963e61fc94707dd87e5dcd626a518a3",
+  "index_sha256": "3d200c4cd19bd7ca15426ae34617bb4fad6c83b194f1d25533ad9f462c9c0580",
+  "producer_source": "9110bc0b323a3e97932df8149c39f8f25c675697",
+  "producer_run": 38884680631,
+  "producer_lifecycle": "FAIL_USER_PRESERVATION_CHECK",
+  "eligibility": "PRIVATE_GUI_TRIAL_ONLY",
+  "release_selection": false
+}

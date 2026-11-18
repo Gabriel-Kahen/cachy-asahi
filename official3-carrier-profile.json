@@ -1,0 +1,39 @@
+{
+  "actual": null,
+  "files": {
+    "NOTICE.md": {
+      "bytes": 465,
+      "sha256": "ffd02bb4c3c3697e20472f7a4a14bdce20da8473db8137a3bfe1d91fc1a82f77"
+    },
+    "index.json": {
+      "bytes": 2516,
+      "sha256": "279daed4566f625aa74673b0f01b4552fd15b57870d8d385750124f1f3484094"
+    },
+    "packages/bats-1.14.0-1-any.pkg.tar.xz": {
+      "bytes": 49984,
+      "sha256": "7bc31235cfe496b982698980b14c9c14b3e17f2b71ee13f72a58271ed199710a"
+    },
+    "packages/bats-1.14.0-1-any.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "726bca1178bdda048b61b3c84df28e075b49a9ee6034a26c22f3aab9be2fb092"
+    },
+    "packages/parallel-20260922-1-any.pkg.tar.xz": {
+      "bytes": 369204,
+      "sha256": "abd4a16e9348cc1bb0f39b7affb92a18c81efae1e791dee30c548b170a7ba4ec"
+    },
+    "packages/parallel-20260922-1-any.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "9f6f122076bee134ca13bf08dfe5a66a76f88a63e5bc1f636e4ab948db9e9f60"
+    },
+    "packages/scdoc-1.11.5-1-aarch64.pkg.tar.xz": {
+      "bytes": 14820,
+      "sha256": "d8afceb6ff7714f0b0086062a26c0296661f7532e69ec2143155fdbbd466175b"
+    },
+    "packages/scdoc-1.11.5-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "aea9be05cabe35a6ad52323f33794a7d9ff4655317c51cf6851883d0250bca03"
+    }
+  },
+  "ref": "codex/current606-bootstrap2-inputs-v1",
+  "source": "1992fd62df6f5a200ce071e111dd12ef13db7012"
+}

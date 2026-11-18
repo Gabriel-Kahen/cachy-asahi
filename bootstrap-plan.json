@@ -1,0 +1,208 @@
+{
+  "FDK": {
+    "bootstrap_API": [
+      "native_arm.probe(out)",
+      "native_arm.save(out/'inputs.lock.json',base_inputs)",
+      "native_arm.audit(base_inputs,owned_cache,out)",
+      "native_arm.build(base_inputs,owned_cache,out,{})"
+    ],
+    "bootstrap_scope": "empty reviews builds ONLY341 image; do not fabricate original-four native_build PASS result",
+    "commands": [
+      [
+        "python3",
+        "-B",
+        "packages/libraries/cachy-asahi-fdk-aac/select-source.py",
+        "--input",
+        "<exact1065-retained-selected-tar>",
+        "--output",
+        "<owned>/selected-source.tar"
+      ],
+      [
+        "python3",
+        "-B",
+        "packages/libraries/cachy-asahi-fdk-aac/materialize.py",
+        "--archive",
+        "<owned>/selected-source.tar",
+        "--output",
+        "<owned>/recipe",
+        "--reviewed-template",
+        "<owned>/template-inputs.json",
+        "--reviewed-template-sha256",
+        "<computed_exact_template_sha256>"
+      ],
+      [
+        "python3",
+        "-B",
+        "scripts/build/build.py",
+        "<owned>/recipe",
+        "--image",
+        "<owned341_image_id>",
+        "--output",
+        "<owned>/build-<1or2>",
+        "--mode",
+        "native",
+        "--source-date-epoch",
+        "1791748800",
+        "--network",
+        "none",
+        "--timeout",
+        "600",
+        "--expected-packages",
+        "<owned341>/packages.lock",
+        "--reviewed-inputs",
+        "<owned>/reviewed-inputs.json"
+      ],
+      [
+        "python3",
+        "-B",
+        "scripts/build/compare.py",
+        "<owned>/build-1",
+        "<owned>/build-2",
+        "--require-bytes"
+      ]
+    ],
+    "epoch": 1791748800,
+    "inventory": {
+      "count": 341,
+      "pin": {
+        "bytes": 6674,
+        "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+      }
+    },
+    "postcondition": "Both native pair hashes exactly237b7812435bd78456d72c157f5703f258f5b6b7455cb99e5b075f642071c247 and each size1209964; standard provenance/static validation/retirement mandatory",
+    "recipe_sha256": "774803633213d77e9879005608ff23528b6780465c7bd00f3234430c9a7346df",
+    "selected_source": {
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/fdk-inner-phase-observation-20261012/fresh-source-v2/packages/libraries/cachy-asahi-fdk-aac/fdk-aac-3.0.0-selected-source.tar",
+      "pin": {
+        "bytes": 17387520,
+        "sha256": "1065c4b30e0c2deee7965faa0257e10ac482a2516d51b5b8f17b1406b3ecb2f4"
+      }
+    },
+    "template_change": "Only original run-fdk.sh recipe-pin override to774803...; all23 other template source fields held"
+  },
+  "acceptance": "No old source/native acceptance transfer. Differing new hashes refuse and stay failure DATA; no accepted606 manifest substitution. No installer/consumer/build host mutation authorized by plan.",
+  "borrowed574": "binding context only; never use as341/354 package builder or delete borrowed image",
+  "inputs": {
+    "current_auth": {
+      "bytes": 3657,
+      "sha256": "04db87406a63205ff4c0a3c94c1d2b79c232085812bebd03b2726773f4b6b188"
+    },
+    "official_companion": {
+      "bytes": 1337,
+      "sha256": "52422d6ea4232eafde0d19efc729757f08ae0438f797cb157de427dca7e5f9e3"
+    },
+    "pre_recovery_availability": {
+      "bytes": 373380,
+      "sha256": "df7480a4ce982784df96c8c581dbefc8b87e57472283bf99290d0b72a7900eee"
+    },
+    "private_source_cache": {
+      "bytes": 24646,
+      "sha256": "8fb3b264f0aaf188ae6a969e079cf501fd7be250341c1145fc80a4a293d49d57"
+    },
+    "recovery_freeze": {
+      "bytes": 82769,
+      "sha256": "093ca8d9491d31803ea5433ff313cb316047e5f0ac55a07e634d1d31041dcaa6"
+    },
+    "remaining_missing": [],
+    "source_fetch": "If no private cache in CI, preserve original materializer fixed codeload/staticcrates acquisition; all150 originalURLs just succeeded; no movingmirror guesses"
+  },
+  "native_executor": "GUI_OWNER_IMPLEMENTING_NOT_THIS_PACKET",
+  "overall": {
+    "owner_deadline": "state/source-proof.json owner_deadline",
+    "policy": "Every wait capped by remaining; preserve original caps, process retirement and cleanup; no ceiling increase",
+    "seconds": 6600
+  },
+  "required": {
+    "cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz",
+      "name": "cachy-asahi-fdk-aac",
+      "sha256": "237b7812435bd78456d72c157f5703f258f5b6b7455cb99e5b075f642071c247",
+      "signature": "packages/cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "1746a61558a13a9f1317f79a6e98a8252b14b632b3b8d2bf1fa9165c9ee1f71e",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 1209964,
+      "version": "3.0.0-1"
+    },
+    "cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz",
+      "name": "cachy-asahi-update",
+      "sha256": "88e6ebad51700499bc2f0c608409e06983b0146ebf555101b526c7a32d5ba4f6",
+      "signature": "packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "15ae01f1273778c418747917a358c7e4e926a85f3969095c96b184c7a680fa7d",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 3083884,
+      "version": "4.4.2-2"
+    }
+  },
+  "sources": {
+    "original_preparation": "93bc9bfac7343ee3b443ae3332c0942ed1ba5b55",
+    "product": "a58fca33c4db5f2ab3ea6111f4d7842a932cc336",
+    "source_byte_closure": {
+      "bytes": 20571,
+      "sha256": "9d96c1f9dfed6493434cdccd1896a303d38b9885f1e420bbdc82a7a8ce1c2e0d"
+    },
+    "updater_v2": "480053c0866a922138d85af2b9880fb0e10d7b2c"
+  },
+  "status": "SOURCE_PLAN_ONLY_TWO_ORIGINAL_BUILDERS_NOT_RUN",
+  "updater": {
+    "commands": [
+      [
+        "python3",
+        "-I",
+        "-B",
+        "packages/tools/cachy-asahi-update/materialize-inputs.py",
+        "--output",
+        "<owned>/materialized",
+        "--pins-sha256",
+        "601283adb9deeca949a857ee136896e8d1559ab4ecf6fed3928531059965c6f9",
+        "--archive-cache",
+        "<private_exact168_offline_layout_optional>"
+      ],
+      [
+        "python3",
+        "-B",
+        "packages/tools/cachy-asahi-update/updater-native.py",
+        "freeze",
+        "--source",
+        "<owned>/materialized/private-sanitized/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a-sanitized.tar.gz",
+        "--vendor",
+        "<owned>/materialized/private-cache/cachy-update-vendor.tar.gz",
+        "--output",
+        "<owned>/candidate"
+      ],
+      [
+        "python3",
+        "-B",
+        "packages/tools/cachy-asahi-update/updater-native.py",
+        "build",
+        "--candidate",
+        "<owned>/candidate/candidate.json",
+        "--candidate-sha256",
+        "<computed_exact_candidate_sha256>",
+        "--cache",
+        "<owned-cache>",
+        "--output",
+        "<owned>/native"
+      ]
+    ],
+    "epoch": 1789753605,
+    "existing_driver_caps": {
+      "build_pair": 5400,
+      "freeze": 120,
+      "materialize": 930
+    },
+    "inventory": {
+      "count": 354,
+      "pin": {
+        "bytes": 6899,
+        "sha256": "5c72ffef2fadecc631861ef12ab7f48e083694a402d0428a395da64fa592dcee"
+      }
+    },
+    "materializer_pin": "601283adb9deeca949a857ee136896e8d1559ab4ecf6fed3928531059965c6f9",
+    "original_API": "full-root-upgrade-caller/run.py::updater(source480053...,owned_root,owned_cache,materializer_pin=601283...) + updater_v2_inputs exactPACKAGE/metadata/bind checks",
+    "postcondition": "Both native pair hashes exactly88e6ebad51700499bc2f0c608409e06983b0146ebf555101b526c7a32d5ba4f6 and each size3083884; complete original comparison/controller/tool/worker/package validation/retirement mandatory",
+    "recipe_sha256": "251009c63e3a9c2e62cd899b077c70f0f6a418ba38beac00a0323e3bf60dafa0"
+  }
+}

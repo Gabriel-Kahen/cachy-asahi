@@ -1,0 +1,355 @@
+{
+  "comparison": {
+    "original": {
+      "compressed_bytes_equal": true,
+      "decoded_sha256": "7847af8f79a62cafaa344229f6df4540a061718d95965c68af49b626da3182b7",
+      "sha256": "b5e4ca8f2f779d1a877ab7a815cbb40a9a9cecf16ac59852eb7a3072fb3a261d"
+    },
+    "sanitized": {
+      "compressed_bytes_equal": true,
+      "decoded_sha256": "cb1a9d4d27a7105fedeee561704da7dee217bb994fe13e28d4df0991ce890c7f",
+      "sha256": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab"
+    },
+    "vendor": {
+      "compressed_bytes_equal": true,
+      "decoded_sha256": "56c18f093e6d0fe5454b6998b9b4f647bdfa9442e3221250a140a479ccd10ab3",
+      "sha256": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c"
+    }
+  },
+  "exact_archive_and_decoded_tar_reproduction": "PASS across both executed runtimes",
+  "fresh_https_stock": {
+    "completed_registry": 167,
+    "downloads": {
+      "bytes": 43873283,
+      "count": 168
+    },
+    "generator": {
+      "python": "3.12.14",
+      "transport": "gzip-stored-v1",
+      "zlib_build": "1.3.2",
+      "zlib_runtime": "1.3.2"
+    },
+    "limits": {
+      "address_space_bytes": 2147483648,
+      "cpu_seconds": 600,
+      "download_bytes": 43873283,
+      "expanded_source_bytes": 402653184,
+      "file_bytes": 536870912,
+      "retained_bytes": 1073741824,
+      "source_members": 200000,
+      "wall_seconds": 900
+    },
+    "native_compilation": "NOT RUN",
+    "phase": "complete",
+    "publication": "NOT ACCEPTED",
+    "regenerated": {
+      "registry_sources": 167,
+      "sanitized_sha256": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
+      "sanitized_tar_sha256": "cb1a9d4d27a7105fedeee561704da7dee217bb994fe13e28d4df0991ce890c7f",
+      "vendor_bytes": 323117153,
+      "vendor_sha256": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c",
+      "vendor_tar_sha256": "56c18f093e6d0fe5454b6998b9b4f647bdfa9442e3221250a140a479ccd10ab3"
+    },
+    "retained_private_bytes": 668480795,
+    "runner_inputs_sha256": "ba869e80d9fa2bdeb9c5bf504dc9cbddff1b164f6276d3ab75516fc5985fa0ac",
+    "schema_version": 1,
+    "source_hashes": {
+      "original": "b5e4ca8f2f779d1a877ab7a815cbb40a9a9cecf16ac59852eb7a3072fb3a261d",
+      "sanitized": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
+      "vendor": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c"
+    },
+    "status": "PASS",
+    "worker_exit_code": 0
+  },
+  "historical_portable_checkpoint": {
+    "exact_archive_and_decoded_tar_reproduction": "PASS across both executed runtimes",
+    "fresh_https_stock": {
+      "completed_registry": 167,
+      "downloads": {
+        "bytes": 43873283,
+        "count": 168
+      },
+      "generator": {
+        "python": "3.12.14",
+        "transport": "gzip-stored-v1",
+        "zlib_build": "1.3.2",
+        "zlib_runtime": "1.3.2"
+      },
+      "limits": {
+        "address_space_bytes": 2147483648,
+        "cpu_seconds": 600,
+        "download_bytes": 43873283,
+        "expanded_source_bytes": 402653184,
+        "file_bytes": 536870912,
+        "retained_bytes": 1073741824,
+        "source_members": 200000,
+        "wall_seconds": 900
+      },
+      "native_compilation": "NOT RUN",
+      "phase": "complete",
+      "publication": "NOT ACCEPTED",
+      "regenerated": {
+        "registry_sources": 167,
+        "sanitized_sha256": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
+        "sanitized_tar_sha256": "cb1a9d4d27a7105fedeee561704da7dee217bb994fe13e28d4df0991ce890c7f",
+        "vendor_bytes": 323117153,
+        "vendor_sha256": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c",
+        "vendor_tar_sha256": "56c18f093e6d0fe5454b6998b9b4f647bdfa9442e3221250a140a479ccd10ab3"
+      },
+      "retained_private_bytes": 668480795,
+      "runner_inputs_sha256": "d34546f280c45e840f76d93acae643114994eeef1ca1b0b5d7259fdb01b24041",
+      "schema_version": 1,
+      "source_hashes": {
+        "original": "b5e4ca8f2f779d1a877ab7a815cbb40a9a9cecf16ac59852eb7a3072fb3a261d",
+        "sanitized": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
+        "vendor": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c"
+      },
+      "status": "PASS",
+      "worker_exit_code": 0
+    },
+    "historical_zlib_compressed_comparison": {
+      "different_generator": {
+        "downloads": {
+          "bytes": 0,
+          "count": 0
+        },
+        "error_type": "MaterializeError",
+        "failure_code": "sanitized-reproduction",
+        "generator": {
+          "python": "3.12.14",
+          "zlib_build": "1.3.2",
+          "zlib_runtime": "1.3.2"
+        },
+        "limits": {
+          "address_space_bytes": 2147483648,
+          "cpu_seconds": 600,
+          "download_bytes": 43873283,
+          "expanded_source_bytes": 402653184,
+          "file_bytes": 134217728,
+          "retained_bytes": 1073741824,
+          "source_members": 200000,
+          "wall_seconds": 900
+        },
+        "native_compilation": "NOT RUN",
+        "phase": "regenerate-sanitized",
+        "publication": "NOT ACCEPTED",
+        "regenerated": {
+          "sanitized_sha256": "05359c54c2581a14f03798e0965c79463e39fc78ce505e82479a76fc34e5f5f6"
+        },
+        "runner_inputs_sha256": "fd967fbc83bb8dfa78a3c78c023768281c069b65974d459f4f241e3baab7ab0d",
+        "schema_version": 1,
+        "source_hashes": {
+          "original": "b5e4ca8f2f779d1a877ab7a815cbb40a9a9cecf16ac59852eb7a3072fb3a261d",
+          "sanitized": "7abf6d1a0c738f1e9e2d3ac4d388f9e222e26ad91e95ef9f1710f1d3fae10b3e",
+          "vendor": "f02cd712c34a3467d63ff933396ea23e5ec5e0386e90701643006e0904c92f2c"
+        },
+        "status": "FAIL",
+        "worker_exit_code": 1
+      },
+      "fresh_https": {
+        "completed_registry": 167,
+        "downloads": {
+          "bytes": 43873283,
+          "count": 168
+        },
+        "generator": {
+          "python": "3.14.7",
+          "zlib_build": "1.3.1.zlib-ng",
+          "zlib_runtime": "1.3.1.zlib-ng"
+        },
+        "limits": {
+          "address_space_bytes": 2147483648,
+          "cpu_seconds": 600,
+          "download_bytes": 43873283,
+          "expanded_source_bytes": 402653184,
+          "file_bytes": 134217728,
+          "retained_bytes": 1073741824,
+          "source_members": 200000,
+          "wall_seconds": 900
+        },
+        "native_compilation": "NOT RUN",
+        "phase": "complete",
+        "publication": "NOT ACCEPTED",
+        "regenerated": {
+          "registry_sources": 167,
+          "sanitized_sha256": "7abf6d1a0c738f1e9e2d3ac4d388f9e222e26ad91e95ef9f1710f1d3fae10b3e",
+          "vendor_bytes": 46238716,
+          "vendor_sha256": "f02cd712c34a3467d63ff933396ea23e5ec5e0386e90701643006e0904c92f2c"
+        },
+        "retained_private_bytes": 390729605,
+        "runner_inputs_sha256": "fd967fbc83bb8dfa78a3c78c023768281c069b65974d459f4f241e3baab7ab0d",
+        "schema_version": 1,
+        "source_hashes": {
+          "original": "b5e4ca8f2f779d1a877ab7a815cbb40a9a9cecf16ac59852eb7a3072fb3a261d",
+          "sanitized": "7abf6d1a0c738f1e9e2d3ac4d388f9e222e26ad91e95ef9f1710f1d3fae10b3e",
+          "vendor": "f02cd712c34a3467d63ff933396ea23e5ec5e0386e90701643006e0904c92f2c"
+        },
+        "status": "PASS",
+        "worker_exit_code": 0
+      },
+      "hosted_runner_status": "BLOCKED unless compressed-byte-compatible generator is supplied; no pin was relaxed",
+      "materializer_sha256": "f30020b983fe2e2635ce1ea1a693d789993ddb6b4bb9a8c917f51f9d5558d32a",
+      "native_compilation": "NOT RUN",
+      "runner_inputs_sha256": "fd967fbc83bb8dfa78a3c78c023768281c069b65974d459f4f241e3baab7ab0d",
+      "sanitized_uncompressed_bytes_equal": true,
+      "sanitized_uncompressed_tar_sha256": "cb1a9d4d27a7105fedeee561704da7dee217bb994fe13e28d4df0991ce890c7f",
+      "schema_version": 1,
+      "scope": "executed private data reconstruction and fail-closed generator comparison",
+      "source_publication": "NOT ACCEPTED"
+    },
+    "independent_two_runtime_review": {
+      "artifacts": {
+        "sanitized": {
+          "bytes": 1044578,
+          "compressed_bytes_equal": true,
+          "decoded_bytes_equal": true,
+          "sha256": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
+          "tar_bytes": 1044480,
+          "tar_sha256": "cb1a9d4d27a7105fedeee561704da7dee217bb994fe13e28d4df0991ce890c7f"
+        },
+        "vendor": {
+          "bytes": 323117153,
+          "compressed_bytes_equal": true,
+          "decoded_bytes_equal": true,
+          "sha256": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c",
+          "tar_bytes": 323092480,
+          "tar_sha256": "56c18f093e6d0fe5454b6998b9b4f647bdfa9442e3221250a140a479ccd10ab3"
+        }
+      },
+      "kind": "two-runtime stored-gzip exact source reproduction",
+      "materializer_sha256": "73172c0b0ecfcc978bd7750d6569d30f78688354cbd92a56cad2b89b5f24d30e",
+      "native_compilation": "NOT RUN",
+      "publication": "NOT ACCEPTED",
+      "runner_inputs_sha256": "d34546f280c45e840f76d93acae643114994eeef1ca1b0b5d7259fdb01b24041",
+      "schema_version": 1,
+      "source_audit_bytes_equal": true,
+      "status": "PASS",
+      "stock_downloads": {
+        "bytes": 43873283,
+        "count": 168
+      },
+      "stock_runtime": {
+        "python": "3.12.14",
+        "transport": "gzip-stored-v1",
+        "zlib_build": "1.3.2",
+        "zlib_runtime": "1.3.2"
+      },
+      "unchanged_original_all_target_audit_sha256": "01d8fdc321d58f0153019b576db5abfd3e4a66320d5c26507cb40df7e9ff7ff8",
+      "zlibng_downloads": {
+        "bytes": 0,
+        "count": 0
+      },
+      "zlibng_runtime": {
+        "python": "3.14.7",
+        "transport": "gzip-stored-v1",
+        "zlib_build": "1.3.1.zlib-ng",
+        "zlib_runtime": "1.3.1.zlib-ng"
+      }
+    },
+    "materializer_sha256": "73172c0b0ecfcc978bd7750d6569d30f78688354cbd92a56cad2b89b5f24d30e",
+    "native_compilation": "NOT RUN",
+    "public_projection_and_unchanged_credential_guard": "PASS for both final portable receipts",
+    "runner_inputs_sha256": "d34546f280c45e840f76d93acae643114994eeef1ca1b0b5d7259fdb01b24041",
+    "schema_version": 2,
+    "scope": "executed private data reconstruction and reviewed portable gzip transport",
+    "second_runtime_offline": {
+      "completed_registry": 167,
+      "downloads": {
+        "bytes": 0,
+        "count": 0
+      },
+      "generator": {
+        "python": "3.14.7",
+        "transport": "gzip-stored-v1",
+        "zlib_build": "1.3.1.zlib-ng",
+        "zlib_runtime": "1.3.1.zlib-ng"
+      },
+      "limits": {
+        "address_space_bytes": 2147483648,
+        "cpu_seconds": 600,
+        "download_bytes": 43873283,
+        "expanded_source_bytes": 402653184,
+        "file_bytes": 536870912,
+        "retained_bytes": 1073741824,
+        "source_members": 200000,
+        "wall_seconds": 900
+      },
+      "native_compilation": "NOT RUN",
+      "phase": "complete",
+      "publication": "NOT ACCEPTED",
+      "regenerated": {
+        "registry_sources": 167,
+        "sanitized_sha256": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
+        "sanitized_tar_sha256": "cb1a9d4d27a7105fedeee561704da7dee217bb994fe13e28d4df0991ce890c7f",
+        "vendor_bytes": 323117153,
+        "vendor_sha256": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c",
+        "vendor_tar_sha256": "56c18f093e6d0fe5454b6998b9b4f647bdfa9442e3221250a140a479ccd10ab3"
+      },
+      "retained_private_bytes": 668480801,
+      "runner_inputs_sha256": "d34546f280c45e840f76d93acae643114994eeef1ca1b0b5d7259fdb01b24041",
+      "schema_version": 1,
+      "source_hashes": {
+        "original": "b5e4ca8f2f779d1a877ab7a815cbb40a9a9cecf16ac59852eb7a3072fb3a261d",
+        "sanitized": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
+        "vendor": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c"
+      },
+      "status": "PASS",
+      "worker_exit_code": 0
+    },
+    "source_publication": "NOT ACCEPTED",
+    "transport_revision_sha256": "fab30d0a81aa5e94818ab7c30967750047ecaffd8cfebd939cb02b309e970cf6"
+  },
+  "materializer_sha256": "4e8a6111a70bdb93d2a5e75aa786c96ce099a54d0fcd5e4bba38177da4c2e964",
+  "native_compilation": "NOT RUN",
+  "public_projection_and_unchanged_credential_guard": "PASS for both final corrected receipts",
+  "runner_inputs_sha256": "ba869e80d9fa2bdeb9c5bf504dc9cbddff1b164f6276d3ab75516fc5985fa0ac",
+  "schema_version": 3,
+  "scope": "executed private data reconstruction after spawn/teardown cancellation correction",
+  "second_runtime_offline": {
+    "completed_registry": 167,
+    "downloads": {
+      "bytes": 0,
+      "count": 0
+    },
+    "generator": {
+      "python": "3.14.7",
+      "transport": "gzip-stored-v1",
+      "zlib_build": "1.3.1.zlib-ng",
+      "zlib_runtime": "1.3.1.zlib-ng"
+    },
+    "limits": {
+      "address_space_bytes": 2147483648,
+      "cpu_seconds": 600,
+      "download_bytes": 43873283,
+      "expanded_source_bytes": 402653184,
+      "file_bytes": 536870912,
+      "retained_bytes": 1073741824,
+      "source_members": 200000,
+      "wall_seconds": 900
+    },
+    "native_compilation": "NOT RUN",
+    "phase": "complete",
+    "publication": "NOT ACCEPTED",
+    "regenerated": {
+      "registry_sources": 167,
+      "sanitized_sha256": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
+      "sanitized_tar_sha256": "cb1a9d4d27a7105fedeee561704da7dee217bb994fe13e28d4df0991ce890c7f",
+      "vendor_bytes": 323117153,
+      "vendor_sha256": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c",
+      "vendor_tar_sha256": "56c18f093e6d0fe5454b6998b9b4f647bdfa9442e3221250a140a479ccd10ab3"
+    },
+    "retained_private_bytes": 668480801,
+    "runner_inputs_sha256": "ba869e80d9fa2bdeb9c5bf504dc9cbddff1b164f6276d3ab75516fc5985fa0ac",
+    "schema_version": 1,
+    "source_hashes": {
+      "original": "b5e4ca8f2f779d1a877ab7a815cbb40a9a9cecf16ac59852eb7a3072fb3a261d",
+      "sanitized": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
+      "vendor": "e44dd795d5c392e37f44f63e041f25055924b75784b990788b24a80b442d5a9c"
+    },
+    "status": "PASS",
+    "worker_exit_code": 0
+  },
+  "source_publication": "NOT ACCEPTED",
+  "spawn_cancellation_review": "PASS independent code review and18 focused fixtures; real TERM/INT/ALRM postfork/preassignment regression fails old73172 code; newparent/child masks restored, ownedgroup killed/reaped; deferred handlers installed before ownership and retained through teardown",
+  "transport_revision_sha256": "fab30d0a81aa5e94818ab7c30967750047ecaffd8cfebd939cb02b309e970cf6"
+}

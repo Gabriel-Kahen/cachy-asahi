@@ -1,0 +1,905 @@
+{
+  "base_inputs_lock_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "base_package_count": 341,
+  "expected_package_count": 362,
+  "hardware_validation": "NOT RUN",
+  "keyring_commit": "29432c01130efc4ad297dfe8f487d5b79cbaf8e9",
+  "keyring_files": [
+    {
+      "filename": "archlinuxarm.gpg",
+      "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f",
+      "size": 3098,
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm.gpg"
+    },
+    {
+      "filename": "archlinuxarm-trusted",
+      "sha256": "f2a7250f2a2b77542f82f4219b2bae7895f27b3dcfdf350b497e2be306af776d",
+      "size": 44,
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm-trusted"
+    },
+    {
+      "filename": "archlinuxarm-revoked",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm-revoked"
+    }
+  ],
+  "maintained_selection": {
+    "additional_package_rows": "same exact 21 source records",
+    "base_inventory_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "baseline_id": "maintained-native-baseline-v1-vim-9.2.1178-1",
+    "changed_base_packages": [
+      "vim",
+      "vim-runtime"
+    ],
+    "hardware_validation": "NOT RUN",
+    "inherited_base_inventory_sha256": "89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f",
+    "inherited_inputs_sha256": "3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650",
+    "inherited_tooling_lock_sha256": "a8060f5dab01277de200fb7c9a4418b565984eb6d1cfb4971f0a3bd013ee8073",
+    "inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+    "native_execution": "NOT RUN",
+    "resolver": "NOT RUN for maintained selection; recorded resolver subtree retained as historical evidence"
+  },
+  "native_execution": "NOT RUN corrected 21-package closure",
+  "packages": [
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "capstone-5.0.9-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "capstone",
+      "provides": [
+        "libcapstone.so=5-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f96ad05de152308112c6f895e42d52669942d5698d5a7491caeb853128fda3a9",
+      "signature_sha256": "d3bceb44f8df6cc1a728ef56f3e8955cf33f1892c001bf594189a1c474ab50d3",
+      "signature_size": 566,
+      "size": 1402616,
+      "source_url": [
+        "https://www.capstone-engine.org/index.html"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/capstone-5.0.9-1-aarch64.pkg.tar.xz",
+      "version": "5.0.9-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "glibc",
+        "libyaml"
+      ],
+      "filename": "dtc-1:1.8.1-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "dtc",
+      "provides": [
+        "libfdt.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "c60faaee0f149ef74fc9feb9aba5cc564d971e021c5bff523568ae0fb257a319",
+      "signature_sha256": "562081f2fef5b0bd99ce3d5c405b0190df2af584d2b4df4a0a5a6ba45ade2a9a",
+      "signature_size": 566,
+      "size": 150444,
+      "source_url": [
+        "https://www.devicetree.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/dtc-1:1.8.1-1-aarch64.pkg.tar.xz",
+      "version": "1:1.8.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [],
+      "filename": "fuse-common-3.18.3-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only"
+      ],
+      "name": "fuse-common",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f8a67e6a893e09ece9d9611112b46259df1d947b8d57ac9f118a00eb955780b9",
+      "signature_sha256": "846fa0db2dd76d4e805b19b010143412522a630eb5235f9b00692c1541bba957",
+      "signature_size": 566,
+      "size": 2868,
+      "source_url": [
+        "https://github.com/libfuse/libfuse"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/fuse-common-3.18.3-1-aarch64.pkg.tar.xz",
+      "version": "3.18.3-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "fuse-common",
+        "glibc",
+        "liburing",
+        "liburing.so=2-64",
+        "numactl",
+        "libnuma.so=1-64"
+      ],
+      "filename": "fuse3-3.18.3-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only",
+        "LGPL-2.1-only"
+      ],
+      "name": "fuse3",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "ea1a152ebe20cecf157378c8917e04b976e89287e2471dd20117b3923b3f0ebb",
+      "signature_sha256": "da757cee8ccfe106f13a7fa9fdb285d43eda5598090de98b4e1487afd149769c",
+      "signature_size": 566,
+      "size": 133600,
+      "source_url": [
+        "https://github.com/libfuse/libfuse"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/fuse3-3.18.3-1-aarch64.pkg.tar.xz",
+      "version": "3.18.3-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libaio-0.3.113-5-aarch64.pkg.tar.xz",
+      "license": [
+        "LGPL-2.0-or-later"
+      ],
+      "name": "libaio",
+      "provides": [
+        "libaio.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "18af1ae9233952a6a505f09cc632b09b2eff5898ebff7e1e931829146169de47",
+      "signature_sha256": "10fbfd57bb3df9569f86615e14da6683d2a61aeb37ae0ffc778b37c5308ab4ed",
+      "signature_size": 566,
+      "size": 23840,
+      "source_url": [
+        "https://codeberg.org/jmoyer/libaio"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libaio-0.3.113-5-aarch64.pkg.tar.xz",
+      "version": "0.3.113-5"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glib2"
+      ],
+      "filename": "libslirp-4.9.5-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD",
+        "MIT"
+      ],
+      "name": "libslirp",
+      "provides": [
+        "libslirp.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "ca402058ef0080a83dd386fe550ef4659f3caad96c8017531df3535e578a4e94",
+      "signature_sha256": "7fd4517fa54d162d793416b1012ab2f2df177c0c1e5d76f54509215c1a655f91",
+      "signature_size": 566,
+      "size": 64840,
+      "source_url": [
+        "https://gitlab.freedesktop.org/slirp/libslirp"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libslirp-4.9.5-1-aarch64.pkg.tar.xz",
+      "version": "4.9.5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only",
+        "LGPL-2.1-only"
+      ],
+      "name": "libtraceevent",
+      "provides": [
+        "libtraceevent.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "413357116a57a128084aa28513951ad2ebd5b18215d3b9de2eb5fb01856acd20",
+      "signature_sha256": "0eda57e4363bac64004317cbe67b3b1b44ff3954a9c17bae06db5da09f9678e9",
+      "signature_size": 566,
+      "size": 168080,
+      "source_url": [
+        "https://git.kernel.org/pub/scm/libs/libtrace/libtraceevent.git/about/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz",
+      "version": "1:1.9.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libtraceevent",
+        "libtraceevent.so=1-64"
+      ],
+      "filename": "libtracefs-1.8.3-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only",
+        "LGPL-2.1-only"
+      ],
+      "name": "libtracefs",
+      "provides": [
+        "libtracefs.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "b41dc9bb609f2f72ab6078f111fedf7c4b559f3a2ab8b42c5dac65c0f1fe12ac",
+      "signature_sha256": "539e6127e8756e55e5e997ab8393b9861a107c1f6045383b2bb48be0ce85e70e",
+      "signature_size": 566,
+      "size": 225796,
+      "source_url": [
+        "https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/about/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtracefs-1.8.3-1-aarch64.pkg.tar.xz",
+      "version": "1.8.3-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [],
+      "filename": "liburing-2.15-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only WITH Linux-syscall-note OR MIT",
+        "LGPL-2.0-or-later",
+        "MIT"
+      ],
+      "name": "liburing",
+      "provides": [
+        "liburing.so=2-64",
+        "liburing-ffi.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "efb67ef7eed7b30bebebbe9420fbf67bbfd0676c2b731f30e47e544cdb73feaf",
+      "signature_sha256": "3a42d42b719abe319f541f2110fa2a77893ed21dfe9456df915d217b75b8e068",
+      "signature_size": 566,
+      "size": 271192,
+      "source_url": [
+        "https://github.com/axboe/liburing"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/liburing-2.15-1-aarch64.pkg.tar.xz",
+      "version": "2.15-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "libelf",
+        "linux-api-headers",
+        "libbpf"
+      ],
+      "filename": "libxdp-1.6.3-2-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL",
+        "LGPL",
+        "BSD2"
+      ],
+      "name": "libxdp",
+      "provides": [
+        "libxdp.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "536cca5cad699995dcc464d842e923acb8b18dff0aa665e1a17fc11e322ea45c",
+      "signature_sha256": "0925fa82c07f14acd0630bfbf0475c28b459d5b03654962c33b482922a3bcda3",
+      "signature_size": 566,
+      "size": 95740,
+      "source_url": [
+        "https://github.com/xdp-project/xdp-tools"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxdp-1.6.3-2-aarch64.pkg.tar.xz",
+      "version": "1.6.3-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libyaml-0.2.5-3-aarch64.pkg.tar.xz",
+      "license": [
+        "MIT"
+      ],
+      "name": "libyaml",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f96d25c8898b27d3364034336630363bcf48eb968c90d5d5c240e4b237ae153b",
+      "signature_sha256": "998f7e827e1bbf718b704dbdc8d871b1fb101f2c73d9065410204706bfa94c9c",
+      "signature_size": 566,
+      "size": 53220,
+      "source_url": [
+        "https://pyyaml.org/wiki/LibYAML"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libyaml-0.2.5-3-aarch64.pkg.tar.xz",
+      "version": "0.2.5-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "iniparser",
+        "json-c",
+        "keyutils",
+        "kmod",
+        "libtraceevent",
+        "libtracefs",
+        "systemd-libs",
+        "util-linux-libs"
+      ],
+      "filename": "ndctl-85-1-aarch64.pkg.tar.xz",
+      "license": [
+        "LGPL-2.1-only",
+        "GPL-2.0-only",
+        "CC0-1.0",
+        "MIT"
+      ],
+      "name": "ndctl",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "5090e80deb3566e2530d6115b036215216b2e0fd7c1a2205161203d59a34aae9",
+      "signature_sha256": "0dbb686d324b365b93ada668cb286b6238313814f9629f9f44d54da86913b2f0",
+      "signature_size": 566,
+      "size": 374404,
+      "source_url": [
+        "https://github.com/pmem/ndctl"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/ndctl-85-1-aarch64.pkg.tar.xz",
+      "version": "85-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "numactl-2.0.19-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only",
+        "LGPL-2.1-only"
+      ],
+      "name": "numactl",
+      "provides": [
+        "libnuma.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "b28ebc082254c63fbbd9aac1e2ec9bae8e78fe7243682e875df537906ecb5971",
+      "signature_sha256": "334df3c15796e8571a5539c4ea111372dc1f7e5c2c699c942824c2a505b95803",
+      "signature_size": 566,
+      "size": 83656,
+      "source_url": [
+        "https://github.com/numactl/numactl"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/numactl-2.0.19-1-aarch64.pkg.tar.xz",
+      "version": "2.0.19-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "qemu-system-cris",
+        "qemu-system-nios2",
+        "qemu-block-gluster"
+      ],
+      "depends": [
+        "glibc",
+        "glib2",
+        "libgcc",
+        "libglib-2.0.so=0-64",
+        "libgmodule-2.0.so=0-64",
+        "hicolor-icon-theme",
+        "libcap-ng",
+        "libcap-ng.so=0-64"
+      ],
+      "filename": "qemu-common-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-common",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f71da9d341459b24a0bf608d566421cad8788a3e8b3d0a93aa82f28066173be3",
+      "signature_sha256": "8e465e8970fd1a74732ff6a97bb198314ac6c78e44044c51dff93af67ca0a808",
+      "signature_size": 566,
+      "size": 2100404,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-common-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "pixman",
+        "libpixman-1.so=0-64",
+        "qemu-common=11.1.2-1"
+      ],
+      "filename": "qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-hw-display-virtio-gpu",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "e4729661997f1f5879522a7866c872c80b90b8a67b90f5e500a7c70e6a516fcc",
+      "signature_sha256": "671fafcb82b172089ebd162a6b620e433eea0cb8eec67647ae62e1de6b24c363",
+      "signature_size": 566,
+      "size": 36236,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "qemu-common=11.1.2-1"
+      ],
+      "filename": "qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-hw-display-virtio-gpu-pci",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "9dbb3bdffbeed7e8714ed6ee5693126fafdebc7082bbaa1618b3c12aa04d9ba4",
+      "signature_sha256": "a75573abb0b98ff517c2068a13b4634368fa27ba1716a8b5b86279929fcfbbc3",
+      "signature_size": 566,
+      "size": 16676,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "capstone",
+        "fuse3",
+        "libgcc",
+        "glibc",
+        "glib2",
+        "libgio-2.0.so=0-64",
+        "libglib-2.0.so=0-64",
+        "libgmodule-2.0.so=0-64",
+        "gnutls",
+        "keyutils",
+        "libaio",
+        "libelf",
+        "libbpf",
+        "libbpf.so=1-64",
+        "libjpeg-turbo",
+        "libjpeg.so=8-64",
+        "libpng",
+        "libsasl",
+        "libseccomp",
+        "libseccomp.so=2-64",
+        "libslirp",
+        "libslirp.so=0-64",
+        "liburing",
+        "liburing.so=2-64",
+        "libxdp",
+        "libxdp.so=1-64",
+        "lzo",
+        "ndctl",
+        "numactl",
+        "libnuma.so=1-64",
+        "pam",
+        "libpam.so=0-64",
+        "pixman",
+        "libpixman-1.so=0-64",
+        "qemu-common=11.1.2-1",
+        "rdma-core",
+        "snappy",
+        "vde2",
+        "zlib",
+        "zstd",
+        "libzstd.so=1-64",
+        "dtc",
+        "systemd-libs",
+        "libudev.so=1-64"
+      ],
+      "filename": "qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-system-aarch64",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "989a142989ab9c6696593af4561d6d7cb40c408d6a5eb2a4eaee0fdacbdb127d",
+      "signature_sha256": "9d7fc11edd3b7cd27a9d0d3af05db75b48e523280d785a2a9968c9ff5955aca7",
+      "signature_size": 566,
+      "size": 5109200,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "ibacm",
+        "infiniband-diags",
+        "libcxgb3",
+        "libcxgb4",
+        "libibcm",
+        "libibmad",
+        "libibumad",
+        "libibverbs",
+        "libiwpm",
+        "libmlx4",
+        "libmlx5",
+        "libmthca",
+        "libnes",
+        "libocrdma",
+        "librdmacm",
+        "rdma",
+        "srptools"
+      ],
+      "depends": [
+        "bash",
+        "glibc",
+        "libnl",
+        "perl",
+        "systemd-libs"
+      ],
+      "filename": "rdma-core-65.0-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-or-later OR LicenseRef-OpenIB.org-BSD-MIT",
+        "GPL-2.0-or-later OR LicenseRef-OpenIB.org-BSD-FreeBSD",
+        "GPL-2.0-or-later OR LicenseRef-Intel-BSD-3-Clause",
+        "GPL-2.0-or-later OR LicenseRef-PathScale-BSD-Patent-License",
+        "CC0-1.0",
+        "MIT",
+        "BSD-2-Clause",
+        "CPL-1.0 OR BSD-2-Clause OR GPL-2.0-or-later"
+      ],
+      "name": "rdma-core",
+      "provides": [
+        "ibacm",
+        "infiniband-diags",
+        "libcxgb3",
+        "libcxgb4",
+        "libibcm",
+        "libibmad",
+        "libibumad",
+        "libibverbs",
+        "libiwpm",
+        "libmlx4",
+        "libmlx5",
+        "libmthca",
+        "libnes",
+        "libocrdma",
+        "librdmacm",
+        "rdma",
+        "srptools"
+      ],
+      "replaces": [
+        "ibacm",
+        "infiniband-diags",
+        "libcxgb3",
+        "libcxgb4",
+        "libibcm",
+        "libibmad",
+        "libibumad",
+        "libibverbs",
+        "libiwpm",
+        "libmlx4",
+        "libmlx5",
+        "libmthca",
+        "libnes",
+        "libocrdma",
+        "librdmacm",
+        "rdma",
+        "srptools"
+      ],
+      "repo": "extra",
+      "sha256": "5031f9cbf8e98963c2b1b3e1a221e02e4f6962160cf8042afbe962577b236295",
+      "signature_sha256": "1408e0824093ce4c92744a983e0ecfe674ebc91882bebed44b249607fd8bf711",
+      "signature_size": 566,
+      "size": 1992600,
+      "source_url": [
+        "https://github.com/linux-rdma/rdma-core"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/rdma-core-65.0-1-aarch64.pkg.tar.xz",
+      "version": "65.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libstdc++"
+      ],
+      "filename": "snappy-1.2.2-3-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "snappy",
+      "provides": [
+        "libsnappy.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "19e057413b812c31b2e540261480a7c1088c80c7d2999e3754953f3710cadaf0",
+      "signature_sha256": "ad04db6157f685e4b97806d260de7d3a4cdca0fae8892a0ed9d0ff28787c436e",
+      "signature_size": 566,
+      "size": 32008,
+      "source_url": [
+        "https://github.com/google/snappy"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/snappy-1.2.2-3-aarch64.pkg.tar.xz",
+      "version": "1.2.2-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libpcap",
+        "libpcap.so=1-64",
+        "wolfssl",
+        "libwolfssl.so=46-64"
+      ],
+      "filename": "vde2-2.3.3-10-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "name": "vde2",
+      "provides": [
+        "libvdehist.so=0-64",
+        "libvdemgmt.so=0-64",
+        "libvdeplug.so=3-64",
+        "libvdesnmp.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "3448c3a49d23407ac32f3dbd7fed4fefce406a4acc4cc150af3faaccc51cf77c",
+      "signature_sha256": "8a92dfec49a8c69d50917062b493917679667fdab5e0fc16165cd918d1cbd0f6",
+      "signature_size": 566,
+      "size": 199088,
+      "source_url": [
+        "https://github.com/virtualsquare/vde-2"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vde2-2.3.3-10-aarch64.pkg.tar.xz",
+      "version": "2.3.3-10"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "wolfssl-5.9.4-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "name": "wolfssl",
+      "provides": [
+        "libwolfssl.so=46-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "4a332bc1b879e3ef5619b012334a18393355297107dcba00e1c6daea8bee2704",
+      "signature_sha256": "cd31ea4466eb54167f574f860ca4571fb7bdbd5772b945bd40118ae3ae97682e",
+      "signature_size": 566,
+      "size": 1178536,
+      "source_url": [
+        "https://www.wolfssl.com/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/wolfssl-5.9.4-1-aarch64.pkg.tar.xz",
+      "version": "5.9.4-1"
+    }
+  ],
+  "qemu_source_commit": "4fc49f46dc95d4a27de2509e7fceb2931e91faeb",
+  "repository_databases": [
+    {
+      "name": "core",
+      "sha256": "56bb9080bb5334b8a27e7c6aed58383e7bc542544b0e89335ce98669a2539ad6",
+      "signed": false,
+      "size": 256702,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/core.db"
+    },
+    {
+      "name": "extra",
+      "sha256": "ba1bdb823c22936ba7c9f700d168da139403b1d65683e115b66bd9c9a82ce069",
+      "signed": false,
+      "size": 10613813,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/extra.db"
+    },
+    {
+      "name": "alarm",
+      "sha256": "1a9827a96b203fab41e4c0e5c7a0ca53788f8516108d865b84148aae417a4653",
+      "signed": false,
+      "size": 62240,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/alarm/alarm.db"
+    },
+    {
+      "name": "aur",
+      "sha256": "263b04baaf9e27f6bc7840455a2bf65bf9b7f9cad0be5efce0ca3650eb634024",
+      "signed": false,
+      "size": 10556,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/aur/aur.db"
+    }
+  ],
+  "resolver": {
+    "argv": [
+      "pacman",
+      "--root",
+      "/tmp/review-virtual-gpu-resolver-ro3v3dut/root",
+      "--dbpath",
+      "/tmp/review-virtual-gpu-resolver-ro3v3dut/db",
+      "--cachedir",
+      "/tmp/review-virtual-gpu-resolver-ro3v3dut/cache",
+      "--config",
+      "/tmp/review-virtual-gpu-resolver-ro3v3dut/pacman.conf",
+      "--logfile",
+      "/tmp/review-virtual-gpu-resolver-ro3v3dut/pacman.log",
+      "--arch",
+      "aarch64",
+      "--noconfirm",
+      "-S",
+      "qemu-system-aarch64",
+      "qemu-hw-display-virtio-gpu",
+      "qemu-hw-display-virtio-gpu-pci",
+      "--needed",
+      "--print",
+      "--print-format",
+      "%r %n %v %f %l"
+    ],
+    "base_inventory_sha256": "89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f",
+    "baseline_refresh": {
+      "changed_base_package": "perl",
+      "metadata": "replacement local version/dependency/provide metadata from revised pinned native input lock; other 340 entries unchanged and all 341 versions compared",
+      "new_base_inputs_lock_sha256": "3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650",
+      "new_version": "5.42.3-1",
+      "superseded_base_inputs_lock_sha256": "7d53775b2de6136d531a7f20059088def7bbb11ad8baef58e75cd5826e3a2b41",
+      "superseded_tooling_lock_sha256": "a434c965eb05ed5b1d8487a597e84b4a0dd5480e69044d999d74a93546c9433b",
+      "tooling_transaction": "same 19 exact package archives; no base replacements"
+    },
+    "captured_databases_sha256": {
+      "alarm.db": "1a9827a96b203fab41e4c0e5c7a0ca53788f8516108d865b84148aae417a4653",
+      "aur.db": "263b04baaf9e27f6bc7840455a2bf65bf9b7f9cad0be5efce0ca3650eb634024",
+      "core.db": "56bb9080bb5334b8a27e7c6aed58383e7bc542544b0e89335ce98669a2539ad6",
+      "extra.db": "ba1bdb823c22936ba7c9f700d168da139403b1d65683e115b66bd9c9a82ce069"
+    },
+    "exit_code": 0,
+    "mode": "print-only; copied frozen341 local metadata and four hash-bound repository databases; no installation",
+    "transaction": [
+      "extra capstone 5.0.9-1 capstone-5.0.9-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/capstone-5.0.9-1-aarch64.pkg.tar.xz",
+      "extra fuse-common 3.18.3-1 fuse-common-3.18.3-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/fuse-common-3.18.3-1-aarch64.pkg.tar.xz",
+      "extra liburing 2.15-1 liburing-2.15-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/liburing-2.15-1-aarch64.pkg.tar.xz",
+      "extra numactl 2.0.19-1 numactl-2.0.19-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/numactl-2.0.19-1-aarch64.pkg.tar.xz",
+      "extra fuse3 3.18.3-1 fuse3-3.18.3-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/fuse3-3.18.3-1-aarch64.pkg.tar.xz",
+      "core libaio 0.3.113-5 libaio-0.3.113-5-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/core/libaio-0.3.113-5-aarch64.pkg.tar.xz",
+      "extra libslirp 4.9.5-1 libslirp-4.9.5-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libslirp-4.9.5-1-aarch64.pkg.tar.xz",
+      "extra libxdp 1.6.3-2 libxdp-1.6.3-2-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxdp-1.6.3-2-aarch64.pkg.tar.xz",
+      "extra libtraceevent 1:1.9.0-1 libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz",
+      "extra libtracefs 1.8.3-1 libtracefs-1.8.3-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtracefs-1.8.3-1-aarch64.pkg.tar.xz",
+      "extra ndctl 85-1 ndctl-85-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/ndctl-85-1-aarch64.pkg.tar.xz",
+      "extra qemu-common 11.1.2-1 qemu-common-11.1.2-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-common-11.1.2-1-aarch64.pkg.tar.xz",
+      "extra rdma-core 65.0-1 rdma-core-65.0-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/rdma-core-65.0-1-aarch64.pkg.tar.xz",
+      "extra snappy 1.2.2-3 snappy-1.2.2-3-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/snappy-1.2.2-3-aarch64.pkg.tar.xz",
+      "extra wolfssl 5.9.4-1 wolfssl-5.9.4-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/wolfssl-5.9.4-1-aarch64.pkg.tar.xz",
+      "extra vde2 2.3.3-10 vde2-2.3.3-10-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vde2-2.3.3-10-aarch64.pkg.tar.xz",
+      "extra libyaml 0.2.5-3 libyaml-0.2.5-3-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libyaml-0.2.5-3-aarch64.pkg.tar.xz",
+      "extra dtc 1:1.8.1-1 dtc-1:1.8.1-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/dtc-1:1.8.1-1-aarch64.pkg.tar.xz",
+      "extra qemu-system-aarch64 11.1.2-1 qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz",
+      "extra qemu-hw-display-virtio-gpu 11.1.2-1 qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz",
+      "extra qemu-hw-display-virtio-gpu-pci 11.1.2-1 qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz"
+    ]
+  },
+  "schema_version": 1,
+  "signer_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+  "status": "candidate; authenticated 2D modules required; coordinator adoption pending"
+}
