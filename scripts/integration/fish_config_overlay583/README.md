@@ -118,3 +118,31 @@ This evidence is separate from the future installed ARM16K result.
 
 The focused selection and refusal tests run without local archive artifacts.
 The real host startup checks require the retained Overlay583 and R127 inputs.
+
+## Select the rehearsed development candidate
+
+`select_candidate.py` creates an explicit one-package override and complete
+583-row candidate lock from the retained R129 and R130 evidence. It reopens
+the authenticated baseline, compares both original R129 build archives to the
+signed supplement, and replays the original R130 guest command evidence
+against the selected supplement and Root terminal.
+
+Use a pinned v1 config with kind `OVERLAY583_FISH_CONFIG_DEVELOPMENT_CANDIDATE_V1`,
+`schema: 1`, and the absolute `staging` directory. The `preflight`,
+`supplement`, `guest_terminal`, `guest_selection`, and `guest_evidence`
+fields use absolute `path/bytes/sha256` references. `native_builds` contains
+two such references for the distinct original archives. The historical guest
+selection proves which supplement R130 used.
+
+```sh
+python3 -I -B scripts/integration/fish_config_overlay583/select_candidate.py \
+  --config "$candidate_config" --config-sha256 "$candidate_config_sha256" \
+  --output "$fresh_candidate_directory"
+```
+
+The output contains `candidate.DATA.json` and `target-candidate.lock`.
+It references the exact original archive and its signed replacement. The
+accepted baseline remains the rollback input and keeps its original lock.
+The selector uses the existing TEST certificate freshness check. Its output
+is unapproved development DATA, with physical hardware and production
+release selection outside the rehearsal.
