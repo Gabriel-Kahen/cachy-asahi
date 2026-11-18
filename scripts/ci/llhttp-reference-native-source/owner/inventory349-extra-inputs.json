@@ -1,0 +1,245 @@
+{
+  "acquisition_urls": {
+    "cmake-4.4.4-1-aarch64.pkg.tar.xz": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/c/cmake/cmake-4.4.4-1-aarch64.pkg.tar.xz",
+    "cppdap-1.58.0-3-aarch64.pkg.tar.xz": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/c/cppdap/cppdap-1.58.0-3-aarch64.pkg.tar.xz",
+    "jsoncpp-1.9.8-1-aarch64.pkg.tar.xz": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/j/jsoncpp/jsoncpp-1.9.8-1-aarch64.pkg.tar.xz",
+    "libuv-1.52.1-2-aarch64.pkg.tar.xz": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/l/libuv/libuv-1.52.1-2-aarch64.pkg.tar.xz",
+    "meson-1.12.1-2-any.pkg.tar.xz": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/m/meson/meson-1.12.1-2-any.pkg.tar.xz",
+    "ninja-1.13.2-3-aarch64.pkg.tar.xz": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/n/ninja/ninja-1.13.2-3-aarch64.pkg.tar.xz",
+    "python-tqdm-4.70.1-1-any.pkg.tar.xz": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/p/python-tqdm/python-tqdm-4.70.1-1-any.pkg.tar.xz",
+    "rhash-1.4.6-1-aarch64.pkg.tar.xz": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/r/rhash/rhash-1.4.6-1-aarch64.pkg.tar.xz"
+  },
+  "base_lock_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "desktop574_lock_sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9",
+  "kind": "LLHTTP_INVENTORY349_EXACT_EIGHT_V1",
+  "packages": [
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "cppdap",
+        "curl",
+        "expat",
+        "glibc",
+        "hicolor-icon-theme",
+        "jsoncpp",
+        "libarchive",
+        "libgcc",
+        "libstdc++",
+        "libuv",
+        "ncurses",
+        "rhash",
+        "zlib"
+      ],
+      "filename": "cmake-4.4.4-1-aarch64.pkg.tar.xz",
+      "isize": 117204518,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "cmake",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "d03c7956ca35408d50b3bf72a318386e44a07331bf3ab61e9f598a1c4b33086b",
+      "signature_sha256": "4f326e1292a9dba67c7e773e2909ef43e10bbd89c87dfd1542a4fa90e64cb1f6",
+      "signature_size": 566,
+      "size": 23320952,
+      "source_url": [
+        "https://www.cmake.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/cmake-4.4.4-1-aarch64.pkg.tar.xz",
+      "version": "4.4.4-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "cppdap-1.58.0-3-aarch64.pkg.tar.xz",
+      "isize": 2175215,
+      "license": [
+        "Apache-2.0"
+      ],
+      "name": "cppdap",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "daf4c7990af45016ffa92b9af8f995dd816ef9755e181dc634a6aab15452cdab",
+      "signature_sha256": "d1cc43c39ca388a515833c63eda18833779d38b85e42a31ff732ee26b3ca4b2b",
+      "signature_size": 566,
+      "size": 316428,
+      "source_url": [
+        "https://github.com/google/cppdap"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/cppdap-1.58.0-3-aarch64.pkg.tar.xz",
+      "version": "1.58.0-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "jsoncpp-1.9.8-1-aarch64.pkg.tar.xz",
+      "isize": 985410,
+      "license": [
+        "MIT",
+        "custom:Public_Domain"
+      ],
+      "name": "jsoncpp",
+      "provides": [
+        "libjsoncpp.so=27-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "d013ab87d21e0cbcf284772523f08c373d14c0a50ad708bdd28e5f727a684395",
+      "signature_sha256": "d9154732b87135f20aff334e7634e10e0f34f31c1edb65bbb16e45c553e46732",
+      "signature_size": 566,
+      "size": 136220,
+      "source_url": [
+        "https://github.com/open-source-parsers/jsoncpp"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/jsoncpp-1.9.8-1-aarch64.pkg.tar.xz",
+      "version": "1.9.8-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libnsl"
+      ],
+      "filename": "libuv-1.52.1-2-aarch64.pkg.tar.xz",
+      "isize": 703639,
+      "license": [
+        "custom"
+      ],
+      "name": "libuv",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "b7ef4dd7c5dd724a71ad37a28640057cc75988cf8f49b605d3b6b468ef2ee854",
+      "signature_sha256": "8d77a301695203bc18aa251413a267f88f0f6d3a880218e188b8b20ba4587784",
+      "signature_size": 566,
+      "size": 252776,
+      "source_url": [
+        "https://github.com/libuv/libuv"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libuv-1.52.1-2-aarch64.pkg.tar.xz",
+      "version": "1.52.1-2"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "ninja",
+        "python",
+        "python-tqdm"
+      ],
+      "filename": "meson-1.12.1-2-any.pkg.tar.xz",
+      "isize": 17699599,
+      "license": [
+        "Apache-2.0"
+      ],
+      "name": "meson",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "8b5f5b2168be053485f512debbb935f189c4b19f9a79d0e201fc91ccb5d15492",
+      "signature_sha256": "6baec90eff01db452ce849b11d9322a29c362989f794cbd8ca555b99aa022891",
+      "signature_size": 566,
+      "size": 2529168,
+      "source_url": [
+        "https://mesonbuild.com/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/meson-1.12.1-2-any.pkg.tar.xz",
+      "version": "1.12.1-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "ninja-1.13.2-3-aarch64.pkg.tar.xz",
+      "isize": 540259,
+      "license": [
+        "Apache-2.0"
+      ],
+      "name": "ninja",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "4455a6c92fb38e8d5d0172176bb19d9ee6e9f2c6acae9aced5d65752fdd47290",
+      "signature_sha256": "dfac59ccb7bec23adedaff055203dd5902fb0b10e456706d4ac2ae63b31ec5e9",
+      "signature_size": 566,
+      "size": 173996,
+      "source_url": [
+        "https://ninja-build.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/ninja-1.13.2-3-aarch64.pkg.tar.xz",
+      "version": "1.13.2-3"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python"
+      ],
+      "filename": "python-tqdm-4.70.1-1-any.pkg.tar.xz",
+      "isize": 675842,
+      "license": [
+        "MIT",
+        "MPL-2.0"
+      ],
+      "name": "python-tqdm",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f6750e3196441ba6df0f5610bda66b59cf53110c8c28e3347149e71e473b6f27",
+      "signature_sha256": "a39d7c91ada81f8f3abb2bf5358fb0df1b117f43f032cb13ad75dacc2808fe73",
+      "signature_size": 566,
+      "size": 130020,
+      "source_url": [
+        "https://github.com/tqdm/tqdm"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/python-tqdm-4.70.1-1-any.pkg.tar.xz",
+      "version": "4.70.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "rhash-1.4.6-1-aarch64.pkg.tar.xz",
+      "isize": 420037,
+      "license": [
+        "0BSD"
+      ],
+      "name": "rhash",
+      "provides": [
+        "librhash.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "ceaaa210a8a222d724971709e928b9a0c1cbb3d7838c94ec8719b14a37280260",
+      "signature_sha256": "02107c03b9eea1d5e0a7efa5c6d8db3ed779d201b8faa8f7299bd6756ce513f5",
+      "signature_size": 566,
+      "size": 173616,
+      "source_url": [
+        "https://github.com/rhash/RHash"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/rhash-1.4.6-1-aarch64.pkg.tar.xz",
+      "version": "1.4.6-1"
+    }
+  ]
+}
