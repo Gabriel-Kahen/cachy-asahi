@@ -1,0 +1,4 @@
+Original MIT cachy-asahi platform tooling, copyright 2026 cachy-asahi contributors.
+Runtime helpers are retained byte-for-byte from the source commit in source-provenance.json.
+No Apple, Asahi, Arch or CachyOS third-party source or package payload is bundled.
+Imported network/build/installation helpers are private dependencies, not exposed commands.
