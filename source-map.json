@@ -1,0 +1,98 @@
+{
+  "files": {
+    ".github/workflows/native-arm-first-login-v3-native-pair.yml": {
+      "bytes": 8555,
+      "mode": 420,
+      "sha256": "82b0b0d60b3fe0146c57fe180c084fc57ede9c32a13dd4bb6e0631cfe0eb10bc"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/.SRCINFO": {
+      "bytes": 1704,
+      "mode": 420,
+      "sha256": "be5253a32d7444065ea876455c0bb99ea1ffc47759bce864431abaf07018a2f7"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/NOTICE": {
+      "bytes": 430,
+      "mode": 420,
+      "sha256": "6aa0a8736adb815343fe56d530df8caa77605896e1eb8984c40e3cc669d86b35"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/PKGBUILD": {
+      "bytes": 2509,
+      "mode": 420,
+      "sha256": "1d605572877a82a94aae8acf9fc56decc24be4c2dd3df2d331da1979643c78a5"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/README.md": {
+      "bytes": 5579,
+      "mode": 420,
+      "sha256": "e426fcf02296865fb6367fd04d200a4333dab58e66c943a9be5f7a0f5f2eb697"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/cachy-asahi-first-login": {
+      "bytes": 296,
+      "mode": 420,
+      "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/check-sync.py": {
+      "bytes": 1575,
+      "mode": 420,
+      "sha256": "929c60ebb939c7ea4d46d74ddedcaa219fb53285bce25c85ea8d71595d952e48"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/first_login.py": {
+      "bytes": 10534,
+      "mode": 420,
+      "sha256": "b4505e393a2913048136c16b62a4355da133c32536cbae60a1c3c65f4483b1d6"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/setup8-fixture.py": {
+      "bytes": 45116,
+      "mode": 420,
+      "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/source-provenance.json": {
+      "bytes": 2365,
+      "mode": 420,
+      "sha256": "e73d53d59030b7722cdde23488b4ebcda4a3d6a60d5fa295012ba289d2364c10"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/test_delivery.py": {
+      "bytes": 9022,
+      "mode": 420,
+      "sha256": "e5bfb628033dd373e583770071c367138960dc381041f2819469c9b879fe1b69"
+    },
+    "packages/tools/cachy-asahi-first-login-v3/test_first_login.py": {
+      "bytes": 13819,
+      "mode": 420,
+      "sha256": "d90dc4f08c3522a425ad8b2fd33b4da5d592260330b8049bb46f65289a18045c"
+    },
+    "scripts/ci/first-login-v3-native-pair/bootstrap.py": {
+      "bytes": 4438,
+      "mode": 420,
+      "sha256": "498e6b7dc3ff4d1851a7448d0b864cd55018037da7891a548779d32c6b4806e0"
+    },
+    "scripts/ci/first-login-v3-native-pair/inputs.json": {
+      "bytes": 1565,
+      "mode": 420,
+      "sha256": "e706f95814a6d15b4c164ce64425e53b8f90ac4e49e09db232daee4e0b7696e4"
+    },
+    "scripts/ci/first-login-v3-native-pair/overlay.py": {
+      "bytes": 17873,
+      "mode": 420,
+      "sha256": "78fc8fa18779a90452b71d32f2e26e330db6f0cf2fb56ec5c336dcce4e858d41"
+    },
+    "scripts/ci/first-login-v3-native-pair/pair.py": {
+      "bytes": 11428,
+      "mode": 420,
+      "sha256": "63c4a9a6c84cf0c06d6331b0276af8c75b4f59e0cc75192192c10abb5fb3278b"
+    }
+  },
+  "kind": "FIRST_LOGIN_V3_THIN_PUBLIC_SOURCE_V1",
+  "roles": {
+    "fish_r12": {
+      "bytes": 2093900,
+      "commit": "19dea1cca35659ad7ab307dfea09c30a77362640",
+      "map_sha256": "14a3f9d1f12f224bf43a71a7bb4ef9ba3bfe03b5918b25aabc33ce1fdb71a3b2",
+      "tree": "de61a2e7351a09d1dcf0471d50c80e3a1a6ee479"
+    }
+  }
+}

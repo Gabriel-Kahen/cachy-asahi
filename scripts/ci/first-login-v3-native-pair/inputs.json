@@ -1,0 +1,31 @@
+{
+  "recipe": {
+    ".SRCINFO": "be5253a32d7444065ea876455c0bb99ea1ffc47759bce864431abaf07018a2f7",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "6aa0a8736adb815343fe56d530df8caa77605896e1eb8984c40e3cc669d86b35",
+    "PKGBUILD": "1d605572877a82a94aae8acf9fc56decc24be4c2dd3df2d331da1979643c78a5",
+    "README.md": "e426fcf02296865fb6367fd04d200a4333dab58e66c943a9be5f7a0f5f2eb697",
+    "cachy-asahi-first-login": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144",
+    "check-sync.py": "929c60ebb939c7ea4d46d74ddedcaa219fb53285bce25c85ea8d71595d952e48",
+    "first_login.py": "b4505e393a2913048136c16b62a4355da133c32536cbae60a1c3c65f4483b1d6",
+    "setup8-fixture.py": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0",
+    "source-provenance.json": "e73d53d59030b7722cdde23488b4ebcda4a3d6a60d5fa295012ba289d2364c10",
+    "test_delivery.py": "e5bfb628033dd373e583770071c367138960dc381041f2819469c9b879fe1b69",
+    "test_first_login.py": "d90dc4f08c3522a425ad8b2fd33b4da5d592260330b8049bb46f65289a18045c"
+  },
+  "setup8": {
+    "archive": {
+      "bytes": 33900,
+      "sha256": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47"
+    },
+    "certificate": {
+      "bytes": 261,
+      "sha256": "0cafdfdbb57b4b6715e51f649ecba4113b4568fda36dc035e4994cc49eeccb84"
+    },
+    "signature": {
+      "bytes": 119,
+      "sha256": "7726099ccca5989c13c598e98c8400205b18ebee0bcc9137cd81f34fb77a7398"
+    },
+    "test_signer": "C908F19D5618FE95F08864A8E397439FC7A7980D"
+  }
+}
