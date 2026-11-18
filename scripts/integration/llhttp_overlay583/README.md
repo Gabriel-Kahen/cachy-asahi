@@ -102,3 +102,15 @@ run no VM, pacman operation, or native library process.
 CAA_R124_EVIDENCE_DIR="$r124_public_evidence_dir" \
   python3 -I -B scripts/integration/llhttp_overlay583/test_lifecycle.py
 ```
+
+## Replay the retained fixture controls
+
+```sh
+CAA_R124_EVIDENCE_DIR=/absolute/r124-evidence \
+CAA_OVERLAY583_STAGING=/absolute/staged-overlay583 \
+CAA_OVERLAY583_PREFLIGHT=/absolute/retained583.json \
+python3 -I -B -m unittest discover -s scripts/integration/llhttp_overlay583 -p test_lifecycle.py
+```
+
+The complete suite verifies the exact genuine R124 and staging inputs. The
+portable native-call contract runs in static CI with an in-memory library stub.

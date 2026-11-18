@@ -15,8 +15,8 @@ from unittest.mock import Mock, patch
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[1]
-BASE=Path("/home/gabe/Documents/ChatGPT/cachy-asahi-staging-install-lock-20261117-overlay583")
-PRE=BASE.parent/"cachy-asahi-staging-install-lock-20261117-preflight583-results/retained583.json"
+BASE=Path(os.environ.get("CAA_OVERLAY583_STAGING", "/missing-overlay583-staging"))
+PRE=Path(os.environ.get("CAA_OVERLAY583_PREFLIGHT", "/missing-overlay583-preflight.json"))
 EVIDENCE=Path(os.environ.get("CAA_R124_EVIDENCE_DIR","/missing-r124-fixture"))
 NONCE="8"*32
 
@@ -40,7 +40,10 @@ def deny(event,_):
         raise AssertionError("No host package, library or VM actor in these fixtures")
 
 
-@unittest.skipUnless(EVIDENCE.is_dir(),"Set CAA_R124_EVIDENCE_DIR for the public R124 planning fixture")
+@unittest.skipUnless(
+    EVIDENCE.is_dir() and BASE.is_dir() and PRE.is_file(),
+    "Supply the retained R124, Overlay583 staging, and preflight fixture paths",
+)
 class Lifecycle(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
