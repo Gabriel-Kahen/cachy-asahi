@@ -335,6 +335,11 @@ jobs:
           for test in test_preflight.py test_guest.py test_site.py test_docker_binding.py test_readback.py; do
             python3 -I -B -Werror::ResourceWarning "$lane/$test"
           done
+          lane=scripts/integration/qt612_gui_16k_link_checkpoint
+          bash -n "$lane/guest-init.sh"
+          for test in test_continuation.py test_guest_link.py test_elf_readback.py test_guest_init.py test_actor.py test_site.py test_capsule.py; do
+            python3 -I -B -Werror::ResourceWarning "$lane/$test"
+          done
       - name: Check explicit lock and ordered suspend without a desktop session
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
