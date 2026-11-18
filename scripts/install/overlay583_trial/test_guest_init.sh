@@ -52,6 +52,9 @@ cmp "$temp/original/first-login.json" "$temp/first-login/first-login.json"
 printf 'model llhttp ledger\n' > "$temp/original/llhttp.json"
 export_evidence "$temp/original" "$temp/llhttp"
 cmp "$temp/original/llhttp.json" "$temp/llhttp/llhttp.json"
+printf 'model Fish upgrade ledger\n' > "$temp/original/fish-upgrade.json"
+export_evidence "$temp/original" "$temp/fish-upgrade"
+cmp "$temp/original/fish-upgrade.json" "$temp/fish-upgrade/fish-upgrade.json"
 touch "$temp/original/foreign"
 if export_evidence "$temp/original" "$temp/foreign"; then
     printf 'incorrectly exported foreign evidence\n' >&2
@@ -63,4 +66,4 @@ if export_evidence "$temp/original" "$temp/hardlink"; then
     printf 'incorrectly exported hard-linked evidence\n' >&2
     exit 1
 fi
-printf 'guest init evidence export fixture passed (5 cases)\n'
+printf 'guest init evidence export fixture passed (6 cases)\n'

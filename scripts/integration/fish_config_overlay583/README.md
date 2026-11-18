@@ -39,58 +39,72 @@ inputs. The stage refuses the retained HOLD receipt. This lane has no new
 signature, guest authority or attempted installation.
 
 Once Root has independently qualified the intended native pair, retain both
-original package files separately. Supply a canonical Root qualification
-with kind ROOT_FISH02_R127_NATIVE_PAIR_FOR_OVERLAY583_UPGRADE_V1, status PASS,
-issuer Root, source and run above, architecture aarch64, package_architecture
-any, the independent closing receipt's bytes and sha256 under closure, and
-two builds rows. Each row has build 1 or 2 in order, clean true, checks PASS,
-and the identical whole archive pin under archive. If the qualification
-instead uses a later Source or run, repin those exact two reviewed operands
-in operands.py before using the later result. Keep the original R127 HOLD.
+original package files and both raw successful semantic check logs as separate
+files. Bind the original independent Root closure and a canonical qualification
+of kind ROOT_FISH02_NATIVE_PAIR_FOR_OVERLAY583_UPGRADE_V2. The qualification
+has status PASS, issuer Root, actual source and run, architecture aarch64,
+package_architecture any, and the whole original closure pin under closure.
+Its builds rows are ordered 1 and 2. Each has build, clean true, checks PASS,
+the identical whole archive pin under archive and that build's raw check_log
+pin. Every pin has bytes and sha256. The original closure must affirm the
+same exact Source, run, package archive, native build and byte comparison,
+both builds' custody and cleanup, and native_pair PASS. Missing evidence or
+a held closure is refused independently of the qualification's status.
+The same contract accepts a later independently qualified exact Source and
+run without changing the worker. Preserve the original R127 HOLD.
+
 A separately approved disposable TEST certificate and detached signature
-must accompany the exact selected archive. The stage accepts public packet
-types only and the guest verifies the actual certificate and signed archive
-before enabling trust.
+must accompany the exact selected archive. Supply the full primary
+fingerprint and its created and expires UTC epochs from the public certificate.
+The stage accepts public packet types only. Bind requires more than the whole
+guest time budget remaining. The guest checks the actual certificate's dates,
+fingerprint and TEST identity before verifying the exact detached signature
+and enabling trust.
 
 The following are passive commands.
 
-    python3 -I -B scripts/integration/fish_config_overlay583/operands.py baseline \
+    python3 -I -B scripts/integration/fish_config_overlay583/operands.py baseline \\
       --staging "$staging" --preflight "$preflight"
 
-    python3 -I -B scripts/integration/fish_config_overlay583/operands.py stage \
-      --staging "$staging" --preflight "$preflight" \
-      --archive "$build_1" --matching-archive "$build_2" \
-      --qualified "$root_qualification" --qualified-sha256 "$qualification_sha256" \
-      --signature "$test_detached_signature" --public-key "$test_public_certificate" \
-      --signer "$test_fingerprint" --output "$supplement"
+    python3 -I -B scripts/integration/fish_config_overlay583/operands.py stage \\
+      --staging "$staging" --preflight "$preflight" \\
+      --archive "$build_1" --matching-archive "$build_2" \\
+      --qualified "$root_qualification" --qualified-sha256 "$qualification_sha256" \\
+      --native-closure "$independent_native_closure" \\
+      --check-log "$build_1_check" --matching-check-log "$build_2_check" \\
+      --signature "$test_detached_signature" --public-key "$test_public_certificate" \\
+      --signer "$test_fingerprint" --signer-created "$test_created_epoch" \\
+      --signer-expires "$test_expires_epoch" --output "$supplement"
 
-    python3 -I -B scripts/integration/fish_config_overlay583/bridge.py \
-      --staging "$staging" --preflight "$preflight" \
+    python3 -I -B scripts/integration/fish_config_overlay583/bridge.py \\
+      --staging "$staging" --preflight "$preflight" \\
       --supplement "$supplement" --supplement-sha256 "$supplement_sha256" --nonce "$nonce"
 
-## Existing owner integration
+## Root-owned controller
 
-The shared controller in this worktree still exposes its existing operation
-modes. Connect this worker at the same finite post-install addon seam used
-by first-login and the local llhttp successor. Bind separate fish-upgrade
-path/digest flags and exclude the existing alternative modes. Bind the exact
-source files and whole supplement, construct the plan through bridge.selected_plan,
-and mount only its selected files under the read-only /trial-code/fish-upgrade
-directory on the existing code media. Keep the signed repository media intact,
-including the original rollback archive.
+Use the existing qualified controller image and mount the supplement read-only.
+Select the Fish operation with its own path and whole manifest SHA-256. This
+selection is exclusive with the other addon and upgrade operations, lifecycle,
+and signature recovery. The passive bind is separate from Root issuance.
 
-After the existing authenticated normal 583 install and database check,
-invoke guest.run with the same deadline-aware command callback used by the
-other addon. The callback must require the roles in guest.command_plan in
-order, retain both original streams, and run the existing hook-failure check
-immediately after fish-upgrade and fish-restore. Use guest.evidence for the
-separate bounded fish-upgrade.json leaf on the existing evidence disk. The
-guest must retain its raw disks and phase on HOLD. Reopen the source-pinned
-worker and original result disk after natural QEMU exit and pass the addon
-blob to guest.readback. In the current Root-owned launcher pattern, qualify
-the selected child container and QEMU identity and observe both containers
-and the selected scope absent twice. Keep the usual offline flags, actor
-authority and resource envelope.
+    python3 -I -B scripts/install/overlay583_trial/controller.py bind \\
+      --staging "$staging" --preflight "$preflight" --kernel "$kernel" \\
+      --config "$kernel_config" --baseline "$baseline" --output "$output" --nonce "$nonce" \\
+      --fish-upgrade "$supplement" --fish-upgrade-sha256 "$supplement_sha256"
+
+    python3 -I -B scripts/install/overlay583_trial/controller.py run \\
+      --authority "$root_issued_selection" --authority-sha256 "$root_issued_selection_sha256"
+
+The guest receives only the selected Fish supplement under the read-only
+code media directory /trial-code/fish-upgrade. The normal signed repository
+media also contains the original rollback archive. After its verified
+baseline install, the guest admits an exact ordered callback ledger and
+checks hooks immediately after both pacman transactions. The original
+fish-upgrade.json leaf includes the bounded raw addon pacman log, all
+original command streams, and typed independent readback. A HOLD retains
+its original scratch disk and evidence. The Root launcher uses the existing
+qualified child-container and QEMU identity checks and scope retirement
+observations. The offline flags and resource envelope are inherited.
 
 The passive join and source tests can run without a guest. The focused suite
 uses the exact retained R127 members and original Setup8 and Fish templates
@@ -98,3 +112,7 @@ in unprivileged temporary host fixtures. It runs no pacman operation or VM.
 This evidence is separate from the future installed ARM16K result.
 
     python3 -I -B scripts/integration/fish_config_overlay583/test_upgrade.py
+    python3 -I -B -m unittest discover -s scripts/install/overlay583_trial -p 'test_fish_upgrade.py'
+
+The focused selection and refusal tests run without local archive artifacts.
+The real host startup checks require the retained Overlay583 and R127 inputs.

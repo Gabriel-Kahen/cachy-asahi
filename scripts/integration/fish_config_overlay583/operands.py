@@ -8,6 +8,7 @@ import lzma
 from pathlib import Path
 import re
 import tarfile
+import time
 
 HERE=Path(__file__).resolve().parent
 PACKAGE="cachy-asahi-fish-config"
@@ -16,16 +17,16 @@ NEW="0.1.0-2"
 PREVIOUS=PACKAGE+"-"+OLD+"-any.pkg.tar.xz"
 SUCCESSOR=PACKAGE+"-"+NEW+"-any.pkg.tar.xz"
 PUBLIC="fish-upgrade-TEST-public.gpg"
-PAIR="qualified-r127.json"
+PAIR="qualified-native-pair.json"
+CLOSURE="native-pair-closure.ACTUAL.json"
+CHECK_LOGS=("build-1-check.log","build-2-check.log")
 RECEIPT="supplement.json"
 REPO="offline-overlay-kit/release/repo"
 TARGET=dict(bytes=11450,sha256="12e5f0d74f8530fee9cc2b10ad7887748c2f9d5fdfed259b498f4b3db87167ba")
 PREFLIGHT="efbd1147613ab68721a05268c7973282936b5b61de09268c84f473b02566a3c7"
 PIN_OLD=dict(bytes=7220,sha256="d714cea85c8ef651d4b688a4a13dd2d6504192fb8f69a1ff4e70ad6237e8089a")
 PIN_OLD_SIG=dict(bytes=119,sha256="e54a333f0f2178ef5d829353fa8493957602bf6eab0de5c77abb6f66f25feebe")
-SOURCE="346e897f1b3a0fa273fa74d3331363b6f39b6436"
-RUN=44239472740
-PAIR_KIND="ROOT_FISH02_R127_NATIVE_PAIR_FOR_OVERLAY583_UPGRADE_V1"
+PAIR_KIND="ROOT_FISH02_NATIVE_PAIR_FOR_OVERLAY583_UPGRADE_V2"
 KIND="OVERLAY583_FISH_CONFIG_UPGRADE_SUPPLEMENT_V1"
 CONFIG="usr/share/cachy-asahi/fish/config.fish"
 PAYLOAD={
@@ -99,18 +100,38 @@ def baseline(trial, staging, preflight):
                 predecessor=dict(archive=PIN_OLD,signature=PIN_OLD_SIG,payload=package(trial,old_package,OLD)))
 
 
-def qualification(trial, raw, archive_pin):
+def qualification(trial, raw, archive_pin, closure_raw, check_logs):
     value=trial.decode(raw)
+    close=trial.decode(closure_raw)
     expected={"kind","issuer","status","source","run","closure","architecture","package_architecture","builds"}
     trial.need(set(value)==expected and raw==trial.encoded(value) and value["kind"]==PAIR_KIND
-               and value["issuer"]=="Root" and value["status"]=="PASS" and value["source"]==SOURCE and value["run"]==RUN
+               and value["issuer"]=="Root" and value["status"]=="PASS"
+               and re.fullmatch("[a-f0-9]{40}",value["source"] or "") and type(value["run"]) is int and value["run"]>0
                and value["architecture"]=="aarch64" and value["package_architecture"]=="any"
-               and value["builds"]==[dict(build=i,archive=archive_pin,clean=True,checks="PASS") for i in (1,2)],
-               "Two qualified matching R127 native archives and semantic checks required")
-    close=value["closure"]
-    trial.need(set(close)=={"bytes","sha256"} and type(close["bytes"]) is int and close["bytes"]>0
-               and HEX.fullmatch(close["sha256"]),"Independent Root closure pin required")
+               and len(check_logs)==2 and value["closure"]==trial.pin(closure_raw),
+               "Exact independently qualified matching Fish native pair required")
+    trial.need(close.get("issuer")=="Root" and close.get("native_pair")=="PASS"
+               and close.get("source")==value["source"] and close.get("run")==value["run"]
+               and close.get("package")==SUCCESSOR and close.get("package_archive")==archive_pin
+               and close.get("builds")==2 and close.get("build")=="PASS_BOTH_NATIVE_AARCH64"
+               and close.get("comparison")=="PASS_BYTE_IDENTICAL"
+               and close.get("original_custody_pass") is True and close.get("owned_storage_absent") is True
+               and close.get("controller_empty_twice") is True and not close.get("required_missing"),
+               "Independent closed PASS required for native Fish, original custody, and cleanup")
+    for body in check_logs:
+        trial.need(body.startswith(b"PASS:") and b"CDPATH-independent" in body and b"\x00" not in body,
+                   "Both original successful Fish semantic check logs required")
+    trial.need(value["builds"]==[dict(build=i,archive=archive_pin,clean=True,checks="PASS",check_log=trial.pin(body))
+                                for i,body in enumerate(check_logs,1)],
+               "Both original Fish archives and checks must match the qualified pair")
     return value
+
+
+def current_key(record, now):
+    return (type(record) is dict and set(record)=={"fingerprint","created","expires"}
+            and type(record["fingerprint"]) is str and FPR.fullmatch(record["fingerprint"]) is not None
+            and type(record["created"]) is type(record["expires"]) is int
+            and record["created"]<=now<record["expires"]<=record["created"]+7*86400)
 
 
 def packet_tags(raw):
@@ -155,26 +176,32 @@ def bounded_public_signature(trial, public, signature):
                "Only a bounded public TEST certificate and detached signature are allowed")
 
 
-def stage(trial, *, staging, preflight, archive, matching_archive, qualified, qualified_sha256,
-          signature, public_key, signer, output):
+def stage(trial, *, staging, preflight, archive, matching_archive, qualified, qualified_sha256, native_closure,
+          check_log, matching_check_log, signature, public_key, signer, signer_created, signer_expires, output):
     before=baseline(trial,staging,preflight)
     raw=trial.read(archive,cap=128*1024)
     archive_pin=trial.pin(raw)
     trial.need(not archive.samefile(matching_archive),"Distinguish the two retained original build files")
     trial.read(matching_archive,archive_pin,cap=128*1024)
     approval=trial.read(qualified,cap=16*1024)
-    trial.need(trial.pin(approval)["sha256"]==qualified_sha256,"Exact external R127 qualification required")
-    pair=qualification(trial,approval,archive_pin)
-    trial.need(FPR.fullmatch(signer),"Exact selected TEST signature identity required")
+    closure=trial.read(native_closure,cap=16*1024)
+    trial.need(trial.pin(approval)["sha256"]==qualified_sha256,"Exact external Fish qualification required")
+    trial.need(not check_log.samefile(matching_check_log),"Distinct retained original Fish check logs required")
+    check_logs=[trial.read(path,cap=16*1024) for path in (check_log,matching_check_log)]
+    pair=qualification(trial,approval,archive_pin,closure,check_logs)
+    key=dict(fingerprint=signer,created=signer_created,expires=signer_expires)
+    now=time.time()
+    trial.need(current_key(key,now) and key["expires"]-now>trial.TIMEOUT,"Exact current TEST key covering the guest budget required")
     signature_bytes=trial.read(signature,cap=4096)
     public_bytes=trial.read(public_key,cap=4096)
     bounded_public_signature(trial,public_bytes,signature_bytes)
     # GnuPG verifies the detached signature and current TEST key through a
     # held command before trust is enabled in the disposable actor.
-    materials={SUCCESSOR:raw,SUCCESSOR+".sig":signature_bytes,PUBLIC:public_bytes,PAIR:approval}
+    materials={SUCCESSOR:raw,SUCCESSOR+".sig":signature_bytes,PUBLIC:public_bytes,PAIR:approval,CLOSURE:closure}
+    materials.update(zip(CHECK_LOGS,check_logs,strict=True))
     materials.update({name:trial.read(HERE/name,cap=128*1024) for name in CODE})
     result=dict(kind=KIND,files={name:trial.pin(data) for name,data in materials.items()},
-                inventories=before,rehearsal=signer,qualification=pair,successor=package(trial,raw,NEW),
+                inventories=before,rehearsal=key,qualification=pair,successor=package(trial,raw,NEW),
                 Root_authority=None,installation="NOT RUN")
     output=trial.ordinary(output)
     output.mkdir(mode=0o700)
@@ -193,13 +220,15 @@ def check_stage(trial, root, digest, *, sources):
     files=packet["files"]
     trial.need(trial.pin(raw)["sha256"]==digest and raw==trial.encoded(packet) and packet["kind"]==KIND
                and packet["Root_authority"] is None and packet["installation"]=="NOT RUN"
-               and FPR.fullmatch(packet["rehearsal"]) and set(files)=={SUCCESSOR,SUCCESSOR+".sig",PUBLIC,PAIR,*CODE}
+               and current_key(packet["rehearsal"],time.time())
+               and set(files)=={SUCCESSOR,SUCCESSOR+".sig",PUBLIC,PAIR,CLOSURE,*CHECK_LOGS,*CODE}
                and {p.name for p in root.iterdir()}==set(files)|{RECEIPT},
                "Exact read-only Fish upgrade DATA required")
     bodies={name:trial.read(root/name,pin,cap=128*1024) for name,pin in files.items()}
     bounded_public_signature(trial,bodies[PUBLIC],bodies[SUCCESSOR+".sig"])
     trial.need(all(trial.read(sources/name,files[name],cap=128*1024)==bodies[name] for name in CODE)
-               and qualification(trial,bodies[PAIR],files[SUCCESSOR])==packet["qualification"]
+               and qualification(trial,bodies[PAIR],files[SUCCESSOR],bodies[CLOSURE],
+                                 [bodies[name] for name in CHECK_LOGS])==packet["qualification"]
                and package(trial,bodies[SUCCESSOR],NEW)==packet["successor"],"Exact Fish source or pair archive differs")
     return dict(packet,receipt=trial.pin(raw))
 
@@ -213,10 +242,12 @@ def cli():
     for mode in (baseline_mode,stage_mode):
         for name in ("staging","preflight"):
             mode.add_argument("--"+name,type=Path,required=True)
-    for name in ("archive","matching-archive","qualified","signature","public-key","output"):
+    for name in ("archive","matching-archive","qualified","native-closure","check-log","matching-check-log","signature","public-key","output"):
         stage_mode.add_argument("--"+name,type=Path,required=True)
     for name in ("qualified-sha256","signer"):
         stage_mode.add_argument("--"+name,required=True)
+    for name in ("signer-created","signer-expires"):
+        stage_mode.add_argument("--"+name,type=int,required=True)
     spec=importlib.util.spec_from_file_location("overlay583_trial",HERE.parents[1]/"install/overlay583_trial/trial.py")
     T=importlib.util.module_from_spec(spec)
     spec.loader.exec_module(T)

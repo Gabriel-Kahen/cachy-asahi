@@ -14,9 +14,6 @@ from types import ModuleType
 SUPPLEMENT=Path("/trial-code/fish-upgrade")
 PLAN_KIND="OVERLAY583_FISH_CONFIG_UPGRADE_GUEST_PLAN_V1"
 PASS="PASS_DISPOSABLE_OVERLAY583_FISH_CONFIG_UPGRADE"
-HOLD="HOLD_DISPOSABLE_OVERLAY583_FISH_CONFIG_UPGRADE"
-MATCHED="MATCHED_DISPOSABLE_OVERLAY583_FISH_CONFIG_UPGRADE_EVIDENCE"
-EVIDENCE="fish-upgrade.json"
 MAX_EVIDENCE=2*1024**2
 MAX_LOG=256*1024
 OVERLAY_SIGNER="C908F19D5618FE95F08864A8E397439FC7A7980D"
@@ -258,9 +255,10 @@ def exercise(T, O, P, stage, env, command):
                "Setup8 must keep the original user text and opt into the installed package path")
         active_config=T.pin(cfg)
         check_shell("before")
-        signer=stage["rehearsal"]
+        signer=stage["rehearsal"]["fingerprint"]
         T.need(signer!=OVERLAY_SIGNER,"Separate scoped Fish upgrade TEST identity required")
         key=test_key(T,call("fish-test-metadata"),signer,time.time())
+        T.need(key==stage["rehearsal"],"Selected TEST key dates or signer differ")
         call("fish-import-test",contents=T.read(SUPPLEMENT/O.PUBLIC,stage["files"][O.PUBLIC],cap=4096))
         T.need(signature_valid(call("fish-verify-successor"),signer,key),"Actual current successor TEST signature required")
         call("fish-trust-test",contents=(signer+":6:\n").encode())
@@ -313,7 +311,9 @@ def readback(T, O, P, raw, *, baseline, stage, held):
         stdout,stderr=(b64decode(row[side],validate=True) for side in ("stdout","stderr"))
         T.need(len(stdout)<=MAX_LOG and len(stderr)<=MAX_LOG,"Original Fish output length differs")
         if role in ("fish-upgrade","fish-restore") and row["exit"]==0:
-            T.need(not re.search(rb"(?im)^error: (?:failed to execute|command failed)",stderr),"Fish hook/scriptlet failure")
+            failed=re.search(rb"(?im)^error: (?:failed to execute|command failed)",stderr)
+            T.need(not failed or (held and i==len(commands)-1 and body["result"] is None),
+                   "Fish hook/scriptlet failure")
         output[role]=stdout
     result=body["result"]
     if result is None:
@@ -332,8 +332,8 @@ def readback(T, O, P, raw, *, baseline, stage, held):
         T.need(P.receipt(output["fish-start-"+phase],P.HOME/phase,P.UID,expect_local=(phase=="upgraded"))
                ==result["probes"][phase],"Original ordinary-user Fish proof differs")
     T.need(result["status"]==PASS and result["qualified_pair"]==stage["qualification"]
-           and result["key"]["fingerprint"]==stage["rehearsal"]
-           and signature_valid(output["fish-verify-successor"],stage["rehearsal"],result["key"])
+           and result["key"]==stage["rehearsal"]
+           and signature_valid(output["fish-verify-successor"],stage["rehearsal"]["fingerprint"],result["key"])
            and signature_valid(output["fish-verify-predecessor"],OVERLAY_SIGNER)
            and result["db"]["before"]==result["db"]["restored"]
            and len({state["unchanged_packages"]["sha256"] for state in result["db"].values()})==1

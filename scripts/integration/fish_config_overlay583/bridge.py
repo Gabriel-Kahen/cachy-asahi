@@ -34,7 +34,7 @@ def selected_plan(T, O, G, packet, nonce, supplement):
            and packet["files"][O.REPO+"/"+O.PREVIOUS]==O.PIN_OLD
            and packet["files"][O.REPO+"/"+O.PREVIOUS+".sig"]==O.PIN_OLD_SIG
            and packet["signers"][0]==G.OVERLAY_SIGNER
-           and supplement["rehearsal"] not in packet["signers"],
+           and supplement["rehearsal"]["fingerprint"] not in packet["signers"],
            "Exact ordinary signed Fish rollback operands and a distinct TEST signer required")
     before,updated=O.inventories(T,T.target_bytes(packet))
     T.need(supplement["inventories"]["before"]==supplement["inventories"]["restored"]==T.pin(before)

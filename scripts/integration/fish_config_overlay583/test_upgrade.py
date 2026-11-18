@@ -18,7 +18,8 @@ HERE=Path(__file__).resolve().parent
 TREE=HERE.parents[2]
 BASE=Path("/home/gabe/Documents/ChatGPT/cachy-asahi-staging-install-lock-20261117-overlay583")
 PRE=BASE.parent/"cachy-asahi-staging-install-lock-20261117-preflight583-results/retained583.json"
-HELD=TREE.parent/"cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-fish70-r11-native-result-r127-r1"
+HELD=Path(os.environ.get("CAA_FISH_R127_EVIDENCE_DIR",
+    TREE.parent/"cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-fish70-r11-native-result-r127-r1"))
 NONCE="9"*32
 SUCCESSOR=dict(bytes=5516,sha256="6dee81130f3ba3e570791cf079d2152893461ec27fa6e2e34a3d614986f9a949")
 
@@ -44,6 +45,8 @@ def tar_leaf(raw, name):
         return body.extractfile(row).read()
 
 
+@unittest.skipUnless(BASE.is_dir() and PRE.is_file() and HELD.is_dir(),
+                     "Exact local Overlay583 and retained R127 planning inputs required")
 class FishUpgrade(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -71,10 +74,18 @@ class FishUpgrade(unittest.TestCase):
         self.root=Path(temp.name)
         self.signer="AB1234567890AB1234567890AB1234567890AB12"
         self.now=int(time.time())
-        # These are explicitly model records. The retained R127 is held.
-        self.model=dict(kind=O.PAIR_KIND,issuer="Root",status="PASS",source=O.SOURCE,run=O.RUN,
-             architecture="aarch64",package_architecture="any",closure=T.pin(b"synthetic qualifying receipt"),
-             builds=[dict(build=i,archive=SUCCESSOR,clean=True,checks="PASS") for i in (1,2)])
+        # This is a model of a later valid source/run, kept separate from actual held R127.
+        self.model_closure=dict(issuer="Root",native_pair="PASS",source="c"*40,run=12345,
+              package=O.SUCCESSOR,package_archive=SUCCESSOR,builds=2,build="PASS_BOTH_NATIVE_AARCH64",
+              comparison="PASS_BYTE_IDENTICAL",original_custody_pass=True,owned_storage_absent=True,
+              controller_empty_twice=True)
+        self.model_logs=[b"PASS: fixture original CDPATH-independent checks on each build\n"]*2
+        self.model=dict(kind=O.PAIR_KIND,issuer="Root",status="PASS",source=self.model_closure["source"],
+             run=self.model_closure["run"],architecture="aarch64",package_architecture="any",
+             closure=T.pin(T.encoded(self.model_closure)),
+             builds=[dict(build=i,archive=SUCCESSOR,clean=True,checks="PASS",check_log=T.pin(body))
+                     for i,body in enumerate(self.model_logs,1)])
+        self.key=dict(fingerprint=self.signer,created=self.now-10,expires=self.now+86400)
         self.inventory=O.baseline(T,BASE,PRE)
 
     def test_exact_signed_predecessor_and_held_r127_package_payloads(self):
@@ -83,25 +94,32 @@ class FishUpgrade(unittest.TestCase):
         actual=O.package(T,self.raw,O.NEW)
         old=self.inventory["predecessor"]["payload"]
         self.assertEqual({name for name in old if old[name]!=actual[name]},{O.CONFIG})
-        with self.assertRaisesRegex(ValueError,"qualified matching R127"):
-            O.qualification(T,T.encoded(self.hold),SUCCESSOR)
+        with self.assertRaisesRegex(ValueError,"qualified matching Fish"):
+            O.qualification(T,T.encoded(self.hold),SUCCESSOR,self.closure,self.model_logs)
 
     def fixture_stage(self,*,single=False,secret=False,held=False):
-        a,b,q,signature,key=[self.root/name for name in ("build1.xz","build2.xz","pair.json","test.sig","test.gpg")]
+        a,b,q,signature,key,closure,check1,check2=[self.root/name for name in (
+            "build1.xz","build2.xz","pair.json","test.sig","test.gpg","closure.json","check1.log","check2.log")]
         for path,raw in zip((a,b),self.members,strict=True):
             path.write_bytes(raw)
-        q.write_bytes(T.encoded(self.hold if held else self.model))
+        closing=self.closure if held else T.encoded(self.model_closure)
+        closure.write_bytes(closing)
+        q.write_bytes(T.encoded(dict(self.model,closure=T.pin(closing))))
+        for path,raw in zip((check1,check2),self.model_logs,strict=True):
+            path.write_bytes(raw)
         signature.write_bytes(bytes([0xc2,1,0]))
         key.write_bytes(bytes([0xc5 if secret else 0xc6,1,0,0xcd,1,0,0xc2,1,0]))
         folder=self.root/"MODEL-NOT-QUALIFIED"
         data=O.stage(T,staging=BASE,preflight=PRE,archive=a,matching_archive=a if single else b,qualified=q,
-            qualified_sha256=T.pin(q.read_bytes())["sha256"],signature=signature,public_key=key,signer=self.signer,output=folder)
+            qualified_sha256=T.pin(q.read_bytes())["sha256"],native_closure=closure,check_log=check1,matching_check_log=check2,
+            signature=signature,public_key=key,signer=self.signer,signer_created=self.key["created"],
+            signer_expires=self.key["expires"],output=folder)
         return folder,data
 
     def test_stage_rejects_same_inode_held_pair_and_private_key_packet(self):
         with self.assertRaisesRegex(ValueError,"two retained"):
             self.fixture_stage(single=True)
-        with self.assertRaisesRegex(ValueError,"qualified matching R127"):
+        with self.assertRaisesRegex(ValueError,"Independent closed PASS"):
             self.fixture_stage(held=True)
         with self.assertRaisesRegex(ValueError,"public TEST"):
             self.fixture_stage(secret=True)
@@ -120,6 +138,19 @@ class FishUpgrade(unittest.TestCase):
         self.assertEqual(plan["operations"],T.guest_plan(plan["packet"],NONCE)["operations"])
         self.assertEqual(plan["fish_upgrade"]["receipt"],packet["receipt"])
         self.assertEqual(plan["packet"]["target"],O.TARGET)
+        C=load(TREE/"scripts/install/overlay583_trial/controller.py")
+        canonical=TREE.parent/"cachy-asahi/artifacts/development/orchestrator-resume-20261114"
+        kernel=canonical/"Root-UI-seat-kernel-compile-r1/actor-output/stage/bundle"
+        baseline=canonical/"Root-warm-baseline-inputs-r1/assembly/guest.raw"
+        if kernel.is_dir() and baseline.is_file():
+            with patch.object(C,"tool_pins",return_value={}), patch.object(T.subprocess,"Popen",side_effect=AssertionError("actor forbidden")):
+                candidate=C.binding(staging=BASE,preflight=PRE,kernel=kernel/"Image",config=kernel/"config",
+                    baseline=baseline,output=self.root/"model-output",nonce=NONCE,
+                    fish_upgrade=folder,fish_upgrade_sha256=packet["receipt"]["sha256"])
+            self.assertEqual(candidate["plan"],result["plan"])
+            self.assertEqual(candidate["fish_upgrade"],packet["receipt"])
+            self.assertIsNone(candidate["issuer"])
+
 
     def test_local_db_allows_only_the_expected_install_date_to_change(self):
         target=self.root/"target"

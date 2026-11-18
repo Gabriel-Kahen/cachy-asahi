@@ -148,6 +148,14 @@ selects the offline install, shared-library parser probe and removal in the
 same disposable 16 KiB guest. The guest checks the exact 583→584→583 package
 inventories and restores the base local database.
 
+## Rehearse the Fish config upgrade and rollback
+
+Use the [Fish upgrade guide](../../integration/fish_config_overlay583/README.md)
+to stage an independently qualified pair and the disposable TEST signature.
+Bind with the separate fish-upgrade path and whole supplement digest.
+The ordinary-user startup proves the CDPATH regression, the corrected
+behavior and the signed restoration using the same user configuration.
+
 The passive preparation ran against real staging. The focused fixture suites
 exercise the plan, ownership bridge, controller and evidence readers without
 launching an actor. Root issuance and the first real transaction remain
