@@ -51,10 +51,10 @@ class Trial(unittest.TestCase):
         self.out = Path(scratch.name)
         self.packet,self.receipt,self.raw = model_inputs()
 
-    def plan(self, *, lifecycle=False):
+    def plan(self, *, lifecycle=False, signature_recovery=False):
         raw = T.encoded(self.receipt)
         admitted = T.admit(self.packet,raw,T.pin(raw))
-        return T.guest_plan(admitted,"1"*32,lifecycle=lifecycle)
+        return T.guest_plan(admitted,"1"*32,lifecycle=lifecycle,signature_recovery=signature_recovery)
 
     def test_plan_keeps_normal_pacman_transaction_and_pinned_origins(self):
         plan=self.plan()
@@ -90,7 +90,25 @@ class Trial(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"Exact authenticated baseline"):
             T.guest_plan(dict(plan["packet"],baseline=T.pin(b"wrong base")),"1"*32,lifecycle=True)
 
-    def execute_model(self, *, corrupt_role=None, command_failure=None, hook_failure=None):
+    def recovery_model(self, inputs):
+        packages = self.packet["packages"]
+        packages[T.PROBE_PACKAGE] = packages.pop("model-582")
+        self.raw = "".join(f'{name} {row["version"]}\n' for name,row in sorted(packages.items())).encode()
+        self.packet["target"] = T.pin(self.raw)
+        self.receipt.update(target_lock_sha256=self.packet["target"]["sha256"],
+                            pacman_plan_sha256=T.pin(T.pacman_plan(self.packet))["sha256"])
+        self.packet["authenticated_preflight"] = T.pin(T.encoded(self.receipt))
+        leaf = f"{T.PROBE_PACKAGE}-1-1-any.pkg.tar.xz"
+        archive = T.REPOS[T.OVERLAY_REPO]+"/"+leaf
+        for relative, raw in ((archive,b"model archive"),(archive+".sig",b"model detached signature")):
+            source = inputs/relative
+            source.parent.mkdir(parents=True,exist_ok=True)
+            source.write_bytes(raw)
+            self.packet["files"][relative] = T.pin(raw)
+
+    def execute_model(self, *, corrupt_role=None, command_failure=None, hook_failure=None,
+                      signature_recovery=False, probe_exit=1, probe_reason="package missing required signature",
+                      change_db=False):
         inputs, work = self.out/"inputs", self.out/"work"
         work.mkdir()
         for name in T.GPG_PATHS:
@@ -98,12 +116,15 @@ class Trial(unittest.TestCase):
             path.parent.mkdir(parents=True,exist_ok=True)
             path.write_bytes(b"model trust")
         self.packet.update(files={},aliases={},trust={name:T.pin(b"model trust") for name in T.GPG_PATHS})
+        if signature_recovery:
+            self.recovery_model(inputs)
         evidence, config, target = work/"evidence",work/"pacman.conf",work/"target"
         with patch.multiple(T,IN=inputs,WORK=work,OUTPUT=evidence,CONFIG=config,TARGET=target):
-            plan = self.plan(lifecycle=True)
+            plan = self.plan(lifecycle=not signature_recovery,signature_recovery=signature_recovery)
             operations = iter(plan["operations"])
             outputs = T.role_outputs(plan,self.raw)
             log = []
+            local = target/"var/lib/pacman/local"
             def command(argv, **streams):
                 role = None
                 if argv[0]=="/usr/bin/pacman":
@@ -111,6 +132,24 @@ class Trial(unittest.TestCase):
                     self.assertEqual(argv,expected_cmd)
                     log.append(role)
                     (evidence/"pacman.log").write_bytes(b"model pacman")
+                    if role=="remove" and signature_recovery:
+                        local.mkdir()
+                        (local/"ALPM_DB_VERSION").write_bytes(b"9\n")
+                        for i in range(574):
+                            package = local/f"model-{i:03d}-1-1"
+                            package.mkdir()
+                            (package/"desc").write_bytes(b"model installed metadata")
+                            (package/"files").write_bytes(b"model installed file list")
+                    if role==T.PROBE_ROLE:
+                        probe = Path(argv[-1])
+                        self.assertEqual(list(probe.parent.iterdir()),[probe])
+                        self.assertEqual(probe.read_bytes(),b"model archive")
+                        self.assertIn("LocalFileSigLevel = Required TrustedOnly\n",config.read_text())
+                        if probe_reason:
+                            streams["stderr"].write(f"error: '{probe}': {probe_reason}\n".encode())
+                        if change_db:
+                            (local/"model-000-1-1/desc").write_bytes(b"changed installed metadata")
+                        return SimpleNamespace(returncode=probe_exit)
                     if role in outputs:
                         raw = outputs[role][0]
                         if role==corrupt_role:
@@ -124,7 +163,7 @@ class Trial(unittest.TestCase):
                  patch.object(T,"check_repos"), patch.object(sys,"stderr",io.StringIO()):
                 exit_code = T.execute_guest(plan,self.raw,{},time.monotonic()+60)
                 self.assertEqual(mounts.call_count,
-                                 sum(role in ("install","remove","reinstall") for role in log))
+                                 sum(role in ("install","remove","reinstall",T.PROBE_ROLE) for role in log))
         return evidence,plan,exit_code,log
 
     def test_lifecycle_success_reopens_three_original_locks_and_checks(self):
@@ -196,6 +235,53 @@ class Trial(unittest.TestCase):
         self.assertEqual(result["phase"],"remove")
         self.assertIn("remove.stderr",result["files"])
         self.assertEqual(set(result["verified_locks"]),{"before_remove"})
+
+    def test_signature_refusal_reopens_original_diagnostic_and_unchanged_base(self):
+        evidence,plan,exit_code,log = self.execute_model(signature_recovery=True)
+        self.assertEqual(exit_code,0)
+        self.assertTrue(plan["lifecycle"])
+        self.assertEqual(log[log.index("check-base")+1:log.index("reinstall-plan")],
+                         [T.PROBE_ROLE,"query-refused","check-refused"])
+        result = T.read_result(evidence,plan)
+        self.assertEqual(result["status"],"MATCHED_DISPOSABLE_OVERLAY583_SIGNATURE_RECOVERY_EVIDENCE")
+        self.assertEqual(result["verified_locks"]["after_refusal"],result["verified_locks"]["after_remove"])
+        self.assertEqual(result["verified_locks"]["after_reinstall"],result["verified_locks"]["before_remove"])
+        self.assertEqual(result["signature_refusal"]["expected_exit"],1)
+        self.assertEqual(result["files"][T.DB_BEFORE],result["files"][T.DB_AFTER])
+        (evidence/T.DB_AFTER).write_bytes(b"{}\n")
+        with self.assertRaisesRegex(ValueError,"Expected file length"):
+            T.read_result(evidence,plan)
+
+    def test_wrong_negative_control_diagnostic_holds_before_retry(self):
+        evidence,plan,exit_code,log = self.execute_model(signature_recovery=True,probe_reason="unable to lock database")
+        self.assertEqual(exit_code,T.LIFECYCLE_HOLD_EXIT)
+        self.assertEqual(log[-1],T.PROBE_ROLE)
+        result = T.read_result(evidence,plan,held=True)
+        self.assertIsNone(result["signature_refusal"])
+        self.assertEqual(result["phase"],T.PROBE_ROLE)
+        self.assertEqual(set(result["verified_locks"]),{"before_remove","after_remove"})
+
+    def test_unexpected_unsigned_install_holds_without_retry(self):
+        evidence,plan,exit_code,log = self.execute_model(signature_recovery=True,probe_exit=0,probe_reason="")
+        self.assertEqual(exit_code,T.LIFECYCLE_HOLD_EXIT)
+        self.assertEqual(log[-1],T.PROBE_ROLE)
+        self.assertEqual(T.read_result(evidence,plan,held=True)["phase"],T.PROBE_ROLE)
+
+    def test_signature_refusal_that_changes_db_holds_even_with_same_versions(self):
+        evidence,plan,exit_code,log = self.execute_model(signature_recovery=True,change_db=True)
+        self.assertEqual(exit_code,T.LIFECYCLE_HOLD_EXIT)
+        self.assertEqual(log[-1],T.PROBE_ROLE)
+        result = T.read_result(evidence,plan,held=True)
+        self.assertNotEqual(result["files"][T.DB_BEFORE],result["files"][T.DB_AFTER])
+        self.assertNotIn("after_refusal",result["verified_locks"])
+
+    def test_changed_lock_after_signature_refusal_holds_before_retry(self):
+        evidence,plan,exit_code,log = self.execute_model(signature_recovery=True,corrupt_role="query-refused")
+        self.assertEqual(exit_code,T.LIFECYCLE_HOLD_EXIT)
+        self.assertEqual(log[-1],"query-refused")
+        result = T.read_result(evidence,plan,held=True)
+        self.assertEqual(result["signature_refusal"]["package"],T.PROBE_PACKAGE)
+        self.assertNotIn("after_refusal",result["verified_locks"])
 
     def test_reject_preflight_plan_and_signer_drift_even_when_repinned(self):
         for field in ("pacman_plan_sha256","base_package_signer","base_receipt_sha256"):

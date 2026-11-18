@@ -90,15 +90,15 @@ export_evidence() {
     [[ -d $source && ! -L $source && -f $source/result.json ]] || return 1
     shopt -s nullglob dotglob
     local -a actual=("$source"/*)
-    [[ ${#actual[@]} -le 39 ]] || return 1
+    [[ ${#actual[@]} -le 48 ]] || return 1
     mkdir -m 0700 "$dest" || return 1
     for file in "${actual[@]}"; do
         name=${file##*/}
         case "$name" in
-            installed.lock|removed.lock|reinstalled.lock|result.json|pacman.log) ;;
+            installed.lock|removed.lock|refused.lock|reinstalled.lock|refusal-db-before.json|refusal-db-after.json|result.json|pacman.log) ;;
             *.stdout|*.stderr)
                 case "${name%.*}" in
-                    import-[012]|ownertrust|refresh|resolve|install|query|check|remove-plan|remove|query-base|check-base|reinstall-plan|reinstall|query-restored|check-restored) ;;
+                    import-[012]|ownertrust|refresh|resolve|install|query|check|remove-plan|remove|query-base|check-base|signature-refusal|query-refused|check-refused|reinstall-plan|reinstall|query-restored|check-restored) ;;
                     *) return 1 ;;
                 esac ;;
             *) return 1 ;;
