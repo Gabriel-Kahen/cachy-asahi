@@ -284,3 +284,28 @@ capsule, verify its seal and readback locally.
     and .installed_Asahi == null and .physical_M2 == null' READBACK.DATA.json
 )
 ```
+
+### Index source evidence for the signed additions
+
+`index_signed_addition_sources.py` reads a pinned stage receipt from
+[signed addition assembly](assemble_signed_additions.md), rehashes the staged
+archives and signatures, and indexes the signed `.BUILDINFO` recipe digests.
+The v1 config uses kind `supported-Asahi-signed-addition-source-index-DATA`
+and contains `schema_version`, `stage_receipt`, and `originals`. The receipt
+uses an absolute `path/size/sha256` reference. Each optional original record
+contains `name` plus references for `recipe`, `srcinfo`, and `provenance`.
+Zstd archives require Python with `compression.zstd`.
+
+```sh
+source_index="$(mktemp -d)/source-index.json"
+python3 -I -B scripts/port/supported-composition/index_signed_addition_sources.py \
+  --config "$index_config" --config-sha256 "$index_config_sha256" \
+  --output "$source_index" &&
+  jq '{package_count, distinct_recipe_count, evidence_counts, proposal_status}' "$source_index"
+```
+
+The retained stage indexed 367 packages and 333 distinct recipe digests.
+First Login and Setup matched their retained project originals and source
+inputs. The other 365 package rows carry recipe digests only. A successful
+index retains the composition verdict and leaves corresponding-source
+fulfillment, license review, and production approval open.
