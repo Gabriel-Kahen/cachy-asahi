@@ -10,12 +10,14 @@
 | Asahi maintenance, emulated AArch64 with 16 KiB pages | R132 ran signed transactions on the exact Asahi Minimal filesystem copy with a generic kernel. The inventory changed 261 → 626 → 626. The reverse transaction restored the original Python, NetworkManager and Perl versions and retained all 365 additions. The guest restored the original initramfs and matched all 362 boot and mount entries. The proposal remains unapproved. [R132 validation](validation/asahi626-maintenance-emulated-arm16k-20261118.md) |
 | Qtbase 6.12, emulated AArch64 with 16 KiB pages | Q3 verified the signed dependency transactions, reached the exact 356-package inventory and passed ordinary-user configure against system md4c. The Markdown importer compiled and QtCore linked with 16 KiB-compatible load segments. QtGui and the full build remain open. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md) · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md) |
 
-The Current606 minimal desktop rehearsal reached the exact 606-package
-emulated AArch64 guest with 16 KiB pages and passed the earlier orphan
-assessment interaction. It stopped at a later accessibility check while
-opening a report after a package-manager lock refusal. The full desktop
-and overlay cases remain open.
-[Current606 R4 rehearsal](validation/current606-minimal-emulated-arm16k-r4-20261118.md)
+The Current606 R8 minimal desktop rehearsal booted the emulated AArch64 guest
+with 16 KiB pages and the exact 606-package lock. The PCI virtio keyboard
+bound successfully, and the **View report** action that stopped R4 passed.
+Independent review verified 11 of 15 required frames and all 15 runtime
+cleanup records before the producer retired. R8 remains held because the
+guest lacked the required IPv6 proc interface before the full installed
+verifier could run. The overlay case remains unrun.
+[Current606 R8 rehearsal](validation/current606-minimal-emulated-arm16k-r8-20261118.md) · [Earlier R4 hold](validation/current606-minimal-emulated-arm16k-r4-20261118.md)
 
 Production repository staging with an approved release signer, stable
 promotion, installed Asahi kernel boot and recovery, both physical M2 Air
