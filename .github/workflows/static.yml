@@ -306,6 +306,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/install/overlay583_trial/test_trial.py
           python3 -I -B -Werror::ResourceWarning scripts/install/overlay583_trial/test_controller.py
           bash scripts/install/overlay583_trial/test_guest_init.sh
+          python3 -I -B -Werror::ResourceWarning scripts/install/overlay583_upgrade/test_upgrade.py
       - name: Check explicit lock and ordered suspend without a desktop session
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
