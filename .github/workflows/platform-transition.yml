@@ -10,7 +10,7 @@
           "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
           "with": {
             "persist-credentials": false,
-            "sparse-checkout": ".github/workflows/platform-transition.yml\ndocs/port/platform-transition.md\nscripts/checks/package_checks.py\nscripts/ci/native_arm.py\nscripts/ci/platform_transition_prerequisites.py\nscripts/ci/test_platform_transition_prerequisites.py\nscripts/integration/lifecycle.py\nscripts/platform/archive_coverage.py\nscripts/platform/authenticate_missing.py\nscripts/platform/capture.py\nscripts/platform/platform_transition.py\nscripts/platform/recovery_inputs.py\nscripts/platform/recovery_preflight.py\nscripts/platform/test_platform_transition.py\nscripts/platform/transaction.py\nscripts/platform/tuple_audit.py\nscripts/port/authenticate.py\nscripts/port/preview.py\nscripts/release/compare_releases.py\nscripts/release/release.py",
+            "sparse-checkout": ".github/workflows/platform-transition.yml\ndocs/port/platform-transition.md\nscripts/checks/package_checks.py\nscripts/ci/native_arm.py\nscripts/ci/platform_transition_prerequisites.py\nscripts/ci/test_platform_transition_prerequisites.py\nscripts/integration/lifecycle.py\nscripts/platform/archive_coverage.py\nscripts/platform/authenticate_missing.py\nscripts/platform/capture.py\nscripts/platform/installed_payload_correspondence.py\nscripts/platform/platform_transition.py\nscripts/platform/recovery_inputs.py\nscripts/platform/recovery_preflight.py\nscripts/platform/test_platform_transition.py\nscripts/platform/transaction.py\nscripts/platform/tuple_audit.py\nscripts/port/authenticate.py\nscripts/port/preview.py\nscripts/release/compare_releases.py\nscripts/release/release.py",
             "sparse-checkout-cone-mode": false
           }
         },
@@ -57,6 +57,7 @@
         "scripts/platform/archive_coverage.py",
         "scripts/platform/authenticate_missing.py",
         "scripts/platform/capture.py",
+        "scripts/platform/installed_payload_correspondence.py",
         "scripts/platform/platform_transition.py",
         "scripts/platform/recovery_inputs.py",
         "scripts/platform/recovery_preflight.py",
@@ -84,6 +85,7 @@
         "scripts/platform/archive_coverage.py",
         "scripts/platform/authenticate_missing.py",
         "scripts/platform/capture.py",
+        "scripts/platform/installed_payload_correspondence.py",
         "scripts/platform/platform_transition.py",
         "scripts/platform/recovery_inputs.py",
         "scripts/platform/recovery_preflight.py",
