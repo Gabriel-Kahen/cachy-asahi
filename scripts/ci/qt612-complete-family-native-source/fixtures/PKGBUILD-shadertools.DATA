@@ -1,0 +1,112 @@
+# SPDX-License-Identifier: MIT
+# Original development candidate only; no unsigned or host-Qt fallback.
+pkgname=cachy-asahi-qt612-shadertools-source-reference
+pkgver=6.12.0
+pkgrel=1
+pkgdesc='Qt6.12 ShaderTools and qsb source candidate with bundled compiler notices'
+arch=('aarch64')
+url='https://code.qt.io/cgit/qt/qtshadertools.git/'
+license=('LGPL-3.0-only' 'GPL-3.0-only WITH Qt-GPL-exception-1.0' 'LicenseRef-Qt-ThirdParty')
+depends=('glibc' 'libgcc' 'libstdc++' 'cachy-asahi-qt612-gui-server-source-reference=6.12.0')
+makedepends=('gcc' 'cmake>=3.25' 'ninja' 'pkgconf' 'python' 'perl')
+provides=("qt6-shadertools=$pkgver" 'libQt6ShaderTools.so.6')
+conflicts=('qt6-shadertools')
+options=('!lto' '!debug' '!staticlibs')
+PKGEXT='.pkg.tar.xz'
+source=("https://download.qt.io/official_releases/qt/6.12/$pkgver/submodules/qtshadertools-everywhere-src-$pkgver.tar.xz"
+        'configure.cmake'
+        'dependency_guard.cmake'
+        'source.py'
+        'check_stage.py'
+        'elf.py'
+        'reflection.py'
+        'BUILD-CONTRACT.json'
+        'source-notices.json'
+        'vendored-inputs.lock.json'
+        'SmokeCMakeLists.txt'
+        'smoke.cpp'
+        'smoke.vert'
+        'smoke.frag'
+        'LICENSE.packaging'
+        'LICENSE.third-party'
+)
+sha256sums=('c7d84f436e1aaef39fdcadebf2bd71bdf24dc69497e13f2e0198873cbbfea2ab'
+            '4f06d082f5e93d8eeb418fdd4e9a4dfaa6205e4808c2c0001cdb613d99014426'
+            '30d1c92679f1853336843193a6a6cd72be4a6b1ba2466384732cd3ded2d2de91'
+            '2f28d2dae7d43d8bfd862e9e09e4aced62a5d2dd503cea5055ef47b4c5149f48'
+            'fece5a639573df37b17f8639af435d1e9f7913c476db8c0c14f97753296109f7'
+            '0220adf2acdba80b3efb0d8e801d50f6ba586e824e8caf5944b2f9364f149050'
+            '225f70874d4ff3e54f8bd164e58078ad5c356e7ac43fd497843bbe688adb0ec9'
+            '6705f652f9a1c6825e98c1c54d06c2e48be9b521030e7bb6ee504aeafbbb7713'
+            '09c63071babd163ff02b773c2bb49fa2bac81c3b43b2212a4d1963184be54044'
+            'a09705bc52dc9a8ea8c4e59b8fd1e92edc60ac7364a6a5916d6ea813ddae7b08'
+            'f168cd74aac6f200497804636633f25e1c0cc0f3647976b93fa24e9331a8ca3b'
+            '92df051cf6660ec494b8193cbf95d362e908bc4994a457ffd7b0ca7328569251'
+            '60def73e2ffab14cc61cf843f0eacb6e8fba6fe977a660c95734a7cd8fca5093'
+            '27ade780de02348a1e1bddc999c4f84c298d20caa7e7165c3a1db44d885e8ada'
+            '67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa'
+            '58cc65719d55523ceebd21f132e18902c11ce6fa9ee3ff0b190b85af288f37ee'
+)
+
+prepare() {
+  python "$srcdir/source.py" verify --root "$srcdir/qtshadertools-everywhere-src-$pkgver" \
+    --policy "$srcdir/source-notices.json" --vendors "$srcdir/vendored-inputs.lock.json" || return
+}
+
+_qt_single_job() {
+  if [[ "${MAX_JOBS-1}" != 1 || "${CMAKE_BUILD_PARALLEL_LEVEL-1}" != 1 ]]; then
+    printf '%s\n' 'Qt612 ShaderTools candidate requires serial MAX_JOBS=1 and CMAKE_BUILD_PARALLEL_LEVEL=1' >&2
+    return 1
+  fi
+  export MAX_JOBS=1 CMAKE_BUILD_PARALLEL_LEVEL=1
+}
+
+build() {
+  _qt_single_job || return
+  cmake -C "$srcdir/configure.cmake" -S "$srcdir/qtshadertools-everywhere-src-$pkgver" \
+    -B "$srcdir/build" -G Ninja \
+    -DCMAKE_PROJECT_QtShaderTools_INCLUDE="$srcdir/dependency_guard.cmake" || return
+  # All qsb and API targets must configure; no successful empty/skipped build.
+  python "$srcdir/source.py" configuration --build "$srcdir/build" || return
+  cmake --build "$srcdir/build" --parallel "$MAX_JOBS" || return
+}
+
+check() {
+  _qt_single_job || return
+  local qsb="$srcdir/build/lib/qt6/bin/qsb" stage
+  install -d "$srcdir/smoke-source" "$srcdir/smoke-output" || return
+  install -m644 "$srcdir/SmokeCMakeLists.txt" "$srcdir/smoke-source/CMakeLists.txt" || return
+  install -m644 "$srcdir/smoke.cpp" "$srcdir/smoke.vert" "$srcdir/smoke.frag" "$srcdir/smoke-source/" || return
+  cmake -S "$srcdir/smoke-source" -B "$srcdir/smoke-build" -G Ninja \
+    -DQT612_BUILD_TREE="$srcdir/build" || return
+  cmake --build "$srcdir/smoke-build" --parallel "$MAX_JOBS" || return
+  export LD_LIBRARY_PATH="$srcdir/build/lib"
+  timeout 10 "$qsb" --version > "$srcdir/smoke-output/qsb-version.txt" || return
+  timeout 10 "$qsb" -b --qt6 \
+    -o "$srcdir/smoke-output/vertex.qsb" "$srcdir/smoke-source/smoke.vert" || return
+  timeout 10 "$qsb" --qt6 \
+    -o "$srcdir/smoke-output/fragment.qsb" "$srcdir/smoke-source/smoke.frag" || return
+  for stage in vertex fragment; do
+    timeout 10 "$qsb" -x reflect -o "$srcdir/smoke-output/$stage.json" "$srcdir/smoke-output/$stage.qsb" || return
+    timeout 10 "$qsb" -x spirv,100 -o "$srcdir/smoke-output/$stage.spv" "$srcdir/smoke-output/$stage.qsb" || return
+    timeout 10 "$qsb" -x glsl,150 -o "$srcdir/smoke-output/$stage.glsl" "$srcdir/smoke-output/$stage.qsb" || return
+    timeout 10 "$qsb" -x hlsl,50 -o "$srcdir/smoke-output/$stage.hlsl" "$srcdir/smoke-output/$stage.qsb" || return
+    timeout 10 "$qsb" -x msl,12 -o "$srcdir/smoke-output/$stage.msl" "$srcdir/smoke-output/$stage.qsb" || return
+  done
+  python "$srcdir/reflection.py" --directory "$srcdir/smoke-output" > "$srcdir/shader-smoke.json" || return
+  timeout 60 "$srcdir/smoke-build/qt612-shader-api" "$srcdir/smoke-source/smoke.vert" \
+    "$srcdir/smoke-source/smoke.frag" "$srcdir/smoke-output/vertex.qsb" "$srcdir/smoke-output/fragment.qsb" || return
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install "$srcdir/build" || return
+  python "$srcdir/source.py" install-notices --root "$srcdir/qtshadertools-everywhere-src-$pkgver" \
+    --policy "$srcdir/source-notices.json" --stage "$pkgdir" || return
+  install -Dm644 "$srcdir/LICENSE.packaging" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.packaging" || return
+  install -Dm644 "$srcdir/LICENSE.third-party" "$pkgdir/usr/share/licenses/$pkgname/LicenseRef-Qt-ThirdParty.txt" || return
+  install -Dm644 "$srcdir/source-notices.json" "$pkgdir/usr/share/licenses/$pkgname/source-notices.json" || return
+  install -Dm644 "$srcdir/vendored-inputs.lock.json" "$pkgdir/usr/share/licenses/$pkgname/vendored-inputs.lock.json" || return
+  install -Dm644 "$srcdir/BUILD-CONTRACT.json" "$pkgdir/usr/share/licenses/$pkgname/BUILD-CONTRACT.json" || return
+  python "$srcdir/check_stage.py" --root "$pkgdir" --contract "$srcdir/BUILD-CONTRACT.json" \
+    --notices "$srcdir/source-notices.json" > "$srcdir/stage-contract.json" || return
+}

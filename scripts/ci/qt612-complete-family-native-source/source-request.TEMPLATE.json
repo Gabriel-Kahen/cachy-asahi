@@ -1,0 +1,21 @@
+{
+  "framework": "/absolute/path/to/main-checkout",
+  "providers": {
+    "gui_server": "/absolute/path/to/main-checkout",
+    "shadertools": "/absolute/path/to/main-checkout",
+    "svg": "/absolute/path/to/main-checkout",
+    "declarative": "/absolute/path/to/main-checkout",
+    "wayland": "/absolute/path/to/main-checkout"
+  },
+  "archives": {
+    "gui_server": "/absolute/path/to/qtbase-everywhere-src-6.12.0.tar.xz",
+    "shadertools": "/absolute/path/to/qtshadertools-everywhere-src-6.12.0.tar.xz",
+    "svg": "/absolute/path/to/qtsvg-everywhere-src-6.12.0.tar.xz",
+    "declarative": "/absolute/path/to/qtdeclarative-everywhere-src-6.12.0.tar.xz",
+    "wayland": "/absolute/path/to/qtwayland-everywhere-src-6.12.0.tar.xz"
+  },
+  "base_provider": null,
+  "candidate_map": null,
+  "md4c": null,
+  "consumer_root": null
+}
