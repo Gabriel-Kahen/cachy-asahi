@@ -42,7 +42,7 @@ def function_copy(fn,space):
 def factory(namespace,selected):
  p=profile();need(selected=='tcg1800','explicit fixed service profile only')
  raw=read(Path(namespace['__file__']))
- progress=b"    changes['installed606_progress']=load('_installed606_progress',HERE/'installed606_progress.py').apply(out,pin)\n"
+ progress=b"    changes['installed606_progress']=load('_installed606_progress',HERE/'installed606_progress.py').apply(out,pin,mode=mode)\n"
  ingress=b";load('_current606_fresh_ingress',HERE/'fresh606.py').prepare_code(held,root,assets,out,selected)\n"
  clock=b"    if mode=='generic16k':changes['guest_clock606']=load('_guest_clock606',HERE/'guest_clock606.py').apply(out,pin,once)\n"
  need(raw.count(progress)==raw.count(ingress)==raw.count(clock)==1,'exact observer, TEST ingress and 16 KiB clock factory seams')

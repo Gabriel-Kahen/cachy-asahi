@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: MIT
-"""Bounded diagnostic-only transport for the existing installed606 verify command."""
+"""Bound the installed606 verifier and forward its diagnostic-only progress."""
+
+TCG_OBSERVE_SECONDS = 720
+TCG_VERIFY_SECONDS = 735
 
 SOURCE = '''
 INSTALLED606_PHASES = (
@@ -127,12 +130,27 @@ def guest(text):
                    '                    if forward is not None:\n                        forward.feed(raw)\n')
 
 
-def apply(output, pin):
+def tcg_verify_capacity(name, text):
+    if name == 'installed606.py':
+        text = replace(text, 'expected,report=report)',
+                       f'expected,deadline={TCG_OBSERVE_SECONDS} if report is not None else 600,report=report)')
+    else:
+        command = "proof=command(" + VERIFY_ARGV + ",env,logs,'installed606-preserved',timeout="
+        text = replace(text, command + '600)', command + f'{TCG_VERIFY_SECONDS})')
+    return replace(text, '600_000_000_000', f'{TCG_OBSERVE_SECONDS * 10**9:_}')
+
+
+def apply(output, pin, *, mode):
+    if mode not in ('generic4k', 'generic16k'):
+        raise ValueError('exact supported installed606 mode required')
     changes = {}
     for name, transform in (('installed606.py', observer), ('base_guest.py', guest)):
         path = output / name
         before = path.read_bytes()
-        after = transform(before.decode()).encode()
+        after = transform(before.decode())
+        if mode == 'generic16k':
+            after = tcg_verify_capacity(name, after)
+        after = after.encode()
         compile(after, str(path), 'exec')
         path.write_bytes(after)
         changes[name] = dict(before=pin(before), after=pin(after))

@@ -155,7 +155,7 @@ def prepare_code(root,assets,out,selected,mode):
     if mode=='generic16k':changes['guest_clock606']=load('_guest_clock606',HERE/'guest_clock606.py').apply(out,pin,once)
     if mode=='generic16k':changes['wayland_seat606']=load('_current606_seat',HERE/'wayland_seat606.py').apply(out,selected,'pci',pin,once)
     if mode=='generic16k':changes['owned_kernel_profile']=load('_current606_kernel_stage',HERE/'kernel_stage.py').boot_contract(out)
-    changes['installed606_progress']=load('_installed606_progress',HERE/'installed606_progress.py').apply(out,pin)
+    changes['installed606_progress']=load('_installed606_progress',HERE/'installed606_progress.py').apply(out,pin,mode=mode)
     for n in('context606.py','install606.py','build_scope.py'):shutil.copyfile(HERE/n,out/n)
     shutil.copyfile(HERE/'expected606.lock',out/'expected606.lock')
     return profile,changes

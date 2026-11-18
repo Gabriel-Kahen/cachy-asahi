@@ -318,3 +318,70 @@ def prove(root):
  parent=_ingress_original(root).prove(root)
  need(parent['files']==576 and parent['fullscan_seconds']==600,'whole original progress and unchanged600 deadline')
  return dict(parent,files=_TEST_INGRESS_COUNT,fresh_ingress='PUBLIC_ONLY_CURRENT_TEST_INPUTS',status='PASS_COMPLETE_PROGRESS576_AND_FRESH_TEST_INGRESS_SOURCE_ONLY')
+
+# Current606 generic16k installed verifier budget, derived from the whole R10 Source.
+_VERIFY_START='\n# Current606 generic16k installed verifier budget, derived from the whole R10 Source.\n'
+_VERIFY_PARENT_MANIFEST={'bytes': 106443, 'sha256': 'ca9e2e6062efb4619a2e9c7b6f265d77c52dad681d07a76e56160a9450e3f062'}
+_VERIFY_PARENT_SOURCE='0afeca85d406ef23a170c38fad49add9270c0720'
+_VERIFY_PARENT_REF='refs/heads/codex/current606-apps16-16k-keyboard-20261118-r10'
+_VERIFY_CONTEXT={'bytes': 151450, 'sha256': 'c82a9173f9c2848443743c2ede3de4c85e85a73c3e4c68a297be1ab595de94f6'}
+_VERIFY_NEW={'factory/factory.py': {'bytes': 21559, 'sha256': '20473f3f8a464255c9c52ad9f374d05f6de7d0da8d0f9e74123af49a1680e184'}, 'factory/service_capacity.py': {'bytes': 7676, 'sha256': '53320b834ba57be82a35e088db82536b27b45c8fd405cfd2cf90aea0de3a8c80'}, 'factory/installed606_progress.py': {'bytes': 7799, 'sha256': '7e2524c70e4e01b5066c6ed5e7570a5c570548e92a9121a48d523e0a610d571f'}}
+_VERIFY_STATUS='SOURCE_ONLY_CURRENT606_BOUNDED_GENERIC16K_INSTALLED_VERIFIER'
+
+def _installed_verify_parent(root):
+ root=Path(root).absolute()
+ raw=read(root/'installed606-verify-parent.json')
+ need(pin(raw)==_VERIFY_CONTEXT,'whole R10 verifier inverse context')
+ proof=json.loads(raw)
+ need(proof['source']==_VERIFY_PARENT_SOURCE and proof['ref']==_VERIFY_PARENT_REF and proof['actual'] is None,
+      'exact retained R10 Source identity and no execution grant')
+ original_manifest=base64.b64decode(proof['manifest'],validate=True)
+ need(pin(original_manifest)==_VERIFY_PARENT_MANIFEST,'whole public R10 manifest')
+ originals={**json.loads(original_manifest)['files'],'source-manifest.json':pin(original_manifest)}
+ manifest=obj(root/'source-manifest.json')
+ need(len(originals)==608 and manifest['status']==_VERIFY_STATUS
+      and all(manifest[k] is None for k in ('actual_source','actual_ref','actual_run'))
+      and set(manifest['files'])==set(originals)-{'source-manifest.json'}|{'installed606-verify-parent.json'},
+      'exact unissued 609-leaf verifier successor')
+ closed(root,{**manifest['files'],'source-manifest.json':pin(read(root/'source-manifest.json'))})
+ need(all(manifest['files'][name]==want for name,want in _VERIFY_NEW.items()),'exact finite verifier source bodies')
+ before,marker,_=read(root/'admission.py').partition(_VERIFY_START.encode())
+ need(marker and pin(before)==originals['admission.py'],'complete original R10 admission')
+ inverse={'source-manifest.json':original_manifest,'admission.py':before,
+          'factory/installed606_progress.py':base64.b64decode(proof['observer'],validate=True)}
+ current=b'.apply(out,pin,mode=mode)'
+ for name in ('factory/factory.py','factory/service_capacity.py'):
+  body=read(root/name)
+  need(body.count(current)==1,'one explicit installed verifier mode seam')
+  inverse[name]=body.replace(current,b'.apply(out,pin)',1)
+ def prior_read(path,cap=16*1024**2):
+  name=Path(path).relative_to(root).as_posix()
+  raw=inverse[name] if name in inverse else read(path,cap)
+  need(name in originals and len(raw)<=cap and pin(raw)==originals[name],'whole original R10 input '+name)
+  return raw
+ def prior_closed(where,wanted):
+  prefix='' if where==root else where.relative_to(root).as_posix()+'/'
+  need({name.removeprefix(prefix):want for name,want in originals.items() if name.startswith(prefix)}==wanted,
+       'closed exact original R10 namespace')
+  for name in wanted:prior_read(where/name)
+  return wanted
+ for name in originals:prior_read(root/name)
+ prior=types.ModuleType('_current606_exact_r10_installed_verify_parent');prior.__file__=str(root/'admission.py')
+ exec(compile(before,prior.__file__,'exec'),vars(prior))
+ prior.read=prior_read;prior.obj=lambda path:json.loads(prior_read(path));prior.closed=prior_closed
+ return prior
+
+def _installed_verify_fact(fact):
+ need(fact['files']==608 and fact['fullscan_seconds']==600 and fact['service_seconds']==1800
+      and fact['loop_seconds']==1900 and fact['runtime_seconds']==2350 and fact['owner_wait_seconds']==2800
+      and fact['native_owner_seconds']==6600 and fact['cleanup_seconds']==450,
+      'whole original R10 with existing service, outer and cleanup capacity')
+ return dict(fact,files=609,selected_generic16k_verify=dict(observer_seconds=720,command_seconds=735,
+              profiles=['minimal','overlay']),actual=None)
+
+def source_context(root):
+ return _installed_verify_fact(_installed_verify_parent(root).source_context(root))
+
+def prove(root):
+ fact=_installed_verify_fact(_installed_verify_parent(root).prove(root))
+ return dict(fact,status='PASS_WHOLE_R10_AND_BOUNDED_GENERIC16K_INSTALLED_VERIFIER_SOURCE_ONLY')

@@ -16,8 +16,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "admission.py": {
-      "bytes": 50584,
-      "sha256": "6f085a6fb27647ccd95cf2995084d3bc5346266772fbbc30a3bef4e26f1ae933"
+      "bytes": 55201,
+      "sha256": "c389c101728725980e205f99ae9c42779b2c8cdd8da2f979b1dd4700fd4fb2ce"
     },
     "apps16-parent.json": {
       "bytes": 6702834,
@@ -536,8 +536,8 @@
       "sha256": "41f05ad036c5b0ec4e613de378062644c4621d621fabfb5b2fa0243da3b7d630"
     },
     "factory/factory.py": {
-      "bytes": 21549,
-      "sha256": "52e5c131bb44e0b687382219a106cee9f29a42163c8bad9d036e9f35043a2d06"
+      "bytes": 21559,
+      "sha256": "20473f3f8a464255c9c52ad9f374d05f6de7d0da8d0f9e74123af49a1680e184"
     },
     "factory/failure_cleanup.py": {
       "bytes": 3973,
@@ -564,8 +564,8 @@
       "sha256": "ac65ced048da8effe7c7cd78d49365bea47d9aed3b0ddf0846bcc9397dfb1401"
     },
     "factory/installed606_progress.py": {
-      "bytes": 7005,
-      "sha256": "f84ad2051f444d7a8d34136b02026c8643208340e6aefa4fa2218ffed05df9db"
+      "bytes": 7799,
+      "sha256": "7e2524c70e4e01b5066c6ed5e7570a5c570548e92a9121a48d523e0a610d571f"
     },
     "factory/inventory-vm-profile.json": {
       "bytes": 900,
@@ -804,8 +804,8 @@
       "sha256": "6d36a067f85d68184587fd6d9e2a8af0190acba6e0b371862400766a9303ae3b"
     },
     "factory/service_capacity.py": {
-      "bytes": 7666,
-      "sha256": "7b840a6f340b53717dfe021bc1af93000f5999221368183ae65f40f77dbd341f"
+      "bytes": 7676,
+      "sha256": "53320b834ba57be82a35e088db82536b27b45c8fd405cfd2cf90aea0de3a8c80"
     },
     "factory/support/alpm_reader.py": {
       "bytes": 23555,
@@ -958,6 +958,10 @@
     "input606.py": {
       "bytes": 9656,
       "sha256": "0cdd311ce3d2ef2da5ba2ba72d1e7288aebbfae72065c56f45a3114286ba0342"
+    },
+    "installed606-verify-parent.json": {
+      "bytes": 151450,
+      "sha256": "c82a9173f9c2848443743c2ede3de4c85e85a73c3e4c68a297be1ab595de94f6"
     },
     "inventory-vm-parent.json": {
       "bytes": 507576,
@@ -2432,5 +2436,5 @@
       "sha256": "8dc56648ae12ed3d87a7b13f4281f5575b865545eecdc04d42816db99ce0fbaa"
     }
   },
-  "status": "SOURCE_ONLY_CURRENT606_EXACT_FRESH_TEST_INGRESS"
+  "status": "SOURCE_ONLY_CURRENT606_BOUNDED_GENERIC16K_INSTALLED_VERIFIER"
 }
