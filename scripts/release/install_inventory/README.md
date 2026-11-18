@@ -82,6 +82,12 @@ filesystem byte budget is 2 GiB, with one private archive snapshot at a time.
 Python, GnuPG, bsdtar and pacman must already be installed.
 
 Success emits `verified-offline-install-preflight` and the exact plan SHA-256.
+Add `--include-package-inventory` to include the verified, name-sorted
+`package_inventory` in the same receipt. Each row records the resolved name,
+version, architecture, repository, archive filename, archive SHA-256 and
+detached signature SHA-256. When the overlay replaces a base name, the receipt
+lists the chosen overlay archive, even if the two packages share a version.
+The default receipt omits the inventory.
 Refusals emit diagnostics without a success receipt. The command downloads
 nothing, installs nothing, and leaves caller trust and receiver state untouched.
 The result is scoped to the inspected inputs and does not establish a supported
