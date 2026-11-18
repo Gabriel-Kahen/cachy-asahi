@@ -1,0 +1,63 @@
+{
+  "backend_fixture_origin": {
+    "archive_bytes": 20272,
+    "archive_sha256": "c07583ae4af92d960a544249aa376cf89326508668165da9eb8a46d0be4cd6ed",
+    "kind": "exact payload extracted from local unsigned host03 archive; no authentication/native claim"
+  },
+  "backend_local_construction": {
+    "commit": "4856cfe93d57eaa54c521aa5d451db8ab62f8aab",
+    "scope": "local implementation/construction context only; no public revision claim"
+  },
+  "backend_public_source": {
+    "archive_publication": "local unsigned 03 archive only; no public archive/signature claim",
+    "commit": "cfc423d3dc425be2ce1013c21074eca2087c631f",
+    "recipe_tree": "07741a8aaf044310e0e08c13a14d78d1e8379a93",
+    "ref": "refs/heads/codex/first-login-isolation-integrated-20261115",
+    "repository": "https://github.com/Gabriel-Kahen/cachy-asahi",
+    "verification": "origin ref matched exact commit; all 13 recipe files and all 3 check-only fixtures byte-compared with commit objects"
+  },
+  "backend_recipe": {
+    ".SRCINFO_sha256": "be5253a32d7444065ea876455c0bb99ea1ffc47759bce864431abaf07018a2f7",
+    "PKGBUILD_sha256": "1d605572877a82a94aae8acf9fc56decc24be4c2dd3df2d331da1979643c78a5",
+    "path": "packages/tools/cachy-asahi-first-login-v3",
+    "version": "0.1.0-3"
+  },
+  "backend_snapshot_commit": "cfc423d3dc425be2ce1013c21074eca2087c631f",
+  "candidate": "cachy-asahi-first-login-ui 0.2.0-2",
+  "candidate_selection": "UNSELECTED",
+  "check_correction": "Fish/Zsh declared checkdepends; actual shell conflict covers entire selection without optional Hyprland; unavailable compositor remains held1; optional namespace probe skips only positive denial with retained stderr",
+  "check_only_fixtures": {
+    "first-login-entry-fixture": {
+      "bytes": 296,
+      "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+    },
+    "first-login-fixture.py": {
+      "bytes": 10534,
+      "sha256": "b4505e393a2913048136c16b62a4355da133c32536cbae60a1c3c65f4483b1d6"
+    },
+    "setup8-fixture.py": {
+      "bytes": 45116,
+      "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+    }
+  },
+  "fixture_installation": false,
+  "hardware": "NOT RUN",
+  "native_ARM": "NOT RUN",
+  "parent_candidate": "packages/tools/cachy-asahi-first-login-ui 0.1.0-2 (preserved unchanged)",
+  "previous_candidate": {
+    "archive_bytes": 26201,
+    "archive_sha256": "386c8eea02a5d402b34013f0d79906d24575b7ea0ff9bff5bf408cb9101b3b4f",
+    "commit": "ea82569649642027fd4e380470886794b4e233ab",
+    "evidence": "Historical, unchanged; not qualification of 0.2.0-2",
+    "version": "0.2.0-1"
+  },
+  "release": "NOT ADMITTED",
+  "removal_interface": "Existing exact Setup8 CLI remove --components <explicit selected base components>, preview then --apply; no ownership logic reimplementation",
+  "repository": "https://github.com/Gabriel-Kahen/cachy-asahi",
+  "runtime_backends": {
+    "cachy-asahi-first-login": "0.1.0-3",
+    "cachy-asahi-setup": "0.3.0-1"
+  },
+  "schema_version": 1,
+  "source_kind": "local original GTK front end; unselected exact03 dependency/fixture successor; UI runtime and Setup8 unchanged"
+}

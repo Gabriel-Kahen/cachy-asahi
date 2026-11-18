@@ -1,0 +1,31 @@
+{
+  "kind": "DELEGATED_MATERIAL_STAGING_SOURCE_MATERIALS_V4",
+  "materials": {
+    "public14_profile": {
+      "bytes": 3024,
+      "member": "scripts/ci/first-login-enrollment-native-source/inputs/public14-profile.json",
+      "sha256": "5fe4761bc96d21ec388322ead3b97c735d2f689c38061c560afc90a2143de346"
+    },
+    "retained_carrier_profile": {
+      "bytes": 195440,
+      "member": "bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json",
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "retained_prefill_profile": {
+      "bytes": 1510,
+      "member": "bootstrap/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json",
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+    },
+    "staging_base_lock": {
+      "bytes": 328101,
+      "member": "bootstrap/scripts/ci/inputs.lock.json",
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "staging_bootstrap_profile": {
+      "bytes": 168201,
+      "member": "native/input-profile.json",
+      "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
+    }
+  },
+  "schema": 4
+}

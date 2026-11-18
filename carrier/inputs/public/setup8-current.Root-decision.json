@@ -1,0 +1,40 @@
+{
+  "accepted": true,
+  "archive": {
+    "arch": "any",
+    "bytes": 33900,
+    "package": "cachy-asahi-setup",
+    "sha256": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47",
+    "version": "0.3.0-1"
+  },
+  "holds_preserved": true,
+  "issued_at": "2026-11-18T11:33:45+00:00",
+  "issuer": "Root",
+  "public_replay_receipt": {
+    "bytes": 2455,
+    "sha256": "e767aa9b5b83f1253882d9da93225d502955581dbea323722649c82db02380c2"
+  },
+  "public_test_key": {
+    "bytes": 433,
+    "fingerprint": "C908F19D5618FE95F08864A8E397439FC7A7980D",
+    "sha256": "c23c4f80efbabdc7a34db466e0f675e035ecf8b1a1ac7b1700a716d133b8e26a",
+    "trust_scope": "TEST_ONLY"
+  },
+  "qualified_native_component": {
+    "bytes": 6290,
+    "sha256": "a0b03e6b8a66836f64bca0600b0438cc8111ed0fd325698b30784ccbc659927a"
+  },
+  "schema": 1,
+  "signature": {
+    "bytes": 119,
+    "sha256": "7726099ccca5989c13c598e98c8400205b18ebee0bcc9137cd81f34fb77a7398"
+  },
+  "source_only_scope": "SOURCE205_SUCCESSOR_BACKEND_SETUP8_TEST_ROLE_ONLY",
+  "source_rebind_approval": {
+    "bytes": 1203,
+    "sha256": "8d6a6ef99650d94a1eb88d012b372dc6cad12d3883946855c5111adda618275e"
+  },
+  "status": "ACCEPTED_PRIVATE_SETUP8_PACKAGE_TEST_ONLY",
+  "trust_scope": "TEST_ONLY",
+  "verification_proof_sha256": "f377b972de8b86cfb42fbd51f08f12882c1fb31fcf3123b7fb77af733fad9e83"
+}

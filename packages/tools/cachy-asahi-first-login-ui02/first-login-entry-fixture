@@ -1,0 +1,8 @@
+#!/usr/bin/python3 -I
+# SPDX-License-Identifier: MIT
+"""Load only this installation's first-login implementation."""
+from pathlib import Path
+import runpy
+
+runpy.run_path(str(Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/first-login/first_login.py'),
+               run_name='__main__')
