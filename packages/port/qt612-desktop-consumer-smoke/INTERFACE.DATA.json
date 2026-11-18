@@ -5,10 +5,10 @@
   "installed_prefix": "/usr",
   "provider_sources": {
     "gui_server": "5dcbefda2c182dbacb6f7a908f1e204b68892ec6",
-    "declarative": "7d173c861a62e497017d161cf37643ae0175e51e",
+    "declarative": "3d2b6922fb3304d58fffa321671aaf119f4ab986",
     "wayland": "af714934d87849661dd1f1102287a4f3761cb600",
     "svg": "60c17b7bca5348937ba04d79ecc1cb23e1a0b934",
-    "shadertools": "785d680499feaa7de18d35e6ccd46ee9df4e2891"
+    "shadertools": "3d2b6922fb3304d58fffa321671aaf119f4ab986"
   },
   "checks": [
     "qt612-desktop-render",
