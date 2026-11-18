@@ -199,3 +199,53 @@ remaining unapproved; top-level original metadata may still correctly say FAIL.
 `proposed_metadata_prepare_status` in the CLI summary and
 `proposed_maintenance.metadata_prepare_status` in the report distinguish them.
 Invalid proposals or failed proposed preparation return1.
+
+## Map authenticated Overlay583 archives to a held candidate
+
+`staged_archives.py` reads an existing composition report and its original
+contract. It reopens the exact Overlay583 repository files and joins the pinned
+authenticated preflight. For each candidate package, it compares the name,
+version, architecture, filename, size and SHA-256. An exact archive can supply
+candidate bytes only when the detached signature also matches the candidate
+catalog, the recorded signer is from the historical ALARM scope, and the
+candidate version preserves any original protected tuple.
+
+```sh
+python3 -I -B scripts/port/supported-composition/staged_archives.py \
+  --contract "$contract" --contract-sha256 "$contract_sha256" \
+  --composition "$report" --composition-sha256 "$report_sha256" \
+  --staging "$overlay583" \
+  --preflight "$preflight" --preflight-sha256 "$preflight_sha256" \
+  --output "$output"
+```
+
+The report preserves repository choices, original blockers and any optional
+unapproved maintenance inventory. It reports absent archives, different
+versions or bytes, missing catalog pins, TEST signing and protected conflicts.
+An exact match supplies archive bytes only. The command keeps the result on
+HOLD and exits 2 after writing it. Input refusals exit 1. Fresh signature trust,
+source correspondence, Asahi installation, hardware and release remain held.
+
+The retained 626-package Asahi proposal and actual Overlay583 staging produced
+330 exact historical ALARM archive and detached signature matches, with all 201
+original protected versions preserved. The archive match for Python 3.14.8-1 in
+the unapproved maintenance model remains blocked by protected 3.14.7-1.
+
+The original proposal has 28 missing `extra` operands with exact catalog
+archive and signature pins, and seven `asahi-alarm` operands with exact archive
+pins awaiting detached-signature authentication. There are no missing `core`
+operands in this held profile. The report separately identifies 259 observed
+Asahi base rows that need archive-to-installed-payload binding and two project
+candidates with distinct source requirements.
+
+List the exact catalog operands for a later intake review.
+
+```sh
+jq '.original.missing_catalog_intake_operands' "$output"
+```
+
+Each operand is produced by the existing
+`scripts/platform/authenticate_missing.py::archive_spec` parser. The
+`authenticate_missing.py` command's v1 contract still requires its historical
+150 missing rows and separate Python operand. This mapping supplies the same
+individual operand shape for a separately reviewed intake.

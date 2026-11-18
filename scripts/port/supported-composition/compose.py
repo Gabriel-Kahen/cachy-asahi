@@ -130,6 +130,26 @@ def clean_metadata(row):
     return row
 
 
+def base_policy(reader, contract):
+    image_doc = reader.document(contract['image_inventory'])
+    tuple_doc = reader.document(contract['protected_tuple'])
+    need(image_doc.get('kind') == 'observed-image-local-package-metadata'
+         and tuple_doc.get('kind') == 'offline-platform-metadata-witnesses'
+         and tuple_doc['input_sha256']['image'] == contract['image_inventory']['sha256'],
+         'actual image/protected tuple binding refused')
+    image = t.tuple_audit.packages([clean_metadata(row['metadata']) for row in image_doc['packages']])
+    original = tuple_doc['proposed_installed_dependency_graph']
+    need(isinstance(original, list) and 0 < len(original) <= 4096, 'finite original protected tuple required')
+    protected = {}
+    for row in original:
+        need(set(row) == {'name', 'version'} and row['name'] not in protected
+             and image.get(row['name'], {}).get('VERSION') == [row['version']], 'protected tuple/image identity differs')
+        protected[row['name']] = row['version']
+    for name in PLATFORM & image.keys():
+        protected[name] = image[name]['VERSION'][0]
+    return image, len(original), protected
+
+
 def worker_diagnostic(stderr):
     """Expose bounded escaped errors without printing the private input DATA."""
     prefix = b'SUPPORTED_COMPOSITION_ERROR '
@@ -197,22 +217,8 @@ def compose(contract, output, reader=None, maintenance_ref=None, contract_ref=No
     def block(code, **details):
         report['blockers'].append({'code': code, **details})
     try:
-        image_doc = reader.document(contract['image_inventory'])
-        tuple_doc = reader.document(contract['protected_tuple'])
-        need(image_doc.get('kind') == 'observed-image-local-package-metadata'
-             and tuple_doc.get('kind') == 'offline-platform-metadata-witnesses'
-             and tuple_doc['input_sha256']['image'] == contract['image_inventory']['sha256'], 'actual image/protected tuple binding refused')
-        image = t.tuple_audit.packages([clean_metadata(row['metadata']) for row in image_doc['packages']])
-        original = tuple_doc['proposed_installed_dependency_graph']
-        need(isinstance(original, list) and 0 < len(original) <= 4096, 'finite original protected tuple required')
-        protected = {}
-        for row in original:
-            need(set(row) == {'name', 'version'} and row['name'] not in protected
-                 and image.get(row['name'], {}).get('VERSION') == [row['version']], 'protected tuple/image identity differs')
-            protected[row['name']] = row['version']
-        for name in PLATFORM & image.keys():
-            protected[name] = image[name]['VERSION'][0]
-        report.update(image_package_count=len(image), original_protected_count=len(original), protected_package_count=len(protected))
+        image, original_count, protected = base_policy(reader, contract)
+        report.update(image_package_count=len(image), original_protected_count=original_count, protected_package_count=len(protected))
         for name in set(t.tuple_audit.BOOT) - image.keys():
             block('missing-Asahi-boot-anchor', package=name)
         catalogs, pristine_catalogs, provenance, diagnostics = {}, {}, {}, []
