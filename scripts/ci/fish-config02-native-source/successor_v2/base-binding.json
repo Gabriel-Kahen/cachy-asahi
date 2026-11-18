@@ -1,0 +1,10 @@
+{
+  "actual": null,
+  "bytes": 602402,
+  "files": 33,
+  "kind": "FISH02_DERIVED_BASE33_BINDING_V4",
+  "map": {
+    "bytes": 6740,
+    "sha256": "290b1ae0630a03cd42f4961c8ccd0aa1ef3764eae54e506b673ec7919165e8b3"
+  }
+}
