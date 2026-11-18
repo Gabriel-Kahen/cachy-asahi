@@ -17,10 +17,11 @@ STAMP='startup-phase.json'
 RESULTS={'oom-kill','signal','timeout','exit-code','resources','success','unavailable'}
 PHASES=('owner-python-entry','imports-complete','admission-verified','controller-domain-verified',
         'output-created','host-context','host-tools-probe','host-tools-ready','storage-reservation',
-        'loop-attached','daemon-starting','raw-input-staging','ordinary-owner-starting',
+        'loop-attached','daemon-starting','raw-input-staging','native349-inputs-staged',
+        'python-inputs-staged','ordinary-owner-starting',
         'payload-terminal','owner-finalizing','retirement-writing')
 FILES={
-    'memory.current':None, 'memory.peak':None, 'pids.current':None,
+    'memory.current':None, 'memory.peak':None, 'memory.max':None, 'pids.current':None,
     'memory.events.local':('low','high','max','oom','oom_kill','oom_group_kill'),
     'memory.events':('low','high','max','oom','oom_kill','oom_group_kill'),
     'pids.events':('max',), 'cgroup.events':('populated','frozen'),

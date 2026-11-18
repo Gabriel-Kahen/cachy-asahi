@@ -24,7 +24,7 @@ R12 = {'commit': '19dea1cca35659ad7ab307dfea09c30a77362640',
        'tree': 'de61a2e7351a09d1dcf0471d50c80e3a1a6ee479',
        'map_sha256': '14a3f9d1f12f224bf43a71a7bb4ef9ba3bfe03b5918b25aabc33ce1fdb71a3b2',
        'bytes': 2093900}
-NEW_REF = 'refs/heads/codex/python3148-native-full-profile-source-20261118-r2'
+NEW_REF = 'refs/heads/codex/python3148-native-full-profile-source-20261118-r3'
 
 
 def module(path, name):
@@ -38,6 +38,7 @@ sys.path.insert(0,str(HERE))
 import preflight as P
 import lane
 import input_roles
+import controller_policy
 
 
 def encode(value):
@@ -129,7 +130,7 @@ def replace(body, before, after):
 THIN_KIND='PYTHON3148_THIN_CODE_SOURCE_V1'
 RUNTIME_KIND='PYTHON3148_PROJECTED_RUNTIME_V1'
 FILE_NAMES={'overlay.py','lane.py','preflight.py','native_bootstrap.py','material-pins.json','input_roles.py','artifact.py',
-            'startup.py','expected345.lock','source-plan.json','source-cache-inputs.json','reviewed-inputs.json',
+            'startup.py','controller_policy.py','expected345.lock','source-plan.json','source-cache-inputs.json','reviewed-inputs.json',
             'cache-FORMAT.data','cache-receipt.json',
             *('notices/python-'+str(i)+'.txt' for i in range(6)),
             'runtime/scripts/build/build_python3148.py','runtime/scripts/build/container-entry-v2.sh'}
@@ -234,7 +235,9 @@ def source(root, expected):
     key=b"for name in ('root','output','carrier-root'):"
     raw=replace(raw,key,b"for name in ('root','output','carrier-root','python-inputs'):")
     key=b"        report['pinned_input_carrier']=N.stage(a.carrier_root,work/'native349-pinned-inputs',a.runner_uid,a.runner_gid)"
-    raw=replace(raw,key,key+b"\n        D.python_module(a.root,'input_roles.py').stage(a.python_inputs,work/'python-inputs',a.runner_uid,a.runner_gid)")
+    raw=replace(raw,key,key+b"\n        STARTUP.phase('native349-inputs-staged',a.output)\n"
+         b"        D.python_module(a.root,'input_roles.py').stage(a.python_inputs,work/'python-inputs',a.runner_uid,a.runner_gid)\n"
+         b"        STARTUP.phase('python-inputs-staged',a.output)")
     raw=replace(raw,b"pinned_inputs=str(work/'native349-pinned-inputs'))",
                     b"pinned_inputs=str(work/'native349-pinned-inputs'),python_inputs=str(work/'python-inputs'))")
     raw=replace(raw,b"evidence=work/'fish02-native/evidence'",b"evidence=work/'fish02-native'")
@@ -264,6 +267,14 @@ def source(root, expected):
         (b"        write(a.output/'owner-report.json',report)","retirement-writing",8,b'a.output'),
     ):
         raw=replace(raw,anchor,b' '*indent+b'STARTUP.phase('+repr(label).encode()+b','+out+b')\n'+anchor)
+    raw=replace(raw,b"        D.need(available>=p['minimum_available_bytes']and",
+        b"""        D.need(p['minimum_available_bytes']==sum(p[role]['memory_bytes'] for role in
+               ('controller','owner','daemon'))+p['host_reserve_bytes'],'complete node memory budget')
+        D.need(available>=p['minimum_available_bytes']and""")
+    raw=replace(raw,
+        b"""        D.need(p['minimum_available_bytes']>=p['owner']['memory_bytes']+p['daemon']['memory_bytes']+p['host_reserve_bytes']
+               and p['minimum_disk_bytes']>=p['storage_bytes']+p['host_reserve_bytes'],'aggregate policy inequality')""",
+        b"""        D.need(p['minimum_disk_bytes']>=p['storage_bytes']+p['host_reserve_bytes'],'aggregate disk policy inequality')""")
     files[owner]=raw
     for leaf in ('hosted_owner.py','payload.py','public_evidence.py'):
         rel=FULL+leaf
@@ -283,7 +294,8 @@ def source(root, expected):
     files[pub]=raw
     names={}
     exec(compile(raw,pub,'exec'),names)
-    policy=json.loads(files[FULL+'policy.json'])
+    policy=controller_policy.physical_policy(json.loads(files[FULL+'policy.json']),thin[WORKFLOW],
+                                              json.loads(confirmed[HELD+'profile.json'])['resources'])
     policy.update(pair_seconds=lane.OWNER,controller_work_seconds=lane.CONTROLLER,controller_scope_seconds=lane.SCOPE,
                   inner_public_retention=names['DECLARATION'])
     policy['finite_command_case'].update(CPU_RSS_PID_swap_and_deadlines_unchanged=False,
@@ -295,7 +307,7 @@ def source(root, expected):
         inner_seconds=lane.INNER,cleanup_seconds=lane.CLEANUP,owned_service_seconds=lane.SERVICES,
         original_host_package_mutations=0,ordinary_user_build=True,
         startup_observation=dict(seconds=24,observer_ordinary_user=True,only_exact_controller=True,
-                                 cgroup_resource_limits_unchanged=True))
+                                 cgroup_resource_limits_unchanged=True,observes_memory_max=True))
     files[FULL+'policy.json']=encode(policy)
     program=FULL+'owner-program.json'
     held=json.loads(confirmed[program])

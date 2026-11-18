@@ -1,9 +1,9 @@
 {
   "files": {
     ".github/workflows/native-arm-python3148-native-full-profile.yml": {
-      "bytes": 11308,
+      "bytes": 11309,
       "mode": 420,
-      "sha256": "7e3bd33675354e7071a835b1121f05e9d5bc4277c9193bdb6725182e1e87efd2"
+      "sha256": "4f7f48b81a0feb9b60cfb4f97db00669c5bd3d093efd182c1fb637bdb5df244f"
     },
     "packages/port/python3148-source-candidate/.SRCINFO": {
       "bytes": 1679,
@@ -80,6 +80,11 @@
       "mode": 420,
       "sha256": "92d4eac677bf1636924a2ec3e08e439797f2524a5a53baeaf134cf4a5c9156a2"
     },
+    "scripts/ci/python3148-native-full-profile/controller_policy.py": {
+      "bytes": 2106,
+      "mode": 420,
+      "sha256": "e5c0eb8dfdd1ed7f4e1f09ae02c888faeb4462f795d08fbe07366d9383466710"
+    },
     "scripts/ci/python3148-native-full-profile/expected345.lock": {
       "bytes": 6732,
       "mode": 420,
@@ -93,7 +98,7 @@
     "scripts/ci/python3148-native-full-profile/lane.py": {
       "bytes": 5077,
       "mode": 420,
-      "sha256": "e972054cc36fb1c544855671a277f0eeb41ddebfcd72b6803b2df8db1ee0b15a"
+      "sha256": "282e3cbd8ee2fc52145667f36d2a033f5e99586f7e37c11f87a80d3f94172904"
     },
     "scripts/ci/python3148-native-full-profile/material-pins.json": {
       "bytes": 1676,
@@ -136,9 +141,9 @@
       "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f"
     },
     "scripts/ci/python3148-native-full-profile/overlay.py": {
-      "bytes": 19573,
+      "bytes": 20698,
       "mode": 420,
-      "sha256": "5a21e35ab7a849577f288940c8df4f8d5995f2107acfb69a0e1c409fa1d2d67b"
+      "sha256": "988ca2755b9acebc9b6cea7d4045eb932e6ecb3ba69b77e897e785c9c5c7070a"
     },
     "scripts/ci/python3148-native-full-profile/preflight.py": {
       "bytes": 14799,
@@ -171,9 +176,9 @@
       "sha256": "913a581de17d5a7ea219c8035861dea2ea18cec803f36b2ed225d80d2e1ab398"
     },
     "scripts/ci/python3148-native-full-profile/startup.py": {
-      "bytes": 8280,
+      "bytes": 8357,
       "mode": 420,
-      "sha256": "c07394bf9c8526e5adbc73263d75bc74971bfa087834d71f87ea7ab3a19d4232"
+      "sha256": "0d31563cb27bc7d98a67a600fe608786631e748ccd007f55a028bf513fa637ba"
     }
   },
   "kind": "PYTHON3148_THIN_CODE_SOURCE_V1",
