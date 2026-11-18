@@ -67,7 +67,32 @@ is `757cce8c0c0b8b50b28038e32fdcf462770d662acc765a92651fb10da5a0333e`.
 The terminal receipt SHA-256 is
 `61779d85e8feca5a4cea4c128abd24cf456e3a29b37639f41aa7854c05e0f1f5`.
 
-These runs cover the selected test staging in a generic emulated guest. A
-previous-release upgrade, Asahi boot and desktop, physical M2 validation and
-production release acceptance remain pending.
+## Setup7-to-Setup8 upgrade
+
+A fresh 16 KiB AArch64 VM installed the same 582 packages around Setup, then
+installed the original native Setup7 `0.1.0-7` archive from the retained
+two-build artifact. A temporary TEST key signed that exact archive for the
+rehearsal. The VM previewed and applied the signed Setup8 `0.3.0-1` update from
+the local repository with an empty package cache.
+
+The ALPM log recorded exactly one package upgrade. All 582 other versions
+matched across the two 583-package inventories, and pacman's local database
+check passed at each checkpoint. The independent check rehashed all 43
+evidence files and confirmed the scope and both containers were absent twice.
+
+| Checkpoint | Packages | Inventory SHA-256 |
+| --- | --- | --- |
+| Before installing Setup7 | 582 | `21fc2315170fafc7f1d62880c1e5a275a5902b1cf5161e62b88373e64c63fbb0` |
+| Setup7 installed | 583 | `04df9690be73672d23060bce266ba2073b27091400de7da7f055313d67820ec9` |
+| Setup8 installed | 583 | `12e5f0d74f8530fee9cc2b10ad7887748c2f9d5fdfed259b498f4b3db87167ba` |
+
+The controller report SHA-256 is
+`3d5b3351d442d409393116a0bf19d5437c07af206a3b2c8e50452f562993415f`.
+The independent terminal receipt SHA-256 is
+`a7ba0a0ac6223a7e44161f7a71f20c8ce1f7e725597a1d58f79c1b8bb6a2bc23`.
+The exercised source is `156581dd`. [Setup upgrade trial](../../scripts/install/overlay583_upgrade/README.md)
+
+These runs cover the selected staging in a generic emulated guest. An upgrade
+from a previous published release, Asahi boot and desktop, both physical M2
+Air models and production release acceptance remain pending.
 [Offline installer trial source](../../scripts/install/overlay583_trial/README.md)

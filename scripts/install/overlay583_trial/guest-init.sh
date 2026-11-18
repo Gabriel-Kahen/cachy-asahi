@@ -95,10 +95,11 @@ export_evidence() {
     for file in "${actual[@]}"; do
         name=${file##*/}
         case "$name" in
-            installed.lock|removed.lock|refused.lock|reinstalled.lock|refusal-db-before.json|refusal-db-after.json|result.json|pacman.log) ;;
+            installed.lock|removed.lock|refused.lock|reinstalled.lock|without-setup.lock|before-upgrade.lock|after-upgrade.lock|refusal-db-before.json|refusal-db-after.json|result.json|pacman.log) ;;
             *.stdout|*.stderr)
                 case "${name%.*}" in
                     import-[012]|ownertrust|refresh|resolve|install|query|check|remove-plan|remove|query-base|check-base|signature-refusal|query-refused|check-refused|reinstall-plan|reinstall|query-restored|check-restored) ;;
+                    import-predecessor|trust-predecessor|resolve-base-and-shells|install-base-and-shells|query-without-setup|check-without-setup|predecessor-plan|install-predecessor|query-before|check-before|upgrade-plan|upgrade|query-after|check-after) ;;
                     *) return 1 ;;
                 esac ;;
             *) return 1 ;;

@@ -4,6 +4,7 @@
 import argparse
 from contextlib import ExitStack
 import hashlib
+import importlib.util
 from itertools import islice
 import json
 import os
@@ -34,6 +35,8 @@ PLAN = Path("/trial-code/plan.json")
 PINS = {'bytes': 2568, 'sha256': '0ed0f7ccd177280d6a9132c436e71aac4a669d04f5ba6a1f66f738b78cd9e3ff'}
 TIMEOUT = 3600
 LIFECYCLE_HOLD_EXIT = 75
+UPGRADE_KIND = "OVERLAY583_SETUP7_TO_SETUP8_GUEST_PLAN_V1"
+UPGRADE_HOLD = "HOLD_DISPOSABLE_OVERLAY583_SETUP_UPGRADE"
 INSTALL_PASS = "PASS_DISPOSABLE_PACMAN_TRANSACTION_ONLY"
 LIFECYCLE_PASS = "PASS_DISPOSABLE_OVERLAY583_LIFECYCLE_ONLY"
 LIFECYCLE_HOLD = "HOLD_DISPOSABLE_OVERLAY583_LIFECYCLE"
@@ -318,12 +321,45 @@ def guest_plan(packet, nonce, *, lifecycle=False, signature_recovery=False):
     return plan
 
 
+def upgrade_path():
+    if HERE == PLAN.parent:
+        return HERE/"upgrade.py"
+    return HERE.parent/"overlay583_upgrade/upgrade.py"
+
+
+def upgrade_module(expected=None):
+    path = upgrade_path()
+    raw = read(path,expected,cap=128*1024)
+    spec = importlib.util.spec_from_file_location("overlay583_setup_upgrade",path)
+    loaded = importlib.util.module_from_spec(spec)
+    exec(compile(raw,str(path),"exec"),loaded.__dict__)
+    return loaded
+
+
+def target_bytes(packet):
+    raw = "".join(f'{name} {row["version"]}\n' for name,row in sorted(packet["packages"].items())).encode("ascii")
+    need(pin(raw)==packet["target"],"Derived target inventory differs")
+    return raw
+
+
+def selected_plan(packet, nonce, *, lifecycle=False, signature_recovery=False, predecessor=None, predecessor_pin=None):
+    if predecessor is None:
+        need(predecessor_pin is None,"Unexpected predecessor digest")
+        return guest_plan(packet,nonce,lifecycle=lifecycle,signature_recovery=signature_recovery)
+    need(not lifecycle and not signature_recovery and predecessor_pin is not None,
+         "Choose only one Overlay583 operation")
+    upgrade = upgrade_module()
+    return upgrade.plan(packet,target_bytes(packet),upgrade.check_stage(predecessor,predecessor_pin),nonce)
+
+
 def mount_mode(path, mode, lines):
     found = [parts for line in lines if len(parts := line.split()) >= 10 and parts[4] == str(path)]
     need(len(found)==1 and mode in found[0][5].split(","), "Expected isolated mount at "+str(path))
 
 
 def evidence_names(plan):
+    if plan.get("kind")==UPGRADE_KIND:
+        return upgrade_module(plan["upgrade_worker"]).evidence_names(plan)
     roles = {"import-0", "import-1", "import-2", "ownertrust"} | {row[0] for row in plan["operations"]}
     snapshots = {"installed.lock", "result.json", "pacman.log"}
     if plan.get("lifecycle"):
@@ -397,9 +433,15 @@ def guest(plan_sha256, worker_sha256):
     packet, nonce = plan["packet"], plan["nonce"]
     lifecycle = plan.get("lifecycle") is True
     recovery = plan.get("signature_recovery") is True
-    need(raw==encoded(plan) and plan==guest_plan(packet,nonce,lifecycle=lifecycle,signature_recovery=recovery)
+    need(raw==encoded(plan)
          and Path("/proc/cmdline").read_text().split().count("cachy_overlay583_nonce="+nonce)==1,
          "Exact owned guest boot nonce required")
+    upgrade = upgrade_module(plan["upgrade_worker"]) if plan.get("kind")==UPGRADE_KIND else None
+    if upgrade is None:
+        need(plan==guest_plan(packet,nonce,lifecycle=lifecycle,signature_recovery=recovery),"Exact selected guest plan required")
+    else:
+        predecessor = upgrade.check_stage(IN/upgrade.PREDECESSOR,plan["predecessor"]["receipt"])
+        need(plan==upgrade.plan(packet,target_bytes(packet),predecessor,nonce),"Exact selected upgrade plan required")
     start = time.monotonic()
     deadline = start + TIMEOUT - 60
     observed = {}
@@ -417,10 +459,12 @@ def guest(plan_sha256, worker_sha256):
     if lifecycle:
         baseline = read(IN/BASE_INVENTORY,packet["baseline"],cap=256*1024,observed=observed)
         need(lifecycle_operands(packet)[0]==baseline,"Guest base inventory differs")
+    if upgrade is not None:
+        return execute_guest(plan,lock,observed,deadline,upgrade=upgrade)
     return execute_guest(plan,lock,observed,deadline)
 
 
-def execute_guest(plan, lock, observed, deadline):
+def execute_guest(plan, lock, observed, deadline, *, upgrade=None):
     packet = plan["packet"]
     lifecycle = plan.get("lifecycle") is True
     if lifecycle:
@@ -459,14 +503,18 @@ def execute_guest(plan, lock, observed, deadline):
         run("ownertrust",[*gpg,"--import-ownertrust"],30,"".join(x+":6:\n" for x in signers).encode("ascii"))
         rootdb = TARGET/"var/lib/pacman"
         rootdb.mkdir(parents=True,mode=0o700)
-        expected = role_outputs(plan,lock)
-        # File-repository refresh may create ALPM's database version marker only.
-        for role,argv,seconds in plan["operations"]:
-            phase = role
-            if role==PROBE_ROLE:
-                run_signature_probe(packet,argv,seconds,run,env,config,observed)
-            else:
-                run_operation(role,argv,seconds,expected,run,env,config if lifecycle else None)
+        if upgrade is not None:
+            phase = "upgrade-setup"
+            upgrade.execute(plan,lock,run,env,config)
+        else:
+            expected = role_outputs(plan,lock)
+            # File-repository refresh may create ALPM's database version marker only.
+            for role,argv,seconds in plan["operations"]:
+                phase = role
+                if role==PROBE_ROLE:
+                    run_signature_probe(packet,argv,seconds,run,env,config,observed)
+                else:
+                    run_operation(role,argv,seconds,expected,run,env,config if lifecycle else None)
         phase = "seal"
         unchanged(observed)
         check_repos(IN,packet["files"],packet["aliases"])
@@ -481,7 +529,7 @@ def execute_guest(plan, lock, observed, deadline):
     try:
         transaction()
     except errors as error:
-        if not lifecycle:
+        if not lifecycle and upgrade is None:
             raise
         hold = phase
         print(f"overlay583 guest {phase}: {error}",file=sys.stderr,flush=True)
@@ -489,12 +537,15 @@ def execute_guest(plan, lock, observed, deadline):
         try:
             retire_trust()
         except errors as error:
-            if not lifecycle:
+            if not lifecycle and upgrade is None:
                 raise
             hold = hold or "trust-retirement"
             print(f"overlay583 guest trust-retirement: {error}",file=sys.stderr,flush=True)
     passed = RECOVERY_PASS if plan.get("signature_recovery") else LIFECYCLE_PASS if lifecycle else INSTALL_PASS
-    result = dict(status=LIFECYCLE_HOLD if hold else passed,
+    if upgrade is not None:
+        passed = upgrade.PASS
+    hold_status = UPGRADE_HOLD if upgrade is not None else LIFECYCLE_HOLD
+    result = dict(status=hold_status if hold else passed,
                   nonce=plan["nonce"],plan=pin(encoded(plan)),commands=commands,Root_acceptance=None)
     if hold:
         result["phase"] = hold
@@ -716,6 +767,13 @@ def read_result(output, plan, *, held=False):
          "Ordinary bounded guest evidence required")
     result_raw = read(output/"result.json",cap=1024**2,observed=observed)
     result = decode(result_raw)
+    if plan.get("kind")==UPGRADE_KIND:
+        files = upgrade_module(plan["upgrade_worker"]).readback(output,plan,target_bytes(plan["packet"]),held=held)
+        unchanged(observed)
+        return dict(status=UPGRADE_HOLD if held else "MATCHED_DISPOSABLE_OVERLAY583_SETUP_UPGRADE_EVIDENCE",
+                    installed_lock=None if held else plan["packet"]["target"],
+                    predecessor_lock=plan["before"], files=files, phase=result.get("phase"),
+                    package_count=None if held else 583, Root_acceptance=None, Asahi_installation=None, M2=None)
     if plan.get("lifecycle"):
         return read_lifecycle_result(output,plan,result,held,observed)
     need(not held,"Lifecycle opt-in required for hold readback")
@@ -744,13 +802,14 @@ def read_result(output, plan, *, held=False):
 
 
 def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection, lifecycle=False,
-              signature_recovery=False):
+              signature_recovery=False, predecessor=None, predecessor_pin=None):
     """Bridge to a selected VM owner. The owner authenticates all actual authority."""
     need(getattr(executor,"API",None)=="ROOT_OWNED_OVERLAY583_VM_V1","Owned disposable ARM VM executor required")
     staging = ordinary(staging)
     packet = choose(staging,selected_lock=PINS)
-    plan = guest_plan(admit(packet,read(preflight,preflight_pin,cap=128*1024),preflight_pin),
-                      nonce,lifecycle=lifecycle,signature_recovery=signature_recovery)
+    plan = selected_plan(admit(packet,read(preflight,preflight_pin,cap=128*1024),preflight_pin),
+                         nonce,lifecycle=lifecycle,signature_recovery=signature_recovery,
+                         predecessor=predecessor,predecessor_pin=predecessor_pin)
     worker = ordinary(HERE/"trial.py")
     worker_pin = read(worker,collect=False,cap=128*1024)
     plan_sha = pin(encoded(plan))["sha256"]
@@ -764,8 +823,12 @@ def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection, 
     executor.require_absent_twice(nonce)
     need(choose(staging,selected_lock=PINS)==packet,"Repository operands changed during the trial")
     read(worker,worker_pin,cap=128*1024,collect=False)
+    if predecessor is not None:
+        upgrade = upgrade_module(plan["upgrade_worker"])
+        need(upgrade.check_stage(predecessor,predecessor_pin)==plan["predecessor"],
+             "Predecessor operands changed during the trial")
     if result.get("held") is True:
-        need(plan.get("lifecycle"),"Lifecycle opt-in required for hold evidence")
+        need(plan.get("lifecycle") or plan.get("kind")==UPGRADE_KIND,"Lifecycle opt-in required for hold evidence")
         return read_result(result["evidence"],plan,held=True)
     return read_result(result["evidence"],plan)
 
