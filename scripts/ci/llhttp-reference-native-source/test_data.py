@@ -96,8 +96,8 @@ class SourceControls(unittest.TestCase):
     def test_complete_constructor_and_namespace_custody(self):
         recipe=os.environ.get(RECIPE_ENV);archive=os.environ.get(ARCHIVE_ENV)
         if not(recipe and archive):self.skipTest('set exact external recipe/archive DATA paths')
-        with tempfile.TemporaryDirectory(prefix='llhttp-Source-DATA-',dir='/home/gabe') as name:
-            root=Path(name);source=root/'Source';result=P.construct(ROOT,Path(recipe),Path(archive),source)
+        with tempfile.TemporaryDirectory(prefix='llhttp-Source-DATA-') as name:
+            root=Path(name).resolve();source=root/'Source';result=P.construct(ROOT,Path(recipe),Path(archive),source)
             self.assertEqual(result['files'],len([p for p in source.rglob('*') if p.is_file()]));self.assertLess(result['bytes'],2*1024**2);self.assertEqual(result['native_build'],'NOT RUN')
             D.source(source,result['source_map']['sha256'])
             for name,(_, binding) in P.ARTIFACT_BINDINGS.items():
@@ -201,12 +201,12 @@ class NativePostconditionControls(unittest.TestCase):
         attempt=next(n for n in main.body if isinstance(n,ast.Try))
         index=next(i for i,n in enumerate(attempt.body) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='paths' for t in n.targets))
         gate=ast.Module(body=attempt.body[index:index+2],type_ignores=[]);ast.fix_missing_locations(gate)
-        with tempfile.TemporaryDirectory(prefix='llhttp-format-gate-DATA-',dir='/home/gabe') as name:
+        with tempfile.TemporaryDirectory(prefix='llhttp-format-gate-DATA-') as name:
             artifacts=Path(name);write(artifacts/'model.pkg.tar.zst',b'not admitted')
             with self.assertRaises(ValueError):exec(compile(gate,'<fixed-XZ-gate>','exec'),dict(artifacts=artifacts))
             (artifacts/'model.pkg.tar.zst').unlink();write(artifacts/'model.pkg.tar.xz',b'MODEL filename only')
             exec(compile(gate,'<fixed-XZ-gate>','exec'),dict(artifacts=artifacts))
-        with tempfile.TemporaryDirectory(prefix='llhttp-compression-DATA-',dir='/home/gabe') as name:
+        with tempfile.TemporaryDirectory(prefix='llhttp-compression-DATA-') as name:
             root=Path(name);path=root/(F.PACKAGE+'gz');write(path,gzip.compress(b'MODEL',mtime=0))
             with self.assertRaises(ValueError):F.archive_members(path,('.PKGINFO',))
             path=root/(F.PACKAGE+'xz');write(path,gzip.compress(b'MODEL',mtime=0))
@@ -235,7 +235,7 @@ class NativePostconditionControls(unittest.TestCase):
         return bodies
 
     def test_pair_model_and_failure_postconditions(self):
-        with tempfile.TemporaryDirectory(prefix='llhttp-pair-MODEL-',dir='/home/gabe') as name:
+        with tempfile.TemporaryDirectory(prefix='llhttp-pair-MODEL-') as name:
             root=Path(name);bodies=self.pair_fixture(root);original=F.HERE;F.HERE=root
             try:
                 def run():return F.finish(root/'build-1',root/'build-2',root/'comparison.json','sha256:'+'a'*64)
