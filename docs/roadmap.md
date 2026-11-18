@@ -2,7 +2,22 @@
 
 The destination is a maintained, independent CachyOS-derived ARM port for Apple Silicon covering all five requirements below. The initial overlay is an intermediate release, not full-goal completion. See [goal.md](../goal.md) for the ambition and [implementation sequence](../outline.md) for dependencies and parallel work.
 
-All milestones are currently incomplete. Recorded versions of all ten selected development recipes have passed native ARM build pairs and byte comparisons. The current Fish0.1.0-2 CDPATH fix has host build and semantic regression evidence and still needs a new native pair; the core disposable package lifecycle and upstream 574-package builder transaction also pass. The complete supported target composition, selected Asahi dependency transaction and M2 hardware validation remain open. See [implementation status](implementation-status.md) and [native ARM evidence](validation/native-arm.md). These builds do not establish a complete ARM port, an accepted target transaction, or hardware compatibility.
+Milestone acceptance remains open. Hosted AArch64 builds with 4 KiB pages
+produced reproducible packages for Fish config 0.1.0-2, md4c 0.5.3 and the
+Minimal206 llhttp 9.3.1 reference. Offline emulated AArch64 with 16 KiB pages
+now has a TEST-signed Overlay583 lifecycle and a signed 626-package Asahi
+maintenance rehearsal. The Asahi proposal remains unapproved.
+[Native Fish and md4c](validation/native-fish-md4c-reproducibility-20261118.md)
+· [Native llhttp](validation/llhttp-minimal206-native-arm4k-20261118.md)
+· [Overlay583](validation/offline-overlay583-emulated-install-20261117.md)
+· [Asahi maintenance](validation/asahi626-maintenance-emulated-arm16k-20261118.md)
+
+Qtbase passed dependency installation and configure in emulated 16 KiB AArch64.
+Full Qt build validation, selection of the supported Asahi composition,
+installed Asahi kernel boot and recovery, both physical M2 Air sizes and
+production release promotion remain open.
+[Qtbase validation](validation/qtbase612-emulated-arm16k-configure-20261118.md)
+· [Implementation status](implementation-status.md)
 
 ## Five required workstreams
 
@@ -62,7 +77,7 @@ These are required development milestones. Begin independent design, package aud
 - Publish signed packages and repository metadata through staging and stable promotion. Keep dependency sets consistent; test the complete fresh-install and upgrade transactions against the actual supported base.
 - Operate scheduled rebuilds, dependency/security monitoring, review, artifact retention, signing-key custody and emergency correction. Resource and rebuild-cost audits choose a sustainable pipeline with accountable maintainers.
 
-**Done when:** the declared base/desktop/application set and its dependency closure resolve and install on the target; the Cachy-derived ARM package set is published with provenance and signatures; a subsequent maintained repository release passes rebuild, promotion and upgrade checks. Package exclusions and upstream ownership are explicit. Four native development-package build pairs alone do not satisfy this milestone.
+The milestone requires a declared base, desktop and application set that resolves and installs with its complete dependency closure on the target. Publish the Cachy-derived ARM package set with provenance and signatures, document exclusions and upstream ownership, and pass rebuild, promotion and upgrade checks for a subsequent maintained release.
 
 ## M6: complete applicable CachyOS experience (R4)
 

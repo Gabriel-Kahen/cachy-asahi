@@ -1,14 +1,23 @@
 # Implementation and acceptance status
 
-November 18 — The minimal206 llhttp 9.3.1 pair passed two clean native AArch64 builds with 4 KiB pages. Both produced the same XZ package, and the scoped image and builder cleanup passed. Acceptance covers the build pair. [Minimal206 r12 validation](validation/llhttp-minimal206-native-arm4k-20261118.md)
+## Release status on November 18, 2026
 
-November 18 — Qt 6.12 base completed signed dependency installation and ordinary-user configure on emulated AArch64 with 16 KiB pages. The exact inventory went 165→349→356, and CMake selected system md4c. The full Qt build and hardware validation remain unrun. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md)
+| Area | Verified scope |
+| --- | --- |
+| Native AArch64 builds, 4 KiB pages | Two clean builds produced byte-identical packages in each of the Fish config 0.1.0-2, md4c 0.5.3 and Minimal206 llhttp 9.3.1 trials. [Fish and md4c](validation/native-fish-md4c-reproducibility-20261118.md) · [llhttp r12](validation/llhttp-minimal206-native-arm4k-20261118.md) |
+| Overlay583 lifecycle, emulated AArch64 with 16 KiB pages | Fresh install, removal and TEST-signed reinstall restored the complete inventories. Pacman refused the missing signature and the signed retry succeeded. The Setup7-to-Setup8 upgrade and installed shell first login, including interrupted setup recovery, passed. [Overlay583](validation/offline-overlay583-emulated-install-20261117.md) |
+| Fish upgrade and rollback, emulated AArch64 with 16 KiB pages | The ordinary user exercised the CDPATH regression before, during and after a TEST-signed 0.1.0-1 → 0.1.0-2 → 0.1.0-1 sequence. The restored guest matched all 583 package versions. The 0.1.0-2 archive has an explicit development candidate selector. [Guest validation](validation/native-fish-md4c-reproducibility-20261118.md#signed-fish-upgrade-and-rollback) · [Candidate selection](../scripts/integration/fish_config_overlay583/README.md#select-the-rehearsed-development-candidate) |
+| Asahi maintenance, emulated AArch64 with 16 KiB pages | R132 ran signed transactions on the exact Asahi Minimal filesystem copy with a generic kernel. The inventory changed 261 → 626 → 626. The reverse transaction restored the original Python, NetworkManager and Perl versions and retained all 365 additions. The guest restored the original initramfs and matched all 362 boot and mount entries. The proposal remains unapproved. [R132 validation](validation/asahi626-maintenance-emulated-arm16k-20261118.md) |
+| Qtbase 6.12, emulated AArch64 with 16 KiB pages | Q3 verified the signed dependency transactions, reached the exact 356-package inventory and passed ordinary-user configure against system md4c. Full Qt build validation remains open. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md) |
 
-November 18 — R132 completed the signed Asahi maintenance rehearsal on emulated AArch64 with 16 KiB pages. The inventory went 261→626→626. Reversing the Python, NetworkManager and Perl upgrades retained all 365 additions. The guest restored the original initramfs and matched all 362 boot and mount entries. R131 remains on hold. The proposal is unapproved, and installed Asahi kernel boot and physical M2 validation remain open. [R132 validation](validation/asahi626-maintenance-emulated-arm16k-20261118.md)
+The current606 hosted GUI trial has no accepted result in this snapshot.
+Production repository staging with an approved release signer, stable
+promotion, installed Asahi kernel boot and recovery, both physical M2 Air
+sizes, and final-system performance and power measurements remain open.
+[Current606 run 44278633141](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/44278633141)
+· [Release acceptance contract](release/interface.md#stable-gate-envelope-version-1)
 
-November 18 — [Reproducible native AArch64 builds passed for md4c 0.5.3 and Fish 0.1.0-2](validation/native-fish-md4c-reproducibility-20261118.md). The exact md4c package has a scoped TEST signature for the Qt fixture. Fish passed the signed upgrade, ordinary-user CDPATH regression and rollback in an emulated ARM guest with 16 KiB pages. All 583 package versions were restored.
-
-November 17 — [Offline Overlay583 installation, removal, signature recovery, the Setup7-to-Setup8 upgrade, and installed shell first login passed on emulated ARM16K](validation/offline-overlay583-emulated-install-20261117.md).
+## Earlier validation
 
 November 17 — [Perl 5.42.3-1.3 passed its emulated AArch64 16 KiB lifecycle on Source391](validation/perl5423-emulated-arm16k-lifecycle-20261117.md).
 
@@ -3396,19 +3405,18 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
 These are distinct development results. No complete-port milestone or hardware
 acceptance is granted by their local test counts or source reviews.
 
-## Open inputs
+## Open release inputs
 
-- Exact M2 reference machine connection/access; 13-inch and 15-inch have independent gates.
-- An upstream minimal-image candidate now has a retained 261-package inventory
-  and seven separately authenticated current platform archives. Its image
-  authentication, kernel source correspondence, complete target transaction and
-  protected-stack integration remain unaccepted; generic native CI package
-  build/comparison results are separately verified.
-- Original project license is MIT. Excluded upstream configurations have separately recorded unresolved license notices.
-- Final review and selection against the actual Asahi target dependency set; four original development candidates are selected, with no release selection.
-- Release signing identity/custody and hosting destination, after package and hardware gates permit publication.
-
-These are explicit unfinished gates. Source-only work, synthetic signing tests, container architecture declarations and documentation do not complete them.
+- Access to both physical M2 Air reference machines and independent evidence
+  for their installation and recovery checks. [Hardware validation](hardware-validation.md)
+- Final supported Asahi composition and platform selection, including installed
+  Asahi kernel boot, coordinated updates, and boot and session recovery.
+  [Asahi maintenance rehearsal](validation/asahi626-maintenance-emulated-arm16k-20261118.md)
+- Corresponding-source and license coverage for the release set. Two of the six
+  signed R132 maintenance recipes still need exact build-time bytes.
+  [Maintenance recipe custody](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
+- Approved production signing custody, repository hosting and stable release
+  review. [Release acceptance contract](release/interface.md#stable-gate-envelope-version-1)
 
 ### Native continuation — 2026-10-14 13:12 UTC
 
