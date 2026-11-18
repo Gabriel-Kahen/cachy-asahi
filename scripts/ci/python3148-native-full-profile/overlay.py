@@ -24,7 +24,7 @@ R12 = {'commit': '19dea1cca35659ad7ab307dfea09c30a77362640',
        'tree': 'de61a2e7351a09d1dcf0471d50c80e3a1a6ee479',
        'map_sha256': '14a3f9d1f12f224bf43a71a7bb4ef9ba3bfe03b5918b25aabc33ce1fdb71a3b2',
        'bytes': 2093900}
-NEW_REF = 'refs/heads/codex/python3148-native-full-profile-source-20261118-r3'
+NEW_REF = 'refs/heads/codex/python3148-native-full-profile-source-20261118-r4'
 
 
 def module(path, name):
@@ -192,6 +192,27 @@ def runtime_material(confirmed, thin):
     for name in BASE_TOOLS:
         body=confirmed[HELD+'runtime/'+name]
         P.need(P.pin(body)['sha256']==P.TOOLS[name],'exact accepted builder helper')
+        if name == 'scripts/release/source_delivery.py':
+            body = replace(body, b'''def directory(path):
+    path = Path(path)
+    need(path.is_absolute() and str(path) == str(path.absolute()) and '..' not in path.parts, 'absolute source directory required')
+    fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for part in path.parts[1:]:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+''', b'''def directory(path):
+    """Open a readable directory through ancestors with search permission."""
+    path = Path(path)
+    need(path.is_absolute() and str(path) == str(path.absolute()) and '..' not in path.parts, 'absolute source directory required')
+    parts = path.parts[1:]
+    read_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    search_flags = getattr(os, 'O_PATH', os.O_RDONLY) | os.O_DIRECTORY | os.O_NOFOLLOW
+    fd = os.open('/', search_flags if parts else read_flags)
+    try:
+        for index, part in enumerate(parts):
+            flags = read_flags if index == len(parts) - 1 else search_flags
+            child = os.open(part, flags, dir_fd=fd)
+''')
         files[THIN+'runtime/'+name]=body
     data_name=FULL+'data.py'
     data=files[data_name]
