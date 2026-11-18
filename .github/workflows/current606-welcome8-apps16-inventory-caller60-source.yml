@@ -74,6 +74,11 @@
           "name": "Exact570 and NULL from public562 plus held defaults and genuine stage FD controls",
           "shell": "bash",
           "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/gui-inventory60-source.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\ntimeout 180s python3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/current606-welcome7-gui-source/test_apps16_inventory_caller60.py\" \\\n --parent \"$GITHUB_WORKSPACE/.ci-fixtures/restore562\" \\\n --expected \"$GITHUB_WORKSPACE/.ci-fixtures/caller60-570\"\n"
+        },
+        {
+          "name": "Check installed606 observer and owned log drain without actors",
+          "shell": "bash",
+          "run": "timeout 30s python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_apps16_readback_progress.py --source-controls-only --source .ci-fixtures/caller60-570 --generated-guest scripts/ci/current606-welcome7-gui-source/apps16-isolated-import-fixtures/minimal-generic16k/base_guest.py"
         }
       ]
     }
