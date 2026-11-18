@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -I -B
 # SPDX-License-Identifier: MIT
-"""Pure DATA export for the first genuine original llhttp native build pair."""
+"""Prepare the original llhttp recipe for a separately admitted native pair."""
 import argparse
 import importlib.util
 import io
@@ -16,7 +16,34 @@ WORKFLOW='.github/workflows/native-arm-llhttp-reference-source.yml'
 BASE=PREFIX+'base/'
 OWNER=PREFIX+'owner/'
 
+ARTIFACT_BINDINGS = {
+    'build_llhttp-reference.py': (
+        "bind_artifact(report['metadata'], result, report['input_sha256']['PKGBUILD'])",
+        "bind_llhttp_artifact(report['metadata'], result, report['input_sha256']['PKGBUILD'], paths[0], bind_artifact)",
+    ),
+    'compare_llhttp.py': (
+        "bind_artifact(record['recipe_metadata'], report, record['recipe_inputs']['PKGBUILD'])",
+        "bind_llhttp_artifact(record['recipe_metadata'], report, record['recipe_inputs']['PKGBUILD'], item, bind_artifact)",
+    ),
+}
+
 def encoded(value):return (json.dumps(value,indent=2,sort_keys=True)+'\n').encode()
+
+def project_artifact_binding(name, raw):
+    """Replace only the llhttp artifact binding after generic package inspection."""
+    checks = "sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'checks'))"
+    imports = checks + "\nsys.path.insert(0, str(Path(__file__).resolve().parents[3]))\nfrom package_metadata import bind_llhttp_artifact"
+    edits = [(checks, imports), ARTIFACT_BINDINGS[name]]
+    projected = raw.decode()
+    for before, after in edits:
+        C.need(projected.count(before) == 1 and after not in projected, 'one exact llhttp binding seam')
+        projected = projected.replace(before, after)
+    restored = projected
+    for before, after in reversed(edits):
+        C.need(restored.count(after) == 1, 'one exact llhttp binding inverse')
+        restored = restored.replace(after, before)
+    C.need(restored.encode() == raw, 'whole unchanged llhttp command inverse')
+    return projected.encode()
 
 def archive_closure(raw,proof):
     C.need(C.pin(raw)=={k:proof['archive'][k] for k in ('bytes','sha256')},'exact generated upstream archive')
@@ -32,7 +59,7 @@ def archive_closure(raw,proof):
     C.need(members==proof['members'],'every upstream source/license byte and mode pinned')
     return members
 
-def construct(root,recipe_root,archive_path,output):
+def construct(root,recipe_root,archive_path,output,*,historical_source=False):
     root,recipe_root,archive_path,output=map(C.ordinary,(root,recipe_root,archive_path,output))
     C.need(not output.exists() and all(not output.is_relative_to(p) for p in (root,recipe_root)),'fresh disjoint Source output')
     derivation=C.load(HERE/'derivation.json')
@@ -65,6 +92,11 @@ def construct(root,recipe_root,archive_path,output):
     base_bodies[BASE+'reviewed-inputs.json']=encoded({n:C.pin(b)['sha256'] for n,b in sorted(recipe_bodies.items())})
     base_bodies[BASE+'runtime/scripts/build/build_llhttp-reference.py']=C.projected_build(base_bodies[BASE+'runtime/scripts/build/build_v2.py'])
     base_bodies[BASE+'runtime/scripts/build/compare_llhttp.py']=C.projected_compare(base_bodies[BASE+'runtime/scripts/build/compare_v2.py'])
+    if not historical_source:
+        base_bodies[BASE+'package_metadata.py']=C.read(HERE/'base/package_metadata.py')
+        for name in ARTIFACT_BINDINGS:
+            path=BASE+'runtime/scripts/build/'+name
+            base_bodies[path]=project_artifact_binding(name,base_bodies[path])
     base_bodies['LICENSE']=C.read(root/'LICENSE')
     base_map=encoded(dict(kind='LLHTTP_REFERENCE_MINIMAL_HOSTED_SOURCE_MAP_V1',files={n:dict(C.pin(b),mode=0o644) for n,b in sorted(base_bodies.items())},actual=profile['actual']))
     base_bodies[BASE+'source-map.json']=base_map
@@ -91,4 +123,5 @@ def construct(root,recipe_root,archive_path,output):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ('root','recipe-root','archive','output'):p.add_argument('--'+n,type=Path,required=True)
-    a=p.parse_args();print(json.dumps(construct(a.root,a.recipe_root,a.archive,a.output),indent=2,sort_keys=True))
+    p.add_argument('--historical-source',action='store_true',help='recreate the locked Source62 for historical controls')
+    a=p.parse_args();print(json.dumps(construct(a.root,a.recipe_root,a.archive,a.output,historical_source=a.historical_source),indent=2,sort_keys=True))
