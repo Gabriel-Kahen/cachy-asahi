@@ -180,7 +180,7 @@ def inspect_base(args, lock, declaration, work, env, now):
             (indexes / (row['filename'] + '.sig')).write_bytes(signature)
         verified_archive(base, lock['rootfs'], official_work, official)
     release.database_check(indexes, name, [dict(row, depend=row['depends'], conflict=row['conflicts']) for row in rows])
-    return name, indexes, keyring
+    return (name, indexes, keyring), rows
 
 
 def inspect_overlay(args, checked, work, now):
@@ -204,10 +204,24 @@ def inspect_overlay(args, checked, work, now):
                 need(client.digest(raw) == manifest['files']['repo/' + filename], 'changed overlay package signature')
                 (indexes / filename).write_bytes(raw)
         release.database_check(indexes, name, overlay)
-    return (name, indexes, keyring), base, {row['name'] for row in overlay}
+    rows = [dict(row, signature_sha256=manifest['files']['repo/' + row['filename'] + '.sig']) for row in overlay]
+    return (name, indexes, keyring), base, rows
 
 
-def resolve(work, env, repos, signers, expected, overlay_names):
+def package_inventory(rows_by_repo, expected, origins):
+    by_repo = {repo: {row['name']: row for row in rows} for repo, rows in rows_by_repo.items()}
+    result = []
+    for name, version in sorted(expected.items()):
+        repo = origins[name]
+        row = by_repo[repo][name]
+        need(row['version'] == version, 'verified archive version differs from the resolved package: ' + name)
+        result.append(dict(name=name, version=version, arch=row['arch'], repository=repo,
+                           filename=row['filename'], archive_sha256=row['sha256'],
+                           signature_sha256=row['signature_sha256']))
+    return result
+
+
+def resolve(work, env, repos, signers, expected, origins):
     for path in ('db/local', 'db/sync', 'root', 'cache'):
         (work / path).mkdir(parents=True, mode=0o700)
     config = work / 'pacman.conf'
@@ -219,7 +233,6 @@ def resolve(work, env, repos, signers, expected, overlay_names):
             shutil.copyfile(indexes / (name + '.db.tar.gz' + suffix), work / 'db/sync' / (name + '.db' + suffix))
     command(['gpg', '--batch', '--no-options', '--import-ownertrust'], env=env,
             contents=''.join(signer + ':6:\n' for signer in signers).encode('ascii'))
-    origins = {name: repos[0][0] if name in overlay_names else repos[1][0] for name in expected}
     targets = [f'{origins[name]}/{name}' for name in sorted(expected)]
     argv = ['pacman', '--config', str(config), '--root', str(work / 'root'), '--dbpath', str(work / 'db'),
             '--gpgdir', env['GNUPGHOME'], '--cachedir', str(work / 'cache'), '--logfile', str(work / 'pacman.log'),
@@ -246,16 +259,21 @@ def preflight(args):
         env = {'PATH': os.defpath, 'HOME': str(work), 'GNUPGHOME': str(work / 'trust'), 'LC_ALL': 'C'}
         now = datetime.now(timezone.utc)
         try:
-            overlay, declaration, names = inspect_overlay(args, checked, work / 'overlay', now)
-            base = inspect_base(args, lock, declaration, work / 'base', env, now)
+            overlay, declaration, overlay_rows = inspect_overlay(args, checked, work / 'overlay', now)
+            base, base_packages = inspect_base(args, lock, declaration, work / 'base', env, now)
             need(overlay[0] != base[0], 'base and overlay repository names must be distinct')
-            plan = resolve(work, env, (overlay, base), signers, expected, names)
+            overlay_names = {row['name'] for row in overlay_rows}
+            origins = {name: overlay[0] if name in overlay_names else base[0] for name in expected}
+            plan = resolve(work, env, (overlay, base), signers, expected, origins)
         finally:
             command(['gpgconf', '--homedir', env['GNUPGHOME'], '--kill', 'all'], env=env)
-    return dict(checked, status='verified-offline-install-preflight', base_archives_authenticated=True,
-                base_rootfs_authenticated=True, base_lock_sha256=args.base_lock_sha256,
-                base_receipt_sha256=args.base_receipt_sha256, base_signer=signers[1], base_package_signer=package_signer,
-                pacman_plan_sha256=plan, pacman_siglevel='Required TrustedOnly')
+    result = dict(checked, status='verified-offline-install-preflight', base_archives_authenticated=True,
+                  base_rootfs_authenticated=True, base_lock_sha256=args.base_lock_sha256,
+                  base_receipt_sha256=args.base_receipt_sha256, base_signer=signers[1], base_package_signer=package_signer,
+                  pacman_plan_sha256=plan, pacman_siglevel='Required TrustedOnly')
+    if getattr(args, 'include_package_inventory', False):
+        result['package_inventory'] = package_inventory({overlay[0]: overlay_rows, base[0]: base_packages}, expected, origins)
+    return result
 
 
 def main(argv=None):
@@ -265,6 +283,8 @@ def main(argv=None):
                  'base-public-keyring'):
         parser.add_argument('--' + name, required=True)
     parser.add_argument('--minimum-sequence', type=int, required=True)
+    parser.add_argument('--include-package-inventory', action='store_true',
+                        help='Include the verified archive and signature SHA-256 for each resolved package.')
     try:
         result = preflight(parser.parse_args(argv))
     except (client.Error, release.Error, OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as exc:
