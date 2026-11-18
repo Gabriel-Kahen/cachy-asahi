@@ -12,6 +12,7 @@ import re
 import stat
 import subprocess
 import sys
+from tempfile import mkstemp
 import time
 
 HERE=Path(__file__).resolve().parent
@@ -20,10 +21,25 @@ HOLD="HOLD_DISPOSABLE_ASAHI_MAINTENANCE"
 TIMEOUT=3600
 SHOW=("baseline","forward","rollback")
 BOOT="ASAHI_MAINTENANCE_EXACT_GUEST_PLAN_V1"
-NAMES={"result.json","commands.json","platform.json","signatures.json","pacman.log",
+NAMES={"result.json","commands.json","platform.json","boot-artifacts.json","signatures.json","pacman.log",
        "baseline.lock","forward.lock","rollback.lock","forward-preview.lock","rollback-preview.lock",
        "apply-forward.stdout","apply-forward.stderr","apply-rollback.stdout","apply-rollback.stderr"}
 BAD_SIG={"BADSIG","ERRSIG","REVKEYSIG","EXPKEYSIG","EXPSIG","KEYEXPIRED","SIGEXPIRED","NO_PUBKEY"}
+INITRAMFS=Path("boot/initramfs-linux-asahi.img")
+INITRAMFS_PIN=dict(bytes=13429845,sha256="17e38d82a14af39492427e4c66d61e9ed64094871227630ec84e2efdaa134f4f")
+INITRAMFS_LIMIT=14*1024**2
+INITRAMFS_OWNER=(0,0)
+GENERATED={stage:"generated-initramfs-"+stage+".img" for stage in SHOW[1:]}
+MKINITCPIO=(
+    b"==> Building image from preset: /etc/mkinitcpio.d/linux-asahi.preset: 'default'",
+    b"  -> -k /boot/vmlinuz-linux-asahi -g /boot/initramfs-linux-asahi.img",
+    b"==> Creating gzip-compressed initcpio image: '/boot/initramfs-linux-asahi.img'",
+    b"==> Initcpio image generation successful",
+)
+
+
+def evidence_limit(name):
+    return INITRAMFS_LIMIT if name in GENERATED.values() else 8*1024**2
 
 
 def load(path, ref):
@@ -77,6 +93,62 @@ def platform(T, target):
     return result
 
 
+def initramfs(T, path, expected=None):
+    before=path.lstat()
+    meta=dict(uid=before.st_uid,gid=before.st_gid,mode=stat.S_IMODE(before.st_mode),
+              links=before.st_nlink,mtime_ns=before.st_mtime_ns)
+    T.need(stat.S_ISREG(before.st_mode) and (meta["uid"],meta["gid"])==INITRAMFS_OWNER
+           and meta["mode"]==0o600 and meta["links"]==1 and not os.listxattr(path,follow_symlinks=False),
+           "Exact ordinary root-owned Asahi initramfs metadata required")
+    raw=T.read(path,expected,cap=INITRAMFS_LIMIT)
+    T.need(T.identity(path.lstat())==T.identity(before) and raw.startswith(b"070701"),
+           "Stable Asahi initramfs with its early CPIO required")
+    return raw,dict(meta,pin=T.pin(raw)),before.st_atime_ns
+
+
+def regeneration(T, stdout):
+    lines=stdout.splitlines()
+    if not any(marker in lines for marker in MKINITCPIO):
+        return None
+    T.need(all(lines.count(marker)==1 for marker in MKINITCPIO),"Exact successful mkinitcpio output required")
+    indices=[lines.index(marker) for marker in MKINITCPIO]
+    T.need(indices==sorted(indices),"Reordered mkinitcpio output")
+    warnings=[line.decode("utf-8") for line in lines[indices[0]:indices[-1]] if line.startswith(b"==> WARNING:")]
+    return dict(stdout=T.pin(stdout),warnings=warnings)
+
+
+def preserve_initramfs(T, path, original, origin, atime, evidence, phases, stage, stdout):
+    candidate,info,_=initramfs(T,path)
+    hook=regeneration(T,stdout)
+    if hook is None:
+        T.need(stage!="forward" and info==origin,"Asahi initramfs drift or missing forward mkinitcpio")
+        phases[stage]=dict(restored=origin,generated=None,hook=None)
+        return
+    leaf=GENERATED[stage]
+    with (evidence/leaf).open("xb") as stream:
+        stream.write(candidate)
+    T.read(evidence/leaf,info["pin"],cap=INITRAMFS_LIMIT,collect=False)
+    record=phases[stage]=dict(restored=None,generated=dict(info,file=leaf),hook=hook)
+    fd,name=mkstemp(prefix=".initramfs-original.",dir=path.parent)
+    scratch=Path(name)
+    try:
+        with os.fdopen(fd,"wb") as stream:
+            stream.write(original)
+            stream.flush()
+            os.fchown(stream.fileno(),origin["uid"],origin["gid"])
+            os.fchmod(stream.fileno(),origin["mode"])
+            os.utime(stream.fileno(),ns=(atime,origin["mtime_ns"]))
+            os.fsync(stream.fileno())
+        _,verified,_=initramfs(T,scratch,INITRAMFS_PIN)
+        T.need(verified==origin,"Prepared original initramfs metadata differs")
+        os.replace(scratch,path)
+    finally:
+        scratch.unlink(missing_ok=True)
+    _,restored,_=initramfs(T,path,INITRAMFS_PIN)
+    T.need(restored==origin,"Restored original initramfs metadata differs")
+    record["restored"]=restored
+
+
 def command_plan(O, manifest):
     trust=O.WORK/"trust"
     pacman=["/usr/bin/pacman","--config",str(O.WORK/"pacman.conf"),"--root",str(O.TARGET),
@@ -128,6 +200,7 @@ def execute(T, O, selected):
     inventory={}
     reviews={}
     system={}
+    artifacts=dict(path=INITRAMFS.as_posix(),baseline=None,phases={})
     phase="rehash"
     deadline=time.monotonic()+TIMEOUT-90
     final=HOLD
@@ -192,6 +265,10 @@ def execute(T, O, selected):
         T.need(free.f_bavail*free.f_frsize>=8*1024**3,"Target clone must be expanded before package changes")
         with ExitStack() as mounts:
             T.target_api_mounts(O.TARGET,env,mounts)
+            phase="preserve-baseline"
+            initramfs_path=O.TARGET/INITRAMFS
+            original,origin,atime=initramfs(T,initramfs_path,INITRAMFS_PIN)
+            artifacts["baseline"]=origin
             query("baseline",T.read(O.IN/"baseline.lock",O.lock_ref("baseline.lock"),cap=64*1024,observed=observed))
             verify_all()
             for stage in SHOW[1:]:
@@ -201,7 +278,9 @@ def execute(T, O, selected):
                 T.need(actual==reference,"Local package preview differs: "+stage)
                 (evidence/preview).write_bytes(actual)
                 reviews[stage]=T.pin(actual)
-                call("apply-"+stage,commands["apply-"+stage],2400 if stage=="forward" else 420)
+                stdout=call("apply-"+stage,commands["apply-"+stage],2400 if stage=="forward" else 420)
+                phase="preserve-"+stage
+                preserve_initramfs(T,initramfs_path,original,origin,atime,evidence,artifacts["phases"],stage,stdout)
                 query(stage,T.read(O.IN/(stage+".lock"),O.lock_ref(stage+".lock"),cap=64*1024,observed=observed))
         phase="seal"
         T.unchanged(observed)
@@ -217,11 +296,12 @@ def execute(T, O, selected):
                            stdin=subprocess.DEVNULL,timeout=30,check=True)
         except (OSError,subprocess.SubprocessError):
             phase,final="trust-retirement",HOLD
-    for name,data in (("commands",steps),("platform",system),("signatures",signatures)):
+    for name,data in (("commands",steps),("platform",system),("boot-artifacts",artifacts),("signatures",signatures)):
         (evidence/(name+".json")).write_bytes(T.encoded(data))
     (evidence/"result.json").write_bytes(T.encoded(dict(status=final,phase=None if final==PASS else phase,
          nonce=selected["nonce"],plan=T.pin(T.encoded(selected)),approval_status="UNAPPROVED",Root_acceptance=None,
-         inventory=inventory,previews=reviews,platform=system,M2="NOT RUN",physical_installation="NOT RUN")))
+         inventory=inventory,previews=reviews,platform=system,boot_artifacts=T.pin(T.encoded(artifacts)),
+         M2="NOT RUN",physical_installation="NOT RUN")))
     return 0 if final==PASS else 75
 
 

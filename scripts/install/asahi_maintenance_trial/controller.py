@@ -63,7 +63,8 @@ def source_pins():
 
 
 def init_bytes():
-    return B.project(T,T.read(BASE/"guest-init.sh",cap=128*1024),O.UUID,G.NAMES)
+    large={name:G.INITRAMFS_LIMIT for name in G.GENERATED.values()}
+    return B.project(T,T.read(BASE/"guest-init.sh",cap=128*1024),O.UUID,G.NAMES,large)
 
 
 def binding(*, staging, seed, kernel, config, baseline, output, nonce, media_digest, issuer=None):
@@ -114,25 +115,67 @@ def copy_transport(staging, plan, root):
 
 
 def export(reader, disk_path, out, *, held):
-    with reader.Ext4Reader(disk_path,max_nodes=64,max_file_bytes=8*1024**2) as disk:
+    with reader.Ext4Reader(disk_path,max_nodes=64,max_file_bytes=G.INITRAMFS_LIMIT) as disk:
         nodes=disk.inventory()["nodes"]
         folders={".","lost+found","evidence"}
         files=set(nodes)-folders
-        required={"evidence/"+name for name in ("result.json","commands.json","signatures.json","platform.json")}
-        allowed={"evidence/"+name for name in G.NAMES}
+        required={"evidence/"+name for name in ("result.json","commands.json","signatures.json","platform.json","boot-artifacts.json")}
+        completed={"evidence/"+name for name in G.NAMES}
+        allowed=completed|{"evidence/"+name for name in G.GENERATED.values()}
         T.need(folders<=set(nodes) and all(nodes[name]["type"]=="directory" for name in folders)
-               and required<=files<=allowed and (held or files==allowed)
+               and required<=files<=allowed and (held or completed<=files)
                and sum(nodes[key]["size"] for key in files)<=32*1024**2,"Exact bounded Asahi evidence namespace required")
         out.mkdir(mode=0o700)
         for name in sorted(files):
             row=nodes[name]
             T.need(row["type"]=="file" and row["uid"]==row["gid"]==0 and row["mode"]==0o600
-                   and row["links"]==1,"Original guest evidence identity differs")
+                   and row["links"]==1 and row["size"]<=G.evidence_limit(Path(name).name),
+                   "Original guest evidence identity differs")
             fields,raw=disk.inode(row["inode"])
             body=b"".join(disk.chunks(fields,raw))
             T.need(T.pin(body)==dict(bytes=row["size"],sha256=row["sha256"]),"Asahi result reread differs")
             with (out/Path(name).name).open("xb") as stream:
                 stream.write(body)
+
+
+def review_boot_artifacts(output, result, seen, *, held):
+    raw=T.read(output/"boot-artifacts.json",result["boot_artifacts"],cap=16*1024)
+    artifacts=T.decode(raw)
+    baseline=artifacts["baseline"]
+    phases=artifacts["phases"]
+    T.need(T.encoded(artifacts)==raw and set(artifacts)=={"path","baseline","phases"}
+           and artifacts["path"]==G.INITRAMFS.as_posix() and set(phases)<=set(G.GENERATED)
+           and (held or set(phases)==set(G.GENERATED)),"Exact initramfs rehearsal evidence required")
+    if baseline is None:
+        T.need(held and not phases,"The protected baseline initramfs must be witnessed")
+    else:
+        metadata=dict(uid=G.INITRAMFS_OWNER[0],gid=G.INITRAMFS_OWNER[1],mode=0o600,links=1)
+        T.need(baseline==dict(metadata,mtime_ns=baseline["mtime_ns"],pin=G.INITRAMFS_PIN)
+               and type(baseline["mtime_ns"]) is int and baseline["mtime_ns"]>0,
+               "Exact original protected initramfs pin and metadata required")
+    exported=set()
+    for stage,row in phases.items():
+        T.need(set(row)=={"restored","generated","hook"} and baseline is not None
+               and (row["restored"]==baseline or held and row["restored"] is None and result["phase"]=="preserve-"+stage),
+               "Original initramfs restore receipt differs")
+        role="apply-"+stage
+        stdout=T.read(output/(role+".stdout"),seen[role]["stdout"],cap=2*1024**2)
+        T.need(seen[role]["exit"]==0 and row["hook"]==G.regeneration(T,stdout),
+               "Generated image origin or warning evidence differs")
+        generated=row["generated"]
+        if generated is None:
+            T.need(stage=="rollback" and row["hook"] is None and row["restored"]==baseline,
+                   "Successful forward mkinitcpio candidate required")
+        else:
+            leaf=G.GENERATED[stage]
+            T.need(row["hook"] is not None and generated==dict(metadata,file=leaf,mtime_ns=generated["mtime_ns"],
+                   pin=generated["pin"]) and type(generated["mtime_ns"]) is int and generated["mtime_ns"]>0,
+                   "Exact generated initramfs identity required")
+            body=T.read(output/leaf,generated["pin"],cap=G.INITRAMFS_LIMIT)
+            T.need(body.startswith(b"070701"),"Archived generated Asahi initramfs lacks its early CPIO")
+            exported.add(leaf)
+    T.need(exported=={name for name in G.GENERATED.values() if (output/name).exists()},
+           "Exact generated initramfs file census required")
 
 
 def review(output, plan, *, held):
@@ -152,6 +195,7 @@ def review(output, plan, *, held):
     T.need(actual==roles[:len(actual)] and (held or actual==roles),"Missing or reordered Asahi transaction commands")
     T.need(all(row["argv"]==expected[role] for role,row in seen.items() if role in expected)
            and (held or all(row["exit"]==0 for row in commands)),"Actual guest command arguments or exits differ")
+    review_boot_artifacts(output,result,seen,held=held)
     mounted={}
     for name,(count,_,_) in O.REFS.items():
         path=output/name
@@ -186,7 +230,7 @@ def review(output, plan, *, held):
                 T.need(stream!="stderr" or not T.HOOK_FAILURE.search(body),"Original ALPM hooks did not pass")
         G.log_actions(T,mounted["baseline.lock"],mounted["forward.lock"],mounted["rollback.lock"],
                       T.read(output/"pacman.log",cap=2*1024**2),completed=True)
-    result["files"]={path.name:T.read(path,cap=8*1024**2,collect=False) for path in sorted(output.iterdir())}
+    result["files"]={path.name:T.read(path,cap=G.evidence_limit(path.name),collect=False) for path in sorted(output.iterdir())}
     return result
 
 

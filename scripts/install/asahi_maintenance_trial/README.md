@@ -31,6 +31,17 @@ preview locks, raw signature status, ordinary ALPM actions, boot-file and
 mount-configuration snapshots, and natural QEMU retirement. Both the
 original result disk and writable clone remain under the selected output.
 
+The normal mkinitcpio hook regenerated `/boot/initramfs-linux-asahi.img`
+in the first rehearsal and emitted warnings about firmware, a skipped
+aarch64 microcode hook, a missing DRM symbol, and console font setup. The
+controller now retains that hook's generated image and exact output for
+each phase that regenerates it, then restores the pinned original file
+with its root ownership, mode and modification time before checking the
+whole boot and mount-configuration snapshot. The two generated-image
+leaves are each capped at 14 MiB within the existing 32 MiB evidence
+budget. The regenerated images remain rehearsal evidence. Apple boot,
+firmware and device qualification remain open.
+
 ## Passive transport and future Root selection
 
 Generate the [passive maintenance plan](../../port/supported-composition/README.md#prepare-the-disposable-asahi-maintenance-guest-inputs)

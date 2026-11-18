@@ -17,6 +17,10 @@ C=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(C)
 T,O,G=C.T,C.O,C.G
 HELD_ENV=("CAA_ASAHI_MAINTENANCE_PREFLIGHT","CAA_ASAHI_MAINTENANCE_PREFLIGHT_SHA256","CAA_OVERLAY583_STAGING")
+ORIGINAL=b"070701 original"
+GENERATED=b"070701 generated"
+WARNING=b"==> WARNING: architecture 'aarch64' not supported, skipping hook"
+HOOK=b"\n".join((*G.MKINITCPIO[:2],WARNING,*G.MKINITCPIO[2:]))+b"\n"
 
 
 def fence(event,_):
@@ -42,8 +46,43 @@ class LocalControls(unittest.TestCase):
         self.assertIn('mount -n -t ext4 -o ro,noload,nosuid,nodev "$input"',body)
         self.assertNotIn('/trial-scratch/work',body)
         self.assertNotIn('OV583_WORK',body)
+        self.assertIn('limit=8388608',body)
+        self.assertIn('generated-initramfs-forward.img) limit=14680064',body)
+        self.assertIn('[[ $total -le 33554432 ]]',body)
         with self.assertRaisesRegex(ValueError,"seam changed"):
-            C.B.project(T,base.replace(b'-L OV583_WORK',b'-L wrong'),O.UUID,G.NAMES)
+            limits={name:G.INITRAMFS_LIMIT for name in G.GENERATED.values()}
+            C.B.project(T,base.replace(b'-L OV583_WORK',b'-L wrong'),O.UUID,G.NAMES,limits)
+    def test_only_hook_generated_candidate_is_retained_and_exact_original_restored(self):
+        with tempfile.TemporaryDirectory() as temp, patch.multiple(
+            G,INITRAMFS_OWNER=(os.getuid(),os.getgid()),INITRAMFS_PIN=T.pin(ORIGINAL)
+        ):
+            root=Path(temp)
+            path=root/G.INITRAMFS
+            path.parent.mkdir()
+            path.write_bytes(ORIGINAL)
+            path.chmod(0o600)
+            original,origin,atime=G.initramfs(T,path,G.INITRAMFS_PIN)
+            unrelated=root/"etc"
+            unrelated.mkdir()
+            unrelated=(unrelated/"fstab")
+            unrelated.write_bytes(b"same")
+            before=G.platform(T,root)
+            rows={}
+            path.write_bytes(GENERATED)
+            with self.assertRaisesRegex(ValueError,"missing forward mkinitcpio"):
+                G.preserve_initramfs(T,path,original,origin,atime,root,rows,"forward",b"other")
+            with self.assertRaisesRegex(ValueError,"successful mkinitcpio output"):
+                G.preserve_initramfs(T,path,original,origin,atime,root,rows,"forward",G.MKINITCPIO[0])
+            G.preserve_initramfs(T,path,original,origin,atime,root,rows,"forward",HOOK)
+            self.assertEqual(G.platform(T,root),before)
+            self.assertEqual((root/G.GENERATED["forward"]).read_bytes(),GENERATED)
+            self.assertEqual(rows["forward"]["restored"],origin)
+            self.assertEqual(rows["forward"]["hook"]["warnings"],[WARNING.decode()])
+            G.preserve_initramfs(T,path,original,origin,atime,root,rows,"rollback",b"ordinary rollback")
+            self.assertIsNone(rows["rollback"]["generated"])
+            path.chmod(0o644)
+            with self.assertRaisesRegex(ValueError,"root-owned Asahi initramfs metadata"):
+                G.preserve_initramfs(T,path,original,origin,atime,root,rows,"rollback",HOOK)
 
     def test_semantics_of_qemu_target_and_device_boundaries(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -152,7 +191,7 @@ class HeldData(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"Exact reviewed Asahi transport selection"):
             O.check_manifest(T,altered)
 
-    def fixture(self,*,bad_preview=False):
+    def fixture(self,*,bad_preview=False,other_boot_drift=False):
         with tempfile.TemporaryDirectory(prefix="asahi-maintenance-control-") as temp:
             home=Path(temp)
             work,inputs,target=(home/"work",home/"inputs",home/"target")
@@ -162,6 +201,9 @@ class HeldData(unittest.TestCase):
             target.mkdir()
             (target/"boot").mkdir()
             (target/"boot/preserved").write_bytes(b"kept")
+            initramfs=target/G.INITRAMFS
+            initramfs.write_bytes(ORIGINAL)
+            initramfs.chmod(0o600)
             for name in O.REFS:
                 (inputs/name).write_bytes(T.read(self.data.parent/name,O.lock_ref(name),cap=64*1024))
             for name in self.selected["keys"].values():
@@ -196,6 +238,11 @@ class HeldData(unittest.TestCase):
                         f"[GNUPG:] VALIDSIG {primary} time 1794973000 0 4 0 22 8 00 {primary}\n").encode())
                 elif role.startswith("apply-"):
                     name=role.removeprefix("apply-")
+                    if name=="forward":
+                        initramfs.write_bytes(GENERATED)
+                        kwargs["stdout"].write(HOOK)
+                        if other_boot_drift:
+                            (target/"boot/preserved").write_bytes(b"changed")
                     before=self.rows["baseline.lock" if name=="forward" else "forward.lock"]
                     after=self.rows[name+".lock"]
                     with (work/"evidence/pacman.log").open("ab") as log:
@@ -208,6 +255,7 @@ class HeldData(unittest.TestCase):
                 return SimpleNamespace(returncode=0)
             with (
                 patch.multiple(O,WORK=work,IN=inputs,TARGET=target),
+                patch.multiple(G,INITRAMFS_OWNER=(os.getuid(),os.getgid()),INITRAMFS_PIN=T.pin(ORIGINAL)),
                 patch.object(O,"rehash"),
                 patch.object(T,"target_api_mounts"),
                 patch.object(G.os,"statvfs",return_value=SimpleNamespace(f_bavail=3000000,f_frsize=4096)),
@@ -216,6 +264,13 @@ class HeldData(unittest.TestCase):
                 code=G.execute(T,O,selected)
                 report=C.review(work/"evidence",selected,held=bool(code))
                 if not code:
+                    self.assertEqual(initramfs.read_bytes(),ORIGINAL)
+                    generated=work/"evidence"/G.GENERATED["forward"]
+                    self.assertEqual(generated.read_bytes(),GENERATED)
+                    generated.write_bytes(b"070701 tampered")
+                    with self.assertRaisesRegex(ValueError,"Expected file length|Changed pinned"):
+                        C.review(work/"evidence",selected,held=False)
+                    generated.write_bytes(GENERATED)
                     broken=work/"evidence"/"rollback-preview.lock"
                     broken.write_bytes(b"bad 1-1\n")
                     with self.assertRaisesRegex(ValueError,"Expected file length|Changed pinned"):
@@ -238,6 +293,13 @@ class HeldData(unittest.TestCase):
         self.assertEqual((report["status"],report["phase"]),(G.HOLD,"preview-forward"))
         self.assertNotIn("apply-forward",roles)
         self.assertNotIn("apply-rollback",roles)
+
+    def test_other_boot_drift_holds_after_preserving_generated_evidence(self):
+        code,report,roles=self.fixture(other_boot_drift=True)
+        self.assertEqual((code,report["status"],report["phase"]),(75,G.HOLD,"check-forward"))
+        self.assertEqual(roles.count("apply-forward"),1)
+        self.assertNotIn("apply-rollback",roles)
+        self.assertEqual(report["files"][G.GENERATED["forward"]],T.pin(GENERATED))
 
 
 if __name__=="__main__":
