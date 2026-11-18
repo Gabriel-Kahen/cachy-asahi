@@ -191,15 +191,15 @@ def transform(bodies):
     return candidate
 
 
-def emit(repository, output):
+def check_output(repository, output):
     clock.need(repository == repository.resolve(strict=True) and repository.is_dir()
                and output == output.resolve() and output.parent.is_dir()
                and not output.is_relative_to(repository) and not os.path.lexists(output),
                "Fresh canonical output disjoint from local Git required")
-    check_commit(repository, PARENT, PARENT_TREE, clock.CANDIDATE)
-    check_commit(repository, CANDIDATE, CANDIDATE_TREE, PARENT)
-    bodies = transform(committed_tree(repository, PARENT, PARENT_TREE, PARENT_BYTES))
-    with TemporaryDirectory(prefix=".current606-peer-focus-", dir=output.parent) as temporary:
+
+
+def write_tree(output, bodies, tree):
+    with TemporaryDirectory(prefix=".current606-focus-", dir=output.parent) as temporary:
         staged = Path(temporary) / "source"
         staged.mkdir(mode=0o700)
         for name, raw in bodies.items():
@@ -209,13 +209,21 @@ def emit(repository, output):
                 stream.write(raw)
             leaf.chmod(clock.MODE)
         verified = clock.read_tree(staged, {name: clock.pin(raw) for name, raw in bodies.items()})
-        clock.need(clock.layout(verified) == CANDIDATE_TREE, "Exact staged R4 source tree required")
+        clock.need(clock.layout(verified) == tree, "Exact staged source tree required")
         output.mkdir(mode=0o700)
         try:
             staged.rename(output)
         except OSError:
             output.rmdir()
             raise
+
+
+def emit(repository, output):
+    check_output(repository, output)
+    check_commit(repository, PARENT, PARENT_TREE, clock.CANDIDATE)
+    check_commit(repository, CANDIDATE, CANDIDATE_TREE, PARENT)
+    bodies = transform(committed_tree(repository, PARENT, PARENT_TREE, PARENT_BYTES))
+    write_tree(output, bodies, CANDIDATE_TREE)
     return dict(status="PASS_CURRENT606_PEER_FOCUS_SOURCE_ONLY", source=CANDIDATE, tree=CANDIDATE_TREE,
                 parent=PARENT, parent_tree=PARENT_TREE, ref=REF, files=COUNT, bytes=CANDIDATE_BYTES,
                 changed=sorted(CHANGED), manifest=clock.pin(bodies[MANIFEST]), actual=None)
