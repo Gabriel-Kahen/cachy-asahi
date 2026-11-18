@@ -77,12 +77,89 @@ def prior_components(component):
     return C.ORDER if component==DESKTOP_CONSUMER else C.ORDER[:C.ORDER.index(component)]
 
 
+def _whole(ref):
+    return {key:ref[key] for key in ('bytes','sha256')}
+
+
+def _carried_gui_pair(selected,receipt,mapping,source_map_sha256,dependencies,dependency_lock,observed):
+    """Validate a separately accepted original GUI pair across runner-local path rebinding."""
+    def read(ref,cap=4*1024**2):
+        return M.decode(P.reference(ref,observed,collect=True,cap=cap))
+
+    accepted=read(selected['carryover'],64*1024)
+    need(set(accepted)=={'kind','issuer','accepted','continuation_source_map_sha256','readback',
+                        'manifest','build_source_map','runtime_map','portable_selection'}
+         and accepted['kind']=='ROOT_QT612_GUI_PAIR_PROVIDER_CARRYOVER_V1'
+         and accepted['issuer']=='Root' and accepted['accepted'] is True
+         and accepted['continuation_source_map_sha256']==source_map_sha256,
+         'EXACT_ROOT_SELECTED_GUI_CARRYOVER')
+    terminal=read(accepted['readback'])
+    proof=terminal['independent_pair']
+    need(terminal['status']=='INDEPENDENT_EXACT_NATIVE_PAIR_READBACK_ONLY'
+         and terminal['conclusion']=='success' and type(terminal['attempt']) is int and terminal['attempt']==1
+         and type(terminal['run']) is type(terminal['job']) is int
+         and 0<terminal['run']<2**63 and 0<terminal['job']<2**63
+         and terminal['workflow_id']==422506968 and terminal['live_ref']=='refs/heads/main'
+         and re.fullmatch('[0-9a-f]{40}',terminal['workflow_sha'])
+         and type(terminal['artifact']['id']) is int and terminal['artifact']['id']>0
+         and terminal['artifact']['name']==f"qt612-gui-server-pair-{terminal['workflow_sha']}-{terminal['run']}-1"
+         and terminal['native_acceptance'] is terminal['Root_acceptance'] is None
+         and terminal['lifecycle_status']=='NOT_RUN'
+         and proof['replay']['status']=='PASS_QT612_HOSTED_PAIR_EXACT_READBACK_ONLY'
+         and proof['replay']['lifecycle_status']=='NOT_RUN' and proof['replay']['Root_acceptance'] is None
+         and proof['manifest']==_whole(accepted['manifest'])
+         and _whole(terminal['runtime_source']['map'])==_whole(accepted['runtime_map']),
+         'ORIGINAL_INDEPENDENT_NATIVE_GUI_PAIR_READBACK')
+    M.descriptor(terminal['artifact_archive'],2*1024**3+16*1024**2)
+    need(terminal['artifact_archive']['bytes']>0,'EXACT_RETAINED_GUI_PAIR_ARTIFACT_PIN')
+    manifest=read(accepted['manifest'])
+    bound=manifest['selected']
+    dispatch=dict(source=terminal['workflow_sha'],ref=terminal['live_ref'],run=str(terminal['run']),
+                  job=str(terminal['job']),attempt='1')
+    name=receipt['filename']
+    need(manifest['kind']=='QT612_HOSTED_PAIR_EXACT_EXPORT_V1'
+         and manifest['lifecycle_status']=='NOT_RUN' and manifest['native_acceptance'] is manifest['Root_acceptance'] is None
+         and bound['dispatch']==dispatch and bound['stage_binding_sha256']==proof['stage_binding']['sha256']
+         and bound['qualification']==manifest['files']['qualification.json']==_whole(selected['qualification'])
+         and bound['source_map']==manifest['files']['source-map.json']==_whole(accepted['build_source_map'])
+         and bound['source_map']['sha256']==receipt['source_map_sha256']
+         and all(manifest['files'][f'build-{i}/artifacts/{name}']==_whole(selected['archive']) for i in (1,2)),
+         'EXACT_GUI_PROVIDER_AND_ORIGINAL_QUALIFICATION_PINS')
+    build_map=read(accepted['build_source_map'])
+    # The binder changes the path-bearing input document. The continuation
+    # planner is separately selected on the new Source map; every other leaf
+    # and the complete family/consumer selection must match the original build.
+    movable={'family-inputs.DATA.json','scripts/ci/qt612-complete-family-native-source/pipeline.py'}
+    stable=lambda value:dict(value,files={name:row for name,row in value['files'].items() if name not in movable})
+    inventory=_whole(mapping['files']['expected356.lock'])
+    need(build_map['files'].keys()==mapping['files'].keys() and movable<=mapping['files'].keys()
+         and stable(build_map)==stable(mapping)
+         and receipt['inventory_pin']==proof['signed356']['inventory']==inventory
+         and receipt['image']==proof['signed356']['image'],
+         'UNCHANGED_FAMILY_RECIPES_RUNTIME_CONSUMER_AND_356_INVENTORY')
+    runtime=read(accepted['runtime_map'])
+    portable=read(accepted['portable_selection'])
+    need(runtime['kind']=='QT612_GUI_PAIR_WORKFLOW_SOURCE_V1' and runtime['schema']==1
+         and _whole(runtime['files']['portable/selection.DATA.json'])==_whole(accepted['portable_selection'])
+         and _whole(runtime['files']['portable/source-map.json'])==portable['original_source_map']
+         and portable['kind']=='QT612_PATHLESS_RUNNER_INPUTS_DATA_V1' and portable['schema']==1
+         and portable['Root_acceptance'] is None and portable['official_dependency_lock']==P.DEPENDENCIES,
+         'EXACT_ORIGINAL_PORTABLE_INPUT_SELECTION')
+    baseline={key:dependency_lock[role] for key,role in (
+        ('base_lock','baseline_input_lock'),('baseline_inventory','baseline_inventory'),('bootstrap_profile','bootstrap_profile'))}
+    packages={key:dict(row,archive=_whole(row['archive']),signature=_whole(row['signature']))
+              for key,row in dependencies['packages'].items()}
+    need(baseline==portable['base_metadata'] and packages==portable['dependencies'],
+         'UNCHANGED_BASELINE_AND_ALL_SEVEN_SIGNED_DEPENDENCIES')
+
+
 def builder_image_plan(*,source,source_map_sha256,component,baseline_image,previous,uid,gid):
     """Prepare a normal signed image transaction from the authenticated 349 image.
 
     The caller selects and authenticates prior pair receipts and detached
-    signatures. This adapter reopens their whole bytes and checks package
-    identity before emitting the seven additions and ordered Qt providers.
+    signatures. A GUI server from an earlier runner-local Source may include
+    a whole-pinned carryover decision anchored in the original pair readback.
+    The plan retains that decision for the independently selected owner.
     """
     mapping=C.read_source(source,source_map_sha256)
     need(mapping['input_plan_complete'] is True and
@@ -103,15 +180,22 @@ def builder_image_plan(*,source,source_map_sha256,component,baseline_image,previ
     prior=prior_components(component)
     need(type(previous)is dict and set(previous)==set(prior),'EXACT_PREVIOUS_PROVIDER_SET')
     lock=C.load_lock()
-    paths=[]
+    paths=[];carried={}
     for key in prior:
         row=lock['components'][key]; selected=previous[key]; name=row['filename']
-        need(set(selected)=={'qualification','archive','signature'},'EXACT_PROVIDER_CARRYOVER_REFS')
-        receipt=M.decode(P.reference(selected['qualification'],observed,collect=True))
+        roles={'qualification','archive','signature'}
+        need(set(selected)==roles or key=='gui_server' and set(selected)==roles|{'carryover'},
+             'EXACT_PROVIDER_CARRYOVER_REFS')
+        receipt=M.decode(P.reference(selected['qualification'],observed,collect=True,cap=4*1024**2))
         need(receipt.get('status')=='PASS_QT612_FAMILY_COMPONENT_PAIR_CURRENT_BYTES_ONLY'
              and receipt.get('component')==key and receipt.get('filename')==name
-             and receipt.get('recipe_commit')==row['commit'] and receipt.get('source_map_sha256')==source_map_sha256,
-             'MATCHING_SELECTED_PRIOR_PAIR')
+             and receipt.get('recipe_commit')==row['commit'], 'MATCHING_SELECTED_PRIOR_PAIR')
+        if 'carryover' in selected:
+            need(receipt['source_map_sha256']!=source_map_sha256,'CARRYOVER_REQUIRES_DISTINCT_SOURCE_MAP')
+            _carried_gui_pair(selected,receipt,mapping,source_map_sha256,dependencies,dependency_lock,observed)
+            carried[key]=dict(selected['carryover'])
+        else:
+            need(receipt.get('source_map_sha256')==source_map_sha256,'MATCHING_SELECTED_PRIOR_PAIR')
         expected={field:selected['archive'][field] for field in ('bytes','sha256')}
         need(len(receipt['observations'])==2 and all(x['archive']==expected for x in receipt['observations']),
              'SAME_QUALIFIED_PROVIDER_ARCHIVE')
@@ -132,6 +216,8 @@ def builder_image_plan(*,source,source_map_sha256,component,baseline_image,previ
     plan['dockerfile']=plan['dockerfile'].replace(seam,extra+seam)
     inventory=expected_inventory(root,mapping,component)
     M.unchanged(observed)
+    if carried:
+        plan['carried_provider_acceptance']=carried
     return dict(plan,component=component,signed_context=assets,
                 expected_inventory=inventory.decode('ascii'),inventory_pin=C.pin(inventory),
                 expected_packages=356+len(prior),pair_evidence_is_authentication=False)
