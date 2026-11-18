@@ -178,6 +178,39 @@ accurate instrumentation are absent, drain is NOT RUN. Never label missing drain
 zero. Percent/hour can be a coarse supplemental observation with its quantization,
 but cannot replace a Wh/hour requirement without revising the plan before trials.
 
+Use `suspend_drain.py` from the repository root to retain both endpoints in a
+private directory. Set `battery` to the name observed under
+`/sys/class/power_supply` on the target. The upstream Apple SMC driver names its
+battery `macsmc-battery` and calculates `energy_now` from the remaining charge
+and nominal voltage. Verify that the installed driver exposes that reading.
+[Linux Apple SMC power driver](https://github.com/torvalds/linux/blob/master/drivers/power/supply/macsmc-power.c)
+
+```bash
+# Set baseline_sha256 to the retained pin of the physical baseline JSON.
+# Use the same machine pseudonym, trial, battery and planned minimum at both ends.
+common=(--baseline "$baseline" --baseline-sha256 "$baseline_sha256"
+        --execution-context physical --machine-id "$machine_id" --trial-id "$trial_id"
+        --battery "$battery" --minimum-suspended-seconds "$planned_seconds")
+python3 -I -B scripts/benchmarks/suspend_drain.py capture \
+  --phase before "${common[@]}" --output "$trial_dir/before.json"
+
+# After manually suspending and waking the machine, run this from the same boot.
+python3 -I -B scripts/benchmarks/suspend_drain.py capture \
+  --phase after "${common[@]}" --output "$trial_dir/after.json"
+
+sha() { sha256sum -- "$1" | cut -d ' ' -f 1; }
+python3 -I -B scripts/benchmarks/suspend_drain.py compare \
+  --before "$trial_dir/before.json" --before-sha256 "$(sha "$trial_dir/before.json")" \
+  --after "$trial_dir/after.json" --after-sha256 "$(sha "$trial_dir/after.json")" \
+  --output "$trial_dir/drain.json"
+```
+
+The report gives a range for kernel-accounted suspend time and reports battery
+gauge loss over the full window, including awake time. It returns
+`INCOMPLETE` (exit 2) when the minimum suspend time or usable energy readings
+are missing. The operator still verifies sleep mode, wakes, power continuity,
+and gauge resolution against the actual session.
+
 After each resume, operators check lock state, applications, hardware rendering,
 network/input/audio service status and logs according to the hardware plan.
 Speaker protection checks require their dedicated exact-machine procedure;
