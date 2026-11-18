@@ -70,6 +70,10 @@ elif name == 'python3':
                                     cwd=root, env=env, capture_output=True, timeout=15)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
         calls = [json.loads(line) for line in log.read_text().splitlines()]
+        apt_calls = [row['args'] for row in calls if row['name'] == 'sudo' and row['args'][0] == 'apt-get']
+        source = ['-o', 'Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources', '-o', 'Dir::Etc::sourceparts=-']
+        self.assertEqual([args[1:5] for args in apt_calls], [source] * 3)
+        self.assertEqual(apt_calls[0][5:], ['-o', 'APT::Update::Error-Mode=any', '--no-list-cleanup', 'update'])
         installs = [row['args'][row['args'].index('install') + 1:] for row in calls
                     if row['name'] == 'sudo' and 'install' in row['args']]
         self.assertEqual(installs, [trial.PACKAGES, trial.PACKAGES])
