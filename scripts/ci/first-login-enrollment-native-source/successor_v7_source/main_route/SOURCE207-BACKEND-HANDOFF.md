@@ -39,7 +39,7 @@ The helper checks the retained manifest against the identical member in the boun
 Call `backend_private_handoff.replay` with the retained directory, independently retained transfer pin, canonical `ROOT_BOUND_DELEGATED_PUBLIC_READER_V4` bytes and whole pin, exact Source file map, complete whole-pinned `support_refs` and trusted observation time. The unchanged Source207 Reader is the package replay authority. It requires:
 
 - Runtime inputs, runtime receipt, domain and image qualifications, and command observations.
-- Base lock and bootstrap profile.
+- Base lock, bootstrap profile and baseline inventory.
 - Prerequisite timing, report, initial context, launcher, controller and qualification.
 - Material grant, assembly request, staging, close and qualification.
 - Separate same-run completed-producer evidence plus enrollment and first-login component records.
