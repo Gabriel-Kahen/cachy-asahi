@@ -1,0 +1,5 @@
+[1/5] Building C object CMakeFiles/llhttp_shared.dir/src/http.c.o
+[2/5] Building C object CMakeFiles/llhttp_shared.dir/src/api.c.o
+[3/5] Building C object CMakeFiles/llhttp_shared.dir/src/llhttp.c.o
+[4/5] Linking C shared library libllhttp.so.9.3.1
+[5/5] Creating library symlink libllhttp.so.9.3 libllhttp.so
