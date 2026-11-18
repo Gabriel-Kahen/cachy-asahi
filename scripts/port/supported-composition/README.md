@@ -284,3 +284,54 @@ capsule, verify its seal and readback locally.
     and .installed_Asahi == null and .physical_M2 == null' READBACK.DATA.json
 )
 ```
+
+### Index source evidence for the signed additions
+
+`index_signed_addition_sources.py` reads a pinned stage receipt from
+[signed addition assembly](assemble_signed_additions.md), rehashes the staged
+archives and signatures, and indexes the signed `.BUILDINFO` recipe digests.
+The v1 config uses kind `supported-Asahi-signed-addition-source-index-DATA`
+and contains `schema_version`, `stage_receipt`, and `originals`. The receipt
+uses an absolute `path/size/sha256` reference. Each optional original record
+contains `name` plus references for `recipe`, `srcinfo`, and `provenance`.
+Zstd archives require Python with `compression.zstd`.
+
+```sh
+source_index="$(mktemp -d)/source-index.json"
+python3 -I -B scripts/port/supported-composition/index_signed_addition_sources.py \
+  --config "$index_config" --config-sha256 "$index_config_sha256" \
+  --output "$source_index" &&
+  jq '{package_count, distinct_recipe_count, evidence_counts, proposal_status}' "$source_index"
+```
+
+The retained stage indexed 367 packages and 333 distinct recipe digests.
+First Login and Setup matched their retained project originals and source
+inputs. The other 365 package rows carry recipe digests only. A successful
+index retains the composition verdict and leaves corresponding-source
+fulfillment, license review, and production approval open.
+
+### Join exact recipe history offline
+
+`join_signed_recipe_history.py` checks retained, commit-specific GitHub
+Contents or Arch GitLab Repository Files responses against the index. The v1
+config has kind `supported-Asahi-signed-recipe-history-DATA`,
+`schema_version: 1`, an `index` reference, and `candidates`. Each candidate
+supplies the `package`, `repository`, full `commit`, `path` of its
+`PKGBUILD`, and a `file_response` reference. References use absolute
+`path/size/sha256` pins. The join verifies the returned Git blob bytes and
+compares their SHA-256 with the package's signed recipe digest.
+
+```sh
+history_result="$(mktemp -d)/recipe-history.json"
+python3 -I -B scripts/port/supported-composition/join_signed_recipe_history.py \
+  --config "$recipe_history_config" --config-sha256 "$recipe_history_config_sha256" \
+  --output "$history_result" &&
+  jq '{counts, corresponding_source_delivery}' "$history_result"
+```
+
+The retained run found three new exact vendor `PKGBUILD` matches in
+`asahi-alarm/PKGBUILDs`. They cover `asahi-audio 4.1-1` at `07c5fd03`,
+`asahi-desktop-meta 4-10` at `c1362b9b`, and `bankstown 1.1.0-2` at
+`79c52a53`. It reconfirmed the First Login project recipe and recorded 11
+candidate snapshots with different digests. The join leaves corresponding
+source delivery and release approval open.
