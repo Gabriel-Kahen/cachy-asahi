@@ -76,9 +76,9 @@
       "sha256": "e706f95814a6d15b4c164ce64425e53b8f90ac4e49e09db232daee4e0b7696e4"
     },
     "scripts/ci/first-login-v3-native-pair/overlay.py": {
-      "bytes": 17873,
+      "bytes": 17836,
       "mode": 420,
-      "sha256": "78fc8fa18779a90452b71d32f2e26e330db6f0cf2fb56ec5c336dcce4e858d41"
+      "sha256": "20f032781d31e12cdbbbd20abc5c30a299504ca2fdc4988aaf4a782a112f7fcb"
     },
     "scripts/ci/first-login-v3-native-pair/pair.py": {
       "bytes": 11428,

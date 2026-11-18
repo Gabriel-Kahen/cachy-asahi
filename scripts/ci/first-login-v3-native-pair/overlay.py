@@ -24,7 +24,7 @@ R12 = {'commit': '19dea1cca35659ad7ab307dfea09c30a77362640',
        'tree': 'de61a2e7351a09d1dcf0471d50c80e3a1a6ee479',
        'map_sha256': '14a3f9d1f12f224bf43a71a7bb4ef9ba3bfe03b5918b25aabc33ce1fdb71a3b2',
        'bytes': 2093900}
-NEW_REF = 'refs/heads/codex/first-login-v3-native-source-20261118-r1'
+NEW_REF = 'refs/heads/codex/first-login-v3-native-source-20261118-r3'
 
 
 def module(path, name):
@@ -181,7 +181,7 @@ def runtime_material(confirmed, thin_bodies, setup, supplemental_pins=None):
 ''' + data[end:]
     files[data_name] = replace(data,
         b"    policy=decode(read(root/PREFIX/'policy.json'))\n    need(policy.get('managed_containerd')==MANAGED_CONTAINERD,",
-        b"    need(a['ref'] == 'refs/heads/codex/first-login-v3-native-source-20261118-r1' and\n"
+        f"    need(a['ref'] == {NEW_REF!r} and\n".encode() +
         b"         a.get('operation') == r.get('operation') == 'FIRST_LOGIN_V3_PACKAGE_PAIR', 'fixed First Login operation/ref')\n"
         b"    runtime_source = source(root,map_sha)\n"
         b"    need(r.get('thin_map_sha256') == runtime_source['roles']['first_login_map_sha256'], 'exact admitted thin role')\n"
