@@ -14,9 +14,8 @@ import tempfile
 import zipfile
 
 HERE = Path(__file__).resolve().parent
-_spec = importlib.util.spec_from_file_location(
-    "overlay583_install_trial", HERE.parent / "overlay583_trial/trial.py"
-)
+_trial_path = HERE / "trial.py" if HERE == Path("/trial-code") else HERE.parent / "overlay583_trial/trial.py"
+_spec = importlib.util.spec_from_file_location("overlay583_install_trial", _trial_path)
 T = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(T)
 
@@ -35,6 +34,9 @@ SOURCE = "5d0f5ae6331807704a8ebafc7922972629e0b96f"
 TARGET = dict(bytes=11450, sha256="12e5f0d74f8530fee9cc2b10ad7887748c2f9d5fdfed259b498f4b3db87167ba")
 FINGERPRINT = re.compile("[0-9A-F]{40}")
 KIND = "OVERLAY583_SETUP7_PREDECESSOR_TEST_STAGING_V1"
+PLAN_KIND = "OVERLAY583_SETUP7_TO_SETUP8_GUEST_PLAN_V1"
+PASS = "PASS_DISPOSABLE_OVERLAY583_SETUP_UPGRADE_ONLY"
+HOLD = "HOLD_DISPOSABLE_OVERLAY583_SETUP_UPGRADE"
 CACHE = T.WORK / "upgrade-cache"
 TRANSACTIONS = {"install-base-and-shells", "install-predecessor", "upgrade"}
 
@@ -155,7 +157,8 @@ def plan(packet, lock, predecessor, nonce):
     keep = [row["repo"] + "/" + name for name,row in sorted(rows.items()) if name != PACKAGE]
     current = T.OVERLAY_REPO + "/" + PACKAGE
     old_archive = str(T.IN / PREDECESSOR / ARCHIVE)
-    return dict(kind="OVERLAY583_SETUP7_TO_SETUP8_GUEST_PLAN_V1", nonce=nonce, packet=packet,
+    return dict(kind=PLAN_KIND, nonce=nonce, packet=packet,
+                upgrade_worker=T.read(Path(__file__).resolve(), cap=128 * 1024, collect=False),
                 predecessor=predecessor, without=T.pin(without), before=T.pin(before),
                 timeout_seconds=standard["timeout_seconds"], Root_acceptance=None,
                 operations=[
@@ -191,12 +194,17 @@ def expected_output(plan, lock):
     }
 
 
-def confirm_transaction(log):
+def confirm_transaction(log, before):
+    """Require the exact initial package installs followed by one ALPM update."""
     match = re.compile(rb"^\[[^\]\r\n]+\] \[ALPM\] (installed|removed|upgraded|downgraded|reinstalled) "
-                       rb"cachy-asahi-setup ([^\r\n]+)$", re.M)
-    expected = [(b"installed", f"({OLD})".encode()),
-                (b"upgraded", f"({OLD} -> {NEW})".encode())]
-    T.need(match.findall(log) == expected, "Expected exact Setup7 install and one actual Setup8 upgrade")
+                       rb"([^ \r\n]+) ([^\r\n]+)$", re.M)
+    actions = match.findall(log)
+    initial = T.canonical_lock(before,583)
+    expected = sorted((b"installed",name.encode(),f"({version})".encode())
+                      for name,version in initial.items())
+    T.need(bool(actions) and sorted(actions[:-1]) == expected
+           and actions[-1] == (b"upgraded",PACKAGE.encode(),f"({OLD} -> {NEW})".encode()),
+           "Expected exact predecessor inventory installs followed by one actual Setup8 upgrade")
 
 def execute(plan_value, lock, run, env, config):
     """Execute inside the owning trial's mounted guest after public trust import."""
@@ -232,7 +240,7 @@ def execute(plan_value, lock, run, env, config):
             T.check_hooks(T.OUTPUT,role)
         else:
             T.run_operation(role,argv,seconds,expected,run,env,None)
-    confirm_transaction(T.read(T.OUTPUT / "pacman.log", cap=8 * 1024**2))
+    confirm_transaction(T.read(T.OUTPUT / "pacman.log", cap=8 * 1024**2), inventories(lock)[1])
     T.need(check_stage(T.IN / PREDECESSOR, plan_value["predecessor"]["receipt"]) == predecessor,
            "Same read-only predecessor transit at retirement")
 
@@ -245,17 +253,16 @@ def evidence_names(plan_value):
     }
 
 
-def readback(output, plan_value, lock):
-    """Independently reopen positive inventory and ALPM transition evidence."""
+def readback(output, plan_value, lock, *, held=False):
+    """Independently reopen the upgrade receipt and completed pacman steps."""
     output = T.ordinary(output)
-    T.need({item.name for item in output.iterdir()} == evidence_names(plan_value),
-           "Exact closed upgrade evidence namespace required")
+    actual = {item.name for item in output.iterdir()}
+    expected = evidence_names(plan_value)
+    T.need(actual <= expected if held else actual == expected, "Exact closed upgrade evidence namespace required")
     observed = {}
     result = T.decode(T.read(output / "result.json", cap=256 * 1024, observed=observed))
-    T.need(result["status"] == "PASS_DISPOSABLE_OVERLAY583_SETUP_UPGRADE_ONLY"
-           and result["nonce"] == plan_value["nonce"] and result["plan"] == T.pin(T.encoded(plan_value))
-           and result["installed_lock"] == TARGET and result["Root_acceptance"] is None,
-           "Exact positive guest upgrade result required")
+    T.need(result["nonce"] == plan_value["nonce"] and result["plan"] == T.pin(T.encoded(plan_value))
+           and result["Root_acceptance"] is None, "Unbound guest upgrade completion receipt")
     gpg = ["/usr/bin/gpg","--batch","--no-options"]
     trust = [(f"import-{index}", [*gpg,"--import"]) for index in range(len(T.GPG_PATHS))]
     trust += [("ownertrust", [*gpg,"--import-ownertrust"]),
@@ -263,18 +270,37 @@ def readback(output, plan_value, lock):
               ("trust-predecessor", [*gpg,"--import-ownertrust"])]
     ledger = [dict(role=role,argv=argv,exit=0)
               for role,argv in trust + [(role,argv) for role,argv,_ in plan_value["operations"]]]
-    T.need(result["commands"] == ledger, "Exact successful trust and ALPM step ledger required")
-    evidence = {}
-    for name in sorted(evidence_names(plan_value)):
-        evidence[name] = T.read(output/name, cap=8 * 1024**2, collect=False, observed=observed)
+    completed = result["commands"]
+    if held:
+        phases = {row["role"] for row in ledger} | {"upgrade-setup","seal","trust-retirement"}
+        T.need(result["status"] == HOLD and result["phase"] in phases and "installed_lock" not in result
+               and len(completed) <= len(ledger), "Exact held guest upgrade result required")
+        for index,row in enumerate(completed):
+            T.need(row == ledger[index] or index == len(completed)-1 and row == dict(ledger[index],exit=row["exit"])
+                   and type(row["exit"]) is int and 0 < row["exit"] <= 255,
+                   "Unexpected held upgrade command")
+    else:
+        T.need(result["status"] == PASS and result["installed_lock"] == TARGET and completed == ledger,
+               "Exact successful trust and ALPM step ledger required")
+    T.need(all(f'{row["role"]}.{stream}' in actual for row in completed for stream in ("stdout","stderr")),
+           "Recorded upgrade commands must retain both streams")
+    evidence = {name:T.read(output/name, cap=8 * 1024**2, collect=False, observed=observed)
+                for name in sorted(actual)}
+    T.need(sum(row["bytes"] for row in evidence.values()) <= 32 * 1024**2, "Upgrade evidence byte budget exceeded")
     for role,(expected,snapshot) in expected_output(plan_value,lock).items():
+        if not any(row["role"] == role and row["exit"] == 0 for row in completed):
+            continue
         raw = T.read(output/(role+".stdout"), cap=256 * 1024, observed=observed)
+        if held and result["phase"] == role and T.sorted_rows(raw) != expected:
+            T.need(snapshot is None or snapshot not in actual, "Unexpected snapshot from a refused query")
+            continue
         T.need(T.sorted_rows(raw) == expected, "Different upgrade pacman evidence: "+role)
         if snapshot:
             T.read(output/snapshot, T.pin(expected), cap=256 * 1024, observed=observed)
-    for role in TRANSACTIONS:
-        T.check_hooks(output,role,observed=observed)
-    confirm_transaction(T.read(output/"pacman.log", cap=8 * 1024**2, observed=observed))
+    if not held:
+        for role in TRANSACTIONS:
+            T.check_hooks(output,role,observed=observed)
+        confirm_transaction(T.read(output/"pacman.log", cap=8 * 1024**2, observed=observed), inventories(lock)[1])
     T.unchanged(observed)
     return evidence
 

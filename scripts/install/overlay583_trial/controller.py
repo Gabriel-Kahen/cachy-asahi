@@ -58,10 +58,12 @@ def pinned(path, ref, *, allowed_links=(1,)):
     return T.read(path,dict(bytes=size,sha256=digest),cap=size,collect=False,allowed_links=allowed_links)
 
 
-def source_pins():
+def source_pins(*, upgrade=False):
     paths = [HERE/name for name in ("controller.py","trial.py","guest-init.sh","staging-pins.json")]
     paths += [PERL/name for name in ("runtime.py","contracts.py","helper-origin.json",
                                     "frozen/independent_readback.py","frozen/owned_process.py")]
+    if upgrade:
+        paths.append(T.upgrade_path())
     return {str(path.relative_to(REPO)):T.read(path,cap=128<<10,collect=False) for path in paths}
 
 
@@ -72,9 +74,16 @@ def absolute(path):
 
 
 def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issuer=None, lifecycle=False,
-            signature_recovery=False):
+            signature_recovery=False, predecessor=None, predecessor_sha256=None):
     paths = {key:absolute(value) for key,value in
              dict(staging=staging,preflight=preflight,kernel=kernel,config=config,baseline=baseline,output=output).items()}
+    T.need((predecessor is None)==(predecessor_sha256 is None),"Predecessor path and external receipt digest required together")
+    predecessor_pin = None
+    if predecessor is not None:
+        T.need(not lifecycle and not signature_recovery,"Choose only one Overlay583 operation")
+        paths["predecessor"] = absolute(predecessor)
+        upgrade = T.upgrade_module()
+        predecessor_pin = upgrade.digest_pin(paths["predecessor"]/upgrade.RECEIPT,predecessor_sha256)
     for key,path in paths.items():
         if key!="output":
             T.need(path!=paths["output"] and not path.is_relative_to(paths["output"])
@@ -83,13 +92,16 @@ def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issu
         pinned(paths[key],ref)
     packet = T.choose(paths["staging"],selected_lock=T.PINS)
     receipt = T.read(paths["preflight"],packet["authenticated_preflight"],cap=128<<10)
-    plan = T.guest_plan(T.admit(packet,receipt,T.pin(receipt)),nonce,lifecycle=lifecycle,
-                        signature_recovery=signature_recovery)
+    plan = T.selected_plan(T.admit(packet,receipt,T.pin(receipt)),nonce,lifecycle=lifecycle,
+                           signature_recovery=signature_recovery,predecessor=paths.get("predecessor"),
+                           predecessor_pin=predecessor_pin)
     authority = dict(kind=KIND,issuer=issuer,nonce=nonce,actor_image=ACTOR_IMAGE,
                 paths={key:str(path) for key,path in paths.items()},
                 preflight=packet["authenticated_preflight"], plan=T.pin(T.encoded(plan)),
                 references={key:dict(bytes=value[0],sha256=value[1]) for key,value in REFERENCES.items()},
-                tools=tool_pins(), source=source_pins())
+                tools=tool_pins(), source=source_pins(upgrade=predecessor_pin is not None))
+    if predecessor_pin is not None:
+        authority["predecessor"] = predecessor_pin
     if lifecycle or signature_recovery:
         authority["lifecycle"] = True
     if signature_recovery:
@@ -180,7 +192,7 @@ def runtime_payload(inputs, runtime):
     return nodes
 
 
-def input_tree(staging, worker, worker_pin, plan, packed):
+def input_tree(staging, worker, worker_pin, plan, packed, *, predecessor=None):
     inputs, code = packed/"inputs",packed/"code"
     selected = T.decode(plan)
     packet = selected["packet"]
@@ -191,6 +203,18 @@ def input_tree(staging, worker, worker_pin, plan, packed):
     for name,wanted in operands.items():
         checked_copy(staging/name,inputs/name,wanted)
         files["inputs/"+name] = wanted
+    if selected.get("kind")==T.UPGRADE_KIND:
+        upgrade = T.upgrade_module(selected["upgrade_worker"])
+        T.need(predecessor is not None and upgrade.check_stage(predecessor,selected["predecessor"]["receipt"])==selected["predecessor"],
+               "Exact independently selected predecessor staging required")
+        prefix = "inputs/"+upgrade.PREDECESSOR+"/"
+        previous = selected["predecessor"]
+        previous_files = dict(previous["files"], **{upgrade.RECEIPT:previous["receipt"]})
+        for name,wanted in previous_files.items():
+            checked_copy(predecessor/name,packed/(prefix+name),wanted)
+            files[prefix+name] = wanted
+        checked_copy(T.upgrade_path(),code/"upgrade.py",selected["upgrade_worker"])
+        files["code/upgrade.py"] = selected["upgrade_worker"]
     aliases = {"inputs/"+name:target for name,target in packet["aliases"].items()}
     for name,target in aliases.items():
         (packed/name).symlink_to(target)
@@ -276,7 +300,8 @@ def export_result(reader, disk_path, output, plan, *, held=False):
         nodes = disk.inventory()["nodes"]
         files = set(nodes)-{".","lost+found","evidence"}
         correct_files = ("evidence/result.json" in files and files<=expected
-                         if held and plan.get("lifecycle") else not held and files==expected)
+                         if held and (plan.get("lifecycle") or plan.get("kind")==T.UPGRADE_KIND)
+                         else not held and files==expected)
         T.need(correct_files and {".","lost+found","evidence"}<=set(nodes)
                and all(nodes[name]["type"]=="directory" for name in (".","lost+found","evidence")),
                "Result disk evidence namespace differs")
@@ -346,7 +371,8 @@ class Controller:
     def authenticate(self, selection, *, plan_sha256, worker, nonce):
         actor_boundary(self.paths)
         actual = binding(**self.paths,nonce=nonce,issuer="Root",lifecycle=self.authority.get("lifecycle") is True,
-                         signature_recovery=self.authority.get("signature_recovery") is True)
+                         signature_recovery=self.authority.get("signature_recovery") is True,
+                         predecessor_sha256=self.authority.get("predecessor",{}).get("sha256"))
         T.need(self.authority==selection==actual and actual["plan"]["sha256"]==plan_sha256
                and actual["source"]["scripts/install/overlay583_trial/trial.py"]==worker,
                "Root authority, reviewed operands or trial binding differ")
@@ -403,7 +429,7 @@ class Controller:
         clone.unlink()
 
         packed = out/"input-tree"
-        manifest = input_tree(staging,worker,worker_pin,plan,packed)
+        manifest = input_tree(staging,worker,worker_pin,plan,packed,predecessor=self.paths.get("predecessor"))
         inputs = self.filesystem("inputs","OV583_INPUT",INPUT_SIZE,nonce,deadline,packed)
         verify_input(self.reader,inputs,manifest)
         shutil.rmtree(packed)
@@ -419,11 +445,12 @@ class Controller:
         self.require_absent_twice(nonce)
         selected_plan = T.decode(plan)
         held = not serial_pass(T.read(out/"qemu.stdout",cap=1<<20),nonce,
-                               lifecycle=selected_plan.get("lifecycle") is True)
+                               lifecycle=selected_plan.get("lifecycle") is True or selected_plan.get("kind")==T.UPGRADE_KIND)
         for name,ref in before.items():
             T.read(out/name,ref,cap=INPUT_SIZE,collect=False)
         pinned(stock,REFERENCES["baseline"])
-        T.need(source_pins()==self.authority["source"] and tool_pins()==self.authority["tools"],
+        T.need(source_pins(upgrade="predecessor" in self.authority)==self.authority["source"]
+               and tool_pins()==self.authority["tools"],
                "Reviewed source or tool bytes changed during the trial")
         self.command("fsck-result-readback","e2fsck",["-fn",result],60,time.monotonic()+70)
         evidence = out/"evidence"
@@ -457,6 +484,8 @@ def main():
         bind.add_argument("--"+key,required=True)
     bind.add_argument("--lifecycle",action="store_true")
     bind.add_argument("--signature-recovery",action="store_true")
+    bind.add_argument("--predecessor")
+    bind.add_argument("--predecessor-sha256")
     run = sub.add_parser("run")
     run.add_argument("--authority",required=True)
     run.add_argument("--authority-sha256",required=True)
@@ -471,7 +500,8 @@ def main():
     value = T.run_owned(actor,staging=actor.paths["staging"],preflight=actor.paths["preflight"],
                         preflight_pin=authority["preflight"],nonce=authority["nonce"],selection=authority,
                         lifecycle=authority.get("lifecycle") is True,
-                        signature_recovery=authority.get("signature_recovery") is True)
+                        signature_recovery=authority.get("signature_recovery") is True,
+                        predecessor=actor.paths.get("predecessor"),predecessor_pin=authority.get("predecessor"))
     T.need(load_authority(args["authority"],args["authority_sha256"])==authority,
            "Root authority changed during the trial")
     value.update(emulation="QEMU_TCG_AARCH64_16K",nonce=authority["nonce"],
@@ -479,7 +509,7 @@ def main():
                  qemu_receipt=T.read(actor.out/"qemu.json",cap=128<<10,collect=False),
                  serial=T.read(actor.out/"qemu.stdout",cap=1<<20,collect=False),
                  result_disk=T.read(actor.out/"result.raw",cap=RESULT_SIZE,collect=False))
-    held = value["status"]==T.LIFECYCLE_HOLD
+    held = value["status"] in (T.LIFECYCLE_HOLD,T.UPGRADE_HOLD)
     if not held:
         (actor.out/"scratch.raw").unlink()
     with (actor.out/"report.json").open("xb") as stream:
