@@ -44,9 +44,10 @@ TEST certificate expires at epoch 1795065286. The bootstrap window must
 finish before that expiry.
 
 The workflow supplies `QT612_ACTIONS_READ_TOKEN` to the Root scope for
-the one archived log read for job 134591565463. The adapter validates the
-whole log before extraction and follows its one signed archive redirect
-without forwarding the token. The lookup of the current attempt's numeric
+the one archived log read for job 134591565463. Root removes the opaque
+credential from its environment before staging helpers and uses it only on
+the pinned GitHub API request. The adapter validates the whole log before
+extraction and follows its one signed archive redirect without a credential. The lookup of the current attempt's numeric
 job ID is a separate credential-free metadata read. Root stages the exact
 two frozen parent locks from the independently selected workflow checkout,
 using the runtime Source's `stage_helpers` reader before importing tools.
