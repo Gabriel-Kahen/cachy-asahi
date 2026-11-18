@@ -8,7 +8,9 @@ No exact base snapshot or compatible version set has been accepted. Capture the 
 python3 scripts/hardware/capture-baseline.py --operator NAME --execution-context physical --require-m2-air --output artifacts/baselines/m2-before.json
 ```
 
-The collector queries installed package versions, local repository database hashes, kernel, page size, device-tree identity, Hyprland and audio status. It does not install anything, change services, exercise audio, suspend, or validate hardware. Output is created exclusively; choose a new filename for each run. Review logs before sharing them: desktop/audio status may include application names. Failed queries remain explicit in JSON.
+The collector queries installed package versions, local repository database hashes, kernel, page size, device-tree identity, Hyprland and audio status. Run it as the normal desktop user so the optional probes can find that user's local session sockets. The collector does not install anything, change services, exercise audio, suspend, or validate hardware.
+
+Use a new `--output` filename on a path with no symbolic links. The collector creates the raw report with mode 0600 and any missing directories with private permissions. Review reports before sharing them because desktop and audio status may include application names. Unavailable and failed probes remain explicit in JSON.
 
 Record recovery prerequisites and the full machine/version record from `docs/hardware-validation.md` alongside the JSON. Save actual base repository/package artifacts separately: database hashes do not preserve downloadable versions. Record firmware and boot integration versions from installed packages and supplement omissions manually. Firmware contents and device serial numbers are not collected.
 
