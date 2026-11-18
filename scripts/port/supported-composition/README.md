@@ -309,3 +309,29 @@ First Login and Setup matched their retained project originals and source
 inputs. The other 365 package rows carry recipe digests only. A successful
 index retains the composition verdict and leaves corresponding-source
 fulfillment, license review, and production approval open.
+
+### Join exact recipe history offline
+
+`join_signed_recipe_history.py` checks retained, commit-specific GitHub
+Contents or Arch GitLab Repository Files responses against the index. The v1
+config has kind `supported-Asahi-signed-recipe-history-DATA`,
+`schema_version: 1`, an `index` reference, and `candidates`. Each candidate
+supplies the `package`, `repository`, full `commit`, `path` of its
+`PKGBUILD`, and a `file_response` reference. References use absolute
+`path/size/sha256` pins. The join verifies the returned Git blob bytes and
+compares their SHA-256 with the package's signed recipe digest.
+
+```sh
+history_result="$(mktemp -d)/recipe-history.json"
+python3 -I -B scripts/port/supported-composition/join_signed_recipe_history.py \
+  --config "$recipe_history_config" --config-sha256 "$recipe_history_config_sha256" \
+  --output "$history_result" &&
+  jq '{counts, corresponding_source_delivery}' "$history_result"
+```
+
+The retained run found three new exact vendor `PKGBUILD` matches in
+`asahi-alarm/PKGBUILDs`. They cover `asahi-audio 4.1-1` at `07c5fd03`,
+`asahi-desktop-meta 4-10` at `c1362b9b`, and `bankstown 1.1.0-2` at
+`79c52a53`. It reconfirmed the First Login project recipe and recorded 11
+candidate snapshots with different digests. The join leaves corresponding
+source delivery and release approval open.
