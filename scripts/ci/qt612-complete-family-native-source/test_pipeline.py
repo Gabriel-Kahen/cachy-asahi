@@ -218,7 +218,7 @@ class Controls(unittest.TestCase):
                 return result
         return ModelExecutor(),events
 
-    def drive(self,executor):
+    def drive(self,executor,**options):
         out=self.root/'out';out.mkdir();(out/'build-1').mkdir();(out/'build-1/build.log').write_bytes(b'MODEL log\n')
         (out/'build-2').mkdir()
         (out/'build-1/provenance.json').write_bytes(b'MODEL one')
@@ -228,7 +228,7 @@ class Controls(unittest.TestCase):
             artifacts=out/attempt/'artifacts';artifacts.mkdir()
             (artifacts/name).write_bytes(b'MODEL archive')
         return N._drive_stage(self.model_plan(),executor,source=self.root/'source',source_map_sha256='0'*64,
-            output=out,work=self.root/'work',failure_output=self.root/'failure')
+            output=out,work=self.root/'work',failure_output=self.root/'failure',**options)
 
     def test_model_stage_orders_absence_before_second_attempt(self):
         executor,events=self.executor();result=self.drive(executor)
@@ -236,6 +236,14 @@ class Controls(unittest.TestCase):
         builds=[i for i,x in enumerate(events) if x=='MODEL_BUILD']
         self.assertTrue(any(x.startswith('absent:') for x in events[builds[0]+1:builds[1]]))
         self.assertLess(events.index('MODEL_COMPARE'),events.index('qualify'));self.assertLess(events.index('qualify'),events.index('lifecycle'))
+
+    def test_explicit_pair_only_requires_qualifier_and_skips_installation(self):
+        executor,events=self.executor();executor.lifecycle=None
+        result=self.drive(executor,pair_only=True)
+        self.assertEqual(result['status'],N.PAIR_ONLY_STATUS)
+        self.assertEqual(result['lifecycle_status'],'NOT_RUN')
+        self.assertIsNone(result['lifecycle']);self.assertIsNone(result['native_acceptance'])
+        self.assertIn('qualify',events);self.assertNotIn('lifecycle',events)
 
     def test_failure_export_precedes_caller_cleanup_and_preserves_primary(self):
         executor,events=self.executor(fail=True)
