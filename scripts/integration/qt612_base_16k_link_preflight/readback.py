@@ -25,6 +25,11 @@ KIB, MIB, GIB = 1 << 10, 1 << 20, 1 << 30
 RESULT_BYTES = 64 * MIB
 ELF_NAME = "libQt6Core.so.6.12.0"
 SONAME = "libQt6Core.so.6"
+CORE_INTERPRETER = "/lib/ld-linux-aarch64.so.1"
+CORE_ENTRY_SYMBOL = b"qt_core_boilerplate\0"
+PROGRAM_HEADER = struct.Struct("<II6Q")
+SECTION_HEADER = struct.Struct("<II4QII2Q")
+SYMBOL = struct.Struct("<IBBHQQ")
 GUEST_BUILD_SECONDS = 6900
 CORE_COMMANDS = (671480, "1836d53ff5aa42d6d115b8c5301938ccccdd8e3d1fffc29e52d524e44a701769")
 INVENTORY = (6925, "e2a4da7903e6de26b0ee37758ad424439f83196fa6a3b0bdffa501f35a02d0b9")
@@ -194,18 +199,74 @@ def serial_state(body, nonce):
     return status, phase
 
 
+def verify_core_entry(body, interpreter, segments):
+    """Verify the entry point of QtCore's intentionally executable shared library."""
+    if interpreter is None:
+        return
+    need(interpreter == CORE_INTERPRETER, "Unexpected QtCore ELF interpreter")
+    entry = struct.unpack_from("<Q", body, 24)[0]
+    need(entry > 0 and entry % 4 == 0, "Expected aligned AArch64 QtCore entry point")
+    (_, interp_flags, interp_offset, interp_address, _, interp_size, interp_mem, _), = (
+        segment for segment in segments if segment[0] == 3)
+    loads = [segment for segment in segments if segment[0] == 1]
+
+    def mapped_offset(address, size, flags):
+        matches = [(actual, offset + address - virtual) for _, actual, offset, virtual, _, extent, _, _ in loads
+                   if size > 0 and virtual <= address and address + size <= virtual + extent]
+        need(len(matches) == 1 and matches[0][0] & flags == flags,
+             "QtCore entry metadata outside one file-backed segment with the required permissions")
+        return matches[0][1]
+
+    need(interp_flags == 4 and interp_size == interp_mem
+         and mapped_offset(interp_address, interp_size, 4) == interp_offset,
+         "QtCore interpreter must be read-only and file-backed")
+
+    start = struct.unpack_from("<Q", body, 40)[0]
+    entry_size, count = struct.unpack_from("<HH", body, 58)
+    need(entry_size == SECTION_HEADER.size and 1 <= count <= 4096 and start >= 64
+         and start + entry_size * count <= len(body), "Bounded QtCore ELF section headers required")
+    sections = [SECTION_HEADER.unpack_from(body, start + i * entry_size) for i in range(count)]
+    tables = [row for row in sections if row[1] == 2]
+    need(len(tables) == 1, "Exactly one QtCore static symbol table required")
+    _, _, _, _, offset, size, str_index, local_count, _, symbol_size = tables[0]
+    need(symbol_size == SYMBOL.size and size % SYMBOL.size == 0
+         and 1 < local_count <= size // SYMBOL.size <= 1 << 20 and 0 < str_index < count
+         and offset >= 64 and offset + size <= len(body),
+         "Bounded QtCore static symbol table required")
+    _, kind, _, _, str_offset, str_size, *_ = sections[str_index]
+    need(kind == 3 and str_offset >= 64 and 0 < str_size <= len(body) - str_offset
+         and (offset + size <= str_offset or str_offset + str_size <= offset)
+         and body[str_offset] == 0, "Bounded QtCore static string table required")
+    matches = []
+    for index, (name, info, other, section, address, length) in enumerate(
+            SYMBOL.iter_unpack(memoryview(body)[offset:offset + size])):
+        need(name < str_size, "QtCore symbol name outside string table")
+        name_end = name + len(CORE_ENTRY_SYMBOL)
+        if name_end <= str_size and body[str_offset + name:str_offset + name_end] == CORE_ENTRY_SYMBOL:
+            matches.append((index, info, other, section, address, length))
+    need(len(matches) == 1, "Exactly one QtCore qt_core_boilerplate symbol required")
+    index, info, other, section, address, length = matches[0]
+    need(0 < index < local_count and info == 2 and other == 0 and 0 < section < count
+         and address == entry and length > 0, "QtCore entry must select its local qt_core_boilerplate function")
+    _, kind, flags, virtual, file_at, extent, *_ = sections[section]
+    need(kind == 1 and flags & 7 == 6 and virtual <= entry and entry + length <= virtual + extent
+         and mapped_offset(entry, length, 1) == file_at + entry - virtual,
+         "QtCore entry function must reside in an executable file-backed section")
+
+
 def linked_core(body):
     checker = pinned_module("qtcore_family_elf_parser", CHECKER, CHECKER_PIN)
     dynamic = checker.elf_info(body)
     need(dynamic["type"] == 3 and dynamic["machine"] == 183 and dynamic["soname"] == SONAME
-         and dynamic["interpreter"] is None and dynamic["geometry_16k"] is True,
+         and dynamic["geometry_16k"] is True,
          "Expected an AArch64 QtCore shared ELF with the exact SONAME and 16 KiB load geometry")
     phoff = struct.unpack_from("<Q", body, 32)[0]
     phnum = struct.unpack_from("<H", body, 56)[0]
+    segments = [PROGRAM_HEADER.unpack_from(body, phoff + PROGRAM_HEADER.size * n) for n in range(phnum)]
     need(any(kind == 1 and flags & 1 and size != 0
-             for kind, flags, _, _, _, size, _, _ in
-             (struct.unpack_from("<II6Q", body, phoff + 56 * n) for n in range(phnum))),
+             for kind, flags, _, _, _, size, _, _ in segments),
          "QtCore shared ELF must contain an executable file-backed load segment")
+    verify_core_entry(body, dynamic["interpreter"], segments)
     return dict(bytes=pin(body), soname=dynamic["soname"], architecture="aarch64", type="ET_DYN",
                 geometry_16k=dynamic["geometry_16k"], load_segments=dynamic["load_segments"],
                 needed=dynamic["needed"])

@@ -30,7 +30,7 @@ unrun. [Portable rehearsal](../../scripts/integration/qt612_base_16k_rehearsal/R
 
 The separate r4 guest compiled the Markdown importer against the installed
 system md4c. The independent reader verified the resulting 79,240-byte
-AArch64 object and its executable relocation to `md_parse`. The next link
-checkpoint is QtCore, which requires 321 commands in the retained Ninja
-graph. [Importer result](../../scripts/integration/qt612_md4c_compile/README.md#historical-actual-validation),
-[QtCore link preflight](../../scripts/integration/qt612_base_16k_link_preflight/README.md)
+AArch64 object and its executable relocation to `md_parse`. The subsequent
+QtCore run completed its 321-command target in the same 356-package
+environment. [Importer result](../../scripts/integration/qt612_md4c_compile/README.md#historical-actual-validation)
+· [QtCore link result](qtbase612-emulated-arm16k-qtcore-link-20261118.md)

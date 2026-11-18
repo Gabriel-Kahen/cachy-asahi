@@ -130,6 +130,11 @@ reader runs with a process and socket fence. It verifies the original
 result ext4 and its exact files, including the build log, both 356-package
 snapshots, the real ELF64 AArch64 shared library, its SONAME and 16 KiB
 load geometry. It joins the observed symlink chain and bounded metrics.
+The pinned Q3 QtCore link sets `-Wl,-e,qt_core_boilerplate`. For the
+executable-library form, the reader verifies the exact AArch64 loader path
+and the local `qt_core_boilerplate` function at the ELF entry point in a
+file-backed executable section. QtGui's linkage reader applies this rule to
+its accepted QtCore dependency.
 
 ```sh
 python3 -I -B -Werror "$sealed/site.py" --handoff "$handoff" \

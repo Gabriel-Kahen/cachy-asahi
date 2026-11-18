@@ -4,11 +4,13 @@
 import hashlib
 from pathlib import Path
 import re
+from runpy import run_path
 import struct
 
 
 CHECKER = Path(__file__).resolve().parents[3] / "packages/port/qt612-gui-server-source-reference/check_stage.py"
 CHECKER_PIN = dict(bytes=22362, sha256="35f410bf60af41f677f7a36d58cc5079ecf57dfde2b84f29dc1b006a4bf7f0da")
+CORE_READER = Path(__file__).resolve().parents[1] / "qt612_base_16k_link_preflight/readback.py"
 MD4C_PATH = "/usr/lib/libmd4c.so.0.5.3"
 MD4C_PIN = dict(bytes=133128, sha256="d7754699fec7db8e53a7813547b4c1c0cfdde079ae09128401c379ec034bdef2")
 SONAMES = {"gui": "libQt6Gui.so.6", "core": "libQt6Core.so.6",
@@ -42,7 +44,7 @@ def elf_checker():
 
 def inspect_dso(role, body, checker):
     info = checker(body)
-    need(info["type"] == 3 and info["interpreter"] is None and info["soname"] == SONAMES[role]
+    need(info["type"] == 3 and (role == "core" or info["interpreter"] is None) and info["soname"] == SONAMES[role]
          and info["machine"] == 183 and info["geometry_16k"] is True,
          f"Exact AArch64 {role} shared ELF, SONAME and 16 KiB load geometry required")
     start = struct.unpack_from("<Q", body, 32)[0]
@@ -51,6 +53,8 @@ def inspect_dso(role, body, checker):
     need(any(kind == 1 and flags & 1 and file_size > 0
              for kind, flags, _, _, _, file_size, _, _ in segments),
          f"Expected executable {role} load segment")
+    if role == "core" and info["interpreter"] is not None:
+        run_path(str(CORE_READER))["verify_core_entry"](body, info["interpreter"], segments)
     need(len(info["needed"]) == len(set(info["needed"])), f"Duplicate {role} DT_NEEDED entry")
     return info, segments
 

@@ -4,6 +4,7 @@
 from copy import deepcopy
 import importlib.util
 from pathlib import Path
+from runpy import run_path
 import stat
 import struct
 import sys
@@ -45,6 +46,25 @@ def shared_elf(*, machine=183, kind=3, align=16384, permission=5, soname=R.SONAM
     for index, (tag, value) in enumerate(((5, 16384 + 768), (10, len(strings)),
                                           (14, 1), (1, len(soname) + 2), (0, 0))):
         struct.pack_into("<qQ", data, 384 + index * 16, tag, value)
+    return bytes(data)
+
+
+def executable_core_elf(*, soname=R.SONAME, interpreter=R.CORE_INTERPRETER):
+    data = bytearray(shared_elf(soname=soname)) + bytearray(4 * R.SECTION_HEADER.size)
+    entry = 16384 + 320
+    struct.pack_into("<Q", data, 24, entry)
+    struct.pack_into("<Q", data, 40, 1024)
+    struct.pack_into("<HHHH", data, 56, 3, R.SECTION_HEADER.size, 4, 0)
+    loader = interpreter.encode() + b"\0"
+    R.PROGRAM_HEADER.pack_into(data, 176, 3, 4, 256, 16384 + 256, 16384 + 256, len(loader), len(loader), 8)
+    data[256:256 + len(loader)] = loader
+    data[320:324] = b"\xc0\x03\x5f\xd6"  # AArch64 ret
+    strings = b"\0" + R.CORE_ENTRY_SYMBOL
+    data[864:864 + len(strings)] = strings
+    R.SYMBOL.pack_into(data, 800 + R.SYMBOL.size, 1, 2, 0, 1, entry, 4)
+    R.SECTION_HEADER.pack_into(data, 1088, 0, 1, 6, entry, 320, 4, 0, 0, 4, 0)
+    R.SECTION_HEADER.pack_into(data, 1152, 0, 2, 0, 0, 800, 2 * R.SYMBOL.size, 3, 2, 8, R.SYMBOL.size)
+    R.SECTION_HEADER.pack_into(data, 1216, 0, 3, 0, 0, 864, len(strings), 0, 0, 1, 0)
     return bytes(data)
 
 
@@ -180,6 +200,37 @@ class ReaderControls(unittest.TestCase):
                         dict(permission=4), dict(soname="libQt6Gui.so.6")):
             with self.subTest(changes=changes), self.assertRaises(ValueError):
                 R.linked_core(shared_elf(**changes))
+
+    def test_executable_core_requires_exact_interpreter_and_entry_custody(self):
+        body = executable_core_elf()
+        self.assertEqual(R.linked_core(body)["bytes"], R.pin(body))
+        with self.assertRaisesRegex(ValueError, "Unexpected QtCore ELF interpreter"):
+            R.linked_core(executable_core_elf(interpreter="/tmp/ld-linux-aarch64.so.1"))
+        for offset, form, value, diagnostic in (
+            (24, "<Q", 0, "aligned AArch64 QtCore entry"),
+            (24, "<Q", 16384 + 324, "local qt_core_boilerplate function"),
+            (176 + 16, "<Q", 16384 + 257, "interpreter must be read-only and file-backed"),
+            (800 + R.SYMBOL.size + 4, "<B", 0x12, "local qt_core_boilerplate function"),
+            (865, "<B", ord("x"), "Exactly one QtCore qt_core_boilerplate symbol"),
+            (1088 + 8, "<Q", 2, "executable file-backed section"),
+            (1152 + 4, "<I", 0, "Exactly one QtCore static symbol table"),
+        ):
+            changed = bytearray(body)
+            struct.pack_into(form, changed, offset, value)
+            with self.subTest(offset=offset), self.assertRaisesRegex(ValueError, diagnostic):
+                R.linked_core(changed)
+
+    def test_gui_link_reader_reuses_policy_only_for_accepted_core_provider(self):
+        gui_reader = run_path(str(R.HERE.parent / "qt612_gui_16k_link_checkpoint/elf_readback.py"))
+        checker = gui_reader["elf_checker"]()
+        inspect = gui_reader["inspect_dso"]
+        info, _ = inspect("core", executable_core_elf(), checker)
+        self.assertEqual(info["interpreter"], R.CORE_INTERPRETER)
+        with self.assertRaisesRegex(ValueError, "Unexpected QtCore ELF interpreter"):
+            inspect("core", executable_core_elf(interpreter="/tmp/ld-linux-aarch64.so.1"), checker)
+        for role in ("gui", "dbus", "md4c"):
+            with self.subTest(role=role), self.assertRaisesRegex(ValueError, "shared ELF"):
+                inspect(role, executable_core_elf(soname=gui_reader["SONAMES"][role]), checker)
 
     def test_guest_pass_joins_exact_graph_inventory_binary_aliases_and_metrics(self):
         commands = b"model Ninja commands\n"
