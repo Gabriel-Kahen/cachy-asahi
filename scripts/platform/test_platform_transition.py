@@ -93,6 +93,8 @@ class TransitionTests(unittest.TestCase):
         self.row(self.before, 'consumer')['DEPENDS'] = ['mesa>=1']
         self.after = copy.deepcopy(self.before)
         self.cache = {}
+        self.kernel_release = '7.1.13-3-2-ARCH'
+        self.kernel_bytes = b'SYNTHETIC retained linux-asahi kernel\n'
 
     def row(self, rows, name):
         return next(r for r in rows if r['NAME'] == [name])
@@ -117,6 +119,11 @@ class TransitionTests(unittest.TestCase):
                     data = ''.join(f'{field} = {v}\n' for field, k in fields for v in metadata.get(k, [])).encode()
                     member = tarfile.TarInfo('.PKGINFO');member.size = len(data)
                     archive.addfile(member, io.BytesIO(data))
+                    if name == 'linux-asahi':
+                        for suffix, raw in (('pkgbase', b'linux-asahi\n'), ('vmlinuz', self.kernel_bytes)):
+                            member = tarfile.TarInfo(f'usr/lib/modules/{self.kernel_release}/{suffix}')
+                            member.size = len(raw)
+                            archive.addfile(member, io.BytesIO(raw))
                 ref = self.save(f'{name}-{version}-{key[:8]}.pkg.tar.xz', stream.getvalue())
                 sig = self.save(Path(ref['path']).name + '.sig', b'SYNTHETIC-signature-NOT-crypto')
                 self.cache[key] = ref, sig
@@ -147,7 +154,9 @@ class TransitionTests(unittest.TestCase):
         policy = self.save('policy.json', {'schema_version': 1, 'kind': 'coordinated-platform-version-policy',
                                           'before_release': left, 'candidate_release': right, 'coordinated_sets': [group]})
         assets = self.save('assets.json', {'schema_version': 1, 'for_inventory': left['inventory'],
-                                          'assets': [{'role': role, 'artifact': self.save(role, b'synthetic baseline asset')}
+                                          'assets': [{'role': role, 'artifact': self.save(role, {
+                                              'kernel': self.kernel_bytes, 'kernel-release': (self.kernel_release+'\n').encode(),
+                                          }.get(role, b'synthetic baseline asset'))}
                                                      for role in sorted(p.preflight.BOOT_ROLES | p.preflight.CONFIG_ROLES)]})
         return {'schema_version': 1, 'before_release': left, 'candidate_release': right,
                 'protected_tuple': tuple_ref, 'coordinated_policy': policy, 'retained_recovery_assets': assets}
@@ -173,6 +182,41 @@ class TransitionTests(unittest.TestCase):
         self.assertTrue(report['software_data_bound'])
         self.assertEqual([(r['name'], r['change']) for r in report['changes']], [('mesa', 'upgraded')])
         self.assertIn('consumer', [r['name'] for r in report['dependency_impact']['unchanged_dependents']])
+
+    def test_boot_change_requires_a_matching_before_archive_member(self):
+        self.row(self.after, 'linux-asahi')['VERSION'] = ['2-1']
+        contract = self.contract()
+        report = p.run(contract)
+        self.assertTrue(report['software_data_bound'])
+        fallback = report['baseline_kernel_fallback']
+        self.assertEqual(fallback['member'], f'usr/lib/modules/{self.kernel_release}/vmlinuz')
+        self.assertEqual(fallback['version'], '1-1')
+        self.assertEqual(fallback['sha256'], hashlib.sha256(self.kernel_bytes).hexdigest())
+        self.assertEqual(fallback['archive_sha256'],
+                         report['archive_provenance_joins']['before']['linux-asahi']['archive']['sha256'])
+        self.assertFalse(report['recovery_accepted'])
+        self.assertIn('scripts/platform/installed_payload_correspondence.py', report['source_sha256'])
+
+    def test_other_boot_stack_change_holds_a_repinned_unrelated_image(self):
+        self.row(self.after, 'm1n1')['VERSION'] = ['2-1']
+        contract = self.contract()
+        self.rewrite(contract, 'retained_recovery_assets', lambda doc: next(
+            row for row in doc['assets'] if row['role'] == 'kernel').update(artifact=self.save('kernel', self.kernel_bytes[:-1] + b'X')))
+        report = p.run(contract)
+        self.assertFalse(report['software_data_bound'])
+        self.assertIn('retained-kernel-fallback-mismatch', self.codes(report))
+        self.assertNotIn('baseline_kernel_fallback', report)
+
+    def test_boot_change_holds_a_foreign_or_unsafe_module_release(self):
+        self.row(self.after, 'linux-asahi')['VERSION'] = ['2-1']
+        for release, want in (('7.1.13-generic16k-managed-gui', 'retained-kernel-release-not-in-before-archive'),
+                              ('../7.1.13-3-2-ARCH', 'retained-kernel-release-invalid')):
+            with self.subTest(release=release):
+                contract = self.contract()
+                self.rewrite(contract, 'retained_recovery_assets', lambda doc: next(
+                    row for row in doc['assets'] if row['role'] == 'kernel-release').update(
+                        artifact=self.save('kernel-release', (release+'\n').encode())))
+                self.assertIn(want, self.codes(p.run(contract)))
 
     def test_incompatible_dependency(self):
         self.row(self.after, 'consumer')['DEPENDS'] = ['mesa>=3']

@@ -11,6 +11,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -40,6 +41,11 @@ preflight = module('transition_preflight', ROOT / 'scripts/platform/recovery_pre
 comparison = module('transition_comparison', ROOT / 'scripts/release/compare_releases.py')
 audit, recovery, need = preflight.audit, preflight.recovery, preflight.need
 MAX_ROWS, MAX_SECONDS, MAX_ARCHIVE_BYTES = 4096, 120, 512 * 1024**2
+# The retained linux-asahi vmlinuz exceeds the ordinary 32 MiB asset cap.
+MAX_KERNEL_ASSET_BYTES = 64 * recovery.MIB
+KERNEL_RELEASE = re.compile(r'[A-Za-z0-9][A-Za-z0-9._+-]{0,127}\Z')
+BOOT_CHANGES = set(audit.BOOT) | {'linux-firmware', 'mkinitcpio'}
+PAYLOAD_READER = ROOT / 'scripts/platform/installed_payload_correspondence.py'
 
 
 def document(ref):
@@ -83,6 +89,38 @@ def inspect(ref, metadata, remaining):
     need(child.returncode == 0 and child.stdout == b'OK\n' and not child.stderr,
          'archive metadata inspection refused: ' + metadata['NAME'][0])
 
+
+
+def read_kernel_member(ref, metadata, release, remaining):
+    """Re-read the archive with the existing bounded, no-follow payload reader."""
+    need(remaining > 0 and KERNEL_RELEASE.fullmatch(release), 'kernel fallback inspection input/deadline refused')
+    request = json.dumps({'archive': ref, 'metadata': metadata, 'release': release}).encode()
+    try:
+        child = subprocess.run([sys.executable, '-B', str(Path(__file__).resolve()), '--kernel-fallback'],
+                               input=request, capture_output=True, timeout=min(30, remaining), check=False)
+    except subprocess.TimeoutExpired:
+        raise ValueError('kernel fallback archive inspection deadline exceeded') from None
+    need(child.returncode == 0 and len(child.stdout) <= 1024 and not child.stderr,
+         'bounded before-kernel archive inspection refused')
+    return audit.load_json(child.stdout)
+
+
+def kernel_member(ref, metadata, release):
+    need(KERNEL_RELEASE.fullmatch(release), 'kernel release path refused')
+    path = Path(ref['path'])
+    payload = module('transition_installed_payload', PAYLOAD_READER)
+    name, version, arch = identity(metadata)
+    need((name, arch) == ('linux-asahi', 'aarch64'), 'exact AArch64 linux-asahi package identity required')
+    entries = payload.archive_nodes(dict(ref, identity=payload.identity(path.lstat())),
+                                    dict(name=name, version=version, arch=arch),
+                                    payload.Budget(time.monotonic() + 25))
+    source = f'usr/lib/modules/{release}'
+    pkgbase = entries.get(source + '/pkgbase', {})
+    kernel = entries.get(source + '/vmlinuz', {})
+    if (pkgbase.get('type') != 'file' or pkgbase.get('sha256') != hashlib.sha256(b'linux-asahi\n').hexdigest()
+            or kernel.get('type') != 'file'):
+        return {}
+    return dict(member=source + '/vmlinuz', size=kernel['bytes'], sha256=kernel['sha256'])
 
 def consumer_impact(before, after, remaining):
     need(remaining > 0, 'transition deadline exceeded')
@@ -277,14 +315,39 @@ def run(contract):
     need(set(assets) == {'schema_version', 'for_inventory', 'assets'} and type(assets['schema_version']) is int
          and assets['schema_version'] == 1 and assets['for_inventory'] == left['inventory']
          and isinstance(assets['assets'], list) and len(assets['assets']) <= 64, 'recovery asset/baseline binding refused')
-    roles, required_roles = set(), preflight.BOOT_ROLES | preflight.CONFIG_ROLES
+    roles, required_roles = {}, preflight.BOOT_ROLES | preflight.CONFIG_ROLES
+    kernel_release = None
     for asset in assets['assets']:
         need(set(asset) == {'role', 'artifact'} and asset['role'] in required_roles and asset['role'] not in roles,
              'duplicate/unknown recovery asset role')
-        roles.add(asset['role'])
-        recovery.auth.bound_bytes(asset['artifact'], 32 * recovery.MIB)
-    for role in sorted(required_roles - roles):
+        role = asset['role']
+        roles[role] = asset['artifact']
+        maximum = MAX_KERNEL_ASSET_BYTES if role == 'kernel' else 32 * recovery.MIB
+        raw = recovery.auth.bound_bytes(asset['artifact'], maximum)
+        if role == 'kernel-release' and len(raw) <= 129:
+            kernel_release = raw.decode('ascii', errors='replace').removesuffix('\n')
+    for role in sorted(required_roles - roles.keys()):
         blocked('retained-recovery-asset-missing', 'Retain the exact baseline artifact and exercise its restoration.', role=role)
+    fallback, fallback_sources = {}, ()
+    boot_changed = sorted(BOOT_CHANGES & {row['name'] for row in changes})
+    if boot_changed and {'kernel', 'kernel-release'} <= roles.keys() and 'linux-asahi' in old_archives:
+        baseline_kernel = before['linux-asahi']
+        if baseline_kernel['ARCH'] != ['aarch64'] or not kernel_release or not KERNEL_RELEASE.fullmatch(kernel_release):
+            blocked('retained-kernel-release-invalid', 'Supply the exact AArch64 linux-asahi fallback and its module release.',
+                    packages=boot_changed)
+        else:
+            archive = old_archives['linux-asahi']['archive']
+            member = read_kernel_member(archive, baseline_kernel, kernel_release, MAX_SECONDS - (time.monotonic() - started))
+            fallback_sources = (PAYLOAD_READER,)
+            if not member:
+                blocked('retained-kernel-release-not-in-before-archive', 'Select a release with a regular linux-asahi pkgbase and vmlinuz in the retained before archive.',
+                        kernel_release=kernel_release, packages=boot_changed)
+            elif any(member[key] != roles['kernel'][key] for key in ('size', 'sha256')):
+                blocked('retained-kernel-fallback-mismatch', 'Retain the exact vmlinuz from the selected before linux-asahi release.',
+                        kernel_release=kernel_release, packages=boot_changed)
+            else:
+                fallback = {'baseline_kernel_fallback': dict(member, kernel_release=kernel_release,
+                            version=baseline_kernel['VERSION'][0], archive_sha256=archive['sha256'])}
     # Missing evidence is unknown, not proof that a package's bytes changed.
     comparable = set(old_archives) & set(new_archives)
     impact = consumer_impact(as_release(before, {n: old_archives[n] for n in comparable}),
@@ -296,13 +359,13 @@ def run(contract):
             'input_references': contract, 'conditions': conditions, 'changes': changes,
             'source_sha256': {str(path.relative_to(ROOT)): recovery.auth.hash_file(path) for path in
                               (Path(__file__).resolve(), Path(transaction.__file__), Path(preflight.__file__),
-                               Path(audit.__file__), Path(recovery.__file__), Path(comparison.__file__))},
+                               Path(audit.__file__), Path(recovery.__file__), Path(comparison.__file__), *fallback_sources)},
             'dependency_assessment': dependencies, 'dependency_impact': impact,
             'added_package_dependencies': [row for row in audit.requirements(after, after, versions)
                                            if row['package'] not in before],
             'protected_package_count': len(protected),
             'archive_provenance_joins': {'before': old_archives, 'candidate': new_archives},
-            'retained_recovery_assets': assets['assets'], 'archive_bytes_rehashed': sum(cache.values()),
+            'retained_recovery_assets': assets['assets'], 'archive_bytes_rehashed': sum(cache.values()), **fallback,
             'software_data_bound': not conditions, 'system_mutation': False,
             'transaction_prepared': False, 'dependency_transaction_accepted': False,
             'fresh_signature_verification': False, 'independent_owner_trust_accepted': False,
@@ -336,7 +399,7 @@ def main():
 
 
 if __name__ == '__main__':
-    if sys.argv[1:] in (['--inspect'], ['--impact']):
+    if sys.argv[1:] in (['--inspect'], ['--impact'], ['--kernel-fallback']):
         import resource
         resource.setrlimit(resource.RLIMIT_AS, (512 * recovery.MIB, 512 * recovery.MIB))
         resource.setrlimit(resource.RLIMIT_CPU, (15, 15))
@@ -351,6 +414,9 @@ if __name__ == '__main__':
                 sys.stdout.buffer.write(data)
                 raise SystemExit(0)
             ref, metadata = request['archive'], request['metadata']
+            if sys.argv[1:] == ['--kernel-fallback']:
+                print(json.dumps(kernel_member(ref, metadata, request['release']), sort_keys=True))
+                raise SystemExit(0)
             recovery.auth.bound_bytes(ref, 300_000_000)
             selected = recovery.auth.pkginfo(Path(ref['path']))
             audit.verify_pkginfo({metadata['NAME'][0]: {'metadata': metadata, 'archive': ref}},

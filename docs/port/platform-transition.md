@@ -123,11 +123,26 @@ Recovery assets bind the before inventory:
 ]}
 ```
 
-All supplied assets are rehashed; missing roles become concrete next actions.
-The planner cannot determine completeness or restore a machine from these bytes.
-Use `target_snapshot.py` and the appropriate exact-target preflight separately
-for target/runtime identity; keep 13-inch `apple,j413` and 15-inch `apple,j415`
-physical evidence separate.
+The planner rehashes every supplied asset and reports missing roles. The
+`kernel` asset has a 64 MiB limit. Each other recovery asset has a 32 MiB limit.
+The larger kernel limit accommodates the retained 35,834,368-byte Asahi kernel.
+See the [retained kernel correspondence](../../scripts/platform/kernel-correspondence.json).
+
+For changes to `linux-asahi`, `m1n1`, `uboot-asahi`, `asahi-scripts`,
+`asahi-fwextract`, `linux-firmware` or `mkinitcpio`, the planner checks the
+claimed fallback against the exact **before** AArch64 `linux-asahi` archive in
+the archive index. The release token in `kernel-release` selects
+`usr/lib/modules/<release>/` inside that archive. The folder must contain a
+regular `pkgbase` with the exact `linux-asahi` line and a regular `vmlinuz`.
+The retained `kernel` must match that `vmlinuz` in size and SHA-256. A release
+from another kernel or a substituted image blocks the plan. A successful match
+is recorded as `baseline_kernel_fallback` with the before package version,
+archive digest, release, member path and matched file size and hash.
+
+This is a byte custody check. Use `target_snapshot.py` and the appropriate
+exact-target preflight to establish the running kernel identity. Test actual
+boot and recovery on each supported model and keep 13-inch `apple,j413` and
+15-inch `apple,j415` evidence separate.
 
 ## Run and interpret
 
@@ -152,8 +167,15 @@ bytecode-cache prefix, matching `prepare_transition.py`. Python [`-B`](https://d
 cache writes but does not prevent reads; checkout-adjacent or inherited stale
 PYC files must not replace the source whose hashes the report records. Workers
 inherit the private [`sys.pycache_prefix`](https://docs.python.org/3.14/library/sys.html#sys.pycache_prefix), and each planner process removes its own scratch
-directory on normal exit. Public arguments, report schema, policy decisions and
-all acceptance boundaries are unchanged.
+directory on normal exit. When the kernel fallback worker inspects the before
+archive, `source_sha256` also records
+`scripts/platform/installed_payload_correspondence.py`. The current private
+prepare source closure includes that reader among its 17 pinned files. Follow
+the [current private preparation guide](private-platform-transition-prepare.md)
+for the closure. The versioned `cachy-asahi-platform-tools 0.1.0-1` runtime and
+native lifecycle contract describe the earlier 16-file payload. Delivering
+this guard in a package requires a versioned successor with its own pins and
+validation.
 
 Dependency witnesses retain every matching provider. Consumer impact reuses
 `compare_releases.dependency_impact`; added-only package dependencies are reported
@@ -167,6 +189,8 @@ Resource bounds: 4096 inventory/index rows, existing 20MiB document reader,
 64MiB unique provenance documents, 512MiB unique archive/signature bytes, 300MB
 per archive, 64KiB per signature, 8,000,000 witness scan work estimate: (dependencies + conflicts) × (packages + provides),
 120-second aggregate assessment, and 20-second/15-CPU-second/512MiB archive
-children. Consumer impact runs in a separate 30-second/15-CPU-second/512MiB
+metadata children. Kernel fallback inspection uses a separate worker with up
+to 30 seconds wall time, 15 CPU seconds and 512 MiB address space. Consumer
+impact runs in a separate 30-second/15-CPU-second/512MiB
 child with 8MiB request/response limits. The existing comparison graph adds independent finite edge/work/path
 bounds. No bound implies the inputs are trusted.
