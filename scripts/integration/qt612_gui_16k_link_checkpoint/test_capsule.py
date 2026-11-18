@@ -4,6 +4,7 @@
 import hashlib
 from pathlib import Path
 from runpy import run_path
+import stat
 import struct
 import sys
 from tempfile import TemporaryDirectory
@@ -20,17 +21,22 @@ def no_actor(event, args):
     if event.startswith(("socket.", "os.exec", "os.posix_spawn", "os.system")):
         raise AssertionError("Network or actor operation in capsule model: " + event)
     if event == "subprocess.Popen":
-        path = Path(args[0])
-        if path not in {Path("/usr/bin") / name for name in ("debugfs", "mke2fs", "e2fsck")}:
-            raise AssertionError("No actor or runtime command in capsule model: " + str(path))
+        if args[0] not in {str(directory / name) for directory in P.FORMAT_TOOL_DIRS for name in P.FORMAT_TOOLS}:
+            raise AssertionError("No actor or runtime command in capsule model: " + str(args[0]))
 
 
 sys.addaudithook(no_actor)
 
 
 def fs_profile():
-    return {name: dict(path=str(path), **C.pin(path.read_bytes()))
-            for name in P.FORMAT_TOOLS if (path := Path("/usr/bin") / name).is_file()}
+    profile = {}
+    for name in sorted(P.FORMAT_TOOLS):
+        paths = (directory / name for directory in P.FORMAT_TOOL_DIRS)
+        path = next((path for path in paths if path.is_file() and path.resolve() == path), None)
+        if path is None:
+            raise AssertionError(f"Missing canonical e2fsprogs executable: {name}")
+        profile[name] = dict(path=str(path), **C.pin(path.read_bytes()))
+    return profile
 
 
 def copy_model_extent(source, target, *, start=0, count, destination=0, existing=False):
@@ -50,6 +56,31 @@ def copy_model_extent(source, target, *, start=0, count, destination=0, existing
 
 
 class CapsuleTests(unittest.TestCase):
+    def test_host_preparation_tools_accept_canonical_sbin_only(self):
+        noble = {Path("/usr/sbin") / name for name in P.FORMAT_TOOLS}
+        with patch.object(Path, "is_file", lambda path: path in noble), \
+             patch.object(Path, "resolve", lambda path: path), \
+             patch.object(Path, "read_bytes", lambda path: path.name.encode()):
+            profile = fs_profile()
+        self.assertEqual({Path(ref["path"]) for ref in profile.values()}, noble)
+
+        trial = run_path(str(P.REPO / "scripts/install/overlay583_trial/trial.py"))
+        tool = SimpleNamespace(st_dev=1, st_ino=2, st_mode=stat.S_IFREG | 0o755, st_uid=0, st_gid=0,
+                               st_nlink=1, st_size=7, st_atime_ns=0, st_mtime_ns=0, st_ctime_ns=0)
+        config = SimpleNamespace(T=SimpleNamespace(ordinary=trial["ordinary"], read=lambda *args, **kwargs: None),
+                                 pin_ref=lambda ref: {key: ref[key] for key in ("bytes", "sha256")})
+        with patch.object(Path, "resolve", lambda path: path), \
+             patch.object(Path, "is_symlink", lambda path: False), \
+             patch.object(Path, "lstat", return_value=tool), patch.object(config.T, "read") as read:
+            P.Formatting(config, profile)
+            self.assertEqual({call.args[0] for call in read.call_args_list}, noble)
+            for alias in ("/sbin/debugfs", "/usr/sbin//debugfs", "/usr/sbin/dumpe2fs", "/tmp/debugfs"):
+                with self.subTest(alias=alias), self.assertRaisesRegex(ValueError, "Exact local filesystem"):
+                    P.Formatting(config, profile | {"debugfs": profile["debugfs"] | {"path": alias}})
+        with patch.object(Path, "resolve", lambda path: Path("/usr/bin") / path.name):
+            with self.assertRaisesRegex(ValueError, "Canonical ordinary absolute path"):
+                P.Formatting(config, profile)
+
     def test_descriptor_requires_independent_input_digests(self):
         with TemporaryDirectory(dir=HERE, prefix="qtgui-model-") as tmp:
             model = Path(tmp)

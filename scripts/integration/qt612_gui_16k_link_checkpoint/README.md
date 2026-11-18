@@ -90,7 +90,9 @@ selection, and runner profile in a private directory. The descriptor
 selects the continuation and runner documents by absolute `path` and
 `sha256`. Its `prepare_tools` entries bind `debugfs`, `e2fsck`, and
 `mke2fs` on the preparation host by absolute path, byte count, and
-SHA-256.
+SHA-256. Use each tool's canonical executable path in `/usr/bin` or
+`/usr/sbin`, as installed by the host distribution. The preparer requires
+the exact tool basename and rejects symlink aliases.
 
 Use kind `ROOT_QTGUI_LINK_RUNNER_PROFILE_V1` for the runner profile. It
 contains `actor_image`, `tools`, `vcpus`, and `docker`. Copy the image

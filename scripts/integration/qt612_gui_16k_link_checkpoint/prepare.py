@@ -30,6 +30,7 @@ PORTABLE_PINS = {PORTABLE + "/" + name: C.file_pin(size, digest) for name, (size
     "guest.sh": (8854, "4c9f3c4f19ab72474091eb65ff2f4970635e70fd91c5fce143802b46b466d485"),
 }.items()}
 FORMAT_TOOLS = {"debugfs", "e2fsck", "mke2fs"}
+FORMAT_TOOL_DIRS = (Path("/usr/bin"), Path("/usr/sbin"))
 OWN = {LANE + "/" + leaf for leaf in ("actor.py", "gui_capsule.py", "guest-init.sh", "guest_link.py",
                                       "continuation.py", "elf_readback.py", "inspect_checkpoint.py",
                                       "read_capsule.py", "site.py")}
@@ -73,9 +74,10 @@ class Formatting:
 
     def verify(self, name):
         ref = self.pins[name]
-        path = Path("/usr/bin") / name
-        C.need(set(ref) == {"path", "bytes", "sha256"} and Path(ref["path"]) == path,
+        C.need(set(ref) == {"path", "bytes", "sha256"}
+               and ref["path"] in {str(directory / name) for directory in FORMAT_TOOL_DIRS},
                "Exact local filesystem preparation tool required")
+        path = self.capsule.T.ordinary(Path(ref["path"]))
         info = path.lstat()
         C.need(stat.S_ISREG(info.st_mode) and info.st_uid == 0 and stat.S_IMODE(info.st_mode) == 0o755,
                "Ordinary root-owned filesystem preparation tool required")
