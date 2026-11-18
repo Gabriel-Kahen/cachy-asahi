@@ -10,12 +10,17 @@
 | Asahi maintenance, emulated AArch64 with 16 KiB pages | R132 ran signed transactions on the exact Asahi Minimal filesystem copy with a generic kernel. The inventory changed 261 → 626 → 626. The reverse transaction restored the original Python, NetworkManager and Perl versions and retained all 365 additions. The guest restored the original initramfs and matched all 362 boot and mount entries. The proposal remains unapproved. [R132 validation](validation/asahi626-maintenance-emulated-arm16k-20261118.md) |
 | Qtbase 6.12, emulated AArch64 with 16 KiB pages | Q3 verified the signed dependency transactions, reached the exact 356-package inventory and passed ordinary-user configure against system md4c. The Markdown importer compiled and QtCore linked with 16 KiB-compatible load segments. QtGui and the full build remain open. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md) · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md) |
 
-The current606 hosted GUI trial has no accepted result in this snapshot.
+The Current606 minimal desktop rehearsal reached the exact 606-package
+emulated AArch64 guest with 16 KiB pages and passed the earlier orphan
+assessment interaction. It stopped at a later accessibility check while
+opening a report after a package-manager lock refusal. The full desktop
+and overlay cases remain open.
+[Current606 R4 rehearsal](validation/current606-minimal-emulated-arm16k-r4-20261118.md)
+
 Production repository staging with an approved release signer, stable
 promotion, installed Asahi kernel boot and recovery, both physical M2 Air
 sizes, and final-system performance and power measurements remain open.
-[Current606 run 44278633141](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/44278633141)
-· [Release acceptance contract](release/interface.md#stable-gate-envelope-version-1)
+[Release acceptance contract](release/interface.md#stable-gate-envelope-version-1)
 
 ## Earlier validation
 
