@@ -1,0 +1,26 @@
+{
+  "actual_Root_admission": null,
+  "operations": {
+    "first-login-enrollment-ui-current-v2": {
+      "api": "CURRENT_ONBOARDING_OWNED_CALLBACKS_V2",
+      "callback": "open_current_session",
+      "entry": {
+        "bytes": 5361,
+        "path": "scripts/ci/first-login-enrollment-native-source/successor_v3/dispatch.py",
+        "sha256": "816ae26ae2475c6b650d865b8be48b3c30813c02bc7d29511480ccc7b1d934ea"
+      },
+      "lifecycle_callback": "launch_lifecycle",
+      "owner": {
+        "bytes": 46298,
+        "path": "scripts/ci/first-login-enrollment-native-source/payload/native/owner_current_v2.py",
+        "sha256": "f1a91dee080f76eff88409dd1fe893dc45a2084338017f367ec9874a462a612d"
+      },
+      "route": {
+        "bytes": 26320,
+        "path": "scripts/ci/first-login-enrollment-native-source/successor_v2/owned_route.py",
+        "sha256": "43db41de72822cb8f4d875b6c1d17ffd5062770616ed303f63e299c13478dd86"
+      }
+    }
+  },
+  "schema": 3
+}

@@ -1,0 +1,812 @@
+{
+  "acceptance": false,
+  "actual": {
+    "artifact": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "baseline": {
+    "bytes": 6800,
+    "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+  },
+  "bounds": {
+    "cleanup_command_seconds": 20,
+    "cleanup_seconds": 90,
+    "command_bytes": 1048576,
+    "command_rows": 320,
+    "command_seconds": 180,
+    "consumer_cpus": 2,
+    "consumer_memory_bytes": 4294967296,
+    "consumer_pids": 256,
+    "total_seconds": 450
+  },
+  "build_pair": {
+    "logical_build_directory": "/opt/native-source-tools-alpm-v1/build-current",
+    "packager": "cachy-asahi native TEST builder",
+    "separate_clean_sources": true,
+    "source_date_epoch": "1793145600"
+  },
+  "buildinfo_installed": [
+    "abseil-cpp-20260817.0-2-aarch64",
+    "acl-2.4.0-1-aarch64",
+    "adwaita-cursors-51.0-1-any",
+    "adwaita-fonts-51.0-2-any",
+    "adwaita-icon-theme-51.0-1-any",
+    "adwaita-icon-theme-legacy-46.2-3-any",
+    "alacritty-0.17.0-1-aarch64",
+    "aquamarine-0.15.1-1-aarch64",
+    "archlinux-keyring-20260909-1-any",
+    "archlinuxarm-keyring-20240419-2-any",
+    "at-spi2-core-2.62.1-1-aarch64",
+    "attr-2.6.0-1-aarch64",
+    "audit-4.2.1-1-aarch64",
+    "autoconf-2.73-1-any",
+    "automake-1.19-1-any",
+    "avahi-1:0.9rc5-1-aarch64",
+    "base-3-3-any",
+    "base-devel-1-2-any",
+    "bash-5.3.20-1-aarch64",
+    "benchmark-1.9.5-2-aarch64",
+    "binutils-2.46+r70+g155188ea10a7-1-aarch64",
+    "bison-3.8.2-8-aarch64",
+    "boost-libs-1.92.0-1-aarch64",
+    "brightnessctl-0.5.1-3-aarch64",
+    "brotli-1.2.0-1-aarch64",
+    "bubblewrap-0.13.0-1-aarch64",
+    "bzip2-1.0.8-6-aarch64",
+    "ca-certificates-20240618-1-any",
+    "ca-certificates-mozilla-3.131-1-aarch64",
+    "ca-certificates-utils-20240618-1-any",
+    "cachy-asahi-setup-0.3.0-1-any",
+    "cairo-1.18.6-1-aarch64",
+    "cmake-4.4.4-1-aarch64",
+    "coreutils-9.12-2-aarch64",
+    "cpio-2.15-3-aarch64",
+    "cppdap-1.58.0-3-aarch64",
+    "cryptsetup-2.8.8-1-aarch64",
+    "curl-8.22.0-1-aarch64",
+    "dav1d-1.5.4-1-aarch64",
+    "db5.3-5.3.28-7-aarch64",
+    "dbus-1.16.2-1-aarch64",
+    "dbus-broker-37-3-aarch64",
+    "dbus-broker-units-37-3-aarch64",
+    "dbus-units-37-3-aarch64",
+    "dconf-51.0-1-aarch64",
+    "debugedit-5.3-2-aarch64",
+    "default-cursors-3-1-any",
+    "desktop-file-utils-0.28-1-aarch64",
+    "device-mapper-2.03.43-2-aarch64",
+    "dhcpcd-10.5.2-1-aarch64",
+    "diffutils-3.12-2-aarch64",
+    "duktape-2.7.0-7-aarch64",
+    "e2fsprogs-1.47.4-1-aarch64",
+    "elfutils-0.196-1-aarch64",
+    "ex-vi-compat-3-1-any",
+    "expat-2.9.0-1-aarch64",
+    "fakeroot-1:1.37.2-3-aarch64",
+    "file-5.48-1-aarch64",
+    "filesystem-2025.10.12-1-any",
+    "findutils-4.11.0-1-aarch64",
+    "fish-4.9.3-1-aarch64",
+    "flex-2.6.4-6-aarch64",
+    "fontconfig-2:2.18.3-2-aarch64",
+    "freetype2-2.14.3-1-aarch64",
+    "fribidi-1.0.17-1-aarch64",
+    "gawk-5.4.1-1-aarch64",
+    "gc-8.2.12-1-aarch64",
+    "gcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "gcc-libs-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "gdb-18.1-1-aarch64",
+    "gdb-common-18.1-1-aarch64",
+    "gdbm-1.26-2-aarch64",
+    "gdk-pixbuf2-2.44.8-1-aarch64",
+    "gettext-1.0-2-aarch64",
+    "giflib-6.1.3-2-aarch64",
+    "glib-networking-1:2.90.0-1-aarch64",
+    "glib2-2.90.1-1-aarch64",
+    "glibc-2.43+r22+g8362e8ce10b2-2-aarch64",
+    "glslang-1:1.4.363.0-1-aarch64",
+    "glycin-2.2.2-1-aarch64",
+    "gmp-6.3.0-3-aarch64",
+    "gnulib-l10n-20241231-1-any",
+    "gnupg-2.4.9-3-aarch64",
+    "gnutls-3.8.13-3-aarch64",
+    "gperftools-2.18.1-1-aarch64",
+    "gpgme-2.2.0-1-aarch64",
+    "gpm-1.20.7.r38.ge82d1a6-7-aarch64",
+    "graphite-1:1.3.15-1-aarch64",
+    "grep-3.12-2-aarch64",
+    "groff-1.24.2-1-aarch64",
+    "gsettings-desktop-schemas-51.0-1-any",
+    "gsettings-system-schemas-51.0-1-any",
+    "gtest-1.18.0-1-aarch64",
+    "gtk-update-icon-cache-1:4.24.1-1-aarch64",
+    "gtk3-1:3.24.52-2-aarch64",
+    "guile-3.0.11-1-aarch64",
+    "gzip-1.15-1-aarch64",
+    "harfbuzz-14.6.0-1-aarch64",
+    "hicolor-icon-theme-0.18-1-any",
+    "highway-1.4.0-1-aarch64",
+    "hwdata-0.412-1-any",
+    "hyprcursor-0.1.13-7-aarch64",
+    "hyprgraphics-0.5.1-4-aarch64",
+    "hyprland-0.56.2-4-aarch64",
+    "hyprland-guiutils-0.2.2-4-aarch64",
+    "hyprlang-0.6.8-5-aarch64",
+    "hyprtoolkit-0.6.0-1-aarch64",
+    "hyprutils-0.14.2-1-aarch64",
+    "hyprwire-0.3.1-3-aarch64",
+    "iana-etc-20260617-1-any",
+    "icu-78.3-1-aarch64",
+    "iniparser-4.3.2-1-aarch64",
+    "iproute2-7.2.0-1-aarch64",
+    "iptables-1:1.8.13-1-aarch64",
+    "iputils-20250605-1-aarch64",
+    "iso-codes-4.20.1-1-any",
+    "jansson-2.15.1-1-aarch64",
+    "jbigkit-2.1-8-aarch64",
+    "json-c-0.19-1-aarch64",
+    "json-glib-1.10.8-1-aarch64",
+    "jsoncpp-1.9.8-1-aarch64",
+    "kbd-2.10.0-1-aarch64",
+    "keyutils-1.6.3-4-aarch64",
+    "kmod-34.2-1-aarch64",
+    "krb5-1.22.2-1-aarch64",
+    "lcms2-2.19.1-1-aarch64",
+    "leancrypto-1.9.1-1-aarch64",
+    "libarchive-3.8.9-1-aarch64",
+    "libasan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libassuan-3.0.0-1-aarch64",
+    "libatomic-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libbpf-1.7.0-1-aarch64",
+    "libcap-2.78-1-aarch64",
+    "libcap-ng-0.9.6-1-aarch64",
+    "libcloudproviders-0.4.1-1-aarch64",
+    "libcolord-1.4.8-1-aarch64",
+    "libcups-2:2.4.20-1-aarch64",
+    "libdaemon-0.14-6-aarch64",
+    "libdatrie-0.2.14-1-aarch64",
+    "libdecor-0.2.5-1-aarch64",
+    "libdeflate-1.26-1-aarch64",
+    "libdisplay-info-0.3.0-1-aarch64",
+    "libdrm-2.4.134-1-aarch64",
+    "libedit-20260512_3.1-1-aarch64",
+    "libei-1.6.0-1-aarch64",
+    "libelf-0.196-1-aarch64",
+    "libepoxy-1.5.10-3-aarch64",
+    "libevdev-1.14.0-1-aarch64",
+    "libevent-2.1.13-2-aarch64",
+    "libffi-3.8.0-1-aarch64",
+    "libfontenc-1.1.9-1-aarch64",
+    "libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libgcrypt-1.12.4-1-aarch64",
+    "libgfortran-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libglvnd-1.7.0-3-aarch64",
+    "libgomp-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libgpg-error-1.61-1-aarch64",
+    "libgudev-238-3-aarch64",
+    "libidn2-2.3.8-1-aarch64",
+    "libinput-1.32.0-1-aarch64",
+    "libisl-0.28-1-aarch64",
+    "libjpeg-turbo-3.2.0-2-aarch64",
+    "libjxl-0.12.0-1-aarch64",
+    "libksba-1.8.1-1-aarch64",
+    "libldap-2.7.1-1-aarch64",
+    "liblsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libmakepkg-dropins-20-2-any",
+    "libmnl-1.0.5-2-aarch64",
+    "libmpc-1.4.1-1-aarch64",
+    "libnetfilter_conntrack-1.1.1-1-aarch64",
+    "libnfnetlink-1.0.2-2-aarch64",
+    "libnftnl-1.3.2-1-aarch64",
+    "libnghttp2-1.70.0-1-aarch64",
+    "libnghttp3-1.18.0-1-aarch64",
+    "libngtcp2-1.25.0-1-aarch64",
+    "libnl-3.12.0-1-aarch64",
+    "libnsl-2.0.1-2-aarch64",
+    "libobjc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libp11-kit-0.26.5-1-aarch64",
+    "libpcap-1.11.0-1-aarch64",
+    "libpciaccess-0.19-1-aarch64",
+    "libpipewire-1:1.6.9-1-aarch64",
+    "libpng-1.6.59-1-aarch64",
+    "libproxy-0.5.12-1-aarch64",
+    "libpsl-0.21.5-2-aarch64",
+    "libquadmath-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "librsvg-2:2.63.2-1-aarch64",
+    "libsasl-2.1.28-5-aarch64",
+    "libseccomp-2.6.0-1-aarch64",
+    "libsecret-0.21.8.2-1-aarch64",
+    "libsoup3-3.8.0-1-aarch64",
+    "libssh2-1.11.1-7-aarch64",
+    "libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libstemmer-3.1.1-1-aarch64",
+    "libsysprof-capture-51.0-1-aarch64",
+    "libtasn1-4.21.0-1-aarch64",
+    "libthai-0.1.30-1-aarch64",
+    "libtiff-4.7.2-1-aarch64",
+    "libtirpc-1.3.8-1-aarch64",
+    "libtool-2.6.0+r23+gb08cb0a0-1-aarch64",
+    "libtsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libubsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+    "libunistring-1.4.2-1-aarch64",
+    "libunwind-1.8.3-1-aarch64",
+    "libusb-1.0.30-1-aarch64",
+    "libuv-1.52.1-2-aarch64",
+    "libverto-0.3.2-6-aarch64",
+    "libwacom-2.20.0-1-aarch64",
+    "libwebp-1.6.0-2-aarch64",
+    "libwireplumber-0.5.18-1-aarch64",
+    "libx11-1.8.13-2-aarch64",
+    "libxau-1.0.12-1-aarch64",
+    "libxcb-1.17.0-1-aarch64",
+    "libxcomposite-0.4.7-1-aarch64",
+    "libxcrypt-4.5.2-1-aarch64",
+    "libxcursor-1.2.3-1-aarch64",
+    "libxcvt-0.1.3-1-aarch64",
+    "libxdamage-1.1.7-1-aarch64",
+    "libxdmcp-1.1.5-2-aarch64",
+    "libxext-1.3.7-1-aarch64",
+    "libxfixes-6.0.2-1-aarch64",
+    "libxfont2-2.0.9-1-aarch64",
+    "libxft-2.3.9-1-aarch64",
+    "libxi-1.8.3-1-aarch64",
+    "libxinerama-1.1.6-1-aarch64",
+    "libxkbcommon-1.13.2-1-aarch64",
+    "libxkbcommon-x11-1.13.2-1-aarch64",
+    "libxkbfile-1.2.0-1-aarch64",
+    "libxml2-2.15.4-1-aarch64",
+    "libxrandr-1.5.5-1-aarch64",
+    "libxrender-0.9.12-1-aarch64",
+    "libxshmfence-1.3.3-1-aarch64",
+    "libxtst-1.2.5-1-aarch64",
+    "libxxf86vm-1.1.7-1-aarch64",
+    "libzip-1.11.4-1-aarch64",
+    "licenses-20240728-1-any",
+    "linux-aarch64-7.2.10-1-aarch64",
+    "linux-api-headers-7.2-1-aarch64",
+    "linux-firmware-20260916-1-any",
+    "linux-firmware-amd-20260916-1-any",
+    "linux-firmware-amdgpu-20260916-1-any",
+    "linux-firmware-atheros-20260916-1-any",
+    "linux-firmware-broadcom-20260916-1-any",
+    "linux-firmware-cirrus-20260916-1-any",
+    "linux-firmware-intel-20260916-1-any",
+    "linux-firmware-mediatek-20260916-1-any",
+    "linux-firmware-nvidia-20260916-1-any",
+    "linux-firmware-other-20260916-1-any",
+    "linux-firmware-radeon-20260916-1-any",
+    "linux-firmware-realtek-20260916-1-any",
+    "linux-firmware-ti-20260916-1-any",
+    "linux-firmware-whence-20260916-1-any",
+    "llvm-libs-23.1.1-1-aarch64",
+    "lm_sensors-1:3.6.2-1-aarch64",
+    "lmdb-0.9.35-1-aarch64",
+    "lua-5.5.1-1-aarch64",
+    "lua54-5.4.9-1-aarch64",
+    "lz4-1:1.10.0-2-aarch64",
+    "lzo-2.10-5-aarch64",
+    "m4-1.4.21-2-aarch64",
+    "make-4.4.1-3-aarch64",
+    "mesa-1:26.2.4-1-aarch64",
+    "meson-1.12.1-2-any",
+    "mkinitcpio-42.2-1-any",
+    "mkinitcpio-busybox-1.36.1-1-aarch64",
+    "mpdecimal-4.0.1-3-aarch64",
+    "mpfr-4.2.2-1-aarch64",
+    "mtdev-1.1.7-1-aarch64",
+    "muparser-2.3.5-2-aarch64",
+    "nano-9.2-1-aarch64",
+    "ncurses-6.6-2-aarch64",
+    "net-tools-2.10-3-aarch64",
+    "netctl-1.29-2-any",
+    "nettle-4.0-1-aarch64",
+    "nftables-1:1.1.7-3-aarch64",
+    "ninja-1.13.2-3-aarch64",
+    "npth-1.8-1-aarch64",
+    "openssh-10.6p1-1-aarch64",
+    "openssl-3.6.5-1-aarch64",
+    "p11-kit-0.26.5-1-aarch64",
+    "pacman-7.1.0.r9.g54d9411-2-aarch64",
+    "pacman-mirrorlist-20260411-2-any",
+    "pam-1.7.3-1-aarch64",
+    "pambase-20260616-1-any",
+    "pango-1:1.58.2-1-aarch64",
+    "patch-2.8-1-aarch64",
+    "pciutils-3.15.0-1-aarch64",
+    "pcre2-10.49-1-aarch64",
+    "perl-5.42.3-1-aarch64",
+    "pinentry-1.3.3-1-aarch64",
+    "pipewire-1:1.6.9-1-aarch64",
+    "pixman-0.46.4-1.1-aarch64",
+    "pkgconf-3.0.7-1-aarch64",
+    "popt-1.19-2-aarch64",
+    "procps-ng-4.0.7-1-aarch64",
+    "psmisc-23.7-2-aarch64",
+    "pugixml-1.16-1-aarch64",
+    "python-3.14.8-1-aarch64",
+    "python-tqdm-4.70.1-1-any",
+    "re2-2:2025.11.05-6-aarch64",
+    "readline-8.3.6-1-aarch64",
+    "rhash-1.4.6-1-aarch64",
+    "seatd-0.9.3-1-aarch64",
+    "sed-4.10-2-aarch64",
+    "shadow-4.20.0.arch1-1-aarch64",
+    "shared-mime-info-2.5.1-2-aarch64",
+    "source-highlight-3.1.9-19-aarch64",
+    "spirv-tools-1:1.4.363.0-1-aarch64",
+    "sqlite-3.53.4-1-aarch64",
+    "sudo-1.9.17.p2-6-aarch64",
+    "swaylock-1.8.6-1-aarch64",
+    "systemd-262-1-aarch64",
+    "systemd-libs-262-1-aarch64",
+    "systemd-resolvconf-262-1-aarch64",
+    "systemd-sysvcompat-262-1-aarch64",
+    "tar-1.35-5-aarch64",
+    "texinfo-7.3-1-aarch64",
+    "tinysparql-3.12.0-1-aarch64",
+    "tomlplusplus-3.4.0-1-aarch64",
+    "tpm2-tss-4.2.0-2-aarch64",
+    "tzdata-2026e-1-aarch64",
+    "util-linux-2.42.4-1-aarch64",
+    "util-linux-libs-2.42.4-1-aarch64",
+    "vim-9.2.1178-1-aarch64",
+    "vim-runtime-9.2.1178-1-aarch64",
+    "wayland-1.26.0-1-aarch64",
+    "wayland-protocols-1.49-1-any",
+    "which-2.25-1-aarch64",
+    "wireplumber-0.5.18-1-aarch64",
+    "wofi-1.5.3-1-aarch64",
+    "xcb-proto-1.17.0-4-any",
+    "xcb-util-0.4.1-2-aarch64",
+    "xcb-util-errors-1.0.1-2-aarch64",
+    "xcb-util-image-0.4.1-3-aarch64",
+    "xcb-util-keysyms-0.4.1-5-aarch64",
+    "xcb-util-renderutil-0.3.10-2-aarch64",
+    "xcb-util-wm-0.4.2-2-aarch64",
+    "xkeyboard-config-2.48-1-any",
+    "xorg-fonts-encodings-1.1.0-2-any",
+    "xorg-server-common-21.1.25-1-aarch64",
+    "xorg-setxkbmap-1.3.5-1-aarch64",
+    "xorg-xkbcomp-1.5.0-1-aarch64",
+    "xorg-xprop-1.2.8-1-aarch64",
+    "xorg-xwayland-24.1.14-1-aarch64",
+    "xorgproto-2026.1-1-any",
+    "xxhash-0.8.4-1-aarch64",
+    "xz-5.8.4-1-aarch64",
+    "zlib-1:1.3.2-3-aarch64",
+    "zsh-5.9.2-1-aarch64",
+    "zstd-1.5.7-3-aarch64"
+  ],
+  "dependency": {
+    "archive": "cachy-asahi-setup-0.3.0-1-any.pkg.tar.xz",
+    "archive_pin": {
+      "bytes": 33900,
+      "sha256": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47"
+    },
+    "carrier_member": "dependencies/cachy-asahi-setup-0.3.0-1-any.pkg.tar.xz",
+    "name": "cachy-asahi-setup",
+    "payload_files": {
+      "usr/bin/cachy-asahi-config-migrate": {
+        "bytes": 455,
+        "mode": 493,
+        "sha256": "844b5c01b49552ea5aaef19a7ced8637f49d1f5126c37f4c14471620d0951cc2"
+      },
+      "usr/bin/cachy-asahi-repository": {
+        "bytes": 19778,
+        "mode": 493,
+        "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+      },
+      "usr/bin/cachy-asahi-setup": {
+        "bytes": 45116,
+        "mode": 493,
+        "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+      },
+      "usr/lib/cachy-asahi/setup8/config_migrate.py": {
+        "bytes": 20150,
+        "mode": 420,
+        "sha256": "1368a1fa0586d946f33945b0be7e5c1deb4fe929509e34a81d55cfb9f5cb800b"
+      },
+      "usr/lib/cachy-asahi/setup8/setup.py": {
+        "bytes": 45116,
+        "mode": 420,
+        "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+      },
+      "usr/share/doc/cachy-asahi-setup/README.md": {
+        "bytes": 4791,
+        "mode": 420,
+        "sha256": "2cba96f8e009b5611fde80854654db64ffc1d92772bbea3686e4ea335b8d6afd"
+      },
+      "usr/share/doc/cachy-asahi-setup/configuration-migrations.md": {
+        "bytes": 9979,
+        "mode": 420,
+        "sha256": "c6c8d325fdfa7e2371591b0e9862f0b8baf802065a8e00bfea1b55db0bc8ae19"
+      },
+      "usr/share/doc/cachy-asahi-setup/repository-enrollment.md": {
+        "bytes": 10984,
+        "mode": 420,
+        "sha256": "67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4"
+      },
+      "usr/share/licenses/cachy-asahi-setup/LICENSE": {
+        "bytes": 1081,
+        "mode": 420,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "usr/share/licenses/cachy-asahi-setup/NOTICE": {
+        "bytes": 1290,
+        "mode": 420,
+        "sha256": "c47e845e85522c77bfc40b8a0d0e4a7cb44d0e4aa7ebfb244168bca8f604c9b1"
+      }
+    },
+    "prior_run": "40490674681",
+    "scope": "EXACT_ACCEPTED_DEPENDENCY_INPUT_ONLY_NO_NEW_PAIR_OR_COMPOSITION_CREDIT",
+    "source": "5d0f5ae6331807704a8ebafc7922972629e0b96f",
+    "version": "0.3.0-1"
+  },
+  "first_login_journey": {
+    "bytes": 13882,
+    "path": "helpers/first_login_installed_journey.py",
+    "sha256": "1e7aaa3714b6f8194f5d0f30d33fd3039348781e0f1695104a4c83637750ab1e",
+    "source_commit": "1017ef634c5ff15c5ffffdd0dc3a5ec16a0256d4"
+  },
+  "helpers": {
+    "helpers/first_login_installed_journey.py": {
+      "bytes": 13882,
+      "mode": 420,
+      "sha256": "1e7aaa3714b6f8194f5d0f30d33fd3039348781e0f1695104a4c83637750ab1e"
+    }
+  },
+  "makepkg_config": {
+    "bytes": 316,
+    "checks": "REQUIRED_ENABLED",
+    "path": "native/build-tools-makepkg-v2.conf",
+    "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
+  },
+  "native": "NOT_RUN",
+  "native_16K": "NOT_QUALIFIED",
+  "operation": "first-login-enrollment-alpm-v1",
+  "original_workflow": {
+    "bytes": 29699,
+    "path": "scripts/workflows/developer_workflow.py",
+    "sha256": "531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba"
+  },
+  "package_origins": {
+    "enrollment": "f7a846edd132f0916e7a14dc7378274e20295852",
+    "first-login": "eb7626347e2bfe00e11622ef19bf18b7a4992e91"
+  },
+  "physical_M2": "NOT_RUN",
+  "recipe_bundle": {
+    "path": "native/build-tools-sources-v2.tar",
+    "pin": {
+      "bytes": 276480,
+      "sha256": "4314bb7f4bd243af59ec84140aa0cc9709e4daf47772219730ff1ac29f2f20c5"
+    }
+  },
+  "recipes": {
+    "enrollment": {
+      "archive": "cachy-asahi-repository-enrollment-0.3.0-1-any.pkg.tar.zst",
+      "check_report": {
+        "alpm_installation": "NOT_RUN",
+        "mapped_root_preview": true,
+        "moved_prefix": true,
+        "native_arm_build": "NOT_RUN",
+        "network_namespace": "loopback-only",
+        "nonrevoking_certificate_refused": "PASS",
+        "payload_files": 15,
+        "python_environment_isolated": true,
+        "removal": "EXACT_PAYLOAD_INVERSE_FOREIGN_CONTENT_PRESERVED",
+        "revocation_preview": "PASS",
+        "runtime_files": 9,
+        "signed_transition_preview": "PASS",
+        "source_trees_hidden": true,
+        "status": "PASS_HOST_SYNTHETIC_PACKAGE_ONLY",
+        "supported_m2": "NOT_RUN",
+        "tamper_refusal": "PASS",
+        "target_state_unchanged": true,
+        "zstd_package_and_declared_sources_verified": true
+      },
+      "checkdepends": [
+        "bubblewrap",
+        "util-linux"
+      ],
+      "depends": [
+        "python>=3.11",
+        "gnupg",
+        "pacman",
+        "coreutils",
+        "libarchive"
+      ],
+      "makedepends": [],
+      "name": "cachy-asahi-repository-enrollment",
+      "optdepends": [],
+      "payload_files": {
+        "usr/bin/cachy-asahi-repository-enrollment": {
+          "bytes": 1434,
+          "mode": 493,
+          "sha256": "71add9020f77fe33964f954eae6d98ba44a2bdd14d1c7b5fede16a34cbd986bc"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/maintenance/signing_expiry.py": {
+          "bytes": 9002,
+          "mode": 420,
+          "sha256": "dd6ef397ea47cf14bb31f6ae6f7ca388d68bdb15e7fa3d20c36eb01f901b2c98"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/release/compare_releases_v2.py": {
+          "bytes": 12061,
+          "mode": 420,
+          "sha256": "b56c78b03dcb224ecc1b76769089099ad67d9643ecbee7d5b8d5d2d16edd7632"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/release/release.py": {
+          "bytes": 41320,
+          "mode": 420,
+          "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/release/signing_transition.py": {
+          "bytes": 12206,
+          "mode": 420,
+          "sha256": "6c7b40aef38436e54e751c8113135bab3d462c59ff7dd6d5c31734d5d5d89a61"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/release/source_delivery.py": {
+          "bytes": 16456,
+          "mode": 420,
+          "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/repository/enroll.py": {
+          "bytes": 19778,
+          "mode": 420,
+          "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/repository/revoke.py": {
+          "bytes": 14784,
+          "mode": 420,
+          "sha256": "8804cf14527341c23bd7ba540c23a08185a10c92f6d405a65f52f277ff6bc44b"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/repository/rotate.py": {
+          "bytes": 7181,
+          "mode": 420,
+          "sha256": "8bb7f255cdaaf02c06d6305b924f68988b3e733d0187d8b8b45164bb4761b711"
+        },
+        "usr/lib/cachy-asahi/repository-enrollment/scripts/repository/transition.py": {
+          "bytes": 11317,
+          "mode": 420,
+          "sha256": "04b2576cce20f08c2ae879ee696ab8d682e4f0434849026ee419a33c46707996"
+        },
+        "usr/share/doc/cachy-asahi-repository-enrollment/README.md": {
+          "bytes": 6837,
+          "mode": 420,
+          "sha256": "3668b4533762295b7a53d02a06af06477fe11e3c5f012c4a4047d2665ea38e3b"
+        },
+        "usr/share/doc/cachy-asahi-repository-enrollment/payload-map.json": {
+          "bytes": 1652,
+          "mode": 420,
+          "sha256": "d7c887a6d35e5560922a80b0030cac8ed74743ba3bdb3359ec1c82face9fb353"
+        },
+        "usr/share/doc/cachy-asahi-repository-enrollment/source-provenance.json": {
+          "bytes": 4734,
+          "mode": 420,
+          "sha256": "f0ededffa86d79706aeebf92d33c7963c1f9a9136d267430ea1e9c097c234bdc"
+        },
+        "usr/share/licenses/cachy-asahi-repository-enrollment/LICENSE": {
+          "bytes": 1081,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "usr/share/licenses/cachy-asahi-repository-enrollment/NOTICE": {
+          "bytes": 737,
+          "mode": 420,
+          "sha256": "19304be6bf83cfc2cccd3cfbd86d77ba802e1d10d979aa66b42d78181d7ff60e"
+        }
+      },
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 1445,
+          "mode": 420,
+          "sha256": "12eb9694c196b0ad014b55117462f9d7322e8dc0eb45b4d163ee05be6a0c981b"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 737,
+          "mode": 420,
+          "sha256": "19304be6bf83cfc2cccd3cfbd86d77ba802e1d10d979aa66b42d78181d7ff60e"
+        },
+        "PKGBUILD": {
+          "bytes": 2439,
+          "mode": 420,
+          "sha256": "e3b58fc18c53154536f2b8ba5cbb7337810c8b4bcb731a46ade4c3a69fc39c6a"
+        },
+        "README.md": {
+          "bytes": 6837,
+          "mode": 420,
+          "sha256": "3668b4533762295b7a53d02a06af06477fe11e3c5f012c4a4047d2665ea38e3b"
+        },
+        "cachy-asahi-repository-enrollment": {
+          "bytes": 1434,
+          "mode": 420,
+          "sha256": "71add9020f77fe33964f954eae6d98ba44a2bdd14d1c7b5fede16a34cbd986bc"
+        },
+        "payload-map.json": {
+          "bytes": 1652,
+          "mode": 420,
+          "sha256": "d7c887a6d35e5560922a80b0030cac8ed74743ba3bdb3359ec1c82face9fb353"
+        },
+        "private-source.tar.gz": {
+          "bytes": 36605,
+          "mode": 420,
+          "sha256": "f9513c8162656944784f3196bafee20b8c726dde0880fafc38235211e0ac83c0"
+        },
+        "source-provenance.json": {
+          "bytes": 4734,
+          "mode": 420,
+          "sha256": "f0ededffa86d79706aeebf92d33c7963c1f9a9136d267430ea1e9c097c234bdc"
+        },
+        "test_package.py": {
+          "bytes": 15649,
+          "mode": 420,
+          "sha256": "882b6940626dcb094c94352486203b9286c5fc0fd3a9ce163054f8d9f4a79e51"
+        },
+        "test_release.py": {
+          "bytes": 43541,
+          "mode": 420,
+          "sha256": "7ee9e693d4574c6bb11dcc927937475742b9fa7a6f8e988608532c1e1bab5f2e"
+        }
+      },
+      "version": "0.3.0-1"
+    },
+    "first-login": {
+      "archive": "cachy-asahi-first-login-0.1.0-2-any.pkg.tar.zst",
+      "check_names": [
+        "test_inspect_and_preview_have_no_writes_and_explicit_selection",
+        "test_apply_repeat_and_real_helper_deactivation_preserve_existing_bytes",
+        "test_unavailable_program_or_template_blocks_entire_selection",
+        "test_config_conflict_blocks_other_selected_components_before_apply",
+        "test_interruption_is_routed_to_explicit_preview_then_recovery",
+        "test_recovery_preserves_custom_path_options_and_edits",
+        "test_migration_journal_is_redirected_to_its_owner_without_replay",
+        "test_environment_roots_are_frozen_for_recovery_from_another_shell",
+        "test_unknown_state_and_symlinked_targets_fail_without_apply",
+        "test_incompatible_helper_status_refuses_operation",
+        "test_cli_returns_json_and_root_refusal",
+        "test_actual_package_function_installs_only_six_opt_in_files",
+        "test_relocated_launcher_runs_without_checkout_or_cwd_python_imports",
+        "test_relocated_inspect_and_preview_preserve_fresh_home"
+      ],
+      "checkdepends": [],
+      "depends": [
+        "python>=3.11",
+        "cachy-asahi-setup>=0.3.0"
+      ],
+      "makedepends": [],
+      "name": "cachy-asahi-first-login",
+      "optdepends": [
+        "fish: Fish configuration activation",
+        "zsh: Zsh configuration activation",
+        "hyprland: Hyprland configuration activation",
+        "cachy-asahi-fish-config: Fish template",
+        "cachy-asahi-zsh-config: Zsh template",
+        "cachy-asahi-hyprland-settings: Hyprland template"
+      ],
+      "payload_files": {
+        "usr/bin/cachy-asahi-first-login": {
+          "bytes": 296,
+          "mode": 493,
+          "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+        },
+        "usr/lib/cachy-asahi/first-login/first_login.py": {
+          "bytes": 10384,
+          "mode": 420,
+          "sha256": "41ade792884afced7a078c6926d3f18d7a9e40fca50191c7d77d34678711921c"
+        },
+        "usr/share/doc/cachy-asahi-first-login/README.md": {
+          "bytes": 4262,
+          "mode": 420,
+          "sha256": "0beaccda9b43a67183241de740498e815e41ea8d48490353935a82d17b216d4a"
+        },
+        "usr/share/doc/cachy-asahi-first-login/source-provenance.json": {
+          "bytes": 1954,
+          "mode": 420,
+          "sha256": "acace7f2d7345a6334d0d866b1a7c9a639db15fbefd4468af716a606f522f4f2"
+        },
+        "usr/share/licenses/cachy-asahi-first-login/LICENSE": {
+          "bytes": 1081,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "usr/share/licenses/cachy-asahi-first-login/NOTICE": {
+          "bytes": 430,
+          "mode": 420,
+          "sha256": "6aa0a8736adb815343fe56d530df8caa77605896e1eb8984c40e3cc669d86b35"
+        }
+      },
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 1684,
+          "mode": 420,
+          "sha256": "ab9af569b6353478973f3083c3f6ea01f1679c0f91cfd05ddc5b530eea848be3"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 430,
+          "mode": 420,
+          "sha256": "6aa0a8736adb815343fe56d530df8caa77605896e1eb8984c40e3cc669d86b35"
+        },
+        "PKGBUILD": {
+          "bytes": 2488,
+          "mode": 420,
+          "sha256": "e157ded80cee91404f3d6cba0f4d693592532dc262ff25f6ab910f1fc1ba6cbd"
+        },
+        "README.md": {
+          "bytes": 4262,
+          "mode": 420,
+          "sha256": "0beaccda9b43a67183241de740498e815e41ea8d48490353935a82d17b216d4a"
+        },
+        "cachy-asahi-first-login": {
+          "bytes": 296,
+          "mode": 420,
+          "sha256": "a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144"
+        },
+        "check-sync.py": {
+          "bytes": 1575,
+          "mode": 420,
+          "sha256": "929c60ebb939c7ea4d46d74ddedcaa219fb53285bce25c85ea8d71595d952e48"
+        },
+        "first_login.py": {
+          "bytes": 10384,
+          "mode": 420,
+          "sha256": "41ade792884afced7a078c6926d3f18d7a9e40fca50191c7d77d34678711921c"
+        },
+        "setup8-fixture.py": {
+          "bytes": 45116,
+          "mode": 420,
+          "sha256": "724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0"
+        },
+        "source-provenance.json": {
+          "bytes": 1954,
+          "mode": 420,
+          "sha256": "acace7f2d7345a6334d0d866b1a7c9a639db15fbefd4468af716a606f522f4f2"
+        },
+        "test_delivery.py": {
+          "bytes": 5107,
+          "mode": 420,
+          "sha256": "ea5aaadcbbb0f3150343d0d7cae715fe9acd06be855d67e779896bf262bd61c2"
+        },
+        "test_first_login.py": {
+          "bytes": 11497,
+          "mode": 420,
+          "sha256": "8c7a6a82a44012772ef17a43b94920bdce9dd538c989f89fb5f371d2b720075f"
+        }
+      },
+      "version": "0.1.0-2"
+    }
+  },
+  "release": "NOT_ADMITTED",
+  "schema": 1,
+  "stages": [
+    "signing",
+    "dependency",
+    "first-login-a",
+    "first-login-b",
+    "first-login-compare",
+    "enrollment-a",
+    "enrollment-b",
+    "enrollment-compare",
+    "sign-candidates",
+    "install",
+    "commands",
+    "remove",
+    "reinstall",
+    "commands-reinstalled",
+    "remove-again",
+    "dependency-remove",
+    "restore",
+    "cleanup"
+  ]
+}

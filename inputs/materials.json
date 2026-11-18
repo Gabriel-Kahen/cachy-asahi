@@ -1,0 +1,307 @@
+{
+  "Root_admission": null,
+  "current_stage_TEST_verification": null,
+  "kind": "PUBLIC_SOURCE_RELATIVE_INPUTS_V3",
+  "official_trust": null,
+  "publication": null,
+  "resources": null,
+  "roles": {
+    "Setup8/archive": {
+      "bytes": 33900,
+      "path": "carrier/inputs/materials/setup8/archive",
+      "sha256": "8de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47"
+    },
+    "Setup8/current_decision": {
+      "bytes": 1344,
+      "path": "carrier/inputs/public/setup8-current.Root-decision.json",
+      "sha256": "2613fc2cb7f9ffccb9557eb791ddbfef17e83533fb93e9e863be32cb2036783a"
+    },
+    "Setup8/current_public_key": {
+      "bytes": 433,
+      "path": "carrier/inputs/public/setup8-current.asc",
+      "sha256": "c23c4f80efbabdc7a34db466e0f675e035ecf8b1a1ac7b1700a716d133b8e26a"
+    },
+    "Setup8/current_signature": {
+      "bytes": 119,
+      "path": "carrier/inputs/public/setup8-current.sig",
+      "sha256": "7726099ccca5989c13c598e98c8400205b18ebee0bcc9137cd81f34fb77a7398"
+    },
+    "Setup8/current_verification": {
+      "bytes": 938,
+      "path": "carrier/inputs/public/setup8-current.verification.json",
+      "sha256": "f377b972de8b86cfb42fbd51f08f12882c1fb31fcf3123b7fb77af733fad9e83"
+    },
+    "expected/backend": {
+      "bytes": 6826,
+      "path": "carrier/inputs/stages/backend.expected.lock",
+      "sha256": "7d05c8b129307cc7e61ca2e3a3480fe9b295dbb7346807de257bec92fd965f4c"
+    },
+    "expected/lifecycle": {
+      "bytes": 7285,
+      "path": "carrier/inputs/stages/lifecycle.expected.lock",
+      "sha256": "e6bf41adc68e99a33e6948de7524c152ec4cc888c4da1a0abff95dd8c9de0ba4"
+    },
+    "expected/stage_vectors": {
+      "bytes": 40232,
+      "path": "carrier/inputs/stage-vectors.json",
+      "sha256": "55b86d25d57f793af7ef9adfebf43da3d163485e5299cb6e32cb4ecfe0ce0245"
+    },
+    "expected/ui": {
+      "bytes": 7343,
+      "path": "carrier/inputs/stages/ui.expected.lock",
+      "sha256": "09e237283df4878e11e988194d77affda8ba26ce8c2b222928d439d2814ec322"
+    },
+    "official/archive_signature_inputs": {
+      "bytes": 23061,
+      "path": "carrier/inputs/catalog/official-archive-signature-inputs.json",
+      "sha256": "5ec5464fbd51646888f23155b943ffb2ba0f398259af1fec6bcf22b2e526fe1d"
+    },
+    "official/exact_closure": {
+      "bytes": 219097,
+      "path": "carrier/inputs/catalog/official-closure.json",
+      "sha256": "1371ca4e461ac0ffa9533eda6a1ecf5ba9ccd001042ebbfe6c410b5c19928996"
+    },
+    "official/fuse-common/archive": {
+      "bytes": 2868,
+      "path": "carrier/inputs/materials/official/00.archive",
+      "sha256": "f8a67e6a893e09ece9d9611112b46259df1d947b8d57ac9f118a00eb955780b9"
+    },
+    "official/fuse-common/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/00.signature",
+      "sha256": "846fa0db2dd76d4e805b19b010143412522a630eb5235f9b00692c1541bba957"
+    },
+    "official/fuse3/archive": {
+      "bytes": 133600,
+      "path": "carrier/inputs/materials/official/01.archive",
+      "sha256": "ea1a152ebe20cecf157378c8917e04b976e89287e2471dd20117b3923b3f0ebb"
+    },
+    "official/fuse3/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/01.signature",
+      "sha256": "da757cee8ccfe106f13a7fa9fdb285d43eda5598090de98b4e1487afd149769c"
+    },
+    "official/gobject-introspection-runtime/archive": {
+      "bytes": 30644,
+      "path": "carrier/inputs/materials/official/02.archive",
+      "sha256": "fe0d6a936340bf8b6752d96f198f130ad0fdbc39521dd71257346f297a0287ae"
+    },
+    "official/gobject-introspection-runtime/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/02.signature",
+      "sha256": "1005c1451e791578a49d6873cb333d678d1f30b94c3e74847018a4315f0b16c7"
+    },
+    "official/graphene/archive": {
+      "bytes": 103788,
+      "path": "carrier/inputs/materials/official/03.archive",
+      "sha256": "2f928a829385d79626cba58fcc111f8f930d1ae951d83f405813a3886ab9ec7b"
+    },
+    "official/graphene/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/03.signature",
+      "sha256": "ee7224f1aaff41b75eb745daae70accc83502c7e64e0eed954f9312403e4e498"
+    },
+    "official/gssdp/archive": {
+      "bytes": 55036,
+      "path": "carrier/inputs/materials/official/04.archive",
+      "sha256": "6b4eaa0f2c31b5901b14b306bb4607842dbc3e2c9d5658ad719a1001b8bc5216"
+    },
+    "official/gssdp/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/04.signature",
+      "sha256": "f0ee57cb95aa34bd7850443d2760ca5ce0cb0b78606d61cb27e9ddd67d35aacf"
+    },
+    "official/gst-plugins-bad-libs/archive": {
+      "bytes": 2720860,
+      "path": "carrier/inputs/materials/official/05.archive",
+      "sha256": "9db399b8bec60e6a80367e45db11b31294714eca3383c3bf2d6a4420bc099747"
+    },
+    "official/gst-plugins-bad-libs/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/05.signature",
+      "sha256": "06aa876a924bb907892b22d43d544d5d5d08f20e93846302ed52fdfc628a05ec"
+    },
+    "official/gst-plugins-base-libs/archive": {
+      "bytes": 2278616,
+      "path": "carrier/inputs/materials/official/06.archive",
+      "sha256": "31a012f8a70288e403ca0a7a6ff2bcab9e4f1d4baaa4b17be76315e2485dd19a"
+    },
+    "official/gst-plugins-base-libs/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/06.signature",
+      "sha256": "96469a6c5bcd11d59c0c91cd9ca0be10da2274fe89d6ef59741f6b06007910f6"
+    },
+    "official/gstreamer/archive": {
+      "bytes": 1980512,
+      "path": "carrier/inputs/materials/official/07.archive",
+      "sha256": "33bd6339676ccadab9d8aa3bf91985eee89ea805722d48e070d4190d257a8892"
+    },
+    "official/gstreamer/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/07.signature",
+      "sha256": "a2423cc280a094ef9a44b9c1166bb5541cd6fb629c419839ddab5d96e4a02077"
+    },
+    "official/gtk4/archive": {
+      "bytes": 10656560,
+      "path": "carrier/inputs/materials/official/08.archive",
+      "sha256": "a9c34b926a251f4d610ede9bd4f38d61a2097358ba477a743ff72a882f5278d2"
+    },
+    "official/gtk4/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/08.signature",
+      "sha256": "53b25890ae4490dd6a4c04ee9ef24a92b16cf78d31ff8cac77c14c1a5bd996dd"
+    },
+    "official/gupnp-igd/archive": {
+      "bytes": 27772,
+      "path": "carrier/inputs/materials/official/10.archive",
+      "sha256": "47ada079f0ae6043f028ed6bf225ab26f085a40e06c6367a78580f058ea6e61b"
+    },
+    "official/gupnp-igd/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/10.signature",
+      "sha256": "7523f9f7ad17cad22829849ebce4bbe09ff1aa8b1091d0402333892bda807867"
+    },
+    "official/gupnp/archive": {
+      "bytes": 121972,
+      "path": "carrier/inputs/materials/official/09.archive",
+      "sha256": "38e6d7fdc0882f8b08e2d2e15c9e686607bdde6e01d48c54c7bd191a31f60ebf"
+    },
+    "official/gupnp/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/09.signature",
+      "sha256": "7fcfa673ee1522fe5f73fc0f85c89e41b094d3b6247c960b160c5332e005bed3"
+    },
+    "official/libgirepository/archive": {
+      "bytes": 178880,
+      "path": "carrier/inputs/materials/official/11.archive",
+      "sha256": "c9c9715f03a1b4bbbd9e03c203275f4571a4c8b6bd1e5307eafc02ebf1789fed"
+    },
+    "official/libgirepository/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/11.signature",
+      "sha256": "b5dbda31283ec1f96e64172e429f9c29295bf84ae074d3d642970edf6c18259d"
+    },
+    "official/libnice/archive": {
+      "bytes": 301848,
+      "path": "carrier/inputs/materials/official/12.archive",
+      "sha256": "b6c6565ddb510373b211b62ae6c773c7608d39c4d799416c38a45e6a1549c61d"
+    },
+    "official/libnice/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/12.signature",
+      "sha256": "4c4a5d773f203a6df57e6fbc74b4beac62c7af44690e88ef415985d7b0f8798e"
+    },
+    "official/liburing/archive": {
+      "bytes": 271192,
+      "path": "carrier/inputs/materials/official/13.archive",
+      "sha256": "efb67ef7eed7b30bebebbe9420fbf67bbfd0676c2b731f30e47e544cdb73feaf"
+    },
+    "official/liburing/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/13.signature",
+      "sha256": "3a42d42b719abe319f541f2110fa2a77893ed21dfe9456df915d217b75b8e068"
+    },
+    "official/libva/archive": {
+      "bytes": 193448,
+      "path": "carrier/inputs/materials/official/14.archive",
+      "sha256": "208f2b00046c22544855390ae9359ac59a13f375ab1d6d1e3f50ee875ae9db61"
+    },
+    "official/libva/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/14.signature",
+      "sha256": "77c200e2cc6618be6ac79615e012a1902fbfda7b2ae05bbe1d0a71c802f25a4f"
+    },
+    "official/libxv/archive": {
+      "bytes": 35444,
+      "path": "carrier/inputs/materials/official/15.archive",
+      "sha256": "03abeee4ba4b04cd0f6457ea60005e84701fd929bdd57d1a1be9034101c15243"
+    },
+    "official/libxv/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/15.signature",
+      "sha256": "0b05ea1f18099c07f602f0375bf7d66c872014ac30268cec9ba0b625b2716ca1"
+    },
+    "official/numactl/archive": {
+      "bytes": 83656,
+      "path": "carrier/inputs/materials/official/16.archive",
+      "sha256": "b28ebc082254c63fbbd9aac1e2ec9bae8e78fe7243682e875df537906ecb5971"
+    },
+    "official/numactl/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/16.signature",
+      "sha256": "334df3c15796e8571a5539c4ea111372dc1f7e5c2c699c942824c2a505b95803"
+    },
+    "official/orc/archive": {
+      "bytes": 302292,
+      "path": "carrier/inputs/materials/official/17.archive",
+      "sha256": "17d187c9a6381bf1bb991f5d98e1c3b19b636ed7bd05b5f4d6601bf41b19868f"
+    },
+    "official/orc/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/17.signature",
+      "sha256": "d79eeac99a2d2d98e87e9d0fa2295dfee224a1c0f22e1368829f69ddbcedc062"
+    },
+    "official/python-gobject/archive": {
+      "bytes": 300132,
+      "path": "carrier/inputs/materials/official/18.archive",
+      "sha256": "49b8991906522d676aafc7588c6a1760dfe5b2316e3c4168ac8a62ea01bf7d1f"
+    },
+    "official/python-gobject/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/18.signature",
+      "sha256": "fda744068c82534c0879b3f02bc5c378f0c57d4e7cc7648252f75e618f197d80"
+    },
+    "official/vmaf/archive": {
+      "bytes": 378412,
+      "path": "carrier/inputs/materials/official/19.archive",
+      "sha256": "5103e65332731cb568fd163b2d9fa074ebe2e821507c044e61048385a9a27c66"
+    },
+    "official/vmaf/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/19.signature",
+      "sha256": "7ecdf542ca896eaf7e4d764bb663540ca2f933c827afada303047db6dd8fab83"
+    },
+    "official/vulkan-icd-loader/archive": {
+      "bytes": 164352,
+      "path": "carrier/inputs/materials/official/20.archive",
+      "sha256": "aac2d10b977d9a0e7f7e45a4dd0799aa0256f6df2a32baf8231cd027b342e993"
+    },
+    "official/vulkan-icd-loader/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/20.signature",
+      "sha256": "c54f2edbc46f7ec2fddb001cec49804d233d66a1d1b140d26cbc3c668f07d969"
+    },
+    "official/xdg-desktop-portal-gtk/archive": {
+      "bytes": 116916,
+      "path": "carrier/inputs/materials/official/22.archive",
+      "sha256": "67dc11eed1288b37ff3afdf8ed590f2ac4ec75ad3fb740f4984d93fd3c0628a7"
+    },
+    "official/xdg-desktop-portal-gtk/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/22.signature",
+      "sha256": "df37455d9f34fbf0071266c01749b7a4e8e2c07ad88dbbc2117f8fe07fea5ca7"
+    },
+    "official/xdg-desktop-portal/archive": {
+      "bytes": 464240,
+      "path": "carrier/inputs/materials/official/21.archive",
+      "sha256": "e1f5f15d6455a3b9787775e5c6f33c0223154aef94d837b1ed52f4651705c7c6"
+    },
+    "official/xdg-desktop-portal/signature": {
+      "bytes": 566,
+      "path": "carrier/inputs/materials/official/21.signature",
+      "sha256": "ae7b3353f11313b3541ad44585ee6ed1efae0f9f179d24340dce5da1c51a55c2"
+    },
+    "prospective/inputs": {
+      "bytes": 2276,
+      "path": "carrier/inputs/inputs.DRAFT.json",
+      "sha256": "3df51b7511fc940b8dfa952af2d7802bf82c6b37127bba0122ff921eca50f84e"
+    },
+    "prospective/signed_lifecycle": {
+      "bytes": 10553,
+      "path": "carrier/inputs/signed-lifecycle-inputs.DRAFT.json",
+      "sha256": "bf70c983e915efb84a78a48e4df547cba4786e795ba4b558dd637d0a164afa32"
+    }
+  },
+  "runtime": null,
+  "schema": 1
+}

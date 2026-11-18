@@ -1,0 +1,450 @@
+{
+  "Root_current_official_trust": null,
+  "Root_current_verification": null,
+  "kind": "CURRENT_OFFICIAL_23_ARCHIVE_SIGNATURE_INPUTS_DATA_ONLY",
+  "official_public_key_candidate": {
+    "bytes": 2228,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0306-official-public.gpg",
+    "sha256": "9403f923eed777ba0896a0b225e1522d3a7625234694c753ae26b27c29672aae"
+  },
+  "packages": {
+    "fuse-common": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 2868,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0060-fuse-common-3.18.3-1-aarch64.pkg.tar.xz",
+        "sha256": "f8a67e6a893e09ece9d9611112b46259df1d947b8d57ac9f118a00eb955780b9"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "fuse-common-3.18.3-1-aarch64.pkg.tar.xz",
+      "name": "fuse-common",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0061-fuse-common-3.18.3-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "846fa0db2dd76d4e805b19b010143412522a630eb5235f9b00692c1541bba957"
+      },
+      "version": "3.18.3-1"
+    },
+    "fuse3": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 133600,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0062-fuse3-3.18.3-1-aarch64.pkg.tar.xz",
+        "sha256": "ea1a152ebe20cecf157378c8917e04b976e89287e2471dd20117b3923b3f0ebb"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "fuse3-3.18.3-1-aarch64.pkg.tar.xz",
+      "name": "fuse3",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0063-fuse3-3.18.3-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "da757cee8ccfe106f13a7fa9fdb285d43eda5598090de98b4e1487afd149769c"
+      },
+      "version": "3.18.3-1"
+    },
+    "gobject-introspection-runtime": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 30644,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0078-gobject-introspection-runtime-1.86.0-2-aarch64.pkg.tar.xz",
+        "sha256": "fe0d6a936340bf8b6752d96f198f130ad0fdbc39521dd71257346f297a0287ae"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "gobject-introspection-runtime-1.86.0-2-aarch64.pkg.tar.xz",
+      "name": "gobject-introspection-runtime",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0079-gobject-introspection-runtime-1.86.0-2-aarch64.pkg.tar.xz.sig",
+        "sha256": "1005c1451e791578a49d6873cb333d678d1f30b94c3e74847018a4315f0b16c7"
+      },
+      "version": "1.86.0-2"
+    },
+    "graphene": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 103788,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0084-graphene-1.10.8-2.1-aarch64.pkg.tar.xz",
+        "sha256": "2f928a829385d79626cba58fcc111f8f930d1ae951d83f405813a3886ab9ec7b"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "graphene-1.10.8-2.1-aarch64.pkg.tar.xz",
+      "name": "graphene",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0085-graphene-1.10.8-2.1-aarch64.pkg.tar.xz.sig",
+        "sha256": "ee7224f1aaff41b75eb745daae70accc83502c7e64e0eed954f9312403e4e498"
+      },
+      "version": "1.10.8-2.1"
+    },
+    "gssdp": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 55036,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0092-gssdp-1.6.6-1-aarch64.pkg.tar.xz",
+        "sha256": "6b4eaa0f2c31b5901b14b306bb4607842dbc3e2c9d5658ad719a1001b8bc5216"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "gssdp-1.6.6-1-aarch64.pkg.tar.xz",
+      "name": "gssdp",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0093-gssdp-1.6.6-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "f0ee57cb95aa34bd7850443d2760ca5ce0cb0b78606d61cb27e9ddd67d35aacf"
+      },
+      "version": "1.6.6-1"
+    },
+    "gst-plugins-bad-libs": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 2720860,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0094-gst-plugins-bad-libs-1.28.8-1-aarch64.pkg.tar.xz",
+        "sha256": "9db399b8bec60e6a80367e45db11b31294714eca3383c3bf2d6a4420bc099747"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "gst-plugins-bad-libs-1.28.8-1-aarch64.pkg.tar.xz",
+      "name": "gst-plugins-bad-libs",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0095-gst-plugins-bad-libs-1.28.8-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "06aa876a924bb907892b22d43d544d5d5d08f20e93846302ed52fdfc628a05ec"
+      },
+      "version": "1.28.8-1"
+    },
+    "gst-plugins-base-libs": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 2278616,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0096-gst-plugins-base-libs-1.28.8-1-aarch64.pkg.tar.xz",
+        "sha256": "31a012f8a70288e403ca0a7a6ff2bcab9e4f1d4baaa4b17be76315e2485dd19a"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "gst-plugins-base-libs-1.28.8-1-aarch64.pkg.tar.xz",
+      "name": "gst-plugins-base-libs",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0097-gst-plugins-base-libs-1.28.8-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "96469a6c5bcd11d59c0c91cd9ca0be10da2274fe89d6ef59741f6b06007910f6"
+      },
+      "version": "1.28.8-1"
+    },
+    "gstreamer": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 1980512,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0098-gstreamer-1.28.8-1-aarch64.pkg.tar.xz",
+        "sha256": "33bd6339676ccadab9d8aa3bf91985eee89ea805722d48e070d4190d257a8892"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "gstreamer-1.28.8-1-aarch64.pkg.tar.xz",
+      "name": "gstreamer",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0099-gstreamer-1.28.8-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "a2423cc280a094ef9a44b9c1166bb5541cd6fb629c419839ddab5d96e4a02077"
+      },
+      "version": "1.28.8-1"
+    },
+    "gtk4": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 10656560,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0106-gtk4-1:4.24.1-1-aarch64.pkg.tar.xz",
+        "sha256": "a9c34b926a251f4d610ede9bd4f38d61a2097358ba477a743ff72a882f5278d2"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "gtk4-1:4.24.1-1-aarch64.pkg.tar.xz",
+      "name": "gtk4",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0107-gtk4-1:4.24.1-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "53b25890ae4490dd6a4c04ee9ef24a92b16cf78d31ff8cac77c14c1a5bd996dd"
+      },
+      "version": "1:4.24.1-1"
+    },
+    "gupnp": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 121972,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0108-gupnp-1:1.6.10-1-aarch64.pkg.tar.xz",
+        "sha256": "38e6d7fdc0882f8b08e2d2e15c9e686607bdde6e01d48c54c7bd191a31f60ebf"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "gupnp-1:1.6.10-1-aarch64.pkg.tar.xz",
+      "name": "gupnp",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0109-gupnp-1:1.6.10-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "7fcfa673ee1522fe5f73fc0f85c89e41b094d3b6247c960b160c5332e005bed3"
+      },
+      "version": "1:1.6.10-1"
+    },
+    "gupnp-igd": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 27772,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0110-gupnp-igd-1.6.0-2-aarch64.pkg.tar.xz",
+        "sha256": "47ada079f0ae6043f028ed6bf225ab26f085a40e06c6367a78580f058ea6e61b"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "gupnp-igd-1.6.0-2-aarch64.pkg.tar.xz",
+      "name": "gupnp-igd",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0111-gupnp-igd-1.6.0-2-aarch64.pkg.tar.xz.sig",
+        "sha256": "7523f9f7ad17cad22829849ebce4bbe09ff1aa8b1091d0402333892bda807867"
+      },
+      "version": "1.6.0-2"
+    },
+    "libgirepository": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 178880,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0158-libgirepository-1.86.0-2-aarch64.pkg.tar.xz",
+        "sha256": "c9c9715f03a1b4bbbd9e03c203275f4571a4c8b6bd1e5307eafc02ebf1789fed"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "libgirepository-1.86.0-2-aarch64.pkg.tar.xz",
+      "name": "libgirepository",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0159-libgirepository-1.86.0-2-aarch64.pkg.tar.xz.sig",
+        "sha256": "b5dbda31283ec1f96e64172e429f9c29295bf84ae074d3d642970edf6c18259d"
+      },
+      "version": "1.86.0-2"
+    },
+    "libnice": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 301848,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0186-libnice-0.1.24-1-aarch64.pkg.tar.xz",
+        "sha256": "b6c6565ddb510373b211b62ae6c773c7608d39c4d799416c38a45e6a1549c61d"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "libnice-0.1.24-1-aarch64.pkg.tar.xz",
+      "name": "libnice",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0187-libnice-0.1.24-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "4c4a5d773f203a6df57e6fbc74b4beac62c7af44690e88ef415985d7b0f8798e"
+      },
+      "version": "0.1.24-1"
+    },
+    "liburing": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 271192,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0230-liburing-2.15-1-aarch64.pkg.tar.xz",
+        "sha256": "efb67ef7eed7b30bebebbe9420fbf67bbfd0676c2b731f30e47e544cdb73feaf"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "liburing-2.15-1-aarch64.pkg.tar.xz",
+      "name": "liburing",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0231-liburing-2.15-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "3a42d42b719abe319f541f2110fa2a77893ed21dfe9456df915d217b75b8e068"
+      },
+      "version": "2.15-1"
+    },
+    "libva": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 193448,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0232-libva-2.24.1-1-aarch64.pkg.tar.xz",
+        "sha256": "208f2b00046c22544855390ae9359ac59a13f375ab1d6d1e3f50ee875ae9db61"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "libva-2.24.1-1-aarch64.pkg.tar.xz",
+      "name": "libva",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0233-libva-2.24.1-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "77c200e2cc6618be6ac79615e012a1902fbfda7b2ae05bbe1d0a71c802f25a4f"
+      },
+      "version": "2.24.1-1"
+    },
+    "libxv": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 35444,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0280-libxv-1.0.13-1-aarch64.pkg.tar.xz",
+        "sha256": "03abeee4ba4b04cd0f6457ea60005e84701fd929bdd57d1a1be9034101c15243"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "libxv-1.0.13-1-aarch64.pkg.tar.xz",
+      "name": "libxv",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0281-libxv-1.0.13-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "0b05ea1f18099c07f602f0375bf7d66c872014ac30268cec9ba0b625b2716ca1"
+      },
+      "version": "1.0.13-1"
+    },
+    "numactl": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 83656,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0304-numactl-2.0.19-1-aarch64.pkg.tar.xz",
+        "sha256": "b28ebc082254c63fbbd9aac1e2ec9bae8e78fe7243682e875df537906ecb5971"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "numactl-2.0.19-1-aarch64.pkg.tar.xz",
+      "name": "numactl",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0305-numactl-2.0.19-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "334df3c15796e8571a5539c4ea111372dc1f7e5c2c699c942824c2a505b95803"
+      },
+      "version": "2.0.19-1"
+    },
+    "orc": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 302292,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0307-orc-0.4.44-1-aarch64.pkg.tar.xz",
+        "sha256": "17d187c9a6381bf1bb991f5d98e1c3b19b636ed7bd05b5f4d6601bf41b19868f"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "orc-0.4.44-1-aarch64.pkg.tar.xz",
+      "name": "orc",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0308-orc-0.4.44-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "d79eeac99a2d2d98e87e9d0fa2295dfee224a1c0f22e1368829f69ddbcedc062"
+      },
+      "version": "0.4.44-1"
+    },
+    "python-gobject": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 300132,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0324-python-gobject-3.58.1-1-aarch64.pkg.tar.xz",
+        "sha256": "49b8991906522d676aafc7588c6a1760dfe5b2316e3c4168ac8a62ea01bf7d1f"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "python-gobject-3.58.1-1-aarch64.pkg.tar.xz",
+      "name": "python-gobject",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0325-python-gobject-3.58.1-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "fda744068c82534c0879b3f02bc5c378f0c57d4e7cc7648252f75e618f197d80"
+      },
+      "version": "3.58.1-1"
+    },
+    "vmaf": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 378412,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0334-vmaf-3.2.1-1-aarch64.pkg.tar.xz",
+        "sha256": "5103e65332731cb568fd163b2d9fa074ebe2e821507c044e61048385a9a27c66"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "vmaf-3.2.1-1-aarch64.pkg.tar.xz",
+      "name": "vmaf",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0335-vmaf-3.2.1-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "7ecdf542ca896eaf7e4d764bb663540ca2f933c827afada303047db6dd8fab83"
+      },
+      "version": "3.2.1-1"
+    },
+    "vulkan-icd-loader": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 164352,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0336-vulkan-icd-loader-1.4.363.0-1-aarch64.pkg.tar.xz",
+        "sha256": "aac2d10b977d9a0e7f7e45a4dd0799aa0256f6df2a32baf8231cd027b342e993"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "vulkan-icd-loader-1.4.363.0-1-aarch64.pkg.tar.xz",
+      "name": "vulkan-icd-loader",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0337-vulkan-icd-loader-1.4.363.0-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "c54f2edbc46f7ec2fddb001cec49804d233d66a1d1b140d26cbc3c668f07d969"
+      },
+      "version": "1.4.363.0-1"
+    },
+    "xdg-desktop-portal": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 464240,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0344-xdg-desktop-portal-1.22.1-2-aarch64.pkg.tar.xz",
+        "sha256": "e1f5f15d6455a3b9787775e5c6f33c0223154aef94d837b1ed52f4651705c7c6"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "xdg-desktop-portal-1.22.1-2-aarch64.pkg.tar.xz",
+      "name": "xdg-desktop-portal",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0345-xdg-desktop-portal-1.22.1-2-aarch64.pkg.tar.xz.sig",
+        "sha256": "ae7b3353f11313b3541ad44585ee6ed1efae0f9f179d24340dce5da1c51a55c2"
+      },
+      "version": "1.22.1-2"
+    },
+    "xdg-desktop-portal-gtk": {
+      "arch": "aarch64",
+      "archive": {
+        "bytes": 116916,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0346-xdg-desktop-portal-gtk-1.15.3-1-aarch64.pkg.tar.xz",
+        "sha256": "67dc11eed1288b37ff3afdf8ed590f2ac4ec75ad3fb740f4984d93fd3c0628a7"
+      },
+      "current_official_trust": null,
+      "current_verification": null,
+      "expected_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "filename": "xdg-desktop-portal-gtk-1.15.3-1-aarch64.pkg.tar.xz",
+      "name": "xdg-desktop-portal-gtk",
+      "signature": {
+        "bytes": 566,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261114/GUI-r5-durable-DATA-20261115-r1/files/0347-xdg-desktop-portal-gtk-1.15.3-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "df37455d9f34fbf0071266c01749b7a4e8e2c07ad88dbbc2117f8fe07fea5ca7"
+      },
+      "version": "1.15.3-1"
+    }
+  },
+  "schema": 1
+}

@@ -1,0 +1,351 @@
+{
+  "actual": {
+    "Root_delegation": null,
+    "Root_resources": null,
+    "Root_runtime": null,
+    "Root_trust": null,
+    "actual_images": null,
+    "job": null,
+    "publication": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "api": "CURRENT_ONBOARDING_DELEGATED_OWNER_V3",
+  "basis_closure_commit": "216780a9ff856496b78bef074e469bb3c6498b6e",
+  "capture_commit": "441832e1d687255434c9001d603d400e4932f26a",
+  "capture_rebind_provenance": {
+    "bytes": 2386,
+    "member": "provenance/v6/rebind.json",
+    "sha256": "1666720c8409323f9f27426d67a08ade99ff9091c72476de1e033732fe9ad11b"
+  },
+  "delegation_programs": {
+    "base_inputs": {
+      "bytes": 18820,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/base_inputs_current_v3.py",
+      "sha256": "9e35c3ae6c3e1e9596f54806279d05cc77ae6a2cb5fb284d469df549e1d3abc6"
+    },
+    "build_validator": {
+      "bytes": 7798,
+      "member": "scripts/ci/first-login-enrollment-native-source/successor_v4/validate_build.py",
+      "sha256": "dd2fd5a390b7764b753817044e60b8ea088cb6b704e80503f53d4b6335559d84"
+    },
+    "context": {
+      "bytes": 43482,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/delegated_context_v4.py",
+      "sha256": "2d08f9572b3f5f89d3ebac2b32e6d41a00ff4929739c35780c7c96a1d3d3b21d"
+    },
+    "encoder": {
+      "bytes": 1708,
+      "member": "scripts/ci/log_evidence.py",
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5"
+    },
+    "host_prerequisite_plan": {
+      "bytes": 13845,
+      "member": "scripts/ci/fish-config02-native-source/successor_v2/host_prerequisites.py",
+      "sha256": "4bef653f0e999876e8dd1e74e7d61b808182f7528f4f50ce6444e14f6ff33d64"
+    },
+    "host_prerequisite_runner_basis": {
+      "bytes": 31464,
+      "member": "scripts/ci/fish-config02-native-source/successor_v2/hosted_owner.py",
+      "sha256": "7f4d2a68f13a2439a4363cfb154553dc9e721a88dc985080dd290d44583ad634"
+    },
+    "host_prerequisite_tools": {
+      "bytes": 5273,
+      "member": "scripts/ci/fish-config02-native-source/successor_v2/host_tools.py",
+      "sha256": "5f980d2df87cebdf264167e7be7220485a6fcc555667782d31316da0d08aef72"
+    },
+    "host_prerequisites": {
+      "bytes": 13750,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/host_prerequisites_current_v3.py",
+      "sha256": "521163f6f9504edaa573fa079751d7714065bea2ceef69428e8bc7585e361daa"
+    },
+    "hosted_launcher": {
+      "bytes": 68455,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+      "sha256": "2466d2f5244a7a2a6e22adde9d856f734a28d5753828c4030daffeb80c565b71"
+    },
+    "image": {
+      "bytes": 55783,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/image_current_v3.py",
+      "sha256": "f4e590532d7f6115f830215810f9dee5f2a1eb714351a9a7e572d22c5a255f90"
+    },
+    "image_executor": {
+      "bytes": 53735,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/owned_executor_current_v3.py",
+      "sha256": "aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a"
+    },
+    "inputs_assembler": {
+      "bytes": 45247,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/inputs_current_v3.py",
+      "sha256": "ddc4f0da13c4e9d7ab58f2c3fe318343082f320dae105e069336ecb24c4c49cb"
+    },
+    "local_callbacks": {
+      "bytes": 46298,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/owner_current_v2.py",
+      "sha256": "f1a91dee080f76eff88409dd1fe893dc45a2084338017f367ec9874a462a612d"
+    },
+    "material_domain_executor": {
+      "bytes": 44646,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
+      "sha256": "f6f44432af8b699529108ae73d194cd766934c43b0c424b6453d6ee38e85d471"
+    },
+    "material_transport": {
+      "bytes": 12375,
+      "member": "native/retained_transport.py",
+      "sha256": "46708771ccb93bbfe22c4f449f3a54052bc9494c4fb572e10b0853b5aa47bdef"
+    },
+    "materials_stager": {
+      "bytes": 45425,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py",
+      "sha256": "fcdcc703b99083f5dfb8b29026718d54fc99015c7c66b5b320e2da1d7a8cb1cc"
+    },
+    "owned_process": {
+      "bytes": 25140,
+      "member": "scripts/virtual/owned_process.py",
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "owner": {
+      "bytes": 68320,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/owner_delegated_v3.py",
+      "sha256": "4196aa414d7711a5e56c0a73f63282db712fffdfccdd9206e5b4e69f9605c7ad"
+    },
+    "private_seed": {
+      "bytes": 29048,
+      "member": "bootstrap/scripts/ci/old_four_seed.py",
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "public_reader": {
+      "bytes": 248911,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/reader_current_v3.py",
+      "sha256": "83147abcdbc0d977ee0efe17ecfe10904f40a9e1354d8eae3784de54208cf11d"
+    },
+    "retained_prefill": {
+      "bytes": 5986,
+      "member": "bootstrap/scripts/ci/setup6-retained-helpers/legacy_prefill.py",
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+    },
+    "retained_prepare": {
+      "bytes": 3749,
+      "member": "bootstrap/scripts/ci/setup6-retained-helpers/prepare.py",
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+    },
+    "retained_transport_core": {
+      "bytes": 25334,
+      "member": "scripts/maintenance/retained_git_transport.py",
+      "sha256": "9b90c423fd67c261d8be1dddd8450df5b927b6dbaba9972c4daff8c0da2836b7"
+    },
+    "retention": {
+      "bytes": 56142,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/retention_delegated_v4.py",
+      "sha256": "0aed986194a009fd1dcce5b244b1c6ccb1e0c11667a9674bdf12c657cc1c9fe7"
+    },
+    "route": {
+      "bytes": 16196,
+      "member": "scripts/ci/first-login-enrollment-native-source/successor_v4/route.py",
+      "sha256": "78be10c869556ecc0cd07e7ddc0b94016c3fae0cc02b1470420861808289cdee"
+    }
+  },
+  "diagnostics_commit": "e263bd414318a9ca94158a9d272218703d145102",
+  "entrypoints": {
+    "hosted_launcher": "main",
+    "image_executor": "controller_main",
+    "inputs_assembler": "assemble_inputs",
+    "public_reader": "read_delegated_stage"
+  },
+  "kind": "DELEGATED_CURRENT_TRANSPORT_PROGRAM_REGISTRY_V7",
+  "operation": "first-login-enrollment-ui-current-v2",
+  "owner": {
+    "bytes": 68320,
+    "member": "scripts/ci/first-login-enrollment-native-source/payload/native/owner_delegated_v3.py",
+    "sha256": "4196aa414d7711a5e56c0a73f63282db712fffdfccdd9206e5b4e69f9605c7ad"
+  },
+  "owner_callbacks": {
+    "build": "open_delegated_session",
+    "lifecycle": "launch_delegated_lifecycle"
+  },
+  "rebind_provenance": {
+    "bytes": 3009,
+    "member": "provenance/v5/rebind.json",
+    "sha256": "fd2082bb72b3fa2ae4ac98905ea96e3e24d1493290e7d07433cb704c023815d0"
+  },
+  "retention_callback": "retain_delegated_stage",
+  "roles": {
+    "base_inputs": {
+      "bytes": 18820,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/base_inputs_current_v3.py",
+      "sha256": "9e35c3ae6c3e1e9596f54806279d05cc77ae6a2cb5fb284d469df549e1d3abc6"
+    },
+    "context": {
+      "bytes": 43482,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/delegated_context_v4.py",
+      "sha256": "2d08f9572b3f5f89d3ebac2b32e6d41a00ff4929739c35780c7c96a1d3d3b21d"
+    },
+    "delegated_owner": {
+      "bytes": 68320,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/owner_delegated_v3.py",
+      "sha256": "4196aa414d7711a5e56c0a73f63282db712fffdfccdd9206e5b4e69f9605c7ad"
+    },
+    "encoder": {
+      "bytes": 1708,
+      "member": "scripts/ci/log_evidence.py",
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5"
+    },
+    "host_prerequisite_plan": {
+      "bytes": 13845,
+      "member": "scripts/ci/fish-config02-native-source/successor_v2/host_prerequisites.py",
+      "sha256": "4bef653f0e999876e8dd1e74e7d61b808182f7528f4f50ce6444e14f6ff33d64"
+    },
+    "host_prerequisite_runner_basis": {
+      "bytes": 31464,
+      "member": "scripts/ci/fish-config02-native-source/successor_v2/hosted_owner.py",
+      "sha256": "7f4d2a68f13a2439a4363cfb154553dc9e721a88dc985080dd290d44583ad634"
+    },
+    "host_prerequisite_tools": {
+      "bytes": 5273,
+      "member": "scripts/ci/fish-config02-native-source/successor_v2/host_tools.py",
+      "sha256": "5f980d2df87cebdf264167e7be7220485a6fcc555667782d31316da0d08aef72"
+    },
+    "host_prerequisites": {
+      "bytes": 13750,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/host_prerequisites_current_v3.py",
+      "sha256": "521163f6f9504edaa573fa079751d7714065bea2ceef69428e8bc7585e361daa"
+    },
+    "hosted_launcher": {
+      "bytes": 68455,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+      "sha256": "2466d2f5244a7a2a6e22adde9d856f734a28d5753828c4030daffeb80c565b71"
+    },
+    "image": {
+      "bytes": 55783,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/image_current_v3.py",
+      "sha256": "f4e590532d7f6115f830215810f9dee5f2a1eb714351a9a7e572d22c5a255f90"
+    },
+    "image_executor": {
+      "bytes": 53735,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/owned_executor_current_v3.py",
+      "sha256": "aee41c0956f3249eef2e9c8974238b214622cb385e2d8f736109d9650ce7120a"
+    },
+    "inputs_assembler": {
+      "bytes": 45247,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/inputs_current_v3.py",
+      "sha256": "ddc4f0da13c4e9d7ab58f2c3fe318343082f320dae105e069336ecb24c4c49cb"
+    },
+    "material_domain_executor": {
+      "bytes": 44646,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
+      "sha256": "f6f44432af8b699529108ae73d194cd766934c43b0c424b6453d6ee38e85d471"
+    },
+    "material_transport": {
+      "bytes": 12375,
+      "member": "native/retained_transport.py",
+      "sha256": "46708771ccb93bbfe22c4f449f3a54052bc9494c4fb572e10b0853b5aa47bdef"
+    },
+    "materials_stager": {
+      "bytes": 45425,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py",
+      "sha256": "fcdcc703b99083f5dfb8b29026718d54fc99015c7c66b5b320e2da1d7a8cb1cc"
+    },
+    "owned_process": {
+      "bytes": 25140,
+      "member": "scripts/virtual/owned_process.py",
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "policy": {
+      "bytes": 8366,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/owned_current_v3.policy.PROPOSAL.json",
+      "sha256": "18546f7a7309b48eecb6098db54b5a5705ce7dd3f85e0f3fd1e2e803a4ee243c"
+    },
+    "private_seed": {
+      "bytes": 29048,
+      "member": "bootstrap/scripts/ci/old_four_seed.py",
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "public_reader": {
+      "bytes": 248911,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/reader_current_v3.py",
+      "sha256": "83147abcdbc0d977ee0efe17ecfe10904f40a9e1354d8eae3784de54208cf11d"
+    },
+    "retained_prefill": {
+      "bytes": 5986,
+      "member": "bootstrap/scripts/ci/setup6-retained-helpers/legacy_prefill.py",
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+    },
+    "retained_prepare": {
+      "bytes": 3749,
+      "member": "bootstrap/scripts/ci/setup6-retained-helpers/prepare.py",
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+    },
+    "retained_transport_core": {
+      "bytes": 25334,
+      "member": "scripts/maintenance/retained_git_transport.py",
+      "sha256": "9b90c423fd67c261d8be1dddd8450df5b927b6dbaba9972c4daff8c0da2836b7"
+    },
+    "retention": {
+      "bytes": 56142,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/retention_delegated_v4.py",
+      "sha256": "0aed986194a009fd1dcce5b244b1c6ccb1e0c11667a9674bdf12c657cc1c9fe7"
+    },
+    "route": {
+      "bytes": 16196,
+      "member": "scripts/ci/first-login-enrollment-native-source/successor_v4/route.py",
+      "sha256": "78be10c869556ecc0cd07e7ddc0b94016c3fae0cc02b1470420861808289cdee"
+    },
+    "v3_basis_owner": {
+      "bytes": 46298,
+      "member": "scripts/ci/first-login-enrollment-native-source/payload/native/owner_current_v2.py",
+      "sha256": "f1a91dee080f76eff88409dd1fe893dc45a2084338017f367ec9874a462a612d"
+    },
+    "v3_basis_route": {
+      "bytes": 26320,
+      "member": "scripts/ci/first-login-enrollment-native-source/successor_v2/owned_route.py",
+      "sha256": "43db41de72822cb8f4d875b6c1d17ffd5062770616ed303f63e299c13478dd86"
+    },
+    "workflow": {
+      "bytes": 8949,
+      "member": ".github/workflows/native-arm-current-onboarding-delegated-v3.yml",
+      "sha256": "4aaa31fae8b6665d502372467d3da5ceef0bb30553d2dfb1ac9f38a41fc90165"
+    }
+  },
+  "route": {
+    "bytes": 16196,
+    "member": "scripts/ci/first-login-enrollment-native-source/successor_v4/route.py",
+    "sha256": "78be10c869556ecc0cd07e7ddc0b94016c3fae0cc02b1470420861808289cdee"
+  },
+  "route_callback": "run_registered",
+  "schema": 7,
+  "staging_materials": {
+    "public14_profile": {
+      "bytes": 3024,
+      "member": "scripts/ci/first-login-enrollment-native-source/inputs/public14-profile.json",
+      "sha256": "5fe4761bc96d21ec388322ead3b97c735d2f689c38061c560afc90a2143de346"
+    },
+    "retained_carrier_profile": {
+      "bytes": 195440,
+      "member": "bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json",
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "retained_prefill_profile": {
+      "bytes": 1510,
+      "member": "bootstrap/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json",
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+    },
+    "staging_base_lock": {
+      "bytes": 328101,
+      "member": "bootstrap/scripts/ci/inputs.lock.json",
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "staging_bootstrap_profile": {
+      "bytes": 168201,
+      "member": "native/input-profile.json",
+      "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
+    }
+  },
+  "transport_commit": "9e26ce819a258225cac866341e15d7099038ab9e",
+  "transport_rebind_provenance": {
+    "bytes": 3344,
+    "member": "provenance/v7/rebind.json",
+    "sha256": "a170a7e22bede064ae56962613d9e270dd8a59ac04c1b1313e8da2158a19fff9"
+  },
+  "v3_registry_scope": "PRESERVED_DATA_ONLY_NEVER_DELEGATED_EXECUTION"
+}

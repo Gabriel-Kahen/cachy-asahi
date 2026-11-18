@@ -1,0 +1,30 @@
+{
+  "actual_acceptance": null,
+  "basis": {
+    "bytes": 45330627,
+    "files": 179,
+    "source_map": {
+      "bytes": 35107,
+      "sha256": "063a34c64d9e9ad21e6c2bd5c4e0a147f88890061cd79fb13587bc1e37e9d7f4"
+    },
+    "tree": "5128864b3c17f230d5045361014b41ce31b72767"
+  },
+  "kind": "DIAGNOSTIC_SOURCE_V5_TO_SOURCE179_INVERSE_DATA_ONLY",
+  "remove": [
+    "provenance/v5/original/scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+    "provenance/v5/original/scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
+    "provenance/v5/original/scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py",
+    "provenance/v5/rebind.json",
+    "provenance/v5/source179-map.json",
+    "scripts/ci/first-login-enrollment-native-source/successor_v5_source/README.md",
+    "scripts/ci/first-login-enrollment-native-source/successor_v5_source/inverse.json",
+    "scripts/ci/first-login-enrollment-native-source/successor_v5_source/prepare.py",
+    "scripts/ci/first-login-enrollment-native-source/successor_v5_source/program.json"
+  ],
+  "restore": {
+    "scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py": "provenance/v5/original/scripts/ci/first-login-enrollment-native-source/payload/native/hosted_current_v3.py",
+    "scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py": "provenance/v5/original/scripts/ci/first-login-enrollment-native-source/payload/native/material_domain_current_v3.py",
+    "scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py": "provenance/v5/original/scripts/ci/first-login-enrollment-native-source/payload/native/stage_materials_current_v3_python_v1.py"
+  },
+  "schema": 5
+}
