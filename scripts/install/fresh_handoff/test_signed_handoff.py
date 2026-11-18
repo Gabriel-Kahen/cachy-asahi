@@ -7,7 +7,9 @@ an explicit disposable TEST anchor. No production identity/trust is claimed.
 """
 import argparse
 import copy
+from contextlib import redirect_stderr, redirect_stdout
 import importlib.util
+from io import StringIO
 import json
 import os
 from pathlib import Path
@@ -112,6 +114,36 @@ class SignedHandoffTests(unittest.TestCase):
         self.chosen['recovery']['receipt_sha256'] = H.C.digest(receipt_path.read_bytes())
         self.save()
 
+    def recovery_cli(self, command):
+        pins = self.chosen['recovery']
+        argv = [command, '--workspace', str(self.recovery), '--state-dir', str(self.state)]
+        for field in ('receipt_sha256', 'selection_sha256', 'signer', 'namespace', 'minimum_sequence'):
+            argv.extend(['--' + field.replace('_', '-'), str(pins[field])])
+        stdout, stderr = StringIO(), StringIO()
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            status = H.R.main(argv)
+        return status, stdout.getvalue(), stderr.getvalue()
+
+    def test_standalone_recovery_verifies_all16_signatures_after_relocation(self):
+        moved = self.root/'received recovery media'
+        self.recovery.rename(moved)
+        self.recovery = moved
+        before = H.K.inventory(moved), H.K.inventory(self.state)
+        status, output, errors = self.recovery_cli('verify-signatures')
+        self.assertEqual((status, errors), (0, ''))
+        result = json.loads(output)
+        self.assertEqual(result['status'], 'verified-offline-recovery-signatures')
+        self.assertEqual(result['predecessor_release_sha256'], self.chosen['recovery']['release_sha256'])
+        self.assertTrue(result['fresh_recovery_signature_verification'])
+        self.assertEqual(len(result['recovery_packages']), 16)
+        self.assertTrue(all(row['fresh_signature_verification'] is True for row in result['recovery_packages']))
+        self.assertFalse(result['independent_owner_trust_accepted'])
+        self.assertFalse(result['installed_system_recovered'])
+        self.assertFalse(result['packages_installed'])
+        self.assertFalse(result['boot_recovery_accepted'])
+        self.assertFalse(result['stable_accepted'])
+        self.assertEqual((H.K.inventory(moved), H.K.inventory(self.state)), before)
+
     def test_real_signed_pair_and_all16_recovery_archives_survive_relocation(self):
         before = H.K.inventory(self.state)
         result = self.build()
@@ -191,6 +223,14 @@ class SignedHandoffTests(unittest.TestCase):
         path.chmod(0o600)
         path.write_bytes(b'TEST invalid detached signature')
         self.repin_recovery()
+        before = H.K.inventory(self.recovery), H.K.inventory(self.state)
+        status, output, errors = self.recovery_cli('verify')
+        self.assertEqual((status, errors), (0, ''))
+        self.assertFalse(json.loads(output)['fresh_recovery_signature_verification'])
+        status, output, errors = self.recovery_cli('verify-signatures')
+        self.assertEqual((status, output), (1, ''))
+        self.assertIn('RECOVERY_SIGNATURE_REFUSED: test-old-00', errors)
+        self.assertEqual((H.K.inventory(self.recovery), H.K.inventory(self.state)), before)
         with self.assertRaisesRegex(H.C.Error, 'RECOVERY_SIGNATURE_REFUSED: test-old-00'):
             H.prepare(self.args)
         self.assertFalse(self.output.exists())

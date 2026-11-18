@@ -109,39 +109,7 @@ def checked_role(label, function):
 
 
 def fresh_recovery(recovery, prior):
-    """Reverify exact retained archives with the existing pinned public verifier.
-
-    Existing recovery receipts retain their historical classification. This
-    distinct check reads local bounded snapshots; no network or global keyring.
-    The maintained recovery profile remains fixed to its ALARM trust anchor.
-    """
-    rows = prior['recovery_packages']
-    need(type(rows) is list and len(rows) == R.P.OLD_COUNT, 'RECOVERY_SIGNATURE_SET_REFUSED')
-    certificate = R.read(recovery, 'recovery/inputs/certificate', R.P.MIB)
-    signer, pin = R.P.auth.KEYS['alarm']
-    need(C.digest(certificate) == pin, 'RECOVERY_CERTIFICATE_PIN_REFUSED')
-    with tempfile.TemporaryDirectory(prefix='fresh-handoff-public-verification-') as temporary:
-        root = Path(temporary)
-        public = root / 'public.gpg'
-        public.write_bytes(certificate)
-        for number, row in enumerate(rows):
-            name = row['name']
-            C.relative(name)
-            need('/' not in name, 'RECOVERY_PACKAGE_NAME_REFUSED')
-            archive_raw = R.read(recovery, 'recovery/packages/' + name + '/archive', R.P.ARCHIVE_LIMIT)
-            signature_raw = R.read(recovery, 'recovery/packages/' + name + '/signature', R.P.SIGNATURE_LIMIT)
-            need(C.digest(archive_raw) == row['archive_sha256'] and
-                 C.digest(signature_raw) == row['signature_sha256'], 'RECOVERY_SNAPSHOT_PIN_REFUSED: ' + name)
-            archive, signature = root / (str(number) + '.archive'), root / (str(number) + '.sig')
-            archive.write_bytes(archive_raw)
-            signature.write_bytes(signature_raw)
-            result, observation = checked_role('RECOVERY_SIGNATURE_REFUSED: ' + name,
-                lambda: R.P.auth.verify(root, public, archive, signature, signer))
-            need(result['fresh_verification'] is True and observation['exit'] == 0 and
-                 observation['installed_keyring_access'] is False and observation['ownertrust_modified'] is False,
-                 'RECOVERY_SIGNATURE_RESULT_REFUSED: ' + name)
-    return len(rows)
-
+    return R.verify_recovery_signatures(recovery, prior['recovery_packages'])
 
 def inspect_inputs(candidate, recovery, chosen, state):
     common = dict(state_dir=str(state))

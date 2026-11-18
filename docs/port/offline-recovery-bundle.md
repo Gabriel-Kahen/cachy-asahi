@@ -71,11 +71,10 @@ archive, signature, original index and inspection inventory.
 
 All original data is copied and rehashed. The existing recovery reader checks
 retained signature status and signer, exact operator links and archive metadata.
-The result explicitly reports `fresh_recovery_signature_verification: false`:
-these are retained authenticated observations, not fresh cryptographic or
-independent key-owner verification. The operator must already trust the pinned
-recovery receipt. Expired or revoked trust learned after that observation needs
-separate current authentication before operational recovery.
+`materialize` and `verify` report
+`fresh_recovery_signature_verification: false` for those retained observations.
+The operator must already trust the pinned recovery receipt. For a new
+cryptographic check on the received bytes, use `verify-signatures`.
 
 ## Materialize and verify
 
@@ -113,6 +112,13 @@ python3 -B scripts/release/recovery_bundle.py verify \
   --minimum-sequence "$KIT_MINIMUM_SEQUENCE" \
   --state-dir /absolute/existing-private-receiver-state
 ```
+
+Use `verify-signatures` in place of `verify` with the same arguments to check
+all 16 detached package signatures against the pinned ALARM public certificate.
+The command uses disposable public-only GPG homes and returns
+`verified-offline-recovery-signatures` on success. Each package record then
+reports `fresh_signature_verification: true`. Authenticate current trust and any
+revocations through the existing recovery process before using the bundle.
 
 The workspace contains the exact predecessor kit, original selection and recovery
 receipt, input documents and public certificate, all exact archives/signatures,

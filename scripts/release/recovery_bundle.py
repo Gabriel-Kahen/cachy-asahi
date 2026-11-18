@@ -3,9 +3,9 @@
 """Materialize an explicitly selected offline predecessor and recovery data.
 
 Selection SHA, kit signer/namespace/floor and checkpoint are external authority.
-Retained recovery observations are rehashed/reinspected, not freshly signed or
-freshly signature-verified. No transferred Python, recovery commands, package
-hooks, network, disk, mount, installation or boot operations are executed.
+Verify can recheck retained custody. Verify-signatures additionally checks
+every detached recovery signature with the fixed public trust anchor. No
+transferred Python, package hooks, network, installation or boot runs.
 """
 import argparse
 import copy
@@ -225,6 +225,40 @@ def recovery_view(root, chosen, base, *, extract=False):
     return observations
 
 
+
+def verify_recovery_signatures(root, observations):
+    """Verify the exact retained package/signature pairs using the fixed ALARM key."""
+    C.need(type(observations) is list and len(observations) == P.OLD_COUNT,
+           'RECOVERY_SIGNATURE_SET_REFUSED')
+    certificate = read(root, 'recovery/inputs/certificate', P.MIB)
+    signer, certificate_pin = P.auth.KEYS['alarm']
+    C.need(C.digest(certificate) == certificate_pin, 'RECOVERY_CERTIFICATE_PIN_REFUSED')
+    with tempfile.TemporaryDirectory(prefix='recovery-public-verification-') as temporary:
+        scratch = Path(temporary)
+        public = scratch / 'public.gpg'
+        public.write_bytes(certificate)
+        archive, signature = scratch / 'archive', scratch / 'signature'
+        for row in observations:
+            name = row['name']
+            C.need(type(name) is str and C.NAME.fullmatch(name), 'RECOVERY_PACKAGE_NAME_REFUSED')
+            directory = 'recovery/packages/' + name + '/'
+            archive_raw = read(root, directory + 'archive', P.ARCHIVE_LIMIT)
+            signature_raw = read(root, directory + 'signature', P.SIGNATURE_LIMIT)
+            C.need(C.digest(archive_raw) == row['archive_sha256'] and
+                   C.digest(signature_raw) == row['signature_sha256'], 'RECOVERY_SNAPSHOT_PIN_REFUSED: ' + name)
+            archive.write_bytes(archive_raw)
+            signature.write_bytes(signature_raw)
+            try:
+                result, proof = P.auth.verify(scratch, public, archive, signature, signer)
+            except (C.Error, OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
+                raise C.Error('RECOVERY_SIGNATURE_REFUSED: ' + name + ': ' + str(error)) from error
+            C.need(result['fresh_verification'] is True and result['primary_fingerprint'] == signer and
+                   proof['exit'] == 0 and proof['installed_keyring_access'] is False and
+                   proof['ownertrust_modified'] is False, 'RECOVERY_SIGNATURE_RESULT_REFUSED: ' + name)
+            archive.unlink()
+            signature.unlink()
+    return len(observations)
+
 def commands(chosen):
     """Argument arrays for review. Placeholders intentionally require real state."""
     return dict(purpose='review-only-existing-repository-recovery-plan', executed=False,
@@ -238,7 +272,7 @@ def commands(chosen):
         development_kit_is_stable_source=False, plan_requires_external_review_and_signature=True)
 
 
-def verify(args):
+def verify(args, *, fresh_signatures=False):
     root = C.absolute(args.workspace)
     state = C.absolute(args.state_dir)
     C.need(not root.is_relative_to(state) and not state.is_relative_to(root),
@@ -262,13 +296,18 @@ def verify(args):
     chosen = selection(pinned(root / 'selection.json', args.selection_sha256))
     inspected, base = inspect_kit(root / 'predecessor', chosen, args)
     observations = recovery_view(root, chosen, base)
+    if fresh_signatures:
+        verify_recovery_signatures(root, observations)
+        observations = [dict(row, fresh_signature_verification=True) for row in observations]
     C.need(read(root, 'commands.json') == C.encoded(commands(chosen)), 'recovery command review differs')
     after_files, after_links = K.inventory(root)
     C.need(after_files.pop(RECEIPT, None) == args.receipt_sha256 and after_files == files
            and after_links == links, 'workspace changed during verification')
-    return dict(status='verified-offline-recovery-data', selection_sha256=args.selection_sha256,
-        receipt_sha256=args.receipt_sha256, predecessor_release_sha256=inspected['release_sha256'],
-        recovery_packages=observations, commands=commands(chosen), **LIMITS)
+    status = 'verified-offline-recovery-signatures' if fresh_signatures else 'verified-offline-recovery-data'
+    limits = dict(LIMITS, fresh_recovery_signature_verification=fresh_signatures)
+    return dict(status=status, selection_sha256=args.selection_sha256, receipt_sha256=args.receipt_sha256,
+                predecessor_release_sha256=inspected['release_sha256'], recovery_packages=observations,
+                commands=commands(chosen), **limits)
 
 
 def materialize(args):
@@ -352,17 +391,20 @@ def main(argv=None):
     sub = parser.add_subparsers(dest='command', required=True)
     build = sub.add_parser('materialize')
     check = sub.add_parser('verify')
-    for command in (build, check):
+    signed = sub.add_parser('verify-signatures', help='also recheck every detached recovery signature')
+    for command in (build, check, signed):
         for name in ('selection-sha256', 'signer', 'namespace', 'state-dir'):
             command.add_argument('--' + name, required=True)
         command.add_argument('--minimum-sequence', type=int, required=True)
     for name in ('selection', 'kit', 'output'):
         build.add_argument('--' + name, required=True)
-    for name in ('workspace', 'receipt-sha256'):
-        check.add_argument('--' + name, required=True)
+    for command in (check, signed):
+        for name in ('workspace', 'receipt-sha256'):
+            command.add_argument('--' + name, required=True)
     args = parser.parse_args(argv)
     try:
-        result = materialize(args) if args.command == 'materialize' else verify(args)
+        result = (materialize(args) if args.command == 'materialize'
+                  else verify(args, fresh_signatures=args.command == 'verify-signatures'))
         print(json.dumps(result, sort_keys=True))
         return 0
     except (C.Error, OSError, ValueError, TypeError, KeyError, OverflowError,
