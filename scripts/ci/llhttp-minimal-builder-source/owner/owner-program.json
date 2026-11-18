@@ -1,0 +1,256 @@
+{
+  "base_source_map_sha256": "7dee13d80ed386d85e647e68184af3936e11f8f09e01b39761144b331c7480f6",
+  "files": {
+    ".github/workflows/native-arm-llhttp-minimal-builder-source.yml": {
+      "bytes": 3818,
+      "mode": 420,
+      "sha256": "9e770fc7145589cea6a68ecd926b8f50676295d2c2b5946d028d0e45079f6939"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "go-cli-va-v2.json": {
+      "bytes": 1403,
+      "mode": 420,
+      "sha256": "86bdbaaf75c60aa3fa52c55b9a1e1724b3ed2fb6a9e246e58e680492042dade8"
+    },
+    "inner-public-retention-v6.json": {
+      "bytes": 85323,
+      "mode": 420,
+      "sha256": "0fa3542b9dad7309ff2e1ef094ad2c66d8e74adcf26dbe1945995cc4af6aad6e"
+    },
+    "minimal206-build-only-projection.json": {
+      "bytes": 198342,
+      "mode": 420,
+      "sha256": "0df429cfe8a2340b54599d432056ddcd0c852cf4f91ed7da8d1bba53a540be0a"
+    },
+    "mount-class-diagnostics-v4.json": {
+      "bytes": 2287,
+      "mode": 420,
+      "sha256": "acd7f55a22919d1f33f4042caec8841970942870c6127c93174ca3efc89087db"
+    },
+    "payload-retirement-v3.json": {
+      "bytes": 9412,
+      "mode": 420,
+      "sha256": "d3bd44906a866ee0ecd97a0d05e26d3d77a211bf02f8e895ed81e8a0474ed33d"
+    },
+    "previous-v1/scripts/ci/llhttp-reference-native-source/owner/hosted_owner.py": {
+      "bytes": 27378,
+      "mode": 420,
+      "sha256": "f50742d4bf0ef40539cf73f26dd9a7f47cb7b1a9f5ab87c7dad31c2b1dad2c81"
+    },
+    "previous-v1/scripts/ci/llhttp-reference-native-source/owner/owner-program.json": {
+      "bytes": 3074,
+      "mode": 420,
+      "sha256": "5fee47ac31788de8aaa4afcd7042dc1c3b686e953bb19a65c7cac138262f2112"
+    },
+    "previous-v1/scripts/ci/llhttp-reference-native-source/owner/policy.json": {
+      "bytes": 1347,
+      "mode": 420,
+      "sha256": "1652ee524c5b75e1a5f1c9267ead5a2843d3f033b26b43adb71c68c8c95aa16a"
+    },
+    "previous-v1/source-map.json": {
+      "bytes": 13601,
+      "mode": 420,
+      "sha256": "d6240a8a32bd363e75542e3e5896356e24d28e010f99e24edfff380b67afa050"
+    },
+    "previous-v2/scripts/ci/llhttp-reference-native-source/owner/hosted_owner.py": {
+      "bytes": 27763,
+      "mode": 420,
+      "sha256": "d5f7a1ba6da569a0c2cc1289c242229e3db0ddfab13589f633bf2aa0b6a5aa88"
+    },
+    "previous-v2/scripts/ci/llhttp-reference-native-source/owner/owner-program.json": {
+      "bytes": 4244,
+      "mode": 420,
+      "sha256": "fe6a77db55043037aba41c00ef87aad896402d313281637f38146be8e63abd12"
+    },
+    "previous-v2/scripts/ci/llhttp-reference-native-source/owner/payload.py": {
+      "bytes": 4295,
+      "mode": 420,
+      "sha256": "5f0b529b664f7ac25b29adc0e56d41fb87283e508a7cdece7287b80c0cdffb55"
+    },
+    "previous-v2/scripts/ci/llhttp-reference-native-source/owner/policy.json": {
+      "bytes": 1736,
+      "mode": 420,
+      "sha256": "8e7c2e4359075d7b78763aeccf799ee663d39bb0ec96066e447dabec34c3ced1"
+    },
+    "previous-v2/source-map.json": {
+      "bytes": 14771,
+      "mode": 420,
+      "sha256": "00a7b3ced2bbf21303734d32cf9dde10e7db5e724b0c1b4857f7ab7e5a685998"
+    },
+    "previous-v3/scripts/ci/llhttp-reference-native-source/owner/data.py": {
+      "bytes": 10359,
+      "mode": 420,
+      "sha256": "6682a4773f95424e0235887791907cf561682f004b5768886559a2f01381687b"
+    },
+    "previous-v3/scripts/ci/llhttp-reference-native-source/owner/owner-program.json": {
+      "bytes": 5850,
+      "mode": 420,
+      "sha256": "98f9e1d96535d73508cc9717bb63ebe0fb21024eded3e2653943308e1f41dad0"
+    },
+    "previous-v3/scripts/ci/llhttp-reference-native-source/owner/payload.py": {
+      "bytes": 4887,
+      "mode": 420,
+      "sha256": "3f1eda7c8cea7d613bdbf8a02afe19426b45f3f2f535f4ecc70bf7956b791636"
+    },
+    "previous-v3/scripts/ci/llhttp-reference-native-source/owner/policy.json": {
+      "bytes": 2790,
+      "mode": 420,
+      "sha256": "29774851370d95757d0c26d7cb6b4efa5ec44501e044d728c095f3b0e3cadc8b"
+    },
+    "previous-v3/source-map.json": {
+      "bytes": 16377,
+      "mode": 420,
+      "sha256": "8e6290fb7c916ba52d094d2a324b7ba77e8813c910a6e454a8f78f0aeda92d57"
+    },
+    "previous-v4/scripts/ci/llhttp-reference-native-source/owner/hosted_owner.py": {
+      "bytes": 28219,
+      "mode": 420,
+      "sha256": "1302aadad5e0eeb42291675882565f40d84e7a3bbb57f8503f302a579ad951b4"
+    },
+    "previous-v4/scripts/ci/llhttp-reference-native-source/owner/owner-program.json": {
+      "bytes": 7672,
+      "mode": 420,
+      "sha256": "55a5f176ef39d39ee1b93b0873f0d183b76efa61e847fe4afeda3437f110b4e7"
+    },
+    "previous-v4/scripts/ci/llhttp-reference-native-source/owner/policy.json": {
+      "bytes": 3269,
+      "mode": 420,
+      "sha256": "35fde476943dca9f85dda902a47016e84c64b4438e28ad0492eab2881ba74f78"
+    },
+    "previous-v4/source-map.json": {
+      "bytes": 18199,
+      "mode": 420,
+      "sha256": "9a4b43eedecd09e5e1edc68677620ccd17a38a1bed8218fdb429b65b04715645"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/README.md": {
+      "bytes": 7414,
+      "mode": 420,
+      "sha256": "97629e002c6f7603bf8c0379f446188217d835ade06bf691ca79c6b990af3853"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/derivation.json": {
+      "bytes": 184590,
+      "mode": 420,
+      "sha256": "53a8a1a3afd943e1debaace6caf3c8ef2edfb117548302f480002951aab82f2d"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/admission.TEMPLATE.json": {
+      "bytes": 749,
+      "mode": 420,
+      "sha256": "ecff22aaf3f9e0602bcb2ba6f87b1c0c5d5c5047c7866468c4c6e3e4c6e3e687"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/admit.py": {
+      "bytes": 1135,
+      "mode": 420,
+      "sha256": "51a4ce83cdb3697a133c4c22b0cf470f3a20ee7f6b77d6283b16cf10add2430f"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/base-binding.json": {
+      "bytes": 153,
+      "mode": 420,
+      "sha256": "04a34802f6e600862dc39d42112fd275a5660cfa64b8e296f3b7fbe656df529d"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/data.py": {
+      "bytes": 11925,
+      "mode": 420,
+      "sha256": "fed8ff7e0937714ed4c507fb73363276659170cec6c53fadca56b53e1359e094"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/failed_retirement.py": {
+      "bytes": 4177,
+      "mode": 420,
+      "sha256": "7e88ae28eda11194eed98e803671caf4e37ced6a5001d09104e953de1d7d99cb"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/go_cli_va.py": {
+      "bytes": 1996,
+      "mode": 420,
+      "sha256": "3b2feba315f3a0e4cfed2498160e75591d64c7b8f0e8f5c11b46321b04b5eff3"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/host_tools.py": {
+      "bytes": 5161,
+      "mode": 420,
+      "sha256": "2f62d458ef63b29b55ac8e13f15ae49868000a498b334ea838ffea89358adbd4"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/hosted_owner.py": {
+      "bytes": 28807,
+      "mode": 420,
+      "sha256": "dbfdc3737be6e63ec41fee3a968d537c8028f59784f0978fef9c3c1fcbc01bfe"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/managed_containerd.py": {
+      "bytes": 8153,
+      "mode": 420,
+      "sha256": "41430dde9b67c61b0085d6d1b934596f82cb0d479ed7cb681fee20c71a50c1bd"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/mount_accounting.py": {
+      "bytes": 7940,
+      "mode": 420,
+      "sha256": "439cf67e561692e7987a9092d2fed8e5d825bdc28a822ab8e54a63bf331bfada"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/payload.py": {
+      "bytes": 5155,
+      "mode": 420,
+      "sha256": "e7764af41135291449d9ebdc98de5f3fd74fdb2df3b6029e48ca01282265ed2a"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/payload_diagnostic.py": {
+      "bytes": 1564,
+      "mode": 420,
+      "sha256": "18592a89eb5c6cc7fd182167a37d566dbfa098647167e2a67180083927f1517a"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/policy.json": {
+      "bytes": 53158,
+      "mode": 420,
+      "sha256": "5dd45679f8a4bf1ed01f68b92f8cf116fb6e386e90d2aecc453b9020093b5fac"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/public_evidence.py": {
+      "bytes": 10221,
+      "mode": 420,
+      "sha256": "751270699f7e949da1af699706058ed468cbd0e73f51b64ede27b29ac2ce396d"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/retain.py": {
+      "bytes": 3106,
+      "mode": 420,
+      "sha256": "e88936446a3de692db79a2c616c0898e4b3522122d351f4b28de0089ce8f06ca"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/runtime.TEMPLATE.json": {
+      "bytes": 838,
+      "mode": 420,
+      "sha256": "94a524f27b12661c4df7ebffa6b6ecbb22c69fff40d664a78c09896e3dcc0d73"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/source_readonly.py": {
+      "bytes": 3058,
+      "mode": 420,
+      "sha256": "5af8088f5d431beb7609cc5ec3f38c4b59dd87cb979d43a38104052507a8002f"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/successor-v4-README.md": {
+      "bytes": 4529,
+      "mode": 420,
+      "sha256": "221afb0fc4f03e91c3bed578646dfe9c5161eb15e7f23002c30280d7ebade032"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/successor-v4-evidence.DATA.json": {
+      "bytes": 7229,
+      "mode": 420,
+      "sha256": "bf02b1cb6379be8988372e40610d8b2acbbe095266031b0e74aad562a40aee58"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/successor-v5-README.md": {
+      "bytes": 4118,
+      "mode": 420,
+      "sha256": "4d64bdc23ecd2ed83bd36b6857c99c988d894a4ac57e2d2633cfb2aafb49ff3c"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/owner/successor-v5-evidence.DATA.json": {
+      "bytes": 12719,
+      "mode": 420,
+      "sha256": "6511882250a803bd12db50526169ca2d472b524f473448ee7bb37d2eb216dc4d"
+    },
+    "scripts/ci/llhttp-minimal-builder-source/recipe-pin.json": {
+      "bytes": 5911,
+      "mode": 420,
+      "sha256": "fa2a40483a92afad09ae8c3caae1dd578d1e3efab30148c5a8cb144d3ecf8b34"
+    },
+    "source-readonly-namespace-v5.json": {
+      "bytes": 2021,
+      "mode": 420,
+      "sha256": "b30acd0e1313686f4594fc8891ebdf391980ede2014a59f15c826375d519155c"
+    }
+  },
+  "schema": 1
+}
