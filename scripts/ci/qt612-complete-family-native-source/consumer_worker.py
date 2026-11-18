@@ -52,7 +52,8 @@ def validate_list(raw, checks):
     for test in tests:
         props = {row["name"]: row["value"] for row in test["properties"]}
         need(test["command"] == [BUILD+"/"+test["name"]] and props.get("TIMEOUT") == 10
-             and not any(props.get(key) for key in ("DISABLED", "SKIP_RETURN_CODE", "SKIP_REGULAR_EXPRESSION", "WILL_FAIL")),
+             and "SKIP_RETURN_CODE" not in props
+             and not any(props.get(key) for key in ("DISABLED", "SKIP_REGULAR_EXPRESSION", "WILL_FAIL")),
              "Unexpected CTest command, timeout or skip")
 
 
@@ -97,6 +98,9 @@ def loader_paths(traces, checks):
     render = {name.removesuffix(".12.0") if LIB.fullmatch(name) else name
               for name in loaded["qt612-desktop-render"]}
     need(RENDER <= render, "Missing selected Quick, Wayland, SVG or offscreen runtime objects")
+    gui_paths = {"/usr/lib/libQt6Gui.so.6", "/usr/lib/libQt6Gui.so.6.12.0"}
+    need(not gui_paths.isdisjoint(loaded["qt612-desktop-shader"]),
+         "Shader consumer did not load the selected Qt Gui")
     protocol = loaded["qt612-desktop-protocol"]
     need(all(any(path.startswith("/usr/lib/libwayland-"+kind+".so.0") for path in protocol)
              for kind in ("client","server")), "Missing normal Wayland protocol libraries")

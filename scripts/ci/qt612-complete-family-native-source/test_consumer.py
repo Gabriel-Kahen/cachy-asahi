@@ -43,6 +43,8 @@ class Consumer(unittest.TestCase):
             case = ET.SubElement(suite,"testcase",name=name,status="run")
             ET.SubElement(case,"system-out").text = marker+"\n"
             paths = set(W.RENDER) if name.endswith("render") else {core}
+            if name.endswith("shader"):
+                paths.add("/usr/lib/libQt6Gui.so.6")
             if name.endswith("protocol"):
                 paths |= {"/usr/lib/libwayland-client.so.0","/usr/lib/libwayland-server.so.0"}
             by_check[name] = sorted(paths)
@@ -97,6 +99,26 @@ class Consumer(unittest.TestCase):
                 self.read()
         self.write("ctest.xml",original.replace(b'<system-out>',b'<skipped/><system-out>',1))
         with self.assertRaises(ValueError):
+            self.read()
+
+    def test_configured_zero_skip_return_code_refuses(self):
+        self.report()
+        data = json.loads((self.out/"test-list.log").read_bytes())
+        data["tests"][0]["properties"].append(dict(name="SKIP_RETURN_CODE", value=0))
+        self.write("test-list.log", C.encoded(data))
+        with self.assertRaisesRegex(ValueError, "command, timeout or skip"):
+            self.read()
+
+    def test_shader_requires_its_own_qt_gui_load(self):
+        self.report()
+        trace = next(path for path in self.out.glob("loader.*")
+                     if b"/qt612-desktop-shader\n" in path.read_bytes())
+        raw = trace.read_bytes()
+        lines = [line for line in raw.splitlines(keepends=True)
+                 if line.endswith(b": calling init: /usr/lib/libQt6Gui.so.6\n")]
+        self.assertEqual(len(lines), 1)
+        trace.write_bytes(raw.replace(lines[0], b""))
+        with self.assertRaisesRegex(ValueError, "Shader consumer.*Qt Gui"):
             self.read()
 
     def test_foreign_successful_load_refuses(self):
