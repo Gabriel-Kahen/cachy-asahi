@@ -1,9 +1,9 @@
 {
   "files": {
     ".github/workflows/native-arm-first-login-v3-native-pair.yml": {
-      "bytes": 8555,
+      "bytes": 9780,
       "mode": 420,
-      "sha256": "82b0b0d60b3fe0146c57fe180c084fc57ede9c32a13dd4bb6e0631cfe0eb10bc"
+      "sha256": "b3ec170cd35a1f8ee89b6cd4b23dae5257b050db34e37660d88217ad61b73779"
     },
     "packages/tools/cachy-asahi-first-login-v3/.SRCINFO": {
       "bytes": 1704,
