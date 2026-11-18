@@ -204,7 +204,7 @@ def stage(where, root, overlay, scratch, core, plan, guest):
         packet.rename(where)
 
 
-def prepare(selection, digest, output=None):
+def reviewed_backing(selection, digest):
     original, pin = C.external(selection, 32 << 10, digest)
     chosen = C.json_body(original, canonical=True)
     C.need(set(chosen) == {"kind", "issuer", "approved", "core", "limits", "budget_basis_sha256"}
@@ -230,6 +230,11 @@ def prepare(selection, digest, output=None):
                                 CORE_OVERLAY, TOP_OVERLAY],
                 expected_backing_chain=[TOP_OVERLAY, CORE_OVERLAY, RAW_BACKING],
                 root_acceptance=None, qtgui_link="NOT_RUN", full_package="NOT_RUN")
+    return chosen, root, overlay, scratch, core, plan, guest, actual
+
+
+def prepare(selection, digest, output=None):
+    _, root, overlay, scratch, core, plan, guest, _ = reviewed_backing(selection, digest)
     if output is not None:
         stage(output, root, overlay, scratch, core, plan, guest)
     return plan

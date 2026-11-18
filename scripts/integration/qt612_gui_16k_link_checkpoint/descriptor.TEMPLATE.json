@@ -1,0 +1,28 @@
+{
+  "continuation": {
+    "path": null,
+    "sha256": null
+  },
+  "kind": "QTGUI_LINK_CAPSULE_DESCRIPTOR_V1",
+  "prepare_tools": {
+    "debugfs": {
+      "bytes": null,
+      "path": "/usr/bin/debugfs",
+      "sha256": null
+    },
+    "e2fsck": {
+      "bytes": null,
+      "path": "/usr/bin/e2fsck",
+      "sha256": null
+    },
+    "mke2fs": {
+      "bytes": null,
+      "path": "/usr/bin/mke2fs",
+      "sha256": null
+    }
+  },
+  "runner": {
+    "path": null,
+    "sha256": null
+  }
+}

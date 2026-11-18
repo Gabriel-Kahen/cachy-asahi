@@ -52,22 +52,26 @@ def graph(manifests):
                 incremental_transcript=DELTA, incremental_run="NOT_RUN")
 
 
-def guest_result(evidence, guest_plan, guest_sha, result_sha, accepted_core):
-    plan = G.read_plan(guest_plan, guest_sha)
-    raw, result_pin = C.external(evidence / "result.json", 4096, result_sha)
-    result = C.json_body(raw, canonical=True)
-    C.need(result == dict(kind="QTGUI_LINK_GUEST_RESULT_V1", status="PASS", phase="complete",
-                          plan_sha256=guest_sha, nonce=plan["nonce"], core=plan["core"], target=K.TARGET),
-           "Exact successful original guest outcome required")
+def evidence_caps(plan):
     cap = {"inventory.before": G.INVENTORY[0], "inventory.after": G.INVENTORY[0],
            "core.commands": G.CORE_COMMANDS[0], "gui.commands": G.GUI_COMMANDS[0],
            "gui.link-command": G.GUI_LINK[0], "core-dry-run.log": 4096,
            "gui-dry-run.log": G.GUI_COMMANDS[0] + 64 * 1024, "build.log": plan["limits"]["build_log_bytes"],
-           "metrics.json": 4096, "aliases.txt": len(ALIASES)}
-    C.need(evidence.is_absolute() and evidence == evidence.resolve(strict=True)
-           and {p.name for p in evidence.iterdir()} == set(cap) | set(DSOS) | {"result.json"},
-           "Exact finite QtGui guest evidence directory required")
-    files = {name: C.read(evidence / name, size)[0] for name, size in cap.items()}
+           "metrics.json": 4096, "aliases.txt": len(ALIASES), "result.json": 4096}
+    return cap | {name: min(plan["limits"]["artifact_bytes"], ELF.MAX_DSO) for name in DSOS}
+
+
+def verify_guest_files(files, plan, guest_sha, core):
+    cap = evidence_caps(plan)
+    C.need(set(files) == set(cap) and all(len(body) <= cap[name] for name, body in files.items())
+           and sum(len(files[name]) for name in DSOS) <= plan["limits"]["artifact_bytes"],
+           "Exact finite QtGui guest evidence required")
+    raw = files["result.json"]
+    result_pin = C.pin(raw)
+    result = C.json_body(raw, canonical=True)
+    C.need(result == dict(kind="QTGUI_LINK_GUEST_RESULT_V1", status="PASS", phase="complete",
+                          plan_sha256=guest_sha, nonce=plan["nonce"], core=plan["core"], target=K.TARGET),
+           "Exact successful original guest outcome required")
     C.need(all(F.pin(files[name]) == expected for name, expected in (
         ("inventory.before", G.INVENTORY), ("inventory.after", G.INVENTORY), ("core.commands", G.CORE_COMMANDS),
         ("gui.commands", G.GUI_COMMANDS), ("gui.link-command", G.GUI_LINK)))
@@ -83,16 +87,22 @@ def guest_result(evidence, guest_plan, guest_sha, result_sha, accepted_core):
            and type(metrics["peak_child_rss_kib"]) is int and metrics["peak_child_rss_kib"] > 0
            and metrics["log_complete"] is metrics["natural"] is metrics["group_empty"] is True
            and metrics["timeout"] is metrics["overflow"] is False, "Exact natural bounded guest result required")
-    left, libraries = plan["limits"]["artifact_bytes"], {}
-    for name in DSOS:
-        libraries[name], pin = C.read(evidence / name, min(left, ELF.MAX_DSO))
-        left -= pin["bytes"]
-    core, _ = C.read(accepted_core, 48 * K.MIB, plan["core"])
-    linkage = ELF.verify_link(libraries[DSOS[0]], core, libraries[DSOS[1]], libraries[DSOS[2]],
+    linkage = ELF.verify_link(files[DSOS[0]], core, files[DSOS[1]], files[DSOS[2]],
                               accepted_core=plan["core"])
     return dict(status="VERIFIED_QTGUI_GUEST_LINK_EVIDENCE", result=result_pin, metrics=metrics, linkage=linkage,
-                guest_evidence={name: C.pin(body) for name, body in (files | libraries).items()},
+                guest_evidence={name: C.pin(body) for name, body in files.items()},
                 Root_acceptance=None)
+
+
+def guest_result(evidence, guest_plan, guest_sha, result_sha, accepted_core):
+    plan = G.read_plan(guest_plan, guest_sha)
+    cap = evidence_caps(plan)
+    C.need(evidence.is_absolute() and evidence == evidence.resolve(strict=True)
+           and {p.name for p in evidence.iterdir()} == set(cap), "Exact finite QtGui evidence directory required")
+    raw, _ = C.external(evidence / "result.json", cap["result.json"], result_sha)
+    files = {name: C.read(evidence / name, limit)[0] for name, limit in cap.items() if name != "result.json"}
+    core, _ = C.read(accepted_core, 48 * K.MIB, plan["core"])
+    return verify_guest_files(files | {"result.json": raw}, plan, guest_sha, core)
 
 
 def main():

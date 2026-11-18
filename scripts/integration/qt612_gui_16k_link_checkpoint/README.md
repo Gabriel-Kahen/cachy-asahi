@@ -83,11 +83,79 @@ python3 -I -B -Werror "$lane/inspect_checkpoint.py" guest-result \
   --accepted-core "$accepted_core_elf"
 ```
 
-Initial boot integration, a fresh result disk, and issuance belong to a
-future owned QtGui attempt. This lane has no launch entry point.
+## Materialize a sealed capsule
+
+Keep the filled [descriptor](descriptor.TEMPLATE.json), continuation
+selection, and runner profile in a private directory. The descriptor
+selects the continuation and runner documents by absolute `path` and
+`sha256`. Its `prepare_tools` entries bind `debugfs`, `e2fsck`, and
+`mke2fs` on the preparation host by absolute path, byte count, and
+SHA-256.
+
+Use kind `ROOT_QTGUI_LINK_RUNNER_PROFILE_V1` for the runner profile. It
+contains `actor_image`, `tools`, `vcpus`, and `docker`. Copy the image
+and six original tool pins from the accepted Core plan's
+`actor.profile`. Copy the Docker CLI pin and socket endpoint from the
+accepted Core handoff. The profile keeps that runner's four vCPUs.
+The preparer compares the whole selected map with the retired Core packet.
+The approved continuation supplies time and memory limits after the
+accepted Core measurements are available.
 
 ```sh
-for test in test_continuation.py test_guest_link.py test_elf_readback.py; do
+python3 -I -B -Werror "$lane/prepare.py" --descriptor "$descriptor" \
+  --descriptor-sha256 "$descriptor_sha" --output "$fresh_capsule"
+```
+
+This command independently replays the accepted Core outcome and its
+owned closure before opening the original backing images. It materializes
+new read-only reflinks and a fresh boot carrier, checks the boot payload
+from the private partition, formats a separate result template, and
+seals the source, plan, input references, runner and unsigned binding.
+The capsule's only future writable backing layer belongs to the new
+actor. The actor validates all three image nodes before QEMU and checks
+the backing pins again after retirement.
+
+```sh
+sealed="$fresh_capsule/source/$lane"
+handoff="$fresh_capsule/HANDOFF.UNISSUED.json"
+python3 -I -B -Werror "$sealed/site.py" --handoff "$handoff" \
+  --handoff-sha256 "$handoff_sha" preflight
+```
+
+The passive preflight checks the sealed source, carrier pins, external
+input documents, and live host capacity without opening Docker or QEMU.
+Once Root separately issues the exact binding, the site can claim one
+attempt in its own user scope. The original Q3, R4, and Core scopes and
+container IDs must each be absent on two checks.
+
+```sh
+systemd-run --user --scope --unit=cachy-asahi-qtbase16k-qtgui-link.scope \
+  /usr/bin/python3 -I -B -Werror "$sealed/site.py" --handoff "$handoff" \
+  --handoff-sha256 "$handoff_sha" run --authority "$root_selection" \
+  --authority-sha256 "$authority_sha"
+```
+
+After the scope retires, capture the site observation once in a fresh file
+and independently pin it. The raw reader replays the owned exit and
+original streams, checks the clean ext4 disk and metadata, and runs the
+linkage reader over the exact retained bytes. A natural nonzero attempt
+with no complete actor result can be read as HOLD by leaving out
+`--actor-result-sha256`.
+
+```sh
+python3 -I -B -Werror "$sealed/site.py" --handoff "$handoff" \
+  --handoff-sha256 "$handoff_sha" observe --attempt "$attempt" > "$post_scope"
+python3 -I -B -Werror "$sealed/read_capsule.py" --handoff "$handoff" \
+  --handoff-sha256 "$handoff_sha" --attempt "$attempt" --post-scope "$post_scope" \
+  --post-scope-sha256 "$post_scope_sha" --actor-result-sha256 "$actor_result_sha"
+```
+
+## Offline controls
+
+```sh
+bash -n "$lane/guest-init.sh"
+for test in test_continuation.py test_guest_link.py test_elf_readback.py \
+            test_guest_init.py test_actor.py test_site.py test_capsule.py; do
   python3 -I -B -Werror "$lane/$test"
 done
 ```
