@@ -1,6 +1,8 @@
 {
   "baseline_head": "670067d84da4615b7779887ebbd8432d5771bf27",
   "dependency_signatures": {
+    "examples/development/onboarding.py": "ffff9cfc08d7968ca9d0481e06d92a368d7e9ee2fe17b22452c887b66b0e8810",
+    "examples/development/test_onboarding.py": "8bc9e9f7de632b7146e2efc99e712cc9bf9164ea7e9cc4061915a408bf9f0fd3",
     "packages/tools/cachy-asahi-cache/test_cache.py": "f0eee173ee4ff125328608a4e4895e830fd6c79628e0bbcd7523d0f0ce99be86",
     "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/assemble.py": "cb2af736c26a812f199c25a00068b8f2e9481ed9b41f391cc45feab41f693f89",
     "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/lib/cachy-asahi-developer-tools/0.1.0/scripts/virtual/owned_process.py": "1cf094f9a32da0f36842e6fcb066d67315f236237198ea4d98217056e6b867ff",
@@ -572,6 +574,26 @@
     }
   },
   "paths": {
+    "examples/development/README.md": {
+      "parallel": [
+        "developer"
+      ]
+    },
+    "examples/development/hello.c": {
+      "parallel": [
+        "developer"
+      ]
+    },
+    "examples/development/onboarding.py": {
+      "parallel": [
+        "developer"
+      ]
+    },
+    "examples/development/test_onboarding.py": {
+      "parallel": [
+        "developer"
+      ]
+    },
     "packages/tools/cachy-asahi-cache/.SRCINFO": {
       "parallel": [
         "management-source"

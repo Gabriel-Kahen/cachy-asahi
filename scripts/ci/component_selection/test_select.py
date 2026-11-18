@@ -74,6 +74,17 @@ class SelectionTests(unittest.TestCase):
                          {'build-systems','python-extension'})
         self.assertEqual(report['groups']['static']['selected_rows'],2)
 
+    def test_development_example_and_tests_select_both_developer_rows(self):
+        for name in ('README.md', 'hello.c', 'onboarding.py', 'test_onboarding.py'):
+            with self.subTest(name=name):
+                report=self.choose('examples/development/'+name)
+                self.assertEqual(report['mode'],'narrow')
+                self.assertEqual(report['groups']['parallel']['matrix']['include'],
+                                 [{'lane':'developer','python':v} for v in ('3.12','3.14')])
+                self.assertFalse(report['groups']['static']['run'])
+                self.assertFalse(report['groups']['full-port']['run'])
+        self.assert_full(self.choose('examples/development/unreviewed.py'))
+
     def test_every_reviewed_path_keeps_all_declared_consumers(self):
         for path,routes in POLICY['paths'].items():
             with self.subTest(path=path):

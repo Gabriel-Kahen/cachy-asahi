@@ -4,6 +4,7 @@ on:
     paths:
       - '**' # Unknown paths must reach the full-suite fallback.
       - '.github/workflows/parallel-development-tools.yml'
+      - 'examples/development/**'
       - 'scripts/benchmarks/**'
       - 'scripts/workflows/**'
       - 'scripts/virtual/owned_process.py'
@@ -25,6 +26,7 @@ on:
     paths:
       - '**' # Unknown paths must reach the full-suite fallback.
       - '.github/workflows/parallel-development-tools.yml'
+      - 'examples/development/**'
       - 'scripts/benchmarks/**'
       - 'scripts/workflows/**'
       - 'scripts/virtual/owned_process.py'
@@ -65,6 +67,7 @@ jobs:
             /LICENSE
             /docs/port/maintenance-campaign.md
             /docs/port/developer-workflow.md
+            /examples/development/
             /scripts/benchmarks/
             /scripts/workflows/
             /scripts/virtual/owned_process.py
@@ -107,9 +110,11 @@ jobs:
               python -I -B scripts/benchmarks/test_platform_metrics.py -v
               python -I -B scripts/benchmarks/test_benchmark_platform_metrics.py -v
               python -I -B scripts/benchmarks/test_benchmark_owned_rss.py -v
+              python -I -B scripts/benchmarks/test_suspend_drain.py -v
               ;;
             developer)
               python -I -B tests/workflows/test_developer_workflow.py -v
+              python -I -B examples/development/test_onboarding.py -v
               python -I -B scripts/workflows/developer_workflow_diagnostics_v2.py --output "$RUNNER_TEMP/developer-workflow" --tool-path "$(dirname "$(command -v python)"):/usr/bin:/bin" --command-timeout 30 --total-timeout 300
               python -I -B -c 'import json,sys; from pathlib import Path; r=json.loads(Path(sys.argv[1]).read_text()); assert r["status"] == "PASS_LOCAL_DEVELOPER_COMPONENT"; assert all(r["project_workflows"][b]["status"] == "PASS_REAL_PROJECT_WORKFLOW" for b in ("make", "ninja")); assert len(r["commands"]) == 63 + sum(r["tools"][b]["status"] == "PRESENT" for b in ("cmake", "meson")); assert all(c["success"] for c in r["commands"])' "$RUNNER_TEMP/developer-workflow/result.json"
               ;;
