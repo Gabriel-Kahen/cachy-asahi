@@ -11,6 +11,7 @@ spec=importlib.util.spec_from_file_location('pipeline_common',HERE/'common.py')
 C=importlib.util.module_from_spec(spec);spec.loader.exec_module(C)
 M,P,need=C.M,C.P,C.need
 DESKTOP_CONSUMER='desktop_consumer'
+PAIR_ONLY_STATUS='PASS_QT612_FAMILY_COMPONENT_PAIR_ONLY'
 BUILD_SECONDS,COMPARE_SECONDS,QUALIFY_SECONDS,LIFECYCLE_SECONDS=6900,120,1200,1800
 STAGE_SECONDS,CLEANUP_SECONDS=18000,90
 POLICY=dict(builder_memory_bytes=4*1024**3,builder_swap_extra_bytes=0,builder_cpus=1,builder_pids=512,
@@ -246,11 +247,13 @@ def qualification_request(plan, *, source, source_map_sha256, output, work):
         work=str(M.ordinary(work)))
 
 
-def _drive_stage(plan,executor,*,source,source_map_sha256,output,work,failure_output):
+def _drive_stage(plan,executor,*,source,source_map_sha256,output,work,failure_output,pair_only=False):
     """Explicit owned-callback protocol; MODEL tests do not enter the public actor gate."""
+    need(type(pair_only) is bool,'EXPLICIT_FAMILY_STAGE_MODE')
     need(getattr(executor,'API',None)=='ROOT_QT612_COMPLETE_FAMILY_OWNED_EXECUTOR_V1','ROOT_OWNED_FAMILY_EXECUTOR_REQUIRED')
-    need(all(callable(getattr(executor,n,None)) for n in ('require_domain','require_signed_inventory','require_no_containers',
-        'run','require_absent_twice','qualify','lifecycle')),'COMPLETE_OWNED_STAGE_CALLBACKS')
+    callbacks=('require_domain','require_signed_inventory','require_no_containers','run','require_absent_twice','qualify')
+    if not pair_only: callbacks+=('lifecycle',)
+    need(all(callable(getattr(executor,n,None)) for n in callbacks),'COMPLETE_OWNED_STAGE_CALLBACKS')
     phase='PREPARE';key=plan['component'];deadline=time.monotonic()+STAGE_SECONDS-CLEANUP_SECONDS
     def budget(seconds):need(time.monotonic()+seconds<=deadline,'REMAINING_STAGE_WALL_BUDGET')
     try:
@@ -304,6 +307,11 @@ def _drive_stage(plan,executor,*,source,source_map_sha256,output,work,failure_ou
         archive_pin=observations[0]['archive']
         for attempt in ('build-1','build-2'):
             M.stream(receipt_root/attempt/'artifacts'/row['filename'],archive_pin,retained,cap=512*1024**2)
+        if pair_only:
+            executor.require_no_containers()
+            M.unchanged(retained)
+            return dict(status=PAIR_ONLY_STATUS,component=key,qualification=qualified,lifecycle=None,
+                        lifecycle_status='NOT_RUN',Root_acceptance=None,native_acceptance=None)
         phase='LIFECYCLE';budget(LIFECYCLE_SECONDS)
         lifecycle_module=C.local('lifecycle')
         inventory=M.stream(M.ordinary(plan['inventory_path']),plan['inventory_pin'],{},collect=True)
@@ -349,7 +357,7 @@ def check_stage_workspace(*, source, inventory, cache, output, work, failure_out
              'DISJOINT_FAMILY_STAGE_WRITE_PATHS')
 
 
-def run_stage(plan,executor,*,source,source_map_sha256,output,work,failure_output):
+def run_stage(plan,executor,*,source,source_map_sha256,output,work,failure_output,pair_only=False):
     check_stage_workspace(source=source, inventory=plan['inventory_path'], cache=plan['cache'],
                           output=output, work=work, failure_output=failure_output)
     binding=require_actual_family(plan['component'],source=source,source_map_sha256=source_map_sha256)
@@ -364,4 +372,5 @@ def run_stage(plan,executor,*,source,source_map_sha256,output,work,failure_outpu
         row=mapping['files']['scripts/ci/qt612-complete-family-native-source/'+name]
         M.stream(HERE/name,{k:row[k] for k in ('bytes','sha256')},{},mode=0o644)
     executor.authenticate_Root_stage_binding(binding)
-    return _drive_stage(plan,executor,source=source,source_map_sha256=source_map_sha256,output=output,work=work,failure_output=failure_output)
+    return _drive_stage(plan,executor,source=source,source_map_sha256=source_map_sha256,
+                        output=output,work=work,failure_output=failure_output,pair_only=pair_only)

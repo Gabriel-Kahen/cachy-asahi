@@ -73,6 +73,8 @@ class LaunchTests(unittest.TestCase):
 
         def transfer(**paths):
             events.append(("transfer", paths))
+            return dict(status="ACQUIRED_QT_RUNNER_INPUT_BYTES_ONLY", selection_sha256="a"*64,
+                        GPG="NOT_RUN", Root_acceptance=None)
 
         def bind(*args):
             events.append(("bind", args))
@@ -84,16 +86,18 @@ class LaunchTests(unittest.TestCase):
                 patch.object(capacity, "require_after", side_effect=lambda *_: events.append("after") or {}), \
                 patch.object(capacity, "require_transfer_volume", return_value={"volume":{
                     "device":2, "inode":5, "mount":7}}), \
-                patch.object(launch, "expose_public_source", side_effect=lambda bound: bound/"Source-DATA"):
+                patch.object(launch, "expose_readonly_tree") as expose, patch.object(Path, "chmod"):
             result = launch.reserve_and_bind(model, inputs, transfer, selection_sha256="a"*64, logical_bytes=180)
         self.assertEqual([e[0] if isinstance(e, tuple) else e for e in events],
                          ["before", "allocate", "after", "mounted", "workspace", "transfer", "bind", "workspace-reread"])
         self.assertEqual(events[4], ("workspace", output/"volume", 2, 5, 7))
-        self.assertEqual(tuple(events[5][1].values()),
-            (output/"volume", *(output/"volume/work"/name for name in ("portable","operands","framework"))))
-        self.assertEqual(events[6][1], (output/"volume/work/portable", "a"*64, output/"volume/work/operands",
-                         output/"volume/work/framework", output/"volume/work/bound", output/"volume"))
+        self.assertEqual(events[5][1], dict(owned_workspace=output/"volume", device=2, inode=5, mount_id=7,
+                                             portable=output/"volume/work/portable", output=output/"volume/work/acquired"))
+        self.assertEqual(events[6][1], (output/"volume/work/portable", "a"*64, output/"volume/work/acquired/operands",
+                         output/"volume/work/acquired/framework", output/"volume/work/bound", output/"volume"))
         self.assertEqual(result["source"], output/"volume/work/bound/Source-DATA")
+        self.assertEqual([c.args[0] for c in expose.call_args_list],
+                         [result["source"], result["operands"], output/"volume/work/acquired/trust"])
 
     def test_rejects_weakened_host_policy_before_any_setup(self):
         model = SimpleNamespace(out="/owned", setup=Mock(), policy={"minimum_disk_bytes":0})

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """First Qt family pair callbacks for the existing private hosted owner."""
 
+import hashlib
 import importlib.util
 import json
 import os
@@ -16,6 +17,7 @@ DOCKER = "/usr/bin/docker"
 COMPONENT = "gui_server"
 LABEL = "org.cachy-asahi.qt612-reference.nonce"
 SOCKET_ENV = "QT612_HOSTED_OWNED_DOCKER_SOCKET"
+CREDENTIAL_API = "ROOT_QT612_STAGE_LIFECYCLE_CREDENTIAL_V1"
 
 
 def need(condition, message):
@@ -90,17 +92,45 @@ def build_child():
     return module.main()
 
 
+def write_fresh(path, raw):
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, "wb") as stream:
+        stream.write(raw)
+
+
+def qualifier_command(*, source, output, scratch, inventory, image, nonce, request_sha256):
+    """Preserve the request's absolute paths in a separate owned container."""
+    program = source/FAMILY/"qualify.py"
+    request = output/"qualifier-input/request.json"
+    mounts = [(source, "readonly"), (output, "readonly"), (scratch, None)]
+    if not inventory.is_relative_to(source):
+        mounts.append((inventory, "readonly"))
+    need(not any("," in str(path) or "\n" in str(path) for path, _ in mounts),
+         "Unambiguous isolated qualifier mounts required")
+    args = ["run", "--rm", "--pull=never", "--platform=linux/arm64", "--network=none", "--read-only",
+            "--cap-drop=ALL", "--security-opt=no-new-privileges", "--cpus=1", "--memory=2g",
+            "--memory-swap=2g", "--pids-limit=128", "--workdir=/",
+            "--user", f"{os.getuid()}:{os.getgid()}", "--name", "cachy-qt612-qualify-"+nonce]
+    for path, mode in mounts:
+        args += ["--mount", f"type=bind,src={path},dst={path}" + (f",{mode}" if mode else "")]
+    return args + ["--entrypoint=/usr/bin/python3", image, "-I", "-B", str(program),
+                   "--request", str(request), "--request-sha256", request_sha256]
+
+
 class FirstPairExecutor:
     """Run the exact builds and comparison using the retained 349 owner's command runner."""
 
     API = "ROOT_QT612_COMPLETE_FAMILY_OWNED_EXECUTOR_V1"
 
-    def __init__(self, pipeline, plan, owner_commands, supervisor, *, socket, source, binding, binding_sha256):
+    def __init__(self, pipeline, plan, owner_commands, supervisor, *, socket, source, binding, binding_sha256,
+                 lifecycle_credential=None):
         need(plan["component"] == COMPONENT and plan["serial"] is True, "Select the first serial family pair")
         self.pipeline = pipeline
         self.plan = plan
         self.commands = owner_commands
         self.supervisor = supervisor
+        self.lifecycle_credential = lifecycle_credential
+        self.source = Path(source)
         self.endpoint, self.socket_identity = private_socket(str(socket))
         self.host_option = "--host=unix://" + str(self.endpoint)
         self.env = {
@@ -121,9 +151,16 @@ class FirstPairExecutor:
         self.attempt = 0
         self.absence_confirmed = True
         self.compared = False
+        self.executions = []
+        self.absence = {}
 
     def authenticate_Root_stage_binding(self, binding):
         self.supervisor.authenticate_Root_stage_binding(binding)
+        self.binding = binding
+        if self.lifecycle_credential is not None:
+            need(getattr(self.lifecycle_credential, "API", None) == CREDENTIAL_API,
+                 "Exact separately authenticated lifecycle credential interface required")
+            self.lifecycle_credential.authenticate_stage(binding)
         self.authenticated = True
 
     def require_domain(self, policy):
@@ -145,25 +182,40 @@ class FirstPairExecutor:
              "Same fresh aarch64 stage image on the dedicated daemon required")
         self.inventory_verified = True
 
-    def docker(self, *args):
+    def docker(self, *args, seconds=8):
         need(self.domain_verified and private_socket(str(self.endpoint))[1] == self.socket_identity,
              "Same authenticated scoped daemon socket required")
-        return self.commands([DOCKER, self.host_option, *args], 8)
+        return self.commands([DOCKER, self.host_option, *args], seconds)
 
     def require_no_containers(self):
         need(self.inventory_verified, "Authenticate inventory before container checks")
-        need(self.docker("container", "ls", "-a", "--no-trunc", "--quiet").stdout == b"",
-             "The dedicated daemon must have no containers")
+        result = self.docker("container", "ls", "-a", "--no-trunc", "--quiet")
+        need(result.stdout == b"", "The dedicated daemon must have no containers")
+        return self.retired(result, result.args)
 
     def require_absent_twice(self, name):
         expected = "cachy-qt612-family-" + self.plan["nonce"] + "-gui_server-" + str(self.attempt)
         need(self.attempt in (1, 2) and name == expected and not self.absence_confirmed,
              "Check absence of the exact completed attempt")
+        observations = []
         for _ in range(2):
-            need(self.docker("container", "ls", "-a", "--no-trunc", "--quiet",
-                             "--filter", "name=^/" + name + "$").stdout == b"",
-                 "Owned GUI build container remains on the daemon")
+            result = self.docker("container", "ls", "-a", "--no-trunc", "--quiet", "--filter", "name=^/" + name + "$")
+            need(result.stdout == b"", "Owned GUI build container remains on the daemon")
+            observations.append(self.retired(result, result.args))
+        self.absence["build-"+str(self.attempt)] = observations
         self.absence_confirmed = True
+
+    def retired(self, result, argv):
+        row = self.commands.rows[-1]
+        need(row["argv"] == argv, "Same naturally retired command record required")
+        record = row["retirement"]
+        need(result.returncode == record["exit"] == 0 and record["reaped"] is True
+             and record["ownership"] == "REAPED" and record["group_census"] == "EMPTY_TWICE"
+             and record["output_complete"] is True and not record["signals"] and not record["timeout"]
+             and record["error"] is None, "Natural complete hosted command retirement required")
+        return dict(index=len(self.commands.rows)-1, argv=argv, retirement=record,
+                    stdout=dict(bytes=len(result.stdout), sha256=hashlib.sha256(result.stdout).hexdigest()),
+                    stderr=dict(bytes=len(result.stderr), sha256=hashlib.sha256(result.stderr).hexdigest()))
 
     def run(self, argv, seconds, *, env, stdout=None):
         need(self.inventory_verified and self.absence_confirmed and not self.compared,
@@ -179,34 +231,57 @@ class FirstPairExecutor:
                  and seconds == self.pipeline.COMPARE_SECONDS, "Run the exact strict family comparison")
             launch = argv
         result = self.commands(launch, seconds, env={**self.env, **env})
-        row = self.commands.rows[-1]
-        need(row["argv"] == launch, "Same naturally retired command record required")
-        record = row["retirement"]
-        need(result.returncode == record["exit"] == 0 and record["reaped"] is True
-             and record["ownership"] == "REAPED" and record["group_census"] == "EMPTY_TWICE"
-             and record["output_complete"] is True and not record["signals"] and not record["timeout"]
-             and record["error"] is None, "Natural complete hosted command retirement required")
+        self.executions.append(self.retired(result, launch))
         if stdout is None:
             self.attempt += 1
             self.absence_confirmed = False
         else:
-            fd = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
-            with os.fdopen(fd, "wb") as stream:
-                stream.write(result.stdout)
+            write_fresh(destination, result.stdout)
             self.compared = True
         return dict(exit=0, natural=True, reaped=True, output_complete=True)
 
-    def qualify(self, **request):
-        need(self.compared, "Strict comparison must precede the passive qualifier")
-        return self.supervisor.qualify(**request)
+    def qualify(self, *, argv, timeout, memory_bytes, cpus, output_json):
+        need(self.compared and len(self.executions) == 3 and timeout == self.pipeline.QUALIFY_SECONDS
+             and memory_bytes == 2*1024**3 and cpus == 1, "Strict comparison and bounded qualifier domain required")
+        C, M = self.pipeline.C, self.pipeline.C.M
+        output = M.ordinary(Path(self.plan["builds"][0]["argv"][-1]).parent)
+        request_path = output/"qualifier-input/request.json"
+        need(len(argv) == 8 and argv[:3] == ["/usr/bin/python3", "-I", "-B"]
+             and Path(argv[3]).name == "qualify.py" and argv[4:7] == ["--request", str(request_path), "--request-sha256"]
+             and output_json == str(output/"qualification.json"), "Exact passive family qualification command required")
+        request = M.load(request_path, dict(bytes=request_path.lstat().st_size, sha256=argv[-1]), {})
+        work = M.ordinary(request["work"])
+        scratch = work.parent
+        need(work.name == "work" and not any(scratch.iterdir())
+             and all(not scratch.is_relative_to(other) and not other.is_relative_to(scratch)
+                     for other in (output, self.source)), "Fresh dedicated qualifier scratch required")
+        inventory = M.ordinary(self.plan["inventory_path"])
+        exact = self.pipeline.qualification_request(self.plan, source=self.source,
+                   source_map_sha256=self.plan["source_map_sha256"], output=output, work=work)
+        need(request == exact, "Exact qualified request and scratch join required")
+        arguments = qualifier_command(source=self.source, output=output, scratch=scratch, inventory=inventory,
+                                      image=self.plan["image"], nonce=self.plan["nonce"], request_sha256=argv[-1])
+        result = self.docker(*arguments, seconds=timeout)
+        observed = self.retired(result, result.args)
+        need(not result.stderr and 0 < len(result.stdout) <= 1024**2,
+             "Complete bounded passive qualifier stdout required")
+        qualified = M.decode(result.stdout)
+        need(C.encoded(qualified) == result.stdout, "Canonical separate qualifier result required")
+        self.absence["qualifier"] = [self.require_no_containers() for _ in range(2)]
+        write_fresh(output_json, result.stdout)
+        self.executions.append(observed)
+        return dict(exit=0, natural=True, reaped=True, output_complete=True,
+                    result=qualified, result_pin=observed["stdout"])
 
     def lifecycle(self, **request):
-        need(self.compared, "Strict comparison must precede private lifecycle")
-        return self.supervisor.lifecycle(**request)
+        need(self.compared and len(self.executions) == 4 and self.lifecycle_credential is not None,
+             "Current qualified pair and admitted lifecycle credential required")
+        return self.supervisor.lifecycle(credential=self.lifecycle_credential, **request)
 
 
 def run_first_pair(*, trusted_pipeline, owner_commands, supervisor, source, source_map_sha256,
-                   output, image, inventory, cache, nonce, work, failure_output, socket, binding, binding_sha256):
+                   output, image, inventory, cache, nonce, work, failure_output, socket, binding, binding_sha256,
+                   pair_only=False, lifecycle_credential=None):
     pipeline = trusted_pipeline
     for key, expected in (("QT612_FAMILY_SOURCE_ROOT", str(source)),
                           ("QT612_FAMILY_SOURCE_MAP_SHA256", source_map_sha256),
@@ -215,10 +290,19 @@ def run_first_pair(*, trusted_pipeline, owner_commands, supervisor, source, sour
         need(os.environ.get(key) == expected, "Exact separately bound family actor environment")
     plan = pipeline.stage_commands(source=source, source_map_sha256=source_map_sha256, component=COMPONENT,
                                    output=output, image=image, inventory=inventory, cache=cache, nonce=nonce)
-    executor = FirstPairExecutor(pipeline, plan, owner_commands, supervisor, socket=socket,
-                                 source=source, binding=binding, binding_sha256=binding_sha256)
-    return pipeline.run_stage(plan, executor, source=source, source_map_sha256=source_map_sha256,
-                              output=output, work=work, failure_output=failure_output)
+    need(type(pair_only) is bool and pair_only == (lifecycle_credential is None), "Explicit hosted stage mode and credential")
+    owned = FirstPairExecutor(pipeline, plan, owner_commands, supervisor, socket=socket,
+                              source=source, binding=binding, binding_sha256=binding_sha256,
+                              lifecycle_credential=lifecycle_credential)
+    result = pipeline.run_stage(plan, owned, source=source, source_map_sha256=source_map_sha256,
+                               output=output, work=work, failure_output=failure_output, pair_only=pair_only)
+    witness = dict(kind="QT612_HOSTED_OWNED_PAIR_WITNESS_V1", mode="pair-only" if pair_only else "signed-lifecycle",
+        source_map_sha256=source_map_sha256, image=image, inventory_pin=plan["inventory_pin"],
+        component=COMPONENT, nonce=nonce, stage_binding_sha256=binding_sha256,
+        dispatch={k:owned.binding[k] for k in ("source", "ref", "run", "job", "attempt")},
+        commands=owned.executions, absence=owned.absence, qualification=pipeline.C.pin(pipeline.C.encoded(result["qualification"])))
+    write_fresh(Path(output)/"owned-pair.json", pipeline.C.encoded(witness))
+    return result
 
 
 if __name__ == "__main__":

@@ -74,6 +74,7 @@ class CommandRunner:
         self.image, self.nonce = image, nonce
         self.natural = True
         self.occupied = False
+        self.qualification = b""
 
     def __call__(self, argv, seconds, env=None):
         if argv[2:4] == ["image", "inspect"]:
@@ -82,6 +83,8 @@ class CommandRunner:
             body = json.dumps(result).encode()
         elif argv[2:4] == ["container", "ls"]:
             body = b"live\n" if self.occupied else b""
+        elif argv[2] == "run":
+            body = self.qualification
         else:
             body = b'{"comparison": "model"}\n'
         self.envs.append(env)
@@ -95,13 +98,19 @@ class ExecutorTests(unittest.TestCase):
     def setUp(self):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
-        self.out = Path(temp.name)
+        root = Path(temp.name)
+        self.out = root/"output";self.out.mkdir()
+        self.source = root/"family";self.source.mkdir()
+        self.scratch = root/"scratch";self.scratch.mkdir()
+        self.pipeline = executor.load(Path(__file__).resolve().parents[1]/"qt612-complete-family-native-source/pipeline.py",
+                                      "qt612_hosted_test_pipeline")
         self.image, self.nonce = "sha256:"+"1"*64, "2"*32
         compare = ["/usr/bin/python3", "-I", "-B", "comparison"]
         builds = [dict(argv=["/usr/bin/python3", "-I", "-B", "builder", "--output", str(self.out/f"build-{i}")],
                        env={"CACHY_QT612_REFERENCE_ATTEMPT": str(i)}) for i in (1, 2)]
         self.plan = dict(component="gui_server", serial=True, inventory_pin={"sha256": "3"*64},
-                         image=self.image, nonce=self.nonce, source_map_sha256="4"*64, builds=builds, compare=compare)
+                         image=self.image, nonce=self.nonce, source_map_sha256="4"*64, builds=builds, compare=compare,
+                         inventory_path=str(self.source/"expected356.lock"), entry_pin={"sha256":"a"*64}, source_date_epoch=1792021458)
         self.runner = CommandRunner(self.image, self.nonce)
         self.supervisor = Mock()
         self.enterContext(patch.dict(os.environ, {key: "model" for key in (
@@ -109,9 +118,9 @@ class ExecutorTests(unittest.TestCase):
             "GITHUB_RUN_ATTEMPT", "UNRELATED_SECRET")}, clear=True))
         self.socket = self.enterContext(patch.object(executor, "private_socket",
             return_value=(Path("/fixed/volume/docker.sock"), (1, 2))))
-        self.api = executor.FirstPairExecutor(SimpleNamespace(BUILD_SECONDS=6900, COMPARE_SECONDS=120),
+        self.api = executor.FirstPairExecutor(self.pipeline,
             self.plan, self.runner, self.supervisor, socket="/fixed/volume/docker.sock",
-            source="/fixed/family", binding="/fixed/binding", binding_sha256="5"*64)
+            source=self.source, binding="/fixed/binding", binding_sha256="5"*64)
 
     def authenticate(self):
         self.api.authenticate_Root_stage_binding({"actual": "inert"})
@@ -141,8 +150,25 @@ class ExecutorTests(unittest.TestCase):
         self.api.run(self.plan["compare"], 120, env={}, stdout=str(target))
         self.assertEqual(target.read_bytes(), b'{"comparison": "model"}\n')
         self.assertEqual(target.stat().st_mode & 0o777, 0o600)
-        self.api.qualify(owned=True)
-        self.supervisor.qualify.assert_called_once_with(owned=True)
+        request = self.pipeline.qualification_request(self.plan, source=self.source,
+             source_map_sha256=self.plan["source_map_sha256"], output=self.out, work=self.scratch/"work")
+        req_path = self.out/"qualifier-input/request.json";req_path.parent.mkdir()
+        raw = self.pipeline.C.encoded(request);req_path.write_bytes(raw)
+        self.runner.qualification = self.pipeline.C.encoded({"qualification":"MODEL"})
+        argv = ["/usr/bin/python3", "-I", "-B", "/trusted/qualify.py", "--request", str(req_path),
+                "--request-sha256", self.pipeline.C.pin(raw)["sha256"]]
+        worker = self.api.qualify(argv=argv, timeout=1200, memory_bytes=2*1024**3, cpus=1,
+                                  output_json=str(self.out/"qualification.json"))
+        self.assertEqual(worker["result"], {"qualification":"MODEL"})
+        self.assertEqual(len(self.api.absence["qualifier"]), 2)
+        self.assertEqual((self.out/"qualification.json").read_bytes(), self.runner.qualification)
+        self.supervisor.qualify.assert_not_called()
+        run, = (row["argv"] for row in self.runner.rows if row["argv"][2] == "run" and row["argv"][0] == executor.DOCKER)
+        self.assertIn("--memory=2g", run);self.assertIn("--network=none", run)
+        self.assertIn(f"type=bind,src={self.out},dst={self.out},readonly", run)
+        self.assertIn(f"type=bind,src={self.scratch},dst={self.scratch}", run)
+        with self.assertRaisesRegex(ValueError, "admitted lifecycle credential"):
+            self.api.lifecycle()
         self.assertTrue(all("UNRELATED_SECRET" not in env for env in self.runner.envs if env))
         self.assertTrue(all(row["argv"][1] == "--host=unix:///fixed/volume/docker.sock"
                             for row in self.runner.rows if row["argv"][0] == executor.DOCKER))
@@ -165,6 +191,20 @@ class ExecutorTests(unittest.TestCase):
             self.api.require_absent_twice(f"cachy-qt612-family-{self.nonce}-gui_server-1")
         with self.assertRaisesRegex(ValueError, "confirm retirement"):
             self.build(1)
+
+    def test_optional_lifecycle_credential_authenticates_before_use(self):
+        credential = Mock()
+        credential.API = "foreign-credential"
+        self.api.lifecycle_credential = credential
+        with self.assertRaisesRegex(ValueError, "lifecycle credential interface"):
+            self.authenticate()
+        credential.authenticate_stage.assert_not_called()
+        credential.API = executor.CREDENTIAL_API
+        self.authenticate()
+        credential.authenticate_stage.assert_called_once_with({"actual":"inert"})
+        with self.assertRaisesRegex(ValueError, "Current qualified pair"):
+            self.api.lifecycle()
+        self.supervisor.lifecycle.assert_not_called()
 
     def test_builder_child_blocks_force_fallback_before_exec(self):
         source = Path("/fixed/family")

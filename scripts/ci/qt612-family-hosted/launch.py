@@ -11,6 +11,7 @@ from types import ModuleType
 
 import capacity
 import executor
+import evidence
 
 need = executor.need
 R128_MAP_SHA256 = "42bffdd05941787940bbc5a459cb4ce66cf26b0b01b6e5ebdb96e3d1b2e9d473"
@@ -77,17 +78,14 @@ def first_stage_controller(retained, runtime_root, output, nonce, uid, gid):
     return Controller(Path(runtime_root), Path(output), policy, nonce, uid, gid)
 
 
-def expose_public_source(bound):
-    source = bound/"Source-DATA"
-    need(source.is_dir() and not source.is_symlink(), "Verified copied public Source required")
-    for index, (path, _, _) in enumerate(os.walk(source, topdown=False, followlinks=False), 1):
+def expose_readonly_tree(root):
+    need(root.is_dir() and not root.is_symlink(), "Verified copied public inputs required")
+    for index, (path, _, _) in enumerate(os.walk(root, topdown=False, followlinks=False), 1):
         entry = Path(path)
         info = entry.lstat()
         need(index <= 512 and info.st_uid == 0 and (info.st_mode & 0o777) == 0o700,
              "Only fresh Root-owned public Source directories are exposed")
         entry.chmod(0o555)
-    bound.chmod(0o711)
-    return source
 
 
 def reserve_and_bind(controller, runner_inputs, transfer, *, selection_sha256, logical_bytes):
@@ -124,17 +122,29 @@ def reserve_and_bind(controller, runner_inputs, transfer, *, selection_sha256, l
     identity = owned["volume"]
     # The transfer owner receives only these in-volume destinations. The
     # separately admitted transport must retire its credential and temp store.
-    portable, operands, framework = (work/name for name in ("portable", "operands", "framework"))
-    need(all(not os.path.lexists(path) for path in (portable, operands, framework)),
+    portable, acquired = work/"portable", work/"acquired"
+    operands, framework = acquired/"operands", acquired/"framework"
+    need(all(not os.path.lexists(path) for path in (portable, acquired)),
          "Fresh bulk transfer destinations on the loop")
     with runner_inputs.owned_workspace(layout, identity["device"], identity["inode"], identity["mount"]):
-        transfer(owned_workspace=layout, portable=portable, operands=operands, framework=framework)
+        acquisition = transfer(owned_workspace=layout, device=identity["device"], inode=identity["inode"],
+                               mount_id=identity["mount"], portable=portable, output=acquired)
+        need(acquisition["status"] == "ACQUIRED_QT_RUNNER_INPUT_BYTES_ONLY"
+             and acquisition["selection_sha256"] == selection_sha256
+             and acquisition["GPG"] == "NOT_RUN" and acquisition["Root_acceptance"] is None,
+             "Complete scoped acquisition byte receipt required")
         receipt = runner_inputs.bind_inputs(portable, selection_sha256, operands, framework, work/"bound", layout)
     need(receipt["status"] == "BOUND_RUNNER_SOURCE_DATA_ONLY" and receipt["base_roles"] == 517
          and receipt["packages"] == 7 and receipt["GPG"] == "NOT_RUN",
          "Exact selected 517 and seven dependency input bindings required")
-    source = expose_public_source(work/"bound")
-    return dict(daemon=daemon, work=work, bound=work/"bound", operands=operands,
+    bound = work/"bound"
+    source = bound/"Source-DATA"
+    for public in (source, operands, acquired/"trust"):
+        expose_readonly_tree(public)
+    acquired.chmod(0o711)
+    bound.chmod(0o711)
+    return dict(daemon=daemon, work=work, bound=work/"bound", operands=operands, acquisition=acquisition,
+                input_test_certificate=acquired/"trust/md4c-r128-TEST-public.gpg",
                 source=source, input_receipt=receipt, storage=evidence,
                 transfer_budget=owned, empty_inner_bytes=disk, admitted_memory_bytes=memory)
 
@@ -421,9 +431,16 @@ class SignedDependencies:
 
 
 def run_owned_payload(*, pipeline, family_source, bootstrap, supervisor, commands,
-                      prepared, socket, nonce, auth):
+                      prepared, socket, nonce, auth, stage_mode, lifecycle_credential=None):
     """Start after the controller has launched its authenticated ordinary service."""
     need(os.getuid() == os.geteuid() > 0, "The authenticated ordinary payload owns the Qt build")
+    need(stage_mode in ("pair-only", "signed-lifecycle")
+         and (stage_mode == "pair-only") == (lifecycle_credential is None),
+         "Choose the exact hosted stage mode and optional lifecycle credential before any build")
+    need(Path(auth["certificate"]["path"]) == prepared["input_test_certificate"],
+         "Use the independently verified certificate in the exact acquired volume")
+    need({k:auth["certificate"][k] for k in ("bytes", "sha256")} == prepared["acquisition"]["md4c_public_certificate"],
+         "Same certificate selected and acquired for the seven-pair image")
     source, work = prepared["source"], prepared["work"]
     source_map_sha256 = prepared["input_receipt"]["new_source_map"]["sha256"]
     need(not os.access(source, os.W_OK), "The live runner Source must be read-only to the payload")
@@ -449,13 +466,27 @@ def run_owned_payload(*, pipeline, family_source, bootstrap, supervisor, command
         # The independent supervisor supplies the already authenticated binding.
         binding, binding_sha256 = supervisor.select_stage_binding(
             image=selected["image"], inventory_pin=selected["inventory"], source_map_sha256=source_map_sha256,
-            component=executor.COMPONENT, nonce=nonce)
+            component=executor.COMPONENT, nonce=nonce, mode=stage_mode)
         os.environ.update(QT612_FAMILY_SOURCE_ROOT=str(source), QT612_FAMILY_SOURCE_MAP_SHA256=source_map_sha256,
                           QT612_FAMILY_BINDING_PATH=str(binding), QT612_FAMILY_BINDING_SHA256=binding_sha256)
+        scratch = work/"qualifier-scratch"
+        scratch.mkdir(mode=0o700)
         result = executor.run_first_pair(trusted_pipeline=pipeline, owner_commands=commands, supervisor=supervisor,
             source=source, source_map_sha256=source_map_sha256, output=outputs, image=selected["image"],
-            inventory=source/"expected356.lock", cache=cache, nonce=nonce, work=work/"qualifier",
-            failure_output=work/"gui-hold", socket=socket, binding=binding, binding_sha256=binding_sha256)
+            inventory=source/"expected356.lock", cache=cache, nonce=nonce, work=scratch/"work",
+            failure_output=work/"gui-hold", socket=socket, binding=binding, binding_sha256=binding_sha256,
+            pair_only=stage_mode == "pair-only", lifecycle_credential=lifecycle_credential)
+        if stage_mode == "pair-only":
+            C = pipeline.C
+            raw = C.M.stream(outputs/"owned-pair.json", None, {}, collect=True)
+            witness = C.M.decode(raw)
+            operands = dict(source_map=prepared["input_receipt"]["new_source_map"],
+                            qualification=C.pin(C.encoded(result["qualification"])), owner=C.pin(raw),
+                            stage_binding_sha256=binding_sha256, dispatch=witness["dispatch"])
+            root = work/"gui-pair-evidence"
+            manifest = evidence.export_pair(C, stage=outputs, commands=commands.out, source=source,
+                                            output=root, selected=operands)
+            result["passive_export"] = dict(path=str(root), manifest_pin=manifest, selected=operands)
     except BaseException as error:
         errors.append(error)
     for close in (dependencies.retire, baseline.retire,

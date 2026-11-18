@@ -86,12 +86,10 @@ Only that workflow's runner-owned storage is mounted and later retired.
    `QT612_FAMILY_SOURCE_ROOT`, `QT612_FAMILY_SOURCE_MAP_SHA256`,
    `QT612_FAMILY_BINDING_PATH` and `QT612_FAMILY_BINDING_SHA256` from the
    separately authenticated selection. The supervisor supplies
-   `authenticate_Root_stage_binding`, `require_domain`,
-   `require_signed_inventory`, `qualify` and `lifecycle`. The qualifier runs
-   in its separate owned 2 GiB domain. Lifecycle requires the private
-   authenticated signature of the newly qualified archive and its own
-   disposable lifecycle image. An available TEST key for the 356 inputs
-   does not itself qualify those new outputs.
+   `authenticate_Root_stage_binding`, `require_domain` and
+   `require_signed_inventory`. The owned qualifier runs as the ordinary
+   user in a separate, network-disabled 2 GiB container with read-only
+   inputs and dedicated writable scratch.
 5. Retain the exact two package archives, provenance and build/check logs,
    comparison, qualification, and scoped retirement receipts before
    unmounting. Stop on a hold. Confirm same-name absence twice after each
@@ -116,11 +114,13 @@ seconds of owned work and 90 seconds of cleanup. The work budgets are
 preparation, and 18,000 seconds for the component stage. Provision the
 Root-selected bounded `Commands` accordingly. Use
 `launch.reserve_and_bind` as Root before launching the independently
-authenticated ordinary owner service. Its `transfer` argument is the
-independently admitted acquisition program. It receives the verified
-ext4 root and the three fresh `volume/work` paths `portable`, `operands`
-and `framework`. It must complete credential and temporary-store retirement
-and provide ordinary-user access to the pinned public operands.
+authenticated ordinary owner service. Its `transfer` argument receives the
+opened ext4 root, its device/inode/mount IDs and the fresh `portable` and
+`acquired` paths under `volume/work`. It materializes the pinned portable
+skeleton there and invokes the independently selected
+`acquire_runner_inputs.py` as described in `ACQUIRE-RUNNER-INPUTS.md`.
+The returned byte receipt joins the same selection. The launcher keeps the
+original acquired operands and public TEST certificate read-only.
 
 `launch.run_owned_payload` takes the resulting prepared data, retained
 `entry`, `carrier`, `rootfs`, `native` and `container_runtime` modules, and the
@@ -135,15 +135,35 @@ fingerprint, expiry, exact archive/signature pins and its Root evidence.
 The disposable trust keyring is removed within the image transaction.
 The installed inventory is independently re-read as the ordinary user.
 
-After the real 356 image exists, the external
-`select_stage_binding(image=..., inventory_pin=..., source_map_sha256=...,
-component=..., nonce=...)` selects a fresh authenticated binding path and
-SHA-256. The ordinary payload verifies it through the maintained stage
-gate. The supervisor receives separate qualifier and private lifecycle
-callbacks, and retains evidence with `retain_owner_evidence` before the
-Root controller retires the daemon and quota mount. The route remains
-pending hosted registration, authority, acquisition program selection and
-private output signing.
+## Dispatch mode and evidence
+
+Select `stage_mode="pair-only"` and omit the lifecycle credential for the
+first dispatch. After the real 356 image exists, the external
+`select_stage_binding` selects a fresh authenticated binding using the
+observed image ID, inventory pin, source-map SHA-256, component, nonce and
+mode. Both the selected Source and the running pipeline must use the same
+mapped `pipeline.py` body. Previous sealed maps keep their original driver.
+
+Pair-only ends after two natural serial builds, exact package comparison,
+separate passive qualification and the owned absence checks.
+`PASS_QT612_FAMILY_COMPONENT_PAIR_ONLY` records `lifecycle_status="NOT_RUN"`.
+The launcher copies the exact raw package, proof, check, provenance and
+selected command evidence into `volume/work/gui-pair-evidence`. Preserve its
+pinned `pair-export.json` and report the whole `selected` fields separately.
+Use `evidence.verify_export` on the retained data to recompute all pins,
+recheck command order and require the complete closed member list.
+The in-volume public export allows up to 2 GiB and needs an independently
+selected artifact transport. The supervisor receives the original command
+records at `retain_owner_evidence` before external volume retirement.
+
+`stage_mode="signed-lifecycle"` separately requires a credential object
+implementing `ROOT_QT612_STAGE_LIFECYCLE_CREDENTIAL_V1` and authenticating
+the current stage binding. The object remains in the supervisor's private
+transaction path. It is handed to the separately owned lifecycle callback
+only after the fresh archive pair qualifies. The input md4c TEST certificate
+authenticates that one dependency. This route does not supply a hosted
+signing relay or generate a new signature. Registration, fresh authority
+and any private signing remain separate.
 
 The generated build remains one CPU, one compile job, 4 GiB RAM, no extra
 swap, 4 GiB private tmpfs and 512 PIDs. The two serial builds use 6,900 seconds
