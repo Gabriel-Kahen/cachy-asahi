@@ -28,7 +28,7 @@ def main():
     suites = ('test_compose.py', 'test_maintenance.py',
               'test_staged_archives.py', 'test_assemble_signed_additions.py',
               'test_index_signed_addition_sources.py', 'test_join_signed_recipe_history.py',
-              'test_join_maintenance_rollback.py')
+              'test_join_maintenance_rollback.py', 'test_prepare_maintenance_guest.py')
     for name in suites:
         result = subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning',
                                  str(here / name), '-v'], timeout=120)

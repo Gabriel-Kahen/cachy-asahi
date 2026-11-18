@@ -102,8 +102,10 @@ the separately owned hosted check.
 The image defaults to UID/GID 65534. `run.py` refuses root and any libalpm version
 other than 16.0.1, prints the runtime identity and scope, and runs the
 composition, maintenance, staged archive mapping, signed operand assembly,
-signed addition source indexing, signed recipe history, and maintenance archive
-join suites. Each uses a 120-second timeout and `-I -B -Werror::ResourceWarning`.
+signed addition source indexing, signed recipe history, maintenance archive
+joins, and passive guest staging. Each suite uses a 120-second timeout and
+`-I -B -Werror::ResourceWarning`. The passive guest suite uses a small image
+fixture with an injected free-space measurement so it runs in the CI tmpfs.
 The runner reads the bind-mounted checkout and writes
 only disposable user state under container `/tmp` and `/dev/shm`. Linux shared
 memory tmpfs supplies the real read-induced-atime regression even when host
@@ -125,4 +127,4 @@ source/license closure, upstream freshness, production trust or hardware.
 The actual local build/test logs, installed package list and scoped receipt are
 retained under `work/supported-composition-ci-runtime-20261114/`; no image was
 published. `run.py` takes no arguments and returns the first failed suite exit
-(or0 after both suites), so CI should propagate its Docker exit directly.
+(or 0 when all suites pass), so CI should propagate its Docker exit directly.
