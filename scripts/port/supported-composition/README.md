@@ -363,3 +363,48 @@ metadata still satisfies the 22 recorded dependency edges to these providers.
 The original five policy blockers remain. The proposed maintenance stays
 unapproved, with installed payload correspondence and an actual rollback
 transaction still open.
+
+### Prepare the disposable Asahi maintenance guest inputs
+
+`prepare_maintenance_guest.py` verifies and stages the original Asahi
+root image as a read-only seed. It uses the following exact v1 config.
+
+- `kind` is `supported-Asahi-maintenance-disposable-guest-preflight-DATA`
+  and `schema_version` is `1`.
+- `image_zip`, `image_inventory`, and `image_capture` pin the original
+  captured ZIP, its 261-package ALPM inventory, and its capture receipt.
+- `archive_join` pins the maintenance archive-join result above.
+  `stage_contract` pins the existing signed-addition assembly config.
+- `boot` supplies the existing Overlay583 `kernel`, `config`, and
+  `baseline` references for a separate control guest.
+
+Every file reference uses absolute `path`, `size`, and `sha256`. Choose a
+fresh output directory. Materializing the root requires its full raw size
+plus the controller’s 2 GiB storage reserve. Repeat the preflight with
+`--reuse-seed /absolute/seed-root.img` to rehash an existing read-only
+seed without another copy.
+
+```sh
+python3 -I -B scripts/port/supported-composition/prepare_maintenance_guest.py \
+  --config "$guest_config" --config-sha256 "$guest_config_sha256" \
+  --output "$new_stage"
+jq '{status, original_root, guest, expected_locks, expected_previews}' \
+  "$new_stage/guest-plan.DATA.json"
+```
+
+The retained ZIP came from an observed HTTPS capture. Its materialized
+`root.img` is 3,680,501,760 bytes with SHA-256
+`76f95dae6180bc4a45ffdeaccec26681d75b2207b90062064fcd2a845adbf9db`.
+The capture records no independent image signature. The retained seed has
+514,011,136 bytes free. Grow a separate disposable copy before applying
+the forward payload, whose package installed-size total is 2,988,144,063
+bytes.
+
+The plan pins the 261-package baseline, the 626-package forward result,
+and the 626-package result after rolling back only Python, NetworkManager,
+and Perl. That rollback restores the 201 protected versions and keeps the
+365 additions. The proposal is `UNAPPROVED`. A separately authorized
+offline AArch64 16 KiB guest must reverify signer scope and current TEST
+certificates, preview both transactions, and check the full inventories.
+The preflight reads inputs and writes private staging DATA. Physical M2
+validation, production trust, and release acceptance require separate evidence.
