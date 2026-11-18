@@ -91,6 +91,14 @@ class ControllerTest(unittest.TestCase):
             with self.subTest(raw=raw),self.assertRaises(ValueError):
                 C.serial_pass(raw,NONCE)
 
+    def test_selected_lifecycle_hold_still_requires_one_exact_terminal(self):
+        hold = f"OVERLAY583 {NONCE} HOLD lifecycle".encode()
+        self.assertFalse(C.serial_pass(b"kernel log\r\n"+hold+b"\r\n",NONCE,lifecycle=True))
+        for raw in (hold+b"\n"+hold,hold.replace(b"lifecycle",b"transaction"),
+                    hold.replace(NONCE.encode(),b"f"*32)):
+            with self.subTest(raw=raw),self.assertRaises(ValueError):
+                C.serial_pass(raw,NONCE,lifecycle=True)
+
     def test_archive_copy_preserves_epoch_names_and_rejects_wrong_pin(self):
         src = self.output/"firmware-1:2-3-any.pkg.tar.xz"
         src.write_bytes(b"model archive")
@@ -139,6 +147,28 @@ class ControllerTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"namespace"):
             C.verify_input(fake_reader(nodes),None,(files,aliases,dirs))
 
+    def test_lifecycle_packs_the_pinned_baseline_inventory(self):
+        staging,worker = self.output/"staging",self.output/"trial.py"
+        baseline = staging/C.T.BASE_INVENTORY
+        baseline.parent.mkdir(parents=True)
+        worker.write_bytes(b"model worker")
+        (staging/"target.lock").write_bytes(b"model target")
+        baseline.write_bytes(b"model base")
+        packet = dict(files={},trust={},aliases={},target=C.T.pin(b"model target"),
+                      baseline=C.T.pin(b"model base"))
+        worker_pin = C.T.pin(worker.read_bytes())
+        with patch.object(C,"runtime_payload",return_value={}):
+            selected = C.T.encoded(dict(packet=packet,lifecycle=True))
+            files,_,_ = C.input_tree(staging,worker,worker_pin,selected,self.output/"lifecycle")
+            self.assertEqual(files["inputs/"+C.T.BASE_INVENTORY],packet["baseline"])
+            self.assertEqual((self.output/"lifecycle/inputs"/C.T.BASE_INVENTORY).read_bytes(),b"model base")
+            baseline.write_bytes(b"wrong base")
+            with self.assertRaisesRegex(ValueError,"Selected bytes changed during copy"):
+                C.input_tree(staging,worker,worker_pin,selected,self.output/"altered")
+            install_only = C.T.encoded(dict(packet=packet))
+            files,_,_ = C.input_tree(staging,worker,worker_pin,install_only,self.output/"fresh")
+            self.assertNotIn("inputs/"+C.T.BASE_INVENTORY,files)
+
     def test_exact_result_export_and_inode_identity(self):
         plan = {"operations":[]}
         nodes = {name:{"type":"directory"} for name in (".","lost+found","evidence")}
@@ -156,6 +186,22 @@ class ControllerTest(unittest.TestCase):
         nodes["evidence/unexpected"] = dict(type="file")
         with self.assertRaisesRegex(ValueError,"namespace"):
             C.export_result(fake_reader(nodes,by_inode),None,self.output/"extra",plan)
+
+    def test_owned_lifecycle_hold_export_is_bounded_and_requires_receipt(self):
+        plan = {"lifecycle":True,"operations":[["remove",[],30]]}
+        nodes = {name:{"type":"directory"} for name in (".","lost+found","evidence")}
+        by_inode = {3:b"model held",4:b"model failed command"}
+        for inode,basename in ((3,"result.json"),(4,"remove.stderr")):
+            body = by_inode[inode]
+            nodes["evidence/"+basename] = dict(inode=inode,type="file",uid=0,gid=0,mode=0o600,
+                                              links=1,size=len(body),sha256=C.T.pin(body)["sha256"])
+        C.export_result(fake_reader(nodes,by_inode),None,self.output/"held",plan,held=True)
+        self.assertEqual((self.output/"held/remove.stderr").read_bytes(),by_inode[4])
+        with self.assertRaisesRegex(ValueError,"namespace"):
+            C.export_result(fake_reader(nodes,by_inode),None,self.output/"false-pass",plan)
+        nodes.pop("evidence/result.json")
+        with self.assertRaisesRegex(ValueError,"namespace"):
+            C.export_result(fake_reader(nodes,by_inode),None,self.output/"missing",plan,held=True)
 
     def test_binding_needs_explicit_external_digest_and_issuer(self):
         path = self.output/"authority.json"

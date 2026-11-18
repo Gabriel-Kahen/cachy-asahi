@@ -77,6 +77,37 @@ scriptlets enabled, then compares the installed inventory byte-for-byte to
 `target.lock` and checks the local database. The controller reopens the
 guest logs and exact lock after retirement.
 
+## Rehearse removal and reinstall
+
+Add `--lifecycle` to `controller.py bind` when creating a new selection.
+The Root-issued selection binds that flag and the longer command plan.
+Use the normal `run --authority … --authority-sha256 …` entry with a fresh
+output path and nonce. The controller first establishes the exact 583-package
+inventory and verifies the local database. It continues on that same scratch
+target in the offline guest.
+
+1. Pacman previews a plain removal of the nine names in the authenticated
+   overlay. The guest compares the preview to their exact name/version rows
+   before running the removal.
+2. The guest checks the local database and compares the sorted inventory
+   byte-for-byte with the pinned `base-repository/installed-inventory.lock`
+   for the authenticated 574-package base.
+3. The guest verifies the repository, name and version of each proposed
+   reinstall. Pacman installs the nine repo-qualified packages using the same
+   signed file repositories and a separate empty cache. The guest compares
+   the result with `target.lock` and checks the local database again.
+
+The controller reopens the previews, command logs and the three lock
+snapshots after natural guest retirement. If a stage fails with a guest
+receipt, the report records `HOLD_DISPOSABLE_OVERLAY583_LIFECYCLE`, the
+failed stage and any earlier verified locks. The command exits nonzero and
+keeps the original evidence disk, serial logs and private scratch disk.
+Earlier bootstrap or export failures also leave the raw disks and logs
+already created by the controller. Use a fresh selection for another run.
+The rehearsal covers package inventory and local database consistency in a
+disposable guest. Asahi installation, hardware validation and release
+acceptance remain separate.
+
 The passive preparation ran against real staging. The focused fixture suites
 exercise the plan, ownership bridge, controller and evidence readers without
 launching an actor. Root issuance and the first real transaction remain
