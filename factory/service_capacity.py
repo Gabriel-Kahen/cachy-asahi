@@ -40,7 +40,14 @@ def function_copy(fn,space):
  value=types.FunctionType(fn.__code__,space,fn.__name__,fn.__defaults__,fn.__closure__);value.__kwdefaults__=fn.__kwdefaults__;return value
 
 def factory(namespace,selected):
- p=profile();need(selected=='tcg1800','explicit fixed service profile only');raw=read(Path(namespace['__file__']));progress=b"    changes['installed606_progress']=load('_installed606_progress',HERE/'installed606_progress.py').apply(out,pin)\n";ingress=b";load('_current606_fresh_ingress',HERE/'fresh606.py').prepare_code(held,root,assets,out,selected)\n";need(raw.count(progress)==raw.count(ingress)==1,'exact selected observer and TEST ingress factory seams');raw=raw.replace(progress,b'',1).replace(ingress,b';held.prepare(root,assets,out,selected)\n',1);need(raw.endswith(FACTORY_FOOTER.encode())and pin(raw[:-len(FACTORY_FOOTER.encode())])==p['original_helpers']['factory.py'],'entire original factory before finite opt-in footer')
+ p=profile();need(selected=='tcg1800','explicit fixed service profile only')
+ raw=read(Path(namespace['__file__']))
+ progress=b"    changes['installed606_progress']=load('_installed606_progress',HERE/'installed606_progress.py').apply(out,pin)\n"
+ ingress=b";load('_current606_fresh_ingress',HERE/'fresh606.py').prepare_code(held,root,assets,out,selected)\n"
+ clock=b"    if mode=='generic16k':changes['guest_clock606']=load('_guest_clock606',HERE/'guest_clock606.py').apply(out,pin,once)\n"
+ need(raw.count(progress)==raw.count(ingress)==raw.count(clock)==1,'exact observer, TEST ingress and 16 KiB clock factory seams')
+ raw=raw.replace(progress,b'',1).replace(clock,b'',1).replace(ingress,b';held.prepare(root,assets,out,selected)\n',1)
+ need(raw.endswith(FACTORY_FOOTER.encode())and pin(raw[:-len(FACTORY_FOOTER.encode())])==p['original_helpers']['factory.py'],'entire original factory before finite opt-in footer')
  space=dict(namespace);original_prepare=namespace['prepare_code'];original_seal=namespace['seal']
  def prepare_code(*args,**kwargs):
   result=original_prepare(*args,**kwargs);apply(args[2]if len(args)>2 else kwargs['out']);return result

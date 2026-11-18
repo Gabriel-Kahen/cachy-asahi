@@ -152,6 +152,7 @@ def prepare_code(root,assets,out,selected,mode):
     home=root/'scripts/ci/welcome5-native-gui';sys.path.insert(0,str(home))
     held=load('_accepted_welcome7_prepare',home/'prepare.py');load('_current606_fresh_ingress',HERE/'fresh606.py').prepare_code(held,root,assets,out,selected)
     changes=transform(out,mode)
+    if mode=='generic16k':changes['guest_clock606']=load('_guest_clock606',HERE/'guest_clock606.py').apply(out,pin,once)
     changes['installed606_progress']=load('_installed606_progress',HERE/'installed606_progress.py').apply(out,pin)
     for n in('context606.py','install606.py','build_scope.py'):shutil.copyfile(HERE/n,out/n)
     shutil.copyfile(HERE/'expected606.lock',out/'expected606.lock')

@@ -16,8 +16,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "admission.py": {
-      "bytes": 46295,
-      "sha256": "519aa916d55e4ff688755c404ffd80dc6649e05c1fdc910cd3eca1063137a7eb"
+      "bytes": 46448,
+      "sha256": "ec4dbd7198a75aef5156f735c2e7f60c7e64f7c31e9006a9e49de4292eb41fbf"
     },
     "apps16-parent.json": {
       "bytes": 6702834,
@@ -536,8 +536,8 @@
       "sha256": "60fe88efeccf19de8f56d11066302b43d24a02e499713b84dd17949010b07aa1"
     },
     "factory/factory.py": {
-      "bytes": 21156,
-      "sha256": "798cc4d07185c3832d9d7d2e76a61473bf4209cf3a8b96cbe446a1d134844d94"
+      "bytes": 21277,
+      "sha256": "8a8bd5a83744ac8b9b3c039cfa66437fea1076ca1f9a85bf22c27c35bf284f10"
     },
     "factory/failure_cleanup.py": {
       "bytes": 3973,
@@ -546,6 +546,10 @@
     "factory/fresh606.py": {
       "bytes": 14760,
       "sha256": "51ca647d3d8b3f799021d4ba920d4b60b37edba058f35e6e4ca35e5160117180"
+    },
+    "factory/guest_clock606.py": {
+      "bytes": 8680,
+      "sha256": "6675352f4fae070843229d55de914a7c66c1f403a2a312bd40f0ac5e09e127e6"
     },
     "factory/hwcap_probe.c": {
       "bytes": 629,
@@ -740,8 +744,8 @@
       "sha256": "6d36a067f85d68184587fd6d9e2a8af0190acba6e0b371862400766a9303ae3b"
     },
     "factory/service_capacity.py": {
-      "bytes": 7051,
-      "sha256": "f4a0096ae66d76a21758c0cfb31a21301e7509e15ddf582acfc8c55716f8c15f"
+      "bytes": 7234,
+      "sha256": "6d8b2e3477e3a9cd6afb06189cb609281dd7661f1332e58ddab06d0a8cb59241"
     },
     "factory/support/alpm_reader.py": {
       "bytes": 23555,
@@ -920,8 +924,8 @@
       "sha256": "5d958633b3ebab98381d5acb741d4001243a96dc8153121d468c26c0f868952e"
     },
     "native.py": {
-      "bytes": 14408,
-      "sha256": "b4ea53ff7e3c5ed09216eff1450e3726fc1b8de23ea470b5fd617ed00489bd4e"
+      "bytes": 14549,
+      "sha256": "488ac394148649cb5f4abf9ac0010a56ff64502eb4aa6928d79b59973b9586de"
     },
     "official3-carrier-profile.json": {
       "bytes": 1387,
