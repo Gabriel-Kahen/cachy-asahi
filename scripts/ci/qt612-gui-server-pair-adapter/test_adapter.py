@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Offline controls. No process, lock, socket or native entry is permitted."""
 
-from contextlib import redirect_stderr
+from contextlib import nullcontext, redirect_stderr
 from email.message import Message
 from io import BytesIO, StringIO
 import os
@@ -9,6 +9,7 @@ from pathlib import Path
 import stat
 import sys
 import tempfile
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -18,6 +19,7 @@ sys.path.insert(0, str(HERE))
 import entry as E
 
 C = E.C
+STATELESS_FIXTURE = "ghs_12345_" + "a"*170 + "." + "b"*170 + "." + "c"*170
 REPO = HERE.parents[2]
 R128 = os.environ.get("QT612_TEST_R128_SOURCE")
 AUTHORITY = os.environ.get("QT612_TEST_MD4C_AUTHORITY")
@@ -198,7 +200,7 @@ class AdapterTest(unittest.TestCase):
         self.assertEqual(stderr.getvalue(), "HOLD_QT612_PAIR: STORAGE_ALLOCATION_ADMISSION\n")
 
     def test_r128_transport_tracks_stage_and_keeps_credentials_on_api_origin(self):
-        token = "fixture_only_no_secret_00000000"
+        token = STATELESS_FIXTURE
         url = "https://fixture.blob.core.windows.net/log?sealed=opaque"
         headers = Message()
         headers["Location"] = url
@@ -231,6 +233,57 @@ class AdapterTest(unittest.TestCase):
         with redirect_stderr(stderr):
             trace.hold()
         self.assertEqual(stderr.getvalue(), "HOLD_QT612_PAIR: R128_LOG_API\nHOLD_QT612_ACQUISITION: HTTP_403\n")
+
+    def test_r128_refuses_missing_unsafe_or_wrong_route_credentials(self):
+        trace = E.ControllerTrace()
+        trace.mark("R128_LOG_TOKEN")
+        with patch.object(E.urllib.request, "build_opener", side_effect=AssertionError("unexpected HTTP")):
+            for token in ("", "fixture with space", "fixture\tvalue", "fixture\r\nX: value", "fixtureé"):
+                with self.subTest(token=repr(token)), self.assertRaisesRegex(ValueError, "EXACT_R128_READ_CUSTODY"):
+                    E.fetch(E.LOG_URL, 20, token=token, mark=trace.mark)
+            with self.assertRaisesRegex(ValueError, "EXACT_R128_READ_CUSTODY"):
+                E.fetch(E.LOG_URL+"/wrong", 20, token=STATELESS_FIXTURE, mark=trace.mark)
+        self.assertIs(trace.stage, E.Stage.R128_LOG_TOKEN)
+
+    def test_root_scrubs_token_before_work_and_transfer_uses_it_once(self):
+        trace = E.ControllerTrace()
+
+        def stop_before_work(*_):
+            self.assertNotIn(E.TOKEN, os.environ)
+            raise ValueError("stop before work")
+
+        with patch.dict(os.environ, {E.TOKEN: STATELESS_FIXTURE}, clear=True), patch.object(C, "need", stop_before_work):
+            with self.assertRaisesRegex(ValueError, "stop before work"):
+                E.root_dispatch(None, trace)
+
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            packet = root/"input-fixture"
+            packet.mkdir()
+            for attempt in ("first", "second"):
+                (root/attempt).mkdir()
+            paths = dict(portable_selection=packet/"selection.fixture")
+            acquire = SimpleNamespace(time_limit=lambda _: nullcontext())
+            transfer = E.transfer_function(acquire, paths, {}, time.monotonic()+10, trace, STATELESS_FIXTURE)
+            requests = []
+
+            def deny(request, timeout):
+                self.assertNotIn(E.TOKEN, os.environ)
+                requests.append((request.full_url, request.get_header("Authorization")))
+                raise E.urllib.error.HTTPError(request.full_url, 403, "fixture", Message(), BytesIO())
+
+            def invoke(attempt):
+                transfer(owned_workspace=root, device=0, inode=0, mount_id=0, portable=root/attempt/"portable",
+                         output=root/attempt/"output")
+
+            with patch.dict(os.environ, {}, clear=True), patch.object(E.urllib.request, "build_opener",
+                       return_value=SimpleNamespace(open=deny)):
+                with self.assertRaises(E.HTTPReadRefused):
+                    invoke("first")
+                self.assertEqual(trace.acquisition_detail, "HTTP_403")
+                with self.assertRaisesRegex(ValueError, "EXACT_R128_READ_CUSTODY"):
+                    invoke("second")
+            self.assertEqual(requests, [(E.LOG_URL, "Bearer "+STATELESS_FIXTURE)])
 
     def test_root_356_readback_before_binding(self):
         approval, env = fixture()
