@@ -158,8 +158,13 @@ def stage_runtime_helpers(source, map_ref, workflow, output):
     path = source/RUNTIME_READER
     C.need(C.pin(C.read(path, C.MIB))["sha256"] == RUNTIME_READER_SHA, "EXACT_RUNTIME_STAGING_READER")
     module = load(path, "qt612_selected_runtime_reader")
-    result = module.stage_helpers(source=source, map_sha256=map_ref["sha256"],
-                                  frozen_locks=workflow, output=output)
+    # Path.mkdir(parents=True) uses the umask for intermediate directories.
+    previous_umask = os.umask(0o077)
+    try:
+        result = module.stage_helpers(source=source, map_sha256=map_ref["sha256"],
+                                      frozen_locks=workflow, output=output)
+    finally:
+        os.umask(previous_umask)
     C.need(result["status"] == "PASS_EXACT_RUNTIME_HELPER_STAGE_DATA_ONLY", "CLOSED_RUNTIME_HELPER_STAGE")
     return result
 
