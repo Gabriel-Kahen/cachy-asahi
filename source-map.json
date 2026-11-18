@@ -1103,7 +1103,7 @@
     "runtime-inputs.DATA.json": {
       "bytes": 4662,
       "mode": 420,
-      "sha256": "c046f1ead113aa3cf1ec63ae2a5607fa0bf39eae5471dedc66f64ef7bbfd5c48"
+      "sha256": "f7f433f50dc150b741fe22783aceb2b213b9582d0bdeb65c872c86c9e04dd453"
     },
     "scripts/ci/qt612-complete-family-native-source/acquire_runner_inputs.py": {
       "bytes": 17333,
@@ -1201,9 +1201,9 @@
       "sha256": "98d37fd4ce207db848db7799778451b3b22425f1475890208b89fccd2f006b49"
     },
     "scripts/ci/qt612-gui-server-pair-adapter/entry.py": {
-      "bytes": 38872,
+      "bytes": 38926,
       "mode": 420,
-      "sha256": "252b86c71a525f92bb2a44b3a2bc61352bebf92999a34dfb82479694c30d6df7"
+      "sha256": "dedd19547809a1a4e4c8013cf7f0f0b2e3e663506a2933247298295964045e50"
     },
     "scripts/ci/qt612-reference-native-source/actor_gate.py": {
       "bytes": 7754,

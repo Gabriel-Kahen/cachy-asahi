@@ -1,17 +1,17 @@
 {
   "Root_acceptance": null,
   "entry": {
-    "bytes": 38872,
+    "bytes": 38926,
     "path": "scripts/ci/qt612-gui-server-pair-adapter/entry.py",
-    "sha256": "252b86c71a525f92bb2a44b3a2bc61352bebf92999a34dfb82479694c30d6df7"
+    "sha256": "dedd19547809a1a4e4c8013cf7f0f0b2e3e663506a2933247298295964045e50"
   },
   "entry_provenance": {
-    "commit": "e984535bc1c156bed7a22526e185c2d571bf60c6",
+    "commit": "f82a617d783d2265d5a2f1c0ed45b36fdad6971f",
     "selection": {
       "bytes": 532,
-      "sha256": "5e172c376395a163ef28ef07cf21b38f78469d872127db60243af28db931993b"
+      "sha256": "7d5554183fb5ff699a041ba9e30d0d5eb883e3e6e5e1c8433b519494747c26de"
     },
-    "tree": "22d0a04b8166bb92d4f4bb7bd271cd63edd88b61"
+    "tree": "2ef336a0608dcb4cf6f219ee2d33834f63819974"
   },
   "external_family_locks": {
     "scripts/ci/qt612-reference-native-source/f-recipe.lock.json": {
@@ -62,8 +62,8 @@
     "scripts/release/source_delivery.py"
   ],
   "ingress": {
-    "commit": "e984535bc1c156bed7a22526e185c2d571bf60c6",
-    "tree": "22d0a04b8166bb92d4f4bb7bd271cd63edd88b61"
+    "commit": "f82a617d783d2265d5a2f1c0ed45b36fdad6971f",
+    "tree": "2ef336a0608dcb4cf6f219ee2d33834f63819974"
   },
   "inputs": {
     "md4c_authority": {

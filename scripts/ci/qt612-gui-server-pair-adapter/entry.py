@@ -123,13 +123,16 @@ def fetch(url, cap, *, token=None, timeout=8, mark=lambda _: None):
     headers = {"Accept-Encoding": "identity", "User-Agent": "cachy-asahi-qt612-owner"}
     if url.startswith(API):
         headers["Accept"] = "application/vnd.github+json"
+    request = urllib.request.Request(url, headers=headers)
     if token is not None:
-        C.need(url == LOG_URL and re.fullmatch("[A-Za-z0-9_]{20,250}", token), "EXACT_R128_READ_CUSTODY")
+        # Treat the Actions credential as opaque visible ASCII within one header.
+        C.need(url == LOG_URL and token and all("!" <= char <= "~" for char in token),
+               "EXACT_R128_READ_CUSTODY")
         mark("R128_LOG_API")
-        headers["Authorization"] = "Bearer " + token
+        request.add_unredirected_header("Authorization", "Bearer " + token)
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
     try:
-        response = opener.open(urllib.request.Request(url, headers=headers), timeout=timeout)
+        response = opener.open(request, timeout=timeout)
     except urllib.error.HTTPError as error:
         with error:
             if token is None or error.code != 302:
@@ -269,8 +272,9 @@ def portable_plan(acquire, paths, approval):
     return max(1_752_637_011, sum(row["pin"]["bytes"] for row in targets.values()))
 
 
-def transfer_function(acquire, paths, approval, deadline, trace):
+def transfer_function(acquire, paths, approval, deadline, trace, token):
     def transfer(*, owned_workspace, device, inode, mount_id, portable, output):
+        nonlocal token
         trace.mark("INPUT_TRANSFER_WINDOW")
         remaining = math.floor(deadline - time.monotonic())
         with acquire.time_limit(remaining):
@@ -281,15 +285,13 @@ def transfer_function(acquire, paths, approval, deadline, trace):
             md4c.mkdir(mode=0o700)
             log = work/"r128-original.log"
             trace.mark("R128_LOG_TOKEN")
-            token = os.environ.pop(TOKEN, "")
-            C.need(token, "EXACT_R128_ACTIONS_READ_TOKEN_REQUIRED")
             try:
                 body = fetch(LOG_URL, C.R128_LOG["bytes"], token=token, mark=trace.mark)
             except HTTPReadRefused as error:
                 trace.acquisition_detail = error.reason
                 raise
             finally:
-                del token
+                token = ""
             trace.mark("R128_LOG_PIN")
             C.need(C.pin(body) == C.R128_LOG, "EXACT_R128_LOG_ORIGINAL")
             trace.mark("INPUT_TRUST_STAGING")
@@ -562,6 +564,7 @@ def cleanup_passes(value):
 
 
 def root_dispatch(args, trace):
+    token = os.environ.pop(TOKEN, "")
     C.need(os.getresuid() == (0, 0, 0) and os.uname().machine in ("aarch64", "arm64"),
            "ACTUAL_ROOT_NATIVE_ARM_CONTROLLER")
     C.need(type(args.runner_uid) is int and type(args.runner_gid) is int and
@@ -614,6 +617,8 @@ def root_dispatch(args, trace):
     pipeline = load(code/C.FAMILY/"pipeline.py", "qt612_root_pipeline")
     acquire = load(code/C.FAMILY/"acquire_runner_inputs.py", "qt612_pinned_acquisition")
     logical_bytes = portable_plan(acquire, paths, approval)
+    transfer = transfer_function(acquire, paths, approval, ends["transfer"], trace, token)
+    del token
     # The current job lookup is public. The historical log credential stays in Root
     # custody and the controller/service commands receive only their scrubbed env.
     trace.mark("CURRENT_JOB_IDENTITY")
@@ -637,12 +642,10 @@ def root_dispatch(args, trace):
     private = output/".pair-retained"
     with retained["container_runtime"].Cancellation() as cancellation:
         try:
-            prepared = launch.reserve_and_bind(owner, acquire.R,
-                transfer_function(acquire, paths, approval, ends["transfer"], trace),
+            prepared = launch.reserve_and_bind(owner, acquire.R, transfer,
                 selection_sha256=approval["inputs"]["portable_selection"]["sha256"], logical_bytes=logical_bytes,
                 stage=trace.mark)
             trace.mark("ORDINARY_SERVICE_HANDOFF")
-            os.environ.pop(TOKEN, None)
             work, source = prepared["work"], prepared["source"]
             os.chown(work, 0, args.runner_gid)
             work.chmod(0o1770)
@@ -688,7 +691,6 @@ def root_dispatch(args, trace):
             report["failure_stage"] = trace.stage.name
         finally:
             trace.mark("OWNED_CLEANUP")
-            os.environ.pop(TOKEN, None)
             cancellation.cleaning = True
             try:
                 report["cleanup"] = owner.cleanup()
