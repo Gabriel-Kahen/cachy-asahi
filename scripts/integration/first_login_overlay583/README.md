@@ -15,13 +15,26 @@ The producer checks the exact signatures' and package's bytes, the immutable 583
 
 ## Owner integration
 
-Use a mutually exclusive first-login selection on top of the existing verified fresh Overlay583 transaction. Keep the shared upgrade selection in its own path. The owner binds the supplement's complete manifest digest and adapter source hash into the separately admitted plan, then delivers the staged directory as `/trial-code/first-login` on the existing read-only code media. Keep the package-repository media unchanged and extend the code-media census by exactly the staged leaf set.
+In the existing offline controller tool environment, bind a new selection using the prepared supplement directory and its whole manifest digest. Use absolute paths, a new dedicated output path, and a fresh 32-character lowercase hexadecimal nonce. This selection is exclusive with lifecycle, signature recovery and predecessor upgrade.
 
-After the normal 583 install and database check, and before retirement of the guest-only trust directory, call the pinned `guest.run(trial, supplement_sha256=..., nonce=..., env=..., command=...)`. The caller owns the actor and supplies a bounded command callback with the existing `command(step, argv, seconds, contents=None)` inputs. The callback returns the command's original stdout on a naturally retired successful exit. Retain addon stdout/stderr, command receipts and return JSON in a separate evidence namespace such as `/trial-work/first-login-evidence`, leaving the existing exact Overlay583 evidence leaf set intact. The callback is only for the already admitted VM running the exact boot nonce. The existing API mount helper supplies the normal guest target mounts through a scoped ExitStack.
+```sh
+python3 -I -B scripts/install/overlay583_trial/controller.py bind \
+  --staging "$staging" --preflight "$preflight" \
+  --kernel "$kernel" --config "$kernel_config" --baseline "$baseline" \
+  --output "$output" --nonce "$nonce" \
+  --first-login "$supplement" --first-login-sha256 "$supplement_sha256"
+```
 
-The addon checks 583 again, verifies the exact detached TEST signature, and trusts the extra key inside the existing disposable guest keyring. It installs the one signed archive with normal hooks and scriptlets and requires the exact 584 inventory and installed launcher/backend bytes. The target driver uses the installed Python, the real installed Setup8 and shell programs and templates, and a distinct ordinary account inside the scratch target chroot. It reuses the maintained 27-command journey with actual user identity, activation and repeat, ten scripted interactive shell startups, process exit75 and journal recovery, and deactivation. Pacman removal must restore the 583 lock and leave both checked user edits byte-identical. The account and /run scratch belong to the disposable target.
+The passive bind returns a candidate for separate Root issuance. Use the existing transaction entry after Root issues that exact selection.
 
-The current shared harness has no addon hook. Integrating this single opt-in hook and independently verifying its exported evidence remain coordinator tasks. This checkout has no guest launch or package transaction.
+```sh
+python3 -I -B scripts/install/overlay583_trial/controller.py run \
+  --authority "$authority" --authority-sha256 "$authority_sha256"
+```
+
+The controller binds the supplement manifest, signed materials and exact helper bytes in the plan. The guest receives them under `/trial-code/first-login` on the existing read-only code media. After the regular 583 install and database check, the guest verifies the detached TEST signature, trusts the extra key in the disposable keyring, and installs the package using the normal signature policy, hooks and scriptlets. It verifies the exact 584 inventory and installed launcher and backend bytes. The target driver uses the installed Python, real Setup8 and shell programs and templates, and a distinct ordinary account in the scratch target. It reuses the maintained 27-command journey, including ten scripted interactive shell startups, interrupted activation and journal recovery, and deactivation. Pacman removal must restore the 583 lock and preserve both user edits byte-for-byte.
+
+The controller verifies the exact before, installed and removed inventories, the original command outputs and the target command ownership receipts from `first-login.json`. A failed stage is recorded as `HOLD_DISPOSABLE_OVERLAY583_FIRST_LOGIN_LIFECYCLE` and retains the original disks and logs. This integration has source and fixture evidence. A new ARM16K guest run is required for installed candidate evidence.
 
 ## Available local checks
 

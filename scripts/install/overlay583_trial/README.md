@@ -127,6 +127,18 @@ verifies the final 583-package lock and database. The report pins both
 database snapshots and records the original refusal and package inventories.
 An unexpected outcome stops at HOLD and retains the original evidence.
 
+## Exercise installed first-login
+
+Bind a fresh selection with `--first-login <supplement-directory>` and
+`--first-login-sha256 <whole-manifest-digest>`. This exercises an additional
+signed FirstLogin candidate after the normal 583 install. It is mutually
+exclusive with lifecycle, signature recovery and predecessor upgrade. The
+guest checks the exact 584-package installation, exercises the ordinary-user
+Setup8 and shell lifecycle, and verifies that package removal restores the
+583-package lock and preserves both user edits. The [first-login addon
+guide](../../integration/first_login_overlay583/README.md) contains staging
+provenance and the bind and run commands.
+
 The passive preparation ran against real staging. The focused fixture suites
 exercise the plan, ownership bridge, controller and evidence readers without
 launching an actor. Root issuance and the first real transaction remain
