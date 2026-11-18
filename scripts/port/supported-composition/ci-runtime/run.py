@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Run only the two composition suites in an explicit unprivileged CI runtime."""
+"""Run the composition and signed operand suites in the reviewed CI runtime."""
 import ctypes
 import ctypes.util
 import json
@@ -25,7 +25,9 @@ def main():
                       'python': sys.version.split()[0], 'uid': os.geteuid(),
                       'native_ARM': 'NOT RUN', 'hardware': 'NOT RUN'}), flush=True)
     here = Path(__file__).resolve().parent.parent
-    for name in ('test_compose.py', 'test_maintenance.py'):
+    suites = ('test_compose.py', 'test_maintenance.py',
+              'test_staged_archives.py', 'test_assemble_signed_additions.py')
+    for name in suites:
         result = subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning',
                                  str(here / name), '-v'], timeout=120)
         if result.returncode:
