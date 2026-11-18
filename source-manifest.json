@@ -16,8 +16,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "admission.py": {
-      "bytes": 50314,
-      "sha256": "825bc3d174ca8746215acd73355c7cdb6858d7c3d324ada36f167225f31e6929"
+      "bytes": 50584,
+      "sha256": "6ef95f7d2c1d7f89611a0e145a7d71267aaf8106b3249bd8d148e340707e553a"
     },
     "apps16-parent.json": {
       "bytes": 6702834,
@@ -544,8 +544,8 @@
       "sha256": "130f6d21e4bcd03a187124631208457d422a0a4472b6f8cce2e3431e0673446a"
     },
     "factory/fresh606.py": {
-      "bytes": 17274,
-      "sha256": "054dc22aa7dc8e495a5193b420875d977d5b057c501ace167f9a2300ffb587e9"
+      "bytes": 21863,
+      "sha256": "db011d75cb75f73f3d3ca77b97397a95ef1e34c75fd66d3b4e30516d4d072cec"
     },
     "factory/guest_clock606.py": {
       "bytes": 8680,
@@ -636,24 +636,28 @@
       "sha256": "5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9"
     },
     "factory/kernel-keyboard/scripts/ci/current606-ksm-virtio-input/build_kernel.py": {
-      "bytes": 20516,
-      "sha256": "d30dd01f57fafa4a92f30c9ed41664800c9d1d3c983148652ca39510358b98d9"
+      "bytes": 20690,
+      "sha256": "f165f8aca3aca2a8a9332de7b9cc085e3aed85a1eb55c3aac6a63d5c30dfd4ca"
+    },
+    "factory/kernel-keyboard/scripts/ci/current606-ksm-virtio-input/expected-ipv6.config": {
+      "bytes": 64368,
+      "sha256": "8f9c37958a64701c8e0459ba29c78def06810291018a75cc657ab736a10bb917"
     },
     "factory/kernel-keyboard/scripts/ci/current606-ksm-virtio-input/kernel.fragment": {
-      "bytes": 1868,
-      "sha256": "5658e06608f2a6bb7b2f89d38003a0b1327347e4aecf189c25f02f7d17de96c9"
+      "bytes": 1882,
+      "sha256": "a12ed0611ea50eb50e3c762d4df5cd074f81b82ef4c5b934303751ecb46bf544"
     },
     "factory/kernel-keyboard/scripts/ci/current606-ksm-virtio-input/lane.py": {
       "bytes": 7320,
-      "sha256": "b13da909541d5dc0da8cfa28cd953b4fad02508aa0f579c42a7627c0d7cde843"
+      "sha256": "2398cd057ebf1790f168ebfb6ffbb059ca95b9e5cb0a86a44b16e7d9e7ade2b5"
     },
     "factory/kernel-keyboard/scripts/ci/current606-ksm-virtio-input/test_controls.py": {
-      "bytes": 11904,
-      "sha256": "fbaa549d8ea8518044408366a401a9948c980a3f750737f70fdfcb0e14e7d7ba"
+      "bytes": 12541,
+      "sha256": "792dee63c6c4e85bb3a37c2ffe26cde3d95f0a50ed605cee175dc826ae3c8813"
     },
     "factory/kernel-keyboard/scripts/ci/current606-ksm-virtio-input/verify.py": {
-      "bytes": 8999,
-      "sha256": "f65cb968b9f08a19fefa8a8922121060dd89bd6ce6297fd4d93a36c26ecfa4f2"
+      "bytes": 9742,
+      "sha256": "f23d2d0ab0a5aaf5fd1fa8325ca608ce8224d3ad5846e37bacb4bc9251da80b9"
     },
     "factory/kernel-keyboard/scripts/ci/ksm2-kernel-native/runtime.py": {
       "bytes": 16274,
@@ -672,12 +676,12 @@
       "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
     },
     "factory/kernel-keyboard/source-plan.json": {
-      "bytes": 1490,
-      "sha256": "39fe64e281498979c84a34769dfaf2ac6cc4a7e93ec9546d99a386dcca04c0b1"
+      "bytes": 1718,
+      "sha256": "f2947db5147055ab8767705ea40a3870c752f9e8fd50cbfe071a94f58e0bec47"
     },
     "factory/kernel_media_handoff.py": {
-      "bytes": 7803,
-      "sha256": "edcc68277a1e6492fe8afa0d2b5d233a7e5988e1ebe2f4d8423b3e76ccaad0ee"
+      "bytes": 7919,
+      "sha256": "eafdd86618cce436ea967b01fb94026f7640c8f9a878be338b35939a11f5952f"
     },
     "factory/kernel_stage.py": {
       "bytes": 7535,
@@ -936,8 +940,8 @@
       "sha256": "07ccf233b14bdb941095bc5aaa0c26479f36163e35869e79c4c87111c55e598c"
     },
     "fresh-test/selection.json": {
-      "bytes": 16995,
-      "sha256": "e03475956b43030606dcbaa45442a03d595d97561701fb059e384aabee572dda"
+      "bytes": 25712,
+      "sha256": "4fa6ddf54bcfa7fc5a80eb80e8b6299ce0139c62e4a53bd4ce70c7a8192ee0b8"
     },
     "incoming-carrier-profile.json": {
       "bytes": 20875,
@@ -968,8 +972,8 @@
       "sha256": "2ca195c395378dbe48a04c8e36334807d3ce2889d0df596662c25467ecc0e33c"
     },
     "kernel-media-profile.json": {
-      "bytes": 2495,
-      "sha256": "36c4da881fa9fb4feeb95dc1d71aea889184be0677df6bc4720b2627b1181a47"
+      "bytes": 2681,
+      "sha256": "d5ea193f344c782fb73d33011f2274318f8a1e4eb1c15f9ec5593ae641a3713d"
     },
     "legacy2-carrier-profile.json": {
       "bytes": 1777,

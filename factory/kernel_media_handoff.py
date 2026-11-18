@@ -6,20 +6,20 @@ import json
 from pathlib import Path
 import re
 
-PROFILE='KSM_ADVICE_VIRTIO_INPUT_GENERIC16K_DIAGNOSTIC_V1'
+PROFILE='KSM_ADVICE_VIRTIO_INPUT_IPV6_GENERIC16K_DIAGNOSTIC_V2'
 RELEASE='7.1.13-generic16k-managed-gui'
 OLD_IMAGE='039fbeaff5942de2317f47feec30a5c073691edf5f8cef8849b25d08006d4ddb'
-VERIFIER_PIN=dict(bytes=8999,sha256='f65cb968b9f08a19fefa8a8922121060dd89bd6ce6297fd4d93a36c26ecfa4f2')
-PLAN_PIN=dict(bytes=1490,sha256='39fe64e281498979c84a34769dfaf2ac6cc4a7e93ec9546d99a386dcca04c0b1')
+VERIFIER_PIN=dict(bytes=9742,sha256='f23d2d0ab0a5aaf5fd1fa8325ca608ce8224d3ad5846e37bacb4bc9251da80b9')
+PLAN_PIN=dict(bytes=1718,sha256='f2947db5147055ab8767705ea40a3870c752f9e8fd50cbfe071a94f58e0bec47')
 EXPECTED={
     'profile':PROFILE,'release':RELEASE,'architecture':'aarch64','page_size':16384,
     'schema_version':1,'modules':'DISABLED',
     'source_revision':'94fb23346d522edf53722357c426a3e58030beea',
     'archive_sha256':'874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad',
-    'helper_sha256':'d30dd01f57fafa4a92f30c9ed41664800c9d1d3c983148652ca39510358b98d9',
-    'fragment_sha256':'5658e06608f2a6bb7b2f89d38003a0b1327347e4aecf189c25f02f7d17de96c9',
-    'diagnostic_fragment_sha256':'1e87785cc2f8ba1127b0f24c135191cfbf59496911b3c11efdf195b8328f5121',
-    'config':dict(bytes=63782,sha256='89823436abe3b5e4d1abd6fd28cfc8dd81e1601e5ce44b6b09c2b486b66b1607'),
+    'helper_sha256':'f165f8aca3aca2a8a9332de7b9cc085e3aed85a1eb55c3aac6a63d5c30dfd4ca',
+    'fragment_sha256':'a12ed0611ea50eb50e3c762d4df5cd074f81b82ef4c5b934303751ecb46bf544',
+    'diagnostic_fragment_sha256':'cf1edfe38bbbac56055a7780515e83ae5b0b7ed5c6ee9d7a2e584b9aa7074d82',
+    'config':dict(bytes=64368,sha256='8f9c37958a64701c8e0459ba29c78def06810291018a75cc657ab736a10bb917'),
 }
 
 
@@ -43,11 +43,11 @@ def verify_profile(value, cfg):
     image=value['Image']
     need(type(image) is dict and set(image)=={'bytes','sha256'} and type(image['bytes']) is int and
          64<=image['bytes']<=256*1024**2 and type(image['sha256']) is str and
-         re.fullmatch(r'[a-f0-9]{64}',image['sha256']) and image['sha256']!=OLD_IMAGE,
+         re.fullmatch(r'[a-f0-9]{64}',image['sha256']) and image['sha256'] not in (OLD_IMAGE, '6c16ef2c2802f4481edc0b1b0e6cc0e9521b6e103b9060697c0bd49d32a25295'),
          'new actual combined kernel Image identity required')
     need(pin(cfg)==EXPECTED['config'] and
          all(value.encode() in cfg.splitlines() for value in
-             ('CONFIG_KSM=y','CONFIG_VIRTIO_INPUT=y','CONFIG_INPUT_EVDEV=y','CONFIG_ARM64_16K_PAGES=y',
+             ('CONFIG_IPV6=y','CONFIG_PROC_FS=y','CONFIG_KSM=y','CONFIG_VIRTIO_INPUT=y','CONFIG_INPUT_EVDEV=y','CONFIG_ARM64_16K_PAGES=y',
               '# CONFIG_MODULES is not set')),'unchanged KSM with built-in virtio-input and exact 16K config')
     return value
 

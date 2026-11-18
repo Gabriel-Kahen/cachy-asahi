@@ -7,26 +7,30 @@
   "boot": "NOT RUN",
   "build": "NOT RUN",
   "diagnostic_fragment": {
-    "bytes": 1907,
-    "sha256": "1e87785cc2f8ba1127b0f24c135191cfbf59496911b3c11efdf195b8328f5121"
+    "bytes": 1921,
+    "sha256": "cf1edfe38bbbac56055a7780515e83ae5b0b7ed5c6ee9d7a2e584b9aa7074d82"
   },
   "expected_config": {
-    "bytes": 63782,
-    "sha256": "89823436abe3b5e4d1abd6fd28cfc8dd81e1601e5ce44b6b09c2b486b66b1607"
+    "bytes": 64368,
+    "sha256": "8f9c37958a64701c8e0459ba29c78def06810291018a75cc657ab736a10bb917"
+  },
+  "explicit_fragment_delta": {
+    "CONFIG_IPV6": {
+      "after": "y",
+      "before": "n"
+    },
+    "CONFIG_VIRTIO_INPUT": {
+      "after": "y",
+      "before": "n"
+    }
   },
   "hardware": "NOT RUN",
   "parent": {
     "source": "5a643db838759d7cf574e596efbcd45b1df96984",
     "tree": "f678cbc8338c0e0a29c09be08de8f5c6830e6741"
   },
-  "profile": "KSM_ADVICE_VIRTIO_INPUT_GENERIC16K_DIAGNOSTIC_V1",
+  "profile": "KSM_ADVICE_VIRTIO_INPUT_IPV6_GENERIC16K_DIAGNOSTIC_V2",
   "release": "7.1.13-generic16k-managed-gui",
-  "sole_delta": {
-    "CONFIG_VIRTIO_INPUT": {
-      "after": "y",
-      "before": "n"
-    }
-  },
   "source_files": {
     "base-build-receipt.json": {
       "bytes": 6955,
@@ -37,12 +41,16 @@
       "sha256": "5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9"
     },
     "build_kernel.py": {
-      "bytes": 20516,
-      "sha256": "d30dd01f57fafa4a92f30c9ed41664800c9d1d3c983148652ca39510358b98d9"
+      "bytes": 20690,
+      "sha256": "f165f8aca3aca2a8a9332de7b9cc085e3aed85a1eb55c3aac6a63d5c30dfd4ca"
+    },
+    "expected-ipv6.config": {
+      "bytes": 64368,
+      "sha256": "8f9c37958a64701c8e0459ba29c78def06810291018a75cc657ab736a10bb917"
     },
     "kernel.fragment": {
-      "bytes": 1868,
-      "sha256": "5658e06608f2a6bb7b2f89d38003a0b1327347e4aecf189c25f02f7d17de96c9"
+      "bytes": 1882,
+      "sha256": "a12ed0611ea50eb50e3c762d4df5cd074f81b82ef4c5b934303751ecb46bf544"
     }
   },
   "source_revision": "94fb23346d522edf53722357c426a3e58030beea",

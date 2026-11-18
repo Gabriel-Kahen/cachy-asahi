@@ -37,9 +37,10 @@ DIAGNOSTIC_FRAGMENT = 'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\n'
 # Exact R5 KSM baseline and executable inventory from its accepted build receipt.
 BASE_CONFIG_SHA = '5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9'
 BASE_RECEIPT_SHA = 'fdd538c9e3c73f906da0c82f0b381b0385306a52d0dc1539ab13ceaa69938398'
-PROFILE = 'KSM_ADVICE_VIRTIO_INPUT_GENERIC16K_DIAGNOSTIC_V1'
-INPUT_OFF = b'# CONFIG_VIRTIO_INPUT is not set\n'
-INPUT_ON = b'CONFIG_VIRTIO_INPUT=y\n'
+PROFILE = 'KSM_ADVICE_VIRTIO_INPUT_IPV6_GENERIC16K_DIAGNOSTIC_V2'
+EXPECTED_CONFIG_SHA = '8f9c37958a64701c8e0459ba29c78def06810291018a75cc657ab736a10bb917'
+EXPLICIT_DELTA = {'CONFIG_VIRTIO_INPUT': {'before': 'n', 'after': 'y'}, 'CONFIG_IPV6': {'before': 'n', 'after': 'y'}}
+
 
 
 def require(ok, reason):
@@ -60,10 +61,10 @@ def identity(path):
 
 def expected_config():
     baseline = (HERE / 'base.config').read_bytes()
-    require(hashlib.sha256(baseline).hexdigest() == BASE_CONFIG_SHA and
-            baseline.count(INPUT_OFF) == 1 and INPUT_ON not in baseline,
-            'exact R5 KSM baseline config required')
-    return baseline.replace(INPUT_OFF, INPUT_ON, 1)
+    require(hashlib.sha256(baseline).hexdigest() == BASE_CONFIG_SHA, 'exact R5 KSM baseline config required')
+    configured = (HERE / 'expected-ipv6.config').read_bytes()
+    require(hashlib.sha256(configured).hexdigest() == EXPECTED_CONFIG_SHA, 'exact reviewed IPv6 config required')
+    return configured
 
 
 def expected_tools(private_perl=None):
@@ -182,7 +183,7 @@ def tool_difference(actual, expected):
 
 def config_check(path, boot_diagnostics=False):
     require(boot_diagnostics and Path(path).read_bytes() == expected_config(),
-            'generated config must equal R5 apart from built-in CONFIG_VIRTIO_INPUT')
+            'generated config must equal the exact reviewed built-in IPv6 config')
     values = {}
     for line in Path(path).read_text().splitlines():
         if line.startswith('CONFIG_'):
@@ -197,7 +198,7 @@ def config_check(path, boot_diagnostics=False):
     require(values.get('CONFIG_ARM64_4K_PAGES', 'n') == 'n' and
             values.get('CONFIG_ARM64_64K_PAGES', 'n') == 'n', 'other granule selected')
     return {'page_size': 16384, 'modules': 'DISABLED', 'all_fragment_values_match': True,
-            'exact_sole_delta': {'CONFIG_VIRTIO_INPUT': {'before': 'n', 'after': 'y'}}}
+            'explicit_fragment_delta': EXPLICIT_DELTA}
 
 
 def image_check(path):
@@ -396,7 +397,7 @@ def main():
         report['image'] = identity(build / 'arch/arm64/boot/Image')
         report['config'] = identity(build / '.config')
         report['system_map'] = identity(build / 'System.map')
-        report['builtin_drivers'] = ['PL011 console','generic PCI host','virtio-pci','virtio-blk','virtio-console','virtio-input','virtio GPU','ext4','UNIX98 PTY','systemd user namespace/cgroup APIs']
+        report['builtin_drivers'] = ['PL011 console','generic PCI host','virtio-pci','virtio-blk','virtio-console','virtio-input','IPv6 proc network tables','virtio GPU','ext4','UNIX98 PTY','systemd user namespace/cgroup APIs']
         report['module_policy'] = {'CONFIG_MODULES': 'n', 'external_modules_allowed': False}
         report.update(status='BUILT_ONLY', kernel_build='PASS', allocated_bytes=usage(output))
     finally:

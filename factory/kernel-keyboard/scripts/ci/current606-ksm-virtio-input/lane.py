@@ -33,7 +33,7 @@ def load(path, sha):
     return module
 
 
-V = load(HERE/'verify.py', 'f65cb968b9f08a19fefa8a8922121060dd89bd6ce6297fd4d93a36c26ecfa4f2')
+V = load(HERE/'verify.py', 'f23d2d0ab0a5aaf5fd1fa8325ca608ce8224d3ad5846e37bacb4bc9251da80b9')
 
 
 def preflight():

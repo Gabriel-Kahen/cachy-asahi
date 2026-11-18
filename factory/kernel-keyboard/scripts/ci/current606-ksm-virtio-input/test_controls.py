@@ -79,14 +79,14 @@ class Controls(unittest.TestCase):
                        archive=dict(path='/wild/held/archive', **V.ARCHIVE),
                        module_policy={'CONFIG_MODULES': 'n', 'external_modules_allowed': False},
                        config_check={'page_size': 16384, 'modules': 'DISABLED', 'all_fragment_values_match': True,
-                                     'exact_sole_delta': V.DELTA},
+                                     'explicit_fragment_delta': V.DELTA},
                        helper=dict(path=str(self.root/'build_kernel.py'), **pins['build_kernel.py']),
                        fragment=dict(path=str(self.root/'kernel.fragment'), **pins['kernel.fragment']),
                        diagnostic_fragment=seal(out/'diagnostic.fragment', diagnostic), commands=commands,
                        config=seal(out/'build/.config', config),
                        image=seal(out/'build/arch/arm64/boot/Image', bytes(header)),
                        image_check={'header_page_size': 16384, 'flags': 4, 'boot': 'NOT RUN'},
-                       system_map=seal(out/'build/System.map', b'ffff11 t virtinput_probe\nffff25 d virtio_input_driver\n'))
+                       system_map=seal(out/'build/System.map', b'ffff11 t virtinput_probe\nffff25 d virtio_input_driver\nffff31 t inet6_init\n'))
         (out/'build-receipt.json').write_text(json.dumps(receipt))
         return out, receipt, seal
 
@@ -96,8 +96,8 @@ class Controls(unittest.TestCase):
         self.assertEqual(H.expected_config(), expected)
         config = self.root/'config'
         config.write_bytes(expected)
-        self.assertEqual(H.config_check(config, True)['exact_sole_delta'], V.DELTA)
-        with self.assertRaisesRegex(ValueError, 'must equal R5'):
+        self.assertEqual(H.config_check(config, True)['explicit_fragment_delta'], V.DELTA)
+        with self.assertRaisesRegex(ValueError, 'must equal the exact reviewed'):
             H.config_check(config, False)
 
     def test_refuse_changed_ksm_module_input_or_compiler_facts(self):
@@ -105,11 +105,13 @@ class Controls(unittest.TestCase):
         orig = H.expected_config()
         for before, after in ((b'CONFIG_KSM=y', b'# CONFIG_KSM is not set'),
                               (b'CONFIG_VIRTIO_INPUT=y', b'CONFIG_VIRTIO_INPUT=m'),
+                              (b'CONFIG_IPV6=y', b'# CONFIG_IPV6 is not set'),
+                              (b'CONFIG_PROC_FS=y', b'# CONFIG_PROC_FS is not set'),
                               (b'# CONFIG_MODULES is not set', b'CONFIG_MODULES=y'),
                               (b'CONFIG_CLANG_VERSION=180103', b'CONFIG_CLANG_VERSION=220108')):
             self.assertIn(before, orig)
             cfg.write_bytes(orig.replace(before, after))
-            with self.assertRaisesRegex(ValueError, 'must equal R5'):
+            with self.assertRaisesRegex(ValueError, 'must equal the exact reviewed'):
                 H.config_check(cfg, True)
 
     def test_complete_reader_emits_same_contract_family(self):
@@ -129,12 +131,19 @@ class Controls(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'linked virtio-input driver'):
             V.complete(out)
 
+    def test_refuse_resealed_missing_ipv6_init(self):
+        out, receipt, seal = self.fixture()
+        receipt['system_map'] = seal(out/'build/System.map', b'ffff11 t virtinput_probe\nffff25 d virtio_input_driver\n')
+        (out/'build-receipt.json').write_text(json.dumps(receipt))
+        with self.assertRaisesRegex(ValueError, 'linked built-in IPv6 initialization'):
+            V.complete(out)
+
     def test_refuse_resealed_collateral_config_change(self):
         out, receipt, seal = self.fixture()
         cfg = out/'build/.config'
         receipt['config'] = seal(cfg, cfg.read_bytes().replace(b'CONFIG_KSM=y', b'CONFIG_KSM=n'))
         (out/'build-receipt.json').write_text(json.dumps(receipt))
-        with self.assertRaisesRegex(ValueError, 'outside the sole virtio-input'):
+        with self.assertRaisesRegex(ValueError, 'differs from the exact reviewed'):
             V.complete(out)
 
     def test_refuse_receipt_tool_drift(self):

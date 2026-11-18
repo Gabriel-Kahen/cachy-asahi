@@ -252,6 +252,180 @@
     "bytes": 1606,
     "sha256": "cc175a6c48b19f753337d7242ca2174850375b549f7dbe21f7ba07e588c41cf2"
   },
+  "serial_renewal_review": {
+    "approved_utc": 1795027977,
+    "case_order": [
+      "minimal-generic16k",
+      "overlay-generic16k"
+    ],
+    "certificate": {
+      "certificate_selfsig_created": 1794991472,
+      "expires": 1796201072,
+      "fingerprint": "7F17A10021208924CCB32A70DEB2CB5E7C601EE9",
+      "key_created": 1794991472,
+      "uid": "CACHY-ASAHI TEST ONLY d60dd84ad843ae6dcdc97b15713f359d <test-only@invalid.example>",
+      "validity_anchor": 1794991472
+    },
+    "issuer": "Root",
+    "native_acceptance": false,
+    "parent": "0b229122e7a1eb05240debdb3669d383703ba511",
+    "parent_tree": "f37f91d8e431a3547a8573be5e8968ff87ab9350",
+    "previous_review": {
+      "bytes": 1606,
+      "sha256": "cc175a6c48b19f753337d7242ca2174850375b549f7dbe21f7ba07e588c41cf2"
+    },
+    "previous_selection": {
+      "bytes": 16995,
+      "sha256": "e03475956b43030606dcbaa45442a03d595d97561701fb059e384aabee572dda"
+    },
+    "production_trust": false,
+    "r9_target": {
+      "kernel_config": {
+        "bytes": 64368,
+        "sha256": "8f9c37958a64701c8e0459ba29c78def06810291018a75cc657ab736a10bb917"
+      },
+      "kernel_plan": {
+        "bytes": 1718,
+        "sha256": "f2947db5147055ab8767705ea40a3870c752f9e8fd50cbfe071a94f58e0bec47"
+      },
+      "kernel_verifier": {
+        "bytes": 9742,
+        "sha256": "f23d2d0ab0a5aaf5fd1fa8325ca608ce8224d3ad5846e37bacb4bc9251da80b9"
+      },
+      "kind": "CURRENT606_R9_IPV6_TEST_SCOPE_V1",
+      "source_base_tree": "b24e5a9ee5a6190e35e8c0fc99c1e916e262ea33",
+      "source_parent": "2dfa9584bac29ccd754e20c213fbf5e4417f99f1",
+      "source_ref": "refs/heads/codex/current606-apps16-16k-keyboard-20261118-r9"
+    },
+    "scope": "CURRENT606_GUI_TEST_PUBLIC_INGRESS_SERIAL_ARM16K_RENEWAL_ONLY",
+    "serial_window": {
+      "end": 1795106537,
+      "min_remaining_seconds": 28620,
+      "observed": 1795027977,
+      "seconds": 86400,
+      "start": 1795020137
+    },
+    "status": "APPROVED_CURRENT606_PUBLIC_TEST_SERIAL_ARM16K_RENEWAL",
+    "verification": {
+      "bytes": 6180,
+      "sha256": "a79b651def85b819cd392a51cff351b58d561f4519caecea67de6c873ed7b28c"
+    }
+  },
+  "serial_renewal_review_pin": {
+    "bytes": 2001,
+    "sha256": "9a0c734fcc6c1960c1a23b0fd5dea0ca8ed4c5e7d1e716a7c06e1d2b00c9bf6d"
+  },
+  "serial_renewal_verification": {
+    "actual_authority": false,
+    "certificate": {
+      "certificate_selfsig_created": 1794991472,
+      "expires": 1796201072,
+      "fingerprint": "7F17A10021208924CCB32A70DEB2CB5E7C601EE9",
+      "key_created": 1794991472,
+      "uid": "CACHY-ASAHI TEST ONLY d60dd84ad843ae6dcdc97b15713f359d <test-only@invalid.example>",
+      "validity_anchor": 1794991472
+    },
+    "detached": {
+      "catalog": {
+        "gpgv_exit": 0,
+        "input_pin": {
+          "bytes": 2810,
+          "sha256": "6ed58fef9212df4a2a620be0b2a1981e84960e97fb2f385a089fda7e5e000f32"
+        },
+        "signature_pin": {
+          "bytes": 310,
+          "sha256": "0b03709612a2625b60f8087f22d61284963b847586da4e95ae9a7a0944ddd2b0"
+        },
+        "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 0\n[GNUPG:] SIG_ID YoachwXmbR2UW1ZQDF+KFZiPISQ 2026-11-18 1794991472\n[GNUPG:] GOODSIG DEB2CB5E7C601EE9 CACHY-ASAHI TEST ONLY d60dd84ad843ae6dcdc97b15713f359d <test-only@invalid.example>\n[GNUPG:] VALIDSIG 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 2026-11-18 1794991472 0 4 0 1 8 00 7F17A10021208924CCB32A70DEB2CB5E7C601EE9\n"
+      },
+      "dns2": {
+        "gpgv_exit": 0,
+        "input_pin": {
+          "bytes": 15632,
+          "sha256": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d"
+        },
+        "signature_pin": {
+          "bytes": 310,
+          "sha256": "adeafdbe4b87b3a67dcb399295292178891537ef4bfe9f2953c07f647f5fb6d9"
+        },
+        "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 0\n[GNUPG:] SIG_ID Vc+VvoTKmhWrHXnYNDjFq/rRtkA 2026-11-18 1794991472\n[GNUPG:] GOODSIG DEB2CB5E7C601EE9 CACHY-ASAHI TEST ONLY d60dd84ad843ae6dcdc97b15713f359d <test-only@invalid.example>\n[GNUPG:] VALIDSIG 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 2026-11-18 1794991472 0 4 0 1 8 00 7F17A10021208924CCB32A70DEB2CB5E7C601EE9\n"
+      },
+      "doctor": {
+        "gpgv_exit": 0,
+        "input_pin": {
+          "bytes": 13708,
+          "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482"
+        },
+        "signature_pin": {
+          "bytes": 310,
+          "sha256": "964b8dfebb559dbd16509fe73e3451ece512fbc4b84dda7a0e5455d72edae4ea"
+        },
+        "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 0\n[GNUPG:] SIG_ID +L2n8pJIIqJ1HeXFtNgaPXNT+Fg 2026-11-18 1794991472\n[GNUPG:] GOODSIG DEB2CB5E7C601EE9 CACHY-ASAHI TEST ONLY d60dd84ad843ae6dcdc97b15713f359d <test-only@invalid.example>\n[GNUPG:] VALIDSIG 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 2026-11-18 1794991472 0 4 0 1 8 00 7F17A10021208924CCB32A70DEB2CB5E7C601EE9\n"
+      },
+      "held77-index": {
+        "gpgv_exit": 0,
+        "input_pin": {
+          "bytes": 34490,
+          "sha256": "4e6a8fb3285a53dacd2ce06348b40238b32256df40ecc8b5e07a93fb5b0310b6"
+        },
+        "signature_pin": {
+          "bytes": 310,
+          "sha256": "3ae5fedb737006523f657ac96aeb55b48be42a776d979e05c40badab57faf735"
+        },
+        "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 0\n[GNUPG:] SIG_ID N86oz3T5G2Jv3ki+bgUyI0TDxuo 2026-11-18 1794991472\n[GNUPG:] GOODSIG DEB2CB5E7C601EE9 CACHY-ASAHI TEST ONLY d60dd84ad843ae6dcdc97b15713f359d <test-only@invalid.example>\n[GNUPG:] VALIDSIG 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 2026-11-18 1794991472 0 4 0 1 8 00 7F17A10021208924CCB32A70DEB2CB5E7C601EE9\n"
+      },
+      "native73-index": {
+        "gpgv_exit": 0,
+        "input_pin": {
+          "bytes": 59625,
+          "sha256": "131ef3552ab652bb30a5d2e60fa201f3715603c9bacad7d39d3d320933e2695f"
+        },
+        "signature_pin": {
+          "bytes": 310,
+          "sha256": "aabce37b5c52da6761a3c7d6e26384095d6925c9460e3ea8a084236ff6381db3"
+        },
+        "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 0\n[GNUPG:] SIG_ID 4k2nOXs+39Ye8gTh2HTbN+vfnHg 2026-11-18 1794991472\n[GNUPG:] GOODSIG DEB2CB5E7C601EE9 CACHY-ASAHI TEST ONLY d60dd84ad843ae6dcdc97b15713f359d <test-only@invalid.example>\n[GNUPG:] VALIDSIG 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 2026-11-18 1794991472 0 4 0 1 8 00 7F17A10021208924CCB32A70DEB2CB5E7C601EE9\n"
+      },
+      "orphans": {
+        "gpgv_exit": 0,
+        "input_pin": {
+          "bytes": 18900,
+          "sha256": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02"
+        },
+        "signature_pin": {
+          "bytes": 310,
+          "sha256": "c15065fbf529c368f9f55b7bddd072dc5e8b347d341c2518fbaa8fb2fc34987e"
+        },
+        "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 0\n[GNUPG:] SIG_ID PAQONyu4PjMIBK87xvek/dHJc8U 2026-11-18 1794991472\n[GNUPG:] GOODSIG DEB2CB5E7C601EE9 CACHY-ASAHI TEST ONLY d60dd84ad843ae6dcdc97b15713f359d <test-only@invalid.example>\n[GNUPG:] VALIDSIG 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 2026-11-18 1794991472 0 4 0 1 8 00 7F17A10021208924CCB32A70DEB2CB5E7C601EE9\n"
+      },
+      "welcome5": {
+        "gpgv_exit": 0,
+        "input_pin": {
+          "bytes": 39904,
+          "sha256": "3dec4a467a712908e5f06a481ca7b3206a232c4cf2fc3cc1d933bf3389e2ee35"
+        },
+        "signature_pin": {
+          "bytes": 310,
+          "sha256": "07ccf233b14bdb941095bc5aaa0c26479f36163e35869e79c4c87111c55e598c"
+        },
+        "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 0\n[GNUPG:] SIG_ID lleUmYdbloRr9ctolH110/85V+I 2026-11-18 1794991472\n[GNUPG:] GOODSIG DEB2CB5E7C601EE9 CACHY-ASAHI TEST ONLY d60dd84ad843ae6dcdc97b15713f359d <test-only@invalid.example>\n[GNUPG:] VALIDSIG 7F17A10021208924CCB32A70DEB2CB5E7C601EE9 2026-11-18 1794991472 0 4 0 1 8 00 7F17A10021208924CCB32A70DEB2CB5E7C601EE9\n"
+      }
+    },
+    "packet_index": {
+      "bytes": 1790,
+      "sha256": "1526818a4b16e32b6b2d2c324f78d9fa546bd86b82f89e9333ae2c98e034c509"
+    },
+    "parent": "0b229122e7a1eb05240debdb3669d383703ba511",
+    "parent_tree": "f37f91d8e431a3547a8573be5e8968ff87ab9350",
+    "public_verifier_home_retired": true,
+    "selection": {
+      "bytes": 16995,
+      "sha256": "e03475956b43030606dcbaa45442a03d595d97561701fb059e384aabee572dda"
+    },
+    "started_utc": 1795020137,
+    "status": "PASS_FRESH_SEVEN_CURRENT606_TEST_PUBLIC_SIGNATURES_DATA_ONLY",
+    "verified_utc": 1795020137
+  },
   "signer": {
     "certificate_selfsig_created": 1794991472,
     "expires": 1796201072,

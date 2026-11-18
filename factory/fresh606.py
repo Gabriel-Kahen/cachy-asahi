@@ -85,10 +85,71 @@ SERIAL_PAIR = ('minimal-generic16k', 'overlay-generic16k')
 SERIAL_STATUS = 'APPROVED_CURRENT606_PUBLIC_TEST_SERIAL_ARM16K_WINDOW'
 SERIAL_SCOPE = 'CURRENT606_GUI_TEST_PUBLIC_INGRESS_SERIAL_ARM16K_ONLY'
 
+RENEWAL_PARENT = '0b229122e7a1eb05240debdb3669d383703ba511'
+RENEWAL_TREE = 'f37f91d8e431a3547a8573be5e8968ff87ab9350'
+RENEWAL_PREVIOUS = {'bytes':16995,'sha256':'e03475956b43030606dcbaa45442a03d595d97561701fb059e384aabee572dda'}
+RENEWAL_KEYS = {'serial_renewal_review','serial_renewal_review_pin','serial_renewal_verification'}
+RENEWAL_SCOPE = 'CURRENT606_GUI_TEST_PUBLIC_INGRESS_SERIAL_ARM16K_RENEWAL_ONLY'
+RENEWAL_STATUS = 'APPROVED_CURRENT606_PUBLIC_TEST_SERIAL_ARM16K_RENEWAL'
+PUBLIC_CHECK = 'PASS_FRESH_SEVEN_CURRENT606_TEST_PUBLIC_SIGNATURES_DATA_ONLY'
+
+
+def renewal_verification(base, receipt):
+    key = base['signer']
+    start, end = receipt['started_utc'], receipt['verified_utc']
+    need(set(receipt) == {'status','parent','parent_tree','selection','certificate','packet_index','started_utc',
+                         'verified_utc','detached','public_verifier_home_retired','actual_authority'}
+         and receipt['status'] == PUBLIC_CHECK and receipt['parent'] == RENEWAL_PARENT
+         and receipt['parent_tree'] == RENEWAL_TREE and receipt['selection'] == RENEWAL_PREVIOUS
+         and receipt['certificate'] == key and receipt['packet_index'] == base['public_files']['index.json']
+         and receipt['public_verifier_home_retired'] is True and receipt['actual_authority'] is False
+         and type(start) is type(end) is int and key['validity_anchor'] <= start <= end < key['expires']
+         and end-start <= 60 and set(receipt['detached']) == set(DOCUMENTS)|{'catalog'},
+         'exact fresh bounded public-only certificate and seven-role receipt')
+    for role, row in receipt['detached'].items():
+        previous = base['independent_detached'][role]
+        need(set(row) == {'gpgv_exit','status','input_pin','signature_pin'} and type(row['gpgv_exit']) is int
+             and row['gpgv_exit']==0 and row['input_pin']==previous['input_pin'] and row['signature_pin']==previous['signature_pin'],
+             'unchanged whole signed public body and detached proof '+role)
+        signature_status(row['status'], key, base['signing'])
+    return end
+
+
+R9_TARGET = {'kind': 'CURRENT606_R9_IPV6_TEST_SCOPE_V1', 'source_parent': '2dfa9584bac29ccd754e20c213fbf5e4417f99f1', 'source_base_tree': 'b24e5a9ee5a6190e35e8c0fc99c1e916e262ea33', 'source_ref': 'refs/heads/codex/current606-apps16-16k-keyboard-20261118-r9', 'kernel_config': {'bytes': 64368, 'sha256': '8f9c37958a64701c8e0459ba29c78def06810291018a75cc657ab736a10bb917'}, 'kernel_verifier': {'bytes': 9742, 'sha256': 'f23d2d0ab0a5aaf5fd1fa8325ca608ce8224d3ad5846e37bacb4bc9251da80b9'}, 'kernel_plan': {'bytes': 1718, 'sha256': 'f2947db5147055ab8767705ea40a3870c752f9e8fd50cbfe071a94f58e0bec47'}}
+
+
+def renewal_fields(base, receipt, approval):
+    start = renewal_verification(base,receipt)
+    return dict(issuer='Root' if approval is not None else None,
+                status=RENEWAL_STATUS if approval is not None else 'UNISSUED_CURRENT606_ARM16K_TEST_RENEWAL',
+                scope=RENEWAL_SCOPE, parent=RENEWAL_PARENT,parent_tree=RENEWAL_TREE,
+                r9_target=R9_TARGET,
+                previous_selection=RENEWAL_PREVIOUS,previous_review=base['serial_pair_review_pin'],
+                verification=pin(encoded(receipt)),approved_utc=approval,case_order=list(SERIAL_PAIR),
+                production_trust=False,native_acceptance=False,certificate=base['signer'],
+                serial_window=dict(start=start,end=start+86400,seconds=86400,min_remaining_seconds=28620,observed=approval))
+
+
+def renewed_case(data):
+    need(RENEWAL_KEYS <= set(data),'complete renewal operands required')
+    base = {k:v for k,v in data.items() if k not in RENEWAL_KEYS}
+    need(pin(encoded(base))==RENEWAL_PREVIOUS,'whole immutable pre-renewal R6 TEST selection')
+    review, receipt = data['serial_renewal_review'],data['serial_renewal_verification']
+    approved = review['approved_utc']
+    need(type(approved) is int and review==renewal_fields(base,receipt,approved)
+         and pin(encoded(review))==data['serial_renewal_review_pin'], 'separately and exactly scoped Root TEST renewal')
+    window = review['serial_window']
+    need(window['start'] <= approved <= window['end']-28620 and window['end'] < base['signer']['expires'],
+         'fresh reviewed 24-hour serial admission inside original TEST certificate lifetime')
+    return window, approved
+
+
 def case_window(data, case):
     window = data['window']
     if case not in SERIAL_PAIR:
         return window, window['start']
+    if RENEWAL_KEYS & set(data):
+        return renewed_case(data)
     review = data['serial_pair_review']
     approved = review['approved_utc']
     need(pin(encoded(review)) == data['serial_pair_review_pin']
@@ -114,8 +175,9 @@ def case_window(data, case):
 def current(data, *, full_launch, case=None):
     window, allowed = case_window(data, case)
     key, start, end, now = data['signer'], window['start'], window['end'], time.time()
-    need(key['key_created'] == key['certificate_selfsig_created'] == key['validity_anchor'] == start
-         and key['expires'] - start == 14 * 86400 and start <= allowed <= now < end < key['expires']
+    anchor = data['window']['start']
+    need(key['key_created'] == key['certificate_selfsig_created'] == key['validity_anchor'] == anchor
+         and key['expires'] - anchor == 14 * 86400 and start <= allowed <= now < end < key['expires']
          and end - start == window['seconds'] == (86400 if case in SERIAL_PAIR else 43200)
          and window['min_remaining_seconds'] == 28620,
          'actual current TEST certificate and exact case-approved window')
@@ -182,8 +244,7 @@ def asset_bodies(assets, data):
     return paths
 
 
-def verify_live(data, packet, bodies, *, case=None):
-    started = current(data, full_launch=True, case=case)
+def verify_detached(data, packet, bodies):
     raw, contents, signing, binary = data_only(data, packet, bodies)
     deadline = time.monotonic() + 60
     report = {}
@@ -207,10 +268,16 @@ def verify_live(data, packet, bodies, *, case=None):
     # Bind the copy to the same stable files that were mathematically checked.
     late_raw, late_contents, _, _ = data_only(data, packet, bodies)
     need(late_raw == raw and late_contents == contents, 'late whole original/fresh packet identity')
+    return report, not home.exists()
+
+
+def verify_live(data, packet, bodies, *, case=None):
+    started = current(data, full_launch=True, case=case)
+    report, home_retired = verify_detached(data, packet, bodies)
     case_data = dict(serial_case=case, verification_started=started) if case in SERIAL_PAIR else {}
     return dict(scope=SCOPE, certificate=data['signer'], window=case_window(data,case)[0],
                 verified=current(data, full_launch=False, case=case), **case_data,
-                packet_index=data['public_files']['index.json'], detached=report, public_verifier_home_retired=not home.exists(), actual=None)
+                packet_index=data['public_files']['index.json'], detached=report, public_verifier_home_retired=home_retired, actual=None)
 
 
 def recorded(data, receipt, *, run_start=None, run_end=None, case=None):
