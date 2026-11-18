@@ -300,6 +300,12 @@ jobs:
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-first-login-v3/test_delivery.py --recipe packages/tools/cachy-asahi-first-login-v3/PKGBUILD -v
           python3 -I -B -Werror::ResourceWarning scripts/integration/test_first_login_rehearsal_sources.py -v
           python3 -I -B scripts/integration/first_login_rehearsal.py --output "$RUNNER_TEMP/first-login-rehearsal" --build-and-rehearse --installed-guest-controls
+      - name: Check the bounded offline ARM overlay installer
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/install/overlay583_trial/test_trial.py
+          python3 -I -B -Werror::ResourceWarning scripts/install/overlay583_trial/test_controller.py
+          bash scripts/install/overlay583_trial/test_guest_init.sh
       - name: Check explicit lock and ordered suspend without a desktop session
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |

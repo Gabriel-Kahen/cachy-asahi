@@ -1,5 +1,9 @@
 # Implementation and acceptance status
 
+November 17 — [The offline 583-package staging installed and matched its full lock on emulated ARM16K](validation/offline-overlay583-emulated-install-20261117.md).
+
+November 17 — [Perl 5.42.3-1.3 passed its emulated AArch64 16 KiB lifecycle on Source391](validation/perl5423-emulated-arm16k-lifecycle-20261117.md).
+
 November16: [LLVM23.1.1 native ARM4K source-reference build and smoke checks pass independent qualification](validation/llvm23-native-source-reference-20261116.md), including the complete package and100 ELF objects. This is one build, with no clean-build pair, global ALPM installation, native16K/M2, performance or release acceptance. Private TEST signing and durable public proof retention remain pending.
 
 November15: Fish0.1.0-2 fixes `caa_mcd` entering a CDPATH-selected directory instead of the directory it just created. Real-shell controls and a normal host package build pass with the semantic regression in `check()`; the old configuration fails that check before packaging. Current native ARM qualification is **NOT RUN**. The prior0.1.0-1 pair remains separate evidence. See the [candidate results](../packages/shells/cachy-asahi-fish-config/README.md) and [package inventory](../manifests/packages.toml).
