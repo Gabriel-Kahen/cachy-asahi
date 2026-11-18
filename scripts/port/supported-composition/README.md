@@ -335,3 +335,31 @@ The retained run found three new exact vendor `PKGBUILD` matches in
 `79c52a53`. It reconfirmed the First Login project recipe and recorded 11
 candidate snapshots with different digests. The join leaves corresponding
 source delivery and release approval open.
+
+### Verify the three maintenance updates and rollback archives
+
+`join_maintenance_rollback.py` checks the Python, NetworkManager, and Perl
+forward and rollback archives against the unapproved maintenance proposal.
+The v1 config uses kind `supported-Asahi-maintenance-archive-rollback-DATA`
+and pins `original_report`, `maintenance_report`, `stage_receipt`, and
+`public_certificate`. The `supplements` list contains the Python forward
+`name`, `archive`, and `signature`. Each of the three `rollback_pairs`
+contains those fields and `prior_evidence`. File references use absolute
+`path/size/sha256` pins. The join verifies all six detached signatures with
+the pinned ALARM public certificate.
+
+```sh
+rollback_join="$(mktemp -d)/maintenance-archive-join.json"
+python3 -I -B scripts/port/supported-composition/join_maintenance_rollback.py \
+  --config "$maintenance_join_config" --config-sha256 "$maintenance_join_config_sha256" \
+  --output "$rollback_join" &&
+  jq '{status, approval_status, prepared_add_count, verified_forward_pair_count,
+       verified_rollback_pair_count, rollback_transaction}' "$rollback_join"
+```
+
+The retained 626-package proposal prepared 368 additions and zero removals.
+All three forward and all three rollback pairs verified. The older package
+metadata still satisfies the 22 recorded dependency edges to these providers.
+The original five policy blockers remain. The proposed maintenance stays
+unapproved, with installed payload correspondence and an actual rollback
+transaction still open.

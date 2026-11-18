@@ -102,8 +102,8 @@ the separately owned hosted check.
 The image defaults to UID/GID 65534. `run.py` refuses root and any libalpm version
 other than 16.0.1, prints the runtime identity and scope, and runs the
 composition, maintenance, staged archive mapping, signed operand assembly,
-signed addition source indexing, and signed recipe history suites. Each uses a
-120-second timeout and `-I -B -Werror::ResourceWarning`.
+signed addition source indexing, signed recipe history, and maintenance archive
+join suites. Each uses a 120-second timeout and `-I -B -Werror::ResourceWarning`.
 The runner reads the bind-mounted checkout and writes
 only disposable user state under container `/tmp` and `/dev/shm`. Linux shared
 memory tmpfs supplies the real read-induced-atime regression even when host
