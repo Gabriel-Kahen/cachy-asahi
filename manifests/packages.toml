@@ -106,7 +106,12 @@ audit = "docs/audits/tools-defaults.md"
 selected_for_development = true
 selected_for_release = false
 candidate_version = "0.1.0-2"
-native_build = "NOT RUN for current 0.1.0-2"
+native_build = "PASS two clean hosted AArch64 builds with 4 KiB pages, the normal makepkg CDPATH regression check, and byte-identical any archives."
+native_build_commit = "19dea1cca35659ad7ab307dfea09c30a77362640"
+native_run = 44243507361
+native_evidence = "docs/validation/native-fish-md4c-reproducibility-20261118.md"
+native_package_bytes = 5516
+native_package_sha256 = "6dee81130f3ba3e570791cf079d2152893461ec27fa6e2e34a3d614986f9a949"
 prior_candidate_version = "0.1.0-1"
 prior_native_build = "PASS"
 prior_native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
@@ -117,9 +122,10 @@ host_evidence = "packages/shells/cachy-asahi-fish-config/evidence/host-0.1.0-2.l
 regression_evidence = "packages/shells/cachy-asahi-fish-config/evidence/host-0.1.0-2-old-config-negative.log"
 host_package_bytes = 13606
 host_package_sha256 = "11fc855397e900e7b3e847ac2f72e02160ce2f5a79884d4b88f37761189f61f9"
-installation = "NOT RUN"
+installation = "PASS offline TEST-signed 0.1.0-1 upgrade to 0.1.0-2 and rollback in an AArch64 QEMU TCG guest with 16 KiB pages. All three 583-package locks matched. The ordinary-user CDPATH probe selected the newly created directory only after upgrade, and Setup8 user configuration was preserved."
+installation_evidence = "docs/validation/native-fish-md4c-reproducibility-20261118.md"
 hardware_validation = "NOT RUN"
-next_step = "Qualify an exact 0.1.0-2 clean native ARM pair with the semantic check enabled; retain the separate 0.1.0-1 evidence. Then verify the supported Asahi transaction and helper installation/removal on both Air sizes."
+next_step = "Verify the supported Asahi transaction and helper installation/removal on both M2 Air sizes."
 
 [[packages]]
 name = "cachy-asahi-zsh-config"
@@ -1416,13 +1422,17 @@ candidate_version = "0.1.0-2"
 selected_for_development = false
 selected_for_release = false
 host_package_assembly = "PASS unsigned x86_64 makepkg --nodeps with 11 real-Setup8 temporary-home and three relocated-delivery controls; dependency solving NOT RUN. Requires Setup8>=0.3.0."
-host_evidence = "docs/validation/first-login-host-20261114.md"
+host_evidence = "docs/validation/first-login-actual-shells-host-20261114.md"
 host_package_bytes = 19471
 host_package_sha256 = "d4b7291afedc2af95d89f3975c77c45e417125bf23818cbfd1dc7d53fb464839"
+prior_candidate_version = "0.1.0-1"
+prior_host_evidence = "docs/validation/first-login-host-20261114.md"
 native_build = "NOT RUN"
-installation = "NOT RUN; extracted/moved host payload and temporary-user configuration checks only"
+installation = "PASS offline TEST-signed install and removal of the x86_64-host-built any archive in an AArch64 QEMU TCG guest with 16 KiB pages. Exact 583, 584, and 583 package inventories matched. The ordinary-user journey exercised installed Setup8, Fish and Zsh, recovery, and user-edit preservation."
+installation_source = "3a415e51ad5380ff20cde6455fc9c51255d268ff"
+installation_receipt_sha256 = "ecac10d2adc379c22dd23eac6f0f8fce933194a4dd5f31fa74cf4bde33d4773a"
 hardware_validation = "NOT RUN"
-next_step = "Native ARM pair and signed disposable lifecycle; integrated target package transaction, independent first graphical login and both M2 Air sizes remain unaccepted."
+next_step = "Run a native ARM pair, the supported Asahi package transaction, a first graphical login, and acceptance on both M2 Air sizes."
 
 [[packages]]
 name = "cachy-asahi-session-lock"
