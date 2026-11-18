@@ -8,6 +8,8 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
+import stat
 import subprocess
 import sys
 from tempfile import mkdtemp
@@ -18,6 +20,8 @@ GREETING = "Hello from cachy-asahi"
 ORIGIN = Path(__file__).resolve().parents[2]
 FLAGS = ("-Wall", "-Wextra", "-Werror", "-O2")
 LOCAL_UPLOAD = "git -c uploadpack.allowFilter=true upload-pack"
+REPORT_LIMIT = 4 * 1024 * 1024
+COMMIT = re.compile(r"[0-9a-f]{40}(?:[0-9a-f]{24})?")
 
 
 def git(repo, *args):
@@ -30,6 +34,75 @@ def git(repo, *args):
 
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
+
+
+def retained(path, read):
+    """Read one ordinary saved file without following a link or blocking on a pipe."""
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+    with os.fdopen(fd, "rb") as stream:
+        before = os.fstat(fd)
+        if not stat.S_ISREG(before.st_mode) or before.st_size == 0:
+            raise ValueError(f"Saved evidence must be a nonempty regular file: {path}")
+        result = read(stream)
+        identity = lambda item: (item.st_dev, item.st_ino, item.st_size, item.st_mtime_ns, item.st_ctime_ns)
+        if identity(before) != identity(os.fstat(fd)) or identity(before) != identity(path.lstat()):
+            raise ValueError(f"Saved evidence changed while reading: {path}")
+    return result
+
+
+def success_evidence(directory, phase):
+    if not directory.is_dir() or directory.resolve() != directory:
+        raise ValueError(f"Use an ordinary saved {phase} evidence directory.")
+    raw = retained(directory / "report.json", lambda stream: stream.read(REPORT_LIMIT + 1))
+    if len(raw) > REPORT_LIMIT:
+        raise ValueError("The saved report exceeds the readback limit.")
+    report = json.loads(raw)
+    if (not isinstance(report, dict) or type(report.get("schema")) is not int or report["schema"] != 1
+            or report.get("phase") != phase or report.get("status") != "PASS"):
+        raise ValueError(f"A successful {phase} report is required.")
+    if not all(isinstance(report.get(key), str) and COMMIT.fullmatch(report[key])
+               for key in ("source_revision", "checkout_head")):
+        raise ValueError("The saved report must record both full Git commits.")
+    origin = report.get("source_repository")
+    if not isinstance(origin, str) or not Path(origin).is_absolute():
+        raise ValueError("The saved report must record the source repository.")
+    expected = report.get("expected_stdout")
+    for role in ("compiler", "compile", "run"):
+        row = report.get(role)
+        if not isinstance(row, dict) or type(row.get("exit")) is not int or row["exit"] != 0:
+            raise ValueError(f"The saved {phase} report must record a successful {role} command.")
+    argv = report["compile"].get("argv")
+    if (not isinstance(argv, list) or len(argv) != len(FLAGS) + 4 or
+            argv[:-1] != ["cc", *FLAGS, EXAMPLE, "-o"] or not isinstance(argv[-1], str)):
+        raise ValueError(f"The saved {phase} report has a different build command.")
+    binary = Path(argv[-1])
+    if (not binary.is_absolute() or binary.name != "hello" or binary.parent.name != directory.name
+            or report["compiler"].get("argv") != ["cc", "--version"]
+            or report["run"].get("argv") != [argv[-1]] or not isinstance(expected, str)
+            or not expected.endswith("\n") or report["run"].get("stdout") != expected):
+        raise ValueError(f"The saved {phase} report has inconsistent tool, executable or output records.")
+    if phase == "baseline" and (report["checkout_head"] != report["source_revision"]
+                                or report.get("source_sha256") != EXAMPLE_SHA or expected != GREETING + "\n"):
+        raise ValueError("A successful pinned baseline is required.")
+    for leaf, key in (("hello.c", "source_sha256"), ("hello", "binary_sha256")):
+        observed = retained(directory / leaf, lambda stream: hashlib.file_digest(stream, "sha256").hexdigest())
+        if observed != report.get(key):
+            raise ValueError(f"Saved {phase} {leaf} differs from its report.")
+    return report, sha(raw)
+
+
+def verify(rebuild_directory):
+    if not rebuild_directory.name.startswith("rebuild-"):
+        raise ValueError("Select a rebuild-* evidence directory beside its baseline directory.")
+    baseline, baseline_sha = success_evidence(rebuild_directory.parent / "baseline", "baseline")
+    edited, edited_sha = success_evidence(rebuild_directory, "rebuild")
+    if (edited["source_revision"] != baseline["source_revision"]
+            or edited["source_repository"] != baseline["source_repository"]
+            or edited["source_sha256"] == baseline["source_sha256"]):
+        raise ValueError("The saved rebuild must use the same source revision and an edited example.")
+    print(json.dumps(dict(status="PASS", scope="retained-build-evidence", source_revision=baseline["source_revision"],
+                          baseline_report_sha256=baseline_sha, rebuild_report_sha256=edited_sha), indent=2))
+    return 0
 
 
 def example(checkout):
@@ -103,9 +176,7 @@ def rebuild(work, expected):
     checkout, evidence = work / "checkout", work / "evidence"
     if not all(path.is_dir() and path.resolve() == path for path in (checkout, evidence)):
         raise ValueError("Choose the existing local exercise workspace.")
-    baseline = json.loads((evidence / "baseline/report.json").read_bytes())
-    if baseline["status"] != "PASS" or baseline["source_sha256"] != EXAMPLE_SHA:
-        raise ValueError("A successful pinned baseline is required before the rebuild.")
+    baseline, _ = success_evidence(evidence / "baseline", "baseline")
     revision = baseline["source_revision"]
     git(checkout, "merge-base", "--is-ancestor", revision, "HEAD")
     raw = example(checkout)
@@ -125,9 +196,13 @@ def main():
     second = phases.add_parser("rebuild", help="build and run after saving your edit")
     second.add_argument("workspace", type=Path)
     second.add_argument("--expect", required=True, help="expected output line after your edit")
+    check = phases.add_parser("verify", help="check a saved baseline and selected rebuild")
+    check.add_argument("rebuild_directory", type=Path, help="rebuild-* directory beside the saved baseline")
     args = cli.parse_args()
-    work = args.workspace.resolve()
     try:
+        if args.phase == "verify":
+            return verify(args.rebuild_directory.absolute())
+        work = args.workspace.resolve()
         if args.phase == "prepare":
             return prepare(work, args.source, args.revision)
         return rebuild(work, args.expect)

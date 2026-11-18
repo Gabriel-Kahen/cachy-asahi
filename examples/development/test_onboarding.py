@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: MIT
 """Exercise the ordinary-user CLI with real Git, cc and scripted Vim."""
+import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -35,9 +37,9 @@ class OnboardingTest(unittest.TestCase):
             "-c", "core.hooksPath=/dev/null", *args,
         ], text=True)
 
-    def cli(self, *args, code=0):
+    def cli(self, *args, code=0, env=None):
         result = subprocess.run([sys.executable, "-I", "-B", str(HERE / "onboarding.py"), *args],
-                                capture_output=True, text=True)
+                                capture_output=True, text=True, env=env)
         self.assertEqual(result.returncode, code, result.stdout + result.stderr)
         return result
 
@@ -72,6 +74,46 @@ class OnboardingTest(unittest.TestCase):
         self.assertNotEqual(outcomes["PASS"]["source_sha256"], baseline["source_sha256"])
         self.assertNotEqual(outcomes["PASS"]["binary_sha256"], baseline["binary_sha256"])
         self.assertIsNone(outcomes["FAILED"]["run"])
+
+        # A second operator can check copies without the producer's clone, tools or executable runs.
+        copied = self.root / "operator copy"
+        evidence = self.workspace / "evidence"
+        shutil.copytree(evidence, copied)
+        self.workspace.rename(self.root / "moved workspace")
+        self.source.rename(self.root / "moved source repository")
+        selected = {json.loads((path / "report.json").read_bytes())["status"]: path
+                    for path in copied.glob("rebuild-*")}
+        for directory in (copied / "baseline", selected["PASS"]):
+            (directory / "hello").chmod(0o600)
+        result = self.cli("verify", selected["PASS"], env=os.environ | {"PATH": ""})
+        report = json.loads(result.stdout)
+        self.assertEqual((report["status"], report["scope"], report["source_revision"]),
+                         ("PASS", "retained-build-evidence", self.revision))
+        self.assertEqual(report["baseline_report_sha256"],
+                         hashlib.sha256((copied / "baseline/report.json").read_bytes()).hexdigest())
+        self.assertEqual(report["rebuild_report_sha256"],
+                         hashlib.sha256((selected["PASS"] / "report.json").read_bytes()).hexdigest())
+        self.assertIn("successful rebuild report", self.cli("verify", selected["FAILED"], code=2).stderr)
+        (selected["PASS"] / "hello.c").write_bytes(b"changed saved source")
+        self.assertIn("Saved rebuild hello.c differs", self.cli("verify", selected["PASS"], code=2).stderr)
+
+    def test_rebuild_requires_retained_baseline_artifacts(self):
+        self.cli("prepare", self.workspace, "--source", self.source, "--revision", self.revision)
+        clone = self.workspace / "checkout/examples/development/hello.c"
+        clone.write_bytes(self.original.replace(b"Hello from cachy-asahi", b"Hello after editing"))
+        evidence = self.workspace / "evidence"
+        binary = evidence / "baseline/hello"
+        saved = binary.read_bytes()
+        binary.unlink()
+        result = self.cli("rebuild", self.workspace, "--expect", "Hello after editing", code=2)
+        self.assertIn("baseline/hello", result.stderr)
+        binary.write_bytes(saved + b"changed saved executable")
+        result = self.cli("rebuild", self.workspace, "--expect", "Hello after editing", code=2)
+        self.assertIn("Saved baseline hello differs", result.stderr)
+        binary.unlink()
+        binary.symlink_to(clone)
+        self.cli("rebuild", self.workspace, "--expect", "Hello after editing", code=2)
+        self.assertEqual(list(evidence.iterdir()), [evidence / "baseline"])
 
     def test_unpinned_example_refuses_before_creating_workspace(self):
         self.example.write_bytes(self.original + b"// different committed source\n")

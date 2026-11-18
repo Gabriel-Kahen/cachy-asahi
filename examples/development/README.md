@@ -35,6 +35,20 @@ commit and source and binary hashes, compiler version, and compile and run
 commands, outputs and exit codes. A failed rebuild leaves your edit and previous
 evidence available so you can correct the source and try again.
 
+To review a completed exercise, use the `rebuild-*` directory from the successful
+command's printed evidence path. A second operator can copy that directory and
+its sibling `baseline` into the same parent directory, keeping both names.
+
+```sh
+python3 examples/development/onboarding.py verify "$work/evidence/rebuild-REPLACE"
+```
+
+The readback checks both saved sources and executables against their reports,
+the recorded commands and output, and the shared source revision. It prints
+both report SHA-256 values for comparison with the producer's copy. The readback
+uses the saved files and leaves both executables unrun. Review the reports for
+local paths before sharing them.
+
 For the independent installation exercise, record the exact machine, installed
 base and overlay versions and whether you used a real desktop terminal and edited
 the example yourself. The script records build and run observations. It leaves
