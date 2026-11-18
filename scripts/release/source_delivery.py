@@ -171,12 +171,17 @@ def _close(fd):
 
 
 def directory(path):
+    """Open a readable directory through ancestors with search permission."""
     path = Path(path)
     need(path.is_absolute() and str(path) == str(path.absolute()) and '..' not in path.parts, 'absolute source directory required')
-    fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY)
+    parts = path.parts[1:]
+    read_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    search_flags = getattr(os, 'O_PATH', os.O_RDONLY) | os.O_DIRECTORY | os.O_NOFOLLOW
+    fd = os.open('/', search_flags if parts else read_flags)
     try:
-        for part in path.parts[1:]:
-            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+        for index, part in enumerate(parts):
+            flags = read_flags if index == len(parts) - 1 else search_flags
+            child = os.open(part, flags, dir_fd=fd)
             previous, fd = fd, child
             _close(previous)
         return fd

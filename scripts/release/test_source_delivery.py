@@ -266,6 +266,32 @@ class DeliveryTests(unittest.TestCase):
     def test_late_parent_close_reopen_failure_never_unlinks_cwd(self):
         self.late_parent_close(True)
 
+    @unittest.skipUnless(hasattr(os, 'O_PATH') and os.geteuid() != 0,
+                         'requires Linux search permissions for an ordinary user')
+    def test_directory_only_requires_search_on_ancestors(self):
+        parent = self.root / 'search-only'
+        parent.mkdir()
+        target = parent / 'target'
+        target.mkdir()
+        (target / 'leaf').write_bytes(b'known content')
+        (self.root / 'alias').symlink_to(parent, target_is_directory=True)
+        parent.chmod(0o100)
+        try:
+            with self.assertRaises(PermissionError):
+                sd.directory(parent)
+            fd = sd.directory(target)
+            try:
+                self.assertEqual(os.listdir(fd), ['leaf'])
+            finally:
+                os.close(fd)
+            with self.assertRaises(OSError):
+                sd.directory(self.root / 'alias' / 'target')
+            parent.chmod(0o400)
+            with self.assertRaises(PermissionError):
+                sd.directory(target)
+        finally:
+            parent.chmod(0o700)
+
     def test_traversal_parent_close_failure_closes_new_owned_child(self):
         real_open=os.open;real_close=os.close
         for mode in ('directory','local'):
