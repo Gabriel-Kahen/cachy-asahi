@@ -20,6 +20,21 @@ archive paths under the same keys. Base provider uses the existing whole-pin
 reference, and the candidate map uses the existing six-addition format.
 `prepare_cache` stages the five reviewed archives into a private offline cache.
 
+For the project-built `md4c-0.5.3-1-aarch64.pkg.tar.xz` provider, pass the
+independently selected exact byte counts and SHA-256s for the archive and its
+detached signature:
+
+```sh
+python3 -I -B scripts/ci/qt612-complete-family-native-source/md4c_handoff.py \
+  --archive "$ARCHIVE" --archive-bytes "$ARCHIVE_BYTES" --archive-sha256 "$ARCHIVE_SHA256" \
+  --signature "$SIGNATURE" --signature-bytes "$SIGNATURE_BYTES" --signature-sha256 "$SIGNATURE_SHA256"
+```
+
+Use the JSON object on stdout as `md4c` in the family request, or as the
+`--md4c-json` document for the reference producer with its whole SHA-256.
+The helper binds byte pins, package identity, and the frozen `glibc` dependency.
+Native pair qualification and detached-signature authentication remain Root inputs.
+
 Pass `consumer_root` in the preparation request to include E's frozen
 `a7421e42564e67307086e3f8a048fe578390d1cd` checkout. Its interface selects
 the original ShaderTools recipe at `785d680499feaa7de18d35e6ccd46ee9df4e2891`.
@@ -84,7 +99,8 @@ The original F69 transport contract remains specific to its original package
 tuple and cap. The family stage retains its original files for independent
 readback and later selection by Root. No family upload workflow is issued.
 
-Run `test_pipeline.py`, `test_proof.py`, `test_qualify.py` and `test_consumer.py` as separate
+Run `test_pipeline.py`, `test_proof.py`, `test_qualify.py`, `test_consumer.py` and
+`test_md4c_handoff.py` as separate
 `python3 -I -B` invocations. Their inputs are passive source bytes and clearly
 labelled inert models. Native builds, package transactions, signing and
 actual capacity qualification require separately supplied Root inputs.
