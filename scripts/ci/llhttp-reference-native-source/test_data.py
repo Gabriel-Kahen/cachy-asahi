@@ -14,6 +14,7 @@ import sys
 import tempfile
 import tarfile
 import unittest
+from unittest.mock import patch
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
@@ -39,7 +40,7 @@ def write(path,value):
     path.write_bytes(value if isinstance(value,bytes) else P.encoded(value));path.chmod(0o644)
 
 def elf_bytes(soname='libllhttp.so.9.3',dependency='libc.so.6',align=65536):
-    data=bytearray(768);data[:6]=b'\x7fELF\x02\x01';struct.pack_into('<HH',data,16,3,183);struct.pack_into('<Q',data,32,64);struct.pack_into('<HH',data,54,56,2)
+    data=bytearray(768);data[:6]=b'\x7fELF\x02\x01';struct.pack_into('<HH',data,16,3,183);struct.pack_into('<Q',data,32,64);struct.pack_into('<HHH',data,52,64,56,2)
     struct.pack_into('<IIQQQQQQ',data,64,1,5,0,0,0,len(data),len(data),align)
     struct.pack_into('<IIQQQQQQ',data,120,2,6,256,256,256,80,80,8)
     strings=b'\0'+soname.encode()+b'\0'+dependency.encode()+b'\0';data[400:400+len(strings)]=strings
@@ -95,10 +96,19 @@ class SourceControls(unittest.TestCase):
     def test_complete_constructor_and_namespace_custody(self):
         recipe=os.environ.get(RECIPE_ENV);archive=os.environ.get(ARCHIVE_ENV)
         if not(recipe and archive):self.skipTest('set exact external recipe/archive DATA paths')
-        with tempfile.TemporaryDirectory(prefix='llhttp-Source-DATA-',dir='/home/gabe') as name:
-            root=Path(name);source=root/'Source';result=P.construct(ROOT,Path(recipe),Path(archive),source)
+        with tempfile.TemporaryDirectory(prefix='llhttp-Source-DATA-') as name:
+            root=Path(name).resolve();source=root/'Source';result=P.construct(ROOT,Path(recipe),Path(archive),source)
             self.assertEqual(result['files'],len([p for p in source.rglob('*') if p.is_file()]));self.assertLess(result['bytes'],2*1024**2);self.assertEqual(result['native_build'],'NOT RUN')
             D.source(source,result['source_map']['sha256'])
+            for name,(_, binding) in P.ARTIFACT_BINDINGS.items():
+                operand=source/'held-source'/D.BASE_PREFIX/'runtime/scripts/build'/name
+                self.assertIn(binding.encode(),D.read(operand))
+            helper=source/'held-source'/D.BASE_PREFIX/'package_metadata.py'
+            self.assertEqual(D.read(helper),D.read(HERE/'base/package_metadata.py'))
+            historical=P.construct(ROOT,Path(recipe),Path(archive),root/'Historical',historical_source=True)
+            self.assertEqual(historical['files'],62)
+            self.assertEqual(historical['source_map'],dict(bytes=13601,
+                sha256='d6240a8a32bd363e75542e3e5896356e24d28e010f99e24edfff380b67afa050'))
             admission=D.read(HERE/'owner/admission.TEMPLATE.json');runtime=D.read(HERE/'owner/runtime.TEMPLATE.json')
             with self.assertRaisesRegex(ValueError,'actual Root issuance'):
                 D.admission(source,result['source_map']['sha256'],admission,runtime,D.pin(admission)['sha256'],D.pin(runtime)['sha256'],{},0)
@@ -136,6 +146,40 @@ class SourceControls(unittest.TestCase):
             self.assertNotIn(b'apt-get',source);self.assertNotIn(b'apt-cache',source);self.assertNotIn(b'libarchive-tools',source)
 
 class NativePostconditionControls(unittest.TestCase):
+    def test_generated_providers_bind_exact_library_and_other_metadata(self):
+        with patch.object(sys,'path',[str(HERE/'base'),*sys.path]), patch.dict(sys.modules):
+            binder=module(HERE/'base/package_metadata.py','llhttp_package_metadata_test')
+            builder=module(ROOT/'scripts/build/build_v2.py','llhttp_generic_artifact_test')
+        recipe=builder.recipe(ROOT/'packages/libraries/cachy-asahi-llhttp-reference/PKGBUILD')
+        self.assertEqual(recipe['errors'],[])
+        reviewed, recipe_hash=recipe['metadata'],recipe['input_sha256']['PKGBUILD']
+        library='usr/lib/libllhttp.so.9.3.1'
+        providers=b'provides = llhttp=9.3.1\nprovides = libllhttp.so=9.3-64\n'
+        pkginfo=(b'pkgname = cachy-asahi-llhttp-reference\npkgbase = cachy-asahi-llhttp-reference\n'
+                 b'pkgver = 9.3.1-1\narch = aarch64\nlicense = MIT\nconflict = llhttp\n'
+                 b'depend = glibc\nmakedepend = cmake>=3.25\nmakedepend = ninja\n')
+        buildinfo=(b'format = 2\npkgname = cachy-asahi-llhttp-reference\n'
+                   b'pkgver = 9.3.1-1\npkgarch = aarch64\npkgbuild_sha256sum = '+recipe_hash.encode()+b'\n')
+        with tempfile.TemporaryDirectory(prefix='llhttp-generated-metadata-') as directory:
+            archive=Path(directory)/(F.PACKAGE+'xz')
+            def check(provides=providers, soname='libllhttp.so.9.3', metadata=pkginfo):
+                with tarfile.open(archive,'w:xz') as output:
+                    for name,body in {'.PKGINFO':metadata+provides,'.BUILDINFO':buildinfo,
+                                      '.MTREE':b'model',library:elf_bytes(soname=soname)}.items():
+                        row=tarfile.TarInfo(name)
+                        row.size=len(body)
+                        output.addfile(row,io.BytesIO(body))
+                report=builder.package(archive)
+                self.assertEqual(report['errors'],[])
+                return binder.bind_llhttp_artifact(reviewed,report,recipe_hash,archive,builder.bind_artifact)
+            self.assertEqual(check(),[])
+            for bad in (b'',providers.replace(b'-64',b'-32'),providers+b'provides = alien=1\n',providers*2):
+                self.assertEqual(check(bad),['artifact metadata differs from reviewed provides'])
+            self.assertRegex(check(providers.replace(b'9.3-64',b'9.4-64'),'libllhttp.so.9.4')[0],
+                             'exact llhttp SONAME and DT_NEEDED closure')
+            self.assertEqual(check(metadata=pkginfo.replace(b'depend = glibc\n',b'depend = glib2\n')),
+                             ['artifact metadata differs from reviewed depend'])
+
     def test_exact_native_dynamic_closure(self):
         result=F.elf(elf_bytes());self.assertEqual(result['soname'],'libllhttp.so.9.3');self.assertEqual(result['needed'],['libc.so.6']);self.assertTrue(result['structural16K']);self.assertEqual(result['M2'],'NOT RUN')
         self.assertFalse(F.elf(elf_bytes(align=4096))['structural16K'])
@@ -157,12 +201,12 @@ class NativePostconditionControls(unittest.TestCase):
         attempt=next(n for n in main.body if isinstance(n,ast.Try))
         index=next(i for i,n in enumerate(attempt.body) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='paths' for t in n.targets))
         gate=ast.Module(body=attempt.body[index:index+2],type_ignores=[]);ast.fix_missing_locations(gate)
-        with tempfile.TemporaryDirectory(prefix='llhttp-format-gate-DATA-',dir='/home/gabe') as name:
+        with tempfile.TemporaryDirectory(prefix='llhttp-format-gate-DATA-') as name:
             artifacts=Path(name);write(artifacts/'model.pkg.tar.zst',b'not admitted')
             with self.assertRaises(ValueError):exec(compile(gate,'<fixed-XZ-gate>','exec'),dict(artifacts=artifacts))
             (artifacts/'model.pkg.tar.zst').unlink();write(artifacts/'model.pkg.tar.xz',b'MODEL filename only')
             exec(compile(gate,'<fixed-XZ-gate>','exec'),dict(artifacts=artifacts))
-        with tempfile.TemporaryDirectory(prefix='llhttp-compression-DATA-',dir='/home/gabe') as name:
+        with tempfile.TemporaryDirectory(prefix='llhttp-compression-DATA-') as name:
             root=Path(name);path=root/(F.PACKAGE+'gz');write(path,gzip.compress(b'MODEL',mtime=0))
             with self.assertRaises(ValueError):F.archive_members(path,('.PKGINFO',))
             path=root/(F.PACKAGE+'xz');write(path,gzip.compress(b'MODEL',mtime=0))
@@ -191,7 +235,7 @@ class NativePostconditionControls(unittest.TestCase):
         return bodies
 
     def test_pair_model_and_failure_postconditions(self):
-        with tempfile.TemporaryDirectory(prefix='llhttp-pair-MODEL-',dir='/home/gabe') as name:
+        with tempfile.TemporaryDirectory(prefix='llhttp-pair-MODEL-') as name:
             root=Path(name);bodies=self.pair_fixture(root);original=F.HERE;F.HERE=root
             try:
                 def run():return F.finish(root/'build-1',root/'build-2',root/'comparison.json','sha256:'+'a'*64)

@@ -58,7 +58,7 @@ def pinned(path, ref, *, allowed_links=(1,)):
     return T.read(path,dict(bytes=size,sha256=digest),cap=size,collect=False,allowed_links=allowed_links)
 
 
-def source_pins(*, upgrade=False, first_login=False):
+def source_pins(*, upgrade=False, first_login=False, llhttp=False):
     paths = [HERE/name for name in ("controller.py","trial.py","guest-init.sh","staging-pins.json")]
     paths += [PERL/name for name in ("runtime.py","contracts.py","helper-origin.json",
                                     "frozen/independent_readback.py","frozen/owned_process.py")]
@@ -66,6 +66,8 @@ def source_pins(*, upgrade=False, first_login=False):
         paths.append(T.upgrade_path())
     if first_login:
         paths.extend(T.first_login_sources().values())
+    if llhttp:
+        paths.extend(T.llhttp_sources().values())
     return {str(path.relative_to(REPO)):T.read(path,cap=128<<10,collect=False) for path in paths}
 
 
@@ -77,13 +79,20 @@ def absolute(path):
 
 def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issuer=None, lifecycle=False,
             signature_recovery=False, predecessor=None, predecessor_sha256=None,
-            first_login=None, first_login_sha256=None):
+            first_login=None, first_login_sha256=None, llhttp=None, llhttp_sha256=None):
     paths = {key:absolute(value) for key,value in
              dict(staging=staging,preflight=preflight,kernel=kernel,config=config,baseline=baseline,output=output).items()}
     T.need((predecessor is None)==(predecessor_sha256 is None),"Predecessor path and external receipt digest required together")
     T.need((first_login is None)==(first_login_sha256 is None),"First-login path and external receipt digest required together")
-    T.need(first_login is None or not (lifecycle or signature_recovery or predecessor is not None),
-           "Choose only one Overlay583 operation")
+    T.need((llhttp is None)==(llhttp_sha256 is None),"llhttp path and external receipt digest required together")
+    T.need(not ((first_login is not None or llhttp is not None) and
+                (lifecycle or signature_recovery or predecessor is not None))
+           and (first_login is None or llhttp is None), "Choose only one Overlay583 operation")
+    lib=None
+    if llhttp is not None:
+        paths["llhttp"]=absolute(llhttp)
+        lib=T.llhttp_selection(paths["llhttp"],llhttp_sha256)
+        T.need(lib["rehearsal"]["expires"]-time.time()>T.TIMEOUT,"llhttp TEST key must cover the guest budget")
     supplement = None
     if first_login is not None:
         paths["first_login"] = absolute(first_login)
@@ -106,14 +115,16 @@ def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issu
     receipt = T.read(paths["preflight"],packet["authenticated_preflight"],cap=128<<10)
     plan = T.selected_plan(T.admit(packet,receipt,T.pin(receipt)),nonce,lifecycle=lifecycle,
                            signature_recovery=signature_recovery,predecessor=paths.get("predecessor"),
-                           predecessor_pin=predecessor_pin,first_login=supplement)
+                           predecessor_pin=predecessor_pin,first_login=supplement,llhttp=lib)
     authority = dict(kind=KIND,issuer=issuer,nonce=nonce,actor_image=ACTOR_IMAGE,
                 paths={key:str(path) for key,path in paths.items()},
                 preflight=packet["authenticated_preflight"], plan=T.pin(T.encoded(plan)),
                 references={key:dict(bytes=value[0],sha256=value[1]) for key,value in REFERENCES.items()},
-                tools=tool_pins(), source=source_pins(upgrade=predecessor_pin is not None,first_login=supplement is not None))
+                tools=tool_pins(), source=source_pins(upgrade=predecessor_pin is not None,first_login=supplement is not None,llhttp=lib is not None))
     if supplement is not None:
         authority["first_login"] = supplement["receipt"]
+    if lib is not None:
+        authority["llhttp"]=lib["receipt"]
     if predecessor_pin is not None:
         authority["predecessor"] = predecessor_pin
     if lifecycle or signature_recovery:
@@ -206,7 +217,7 @@ def runtime_payload(inputs, runtime):
     return nodes
 
 
-def input_tree(staging, worker, worker_pin, plan, packed, *, predecessor=None, first_login=None):
+def input_tree(staging, worker, worker_pin, plan, packed, *, predecessor=None, first_login=None, llhttp=None):
     inputs, code = packed/"inputs",packed/"code"
     selected = T.decode(plan)
     packet = selected["packet"]
@@ -229,14 +240,17 @@ def input_tree(staging, worker, worker_pin, plan, packed, *, predecessor=None, f
             files[prefix+name] = wanted
         checked_copy(T.upgrade_path(),code/"upgrade.py",selected["upgrade_worker"])
         files["code/upgrade.py"] = selected["upgrade_worker"]
-    if selected.get("kind")==T.FIRST_LOGIN_KIND:
-        supplement = selected["first_login"]
-        T.need(first_login is not None
-               and T.first_login_selection(first_login,supplement["receipt"]["sha256"])==supplement,
-               "Exact selected first-login supplement required for read-only input media")
+    mode=T.ADDON_MODES.get(selected.get("kind"))
+    if mode is not None:
+        key=mode[0]
+        supplement=selected[key]
+        path,validator=(llhttp,T.llhttp_selection) if key=="llhttp" else (first_login,T.first_login_selection)
+        T.need(path is not None and validator(path,supplement["receipt"]["sha256"])==supplement,
+               "Exact issued addon media required")
+        prefix=key.replace("_","-")
         for name,wanted in dict(supplement["files"],**{"supplement.json":supplement["receipt"]}).items():
-            checked_copy(first_login/name,code/"first-login"/name,wanted)
-            files["code/first-login/"+name] = wanted
+            checked_copy(path/name,code/prefix/name,wanted)
+            files["code/"+prefix+"/"+name]=wanted
     aliases = {"inputs/"+name:target for name,target in packet["aliases"].items()}
     for name,target in aliases.items():
         (packed/name).symlink_to(target)
@@ -322,7 +336,7 @@ def export_result(reader, disk_path, output, plan, *, held=False):
         nodes = disk.inventory()["nodes"]
         files = set(nodes)-{".","lost+found","evidence"}
         correct_files = ("evidence/result.json" in files and files<=expected
-                         if held and (plan.get("lifecycle") or plan.get("kind") in (T.UPGRADE_KIND,T.FIRST_LOGIN_KIND))
+                         if held and (plan.get("lifecycle") or plan.get("kind") in T.HOLD_KINDS)
                          else not held and files==expected)
         T.need(correct_files and {".","lost+found","evidence"}<=set(nodes)
                and all(nodes[name]["type"]=="directory" for name in (".","lost+found","evidence")),
@@ -395,7 +409,8 @@ class Controller:
         actual = binding(**self.paths,nonce=nonce,issuer="Root",lifecycle=self.authority.get("lifecycle") is True,
                          signature_recovery=self.authority.get("signature_recovery") is True,
                          predecessor_sha256=self.authority.get("predecessor",{}).get("sha256"),
-                         first_login_sha256=self.authority.get("first_login",{}).get("sha256"))
+                         first_login_sha256=self.authority.get("first_login",{}).get("sha256"),
+                         llhttp_sha256=self.authority.get("llhttp",{}).get("sha256"))
         T.need(self.authority==selection==actual and actual["plan"]["sha256"]==plan_sha256
                and actual["source"]["scripts/install/overlay583_trial/trial.py"]==worker,
                "Root authority, reviewed operands or trial binding differ")
@@ -453,7 +468,7 @@ class Controller:
 
         packed = out/"input-tree"
         manifest = input_tree(staging,worker,worker_pin,plan,packed,predecessor=self.paths.get("predecessor"),
-                              first_login=self.paths.get("first_login"))
+                              first_login=self.paths.get("first_login"),llhttp=self.paths.get("llhttp"))
         inputs = self.filesystem("inputs","OV583_INPUT",INPUT_SIZE,nonce,deadline,packed)
         verify_input(self.reader,inputs,manifest)
         shutil.rmtree(packed)
@@ -470,11 +485,12 @@ class Controller:
         selected_plan = T.decode(plan)
         held = not serial_pass(T.read(out/"qemu.stdout",cap=1<<20),nonce,
                                lifecycle=selected_plan.get("lifecycle") is True
-                               or selected_plan.get("kind") in (T.UPGRADE_KIND,T.FIRST_LOGIN_KIND))
+                               or selected_plan.get("kind") in T.HOLD_KINDS)
         for name,ref in before.items():
             T.read(out/name,ref,cap=INPUT_SIZE,collect=False)
         pinned(stock,REFERENCES["baseline"])
-        T.need(source_pins(upgrade="predecessor" in self.authority,first_login="first_login" in self.authority)==self.authority["source"]
+        T.need(source_pins(upgrade="predecessor" in self.authority,first_login="first_login" in self.authority,
+                           llhttp="llhttp" in self.authority)==self.authority["source"]
                and tool_pins()==self.authority["tools"],
                "Reviewed source or tool bytes changed during the trial")
         self.command("fsck-result-readback","e2fsck",["-fn",result],60,time.monotonic()+70)
@@ -513,6 +529,8 @@ def main():
     bind.add_argument("--predecessor-sha256")
     bind.add_argument("--first-login")
     bind.add_argument("--first-login-sha256")
+    bind.add_argument("--llhttp")
+    bind.add_argument("--llhttp-sha256")
     run = sub.add_parser("run")
     run.add_argument("--authority",required=True)
     run.add_argument("--authority-sha256",required=True)
@@ -529,7 +547,8 @@ def main():
                         lifecycle=authority.get("lifecycle") is True,
                         signature_recovery=authority.get("signature_recovery") is True,
                         predecessor=actor.paths.get("predecessor"),predecessor_pin=authority.get("predecessor"),
-                        first_login=actor.paths.get("first_login"),first_login_pin=authority.get("first_login"))
+                        first_login=actor.paths.get("first_login"),first_login_pin=authority.get("first_login"),
+                        llhttp=actor.paths.get("llhttp"),llhttp_pin=authority.get("llhttp"))
     T.need(load_authority(args["authority"],args["authority_sha256"])==authority,
            "Root authority changed during the trial")
     value.update(emulation="QEMU_TCG_AARCH64_16K",nonce=authority["nonce"],
@@ -537,7 +556,7 @@ def main():
                  qemu_receipt=T.read(actor.out/"qemu.json",cap=128<<10,collect=False),
                  serial=T.read(actor.out/"qemu.stdout",cap=1<<20,collect=False),
                  result_disk=T.read(actor.out/"result.raw",cap=RESULT_SIZE,collect=False))
-    held = value["status"] in (T.LIFECYCLE_HOLD,T.UPGRADE_HOLD,T.FIRST_LOGIN_HOLD)
+    held = value["status"] in (T.LIFECYCLE_HOLD,T.UPGRADE_HOLD,T.FIRST_LOGIN_HOLD,T.LLHTTP_HOLD)
     if not held:
         (actor.out/"scratch.raw").unlink()
     with (actor.out/"report.json").open("xb") as stream:
