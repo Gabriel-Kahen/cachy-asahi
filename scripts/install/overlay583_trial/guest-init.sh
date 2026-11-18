@@ -95,7 +95,7 @@ export_evidence() {
     for file in "${actual[@]}"; do
         name=${file##*/}
         case "$name" in
-            installed.lock|removed.lock|refused.lock|reinstalled.lock|without-setup.lock|before-upgrade.lock|after-upgrade.lock|first-login.json|refusal-db-before.json|refusal-db-after.json|result.json|pacman.log) ;;
+            installed.lock|removed.lock|refused.lock|reinstalled.lock|without-setup.lock|before-upgrade.lock|after-upgrade.lock|first-login.json|llhttp.json|refusal-db-before.json|refusal-db-after.json|result.json|pacman.log) ;;
             *.stdout|*.stderr)
                 case "${name%.*}" in
                     import-[012]|ownertrust|refresh|resolve|install|query|check|remove-plan|remove|query-base|check-base|signature-refusal|query-refused|check-refused|reinstall-plan|reinstall|query-restored|check-restored) ;;

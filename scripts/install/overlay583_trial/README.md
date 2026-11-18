@@ -139,6 +139,15 @@ Setup8 and shell lifecycle, and verifies that package removal restores the
 guide](../../integration/first_login_overlay583/README.md) contains staging
 provenance and the bind and run commands.
 
+## Exercise the installed llhttp library
+
+Select the qualified matching native pair with
+the [llhttp lifecycle guide](../../integration/llhttp_overlay583/README.md).
+`controller.py bind --llhttp <supplement-directory> --llhttp-sha256 <digest>`
+selects the offline install, shared-library parser probe and removal in the
+same disposable 16 KiB guest. The guest checks the exact 583→584→583 package
+inventories and restores the base local database.
+
 The passive preparation ran against real staging. The focused fixture suites
 exercise the plan, ownership bridge, controller and evidence readers without
 launching an actor. Root issuance and the first real transaction remain
