@@ -380,6 +380,27 @@ and Python `3.14.7-1`. Python `3.14.8-1` and Perl `5.42.3-1` still need the
 historical workunit or final build-time recipe. The original Git snapshots and
 their separate digest results remain available for comparison.
 
+### Check a generated AArch64 SONAME dependency
+
+`compose_reviewed_soname.py` accepts one separately pinned development
+review for an archive whose generated runtime dependency differs from its
+literal recipe. The review binds the exact composition, candidate, PKGBUILD,
+AArch64 ELF member, declared and generated dependency, and provider in the
+frozen Asahi inventory. The command checks the archive's BUILDINFO binding,
+reads the ELF dependency, and uses the existing protected composition solver.
+
+```sh
+python3 -I -B scripts/port/supported-composition/compose_reviewed_soname.py \
+  --contract "$composition" --contract-sha256 "$composition_sha256" \
+  --reviewed-relation "$review" --reviewed-relation-sha256 "$review_sha256" \
+  --output "$fresh_report_directory"
+```
+
+A checked report returns exit 2 with `HOLD / UNAPPROVED`. The candidate must
+remain unselected. With the retained Perl 5.42.3-1.3 ARM archive, the report
+verified `libcrypt.so=2-64` against the frozen `libxcrypt` provider. The
+261-package test inventory had zero changes.
+
 ### Prepare the disposable Asahi maintenance guest inputs
 
 `prepare_maintenance_guest.py` verifies and stages the original Asahi

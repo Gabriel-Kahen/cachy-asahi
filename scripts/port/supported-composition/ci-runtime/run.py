@@ -25,7 +25,7 @@ def main():
                       'python': sys.version.split()[0], 'uid': os.geteuid(),
                       'native_ARM': 'NOT RUN', 'hardware': 'NOT RUN'}), flush=True)
     here = Path(__file__).resolve().parent.parent
-    suites = ('test_compose.py', 'test_maintenance.py',
+    suites = ('test_compose.py', 'test_compose_reviewed_soname.py', 'test_maintenance.py',
               'test_staged_archives.py', 'test_assemble_signed_additions.py',
               'test_index_signed_addition_sources.py', 'test_join_signed_recipe_history.py',
               'test_join_maintenance_rollback.py', 'test_index_maintenance_recipe_history.py',
