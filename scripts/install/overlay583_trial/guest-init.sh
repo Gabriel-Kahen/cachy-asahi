@@ -46,6 +46,24 @@ boot_selection() {
     plan=$got_plan worker=$got_worker
 }
 
+root_mount_is_readonly() {
+    local -a fields
+    local separator roots=0 options
+    while read -r -a fields; do
+        [[ ${fields[4]-} == / ]] || continue
+        roots=$((roots+1))
+        options=,${fields[5]-},
+        [[ $options == *,ro,* && $options != *,rw,* ]] || return 1
+        separator=6
+        while [[ ${fields[separator]-} && ${fields[separator]} != - ]]; do
+            separator=$((separator+1))
+        done
+        [[ ${fields[separator]-} == - && ${fields[separator+1]-} == ext4 &&
+           -n ${fields[separator+2]-} && -n ${fields[separator+3]-} ]] || return 1
+    done
+    [[ $roots == 1 ]]
+}
+
 select_disks() {
     local attempt
     for ((attempt=0; attempt<50; attempt++)); do
@@ -97,8 +115,7 @@ mount -n -t proc -o nosuid,nodev,noexec proc /proc
 boot_selection
 phase=platform
 [[ $(uname -m) == aarch64 && $(getconf PAGESIZE) == 16384 ]]
-read -r root_fs root_flags < <(findmnt -n -M / -o FSTYPE,OPTIONS)
-[[ $root_fs == ext4 && ,$root_flags, == *,ro,* ]]
+root_mount_is_readonly < /proc/self/mountinfo
 if ! mountpoint -q /dev; then mount -n -t devtmpfs -o nosuid devtmpfs /dev; fi
 mount -n -t sysfs -o ro,nosuid,nodev,noexec sysfs /sys
 mount -n -t tmpfs -o mode=0755,nosuid,nodev,noexec,size=64m tmpfs /run
