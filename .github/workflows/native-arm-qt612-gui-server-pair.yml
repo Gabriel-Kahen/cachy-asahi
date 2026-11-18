@@ -1,0 +1,124 @@
+name: native-arm-qt612-gui-server-pair
+on:
+  workflow_dispatch:
+    inputs:
+      approval_json:
+        description: Exact Root-issued pair-only approval JSON
+        type: string
+        required: true
+      approval_sha256:
+        description: Independently reviewed whole approval SHA-256
+        type: string
+        required: true
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: native-arm-llhttp-reference-source
+  cancel-in-progress: false
+jobs:
+  pair:
+    if: >-
+      github.repository == 'Gabriel-Kahen/cachy-asahi' &&
+      github.event.repository.private == false &&
+      github.actor == 'Gabriel-Kahen' &&
+      github.triggering_actor == 'Gabriel-Kahen' &&
+      github.run_attempt == '1'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.sha }}
+          path: qt612-workflow
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/workflows/native-arm-qt612-gui-server-pair.yml
+            /scripts/ci/qt612-gui-server-pair-workflow/
+            /scripts/ci/qt612-reference-native-source/f-recipe.lock.json
+            /scripts/ci/qt612-reference-native-source/f-serial-recipe.lock.json
+      - name: Verify the original owner dispatch and exact itinerary
+        id: approval
+        timeout-minutes: 1
+        env:
+          QT612_ROOT_APPROVAL_JSON: ${{ inputs.approval_json }}
+          QT612_ROOT_APPROVAL_SHA256: ${{ inputs.approval_sha256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          workflow="$GITHUB_WORKSPACE/qt612-workflow"
+          test "$(git -C "$workflow" rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 -I -B "$workflow/scripts/ci/qt612-gui-server-pair-workflow/workflow_entry.py" preflight \
+            --approval "$RUNNER_TEMP/qt612-pair-$GITHUB_RUN_ID-1.approval.json" \
+            --github-output "$GITHUB_OUTPUT"
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        timeout-minutes: 2
+        with:
+          ref: ${{ steps.approval.outputs.runtime_ref }}
+          path: qt612-runtime-source
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        timeout-minutes: 2
+        with:
+          ref: eed0513b957ef265b334a7762bdfba4f50afd500
+          path: qt612-retained-r128
+          persist-credentials: false
+      - name: Verify the independently pinned executable and input Source
+        timeout-minutes: 1
+        env:
+          QT612_ROOT_APPROVAL_SHA256: ${{ inputs.approval_sha256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          workflow="$GITHUB_WORKSPACE/qt612-workflow"
+          python3 -I -B "$workflow/scripts/ci/qt612-gui-server-pair-workflow/workflow_entry.py" verify \
+            --workflow-root "$workflow" \
+            --approval "$RUNNER_TEMP/qt612-pair-$GITHUB_RUN_ID-1.approval.json" \
+            --runtime-source "$GITHUB_WORKSPACE/qt612-runtime-source" \
+            --r128-source "$GITHUB_WORKSPACE/qt612-retained-r128"
+      - name: Root-admitted signed349 to signed356 and the serial GUI server pair
+        timeout-minutes: 351
+        env:
+          QT612_ROOT_APPROVAL_SHA256: ${{ inputs.approval_sha256 }}
+          QT612_ACTIONS_READ_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          work="$RUNNER_TEMP/qt612-pair-$GITHUB_RUN_ID-1"
+          runtime="$GITHUB_WORKSPACE/qt612-runtime-source"
+          entry="$runtime/scripts/ci/qt612-gui-server-pair-adapter/entry.py"
+          sudo -n --preserve-env=GITHUB_ACTIONS,GITHUB_ACTOR,GITHUB_TRIGGERING_ACTOR,GITHUB_EVENT_NAME,GITHUB_REPOSITORY,GITHUB_REF,GITHUB_SHA,GITHUB_WORKFLOW_REF,GITHUB_WORKFLOW_SHA,GITHUB_RUN_ID,GITHUB_RUN_ATTEMPT,GITHUB_JOB,ImageOS,ImageVersion,RUNNER_OS,RUNNER_ARCH,RUNNER_TEMP,QT612_ACTIONS_READ_TOKEN \
+            /usr/bin/systemd-run --scope --quiet --unit="cachy-qt612-gui-server-controller-$GITHUB_RUN_ID-1" \
+            --property=MemoryMax=536870912 --property=MemorySwapMax=0 --property=CPUQuota=100% \
+            --property=CPUQuotaPeriodSec=100ms --property=TasksMax=64 --property=RuntimeMaxSec=21030s \
+            -- /usr/bin/python3 -I -B "$entry" \
+            --workflow-root "$GITHUB_WORKSPACE/qt612-workflow" --runtime-source "$runtime" \
+            --r128-source "$GITHUB_WORKSPACE/qt612-retained-r128" \
+            --approval "$work.approval.json" --approval-sha256 "$QT612_ROOT_APPROVAL_SHA256" \
+            --output "$work.owned" --runner-uid "$(id -u)" --runner-gid "$(id -g)"
+      - name: Verify the Root-promoted closed evidence namespace
+        timeout-minutes: 1
+        env:
+          QT612_ROOT_APPROVAL_SHA256: ${{ inputs.approval_sha256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B "$GITHUB_WORKSPACE/qt612-workflow/scripts/ci/qt612-gui-server-pair-workflow/workflow_entry.py" verify-export \
+            --owner-output "$RUNNER_TEMP/qt612-pair-$GITHUB_RUN_ID-1.owned"
+      - name: Retain the verified pair and its owner closure report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 3
+        with:
+          name: qt612-gui-server-pair-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/qt612-pair-${{ github.run_id }}-1.owned/evidence/
+            ${{ runner.temp }}/qt612-pair-${{ github.run_id }}-1.owned/owner-report.json
+          compression-level: 0
+          retention-days: 3
+          if-no-files-found: error
+          include-hidden-files: true
