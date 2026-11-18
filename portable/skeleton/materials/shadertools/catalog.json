@@ -1,0 +1,37 @@
+{
+  "purpose": "source-cache-inputs",
+  "schema_version": 1,
+  "sources": [
+    {
+      "license": "Pinned per-file Qt and third-party grants; selected upstream evidence only; legal HELD",
+      "license_evidence": [
+        {
+          "bytes": 35147,
+          "id": "notice-0",
+          "path": "notices/0.txt",
+          "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+        },
+        {
+          "bytes": 7651,
+          "id": "notice-1",
+          "path": "notices/1.txt",
+          "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+        },
+        {
+          "bytes": 965,
+          "id": "notice-2",
+          "path": "notices/2.txt",
+          "sha256": "40678d338ce53cd93f8b22b281a2ecbcaa3ee65ce60b25ffb0c462b0530846b2"
+        }
+      ],
+      "material": {
+        "bytes": 1244684,
+        "id": "shadertools",
+        "path": "qtshadertools-everywhere-src-6.12.0.tar.xz",
+        "sha256": "c7d84f436e1aaef39fdcadebf2bd71bdf24dc69497e13f2e0198873cbbfea2ab"
+      },
+      "revision": "bccd516b990a6396900051470ac86cc27a7042ea",
+      "url": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtshadertools-everywhere-src-6.12.0.tar.xz"
+    }
+  ]
+}

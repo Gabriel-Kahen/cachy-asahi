@@ -1,0 +1,43 @@
+{
+  "purpose": "source-cache-inputs",
+  "schema_version": 1,
+  "sources": [
+    {
+      "license": "Pinned per-file Qt and third-party grants; selected upstream evidence only; legal HELD",
+      "license_evidence": [
+        {
+          "bytes": 35147,
+          "id": "notice-0",
+          "path": "notices/0.txt",
+          "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+        },
+        {
+          "bytes": 7651,
+          "id": "notice-1",
+          "path": "notices/1.txt",
+          "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+        },
+        {
+          "bytes": 965,
+          "id": "notice-2",
+          "path": "notices/2.txt",
+          "sha256": "40678d338ce53cd93f8b22b281a2ecbcaa3ee65ce60b25ffb0c462b0530846b2"
+        },
+        {
+          "bytes": 3108,
+          "id": "notice-3",
+          "path": "notices/3.txt",
+          "sha256": "4e0c44c68f042f3ed1e59e6db9b31848d28d9c63b600ab3e61ad7bad43c96a54"
+        }
+      ],
+      "material": {
+        "bytes": 908828,
+        "id": "wayland",
+        "path": "qtwayland-everywhere-src-6.12.0.tar.xz",
+        "sha256": "ae14d9bcf1bb3c300a3ab2e6a53f50284e5c6c966a4ac4cc5aedcb1bc74e4d02"
+      },
+      "revision": "c4f85cd060e3e80a7d71829defac9cf5a40e8ffa",
+      "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtwayland-everywhere-src-6.12.0.tar.xz"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "approved": true,
+  "archive": {
+    "bytes": 74076,
+    "sha256": "19149e51f05a7d93426dda7a66fd80d67bd235cab7ac4505130f7de6d40b5b95"
+  },
+  "attempt": 1,
+  "certificate": {
+    "bytes": 265,
+    "sha256": "4d1ea2e70ae86992f626a38acd9c61a3d9060261c5fb733bd99e91cc6ab27095"
+  },
+  "created_epoch": 1794978886,
+  "expires_epoch": 1795065286,
+  "fingerprint": "D02BE98DE9C0986C1120951315A8B1E319DBEE03",
+  "issuer": "Root",
+  "job": 134591565463,
+  "kind": "ROOT_QT612_R128_MD4C_TEST_AUTHORITY_V1",
+  "original_log": {
+    "bytes": 2255414,
+    "sha256": "ec0b1d79132cb9bcb2e5646ac2e70f675c57b8747f60cdab2737dc5bacc4d734"
+  },
+  "original_receipt": {
+    "bytes": 2466,
+    "sha256": "0817066cbec53daf2ed52569340141f842caa03db86cb3fc35d10a4db0f48e97"
+  },
+  "run": 44241902162,
+  "schema": 1,
+  "signature": {
+    "bytes": 119,
+    "sha256": "63dda83d805e4ad8023fcbe35b6abc63e74646becd4f9e2ada339526a2fddc85"
+  },
+  "source": "eed0513b957ef265b334a7762bdfba4f50afd500",
+  "status": "PASS_MD4C_R128_EXACT_ARCHIVES_SCOPED_TEST_ONLY"
+}

@@ -1,0 +1,37 @@
+{
+  "purpose": "source-cache-inputs",
+  "schema_version": 1,
+  "sources": [
+    {
+      "license": "Pinned per-file Qt and third-party grants; selected upstream evidence only; legal HELD",
+      "license_evidence": [
+        {
+          "bytes": 35147,
+          "id": "notice-0",
+          "path": "notices/0.txt",
+          "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+        },
+        {
+          "bytes": 7651,
+          "id": "notice-1",
+          "path": "notices/1.txt",
+          "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+        },
+        {
+          "bytes": 965,
+          "id": "notice-2",
+          "path": "notices/2.txt",
+          "sha256": "40678d338ce53cd93f8b22b281a2ecbcaa3ee65ce60b25ffb0c462b0530846b2"
+        }
+      ],
+      "material": {
+        "bytes": 39221652,
+        "id": "declarative",
+        "path": "qtdeclarative-everywhere-src-6.12.0.tar.xz",
+        "sha256": "311f3a2603e1973bb59baef9dfa740a376de713157d4782ee043681e889c9260"
+      },
+      "revision": "4332fbbb4c340463dc8cee36dda0c85d932122d8",
+      "url": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz"
+    }
+  ]
+}

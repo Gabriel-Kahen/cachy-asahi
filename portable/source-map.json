@@ -1,0 +1,1360 @@
+{
+  "Root_acceptance": null,
+  "actual": {
+    "Main": null,
+    "Root_admission": null,
+    "Root_runtime": null,
+    "Source": null,
+    "attempt": null,
+    "image": null,
+    "job": null,
+    "native_pair": null,
+    "provider": null,
+    "recipe_commit": null,
+    "ref": null,
+    "run": null
+  },
+  "components": {
+    "declarative": {
+      ".SRCINFO": "67a6f0546eb21864eea013128b379bc91d71fc29108d11b7cfec4c0003f29dfe",
+      "BUILD-CONTRACT.json": "ef9ce8e904603ba2b532133c8a1468a8b767e24c0be1d430da6145b8366e354b",
+      "Consumer.qml": "486d00d412a6ae1b2bb6fb585f8f473ca22bed3097f640809de97331328bb2c2",
+      "LICENSE.packaging": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+      "LICENSE.third-party": "54d9df8d505a98350656a5e51d5ab49719a32e2fe9e8f3e790af1eff55ff1321",
+      "PKGBUILD": "3e24768d62cd9b82d4c079af5de3f4ff35ecf4d23123198944733bb8f1126f95",
+      "SmokeCMakeLists.txt": "4e73294e0a361b019f2c980c7dfaded32eb8d1a87fb0680b3471adc190bd4337",
+      "check_stage.py": "fa4efe2a547c101d21b2bd89894bbc9df04ce7cd9767676c20388d7260bbbbd2",
+      "configure.cmake": "53fc9405a9868456ba86c5309fe14f0109b695727b62e720cb9e21baadc861de",
+      "dependency_guard.cmake": "a1989be84fbe965de12339f4406001a79fc99cc1a02f3b8bbcfa9bbce73d5a66",
+      "family-contract.json": "ef9ce8e904603ba2b532133c8a1468a8b767e24c0be1d430da6145b8366e354b",
+      "smoke.cpp": "192734b8b58bb986eeabb9b3c70f1f489c88809867432e3ebb613fd2fded9161",
+      "smoke.qml": "520bcf0b11c81d998d7fc3372240cfe165f8f5bb56d271ba35f3cd5343f83fd0",
+      "source-notices.json": "9a4517652e61d0e1d57ac631da239419f71fd9875dcb053e9f2812d43b531882",
+      "source.py": "331b8e39858ab5ea6769344f73996f5111cac13095e4c9028499c1aa63b0a660"
+    },
+    "gui_server": {
+      ".SRCINFO": "9c132b1d743040efcfad23401efee5879270fab91d71877fe0972d6501bdb445",
+      "CVE-2026-105924-qtbase-6.12.diff": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b",
+      "CVE-2026-105943-qtbase-6.12.diff": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099",
+      "CVE-2026-116337-qtbase-6.12-0001.diff": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12",
+      "CVE-2026-116337-qtbase-6.12-0002.diff": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec",
+      "LICENSE.packaging": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+      "LICENSE.third-party": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585",
+      "PKGBUILD": "b8ab08950fc2e5729e00bc066e13897163ae52362105aa90d58569f603e07296",
+      "SERVER_DEPENDENCY_GUARD.cmake": "77ee32886383da2d2b7c30b03269c7c482a6386237ad7c0bc111dd960579e379",
+      "SmokeCMakeLists.txt": "91036b0a511b570d7ce738584ff9607ae4e3d1f88fda3b0a926847ff260a79a1",
+      "check_stage.py": "35f410bf60af41f677f7a36d58cc5079ecf57dfde2b84f29dc1b006a4bf7f0da",
+      "configure.cmake": "eaa27120efac20a30c6c8d256385532aa988af0dee00dd1f8117f24922674350",
+      "family-contract.json": "fe136aaab252f4bba4ffd53c2d6819eceae0e6aaa03d5b8d404e176c335b9039",
+      "smoke.cpp": "cd504607ac0aec8aad372aad0387c60fb405a216addfa29d6ff2f16b93eaeb96",
+      "source-notices.json": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda",
+      "source.py": "efe21d53a77c92ea66997923529b4d6e34635db7f1cb760af99d01774bdb7870"
+    },
+    "shadertools": {
+      ".SRCINFO": "da3023b30ef18000a4f10a502bfc5b083ffdf3dc36595847a2854ab3405908eb",
+      "BUILD-CONTRACT.json": "6705f652f9a1c6825e98c1c54d06c2e48be9b521030e7bb6ee504aeafbbb7713",
+      "LICENSE.packaging": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+      "LICENSE.third-party": "58cc65719d55523ceebd21f132e18902c11ce6fa9ee3ff0b190b85af288f37ee",
+      "PKGBUILD": "af16dc0779f9411a5166fdd1848085c5b9e9b383086b052e2c6ee8ae29cc268f",
+      "SmokeCMakeLists.txt": "f168cd74aac6f200497804636633f25e1c0cc0f3647976b93fa24e9331a8ca3b",
+      "check_stage.py": "fece5a639573df37b17f8639af435d1e9f7913c476db8c0c14f97753296109f7",
+      "configure.cmake": "4f06d082f5e93d8eeb418fdd4e9a4dfaa6205e4808c2c0001cdb613d99014426",
+      "dependency_guard.cmake": "30d1c92679f1853336843193a6a6cd72be4a6b1ba2466384732cd3ded2d2de91",
+      "elf.py": "0220adf2acdba80b3efb0d8e801d50f6ba586e824e8caf5944b2f9364f149050",
+      "family-contract.json": "6705f652f9a1c6825e98c1c54d06c2e48be9b521030e7bb6ee504aeafbbb7713",
+      "reflection.py": "225f70874d4ff3e54f8bd164e58078ad5c356e7ac43fd497843bbe688adb0ec9",
+      "smoke.cpp": "92df051cf6660ec494b8193cbf95d362e908bc4994a457ffd7b0ca7328569251",
+      "smoke.frag": "27ade780de02348a1e1bddc999c4f84c298d20caa7e7165c3a1db44d885e8ada",
+      "smoke.vert": "60def73e2ffab14cc61cf843f0eacb6e8fba6fe977a660c95734a7cd8fca5093",
+      "source-notices.json": "09c63071babd163ff02b773c2bb49fa2bac81c3b43b2212a4d1963184be54044",
+      "source.py": "2f28d2dae7d43d8bfd862e9e09e4aced62a5d2dd503cea5055ef47b4c5149f48",
+      "vendored-inputs.lock.json": "a09705bc52dc9a8ea8c4e59b8fd1e92edc60ac7364a6a5916d6ea813ddae7b08"
+    },
+    "svg": {
+      ".SRCINFO": "f0c2a17a0b15ee4ac1a17d0625e11995ff415d4374462b05359b0ee245f9cb46",
+      "LICENSE.packaging": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+      "LICENSE.third-party": "12c0559d5673b2e983a0c757abeed72c51cfe27dab1a851b7cd1b38f93d71ddd",
+      "PKGBUILD": "5ddd736241bd11189b50598c03a95c81dc0a513071f6c9946a10f71c78e91c04",
+      "SmokeCMakeLists.txt": "6576e985825d50ad7bc371193cca28fa2524e22d90638b2de29b224daff7df17",
+      "check_stage.py": "ac18d1a95b566a4d6d74a036b480cf12d648b83c50267b22e71c54b217269e42",
+      "configure.cmake": "ee1b9c1f6093d0e1900fd26e16201f451c008622c57acd3d9882d248e7f267f0",
+      "dependency_guard.cmake": "8ff94bcf6ece8851dbfaac5098de6b7f999563dd647089278f449ce35ed70610",
+      "family-contract.json": "b19e53590cc3e74709e6d848ce7865ff5fe0ce0fd0320ff85dba27078a3ca78e",
+      "smoke.cpp": "850385b09c953f24a17bf95f5ae32b4aa066a7318c55a1713505c8418c170285",
+      "source-notices.json": "1452679ddb40231057ffe49771df2a48b241a36e5e29ed8cb36e4a6cf68d726c",
+      "source.py": "91373cd08bc00181604fe602a4319c0e838bd03e3113004fc6a6ae303a122132"
+    },
+    "wayland": {
+      ".SRCINFO": "2954677d2133b9473dd3ffad233445614f321dcbf7ba3294e2d6263ff030d058",
+      "LICENSE.packaging": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+      "LICENSE.third-party": "4e63379bc0b59272e37ed860cf8e8fe5a784c0bf8d551c67647f27a0c2152dc5",
+      "PKGBUILD": "96b655833151d7d841c7c2e1ae1c8fb258f55159b43de4ba6bc628d4660d2e83",
+      "SmokeCMakeLists.txt": "f224e2a93e53764a4d678d6af2389000b8692836f76ee1442c34f8b31b0bb45c",
+      "check_stage.py": "384df5ae3a9333152a482c50171b98a14a8a9e3a9be066b0f2d92437a8327670",
+      "configure.cmake": "0f9ae5eb0c618cbe5a33a120b21b4135de390d16fdab46f2f340472fb9803cfc",
+      "dependency-inputs.json": "21ac9d87755c0a4efaa37bde993566da910bba99393ae68a73f0be20bb38d01f",
+      "dependency_guard.cmake": "c990b529419cba027a5116ad8aed58470c90238c98b49de945152270370f79e0",
+      "family-contract.json": "a6b8c1f769037094d8a630efc12605e38bf538543d0c96c22486021ad7a9e0a6",
+      "smoke.cpp": "d6c2ff5c88e1628dbf6499b523efd1453e6bef705c93488b3992cb07cc41e443",
+      "smoke.qml": "6d2e5650915907c1fa50c64d58069e0763e5314c2ee0783a40b2413bd069b9c3",
+      "source-notices.json": "c4e6a5bf9a58e79ec40c83c2394bf2bdfdef4ab172471e8abaca4b64b8c746d8",
+      "source.py": "7e69f4707bba8face86a8384004e9034c2efd03eeda76a20b988e80cb4a880e7"
+    }
+  },
+  "desktop_consumer": "261ed7ff315f338539a4514ac2994b4895311de2",
+  "files": {
+    "archives/declarative/qtdeclarative-everywhere-src-6.12.0.tar.xz": {
+      "bytes": 39221652,
+      "mode": 420,
+      "sha256": "311f3a2603e1973bb59baef9dfa740a376de713157d4782ee043681e889c9260"
+    },
+    "archives/gui_server/qtbase-everywhere-src-6.12.0.tar.xz": {
+      "bytes": 51220268,
+      "mode": 420,
+      "sha256": "a951bd163c7b80fc6b8c88d7668fb56abf91c152373e13c10666763238131307"
+    },
+    "archives/shadertools/qtshadertools-everywhere-src-6.12.0.tar.xz": {
+      "bytes": 1244684,
+      "mode": 420,
+      "sha256": "c7d84f436e1aaef39fdcadebf2bd71bdf24dc69497e13f2e0198873cbbfea2ab"
+    },
+    "archives/svg/qtsvg-everywhere-src-6.12.0.tar.xz": {
+      "bytes": 2341876,
+      "mode": 420,
+      "sha256": "e4ab39534ec97987b1b9b60ef7f4d3253d5912a69f8c713a01753174a4029331"
+    },
+    "archives/wayland/qtwayland-everywhere-src-6.12.0.tar.xz": {
+      "bytes": 908828,
+      "mode": 420,
+      "sha256": "ae14d9bcf1bb3c300a3ab2e6a53f50284e5c6c966a4ac4cc5aedcb1bc74e4d02"
+    },
+    "consumer/CMakeLists.txt": {
+      "bytes": 5956,
+      "mode": 420,
+      "sha256": "4509ebcdc6e6776d6e59d5c42f9ed0191388ac5db5a9e062b96f3e4177c1ca9d"
+    },
+    "consumer/INTERFACE.DATA.json": {
+      "bytes": 1073,
+      "mode": 420,
+      "sha256": "2d42e38f6330a365fb2b052615e9f185f2962e62cd12b534ddbeb6df2588c84e"
+    },
+    "consumer/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "consumer/README.md": {
+      "bytes": 4287,
+      "mode": 420,
+      "sha256": "773ea10b3d36dc534d80fb90583aecf5b072d685be3198289154ae4b317679c1"
+    },
+    "consumer/SOURCE-AUDIT.DATA.json": {
+      "bytes": 6288,
+      "mode": 420,
+      "sha256": "3468168dd3c8eea343b9a92684a73a5b59cc7b2b81339f39b1835b749d4ab77a"
+    },
+    "consumer/Scene.qml": {
+      "bytes": 862,
+      "mode": 420,
+      "sha256": "0c6f1cff41166503b28e867b99b7b959b77f3a056fa906dc416288837fc33726"
+    },
+    "consumer/colors.svg": {
+      "bytes": 230,
+      "mode": 420,
+      "sha256": "2e722e46978da6e0f0603e604ca3d67a0e71f30d0e3d1237acf101fac6d1e4cb"
+    },
+    "consumer/desktop-probe.xml": {
+      "bytes": 615,
+      "mode": 420,
+      "sha256": "ecb5a7d85f65383624a41bcaddf93a6d74b6bff5ed83ed02eea6703294932de0"
+    },
+    "consumer/probe.vert": {
+      "bytes": 369,
+      "mode": 420,
+      "sha256": "8d1d14be8c94916a3cbdfb0a4759a3843f4f9c70ef66f46aa15eace3559e60b0"
+    },
+    "consumer/protocol-client/CMakeLists.txt": {
+      "bytes": 292,
+      "mode": 420,
+      "sha256": "18c5729adb9838748489bf7ade7a511dce98f3d9a97980128947348df7bec929"
+    },
+    "consumer/protocol-server/CMakeLists.txt": {
+      "bytes": 417,
+      "mode": 420,
+      "sha256": "d0b72f5641b7e76ef50fb3117c650e796b4655100534c508b1107df7f8918e99"
+    },
+    "consumer/protocol.cpp": {
+      "bytes": 6589,
+      "mode": 420,
+      "sha256": "1dbc5a3ebbc7b5d5e67dedb58889c8b348b7608661de1a335b95147d86fb0500"
+    },
+    "consumer/render.cpp": {
+      "bytes": 6032,
+      "mode": 420,
+      "sha256": "0aab56dc7cd0c0bf90149899a2b516661ffc5ee0fc5039d3325263cb6b58f566"
+    },
+    "consumer/shader.cpp": {
+      "bytes": 3515,
+      "mode": 420,
+      "sha256": "f19a2323b8b51e0d7a1cd46ab6d54e8c2b2b975ac1c9ebe25d6b12dc4967df22"
+    },
+    "consumer/source-files.lock.json": {
+      "bytes": 2065,
+      "mode": 420,
+      "sha256": "a4e3bd8ddcdfb745305440204ac675b00c80f402901af9b5a7a6167d8e9342bd"
+    },
+    "consumer/test_data.py": {
+      "bytes": 4982,
+      "mode": 420,
+      "sha256": "d004aabf26ac63284a4d02656314ab55bd6737165fd857c0917489b6c4d503fb"
+    },
+    "contracts/declarative/BUILD-CONTRACT.json": {
+      "bytes": 12044,
+      "mode": 420,
+      "sha256": "ef9ce8e904603ba2b532133c8a1468a8b767e24c0be1d430da6145b8366e354b"
+    },
+    "contracts/declarative/PROVIDER-INTERFACE.DATA.json": {
+      "bytes": 1358,
+      "mode": 420,
+      "sha256": "573a4bb4f7c398f6c555ac85b5854c1a7ca59b97d877c40dedc7aec619f91dc5"
+    },
+    "contracts/declarative/SOURCE-INPUTS.lock.json": {
+      "bytes": 1131,
+      "mode": 420,
+      "sha256": "4bb390409374842d2fd9485d0d0366d107bf4df1820a12583ff8e957e3f24bfe"
+    },
+    "contracts/declarative/lifecycle.DATA.json": {
+      "bytes": 1481,
+      "mode": 420,
+      "sha256": "3b03fcbe6e273b24a45096dcec81928791447f273b1f7a1044a59e86057d4332"
+    },
+    "contracts/gui_server/BUILD-CONTRACT.json": {
+      "bytes": 15570,
+      "mode": 420,
+      "sha256": "fe136aaab252f4bba4ffd53c2d6819eceae0e6aaa03d5b8d404e176c335b9039"
+    },
+    "contracts/gui_server/PROVIDER-INTERFACE.DATA.json": {
+      "bytes": 2474,
+      "mode": 420,
+      "sha256": "5292da6ca8520fbc2e73892bd77373c32bc1fa10592fd7f3366ff8c1baefc3c7"
+    },
+    "contracts/gui_server/SOURCE-INPUTS.lock.json": {
+      "bytes": 6915,
+      "mode": 420,
+      "sha256": "b41af5a6f92cb1c5f68ec663118916af13fce3d7f26be928e8002857c5a9167c"
+    },
+    "contracts/gui_server/lifecycle.DATA.json": {
+      "bytes": 2182,
+      "mode": 420,
+      "sha256": "a5ee79b1c11cbbf241b7b136a8d0f7054423cacfb9c3f746a3a8287b5580f8ca"
+    },
+    "contracts/shadertools/BUILD-CONTRACT.json": {
+      "bytes": 1733,
+      "mode": 420,
+      "sha256": "6705f652f9a1c6825e98c1c54d06c2e48be9b521030e7bb6ee504aeafbbb7713"
+    },
+    "contracts/shadertools/PROVIDER-INTERFACE.DATA.json": {
+      "bytes": 1297,
+      "mode": 420,
+      "sha256": "f8bfef49c52b4d36c5ec86d861a95ea9038d5d40d4e179ed857d336af4924ca9"
+    },
+    "contracts/shadertools/SOURCE-INPUTS.lock.json": {
+      "bytes": 2980,
+      "mode": 420,
+      "sha256": "17c30b02b738739e0a26c3c8961df78c5933e19ab09d533bef4e7fc0d29bfc70"
+    },
+    "contracts/shadertools/lifecycle.DATA.json": {
+      "bytes": 1027,
+      "mode": 420,
+      "sha256": "69bad2dbe7d4990aeaca37c029d5700b336beb444c1115ef392098a40a387360"
+    },
+    "contracts/svg/ABI-REFERENCE.DATA.json": {
+      "bytes": 1880,
+      "mode": 420,
+      "sha256": "f88b727a4e8e98a1a94061454efe42b971d608d512c1a6db6c7ca6712695c3f0"
+    },
+    "contracts/svg/BUILD-CONTRACT.json": {
+      "bytes": 9351,
+      "mode": 420,
+      "sha256": "b19e53590cc3e74709e6d848ce7865ff5fe0ce0fd0320ff85dba27078a3ca78e"
+    },
+    "contracts/svg/VERSION-HEADER-CONTRACT.DATA.json": {
+      "bytes": 655,
+      "mode": 420,
+      "sha256": "0f5c86fe94864386fc31138d2bfa9e08486a8a0f9e5e69da06ce2fbd494b17fd"
+    },
+    "contracts/wayland/BUILD-CONTRACT.json": {
+      "bytes": 12591,
+      "mode": 420,
+      "sha256": "a6b8c1f769037094d8a630efc12605e38bf538543d0c96c22486021ad7a9e0a6"
+    },
+    "contracts/wayland/COMPATIBLE-PROVIDER-INTERFACE.DATA.json": {
+      "bytes": 3135,
+      "mode": 420,
+      "sha256": "8a925fb471eeb50e2928737472fdebd57b27816dab04c07864bf0089321f325a"
+    },
+    "contracts/wayland/SOURCE-INPUTS.lock.json": {
+      "bytes": 1659,
+      "mode": 420,
+      "sha256": "97c825beb5661ea12f6e3ea9d4b6d460a81e27b3bfbedfbcf46282133e57bfac"
+    },
+    "contracts/wayland/lifecycle.DATA.json": {
+      "bytes": 8224,
+      "mode": 420,
+      "sha256": "c1a7b8b78a529dc931dc5907eb2cd7efb4777dfa767eccebd12a9f038885ddbf"
+    },
+    "expected356.lock": {
+      "bytes": 6925,
+      "mode": 420,
+      "sha256": "e2a4da7903e6de26b0ee37758ad424439f83196fa6a3b0bdffa501f35a02d0b9"
+    },
+    "family-inputs.DATA.json": {
+      "bytes": 6541,
+      "mode": 420,
+      "sha256": "f4e8af997b44dde136106b398fd7d1cf5f03970e7cb3101b45a8ea2966f63fa4"
+    },
+    "family-plan.DATA.json": {
+      "bytes": 6524,
+      "mode": 420,
+      "sha256": "094661f0f41a0aef43bbc5bbf86d3021e2f70c55cd641b648d63e4d7ba754dc8"
+    },
+    "inverse/declarative/PKGBUILD": {
+      "bytes": 5141,
+      "mode": 420,
+      "sha256": "03d5a388bea9c5cb8a94811342af62fe14f93366fddc03a4a89ff8261349e660"
+    },
+    "inverse/gui_server/PKGBUILD": {
+      "bytes": 6145,
+      "mode": 420,
+      "sha256": "121f2ec8f25a8c935be16136cd3dc036603679fdaea2f1b95e45a7a2201f852b"
+    },
+    "inverse/shadertools/PKGBUILD": {
+      "bytes": 6344,
+      "mode": 420,
+      "sha256": "b37523347ecad9fdeb9a2c72a93a1a29bc2211f4a10a07a6410a244ae8c3273e"
+    },
+    "inverse/svg/PKGBUILD": {
+      "bytes": 4437,
+      "mode": 420,
+      "sha256": "c11e2888d12ddea3436573a22939114c6d0bf37c18efec19980fbba19519edf9"
+    },
+    "inverse/wayland/PKGBUILD": {
+      "bytes": 5342,
+      "mode": 420,
+      "sha256": "9f5a725afd91c38c776399267af42f49a168aab55d106c6647f45eac6e6488b9"
+    },
+    "materials/declarative/catalog.json": {
+      "bytes": 1244,
+      "mode": 420,
+      "sha256": "271a504d68df69afadeeb769ea12d28d6e3d942e9a4ffed5067959af82875e90"
+    },
+    "materials/declarative/notices/0.txt": {
+      "bytes": 35147,
+      "mode": 420,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    },
+    "materials/declarative/notices/1.txt": {
+      "bytes": 7651,
+      "mode": 420,
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+    },
+    "materials/declarative/notices/2.txt": {
+      "bytes": 965,
+      "mode": 420,
+      "sha256": "40678d338ce53cd93f8b22b281a2ecbcaa3ee65ce60b25ffb0c462b0530846b2"
+    },
+    "materials/declarative/plan.json": {
+      "bytes": 1785,
+      "mode": 420,
+      "sha256": "b86e2636b0519bccdc50b42976ec8e1c117bef62b8bde5ab6cb03dc00c43e96e"
+    },
+    "materials/gui_server/catalog.json": {
+      "bytes": 1415,
+      "mode": 420,
+      "sha256": "cd778900829119719e2d2845e4793c93ab5183baeeee0a29707bdfbec728b914"
+    },
+    "materials/gui_server/notices/0.txt": {
+      "bytes": 35147,
+      "mode": 420,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    },
+    "materials/gui_server/notices/1.txt": {
+      "bytes": 7651,
+      "mode": 420,
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+    },
+    "materials/gui_server/notices/2.txt": {
+      "bytes": 965,
+      "mode": 420,
+      "sha256": "40678d338ce53cd93f8b22b281a2ecbcaa3ee65ce60b25ffb0c462b0530846b2"
+    },
+    "materials/gui_server/notices/3.txt": {
+      "bytes": 5615,
+      "mode": 420,
+      "sha256": "ac3a75d082888c1379902f53d42583322cdbe9bd9d2d49a5464a8c0e31837316"
+    },
+    "materials/gui_server/plan.json": {
+      "bytes": 1948,
+      "mode": 420,
+      "sha256": "fb66aa314013c89e3a25cad909b7aee1e2f8a869ff79915f4b6a1163667bb2e9"
+    },
+    "materials/shadertools/catalog.json": {
+      "bytes": 1243,
+      "mode": 420,
+      "sha256": "0f90f8540aef989412dbbbcf7f72c49e782132ee2ef261f4d42663352099e799"
+    },
+    "materials/shadertools/notices/0.txt": {
+      "bytes": 35147,
+      "mode": 420,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    },
+    "materials/shadertools/notices/1.txt": {
+      "bytes": 7651,
+      "mode": 420,
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+    },
+    "materials/shadertools/notices/2.txt": {
+      "bytes": 965,
+      "mode": 420,
+      "sha256": "40678d338ce53cd93f8b22b281a2ecbcaa3ee65ce60b25ffb0c462b0530846b2"
+    },
+    "materials/shadertools/plan.json": {
+      "bytes": 2056,
+      "mode": 420,
+      "sha256": "dcac42f3e171407aecec4da6d20cfe6f1b540cb628e84fb2b46c76162ca25505"
+    },
+    "materials/svg/catalog.json": {
+      "bytes": 1210,
+      "mode": 420,
+      "sha256": "51281a4ba8f3171f4db83c74156d10d3b91e318de22bf4e7f4902c09cc02d90b"
+    },
+    "materials/svg/notices/0.txt": {
+      "bytes": 35147,
+      "mode": 420,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    },
+    "materials/svg/notices/1.txt": {
+      "bytes": 7651,
+      "mode": 420,
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+    },
+    "materials/svg/notices/2.txt": {
+      "bytes": 2009,
+      "mode": 420,
+      "sha256": "25f13c0806f579d0cb879623a21a88137714c7e891252630860f3124321aa38d"
+    },
+    "materials/svg/plan.json": {
+      "bytes": 1491,
+      "mode": 420,
+      "sha256": "dc12a70da5b04f7197b26acde054c4fa23689633579467fc4193d7f3189a9c1b"
+    },
+    "materials/wayland/catalog.json": {
+      "bytes": 1416,
+      "mode": 420,
+      "sha256": "28a01e3ab97e684d9283ccc40f370e305169fe6abb632ac5593d94f2862dbbe8"
+    },
+    "materials/wayland/notices/0.txt": {
+      "bytes": 35147,
+      "mode": 420,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    },
+    "materials/wayland/notices/1.txt": {
+      "bytes": 7651,
+      "mode": 420,
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+    },
+    "materials/wayland/notices/2.txt": {
+      "bytes": 965,
+      "mode": 420,
+      "sha256": "40678d338ce53cd93f8b22b281a2ecbcaa3ee65ce60b25ffb0c462b0530846b2"
+    },
+    "materials/wayland/notices/3.txt": {
+      "bytes": 3108,
+      "mode": 420,
+      "sha256": "4e0c44c68f042f3ed1e59e6db9b31848d28d9c63b600ab3e61ad7bad43c96a54"
+    },
+    "materials/wayland/plan.json": {
+      "bytes": 1682,
+      "mode": 420,
+      "sha256": "a7342c2135f2679d2a3ea49769c3bc3e744af445b3982156a3804acfe85b5310"
+    },
+    "recipes/declarative/.SRCINFO": {
+      "bytes": 2582,
+      "mode": 420,
+      "sha256": "67a6f0546eb21864eea013128b379bc91d71fc29108d11b7cfec4c0003f29dfe"
+    },
+    "recipes/declarative/BUILD-CONTRACT.json": {
+      "bytes": 12044,
+      "mode": 420,
+      "sha256": "ef9ce8e904603ba2b532133c8a1468a8b767e24c0be1d430da6145b8366e354b"
+    },
+    "recipes/declarative/Consumer.qml": {
+      "bytes": 79,
+      "mode": 420,
+      "sha256": "486d00d412a6ae1b2bb6fb585f8f473ca22bed3097f640809de97331328bb2c2"
+    },
+    "recipes/declarative/LICENSE.packaging": {
+      "bytes": 1070,
+      "mode": 420,
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+    },
+    "recipes/declarative/LICENSE.third-party": {
+      "bytes": 463,
+      "mode": 420,
+      "sha256": "54d9df8d505a98350656a5e51d5ab49719a32e2fe9e8f3e790af1eff55ff1321"
+    },
+    "recipes/declarative/PKGBUILD": {
+      "bytes": 5229,
+      "mode": 420,
+      "sha256": "3e24768d62cd9b82d4c079af5de3f4ff35ecf4d23123198944733bb8f1126f95"
+    },
+    "recipes/declarative/SmokeCMakeLists.txt": {
+      "bytes": 1927,
+      "mode": 420,
+      "sha256": "4e73294e0a361b019f2c980c7dfaded32eb8d1a87fb0680b3471adc190bd4337"
+    },
+    "recipes/declarative/check_stage.py": {
+      "bytes": 11149,
+      "mode": 420,
+      "sha256": "fa4efe2a547c101d21b2bd89894bbc9df04ce7cd9767676c20388d7260bbbbd2"
+    },
+    "recipes/declarative/configure.cmake": {
+      "bytes": 5625,
+      "mode": 420,
+      "sha256": "53fc9405a9868456ba86c5309fe14f0109b695727b62e720cb9e21baadc861de"
+    },
+    "recipes/declarative/dependency_guard.cmake": {
+      "bytes": 2524,
+      "mode": 420,
+      "sha256": "a1989be84fbe965de12339f4406001a79fc99cc1a02f3b8bbcfa9bbce73d5a66"
+    },
+    "recipes/declarative/family-contract.json": {
+      "bytes": 12044,
+      "mode": 420,
+      "sha256": "ef9ce8e904603ba2b532133c8a1468a8b767e24c0be1d430da6145b8366e354b"
+    },
+    "recipes/declarative/smoke.cpp": {
+      "bytes": 1145,
+      "mode": 420,
+      "sha256": "192734b8b58bb986eeabb9b3c70f1f489c88809867432e3ebb613fd2fded9161"
+    },
+    "recipes/declarative/smoke.qml": {
+      "bytes": 2213,
+      "mode": 420,
+      "sha256": "520bcf0b11c81d998d7fc3372240cfe165f8f5bb56d271ba35f3cd5343f83fd0"
+    },
+    "recipes/declarative/source-notices.json": {
+      "bytes": 2532,
+      "mode": 420,
+      "sha256": "9a4517652e61d0e1d57ac631da239419f71fd9875dcb053e9f2812d43b531882"
+    },
+    "recipes/declarative/source.py": {
+      "bytes": 4666,
+      "mode": 420,
+      "sha256": "331b8e39858ab5ea6769344f73996f5111cac13095e4c9028499c1aa63b0a660"
+    },
+    "recipes/gui_server/.SRCINFO": {
+      "bytes": 3856,
+      "mode": 420,
+      "sha256": "9c132b1d743040efcfad23401efee5879270fab91d71877fe0972d6501bdb445"
+    },
+    "recipes/gui_server/CVE-2026-105924-qtbase-6.12.diff": {
+      "bytes": 5019,
+      "mode": 420,
+      "sha256": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b"
+    },
+    "recipes/gui_server/CVE-2026-105943-qtbase-6.12.diff": {
+      "bytes": 2291,
+      "mode": 420,
+      "sha256": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099"
+    },
+    "recipes/gui_server/CVE-2026-116337-qtbase-6.12-0001.diff": {
+      "bytes": 3262,
+      "mode": 420,
+      "sha256": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12"
+    },
+    "recipes/gui_server/CVE-2026-116337-qtbase-6.12-0002.diff": {
+      "bytes": 5186,
+      "mode": 420,
+      "sha256": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec"
+    },
+    "recipes/gui_server/LICENSE.packaging": {
+      "bytes": 1070,
+      "mode": 420,
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+    },
+    "recipes/gui_server/LICENSE.third-party": {
+      "bytes": 639,
+      "mode": 420,
+      "sha256": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585"
+    },
+    "recipes/gui_server/PKGBUILD": {
+      "bytes": 6232,
+      "mode": 420,
+      "sha256": "b8ab08950fc2e5729e00bc066e13897163ae52362105aa90d58569f603e07296"
+    },
+    "recipes/gui_server/SERVER_DEPENDENCY_GUARD.cmake": {
+      "bytes": 830,
+      "mode": 420,
+      "sha256": "77ee32886383da2d2b7c30b03269c7c482a6386237ad7c0bc111dd960579e379"
+    },
+    "recipes/gui_server/SmokeCMakeLists.txt": {
+      "bytes": 6902,
+      "mode": 420,
+      "sha256": "91036b0a511b570d7ce738584ff9607ae4e3d1f88fda3b0a926847ff260a79a1"
+    },
+    "recipes/gui_server/check_stage.py": {
+      "bytes": 22362,
+      "mode": 420,
+      "sha256": "35f410bf60af41f677f7a36d58cc5079ecf57dfde2b84f29dc1b006a4bf7f0da"
+    },
+    "recipes/gui_server/configure.cmake": {
+      "bytes": 5695,
+      "mode": 420,
+      "sha256": "eaa27120efac20a30c6c8d256385532aa988af0dee00dd1f8117f24922674350"
+    },
+    "recipes/gui_server/family-contract.json": {
+      "bytes": 15570,
+      "mode": 420,
+      "sha256": "fe136aaab252f4bba4ffd53c2d6819eceae0e6aaa03d5b8d404e176c335b9039"
+    },
+    "recipes/gui_server/smoke.cpp": {
+      "bytes": 3105,
+      "mode": 420,
+      "sha256": "cd504607ac0aec8aad372aad0387c60fb405a216addfa29d6ff2f16b93eaeb96"
+    },
+    "recipes/gui_server/source-notices.json": {
+      "bytes": 20042,
+      "mode": 420,
+      "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+    },
+    "recipes/gui_server/source.py": {
+      "bytes": 6717,
+      "mode": 420,
+      "sha256": "efe21d53a77c92ea66997923529b4d6e34635db7f1cb760af99d01774bdb7870"
+    },
+    "recipes/shadertools/.SRCINFO": {
+      "bytes": 2592,
+      "mode": 420,
+      "sha256": "da3023b30ef18000a4f10a502bfc5b083ffdf3dc36595847a2854ab3405908eb"
+    },
+    "recipes/shadertools/BUILD-CONTRACT.json": {
+      "bytes": 1733,
+      "mode": 420,
+      "sha256": "6705f652f9a1c6825e98c1c54d06c2e48be9b521030e7bb6ee504aeafbbb7713"
+    },
+    "recipes/shadertools/LICENSE.packaging": {
+      "bytes": 1070,
+      "mode": 420,
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+    },
+    "recipes/shadertools/LICENSE.third-party": {
+      "bytes": 837,
+      "mode": 420,
+      "sha256": "58cc65719d55523ceebd21f132e18902c11ce6fa9ee3ff0b190b85af288f37ee"
+    },
+    "recipes/shadertools/PKGBUILD": {
+      "bytes": 6432,
+      "mode": 420,
+      "sha256": "af16dc0779f9411a5166fdd1848085c5b9e9b383086b052e2c6ee8ae29cc268f"
+    },
+    "recipes/shadertools/SmokeCMakeLists.txt": {
+      "bytes": 2121,
+      "mode": 420,
+      "sha256": "f168cd74aac6f200497804636633f25e1c0cc0f3647976b93fa24e9331a8ca3b"
+    },
+    "recipes/shadertools/check_stage.py": {
+      "bytes": 4040,
+      "mode": 420,
+      "sha256": "fece5a639573df37b17f8639af435d1e9f7913c476db8c0c14f97753296109f7"
+    },
+    "recipes/shadertools/configure.cmake": {
+      "bytes": 911,
+      "mode": 420,
+      "sha256": "4f06d082f5e93d8eeb418fdd4e9a4dfaa6205e4808c2c0001cdb613d99014426"
+    },
+    "recipes/shadertools/dependency_guard.cmake": {
+      "bytes": 1908,
+      "mode": 420,
+      "sha256": "30d1c92679f1853336843193a6a6cd72be4a6b1ba2466384732cd3ded2d2de91"
+    },
+    "recipes/shadertools/elf.py": {
+      "bytes": 6713,
+      "mode": 420,
+      "sha256": "0220adf2acdba80b3efb0d8e801d50f6ba586e824e8caf5944b2f9364f149050"
+    },
+    "recipes/shadertools/family-contract.json": {
+      "bytes": 1733,
+      "mode": 420,
+      "sha256": "6705f652f9a1c6825e98c1c54d06c2e48be9b521030e7bb6ee504aeafbbb7713"
+    },
+    "recipes/shadertools/reflection.py": {
+      "bytes": 3286,
+      "mode": 420,
+      "sha256": "225f70874d4ff3e54f8bd164e58078ad5c356e7ac43fd497843bbe688adb0ec9"
+    },
+    "recipes/shadertools/smoke.cpp": {
+      "bytes": 2892,
+      "mode": 420,
+      "sha256": "92df051cf6660ec494b8193cbf95d362e908bc4994a457ffd7b0ca7328569251"
+    },
+    "recipes/shadertools/smoke.frag": {
+      "bytes": 318,
+      "mode": 420,
+      "sha256": "27ade780de02348a1e1bddc999c4f84c298d20caa7e7165c3a1db44d885e8ada"
+    },
+    "recipes/shadertools/smoke.vert": {
+      "bytes": 272,
+      "mode": 420,
+      "sha256": "60def73e2ffab14cc61cf843f0eacb6e8fba6fe977a660c95734a7cd8fca5093"
+    },
+    "recipes/shadertools/source-notices.json": {
+      "bytes": 2090,
+      "mode": 420,
+      "sha256": "09c63071babd163ff02b773c2bb49fa2bac81c3b43b2212a4d1963184be54044"
+    },
+    "recipes/shadertools/source.py": {
+      "bytes": 5279,
+      "mode": 420,
+      "sha256": "2f28d2dae7d43d8bfd862e9e09e4aced62a5d2dd503cea5055ef47b4c5149f48"
+    },
+    "recipes/shadertools/vendored-inputs.lock.json": {
+      "bytes": 29105,
+      "mode": 420,
+      "sha256": "a09705bc52dc9a8ea8c4e59b8fd1e92edc60ac7364a6a5916d6ea813ddae7b08"
+    },
+    "recipes/svg/.SRCINFO": {
+      "bytes": 1940,
+      "mode": 420,
+      "sha256": "f0c2a17a0b15ee4ac1a17d0625e11995ff415d4374462b05359b0ee245f9cb46"
+    },
+    "recipes/svg/LICENSE.packaging": {
+      "bytes": 1070,
+      "mode": 420,
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+    },
+    "recipes/svg/LICENSE.third-party": {
+      "bytes": 1188,
+      "mode": 420,
+      "sha256": "12c0559d5673b2e983a0c757abeed72c51cfe27dab1a851b7cd1b38f93d71ddd"
+    },
+    "recipes/svg/PKGBUILD": {
+      "bytes": 4517,
+      "mode": 420,
+      "sha256": "5ddd736241bd11189b50598c03a95c81dc0a513071f6c9946a10f71c78e91c04"
+    },
+    "recipes/svg/SmokeCMakeLists.txt": {
+      "bytes": 4079,
+      "mode": 420,
+      "sha256": "6576e985825d50ad7bc371193cca28fa2524e22d90638b2de29b224daff7df17"
+    },
+    "recipes/svg/check_stage.py": {
+      "bytes": 13044,
+      "mode": 420,
+      "sha256": "ac18d1a95b566a4d6d74a036b480cf12d648b83c50267b22e71c54b217269e42"
+    },
+    "recipes/svg/configure.cmake": {
+      "bytes": 1308,
+      "mode": 420,
+      "sha256": "ee1b9c1f6093d0e1900fd26e16201f451c008622c57acd3d9882d248e7f267f0"
+    },
+    "recipes/svg/dependency_guard.cmake": {
+      "bytes": 3155,
+      "mode": 420,
+      "sha256": "8ff94bcf6ece8851dbfaac5098de6b7f999563dd647089278f449ce35ed70610"
+    },
+    "recipes/svg/family-contract.json": {
+      "bytes": 9351,
+      "mode": 420,
+      "sha256": "b19e53590cc3e74709e6d848ce7865ff5fe0ce0fd0320ff85dba27078a3ca78e"
+    },
+    "recipes/svg/smoke.cpp": {
+      "bytes": 6241,
+      "mode": 420,
+      "sha256": "850385b09c953f24a17bf95f5ae32b4aa066a7318c55a1713505c8418c170285"
+    },
+    "recipes/svg/source-notices.json": {
+      "bytes": 1279,
+      "mode": 420,
+      "sha256": "1452679ddb40231057ffe49771df2a48b241a36e5e29ed8cb36e4a6cf68d726c"
+    },
+    "recipes/svg/source.py": {
+      "bytes": 8800,
+      "mode": 420,
+      "sha256": "91373cd08bc00181604fe602a4319c0e838bd03e3113004fc6a6ae303a122132"
+    },
+    "recipes/wayland/.SRCINFO": {
+      "bytes": 2542,
+      "mode": 420,
+      "sha256": "2954677d2133b9473dd3ffad233445614f321dcbf7ba3294e2d6263ff030d058"
+    },
+    "recipes/wayland/LICENSE.packaging": {
+      "bytes": 1070,
+      "mode": 420,
+      "sha256": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa"
+    },
+    "recipes/wayland/LICENSE.third-party": {
+      "bytes": 543,
+      "mode": 420,
+      "sha256": "4e63379bc0b59272e37ed860cf8e8fe5a784c0bf8d551c67647f27a0c2152dc5"
+    },
+    "recipes/wayland/PKGBUILD": {
+      "bytes": 5426,
+      "mode": 420,
+      "sha256": "96b655833151d7d841c7c2e1ae1c8fb258f55159b43de4ba6bc628d4660d2e83"
+    },
+    "recipes/wayland/SmokeCMakeLists.txt": {
+      "bytes": 5850,
+      "mode": 420,
+      "sha256": "f224e2a93e53764a4d678d6af2389000b8692836f76ee1442c34f8b31b0bb45c"
+    },
+    "recipes/wayland/check_stage.py": {
+      "bytes": 25436,
+      "mode": 420,
+      "sha256": "384df5ae3a9333152a482c50171b98a14a8a9e3a9be066b0f2d92437a8327670"
+    },
+    "recipes/wayland/configure.cmake": {
+      "bytes": 1433,
+      "mode": 420,
+      "sha256": "0f9ae5eb0c618cbe5a33a120b21b4135de390d16fdab46f2f340472fb9803cfc"
+    },
+    "recipes/wayland/dependency-inputs.json": {
+      "bytes": 9460,
+      "mode": 420,
+      "sha256": "21ac9d87755c0a4efaa37bde993566da910bba99393ae68a73f0be20bb38d01f"
+    },
+    "recipes/wayland/dependency_guard.cmake": {
+      "bytes": 2605,
+      "mode": 420,
+      "sha256": "c990b529419cba027a5116ad8aed58470c90238c98b49de945152270370f79e0"
+    },
+    "recipes/wayland/family-contract.json": {
+      "bytes": 12591,
+      "mode": 420,
+      "sha256": "a6b8c1f769037094d8a630efc12605e38bf538543d0c96c22486021ad7a9e0a6"
+    },
+    "recipes/wayland/smoke.cpp": {
+      "bytes": 3006,
+      "mode": 420,
+      "sha256": "d6c2ff5c88e1628dbf6499b523efd1453e6bef705c93488b3992cb07cc41e443"
+    },
+    "recipes/wayland/smoke.qml": {
+      "bytes": 554,
+      "mode": 420,
+      "sha256": "6d2e5650915907c1fa50c64d58069e0763e5314c2ee0783a40b2413bd069b9c3"
+    },
+    "recipes/wayland/source-notices.json": {
+      "bytes": 1748,
+      "mode": 420,
+      "sha256": "c4e6a5bf9a58e79ec40c83c2394bf2bdfdef4ab172471e8abaca4b64b8c746d8"
+    },
+    "recipes/wayland/source.py": {
+      "bytes": 9736,
+      "mode": 420,
+      "sha256": "7e69f4707bba8face86a8384004e9034c2efd03eeda76a20b988e80cb4a880e7"
+    },
+    "reviewed/declarative.json": {
+      "bytes": 1332,
+      "mode": 420,
+      "sha256": "e7ea6451167a99012341b87b97daa619ee40561dfc43521a0ef86aa0e17aa93d"
+    },
+    "reviewed/gui_server.json": {
+      "bytes": 1511,
+      "mode": 420,
+      "sha256": "864ba48187b06c284cf1d15e981c5036cd391299a32ef4862dda317f8cd66cf8"
+    },
+    "reviewed/shadertools.json": {
+      "bytes": 1597,
+      "mode": 420,
+      "sha256": "caa6333c8db94e6558bdb4d8bd9e52fc25ac8985c9d60a642ab5796b7a177385"
+    },
+    "reviewed/svg.json": {
+      "bytes": 1070,
+      "mode": 420,
+      "sha256": "82d0169d04601b21e9178bb2bc8cc85e7ea1d236c35c26ee2e00d7fb6bae1fe0"
+    },
+    "reviewed/wayland.json": {
+      "bytes": 1249,
+      "mode": 420,
+      "sha256": "591bc9c8ceb1bbc17544ecca3727d78f94cc23749ee135e3932510263cad0895"
+    },
+    "runtime/declarative/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "runtime/declarative/reference_controller.py": {
+      "bytes": 14117,
+      "mode": 420,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "runtime/declarative/scripts/build/build_family.py": {
+      "bytes": 14246,
+      "mode": 420,
+      "sha256": "eb558307cdbb9c54783f8035c18890dfb926a869ca781c98fcdbc770ccd95d8a"
+    },
+    "runtime/declarative/scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "runtime/declarative/scripts/build/container-entry-v2.sh": {
+      "bytes": 3448,
+      "mode": 420,
+      "sha256": "dc58ab102ca4730bded57a52231ad2614f37b8f0b743ec971ed0f3e8d14d75ac"
+    },
+    "runtime/declarative/scripts/build/qt612_family_gate.py": {
+      "bytes": 323,
+      "mode": 420,
+      "sha256": "2a7bfbd111e15f40ad4e29257bc39479704ec93082e10011ecdf42eb107ca5e6"
+    },
+    "runtime/declarative/scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "mode": 420,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "runtime/declarative/scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "mode": 420,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "runtime/declarative/scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "runtime/declarative/scripts/ci/log_evidence.py": {
+      "bytes": 1708,
+      "mode": 420,
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5"
+    },
+    "runtime/declarative/scripts/ci/native_arm.py": {
+      "bytes": 28877,
+      "mode": 420,
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
+    },
+    "runtime/declarative/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "mode": 420,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "runtime/declarative/scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "mode": 420,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "runtime/declarative/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "runtime/gui_server/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "runtime/gui_server/reference_controller.py": {
+      "bytes": 14117,
+      "mode": 420,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "runtime/gui_server/scripts/build/build_family.py": {
+      "bytes": 14242,
+      "mode": 420,
+      "sha256": "f0c3466a40c9cf2f8a821df8c100af36238ebe07dd89ecfd95cbb1e7ec87a92e"
+    },
+    "runtime/gui_server/scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "runtime/gui_server/scripts/build/container-entry-v2.sh": {
+      "bytes": 3736,
+      "mode": 420,
+      "sha256": "3ec89f01c2563474c119d71bffe156f555cf811c862fcf916ff59d7ac0cda414"
+    },
+    "runtime/gui_server/scripts/build/qt612_family_gate.py": {
+      "bytes": 323,
+      "mode": 420,
+      "sha256": "2a7bfbd111e15f40ad4e29257bc39479704ec93082e10011ecdf42eb107ca5e6"
+    },
+    "runtime/gui_server/scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "mode": 420,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "runtime/gui_server/scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "mode": 420,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "runtime/gui_server/scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "runtime/gui_server/scripts/ci/log_evidence.py": {
+      "bytes": 1708,
+      "mode": 420,
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5"
+    },
+    "runtime/gui_server/scripts/ci/native_arm.py": {
+      "bytes": 28877,
+      "mode": 420,
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
+    },
+    "runtime/gui_server/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "mode": 420,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "runtime/gui_server/scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "mode": 420,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "runtime/gui_server/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "runtime/shadertools/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "runtime/shadertools/reference_controller.py": {
+      "bytes": 14117,
+      "mode": 420,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "runtime/shadertools/scripts/build/build_family.py": {
+      "bytes": 14274,
+      "mode": 420,
+      "sha256": "1011095ece9109780e818dc1ac3963507b71713dee05b7c607c13fa24d396f9f"
+    },
+    "runtime/shadertools/scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "runtime/shadertools/scripts/build/container-entry-v2.sh": {
+      "bytes": 3506,
+      "mode": 420,
+      "sha256": "2761f66126218cc5393ebb50e1e433fc5a76b7b32298d33179a53cef01579f28"
+    },
+    "runtime/shadertools/scripts/build/qt612_family_gate.py": {
+      "bytes": 323,
+      "mode": 420,
+      "sha256": "2a7bfbd111e15f40ad4e29257bc39479704ec93082e10011ecdf42eb107ca5e6"
+    },
+    "runtime/shadertools/scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "mode": 420,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "runtime/shadertools/scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "mode": 420,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "runtime/shadertools/scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "runtime/shadertools/scripts/ci/log_evidence.py": {
+      "bytes": 1708,
+      "mode": 420,
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5"
+    },
+    "runtime/shadertools/scripts/ci/native_arm.py": {
+      "bytes": 28877,
+      "mode": 420,
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
+    },
+    "runtime/shadertools/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "mode": 420,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "runtime/shadertools/scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "mode": 420,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "runtime/shadertools/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "runtime/svg/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "runtime/svg/reference_controller.py": {
+      "bytes": 14117,
+      "mode": 420,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "runtime/svg/scripts/build/build_family.py": {
+      "bytes": 14214,
+      "mode": 420,
+      "sha256": "00886e97dac3ed9a34aa4ee52b9fc406702a162e384d99e50617b042eae37440"
+    },
+    "runtime/svg/scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "runtime/svg/scripts/build/container-entry-v2.sh": {
+      "bytes": 3357,
+      "mode": 420,
+      "sha256": "0d1149f06d19526fb4d86ac9d72f7e38a6fca93136660edbdab14e79c4930211"
+    },
+    "runtime/svg/scripts/build/qt612_family_gate.py": {
+      "bytes": 323,
+      "mode": 420,
+      "sha256": "2a7bfbd111e15f40ad4e29257bc39479704ec93082e10011ecdf42eb107ca5e6"
+    },
+    "runtime/svg/scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "mode": 420,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "runtime/svg/scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "mode": 420,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "runtime/svg/scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "runtime/svg/scripts/ci/log_evidence.py": {
+      "bytes": 1708,
+      "mode": 420,
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5"
+    },
+    "runtime/svg/scripts/ci/native_arm.py": {
+      "bytes": 28877,
+      "mode": 420,
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
+    },
+    "runtime/svg/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "mode": 420,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "runtime/svg/scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "mode": 420,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "runtime/svg/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "runtime/wayland/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "runtime/wayland/reference_controller.py": {
+      "bytes": 14117,
+      "mode": 420,
+      "sha256": "e7c8935f342d4b36bb6f8f24c0b48c3b8aa04be9807f62c3f8141aeaf26819fc"
+    },
+    "runtime/wayland/scripts/build/build_family.py": {
+      "bytes": 14230,
+      "mode": 420,
+      "sha256": "fcc2ff8a444339e9c853fd87e3287624a3dcea7c318847e9cbcfdeb591d18711"
+    },
+    "runtime/wayland/scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "runtime/wayland/scripts/build/container-entry-v2.sh": {
+      "bytes": 3452,
+      "mode": 420,
+      "sha256": "5d42c4988634a88c1cceda5e92220871b81a03bd2e6022e93d9b7dd72d022856"
+    },
+    "runtime/wayland/scripts/build/qt612_family_gate.py": {
+      "bytes": 323,
+      "mode": 420,
+      "sha256": "2a7bfbd111e15f40ad4e29257bc39479704ec93082e10011ecdf42eb107ca5e6"
+    },
+    "runtime/wayland/scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "mode": 420,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "runtime/wayland/scripts/checks/package_checks.py": {
+      "bytes": 19289,
+      "mode": 420,
+      "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    },
+    "runtime/wayland/scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "runtime/wayland/scripts/ci/log_evidence.py": {
+      "bytes": 1708,
+      "mode": 420,
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5"
+    },
+    "runtime/wayland/scripts/ci/native_arm.py": {
+      "bytes": 28877,
+      "mode": 420,
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
+    },
+    "runtime/wayland/scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "mode": 420,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "runtime/wayland/scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "mode": 420,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "runtime/wayland/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "scripts/ci/qt612-complete-family-native-source/README.md": {
+      "bytes": 7026,
+      "mode": 420,
+      "sha256": "3682fcd1b0312f9c75ee497f87c9481673c62779759f6edc1817b3a326214433"
+    },
+    "scripts/ci/qt612-complete-family-native-source/common.py": {
+      "bytes": 4756,
+      "mode": 420,
+      "sha256": "3e11e38b1f37e13a9fda08416a1410baf97adb5ec86210761dcbda622fb170c9"
+    },
+    "scripts/ci/qt612-complete-family-native-source/consumer.py": {
+      "bytes": 9651,
+      "mode": 420,
+      "sha256": "6880d855703dd6535c6f9227d9cded99254064861ea7dfce7c492c7eec51f88c"
+    },
+    "scripts/ci/qt612-complete-family-native-source/consumer_worker.py": {
+      "bytes": 8496,
+      "mode": 420,
+      "sha256": "1210b68fde51fdc023807186a5d39e099c1bad79744bb4cebf2f77fa5e0fcc39"
+    },
+    "scripts/ci/qt612-complete-family-native-source/dependency-audit.DATA.json": {
+      "bytes": 1671,
+      "mode": 420,
+      "sha256": "c0a8c153bf5a25395eec5230e64f53aae4e0ed934ddb7840928cab37dd9858a1"
+    },
+    "scripts/ci/qt612-complete-family-native-source/family.lock.json": {
+      "bytes": 45084,
+      "mode": 420,
+      "sha256": "9e7314622933b4df038bf0534de0463ba2f404701bb165f27d3b03b785420677"
+    },
+    "scripts/ci/qt612-complete-family-native-source/lifecycle.py": {
+      "bytes": 5971,
+      "mode": 420,
+      "sha256": "883bda28e271deb2c15260a149636c4959ed955643c37f3f6a5e6a509d728dbd"
+    },
+    "scripts/ci/qt612-complete-family-native-source/pipeline.py": {
+      "bytes": 26957,
+      "mode": 420,
+      "sha256": "9a1c8ead909e0a72ca435188e075eff9107dd0700c375db0c6c76db7d69b8024"
+    },
+    "scripts/ci/qt612-complete-family-native-source/proof.py": {
+      "bytes": 9604,
+      "mode": 420,
+      "sha256": "869762f5288f3366e4a9c32a5419e2b8f802e544fb567be57f9137adc96a755c"
+    },
+    "scripts/ci/qt612-complete-family-native-source/qualify.py": {
+      "bytes": 36637,
+      "mode": 420,
+      "sha256": "b60a95663e443eddf5f07acc6b95bc5fd50c1ab0c53aaf52d07f634398f0f163"
+    },
+    "scripts/ci/qt612-complete-family-native-source/source.py": {
+      "bytes": 15399,
+      "mode": 420,
+      "sha256": "ffe26712c63d7f826cdb2185f3c05b1a049534ea81aa4c04a835f4e9e90051ce"
+    },
+    "scripts/ci/qt612-reference-native-source/actor_gate.py": {
+      "bytes": 7754,
+      "mode": 420,
+      "sha256": "74d96a00bed95cf43fe296b76f57b75e5693683a058e74fb83a072602070aac6"
+    },
+    "scripts/ci/qt612-reference-native-source/basis.lock.json": {
+      "bytes": 4516,
+      "mode": 420,
+      "sha256": "6a38fd9026b10ea7400b69360ce32a9c45205ccfee5f18116fbf694e10905e3d"
+    },
+    "scripts/ci/qt612-reference-native-source/dependency-candidates.lock.json": {
+      "bytes": 10357,
+      "mode": 420,
+      "sha256": "3240b821dd9f2827732d808a94e493a8f9a9fb9550fdc802d95bc7c49397f3df"
+    },
+    "scripts/ci/qt612-reference-native-source/f-recipe.lock.json": {
+      "bytes": 7754,
+      "mode": 420,
+      "sha256": "a6ecf61d9bb36e1525e01f791cd51958426cd59c961b2f0a1d80d912fc0a1d52"
+    },
+    "scripts/ci/qt612-reference-native-source/f-serial-recipe.lock.json": {
+      "bytes": 10713,
+      "mode": 420,
+      "sha256": "020c248a7fc63bb058b0d607b83f6f711f0a5ae1d81354ce22b4dfaf0e2afec0"
+    },
+    "scripts/ci/qt612-reference-native-source/f_intake.py": {
+      "bytes": 14270,
+      "mode": 420,
+      "sha256": "8dd52885ea4bcacdd3fc458d46edfa047c60c65aa839e3834abe7f1ac81dd2e3"
+    },
+    "scripts/ci/qt612-reference-native-source/finish_pair.py": {
+      "bytes": 22010,
+      "mode": 420,
+      "sha256": "be918deb2d9e75e48f71ae6cbf7fbc8c820df7652324556e6e9d2f1fb9af9c98"
+    },
+    "scripts/ci/qt612-reference-native-source/prepare.py": {
+      "bytes": 23579,
+      "mode": 420,
+      "sha256": "9c91423837ec791b91dfc7e1575168e8d0e6838eee3c3b17cc3b19eebfb82f99"
+    },
+    "scripts/ci/qt612-reference-native-source/producer.py": {
+      "bytes": 32191,
+      "mode": 420,
+      "sha256": "9d44ec3ba2ba6063e9857bbaf9898e48828658c506d9dccbc75ab6e0e3c7dc25"
+    },
+    "scripts/ci/qt612-reference-native-source/resource-EXPERIMENTAL.json": {
+      "bytes": 1786,
+      "mode": 420,
+      "sha256": "937d2c05b96df99dde7097d10647c5ea96aea38d3442ffcbca2f3647dd643ece"
+    },
+    "scripts/ci/qt612-reference-native-source/resource-PROPOSAL.json": {
+      "bytes": 1858,
+      "mode": 420,
+      "sha256": "cc6e7a6daf31827a3ef060cfdbf3d8ab0a8a6dcfdf32e9b2c51ed857fa05b9b3"
+    },
+    "scripts/ci/qt612-reference-native-source/transport.lock.json": {
+      "bytes": 1130,
+      "mode": 420,
+      "sha256": "d3e0ab92824fc809b9db32b69f93af5d21b7f994ca96567378e12c9be28d9653"
+    },
+    "scripts/ci/qt612-reference-native-source/transport_binding.py": {
+      "bytes": 20339,
+      "mode": 420,
+      "sha256": "4bc7f71d6a1b11c9019d0a1b4aa601038b718c64e8a4cd0aaa7a1411313f77b0"
+    },
+    "scripts/ci/qt612-reference-native-source/transport_source.py": {
+      "bytes": 12741,
+      "mode": 420,
+      "sha256": "41e82eb57ab731a5094a02d342f8073f11e563b841784ef4ff07e4476c0ca21d"
+    }
+  },
+  "input_plan_complete": true,
+  "kind": "QT612_COMPLETE_FAMILY_SOURCE_DATA_V1",
+  "schema": 1
+}

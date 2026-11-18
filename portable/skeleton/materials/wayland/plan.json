@@ -1,0 +1,28 @@
+{
+  "catalog_sha256": "28a01e3ab97e684d9283ccc40f370e305169fe6abb632ac5593d94f2862dbbe8",
+  "purpose": "offline-build-sources",
+  "recipe_inputs": {
+    ".SRCINFO": "2954677d2133b9473dd3ffad233445614f321dcbf7ba3294e2d6263ff030d058",
+    "LICENSE.packaging": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+    "LICENSE.third-party": "4e63379bc0b59272e37ed860cf8e8fe5a784c0bf8d551c67647f27a0c2152dc5",
+    "PKGBUILD": "96b655833151d7d841c7c2e1ae1c8fb258f55159b43de4ba6bc628d4660d2e83",
+    "SmokeCMakeLists.txt": "f224e2a93e53764a4d678d6af2389000b8692836f76ee1442c34f8b31b0bb45c",
+    "check_stage.py": "384df5ae3a9333152a482c50171b98a14a8a9e3a9be066b0f2d92437a8327670",
+    "configure.cmake": "0f9ae5eb0c618cbe5a33a120b21b4135de390d16fdab46f2f340472fb9803cfc",
+    "dependency-inputs.json": "21ac9d87755c0a4efaa37bde993566da910bba99393ae68a73f0be20bb38d01f",
+    "dependency_guard.cmake": "c990b529419cba027a5116ad8aed58470c90238c98b49de945152270370f79e0",
+    "family-contract.json": "a6b8c1f769037094d8a630efc12605e38bf538543d0c96c22486021ad7a9e0a6",
+    "smoke.cpp": "d6c2ff5c88e1628dbf6499b523efd1453e6bef705c93488b3992cb07cc41e443",
+    "smoke.qml": "6d2e5650915907c1fa50c64d58069e0763e5314c2ee0783a40b2413bd069b9c3",
+    "source-notices.json": "c4e6a5bf9a58e79ec40c83c2394bf2bdfdef4ab172471e8abaca4b64b8c746d8",
+    "source.py": "7e69f4707bba8face86a8384004e9034c2efd03eeda76a20b988e80cb4a880e7"
+  },
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "wayland",
+      "revision": "c4f85cd060e3e80a7d71829defac9cf5a40e8ffa",
+      "source": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtwayland-everywhere-src-6.12.0.tar.xz"
+    }
+  ]
+}

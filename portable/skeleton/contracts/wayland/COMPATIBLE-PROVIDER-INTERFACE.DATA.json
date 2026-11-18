@@ -1,0 +1,103 @@
+{
+  "actual_Root_grant": null,
+  "existing_gui18": {
+    "baseline_shared_outputs": 18,
+    "client_features": "REFERENCE_ONLY_SOURCE_BACKED",
+    "commit": "b05267833d497ef034576741bf31968019a526c3",
+    "full_QtWayland_compositor_compatibility": "HELD_NOT_AN_INDEPENDENT_FEATURE_OVERRIDE",
+    "wayland_server": "OFF"
+  },
+  "kind": "QT612_WAYLAND_COMPATIBLE_QTBASE_PROVIDER_INTERFACE_V1",
+  "native_acceptance": false,
+  "new_provider": {
+    "archive": null,
+    "commit": null,
+    "current_TEST_trust": null,
+    "native_pair": null,
+    "package_name": null,
+    "signature": null,
+    "version": null,
+    "whole_recipe_map": null
+  },
+  "requires": {
+    "BuildInternals": "Qt6BuildInternals6.12.0 normal package metadata",
+    "GUI_notices": {
+      "bytes": 636122,
+      "count": 173,
+      "destination": "usr/share/licenses/cachy-asahi-qt612-gui-source-reference/source",
+      "policy": {
+        "bytes": 20042,
+        "sha256": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda"
+      }
+    },
+    "GUI_security_patches": [
+      "CVE-2026-116337-qtbase-6.12-0002.diff",
+      "CVE-2026-116337-qtbase-6.12-0001.diff",
+      "CVE-2026-105924-qtbase-6.12.diff",
+      "CVE-2026-105943-qtbase-6.12.diff"
+    ],
+    "Qt_version": "6.12.0",
+    "Qtbase_revision": "025bdad181de241e81bf853c8a2d7bf3d19261a9",
+    "cpp_private_header_define": "QT_FEATURE_wayland_server 1",
+    "imported_Gui_features_on": [
+      "wayland",
+      "waylandscanner",
+      "wayland_client",
+      "wayland_egl",
+      "opengl",
+      "egl",
+      "wayland_server"
+    ],
+    "no_Mesa_or_Asahi_replacement": true,
+    "normal_metadata": "qt6-base=6.12.0 must resolve normally to reviewed compatible signed provider",
+    "protocol_data": {
+      "bytes": 9460,
+      "policy": "dependency-inputs.json",
+      "sha256": "21ac9d87755c0a4efaa37bde993566da910bba99393ae68a73f0be20bb38d01f"
+    },
+    "retained_GUI_shared_modules": [
+      "Core",
+      "Concurrent",
+      "DBus",
+      "Gui",
+      "Network",
+      "OpenGL",
+      "OpenGLWidgets",
+      "PrintSupport",
+      "Sql",
+      "Test",
+      "Widgets",
+      "Xml",
+      "WaylandClient",
+      "XcbQpa",
+      "EglFSDeviceIntegration",
+      "EglFsKmsGbmSupport",
+      "EglFsKmsSupport",
+      "WlShellIntegration"
+    ],
+    "scanner": "Qt6WaylandScannerTools6.12.0 and own Qt6::qtwaylandscanner, plus external Wayland::Scanner",
+    "serial_scheduling": "MAX_JOBS=1,CMAKE_BUILD_PARALLEL_LEVEL=1,CMAKE_AUTOGEN_PARALLEL=1"
+  },
+  "schema": 1,
+  "separate_prerequisites": {
+    "qtdeclarative": {
+      "normal_package": "qt6-declarative=6.12.0",
+      "required": [
+        "Qml",
+        "Quick",
+        "QmlPrivate",
+        "QuickPrivate",
+        "QmlBuildInternals"
+      ],
+      "revision": "4332fbbb4c340463dc8cee36dda0c85d932122d8",
+      "signed_native_provider": null
+    },
+    "qtsvg": {
+      "normal_package": "qt6-svg=6.12.0",
+      "required_for": "Adwaita decoration",
+      "revision": "883a58532078d003cefef0a549bfe9f885ce41f5",
+      "signed_native_provider": null
+    }
+  },
+  "status": "AWAITING_ROOT_SELECTED_NEW_SERVER_ENABLED_PROVIDER"
+}

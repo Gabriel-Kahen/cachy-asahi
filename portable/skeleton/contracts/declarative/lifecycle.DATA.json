@@ -1,0 +1,37 @@
+{
+  "M2": null,
+  "Root_acceptance": null,
+  "actual_install": null,
+  "actual_remove": null,
+  "host_system_mutation": false,
+  "install": {
+    "checks": [
+      "all payload owned, no conflicts except explicitly reviewed qt6-declarative replacement",
+      "public+private CMake consumers and code generation pass",
+      "all47 owned QML imports/plugins available",
+      "QJSEngine, Quick window, Controls/Layout and generated QML consumer smoke",
+      "no unexpected file overwrite or service/hook/system mutation"
+    ],
+    "method": "maintained project disposable lifecycle runner, normal pacman signature-required transaction",
+    "package": "cachy-asahi-qt612-declarative-source-reference",
+    "required_inputs": [
+      "accepted signed compatible GUI-server provider",
+      "accepted signed ShaderTools and Svg exact6.12 providers",
+      "accepted signed Declarative package",
+      "complete immutable package inventories and current public verification tuple"
+    ]
+  },
+  "package_hooks": [],
+  "remove": {
+    "checks": [
+      "all Declarative-owned nodes removed",
+      "retained base/ShaderTools/Svg provider bytes and metadata unchanged",
+      "private user/credential/initial-state guards unchanged",
+      "reinstallation repeats exact smoke"
+    ],
+    "method": "normal pacman -R of Declarative only, no nodeps and no recursive dependency removal"
+  },
+  "schema": 1,
+  "services": [],
+  "status": "NOT_RUN_PROPOSED_FINITE_DISPOSABLE_TRANSACTION"
+}

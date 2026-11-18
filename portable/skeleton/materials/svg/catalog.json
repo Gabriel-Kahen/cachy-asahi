@@ -1,0 +1,37 @@
+{
+  "purpose": "source-cache-inputs",
+  "schema_version": 1,
+  "sources": [
+    {
+      "license": "Pinned per-file Qt and third-party grants; selected upstream evidence only; legal HELD",
+      "license_evidence": [
+        {
+          "bytes": 35147,
+          "id": "notice-0",
+          "path": "notices/0.txt",
+          "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+        },
+        {
+          "bytes": 7651,
+          "id": "notice-1",
+          "path": "notices/1.txt",
+          "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+        },
+        {
+          "bytes": 2009,
+          "id": "notice-2",
+          "path": "notices/2.txt",
+          "sha256": "25f13c0806f579d0cb879623a21a88137714c7e891252630860f3124321aa38d"
+        }
+      ],
+      "material": {
+        "bytes": 2341876,
+        "id": "svg",
+        "path": "qtsvg-everywhere-src-6.12.0.tar.xz",
+        "sha256": "e4ab39534ec97987b1b9b60ef7f4d3253d5912a69f8c713a01753174a4029331"
+      },
+      "revision": "883a58532078d003cefef0a549bfe9f885ce41f5",
+      "url": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtsvg-everywhere-src-6.12.0.tar.xz"
+    }
+  ]
+}

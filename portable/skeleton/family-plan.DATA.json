@@ -1,0 +1,183 @@
+{
+  "Root_acceptance": null,
+  "Wayland_notice_path_reconciliation": {
+    "frozen_interface": "usr/share/licenses/cachy-asahi-qt612-gui-source-reference/source",
+    "rule": "Preserve frozen interface; select server provider explicitly; protocol input pins unchanged",
+    "selected_provider": "usr/share/licenses/cachy-asahi-qt612-gui-server-source-reference/source"
+  },
+  "actor_enabled": false,
+  "baseline": 349,
+  "desktop_consumer": {
+    "Root_binding": null,
+    "expected_inventory_count": 361,
+    "requires_all_providers": true,
+    "selected": true,
+    "source_commit": "261ed7ff315f338539a4514ac2994b4895311de2"
+  },
+  "family_is_one_job": false,
+  "final_package_count": 361,
+  "input_plan_complete": true,
+  "kind": "QT612_COMPLETE_FAMILY_ORDERED_STAGE_PLAN_V1",
+  "order": [
+    "gui_server",
+    "shadertools",
+    "svg",
+    "declarative",
+    "wayland"
+  ],
+  "policy": {
+    "Root_acceptance": null,
+    "baseline_authentication": "Separate Root-selected complete procedure; no embedded160-second GPG cap",
+    "baseline_authentication_timeout": null,
+    "builder_cpus": 1,
+    "builder_memory_bytes": 4294967296,
+    "builder_pids": 512,
+    "builder_swap_extra_bytes": 0,
+    "builder_tmpfs_bytes": 4294967296,
+    "capacity_sufficient": null,
+    "cleanup_seconds": 90,
+    "controller_memory_bytes": 536870912,
+    "qualifier_cpus": 1,
+    "qualifier_memory_bytes": 2147483648,
+    "stage_seconds": 18000
+  },
+  "prepared_baseline": 356,
+  "require_new_Root_stage_binding_each": true,
+  "required_additions": 7,
+  "schema": 1,
+  "stages": [
+    {
+      "Root_binding": null,
+      "actual_image": null,
+      "build_timeout_seconds": 6900,
+      "clean_attempts": 2,
+      "comparison_timeout_seconds": 120,
+      "component": "gui_server",
+      "direct_providers": [],
+      "expected_inventory_count": 356,
+      "filename": "cachy-asahi-qt612-gui-server-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+      "final_installed_count": 357,
+      "installed_previous_providers": [],
+      "lifecycle_timeout_seconds": 1800,
+      "normal_dependency_check": "Unchanged pacman -T and makepkg dependency/check phases",
+      "normal_signature_policy": "Required TrustedOnly",
+      "package": "cachy-asahi-qt612-gui-server-source-reference",
+      "parallel_builds": 1,
+      "qualification_timeout_seconds": 1200,
+      "recipe_commit": "5dcbefda2c182dbacb6f7a908f1e204b68892ec6",
+      "stage_timeout_seconds": 18000
+    },
+    {
+      "Root_binding": null,
+      "actual_image": null,
+      "build_timeout_seconds": 6900,
+      "clean_attempts": 2,
+      "comparison_timeout_seconds": 120,
+      "component": "shadertools",
+      "direct_providers": [
+        "gui_server"
+      ],
+      "expected_inventory_count": 357,
+      "filename": "cachy-asahi-qt612-shadertools-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+      "final_installed_count": 358,
+      "installed_previous_providers": [
+        "gui_server"
+      ],
+      "lifecycle_timeout_seconds": 1800,
+      "normal_dependency_check": "Unchanged pacman -T and makepkg dependency/check phases",
+      "normal_signature_policy": "Required TrustedOnly",
+      "package": "cachy-asahi-qt612-shadertools-source-reference",
+      "parallel_builds": 1,
+      "qualification_timeout_seconds": 1200,
+      "recipe_commit": "3d2b6922fb3304d58fffa321671aaf119f4ab986",
+      "stage_timeout_seconds": 18000
+    },
+    {
+      "Root_binding": null,
+      "actual_image": null,
+      "build_timeout_seconds": 6900,
+      "clean_attempts": 2,
+      "comparison_timeout_seconds": 120,
+      "component": "svg",
+      "direct_providers": [
+        "gui_server"
+      ],
+      "expected_inventory_count": 358,
+      "filename": "cachy-asahi-qt612-svg-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+      "final_installed_count": 359,
+      "installed_previous_providers": [
+        "gui_server",
+        "shadertools"
+      ],
+      "lifecycle_timeout_seconds": 1800,
+      "normal_dependency_check": "Unchanged pacman -T and makepkg dependency/check phases",
+      "normal_signature_policy": "Required TrustedOnly",
+      "package": "cachy-asahi-qt612-svg-source-reference",
+      "parallel_builds": 1,
+      "qualification_timeout_seconds": 1200,
+      "recipe_commit": "60c17b7bca5348937ba04d79ecc1cb23e1a0b934",
+      "stage_timeout_seconds": 18000
+    },
+    {
+      "Root_binding": null,
+      "actual_image": null,
+      "build_timeout_seconds": 6900,
+      "clean_attempts": 2,
+      "comparison_timeout_seconds": 120,
+      "component": "declarative",
+      "direct_providers": [
+        "gui_server",
+        "shadertools",
+        "svg"
+      ],
+      "expected_inventory_count": 359,
+      "filename": "cachy-asahi-qt612-declarative-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+      "final_installed_count": 360,
+      "installed_previous_providers": [
+        "gui_server",
+        "shadertools",
+        "svg"
+      ],
+      "lifecycle_timeout_seconds": 1800,
+      "normal_dependency_check": "Unchanged pacman -T and makepkg dependency/check phases",
+      "normal_signature_policy": "Required TrustedOnly",
+      "package": "cachy-asahi-qt612-declarative-source-reference",
+      "parallel_builds": 1,
+      "qualification_timeout_seconds": 1200,
+      "recipe_commit": "3d2b6922fb3304d58fffa321671aaf119f4ab986",
+      "stage_timeout_seconds": 18000
+    },
+    {
+      "Root_binding": null,
+      "actual_image": null,
+      "build_timeout_seconds": 6900,
+      "clean_attempts": 2,
+      "comparison_timeout_seconds": 120,
+      "component": "wayland",
+      "direct_providers": [
+        "gui_server",
+        "shadertools",
+        "svg",
+        "declarative"
+      ],
+      "expected_inventory_count": 360,
+      "filename": "cachy-asahi-qt612-wayland-source-reference-6.12.0-1-aarch64.pkg.tar.xz",
+      "final_installed_count": 361,
+      "installed_previous_providers": [
+        "gui_server",
+        "shadertools",
+        "svg",
+        "declarative"
+      ],
+      "lifecycle_timeout_seconds": 1800,
+      "normal_dependency_check": "Unchanged pacman -T and makepkg dependency/check phases",
+      "normal_signature_policy": "Required TrustedOnly",
+      "package": "cachy-asahi-qt612-wayland-source-reference",
+      "parallel_builds": 1,
+      "qualification_timeout_seconds": 1200,
+      "recipe_commit": "af714934d87849661dd1f1102287a4f3761cb600",
+      "stage_timeout_seconds": 18000
+    }
+  ],
+  "transport": "Frozen75ce F69 exact14/128MiB route is not this tuple; independent family transport binding UNISSUED"
+}

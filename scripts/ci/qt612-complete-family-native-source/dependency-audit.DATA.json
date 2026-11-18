@@ -1,0 +1,68 @@
+{
+  "GPG": "NOT_RUN",
+  "Root_acceptance": null,
+  "baseline206": {
+    "bytes": 4048,
+    "sha256": "303cb32db7378e2cdd5d7645df1dc1f5e7a30fc9ea588f0d2867eede21127e66"
+  },
+  "baseline206_direct_external_missing": [
+    "double-conversion",
+    "fontconfig",
+    "freetype2",
+    "harfbuzz",
+    "libb2",
+    "libice",
+    "libjpeg-turbo",
+    "libpng",
+    "libsm",
+    "libx11",
+    "libxcb",
+    "libxkbcommon",
+    "libxkbcommon-x11",
+    "md4c",
+    "shared-mime-info",
+    "xcb-util-cursor",
+    "xcb-util-image",
+    "xcb-util-renderutil",
+    "xcb-util-keysyms",
+    "xcb-util-wm",
+    "xdg-utils",
+    "libdrm",
+    "libglvnd",
+    "mesa",
+    "wayland"
+  ],
+  "baseline206_transitive_closure": "NOT_ESTABLISHED_DO_NOT_MIX_UPDATED_CORE_WITH349_GRAPHICS",
+  "baseline349": {
+    "bytes": 6800,
+    "sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453"
+  },
+  "baseline349_missing_names": [
+    "double-conversion",
+    "libb2",
+    "libice",
+    "libsm",
+    "xcb-util-cursor",
+    "xdg-utils",
+    "md4c"
+  ],
+  "incompatible_cached_candidate": "md4c0.6.0-2",
+  "native_build": "NOT_RUN",
+  "normal_ALPM_resolution": "REQUIRED_NOT_RUN",
+  "prospective_final_family_inventory": 361,
+  "prospective_prepared_baseline": 356,
+  "retained_additions": 6,
+  "schema": 1,
+  "scope": "ACTUAL_DECLARED_METADATA_AND_PINNED_INVENTORIES_SOURCE_AUDIT_ONLY",
+  "selected_baseline": 349,
+  "still_unavailable": [
+    "md4c.archive>=0.5.3,<0.6",
+    "md4c.signature",
+    "md4c.independently_selected_metadata"
+  ],
+  "virtual_providers": {
+    "libgl": "libglvnd1.7.0-3",
+    "libwayland-server.so=0-64": "wayland1.26.0-1",
+    "sh": "bash5.3.20-1"
+  }
+}

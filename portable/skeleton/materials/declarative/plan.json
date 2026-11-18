@@ -1,0 +1,29 @@
+{
+  "catalog_sha256": "271a504d68df69afadeeb769ea12d28d6e3d942e9a4ffed5067959af82875e90",
+  "purpose": "offline-build-sources",
+  "recipe_inputs": {
+    ".SRCINFO": "67a6f0546eb21864eea013128b379bc91d71fc29108d11b7cfec4c0003f29dfe",
+    "BUILD-CONTRACT.json": "ef9ce8e904603ba2b532133c8a1468a8b767e24c0be1d430da6145b8366e354b",
+    "Consumer.qml": "486d00d412a6ae1b2bb6fb585f8f473ca22bed3097f640809de97331328bb2c2",
+    "LICENSE.packaging": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+    "LICENSE.third-party": "54d9df8d505a98350656a5e51d5ab49719a32e2fe9e8f3e790af1eff55ff1321",
+    "PKGBUILD": "3e24768d62cd9b82d4c079af5de3f4ff35ecf4d23123198944733bb8f1126f95",
+    "SmokeCMakeLists.txt": "4e73294e0a361b019f2c980c7dfaded32eb8d1a87fb0680b3471adc190bd4337",
+    "check_stage.py": "fa4efe2a547c101d21b2bd89894bbc9df04ce7cd9767676c20388d7260bbbbd2",
+    "configure.cmake": "53fc9405a9868456ba86c5309fe14f0109b695727b62e720cb9e21baadc861de",
+    "dependency_guard.cmake": "a1989be84fbe965de12339f4406001a79fc99cc1a02f3b8bbcfa9bbce73d5a66",
+    "family-contract.json": "ef9ce8e904603ba2b532133c8a1468a8b767e24c0be1d430da6145b8366e354b",
+    "smoke.cpp": "192734b8b58bb986eeabb9b3c70f1f489c88809867432e3ebb613fd2fded9161",
+    "smoke.qml": "520bcf0b11c81d998d7fc3372240cfe165f8f5bb56d271ba35f3cd5343f83fd0",
+    "source-notices.json": "9a4517652e61d0e1d57ac631da239419f71fd9875dcb053e9f2812d43b531882",
+    "source.py": "331b8e39858ab5ea6769344f73996f5111cac13095e4c9028499c1aa63b0a660"
+  },
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "declarative",
+      "revision": "4332fbbb4c340463dc8cee36dda0c85d932122d8",
+      "source": "https://download.qt.io/official_releases/qt/6.12/6.12.0/submodules/qtdeclarative-everywhere-src-6.12.0.tar.xz"
+    }
+  ]
+}

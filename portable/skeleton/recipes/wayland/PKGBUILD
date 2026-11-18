@@ -1,0 +1,91 @@
+# SPDX-License-Identifier: MIT
+# Source candidate only. Frozen GUI18 server-OFF cannot satisfy the full profile.
+pkgname=cachy-asahi-qt612-wayland-source-reference
+pkgver=6.12.0
+pkgrel=1
+pkgdesc='Qt6.12 client extensions and full Quick/QML compositor source candidate'
+arch=('aarch64')
+url='https://code.qt.io/cgit/qt/qtwayland.git/'
+license=('GPL-3.0-only' 'LGPL-3.0-only' 'BSD-3-Clause' 'MIT' 'Qt-GPL-exception-1.0')
+depends=('glibc' 'libgcc' 'libstdc++' 'qt6-base=6.12.0' 'qt6-declarative=6.12.0'
+         'qt6-svg=6.12.0' 'wayland>=1.15' 'libxkbcommon>=0.5.0' 'libdrm' 'libglvnd')
+makedepends=('gcc' 'cmake>=3.25' 'ninja' 'pkgconf' 'python' 'perl')
+provides=("qt6-wayland=$pkgver" 'libQt6WaylandCompositor.so.6'
+          'libQt6WaylandEglCompositorHwIntegration.so.6'
+          'libQt6WaylandCompositorXdgShell.so.6' 'libQt6WaylandCompositorIviapplication.so.6'
+          'libQt6WaylandCompositorWLShell.so.6' 'libQt6WaylandCompositorPresentationTime.so.6')
+conflicts=('qt6-wayland')
+options=('!lto' '!debug' '!staticlibs')
+PKGEXT='.pkg.tar.xz'
+source=("https://download.qt.io/archive/qt/6.12/$pkgver/submodules/qtwayland-everywhere-src-$pkgver.tar.xz"
+        'configure.cmake' 'dependency_guard.cmake' 'source.py' 'check_stage.py'
+        'source-notices.json' 'dependency-inputs.json' 'SmokeCMakeLists.txt' 'smoke.cpp' 'smoke.qml'
+        'LICENSE.packaging' 'LICENSE.third-party')
+sha256sums=('ae14d9bcf1bb3c300a3ab2e6a53f50284e5c6c966a4ac4cc5aedcb1bc74e4d02'
+            '0f9ae5eb0c618cbe5a33a120b21b4135de390d16fdab46f2f340472fb9803cfc'
+            'c990b529419cba027a5116ad8aed58470c90238c98b49de945152270370f79e0'
+            '7e69f4707bba8face86a8384004e9034c2efd03eeda76a20b988e80cb4a880e7'
+            '384df5ae3a9333152a482c50171b98a14a8a9e3a9be066b0f2d92437a8327670'
+            'c4e6a5bf9a58e79ec40c83c2394bf2bdfdef4ab172471e8abaca4b64b8c746d8'
+            '21ac9d87755c0a4efaa37bde993566da910bba99393ae68a73f0be20bb38d01f'
+            'f224e2a93e53764a4d678d6af2389000b8692836f76ee1442c34f8b31b0bb45c'
+            'd6c2ff5c88e1628dbf6499b523efd1453e6bef705c93488b3992cb07cc41e443'
+            '6d2e5650915907c1fa50c64d58069e0763e5314c2ee0783a40b2413bd069b9c3'
+            '67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa'
+            '4e63379bc0b59272e37ed860cf8e8fe5a784c0bf8d551c67647f27a0c2152dc5')
+
+prepare() {
+  python "$srcdir/source.py" verify --root "$srcdir/qtwayland-everywhere-src-$pkgver" \
+    --policy "$srcdir/source-notices.json" || return
+}
+
+_qt_single_job() {
+  if [[ "${MAX_JOBS-1}" != 1 || "${CMAKE_BUILD_PARALLEL_LEVEL-1}" != 1 ]]; then
+    printf '%s\n' 'Qt612 serial experiment requires MAX_JOBS=1 and CMAKE_BUILD_PARALLEL_LEVEL=1' >&2
+    return 1
+  fi
+  export MAX_JOBS=1 CMAKE_BUILD_PARALLEL_LEVEL=1
+}
+
+build() {
+  _qt_single_job || return
+  python "$srcdir/source.py" dependency-inputs --prefix /usr \
+    --dependency-policy "$srcdir/dependency-inputs.json" || return
+  cmake -DCMAKE_AUTOGEN_PARALLEL:STRING=1 -C "$srcdir/configure.cmake" -S "$srcdir/qtwayland-everywhere-src-$pkgver" \
+    -B "$srcdir/build" -G Ninja -DQT612_DEPENDENCY_PREFIX=/usr \
+    -DCMAKE_PROJECT_QtWayland_INCLUDE="$srcdir/dependency_guard.cmake" || return
+  python "$srcdir/source.py" configuration --build "$srcdir/build" \
+    --profile "$srcdir/configure.cmake" || return
+  cmake --build "$srcdir/build" --parallel "$MAX_JOBS" || return
+}
+
+check() {
+  _qt_single_job || return
+  install -d "$srcdir/smoke-source" "$srcdir/smoke-home" || return
+  install -m644 "$srcdir/SmokeCMakeLists.txt" "$srcdir/smoke-source/CMakeLists.txt" || return
+  install -m644 "$srcdir/smoke.cpp" "$srcdir/smoke.qml" "$srcdir/smoke-source/" || return
+  cmake -S "$srcdir/smoke-source" -B "$srcdir/smoke-build" -G Ninja \
+    -DQT612_BUILD_TREE="$srcdir/build" -DQT612_DEPENDENCY_PREFIX=/usr \
+    -DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF || return
+  cmake --build "$srcdir/smoke-build" --parallel "$MAX_JOBS" || return
+  HOME="$srcdir/smoke-home" QT_QPA_PLATFORM=offscreen QML_DISABLE_DISK_CACHE=1 \
+    QT_PLUGIN_PATH="$srcdir/build/lib/qt6/plugins:/usr/lib/qt6/plugins" \
+    QT_QPA_PLATFORM_PLUGIN_PATH=/usr/lib/qt6/plugins/platforms \
+    LD_LIBRARY_PATH="$srcdir/build/lib" \
+    timeout 60 "$srcdir/smoke-build/qt612-wayland-smoke" "$srcdir/smoke-source/smoke.qml" || return
+  printf '%s\n' 'PASS_QT612_FAMILY_CHECK_WAYLAND'
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install "$srcdir/build" || return
+  python "$srcdir/source.py" install-notices --root "$srcdir/qtwayland-everywhere-src-$pkgver" \
+    --policy "$srcdir/source-notices.json" --stage "$pkgdir" || return
+  python "$srcdir/source.py" install-dependency-notices --prefix /usr \
+    --dependency-policy "$srcdir/dependency-inputs.json" --stage "$pkgdir" || return
+  install -Dm644 "$srcdir/LICENSE.packaging" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.packaging" || return
+  install -Dm644 "$srcdir/LICENSE.third-party" "$pkgdir/usr/share/licenses/$pkgname/LicenseRef-Qt-ThirdParty.txt" || return
+  install -Dm644 "$srcdir/source-notices.json" "$pkgdir/usr/share/licenses/$pkgname/source-notices.json" || return
+  install -Dm644 "$srcdir/dependency-inputs.json" "$pkgdir/usr/share/licenses/$pkgname/dependency-inputs.json" || return
+  python "$srcdir/check_stage.py" --root "$pkgdir" --license-manifest "$srcdir/source-notices.json" \
+    --dependency-policy "$srcdir/dependency-inputs.json" > "$srcdir/stage-contract.json" || return
+}

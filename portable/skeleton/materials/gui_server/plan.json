@@ -1,0 +1,30 @@
+{
+  "catalog_sha256": "cd778900829119719e2d2845e4793c93ab5183baeeee0a29707bdfbec728b914",
+  "purpose": "offline-build-sources",
+  "recipe_inputs": {
+    ".SRCINFO": "9c132b1d743040efcfad23401efee5879270fab91d71877fe0972d6501bdb445",
+    "CVE-2026-105924-qtbase-6.12.diff": "c27d27b86aaf2cdab0c18d513fbb94a432e98782eddfc5f856387e4be68be50b",
+    "CVE-2026-105943-qtbase-6.12.diff": "dd22629ce948cf0a900421323cca331907180242a9b51c3fd75b25c75f068099",
+    "CVE-2026-116337-qtbase-6.12-0001.diff": "74c5028985dcc0455255909de4dc80f50cf5472dbf465ce46ebc791a7b080f12",
+    "CVE-2026-116337-qtbase-6.12-0002.diff": "83abc89d507dbd9a94dc5718b0125492c1c37b0609a8f404a1f164925940faec",
+    "LICENSE.packaging": "67fe503b5c407bca1c340e14fb7ceb6849b1af4d531a783b30d09cb76e65a3aa",
+    "LICENSE.third-party": "277c4d14792c236a96f02612b4f134f84707eb33fc6a1d954ec9c5ad20490585",
+    "PKGBUILD": "b8ab08950fc2e5729e00bc066e13897163ae52362105aa90d58569f603e07296",
+    "SERVER_DEPENDENCY_GUARD.cmake": "77ee32886383da2d2b7c30b03269c7c482a6386237ad7c0bc111dd960579e379",
+    "SmokeCMakeLists.txt": "91036b0a511b570d7ce738584ff9607ae4e3d1f88fda3b0a926847ff260a79a1",
+    "check_stage.py": "35f410bf60af41f677f7a36d58cc5079ecf57dfde2b84f29dc1b006a4bf7f0da",
+    "configure.cmake": "eaa27120efac20a30c6c8d256385532aa988af0dee00dd1f8117f24922674350",
+    "family-contract.json": "fe136aaab252f4bba4ffd53c2d6819eceae0e6aaa03d5b8d404e176c335b9039",
+    "smoke.cpp": "cd504607ac0aec8aad372aad0387c60fb405a216addfa29d6ff2f16b93eaeb96",
+    "source-notices.json": "3651e4bca7846caee61183c2bc55bf4988c6f4f2a56af81f3948afe03d41cfda",
+    "source.py": "efe21d53a77c92ea66997923529b4d6e34635db7f1cb760af99d01774bdb7870"
+  },
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "gui_server",
+      "revision": "025bdad181de241e81bf853c8a2d7bf3d19261a9",
+      "source": "https://download.qt.io/archive/qt/6.12/6.12.0/submodules/qtbase-everywhere-src-6.12.0.tar.xz"
+    }
+  ]
+}
