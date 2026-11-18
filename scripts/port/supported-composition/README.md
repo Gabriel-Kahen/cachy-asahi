@@ -364,6 +364,22 @@ The original five policy blockers remain. The proposed maintenance stays
 unapproved, with installed payload correspondence and an actual rollback
 transaction still open.
 
+### Recover signed maintenance recipes
+
+`index_maintenance_recipe_history.py` joins the six signed forward and
+rollback `.BUILDINFO` recipe digests to exact Git recipe snapshots. The v1
+config pins `archive_join` and the candidate file responses. An optional
+`plugbuild_client` file reference selects the archived Arch Linux ARM build
+client. It documents the blank line and checksum array appended to the recipe
+before makechrootpkg runs. The index recreates this append from the public
+recipe's declared checksums. It emits reconstructed bytes only after an exact
+match to the signed package digest.
+
+The retained replay recovered both NetworkManager versions, Perl `5.42.2-2`,
+and Python `3.14.7-1`. Python `3.14.8-1` and Perl `5.42.3-1` still need the
+historical workunit or final build-time recipe. The original Git snapshots and
+their separate digest results remain available for comparison.
+
 ### Prepare the disposable Asahi maintenance guest inputs
 
 `prepare_maintenance_guest.py` verifies and stages the original Asahi

@@ -7,9 +7,12 @@ the candidate Git API responses (candidates). Each candidate identifies an
 exact package, version, repository, commit, PKGBUILD path, and file_response.
 The command reads existing signature verification evidence and rechecks its
 archive and signature bytes. It executes neither recipes nor network requests.
+The optional plugbuild_client reference enables a candidate reconstruction
+using the archived Arch Linux ARM client's checksum append step.
 """
 
 import argparse
+import base64
 import importlib.util
 import json
 import os
@@ -27,6 +30,35 @@ index = rollback.load("index_signed_addition_sources")
 source = history.source
 KIND = "supported-Asahi-maintenance-recipe-history-DATA"
 DIRECTIONS = {"forward": "after", "rollback": "before"}
+PLUGBUILD_CLIENT_SHA256 = "8f9d420cd28ddafa66658e07c60cf5ea052f139894d3c4ef062b7309b3c9a3da"
+PLUGBUILD_REVISION = "6ee09edc822e01ec6cce676fb73731cfd28d171b"
+PLUGBUILD_SOURCE = (
+    f"https://archive.softwareheritage.org/api/1/revision/{PLUGBUILD_REVISION}/directory/client.pl/"
+)
+CHECKSUM_FIELD = re.compile(rb"(?m)^((?:md5|sha1|sha224|sha256|sha384|sha512|b2)sums)(?:_\w+)?=")
+CHECKSUM_ARRAY = re.compile(rb"(?m)^((?:sha512|b2)sums)=\(([^)]+)\)[ \t]*$")
+CHECKSUM_VALUES = re.compile(rb"'[0-9a-f]{128}'(?:[ \t\n]+'[0-9a-f]{128}')*")
+
+
+def plugbuild_candidate(raw, expected):
+    """Retain the historical append projection only when the signed hash agrees."""
+    declarations = CHECKSUM_FIELD.findall(raw)
+    arrays = CHECKSUM_ARRAY.findall(raw)
+    if (len(declarations) != 1 or len(arrays) != 1 or re.search(rb"(?m)^source_\w+=", raw)
+            or not CHECKSUM_VALUES.fullmatch(arrays[0][1].strip())):
+        return dict(status="UNSUPPORTED_CHECKSUM_LAYOUT")
+    field, body = arrays[0]
+    prefix = field + b"=("
+    values = body.split()
+    generated = prefix + (b"\n" + b" " * len(prefix)).join(values) + b")\n"
+    # client.pl appends the output of echo '' followed by makepkg -g.
+    expanded = raw + b"\n" + generated
+    digest = source.digest(expanded)
+    detail = dict(bytes=len(expanded), pkgbuild_sha256=digest)
+    if digest != expected:
+        return dict(detail, status="SIGNED_RECIPE_DIGEST_MISMATCH")
+    return dict(detail, status="EXACT_SIGNED_RECIPE_MATCH",
+                body_base64=base64.b64encode(expanded).decode("ascii"))
 
 
 def signed_input(name, version, arch, repo, pair, temporary):
@@ -81,7 +113,14 @@ def signed_packages(join, temporary):
 
 
 def compare(config, pin):
-    source.fields(config, ("kind", "schema_version", "archive_join", "candidates"))
+    fields = ("kind", "schema_version", "archive_join", "candidates")
+    use_plugbuild = "plugbuild_client" in config
+    source.fields(config, (*fields, "plugbuild_client") if use_plugbuild else fields)
+    if use_plugbuild:
+        ref = config["plugbuild_client"]
+        client = history.read_reference_bytes(ref, history.MAX_RESPONSE)
+        source.need(source.digest(client) == PLUGBUILD_CLIENT_SHA256,
+                    "exact archived Arch Linux ARM plugbuild client required")
     candidates = config["candidates"]
     source.need(config["kind"] == KIND and config["schema_version"] == 1
                 and type(candidates) is list and 0 < len(candidates) <= 96, "bounded maintenance history config required")
@@ -96,21 +135,33 @@ def compare(config, pin):
         candidate = key + (row["repository"], row["commit"], row["path"])
         source.need(key in packages and candidate not in seen, "duplicate candidate or unrelated package version")
         seen.add(candidate)
-        snapshot = history.match_file(row["repository"], row["commit"], row["path"],
-                                      history.read_reference(row["file_response"], history.MAX_RESPONSE))
-        match = snapshot["pkgbuild_sha256"] == packages[key]["signed_pkgbuild_sha256"]
-        grouped[key].append(dict(**snapshot, file_response=row["file_response"],
-                                 status="EXACT_SIGNED_RECIPE_MATCH" if match else "SIGNED_RECIPE_DIGEST_MISMATCH"))
+        snapshot, raw = history.match_file(row["repository"], row["commit"], row["path"],
+                                           history.read_reference(row["file_response"], history.MAX_RESPONSE),
+                                           include_body=True)
+        expected = packages[key]["signed_pkgbuild_sha256"]
+        match = snapshot["pkgbuild_sha256"] == expected
+        candidate = dict(**snapshot, file_response=row["file_response"],
+                         status="EXACT_SIGNED_RECIPE_MATCH" if match else "SIGNED_RECIPE_DIGEST_MISMATCH")
+        if use_plugbuild and not match:
+            candidate["plugbuild_candidate"] = plugbuild_candidate(raw, expected)
+        grouped[key].append(candidate)
     for key, result in packages.items():
         entries = grouped[key]
         result["candidates"] = entries
-        matched = any(row["status"] == "EXACT_SIGNED_RECIPE_MATCH" for row in entries)
+        matched = any(row["status"] == "EXACT_SIGNED_RECIPE_MATCH"
+                      or row.get("plugbuild_candidate", {}).get("status") == "EXACT_SIGNED_RECIPE_MATCH"
+                      for row in entries)
         result["status"] = "EXACT_SIGNED_RECIPE_MATCH" if matched else "SIGNED_RECIPE_UNRECOVERED"
-    return dict(kind=KIND + "-result", schema_version=1, config_sha256=pin, archive_join=config["archive_join"],
-                packages=list(packages.values()), package_count=len(packages),
-                exact_recipe_count=sum(row["status"] == "EXACT_SIGNED_RECIPE_MATCH" for row in packages.values()),
-                candidate_count=len(seen), approval_status="UNAPPROVED", production_trust=False,
-                corresponding_source_fulfillment="NOT ESTABLISHED", license_review="NOT REVIEWED")
+    result = dict(kind=KIND + "-result", schema_version=1, config_sha256=pin, archive_join=config["archive_join"],
+                  packages=list(packages.values()), package_count=len(packages),
+                  exact_recipe_count=sum(row["status"] == "EXACT_SIGNED_RECIPE_MATCH" for row in packages.values()),
+                  candidate_count=len(seen), approval_status="UNAPPROVED", production_trust=False,
+                  corresponding_source_fulfillment="NOT ESTABLISHED", license_review="NOT REVIEWED")
+    if use_plugbuild:
+        result["plugbuild"] = dict(method="APPEND_BLANK_LINE_AND_MAKEPKG_GENERATED_CHECKSUMS", client=ref,
+                                   source_url=PLUGBUILD_SOURCE, source_revision=PLUGBUILD_REVISION,
+                                   checksum_values="PUBLIC_RECIPE_DECLARATIONS")
+    return result
 
 
 def main():
