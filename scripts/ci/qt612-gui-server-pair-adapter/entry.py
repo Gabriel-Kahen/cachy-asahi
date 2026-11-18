@@ -3,6 +3,7 @@
 """Root dispatch and ordinary-service entry for the first hosted Qt GUI pair."""
 
 import argparse
+from enum import Enum, auto
 import importlib.util
 import math
 import os
@@ -31,7 +32,7 @@ RUNTIME_READER_SHA = "abfed5c1804099ae74e93bb7a30b423fc24d3f7a617fbfa0320f65369d
 LIMIT_FILES = ("memory.max", "memory.swap.max", "pids.max", "cpu.max")
 RETIRE_EXPORT_SECONDS = 180
 HELPERS = {
-    f"{C.HOSTED}/launch.py": "aca3d1ce1f67cc4c6ea9ff9b1aaf30ab74dcf05d72da7e186424e180b2c0185c",
+    f"{C.HOSTED}/launch.py": "0572bb4143a75b984628b1c8983fc94e1da67071cc6af637b2d3e2b6f4a31396",
     f"{C.HOSTED}/executor.py": "d91457ba75dd5d61c1bae9cc09ac468d5e05de049f87409669dd769efe7b4ba6",
     f"{C.HOSTED}/evidence.py": "47815cc2d62e8cc8d6488ce0f92efe7d608dda1d6c0aa3451dff22414ef0dbcc",
     f"{C.HOSTED}/capacity.py": "74fd7b29b12264c85e4475f4fdcc067dfa6fa56f9879f94f13d6ba1e2e306075",
@@ -40,6 +41,49 @@ HELPERS = {
     f"{C.FAMILY}/runner_inputs.py": "6441ca1d47bdb10d0ac8c514f2677e934fa8b6ce05fe4324e21c289989528201",
     f"{C.FAMILY}/acquire_runner_inputs.py": "a7315c5924eb557f2a8c4dd277ba158e36a95068413c3b63a90d2148721d68e7",
 }
+
+
+class Stage(Enum):
+    ROOT_IDENTITY = auto()
+    CONTROLLER_PATHS = auto()
+    DISPATCH_APPROVAL = auto()
+    CHECKOUT_IDENTITY = auto()
+    CONTROLLER_SCOPE = auto()
+    SEAL_RUNTIME = auto()
+    RETAINED_R128_COPY = auto()
+    TEST_TRUST = auto()
+    HELPER_STAGING = auto()
+    HELPER_EXPOSURE = auto()
+    RETAINED_CONTROLLER_LOAD = auto()
+    TRANSFER_PLAN = auto()
+    CURRENT_JOB_IDENTITY = auto()
+    CONTROLLER_LIMITS = auto()
+    CONTROLLER_INIT = auto()
+    STORAGE_FRESHNESS = auto()
+    OWNED_HOST_SETUP = auto()
+    STORAGE_ALLOCATION_ADMISSION = auto()
+    STORAGE_ALLOCATION = auto()
+    STORAGE_ALLOCATION_READBACK = auto()
+    OWNED_VOLUME_JOIN = auto()
+    INPUT_ACQUISITION = auto()
+    INPUT_BINDING = auto()
+    INPUT_EXPOSURE = auto()
+    ORDINARY_SERVICE_HANDOFF = auto()
+    SIGNED356_READBACK = auto()
+    NATIVE_PAIR_COMPLETION = auto()
+    CLOSED_EVIDENCE_EXPORT = auto()
+    OWNED_CLEANUP = auto()
+    OWNER_REPORT = auto()
+
+
+class ControllerTrace:
+    stage = Stage.ROOT_IDENTITY
+
+    def mark(self, name):
+        self.stage = Stage[name]
+
+    def hold(self):
+        print("HOLD_QT612_PAIR: " + self.stage.name, file=sys.stderr, flush=True)
 
 
 def load(path, name):
@@ -482,11 +526,12 @@ def cleanup_passes(value):
                     and row.get("result") in (None, "success") for row in services.values()))
 
 
-def root_dispatch(args):
+def root_dispatch(args, trace):
     C.need(os.getresuid() == (0, 0, 0) and os.uname().machine in ("aarch64", "arm64"),
            "ACTUAL_ROOT_NATIVE_ARM_CONTROLLER")
     C.need(type(args.runner_uid) is int and type(args.runner_gid) is int and
            0 < args.runner_uid <= 65535 and 0 < args.runner_gid <= 65535, "ORDINARY_RUNNER_UID_GID")
+    trace.mark("CONTROLLER_PATHS")
     workflow, runtime, r128, output = map(C.ordinary, (args.workflow_root, args.runtime_source,
                                                      args.r128_source, args.output))
     control = output.with_name(output.name+".authority")
@@ -494,15 +539,19 @@ def root_dispatch(args):
            and all(not os.path.lexists(item) and not item.is_relative_to(path) and not path.is_relative_to(item)
                    for item in (output, control) for path in (workflow, runtime, r128))
            and HERE == (runtime/C.ENTRY).parent, "FRESH_DISJOINT_CONTROLLER_OUTPUT")
+    trace.mark("DISPATCH_APPROVAL")
     env = {key: os.environ[key] for key in C.DISPATCH_ENV}
     approval_raw = C.read(args.approval, 65536)
     approval = C.approval(approval_raw, args.approval_sha256, env, int(time.time()))
     selected = approval["runtime_source"]
+    trace.mark("CHECKOUT_IDENTITY")
     C.need(git_identity(workflow)[0] == approval["workflow_sha"] and
            git_identity(runtime) == (selected["commit"], selected["tree"]) and
            git_identity(r128) == (C.R128_COMMIT, C.R128_TREE), "EXACT_OBSERVED_WORKFLOW_RUNTIME_R128_IDENTITY")
+    trace.mark("CONTROLLER_SCOPE")
     group, start = controller_time(env)
     ends = C.deadlines(start, time.monotonic(), time.time(), approval["expires_utc"])
+    trace.mark("SEAL_RUNTIME")
     os.umask(0o022)
     output.mkdir(mode=0o711)
     control.mkdir(mode=0o755)
@@ -510,31 +559,40 @@ def root_dispatch(args):
     sealed.mkdir(mode=0o755)
     base.mkdir(mode=0o755)
     C.entries(runtime, approval, destination=sealed)
+    trace.mark("RETAINED_R128_COPY")
     r128_copy(r128, base)
+    trace.mark("TEST_TRUST")
     paths = root_inputs(sealed, approval)
     trust_raw = C.read(paths["md4c_authority"], 8192, approval["inputs"]["md4c_authority"])
     C.trust(trust_raw, approval["inputs"]["md4c_authority"], int(time.time()),
             math.ceil(time.time()+ends["bootstrap"]-time.monotonic()), paths["md4c_certificate"])
     C.write(control/"approval.json", approval_raw, 0o444)
     code = control/"helpers"
+    trace.mark("HELPER_STAGING")
     helper_receipt = stage_runtime_helpers(sealed, selected["map"], workflow, code)
     launch = helpers(code)
+    trace.mark("HELPER_EXPOSURE")
     launch.expose_readonly_tree(code)
+    trace.mark("RETAINED_CONTROLLER_LOAD")
     retained = launch.load_retained_runtime(base)
+    trace.mark("TRANSFER_PLAN")
     pipeline = load(code/C.FAMILY/"pipeline.py", "qt612_root_pipeline")
     acquire = load(code/C.FAMILY/"acquire_runner_inputs.py", "qt612_pinned_acquisition")
     logical_bytes = portable_plan(acquire, paths, approval)
     # The current job lookup is public. The historical log credential stays in Root
     # custody and the controller/service commands receive only their scrubbed env.
+    trace.mark("CURRENT_JOB_IDENTITY")
     with acquire.time_limit(min(20, math.floor(ends["transfer"]-time.monotonic()))):
         realm = fetch(API + "runs/" + env["GITHUB_RUN_ID"] + "/attempts/1/jobs?per_page=100", C.MIB)
     dispatch = C.dispatch(env, C.job_id(realm, env))
     nonce = C.pin(C.encoded(dict(approval=args.approval_sha256, dispatch=dispatch)))["sha256"][:32]
     inherited = retained["controller"]
+    trace.mark("CONTROLLER_LIMITS")
     controller_limits = limits(group)
     inherited.D.domain(controller_limits, retained["policy"]["controller"])
     resource.setrlimit(resource.RLIMIT_AS, inherited.V.controller_limit(retained["policy"]))
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+    trace.mark("CONTROLLER_INIT")
     owner = launch.first_stage_controller(retained, base, output, nonce, args.runner_uid, args.runner_gid)
     owner.end, owner.cleanup_end = ends["work"], ends["cleanup"]
     report = dict(status="HOLD", nonce=nonce, dispatch=dispatch, approval=C.pin(approval_raw),
@@ -546,7 +604,9 @@ def root_dispatch(args):
         try:
             prepared = launch.reserve_and_bind(owner, acquire.R,
                 transfer_function(acquire, paths, approval, ends["transfer"]),
-                selection_sha256=approval["inputs"]["portable_selection"]["sha256"], logical_bytes=logical_bytes)
+                selection_sha256=approval["inputs"]["portable_selection"]["sha256"], logical_bytes=logical_bytes,
+                stage=trace.mark)
+            trace.mark("ORDINARY_SERVICE_HANDOFF")
             os.environ.pop(TOKEN, None)
             work, source = prepared["work"], prepared["source"]
             os.chown(work, 0, args.runner_gid)
@@ -572,6 +632,7 @@ def root_dispatch(args):
             C.need(time.monotonic() < ends["transfer"], "WHOLE_TRANSFER_BUDGET")
             report.update(acquisition=prepared["acquisition"], storage=prepared["storage"], source_map=map_pin)
             started_owner(owner, marker, control)
+            trace.mark("SIGNED356_READBACK")
             request = wait_for(work/"image-request.json", ends["bootstrap"], args.runner_uid, mode=0o600)
             check_daemon(marker, retained)
             binding = authenticate_356(owner, launch, pipeline, marker, inventory, request)
@@ -579,15 +640,19 @@ def root_dispatch(args):
             binding_sha = C.pin(C.encoded(binding))["sha256"]
             report["stage_binding"] = dict(pin=C.pin(C.encoded(binding)), value=binding)
             report["signed356"] = dict(image=binding["image"], inventory=binding["inventory_pin"])
+            trace.mark("NATIVE_PAIR_COMPLETION")
             report["natural_exit"] = owner_finished(owner, marker)
             for _ in range(2):
                 C.need(owner.docker("container", "ls", "-a", "--quiet", "--no-trunc")[1] == b"" and
                        owner.docker("image", "ls", "-a", "--quiet", "--no-trunc")[1] == b"",
                        "OWNED_DAEMON_CONTAINERS_AND_IMAGES_ABSENT_TWICE")
+            trace.mark("CLOSED_EVIDENCE_EXPORT")
             report["evidence"] = preserve_export(launch, pipeline, marker, binding, binding_sha, work, private)
         except BaseException as failure:
             report["failure"] = type(failure).__name__
+            report["failure_stage"] = trace.stage.name
         finally:
+            trace.mark("OWNED_CLEANUP")
             os.environ.pop(TOKEN, None)
             cancellation.cleaning = True
             try:
@@ -595,10 +660,15 @@ def root_dispatch(args):
             except BaseException as failure:
                 report["cleanup"] = dict(errors=[dict(type=type(failure).__name__)])
         if "evidence" in report and not cancellation.pending and cleanup_passes(report["cleanup"]):
+            trace.mark("CLOSED_EVIDENCE_EXPORT")
             for folder, dirs, _ in os.walk(private):
                 Path(folder).chmod(0o755)
             os.rename(private, output/"evidence")
             report["status"] = "PASS_QT612_GUI_SERVER_PAIR_EXTERNAL_CLEANUP_ONLY"
+        else:
+            trace.mark(report.setdefault("failure_stage", "OWNED_CLEANUP"))
+            trace.hold()
+        trace.mark("OWNER_REPORT")
         C.write(output/"owner-report.json", C.encoded(report), 0o444)
     return 0 if report["status"].startswith("PASS_") else 2
 
@@ -619,15 +689,18 @@ def main(argv=None):
     parser.add_argument("--approval-sha256", required=True)
     parser.add_argument("--runner-uid", required=True, type=int)
     parser.add_argument("--runner-gid", required=True, type=int)
-    return root_dispatch(parser.parse_args(argv))
+    args = parser.parse_args(argv)
+    trace = ControllerTrace()
+    try:
+        return root_dispatch(args, trace)
+    except Exception:
+        trace.hold()
+        return 2
 
 
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except Exception as failure:
-        # Keep even malformed signed redirect/query text out of logs.
-        code = str(failure) if type(failure) is ValueError and re.fullmatch("[A-Z0-9_]{1,96}", str(failure)) \
-               else type(failure).__name__
-        print("HOLD_QT612_PAIR: "+code, file=sys.stderr)
+    except Exception:
+        print("HOLD_QT612_PAIR: SERVICE_OR_ARGUMENTS", file=sys.stderr)
         raise SystemExit(2)
