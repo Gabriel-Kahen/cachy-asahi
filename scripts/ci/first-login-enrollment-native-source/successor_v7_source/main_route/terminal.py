@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Replay a Root-selected Source205 backend Original and terminal metadata as DATA."""
+"""Replay a Root-selected backend Original and terminal metadata as DATA."""
 
 import argparse
 import ast
@@ -26,6 +26,7 @@ MIB = 1 << 20
 CAPS = dict(case=C.MAX_BYTES, request=C.LIMITS["request_bytes"], run=MIB, jobs=MIB,
             artifacts=MIB, archive=C.LIMITS["control_bytes"] + MIB)
 SELECTION = "SOURCE205_BACKEND_TERMINAL_SELECTION_V1"
+SUCCESSOR_SELECTION = "SOURCE206_BACKEND_TERMINAL_SELECTION_V1"
 MEMBERS = {"launcher-report.json", "context.json", "timing.json", "material-staging.json",
            "host-prerequisite.json", "context-after-prerequisites.json", "controller-observation.json"}
 JOB = "current-onboarding-delegated-v3"
@@ -214,17 +215,22 @@ def diagnostic_reader(reader_raw):
 def context_binding(context, case, request, delegation, ids, runner):
     final(context)
     binding = dict(attempt=1, job=str(ids["job"]), run=str(ids["run"]), ref=case["source"]["ref"],
-                   source=case["source"]["cid"], source_lock=C.SOURCE205["source_map"])
+                   source=case["source"]["cid"], source_lock=case["source"]["source_map"])
     matches(context, dict(schema=4, kind="DELEGATED_CURRENT_ONBOARDING_CONTEXT_V4",
                           issuer="DELEGATED_CONTEXT_PROGRAM_V4", stage="backend", operation=C.OPERATION,
                           nonce=case["nonce"], binding=binding, delegation_pin=request["delegation_pin"],
-                          policy_pin={k: C.POLICY[k] for k in ("bytes", "sha256")},
+                          policy_pin={k: delegation["policy"][k] for k in ("bytes", "sha256")},
                           program_pin={k: delegation["programs"]["context"][k] for k in ("bytes", "sha256")}),
             "HOLD_TERMINAL_CONTEXT")
     source_root = context.get("source_root")
     C.need(type(source_root) is str and re.fullmatch(r"/[A-Za-z0-9_./-]{1,1023}", source_root)
            and str(PurePosixPath(source_root)) == source_root and ".." not in PurePosixPath(source_root).parts,
            "HOLD_TERMINAL_CONTEXT_ROOT")
+    if C.source206_case(case):
+        raw = request["material_staging"]["assembler_request"]["json"].encode()
+        approval = C.decode(C.decode(raw)["test_trust"]["Root_admission"]["json"].encode())
+        C.need(approval["public_key"]["path"] == source_root + "/" + C.S.TEST_PUBLIC_KEY["member"],
+               "HOLD_TERMINAL_TEST_APPROVAL_SOURCE_ROOT")
     hosted = context.get("hosted")
     matches(hosted, dict(GITHUB_ACTIONS="true", GITHUB_JOB="current", GITHUB_REF=binding["ref"],
                          GITHUB_REPOSITORY=C.REPOSITORY, GITHUB_RUN_ATTEMPT="1", GITHUB_RUN_ID=binding["run"],
@@ -395,7 +401,7 @@ def stage_diagnostic(report, original_context_pin, reader_raw):
                 transport=packet["transport"], record_pin=record_pin)
 
 
-def verify(operands, expected_pins, *, ids, core_raw, profile_raw, reader_raw):
+def verify(operands, expected_pins, *, ids, core_raw, profile_raw, reader_raw, successor=False):
     """Verify the independently selected immutable bytes. Raises HOLD on inconsistent evidence."""
     fields(operands, CAPS)
     fields(expected_pins, CAPS)
@@ -405,14 +411,17 @@ def verify(operands, expected_pins, *, ids, core_raw, profile_raw, reader_raw):
         C.need(type(operands[name]) is bytes and len(operands[name]) <= cap
                and C.pin(operands[name]) == C.whole(expected_pins[name], cap), "HOLD_TERMINAL_OPERAND_PIN")
     case = untrusted_json(operands["case"], cap=C.MAX_BYTES, canonical=True)
-    C.need(C.integer(case.get("issued_epoch")), "HOLD_TERMINAL_CASE")
+    C.need(C.integer(case.get("issued_epoch")) and successor == C.source206_case(case), "HOLD_TERMINAL_CASE")
     C.validate_case(case, case["issued_epoch"])
     C.need(case["stage"] == "backend" and C.same(case["pins"]["request"], expected_pins["request"]),
            "HOLD_TERMINAL_CASE_REQUEST")
-    C.need(type(profile_raw) is bytes and len(profile_raw) == C.PROFILE["bytes"] and C.pin(profile_raw) == C.PROFILE,
+    profile = C.S.PROFILE if successor else C.PROFILE
+    reader = C.S.READER if successor else dict(member=C.READER, **READER)
+    reader_pin = {key: reader[key] for key in ("bytes", "sha256")}
+    C.need(type(profile_raw) is bytes and len(profile_raw) == profile["bytes"] and C.pin(profile_raw) == profile,
            "HOLD_TERMINAL_PROFILE")
-    C.need(type(reader_raw) is bytes and len(reader_raw) == READER["bytes"] and C.pin(reader_raw) == READER
-           and C.same(case["main"]["reader"], dict(member=C.READER, **READER)), "HOLD_TERMINAL_READER")
+    C.need(type(reader_raw) is bytes and len(reader_raw) == reader["bytes"] and C.pin(reader_raw) == reader_pin
+           and C.same(case["main"]["reader"], reader), "HOLD_TERMINAL_READER")
     request = C.validate_request(operands["request"], case, core_raw, C.decode(profile_raw))
     delegation = C.decode(request["delegation_json"].encode())
     conclusion, runner = terminal_metadata(operands, ids, case)
@@ -517,7 +526,8 @@ def main():
                "HOLD_TERMINAL_SELECTION_PIN")
         selection = untrusted_json(raw, cap=C.MAX_BYTES, canonical=True)
         fields(selection, ("schema", "kind", "ids", "inputs"))
-        matches(selection, dict(schema=1, kind=SELECTION), "HOLD_TERMINAL_SELECTION")
+        C.need(type(selection["schema"]) is int and selection["schema"] == 1
+               and selection["kind"] in (SELECTION, SUCCESSOR_SELECTION), "HOLD_TERMINAL_SELECTION")
         caps = CAPS | dict(core=MIB, profile=C.MAX_BYTES, reader=MIB)
         fields(selection["inputs"], caps)
         data, pins = {}, {}
@@ -528,7 +538,8 @@ def main():
             data[key] = read_local(row["path"], pins[key]["bytes"])
             C.need(C.pin(data[key]) == pins[key], "HOLD_TERMINAL_LOCAL_PIN")
         result = verify({key: data[key] for key in CAPS}, {key: pins[key] for key in CAPS}, ids=selection["ids"],
-                        core_raw=data["core"], profile_raw=data["profile"], reader_raw=data["reader"])
+                        core_raw=data["core"], profile_raw=data["profile"], reader_raw=data["reader"],
+                        successor=selection["kind"] == SUCCESSOR_SELECTION)
     except (ValueError, OSError, KeyError, AttributeError, TypeError, RuntimeError) as error:
         reason = str(error) if isinstance(error, ValueError) and re.fullmatch(r"HOLD_[A-Z_0-9]+", str(error)) else None
         result = dict(status="HOLD_TERMINAL_INPUT_REFUSED", reason=reason, **C.FINAL)

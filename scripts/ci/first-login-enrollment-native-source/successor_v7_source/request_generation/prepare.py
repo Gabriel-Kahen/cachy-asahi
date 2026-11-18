@@ -4,11 +4,22 @@
 import argparse
 import copy
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
 import re
 import stat
+
+def load_source206():
+    path = Path(__file__).resolve().with_name("source206.py")
+    spec = importlib.util.spec_from_file_location("source206_roles", path)
+    source = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(source)
+    return source
+
+
+S = load_source206()
 
 FAMILY='scripts/ci/first-login-enrollment-native-source/'
 PREFIX=FAMILY+'successor_v7_source/'
@@ -75,8 +86,8 @@ def checked(raw,digest):
     return decode(raw)
 
 
-def template():
-    return dict(schema=1,kind='UNISSUED_SOURCE205_ONCE_REQUEST_PLAN_V1',status='UNISSUED',once=True,retry=False,
+def template(*, successor=False):
+    return dict(schema=1,kind='UNISSUED_SOURCE206_ONCE_REQUEST_PLAN_V1' if successor else 'UNISSUED_SOURCE205_ONCE_REQUEST_PLAN_V1',status='UNISSUED',once=True,retry=False,
         issuer=None,approved=None,issued_epoch=None,expires_epoch=None,authority=None,resources=None,
         dispatch_ready=False,route_hold='CANONICAL_MAIN_V7_LAUNCHER_AND_WORKFLOW_ADOPTION_REQUIRED',
         source=None,main=None,publication=None,root_profile=None,request_templates=None,
@@ -84,20 +95,27 @@ def template():
             Root_acceptance=None,native_acceptance=False,hardware_acceptance=False,release_acceptance=False))
 
 
-def render(*,published_source_cid,source_ref,main_commit,profile_raw,profile_sha256,publication_raw,publication_sha256,main_raw,main_sha256):
+def render(*,published_source_cid,source_ref,main_commit,profile_raw,profile_sha256,publication_raw,publication_sha256,main_raw,main_sha256,successor=False):
+    source = S.SOURCE if successor else SOURCE205
+    program = S.PROGRAM if successor else PROGRAM
+    profile_pin = S.PROFILE if successor else PROFILE_PIN
+    selected_reader = S.READER['member'] if successor else READER
+    publication_kind = 'SOURCE206_PUBLICATION_READBACK_DATA_ONLY' if successor else 'SOURCE205_PUBLICATION_READBACK_DATA_ONLY'
+    if successor:
+        need((published_source_cid,source_ref)==(S.CID,S.REF),'exact published C908 Source206 selector')
     for value in (published_source_cid,main_commit):need(type(value)is str and re.fullmatch('[0-9a-f]{40}',value),'required explicit full Source and Main CID')
     need(published_source_cid not in (SOURCE196,CONSTRUCTOR,main_commit),'Source205 is distinct from Source196, constructor and Main')
     need(type(source_ref)is str and re.fullmatch('refs/heads/codex/[A-Za-z0-9._/-]+',source_ref)
         and all(p not in ('','.','..')and not p.startswith('.')and not p.endswith('.lock')for p in source_ref.split('/'))
         and not source_ref.endswith('.'),'required explicit Source branch selector')
-    need(type(profile_raw)is bytes and pin(profile_raw)==PROFILE_PIN,'exact deterministic Source205 profile, not retargeted descriptors')
+    need(type(profile_raw)is bytes and pin(profile_raw)==profile_pin,'exact deterministic Source205 profile, not retargeted descriptors')
     profile=checked(profile_raw,profile_sha256)
     need(type(profile)is dict and set(profile)==PROFILE_KEYS and type(profile['schema'])is int and profile['schema']==7
         and profile['kind']=='UNISSUED_CURRENT_ONBOARDING_TRANSPORT_SOURCE_PROFILE_V7'
         and profile['operation']=='first-login-enrollment-ui-current-v2' and profile['transport_commit']==CONSTRUCTOR,
         'exact unissued schema7 Source205 constructor profile')
-    need(type(profile['files'])is int and profile['files']==SOURCE205['files'] and type(profile['bytes'])is int and profile['bytes']==SOURCE205['bytes']
-        and profile['prospective_tree']==SOURCE205['tree'] and profile['source_map']==SOURCE205['source_map'] and profile['program']==PROGRAM,'fixed complete corrected Source205 tuple')
+    need(type(profile['files'])is int and profile['files']==source['files'] and type(profile['bytes'])is int and profile['bytes']==source['bytes']
+        and profile['prospective_tree']==source['tree'] and profile['source_map']==source['source_map'] and profile['program']==program,'fixed complete corrected Source205 tuple')
     need(type(profile['actual'])is dict and set(profile['actual'])==ACTUAL_KEYS and all(v is None for v in profile['actual'].values()),'profile carries no issued/actual authority')
     need(all(profile[key]==value for key,value in BASES.items()),'retained historical bases are DATA, never selectors')
     for key,count in (('delegation_programs',25),('materials',59),('staging_materials',5)):
@@ -109,10 +127,10 @@ def render(*,published_source_cid,source_ref,main_commit,profile_raw,profile_sha
     publication=checked(publication_raw,publication_sha256)
     need(type(publication)is dict and set(publication)=={'schema','kind','status','source','ref','tree','files','bytes','source_map','profile'}
         and type(publication['schema'])is int and publication['schema']==1
-        and publication['kind']=='SOURCE205_PUBLICATION_READBACK_DATA_ONLY'
+        and publication['kind']==publication_kind
         and publication['status']=='PASS_COMPLETE_PUBLIC_GIT_READBACK_DATA_ONLY','closed publication-readback DATA projection')
     need(publication['source']==published_source_cid and publication['ref']==source_ref
-        and all(publication[k]==SOURCE205[k]for k in ('tree','files','bytes','source_map'))
+        and all(publication[k]==source[k]for k in ('tree','files','bytes','source_map'))
         and type(publication['files'])is int and type(publication['bytes'])is int
         and publication['profile']==pin(profile_raw),'explicit publication/profile joins; not authentication')
     selected=checked(main_raw,main_sha256)
@@ -122,10 +140,12 @@ def render(*,published_source_cid,source_ref,main_commit,profile_raw,profile_sha
     for key in ('launcher','provenance_operand','reader','workflow'):descriptor(selected[key])
     need(selected['launcher']==dict(member=LAUNCHER,**LAUNCHER_PIN)
         and selected['provenance_operand']==dict(member=OPERAND,**LAUNCHER_PIN)
-        and selected['reader']['member']==READER,'future canonical Main v7 body plus separate operand; no v6/new-path fallback')
+        and selected['reader']['member']==selected_reader,'future canonical Main v7 body plus separate operand; no v6/new-path fallback')
+    if successor:
+        need(selected['reader']==S.READER,'exact Source206 Main Reader whole body')
     workflow=selected['workflow']['member'];need(workflow.startswith('.github/workflows/')and workflow.endswith('.yml'),'explicit Main workflow whole selector')
     need(selected['reader']['bytes']<=1024**2 and selected['workflow']['bytes']<=MAX_INPUT,'finite Main Reader and workflow')
-    binding=dict(source=published_source_cid,ref=source_ref,source_lock=SOURCE205['source_map'],run=None,job=None,attempt=1)
+    binding=dict(source=published_source_cid,ref=source_ref,source_lock=source['source_map'],run=None,job=None,attempt=1)
     delegation=dict(schema=4,kind='ROOT_DELEGATED_CURRENT_ONBOARDING_PRIVATE_EXECUTION_V4',issuer=None,approved=None,
         scope='CURRENT_PRIVATE_STAGE_ONLY',binding=binding,stage=None,nonce=None,issued_epoch=None,expires_epoch=None,
         programs=profile['delegation_programs'],materials=dict(profile['materials'],**profile['staging_materials']),policy=None,
@@ -135,16 +155,16 @@ def render(*,published_source_cid,source_ref,main_commit,profile_raw,profile_sha
         trusted_main_commit=main_commit,launcher=dict(member=LAUNCHER,**LAUNCHER_PIN),delegation_json=None,
         delegation_pin=None,staged_inputs=None,staged_root=None,control_name=None,authorization=None,material_staging=None)
     grant=dict(schema=3,kind='ROOT_CURRENT_COMPLETE517_STAGING_V3',issuer=None,approved=None,
-        source=published_source_cid,ref=source_ref,source_lock=SOURCE205['source_map'],nonce=None,policy=None,
+        source=published_source_cid,ref=source_ref,source_lock=source['source_map'],nonce=None,policy=None,
         issued_epoch=None,expires_epoch=None,redirect_urls=None,secret_provider='CALLER_ONE_SHOT_EXACT22',scope='COMPLETE517_PUBLIC_DATA_ONLY',storage_parent=None)
-    result=template();result.update(source=dict(cid=published_source_cid,ref=source_ref,**SOURCE205,program=PROGRAM),
+    result=template(successor=successor);result.update(source=dict(cid=published_source_cid,ref=source_ref,**source,program=program),
         main=selected,publication=dict(receipt_pin=pin(publication_raw),authenticity='UNVERIFIED_DATA_ONLY'),root_profile=pin(profile_raw),
         request_templates=dict(launch=launch,delegation=delegation,material_grant=grant))
     need(len(encoded(result))<=MAX_OUTPUT,'bounded unissued output');return copy.deepcopy(result)
 
 
-def unissued(plan):
-    base=template();need(type(plan)is dict and set(plan)==set(base),'closed unissued output schema')
+def unissued(plan,*,successor=False):
+    base=template(successor=successor);need(type(plan)is dict and set(plan)==set(base),'closed unissued output schema')
     for key in ('schema','kind','status','once','retry','issuer','approved','issued_epoch','expires_epoch','authority','resources','dispatch_ready','route_hold','actual'):
         need(encoded(plan[key])==encoded(base[key]),'unissued authority/route fields cannot change')
     def walk(value):
