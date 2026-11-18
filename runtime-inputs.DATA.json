@@ -1,17 +1,17 @@
 {
   "Root_acceptance": null,
   "entry": {
-    "bytes": 35127,
+    "bytes": 35303,
     "path": "scripts/ci/qt612-gui-server-pair-adapter/entry.py",
-    "sha256": "0a86a88a91a8225d7affc88e93d411c16661a6ec931213e6251b16b068825821"
+    "sha256": "b9f45cdb5b1f520952a5f96632f3c8e75adebd1034294f249a4efd07eceebb03"
   },
   "entry_provenance": {
-    "commit": "ec2e541bc8762e6a8f73127da80f285dc648cca6",
+    "commit": "201132eb34ef68313bdcc5bc370c529fa1f95ad7",
     "selection": {
       "bytes": 532,
-      "sha256": "4254b2b42e7b574351bbaa80e1f957794515dffa0dce1793e48da16e7cac2ce9"
+      "sha256": "7928a143cec04643ffb189c61565137eec8b4df46dc6a7ab9131425fb03acbd7"
     },
-    "tree": "631f3f5b3cf3ebe1d168f46cff0f53083f3ec3af"
+    "tree": "0162d00c67fd0ce18ae98c8a80143f72bd2569c1"
   },
   "external_family_locks": {
     "scripts/ci/qt612-reference-native-source/f-recipe.lock.json": {
