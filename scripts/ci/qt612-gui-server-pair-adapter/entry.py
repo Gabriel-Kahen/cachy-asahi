@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import resource
+import select
 import shutil
 import stat
 import subprocess
@@ -31,8 +32,10 @@ RUNTIME_READER = "scripts/ci/qt612-gui-pair-runtime-source/runtime.py"
 RUNTIME_READER_SHA = "abfed5c1804099ae74e93bb7a30b423fc24d3f7a617fbfa0320f65369db13ad8"
 LIMIT_FILES = ("memory.max", "memory.swap.max", "pids.max", "cpu.max")
 RETIRE_EXPORT_SECONDS = 180
+OWNER_PROGRESS = ("SERVICE_JOIN", "SERVICE_HELPERS", "SERVICE_VOLUME", "SERVICE_DOMAIN",
+                  "SIGNED349_BUILD", "SIGNED356_BUILD", "SOURCE_CACHE", "REQUEST_HANDOFF")
 HELPERS = {
-    f"{C.HOSTED}/launch.py": "0572bb4143a75b984628b1c8983fc94e1da67071cc6af637b2d3e2b6f4a31396",
+    f"{C.HOSTED}/launch.py": "5c2171f499b9aa79645928959c597d0a18e98a37dd4c5604bc7b5ceca17c19d2",
     f"{C.HOSTED}/executor.py": "d91457ba75dd5d61c1bae9cc09ac468d5e05de049f87409669dd769efe7b4ba6",
     f"{C.HOSTED}/evidence.py": "47815cc2d62e8cc8d6488ce0f92efe7d608dda1d6c0aa3451dff22414ef0dbcc",
     f"{C.HOSTED}/capacity.py": "74fd7b29b12264c85e4475f4fdcc067dfa6fa56f9879f94f13d6ba1e2e306075",
@@ -81,7 +84,12 @@ class Stage(Enum):
     INPUT_BINDING = auto()
     INPUT_EXPOSURE = auto()
     ORDINARY_SERVICE_HANDOFF = auto()
+    SIGNED356_REQUEST_WAIT = auto()
+    SIGNED356_DAEMON_JOIN = auto()
+    SIGNED356_REQUEST_VALIDATE = auto()
     SIGNED356_READBACK = auto()
+    SIGNED356_INVENTORY_READBACK = auto()
+    SIGNED356_BINDING = auto()
     NATIVE_PAIR_COMPLETION = auto()
     CLOSED_EVIDENCE_EXPORT = auto()
     OWNED_CLEANUP = auto()
@@ -91,6 +99,7 @@ class Stage(Enum):
 class ControllerTrace:
     stage = Stage.ROOT_IDENTITY
     acquisition_detail = None
+    owner_detail = None
 
     def mark(self, name):
         self.stage = Stage[name]
@@ -99,6 +108,8 @@ class ControllerTrace:
         print("HOLD_QT612_PAIR: " + self.stage.name, file=sys.stderr, flush=True)
         if self.acquisition_detail is not None:
             print("HOLD_QT612_ACQUISITION: " + self.acquisition_detail, file=sys.stderr, flush=True)
+        if self.owner_detail is not None:
+            print("HOLD_QT612_OWNER: " + " ".join(self.owner_detail), file=sys.stderr, flush=True)
 
 
 def load(path, name):
@@ -332,6 +343,49 @@ def wait_for(path, end, owner, *, mode=None):
     raise TimeoutError("BOUND_HANDOFF_DEADLINE")
 
 
+def ordinary_progress_marker(work, stage):
+    C.need(stage in OWNER_PROGRESS, "FIXED_ORDINARY_PROGRESS_STAGE")
+    return work/f"ordinary-progress-{stage}.json"
+
+
+def last_ordinary_progress(work, uid):
+    # Publish only allowlisted phase names. Untrusted files never supply log text.
+    last = "UNOBSERVED"
+    missing = False
+    for stage in OWNER_PROGRESS:
+        try:
+            body = C.read(ordinary_progress_marker(work, stage), 64, owner=uid, mode=0o600)
+        except FileNotFoundError:
+            missing = True
+            continue
+        except (OSError, ValueError):
+            return "INVALID_PROGRESS"
+        if missing or body != C.encoded(stage):
+            return "INVALID_PROGRESS"
+        last = stage
+    return last
+
+
+def wait_for_image_request(owner, marker, work, trace):
+    poll = select.poll()
+    pidfd = owner.pidfds["owner"]  # The exact original service PID, pinned by Controller.start.
+    poll.register(pidfd, select.POLLIN)
+    end, uid = marker["ends"]["bootstrap"], marker["uid"]
+    while (remaining := end - time.monotonic()) > 0:
+        try:
+            return C.read(work/"image-request.json", C.MIB, owner=uid, mode=0o600)
+        except FileNotFoundError:
+            ready = poll.poll(min(250, math.ceil(remaining*1000)))
+            if ready:
+                (observed_fd, events), = ready
+                C.need(observed_fd == pidfd and events & (select.POLLIN | select.POLLHUP)
+                       and not events & (select.POLLERR | select.POLLNVAL), "ACTUAL_ORDINARY_PIDFD_EXIT")
+                trace.owner_detail = ("OWNER_EXITED", last_ordinary_progress(work, uid))
+                raise ValueError("ORIGINAL_ORDINARY_SERVICE_EXITED_BEFORE_IMAGE_HANDOFF") from None
+    trace.owner_detail = ("REQUEST_DEADLINE", last_ordinary_progress(work, uid))
+    raise TimeoutError("BOUND_IMAGE_REQUEST_DEADLINE")
+
+
 def check_daemon(marker, retained):
     D, Q = retained["controller"].D, retained["controller"].Q
     daemon = marker["daemon"]
@@ -427,19 +481,27 @@ def ordinary_service(marker_path, approval_sha):
     C.need(HERE == (runtime/C.ENTRY).parent, "SAME_ROOT_OWNED_SERVICE_CODE")
     approval = C.approval(C.read(control/"approval.json", 65536, owner=0, mode=0o444), approval_sha,
                           marker["environment"], int(time.time()))
+    work = C.ordinary(marker["work"])
+
+    def mark(stage):
+        atomic_marker(ordinary_progress_marker(work, stage), stage, 0o600)
+
+    mark("SERVICE_JOIN")
     C.entries(runtime, approval)
     os.environ.clear()
     os.environ.update(marker["environment"])
-    work = C.ordinary(marker["work"])
     os.environ.update(PATH="/usr/bin:/bin", HOME=str(work), TMPDIR=str(work/"tmp"), LC_ALL="C.UTF-8", TZ="UTC")
+    mark("SERVICE_HELPERS")
     code = control/"helpers"
     launch = helpers(code)
     retained = launch.load_retained_runtime(r128)
     source = work/"bound/Source-DATA"
     pipeline = load(code/C.FAMILY/"pipeline.py", "qt612_pair_pipeline")
     family_source = load(code/C.FAMILY/"source.py", "qt612_pair_family_source")
+    mark("SERVICE_VOLUME")
     C.need(all(not os.access(path, os.W_OK) for path in (source, runtime, code)), "READ_ONLY_SELECTED_ACTOR_SOURCES")
     ordinary_volume(launch, work, marker["volume_identity"], marker["gid"])
+    mark("SERVICE_DOMAIN")
     pipeline.C.read_source(source, marker["source_map"]["sha256"])
     journal = work/"commands"
     journal.mkdir(mode=0o700)
@@ -454,13 +516,14 @@ def ordinary_service(marker_path, approval_sha):
             prepared=dict(source=source, work=work, input_receipt=dict(new_source_map=marker["source_map"]),
                           input_test_certificate=Path(marker["md4c"]["certificate"]["path"]),
                           acquisition=dict(md4c_public_certificate=C.CERTIFICATE)),
-            socket=socket, nonce=marker["nonce"], auth=marker["md4c"], stage_mode="pair-only")
+            socket=socket, nonce=marker["nonce"], auth=marker["md4c"], stage_mode="pair-only", stage=mark)
     C.need(result["status"] == "PASS_QT612_FAMILY_COMPONENT_PAIR_ONLY" and result["lifecycle_status"] == "NOT_RUN",
            "NATURAL_PAIR_ONLY_RESULT")
     C.write(work/"ordinary-result.json", C.encoded(result["passive_export"]))
 
 
-def authenticate_356(owner, launch, pipeline, marker, inventory, request_raw):
+def authenticate_356(owner, launch, pipeline, marker, inventory, request_raw, trace):
+    trace.mark("SIGNED356_REQUEST_VALIDATE")
     request = C.decode(request_raw)
     C.shape(request, ("image", "inventory", "source_map_sha256", "nonce"), "EXACT_IMAGE_HANDOFF_FIELDS")
     nonce = marker["nonce"]
@@ -471,6 +534,7 @@ def authenticate_356(owner, launch, pipeline, marker, inventory, request_raw):
            "EXACT_ACTUAL_356_HANDOFF")
     end = marker["ends"]["bootstrap"]
     C.need(time.monotonic()+45 < end, "REMAINING_SIGNED_356_READBACK_BUDGET")
+    trace.mark("SIGNED356_READBACK")
     _, row_raw = owner.docker("image", "inspect", image)
     row, = C.decode(row_raw)
     config = row["Config"]
@@ -480,6 +544,7 @@ def authenticate_356(owner, launch, pipeline, marker, inventory, request_raw):
            and (config["Labels"] or {}).get(launch.executor.LABEL) == nonce and config["User"] == expected_user,
            "ROOT_READBACK_OF_FRESH_NATIVE_356_IMAGE")
     C.need(owner.docker("container", "ls", "-a", "--quiet", "--no-trunc")[1] == b"", "FRESH_DAEMON_CONTAINER_CENSUS")
+    trace.mark("SIGNED356_INVENTORY_READBACK")
     _, actual = owner.docker("run", "--rm", "--pull=never", "--platform=linux/arm64", "--network=none",
         "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges", "--cpus=1", "--memory=512m",
         "--memory-swap=512m", "--pids-limit=32", "--name", f"cachy-qt612-family-{nonce}-root-inventory356",
@@ -489,6 +554,7 @@ def authenticate_356(owner, launch, pipeline, marker, inventory, request_raw):
     C.need(actual == inventory and time.monotonic() < end, "ROOT_OBSERVED_EXACT_SIGNED_356_INVENTORY")
     for _ in range(2):
         C.need(owner.docker("container", "ls", "-a", "--quiet", "--no-trunc")[1] == b"", "ROOT_INVENTORY_ABSENT_TWICE")
+    trace.mark("SIGNED356_BINDING")
     now = int(time.time())
     remaining = marker["ends"]["work"] - time.monotonic() - RETIRE_EXPORT_SECONDS
     expiry = min(marker["expires"], now+C.COMPONENT, math.floor(time.time()+remaining))
@@ -670,10 +736,11 @@ def root_dispatch(args, trace):
             C.need(time.monotonic() < ends["transfer"], "WHOLE_TRANSFER_BUDGET")
             report.update(acquisition=prepared["acquisition"], storage=prepared["storage"], source_map=map_pin)
             started_owner(owner, marker, control)
-            trace.mark("SIGNED356_READBACK")
-            request = wait_for(work/"image-request.json", ends["bootstrap"], args.runner_uid, mode=0o600)
+            trace.mark("SIGNED356_REQUEST_WAIT")
+            request = wait_for_image_request(owner, marker, work, trace)
+            trace.mark("SIGNED356_DAEMON_JOIN")
             check_daemon(marker, retained)
-            binding = authenticate_356(owner, launch, pipeline, marker, inventory, request)
+            binding = authenticate_356(owner, launch, pipeline, marker, inventory, request, trace)
             atomic_marker(control/"stage-binding.json", binding)
             binding_sha = C.pin(C.encoded(binding))["sha256"]
             report["stage_binding"] = dict(pin=C.pin(C.encoded(binding)), value=binding)
@@ -689,6 +756,9 @@ def root_dispatch(args, trace):
         except BaseException as failure:
             report["failure"] = type(failure).__name__
             report["failure_stage"] = trace.stage.name
+            if trace.owner_detail is not None:
+                reason, phase = trace.owner_detail
+                report["ordinary_handoff"] = dict(reason=reason, last_observed_stage=phase)
         finally:
             trace.mark("OWNED_CLEANUP")
             cancellation.cleaning = True

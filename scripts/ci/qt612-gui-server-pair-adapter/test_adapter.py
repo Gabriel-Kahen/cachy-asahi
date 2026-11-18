@@ -306,15 +306,67 @@ class AdapterTest(unittest.TestCase):
         owner = SimpleNamespace(docker=docker)
         request = C.encoded(dict(nonce=marker["nonce"], image=image, inventory=C.pin(inventory),
                                  source_map_sha256=marker["source_map"]["sha256"]))
+        trace = E.ControllerTrace()
         with patch.object(E.time, "monotonic", return_value=100), patch.object(E.time, "time", return_value=4000):
-            bound = E.authenticate_356(owner, launch, pipeline, marker, inventory, request)
+            bound = E.authenticate_356(owner, launch, pipeline, marker, inventory, request, trace)
             self.assertEqual(bound["job"], "42")
             self.assertEqual(bound["image"], image)
+            self.assertEqual(trace.stage.name, "SIGNED356_BINDING")
             self.assertIn("--network=none", calls[2])
             self.assertEqual([row[0] for row in calls], ["image", "container", "run", "container", "container"])
             row["Architecture"] = "amd64"
             with self.assertRaisesRegex(ValueError, "ROOT_READBACK_OF_FRESH"):
-                E.authenticate_356(owner, launch, pipeline, marker, inventory, request)
+                E.authenticate_356(owner, launch, pipeline, marker, inventory, request, trace)
+            self.assertEqual(trace.stage.name, "SIGNED356_READBACK")
+
+    def test_image_request_wait_distinguishes_exit_deadline_and_arrival(self):
+        trace = E.ControllerTrace()
+        trace.mark("SIGNED356_REQUEST_WAIT")
+        marker = dict(ends=dict(bootstrap=1), uid=os.getuid())
+        pidfd = 42
+        owner = SimpleNamespace(pidfds={"owner": pidfd})
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            for phase in E.OWNER_PROGRESS[:5]:
+                E.atomic_marker(E.ordinary_progress_marker(work, phase), phase, 0o600)
+            with patch.object(E.select, "poll") as factory, patch.object(E.time, "monotonic", return_value=0):
+                watcher = factory.return_value
+                watcher.poll.return_value = [(pidfd, E.select.POLLIN)]
+                with self.assertRaisesRegex(ValueError, "ORIGINAL_ORDINARY_SERVICE_EXITED"):
+                    E.wait_for_image_request(owner, marker, work, trace)
+                watcher.register.assert_called_once_with(pidfd, E.select.POLLIN)
+                watcher.poll.assert_called_once_with(250)
+            result = StringIO()
+            with redirect_stderr(result):
+                trace.hold()
+            self.assertEqual(result.getvalue(), "HOLD_QT612_PAIR: SIGNED356_REQUEST_WAIT\n"
+                             "HOLD_QT612_OWNER: OWNER_EXITED SIGNED349_BUILD\n")
+            with patch.object(E.select, "poll") as factory, patch.object(E.time, "monotonic", side_effect=(.9, 1)):
+                watcher = factory.return_value
+                watcher.poll.return_value = []
+                with self.assertRaisesRegex(TimeoutError, "BOUND_IMAGE_REQUEST_DEADLINE"):
+                    E.wait_for_image_request(owner, marker, work, trace)
+                watcher.poll.assert_called_once_with(100)
+                self.assertEqual(trace.owner_detail, ("REQUEST_DEADLINE", "SIGNED349_BUILD"))
+            E.atomic_marker(work/"image-request.json", dict(image="fixture"), 0o600)
+            with patch.object(E.select, "poll") as factory, patch.object(E.time, "monotonic", return_value=0):
+                self.assertEqual(E.wait_for_image_request(owner, marker, work, E.ControllerTrace()),
+                                 C.encoded(dict(image="fixture")))
+                factory.return_value.poll.assert_not_called()
+
+    def test_owner_progress_rejects_nonfixed_body_ownership_and_gaps(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            stage = E.ordinary_progress_marker(work, "SERVICE_JOIN")
+            uid = os.getuid()
+            self.assertEqual(E.last_ordinary_progress(work, uid), "UNOBSERVED")
+            E.atomic_marker(stage, "raw exception /private/path", 0o600)
+            self.assertEqual(E.last_ordinary_progress(work, uid), "INVALID_PROGRESS")
+            stage.unlink()
+            E.atomic_marker(stage, "SERVICE_JOIN", 0o600)
+            self.assertEqual(E.last_ordinary_progress(work, uid + 1), "INVALID_PROGRESS")
+            E.atomic_marker(E.ordinary_progress_marker(work, "SIGNED356_BUILD"), "SIGNED356_BUILD", 0o600)
+            self.assertEqual(E.last_ordinary_progress(work, uid), "INVALID_PROGRESS")
 
     @unittest.skipUnless(R128 and AUTHORITY, "Exact retained R128 Source and path-free authority were not selected")
     def test_retained_r128_copy_and_negative_authority(self):
