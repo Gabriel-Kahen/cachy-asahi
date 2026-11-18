@@ -8,9 +8,7 @@ Initial target: an M2 MacBook Air running Asahi Arch Linux ARM and Hyprland. The
 
 ## Status
 
-Recorded versions of all ten selected development recipes have native ARM build pairs with byte-identical archives. The current Fish config, md4c and Minimal206 llhttp candidates have their own verified native pairs. [Current implementation and build evidence](docs/implementation-status.md)
-
-Offline 16 KiB AArch64 guests passed the signed 583-package overlay lifecycle and the signed 626-package Asahi maintenance rehearsal. The supported Asahi composition, physical tests on both M2 Air sizes, a supported installer and a stable release remain open. Cachy-asahi is an independent project. [Overlay lifecycle](docs/validation/offline-overlay583-emulated-install-20261117.md) · [Asahi maintenance](docs/validation/asahi626-maintenance-emulated-arm16k-20261118.md)
+Implementation is underway in six coordinated workstreams: desktop packaging, shells/defaults, ARM build/validation and setup, signed releases/recovery, performance measurement, and native ARM CI. Four original configuration/setup packages, baseline capture, build inspection, release recovery and measurement tooling are implemented and locally tested. All ten selected development recipes have passed native ARM build pairs with byte-identical archives. The core package/configuration lifecycle and signed test-repository cases pass, and the 574-package upstream desktop set installs offline with an exact inventory; see [current execution and limits](docs/implementation-status.md). Target installation, a supported installer, stable release and M2 hardware validation remain unfinished. This is an independent project, not an official CachyOS or Asahi distribution.
 
 See [implementation status](docs/implementation-status.md) for the complete outline's execution gates and [coordination](docs/orchestration.md) for worker ownership. Candidate recipes and tools are development artifacts until their gates pass.
 
