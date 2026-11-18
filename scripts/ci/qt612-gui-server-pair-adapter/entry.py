@@ -3,6 +3,7 @@
 """Root dispatch and ordinary-service entry for the first hosted Qt GUI pair."""
 
 import argparse
+import errno
 from enum import Enum, auto
 import importlib.util
 import math
@@ -32,10 +33,17 @@ RUNTIME_READER = "scripts/ci/qt612-gui-pair-runtime-source/runtime.py"
 RUNTIME_READER_SHA = "abfed5c1804099ae74e93bb7a30b423fc24d3f7a617fbfa0320f65369db13ad8"
 LIMIT_FILES = ("memory.max", "memory.swap.max", "pids.max", "cpu.max")
 RETIRE_EXPORT_SECONDS = 180
+SIGNED349_PROGRESS = (
+    "SIGNED349_BUILD", "SIGNED349_PROVIDER", "SIGNED349_CACHE", "SIGNED349_INPUTS", "SIGNED349_AUDIT",
+    "SIGNED349_CONTEXT", "SIGNED349_ROOTFS_IMPORT", "SIGNED349_ROOTFS_SHELL", "SIGNED349_IMAGE_BUILD",
+    "SIGNED349_INVENTORY", "SIGNED349_CONTEXT_RETIRE",
+)
+SIGNED349_REASONS = ("PERMISSION", "MISSING", "DEADLINE", "NO_SPACE", "MEMORY",
+                    "SIGNATURE_REFUSAL", "CHECK_REFUSED", "OS_ERROR", "OTHER")
 OWNER_PROGRESS = ("SERVICE_JOIN", "SERVICE_HELPERS", "SERVICE_VOLUME", "SERVICE_DOMAIN",
-                  "SIGNED349_BUILD", "SIGNED356_BUILD", "SOURCE_CACHE", "REQUEST_HANDOFF")
+                  *SIGNED349_PROGRESS, "SIGNED356_BUILD", "SOURCE_CACHE", "REQUEST_HANDOFF")
 HELPERS = {
-    f"{C.HOSTED}/launch.py": "5c2171f499b9aa79645928959c597d0a18e98a37dd4c5604bc7b5ceca17c19d2",
+    f"{C.HOSTED}/launch.py": "79a23da0f49213e2be91f2acc291852da6330cbc0b5d6f78ee10eb8831768679",
     f"{C.HOSTED}/executor.py": "d91457ba75dd5d61c1bae9cc09ac468d5e05de049f87409669dd769efe7b4ba6",
     f"{C.HOSTED}/evidence.py": "47815cc2d62e8cc8d6488ce0f92efe7d608dda1d6c0aa3451dff22414ef0dbcc",
     f"{C.HOSTED}/capacity.py": "74fd7b29b12264c85e4475f4fdcc067dfa6fa56f9879f94f13d6ba1e2e306075",
@@ -100,6 +108,7 @@ class ControllerTrace:
     stage = Stage.ROOT_IDENTITY
     acquisition_detail = None
     owner_detail = None
+    bootstrap_reason = None
 
     def mark(self, name):
         self.stage = Stage[name]
@@ -110,6 +119,8 @@ class ControllerTrace:
             print("HOLD_QT612_ACQUISITION: " + self.acquisition_detail, file=sys.stderr, flush=True)
         if self.owner_detail is not None:
             print("HOLD_QT612_OWNER: " + " ".join(self.owner_detail), file=sys.stderr, flush=True)
+        if self.bootstrap_reason is not None:
+            print("HOLD_QT612_SIGNED349: " + self.bootstrap_reason, file=sys.stderr, flush=True)
 
 
 def load(path, name):
@@ -366,6 +377,39 @@ def last_ordinary_progress(work, uid):
     return last
 
 
+def signed349_failure_reason(error):
+    # Report only fixed private-disposition classes, never exception/log text.
+    for _ in range(4):
+        if not isinstance(error, BaseExceptionGroup):
+            break
+        error = error.exceptions[0]  # run_owned_payload records its operation failure before cleanup errors.
+    if isinstance(error, PermissionError):
+        return "PERMISSION"
+    if isinstance(error, FileNotFoundError):
+        return "MISSING"
+    if isinstance(error, TimeoutError):
+        return "DEADLINE"
+    if isinstance(error, MemoryError):
+        return "MEMORY"
+    if isinstance(error, OSError):
+        return "NO_SPACE" if error.errno == errno.ENOSPC else "OS_ERROR"
+    if isinstance(error, ValueError):
+        if str(error).startswith("signature verification failed: "):
+            return "SIGNATURE_REFUSAL"
+        return "CHECK_REFUSED"
+    return "OTHER"
+
+
+def read_signed349_failure(work, uid, phase):
+    if phase not in SIGNED349_PROGRESS:
+        return None
+    try:
+        raw = C.read(work/"ordinary-signed349-failure.json", 192, owner=uid, mode=0o600)
+    except (ValueError, OSError):
+        return None
+    return next((reason for reason in SIGNED349_REASONS if raw == C.encoded([phase, reason])), None)
+
+
 def wait_for_image_request(owner, marker, work, trace):
     poll = select.poll()
     pidfd = owner.pidfds["owner"]  # The exact original service PID, pinned by Controller.start.
@@ -380,7 +424,9 @@ def wait_for_image_request(owner, marker, work, trace):
                 (observed_fd, events), = ready
                 C.need(observed_fd == pidfd and events & (select.POLLIN | select.POLLHUP)
                        and not events & (select.POLLERR | select.POLLNVAL), "ACTUAL_ORDINARY_PIDFD_EXIT")
-                trace.owner_detail = ("OWNER_EXITED", last_ordinary_progress(work, uid))
+                phase = last_ordinary_progress(work, uid)
+                trace.owner_detail = ("OWNER_EXITED", phase)
+                trace.bootstrap_reason = read_signed349_failure(work, uid, phase)
                 raise ValueError("ORIGINAL_ORDINARY_SERVICE_EXITED_BEFORE_IMAGE_HANDOFF") from None
     trace.owner_detail = ("REQUEST_DEADLINE", last_ordinary_progress(work, uid))
     raise TimeoutError("BOUND_IMAGE_REQUEST_DEADLINE")
@@ -483,8 +529,12 @@ def ordinary_service(marker_path, approval_sha):
                           marker["environment"], int(time.time()))
     work = C.ordinary(marker["work"])
 
+    progress = None
+
     def mark(stage):
+        nonlocal progress
         atomic_marker(ordinary_progress_marker(work, stage), stage, 0o600)
+        progress = stage
 
     mark("SERVICE_JOIN")
     C.entries(runtime, approval)
@@ -510,13 +560,22 @@ def ordinary_service(marker_path, approval_sha):
                                                marker["ends"]["work"], cancellation)
         supervisor = OrdinarySupervisor(marker, retained, pipeline, commands, control, work)
         socket = supervisor.require_domain(pipeline.POLICY)
-        result = launch.run_owned_payload(pipeline=pipeline, family_source=family_source,
-            bootstrap={key:retained[key] for key in ("entry", "carrier", "rootfs", "native", "container_runtime")},
-            supervisor=supervisor, commands=commands,
-            prepared=dict(source=source, work=work, input_receipt=dict(new_source_map=marker["source_map"]),
-                          input_test_certificate=Path(marker["md4c"]["certificate"]["path"]),
-                          acquisition=dict(md4c_public_certificate=C.CERTIFICATE)),
-            socket=socket, nonce=marker["nonce"], auth=marker["md4c"], stage_mode="pair-only", stage=mark)
+        try:
+            result = launch.run_owned_payload(pipeline=pipeline, family_source=family_source,
+                bootstrap={key:retained[key] for key in ("entry", "carrier", "rootfs", "native", "container_runtime")},
+                supervisor=supervisor, commands=commands,
+                prepared=dict(source=source, work=work, input_receipt=dict(new_source_map=marker["source_map"]),
+                              input_test_certificate=Path(marker["md4c"]["certificate"]["path"]),
+                              acquisition=dict(md4c_public_certificate=C.CERTIFICATE)),
+                socket=socket, nonce=marker["nonce"], auth=marker["md4c"], stage_mode="pair-only", stage=mark)
+        except BaseException as error:
+            if progress in SIGNED349_PROGRESS:
+                try:
+                    atomic_marker(work/"ordinary-signed349-failure.json",
+                                  [progress, signed349_failure_reason(error)], 0o600)
+                except (ValueError, OSError):
+                    pass  # Preserve the original failure and retirement.
+            raise
     C.need(result["status"] == "PASS_QT612_FAMILY_COMPONENT_PAIR_ONLY" and result["lifecycle_status"] == "NOT_RUN",
            "NATURAL_PAIR_ONLY_RESULT")
     C.write(work/"ordinary-result.json", C.encoded(result["passive_export"]))
@@ -759,6 +818,8 @@ def root_dispatch(args, trace):
             if trace.owner_detail is not None:
                 reason, phase = trace.owner_detail
                 report["ordinary_handoff"] = dict(reason=reason, last_observed_stage=phase)
+                if trace.bootstrap_reason is not None:
+                    report["ordinary_handoff"]["bootstrap_reason"] = trace.bootstrap_reason
         finally:
             trace.mark("OWNED_CLEANUP")
             cancellation.cleaning = True
