@@ -118,8 +118,10 @@ jobs:
         run: |
           set -euo pipefail
           umask 077
+          scope="cachy-first-login-v3-controller-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          status=0
           sudo -n --preserve-env=GITHUB_ACTIONS,GITHUB_SHA,GITHUB_REF,GITHUB_REPOSITORY,GITHUB_EVENT_NAME,GITHUB_RUN_ATTEMPT,GITHUB_RUN_ID,GITHUB_JOB,ImageOS,ImageVersion,RUNNER_OS,RUNNER_ARCH,ROOT_FISH02_ADMISSION_JSON,ROOT_FISH02_RUNTIME_JSON,CACHY_OLD_FOUR_SCHEMA,CACHY_OLD_FOUR_SOURCE_EPOCH,CACHY_OLD_FOUR_JBIGKIT_01,CACHY_OLD_FOUR_JBIGKIT_02,CACHY_OLD_FOUR_JBIGKIT_SIG_01,CACHY_OLD_FOUR_LIBTIFF_01,CACHY_OLD_FOUR_LIBTIFF_02,CACHY_OLD_FOUR_LIBTIFF_03,CACHY_OLD_FOUR_LIBTIFF_04,CACHY_OLD_FOUR_LIBTIFF_05,CACHY_OLD_FOUR_LIBTIFF_06,CACHY_OLD_FOUR_LIBTIFF_07,CACHY_OLD_FOUR_LIBTIFF_08,CACHY_OLD_FOUR_LIBTIFF_09,CACHY_OLD_FOUR_LIBTIFF_10,CACHY_OLD_FOUR_LIBTIFF_11,CACHY_OLD_FOUR_LIBTIFF_12,CACHY_OLD_FOUR_LIBTIFF_13,CACHY_OLD_FOUR_LIBTIFF_14,CACHY_OLD_FOUR_LIBTIFF_15,CACHY_OLD_FOUR_LIBTIFF_SIG_01,CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01,CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02,CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 \
-            /usr/bin/systemd-run --scope --quiet --unit="cachy-first-login-v3-controller-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
+            /usr/bin/systemd-run --scope --quiet --unit="$scope" \
             --property=MemoryMax=536870912 --property=MemorySwapMax=0 --property=CPUQuota=100% \
             --property=CPUQuotaPeriodSec=100ms --property=TasksMax=64 --property=RuntimeMaxSec=1740s \
             -- /usr/bin/python3 -I -B "$RUNNER_TEMP/first-login-pair-runtime"/scripts/ci/fish-config02-native-source/successor_v2/hosted_owner.py \
@@ -127,7 +129,16 @@ jobs:
             --carrier-root "$RUNNER_TEMP/native349-carrier-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/public" \
             --runner-uid "$(id -u)" --runner-gid "$(id -g)" \
             --source-map-sha256 "$SOURCE_MAP_SHA256" \
-            --admission-sha256 "$ADMISSION_SHA256" --runtime-sha256 "$RUNTIME_SHA256"
+            --admission-sha256 "$ADMISSION_SHA256" --runtime-sha256 "$RUNTIME_SHA256" || status=$?
+          if (( status != 0 )); then
+            result=$(/usr/bin/systemctl show --no-pager --property=Result --value "$scope.scope" 2>/dev/null || true)
+            case "$result" in
+              oom-kill|signal|timeout|exit-code|resources) ;;
+              *) result=unavailable ;;
+            esac
+            printf 'FIRST_LOGIN_V3_CONTROLLER_EXIT=%s SYSTEMD_RESULT=%s\n' "$status" "$result"
+            exit "$status"
+          fi
       - name: Retain public owner receipts and complete pair evidence
         if: always()
         env:
@@ -135,8 +146,23 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if test -d "$RUNNER_TEMP/first-login-v3-native-pair"; then
-            python3 -I -B "$RUNNER_TEMP/first-login-pair-runtime"/scripts/ci/fish-config02-native-source/successor_v2/retain.py "$RUNNER_TEMP/first-login-v3-native-pair" --root "$RUNNER_TEMP/first-login-pair-runtime" --source-map-sha256 "$SOURCE_MAP_SHA256"
+          output="$RUNNER_TEMP/first-login-v3-native-pair"
+          if [[ -L "$output" ]]; then
+            echo 'FIRST_LOGIN_V3_OWNER_OUTPUT_REFUSED'
+            exit 1
+          elif [[ -d "$output" && -r "$output" && -x "$output" ]]; then
+            python3 -I -B "$RUNNER_TEMP/first-login-pair-runtime"/scripts/ci/fish-config02-native-source/successor_v2/retain.py "$output" --root "$RUNNER_TEMP/first-login-pair-runtime" --source-map-sha256 "$SOURCE_MAP_SHA256"
+          elif [[ -d "$output" ]]; then
+            # The controller creates a searchable private directory. After an
+            # abrupt exit, report only fixed marker presence, never its contents.
+            phase=output-created
+            for marker in host-policy.json host-tools.json storage.img volume actual-domains.json owner-report.json; do
+              if [[ -e "$output/$marker" && ! -L "$output/$marker" ]]; then
+                phase=$marker
+              fi
+            done
+            printf 'FIRST_LOGIN_V3_PRIVATE_OWNER_OUTPUT_LAST=%s\n' "$phase"
+            exit 1
           else
             echo 'FIRST_LOGIN_V3_OWNER_NOT_ENTERED: external admission/host capability HOLD'
           fi
