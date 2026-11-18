@@ -1,0 +1,252 @@
+{
+  "changes": {
+    "actor.py": {
+      "after": {
+        "bytes": 23766,
+        "sha256": "59707aadad0da17faca172f46016bb15fea23483b3115d5de183376394c9aef6"
+      },
+      "before": {
+        "bytes": 22885,
+        "sha256": "9727aa3b3b2b8b5d8456eefd3b24e0ad6ad303c9a2b7644ebd89ec8ab989af87"
+      },
+      "replace": [
+        {
+          "after": [
+            " '-smp',str(r['cpus']),'-m',str(r['guest_memory_bytes']//1024**2),'-nodefaults','-no-user-config','-display','none','-monitor','none','-nic','none','-no-reboot',\n",
+            " '-kernel','/kernel/Image','-append','root=/dev/vda rootfstype=ext4 rw console=ttyAMA0,115200n8 rootwait init=/usr/lib/systemd/systemd systemd.unit=multi-user.target '\n",
+            " 'systemd.mount-extra=tmpfs:/var/log/journal:tmpfs:rw,nosuid,nodev,noexec,mode=2755,size=64M '\n",
+            " 'arm16k_systemd_nonce='+m['baseline_nonce']+' arm16k_perl5423_vm_nonce='+m['nonce']+' arm16k_perl5423_vm_preboot_etc_sha256='+m['preboot_etc_descriptor']['sha256']+' arm16k_perl5423_vm_root_ssh_sha256='+m['root_ssh_descriptor']['sha256']+' arm16k_rtc_host_epoch='+str(epoch),\n",
+            " '-drive','if=none,id=refdisk,file=/work/overlay.qcow2,format=qcow2','-device','virtio-blk-device,drive=refdisk',\n"
+          ],
+          "before": [
+            " '-smp',str(r['cpus']),'-m',str(r['guest_memory_bytes']//1024**2),'-nodefaults','-no-user-config','-display','none','-monitor','none','-nic','none','-no-reboot',\n",
+            " '-kernel','/kernel/Image','-append','root=/dev/vda rootfstype=ext4 rw console=ttyAMA0,115200n8 rootwait init=/usr/lib/systemd/systemd systemd.unit=multi-user.target arm16k_systemd_nonce='+m['baseline_nonce']+' arm16k_perl5423_vm_nonce='+m['nonce']+' arm16k_perl5423_vm_preboot_etc_sha256='+m['preboot_etc_descriptor']['sha256']+' arm16k_perl5423_vm_root_ssh_sha256='+m['root_ssh_descriptor']['sha256']+' arm16k_rtc_host_epoch='+str(epoch),\n",
+            " '-drive','if=none,id=refdisk,file=/work/overlay.qcow2,format=qcow2','-device','virtio-blk-device,drive=refdisk',\n"
+          ]
+        },
+        {
+          "after": [
+            " 'UNREVIEWED_RESIDUE':'unreviewed user/payload/database/log residue',\n",
+            " 'PERSISTENT_JOURNAL_CHANGED':'exact original persistent journal tree preserved',\n",
+            " 'BASELINE_LOG_ABSENCE':'certified baseline pacman log absence restored',\n"
+          ],
+          "before": [
+            " 'UNREVIEWED_RESIDUE':'unreviewed user/payload/database/log residue',\n",
+            " 'BASELINE_LOG_ABSENCE':'certified baseline pacman log absence restored',\n"
+          ]
+        },
+        {
+          "after": [
+            "  packet=K.pin(Path('/packet/case-packet.json')),raw=K.pin(raw),preboot_etc_descriptor=descriptor_pin,root_ssh_descriptor=root_ssh_pin,preboot_context=K.pin(Path('/packet/preboot-context.json')),addition_namespace=additions,baseline=base['raw'],VM=None,ALPM=None,Root_acceptance=None)))\n",
+            "\n",
+            "\n",
+            "def preserve_persistent_journal(K,before,after):\n",
+            " # Compare the original ext4 directory, not the temporary mount used by the guest.\n",
+            " path='var/log/journal'\n",
+            " message=FAILURE_MESSAGES['PERSISTENT_JOURNAL_CHANGED']\n",
+            " def journal_tree(scan):\n",
+            "  tree={n:row for n,row in scan['nodes'].items() if n==path or n.startswith(path+'/')}\n",
+            "  mountpoint=tree.get(path,{})\n",
+            "  K.need(mountpoint.get('type')=='directory',message)\n",
+            "  # Resolving the mount can update the underlying directory's access time.\n",
+            "  tree[path]={key:value for key,value in mountpoint.items() if key not in ('atime','atime_ns')}\n",
+            "  return tree\n",
+            " K.need(journal_tree(before)==journal_tree(after),message)\n",
+            "\n"
+          ],
+          "before": [
+            "  packet=K.pin(Path('/packet/case-packet.json')),raw=K.pin(raw),preboot_etc_descriptor=descriptor_pin,root_ssh_descriptor=root_ssh_pin,preboot_context=K.pin(Path('/packet/preboot-context.json')),addition_namespace=additions,baseline=base['raw'],VM=None,ALPM=None,Root_acceptance=None)))\n",
+            "\n"
+          ]
+        },
+        {
+          "after": [
+            " preservation=I.preserve(before,after,cert['baseline_certificate']['inventory'],cert['runtime_certificate'])\n",
+            " preserve_persistent_journal(K,before,after)\n",
+            " # Bounded exact ordinary DATA only, read from the disposable verification copy.\n"
+          ],
+          "before": [
+            " preservation=I.preserve(before,after,cert['baseline_certificate']['inventory'],cert['runtime_certificate'])\n",
+            " # Bounded exact ordinary DATA only, read from the disposable verification copy.\n"
+          ]
+        }
+      ]
+    },
+    "protocol.py": {
+      "after": {
+        "bytes": 11770,
+        "sha256": "64ae6a7b746079b7921af60224df817a600e8be6123c0cb5e6109450b162fa32"
+      },
+      "before": {
+        "bytes": 9242,
+        "sha256": "3981766ebd8318f937a8d9779e4b18d8c1112e0cdbb9da23041279ab93950a82"
+      },
+      "replace": [
+        {
+          "after": [
+            "HASHES = {'BASE_SHA256', 'FINAL_SHA256', 'FUNCTIONAL_SHA256', 'ELF_MANIFEST_SHA256'}\n",
+            "# The Root worker emits these exact public substages directly on the shared TTY.\n",
+            "_LOGIN_SUBSTAGES = frozenset(\n",
+            "    b'PERL5423_POST_METADATA_DIAGNOSTIC_V1 STAGE=' + stage for stage in (\n",
+            "        b'METADATA_RETURNED', b'COPY_DONE', b'REMOVE_DONE', b'ASSERT_USERS_ENTER',\n",
+            "        b'ASSERT_USERS_DONE', b'USER_DIR_DONE', b'INSTALLED_MARKER_DONE',\n",
+            "        b'SNAPSHOT_ENTER', b'SNAPSHOT_GUARD1_DONE', b'SNAPSHOT_META_DONE',\n",
+            "        b'SNAPSHOT_GUARD2_DONE', b'SNAPSHOT_XATTR_DONE', b'SNAPSHOT_GUARD3_DONE',\n",
+            "        b'SNAPSHOT_HASH_DONE', b'USERS_SNAPSHOT_DONE', b'USERS_META_MATCHED',\n",
+            "        b'USERS_HASH_MATCHED', b'USERS_XATTR_MATCHED',\n",
+            "    )\n",
+            ")\n",
+            "HOLD_MARKER = 'guest-HOLD-retire.json'\n"
+          ],
+          "before": [
+            "HASHES = {'BASE_SHA256', 'FINAL_SHA256', 'FUNCTIONAL_SHA256', 'ELF_MANIFEST_SHA256'}\n",
+            "HOLD_MARKER = 'guest-HOLD-retire.json'\n"
+          ]
+        },
+        {
+          "after": [
+            "\n",
+            "def _login_frame(data, nonce, parse_frame):\n",
+            "    _nonce(nonce)\n",
+            "    if type(data) is not bytes or len(data) > 1024**2:\n",
+            "        raise ValueError('bounded serial login data required')\n",
+            "    wire = data.replace(b'\\r\\n', b'\\n')\n",
+            "    begin = b'TCG_LOGIN_BEGIN ' + nonce.encode('ascii')\n",
+            "    end = b'TCG_LOGIN_END ' + nonce.encode('ascii')\n",
+            "    if wire.count(begin) != 1 or wire.count(end) != 1:\n",
+            "        raise ValueError('one exact complete login frame required')\n",
+            "    first, last = wire.index(begin), wire.index(end)\n",
+            "    start = first + len(begin)\n",
+            "    if (not start < last <= start + 4096 or first and wire[first - 1:first] != b'\\n'\n",
+            "            or wire[start:start + 1] != b'\\n' or wire[last - 1:last] != b'\\n'\n",
+            "            or wire[last + len(end):last + len(end) + 1] != b'\\n'):\n",
+            "        raise ValueError('ordered bounded login frame lines required')\n",
+            "\n",
+            "    fields = []\n",
+            "    diagnostics = 0\n",
+            "    body = wire[start + 1:last - 1].split(b'\\n')\n",
+            "    for index, line in enumerate(body):\n",
+            "        if line in _LOGIN_SUBSTAGES:\n",
+            "            # Only the blank immediately before this record belongs to the emitter.\n",
+            "            if index == 0 or body[index - 1] != b'':\n",
+            "                raise ValueError('public login diagnostic missing its leading newline')\n",
+            "            fields.pop()\n",
+            "            diagnostics += 1\n",
+            "        else:\n",
+            "            fields.append(line)\n",
+            "    if diagnostics > 16 or any(b'=' not in line or not re.fullmatch(rb'[ -~]+', line) for line in fields):\n",
+            "        raise ValueError('complete scalar login fields and bounded public diagnostics required')\n",
+            "    session = parse_frame(b'\\n'.join((begin, *fields, end, b'')), nonce)\n",
+            "    _session(session)\n",
+            "    return session\n",
+            "\n",
+            "\n",
+            "def _session(session):\n"
+          ],
+          "before": [
+            "\n",
+            "def _session(session):\n"
+          ]
+        },
+        {
+          "after": [
+            "                    Type='tty', Service='login', Remote='no', LOGIND='active', DBUS='active')\n",
+            "    if set(session) != set(expected) | {'Id', 'XDG_SESSION_ID', 'Leader', 'Active', 'State'}:\n",
+            "        raise ValueError('complete exact login fields required')\n",
+            "    if any(session.get(k) != v for k, v in expected.items()):\n"
+          ],
+          "before": [
+            "                    Type='tty', Service='login', Remote='no', LOGIND='active', DBUS='active')\n",
+            "    if any(session.get(k) != v for k, v in expected.items()):\n"
+          ]
+        },
+        {
+          "after": [
+            "            or not re.fullmatch('[1-9][0-9]{0,9}', session.get('Leader', ''))\n",
+            "            or session.get('Active') not in {'yes', 'no'}\n",
+            "            or session.get('State') not in {'active', 'online'}):\n"
+          ],
+          "before": [
+            "            or not re.fullmatch('[1-9][0-9]{0,9}', session.get('Leader', ''))\n",
+            "            or session.get('State') not in {'active', 'online'}):\n"
+          ]
+        },
+        {
+          "after": [
+            "    serial.send(b'unset HISTFILE; /usr/local/libexec/arm16k-login-proof\\n')\n",
+            "    serial.until(rb'(?:^|\\r?\\n)TCG_LOGIN_END ' + baseline_nonce.encode('ascii') + rb'(?=\\r?\\n)')\n",
+            "    session = _login_frame(bytes(serial.data), baseline_nonce, parse_frame)\n",
+            "    command = ('/usr/bin/env -i HOME=/home/builder USER=builder LOGNAME=builder '\n"
+          ],
+          "before": [
+            "    serial.send(b'unset HISTFILE; /usr/local/libexec/arm16k-login-proof\\n')\n",
+            "    serial.until(('TCG_LOGIN_END ' + baseline_nonce).encode())\n",
+            "    session = parse_frame(bytes(serial.data), baseline_nonce)\n",
+            "    _session(session)\n",
+            "    command = ('/usr/bin/env -i HOME=/home/builder USER=builder LOGNAME=builder '\n"
+          ]
+        }
+      ]
+    },
+    "test_controls.py": {
+      "after": {
+        "bytes": 86277,
+        "sha256": "290ff521407b7c0df4fd0f2843ac3e75f73d018f00e67a104ea91e451358ac62"
+      },
+      "before": {
+        "bytes": 86189,
+        "sha256": "40c7f4580c224bfdc934fe36875507540c6ceb9d4189aa8cfad9666246956c94"
+      },
+      "replace": [
+        {
+          "after": [
+            "  B=K.helper('reference_controller.py');nonce='a'*32;base='b'*32\n",
+            "  session=dict(ARCH='aarch64',PAGESIZE='16384',UID='1000',USERNAME='builder',PID1='systemd',Name='builder',User='1000',Class='user',Type='tty',Service='login',Remote='no',LOGIND='active',DBUS='active',Id='c1',XDG_SESSION_ID='c1',Leader='142',Active='yes',State='active')\n",
+            "  login=('TCG_LOGIN_BEGIN '+base+'\\n'+''.join(k+'='+v+'\\n'for k,v in session.items())+'TCG_LOGIN_END '+base+'\\n').encode()\n",
+            "  wire=b'login: Password: ARM16K_SHELL_READY '+base.encode()+b'\\n'+login+b'PERL5423_PROBE_BEGIN '+nonce.encode()+b'\\nSTATUS=HOLD\\nEXIT_STATUS=1\\nPERL5423_PROBE_END '+nonce.encode()+b'\\n'\n",
+            "  class Stream:\n"
+          ],
+          "before": [
+            "  B=K.helper('reference_controller.py');nonce='a'*32;base='b'*32\n",
+            "  session=dict(ARCH='aarch64',PAGESIZE='16384',UID='1000',USERNAME='builder',PID1='systemd',Name='builder',User='1000',Class='user',Type='tty',Service='login',Remote='no',LOGIND='active',DBUS='active',Id='c1',XDG_SESSION_ID='c1',Leader='142',State='active')\n",
+            "  wire=b'login: Password: ARM16K_SHELL_READY '+base.encode()+b'\\nTCG_LOGIN_END '+base.encode()+b'\\nPERL5423_PROBE_BEGIN '+nonce.encode()+b'\\nSTATUS=HOLD\\nEXIT_STATUS=1\\nPERL5423_PROBE_END '+nonce.encode()+b'\\n'\n",
+            "  class Stream:\n"
+          ]
+        },
+        {
+          "after": [
+            "  stream=Stream();row=B.Serial(stream,time.monotonic()+5)\n",
+            "  with self.assertRaisesRegex(ValueError,'guest explicit HOLD while waiting for INSTALLED'):P.journey(row,'SYNTHETIC_PASSWORD',base,nonce,B.parse_frame)\n",
+            "  self.assertEqual(len(stream.sent),4);self.assertNotIn(b'exit\\n',stream.sent);self.assertFalse(any(b' restored' in s for s in stream.sent))\n"
+          ],
+          "before": [
+            "  stream=Stream();row=B.Serial(stream,time.monotonic()+5)\n",
+            "  with self.assertRaisesRegex(ValueError,'guest explicit HOLD while waiting for INSTALLED'):P.journey(row,'SYNTHETIC_PASSWORD',base,nonce,lambda data,n:session)\n",
+            "  self.assertEqual(len(stream.sent),4);self.assertNotIn(b'exit\\n',stream.sent);self.assertFalse(any(b' restored' in s for s in stream.sent))\n"
+          ]
+        },
+        {
+          "after": [
+            "  wire=prefix+phase('INSTALLED',P.INSTALLED)+phase('PROBE',P.PROBE)+phase('RESTORED',restored)+b'login: '\n",
+            "  stream=Stream();result=P.journey(B.Serial(stream,time.monotonic()+5),'SYNTHETIC_PASSWORD',base,nonce,B.parse_frame)\n",
+            "  self.assertTrue(result['normal_PAM_logout_observed']);self.assertEqual(result['restored'],restored);self.assertEqual(len(stream.sent),6);self.assertEqual(stream.sent[-1],b'exit\\n')\n",
+            "  wire=prefix+phase('INSTALLED',P.INSTALLED)*2+phase('PROBE',P.PROBE)\n",
+            "  with self.assertRaisesRegex(ValueError,'out-of-order'):P.journey(B.Serial(Stream(),time.monotonic()+5),'SYNTHETIC_PASSWORD',base,nonce,B.parse_frame)\n"
+          ],
+          "before": [
+            "  wire=prefix+phase('INSTALLED',P.INSTALLED)+phase('PROBE',P.PROBE)+phase('RESTORED',restored)+b'login: '\n",
+            "  stream=Stream();result=P.journey(B.Serial(stream,time.monotonic()+5),'SYNTHETIC_PASSWORD',base,nonce,lambda data,n:session)\n",
+            "  self.assertTrue(result['normal_PAM_logout_observed']);self.assertEqual(result['restored'],restored);self.assertEqual(len(stream.sent),6);self.assertEqual(stream.sent[-1],b'exit\\n')\n",
+            "  wire=prefix+phase('INSTALLED',P.INSTALLED)*2+phase('PROBE',P.PROBE)\n",
+            "  with self.assertRaisesRegex(ValueError,'out-of-order'):P.journey(B.Serial(Stream(),time.monotonic()+5),'SYNTHETIC_PASSWORD',base,nonce,lambda data,n:session)\n"
+          ]
+        }
+      ]
+    }
+  },
+  "kind": "PERL_ARM16K_SERIAL_JOURNAL_SOURCE_DELTA_V1",
+  "successor_lock": {
+    "bytes": 60211,
+    "sha256": "10dfe1c1534880f524aac6d1fa6f37e732671c5a51d7bdc8d7c085be4cf5198a"
+  }
+}
