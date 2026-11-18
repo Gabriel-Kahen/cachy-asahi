@@ -1,5 +1,8 @@
 # Source205 Main route and external Root ONCE DATA contract
 
+For the first retained Native248 result in a real backend run, see the
+[backend checkpoint handoff](BACKEND-CHECKPOINT.md).
+
 This family checks a complete future Root-supplied case. It creates no issued
 case, admission, runtime observation, registration/readback proof, request,
 credential, lease or workflow run. The three JSON files are unissued templates:
