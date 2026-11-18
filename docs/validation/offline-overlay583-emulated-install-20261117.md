@@ -92,6 +92,30 @@ The independent terminal receipt SHA-256 is
 `a7ba0a0ac6223a7e44161f7a71f20c8ce1f7e725597a1d58f79c1b8bb6a2bc23`.
 The exercised source is `156581dd`. [Setup upgrade trial](../../scripts/install/overlay583_upgrade/README.md)
 
+## Installed shell first login and interrupted setup recovery
+
+A separate 16 KiB AArch64 VM verified the FirstLogin `0.1.0-2` archive
+with a scoped TEST signature and installed it onto the exact Overlay583
+staging. The archive was assembled on x86_64 as an architecture-independent
+`any` package. The installed tool and both shells ran inside the ARM guest.
+
+The ordinary staged user completed all 27 commands, including 10 Fish and
+Zsh startups. In the interruption case, Setup8 exited after its first durable
+Fish write. The next activation refused the pending operation, and explicit
+journal recovery completed it. The final deactivation preserved both user
+edits. Pacman removed FirstLogin and restored the exact 583-package inventory.
+
+| Checkpoint | Packages | Inventory SHA-256 |
+| --- | --- | --- |
+| Before and after the FirstLogin lifecycle | 583 | `12e5f0d74f8530fee9cc2b10ad7887748c2f9d5fdfed259b498f4b3db87167ba` |
+| FirstLogin installed | 584 | `8fc7320bf781f4efc9539e1a0538f8ddf733f162c06b6b0b1e83cb5f35cf31d7` |
+
+The exercised source is `3a415e51`. The independent receipt verified all
+22 evidence files, the nested journey, and two observations that the scope
+and both containers had retired. Its SHA-256 is
+`314a63ddf21add020e57e423f8fcf3dd006d8bc862086ebcd0dd62aa02944dc9`.
+[First-login trial](../../scripts/integration/first_login_overlay583/README.md)
+
 These runs cover the selected staging in a generic emulated guest. An upgrade
 from a previous published release, Asahi boot and desktop, both physical M2
 Air models and production release acceptance remain pending.
