@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Fenced first-login staging and guest hook controls."""
 
-from contextlib import contextmanager
 from hashlib import sha256
 import importlib.util
 import json
@@ -25,6 +24,8 @@ STAGE=load('addon_stage',HERE/'stage.py')
 GUEST=load('addon_guest',HERE/'guest.py')
 TARGET=load('addon_target',HERE/'target.py')
 TRIAL=load('addon_overlay583_trial',HERE.parents[2]/'scripts/install/overlay583_trial/trial.py')
+SIGNER='1'*40
+REHEARSAL=dict(fingerprint=SIGNER,created=1794701213,expires=1794787613,test_only=True)
 
 
 def deny(event,_args):
@@ -52,7 +53,7 @@ class GuestHook(unittest.TestCase):
         self.assertEqual(args[0]['template_profile'],'fish0.1.0-1-zsh0.1.0-1')
         self.assertEqual(args[0]['user'],TARGET.ACCOUNT)
 
-    def fixture(self, root, *, signer=STAGE.SIGNER, drift=False):
+    def fixture(self, root, *, signer=SIGNER, drift=False, expired=False):
         self.steps=[]
         self.current=b'base-fixture 1-1\n'
         before=self.current
@@ -65,7 +66,8 @@ class GuestHook(unittest.TestCase):
             path.mkdir()
         programs={name:('installed '+name).encode() for name in GUEST.PROGRAMS}
         pins={field:digest(programs[name]) for name,field in GUEST.PROGRAMS.items()}
-        stage=SimpleNamespace(PROVENANCE=STAGE.PROVENANCE,SIGNER=STAGE.SIGNER,ARCHIVE=STAGE.ARCHIVE,**pins)
+        stage=SimpleNamespace(PROVENANCE=STAGE.PROVENANCE,SIGNER=STAGE.SIGNER,ARCHIVE=STAGE.ARCHIVE,
+                              PUBLIC=STAGE.PUBLIC,**pins)
         paths=SimpleNamespace(WORK=root,CONFIG=cfg,ordinary=TRIAL.ordinary,need=TRIAL.need,read=TRIAL.read,
                               pin=TRIAL.pin,sorted_rows=TRIAL.sorted_rows,target_api_mounts=lambda *args:None)
         user_state={'.zshrc':b'fixture user edit\n','.config/fish/config.fish':b'fixture user edit config\n'}
@@ -80,7 +82,9 @@ class GuestHook(unittest.TestCase):
             if argv[-1]=='--query':
                 return self.current
             if step=='first-login-verify-signature':
-                return ('[GNUPG:] VALIDSIG '+signer+' 2026-11-15 1794701213 0 4 0 1 10 00 '+signer+'\n').encode()
+                outcome='EXPKEYSIG' if expired else 'GOODSIG'
+                return (f'[GNUPG:] {outcome} {signer[-16:]} fixture\n'
+                        f'[GNUPG:] VALIDSIG {signer} 2026-11-15 1794701213 0 4 0 1 10 00 {signer}\n').encode()
             if step=='first-login-install':
                 self.assertEqual(argv[-1],str(GUEST.SUPPLEMENT/STAGE.ARCHIVE))
                 self.current=after
@@ -106,8 +110,8 @@ class GuestHook(unittest.TestCase):
                     (target/GUEST.TARGET_WORK.relative_to('/')/'home/.zshrc').write_bytes(b'damaged user')
             return b''
 
-        files={name:b'fixture' for name in ('project-public.gpg','target.py','journey.py','owned_process.py')}
-        return (paths,stage,target,before,after,files,'a'*32,{'GNUPGHOME':str(trust)},command)
+        files={name:b'fixture' for name in (STAGE.PUBLIC,'target.py','journey.py','owned_process.py')}
+        return (paths,stage,target,before,after,files,'a'*32,{'GNUPGHOME':str(trust)},command,REHEARSAL)
 
     def test_signed_single_package_and_retained_native_commands(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -122,6 +126,12 @@ class GuestHook(unittest.TestCase):
     def test_wrong_test_signer_stops_before_new_trust_or_install(self):
         with tempfile.TemporaryDirectory() as tmp, self.assertRaisesRegex(ValueError,'exact selected TEST detached'):
             GUEST.exercise(*self.fixture(Path(tmp),signer='2'*40))
+        self.assertNotIn('first-login-trust-fixture',self.steps)
+        self.assertNotIn('first-login-install',self.steps)
+
+    def test_expired_key_stops_before_trust_even_with_validsig(self):
+        with tempfile.TemporaryDirectory() as tmp, self.assertRaisesRegex(ValueError,'exact selected TEST detached'):
+            GUEST.exercise(*self.fixture(Path(tmp),expired=True))
         self.assertNotIn('first-login-trust-fixture',self.steps)
         self.assertNotIn('first-login-install',self.steps)
 

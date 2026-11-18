@@ -88,6 +88,8 @@ def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issu
     if first_login is not None:
         paths["first_login"] = absolute(first_login)
         supplement = T.first_login_selection(paths["first_login"],first_login_sha256)
+        T.need(supplement["rehearsal"]["expires"]-time.time()>T.TIMEOUT,
+               "First-login TEST key must remain current through the guest budget")
     predecessor_pin = None
     if predecessor is not None:
         T.need(not lifecycle and not signature_recovery,"Choose only one Overlay583 operation")

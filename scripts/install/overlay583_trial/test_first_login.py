@@ -16,6 +16,8 @@ C = controller_checks.C
 T = trial_checks.T
 G = T.first_login_module(T.read(T.first_login_sources()['guest.py'], collect=False))
 NONCE = '4'*32
+SIGNER = 'A9'*20
+REHEARSAL = dict(fingerprint=SIGNER,created=1794701213,expires=1794787613,test_only=True)
 
 
 class FirstLoginIntegration(unittest.TestCase):
@@ -29,7 +31,7 @@ class FirstLoginIntegration(unittest.TestCase):
         self.after = T.sorted_rows(self.before+b'cachy-asahi-first-login 0.1.0-2\n')
         guest = T.read(T.first_login_sources()['guest.py'],collect=False)
         self.supplement = dict(receipt=T.pin(b'fixture manifest'),files={'guest.py':guest},
-                               after=T.pin(self.after))
+                               after=T.pin(self.after),rehearsal=REHEARSAL)
         self.plan = T.selected_plan(self.packet,NONCE,first_login=self.supplement)
 
     def test_plan_reuses_fresh_phases_and_refuses_every_combined_operation(self):
@@ -82,7 +84,7 @@ class FirstLoginIntegration(unittest.TestCase):
         report=self.journey()
         addon=dict(status=G.PASS,before=T.pin(self.before),installed=T.pin(self.after),after_removal=T.pin(self.before),
                    journey=report,provenance=dict(package_arch='any',host_build='x86_64',native_arm_build='NOT RUN',
-                                                test_signer=G.SIGNER),native_arm_build='NOT RUN',M2='NOT RUN',Root_acceptance=None)
+                                                original_test_signer=G.SIGNER),rehearsal=REHEARSAL,native_arm_build='NOT RUN',M2='NOT RUN',Root_acceptance=None)
         def run_addon(_trial, **data):
             self.assertEqual(data['nonce'],NONCE)
             self.assertEqual(data['supplement_sha256'],self.supplement['receipt']['sha256'])
@@ -101,7 +103,8 @@ class FirstLoginIntegration(unittest.TestCase):
             data={
                 'resolve':T.pacman_plan(plan['packet']),'query':self.before,'first-login-base':self.before,
                 'first-login-installed':self.after,'first-login-removed':self.before,
-                'first-login-verify-signature':f'[GNUPG:] VALIDSIG {G.SIGNER} data {G.SIGNER}\n'.encode(),
+                'first-login-verify-signature':(f'[GNUPG:] GOODSIG {SIGNER[-16:]} fixture\n'
+                                                 f'[GNUPG:] VALIDSIG {SIGNER} 2026-11-15 1794701213 0 4 0 1 10 00 {SIGNER}\n').encode(),
                 'first-login-installed-journey':T.encoded(report),
             }
             kwargs['stdout'].write(data.get(role,b''))

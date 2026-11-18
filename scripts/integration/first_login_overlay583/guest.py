@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import re
+import time
 
 SUPPLEMENT = Path('/trial-code/first-login')
 TARGET_WORK = Path('/run/caa-first-login-overlay583')
@@ -15,6 +16,8 @@ ACCOUNT = 'caa-first-login-guest'
 UID = 29083
 ARCHIVE = 'cachy-asahi-first-login-0.1.0-2-any.pkg.tar.zst'
 SIGNER = '18E721CE9D7928221AD3163BA91B1AFC7142F94E'
+SIGNATURE = ARCHIVE+'.sig'
+PUBLIC = 'rehearsal-TEST-public.gpg'
 PASS = 'PASS_ARM16K_OVERLAY583_FIRST_LOGIN_INSTALLED_LIFECYCLE'
 MAX_LOG = 256*1024
 MAX_EVIDENCE = 2*1024**2
@@ -57,10 +60,15 @@ def command_plan(work, target, config, nonce):
 ROLES = tuple(command_plan(Path('/trial-work'),Path('/trial-work/target'),Path('/trial-work/pacman.conf'),'').keys())
 
 
-def good_signature(status, fingerprint):
-    valid = [line.split() for line in status.decode('ascii').splitlines()
-             if line.startswith('[GNUPG:] VALIDSIG ')]
-    return len(valid) == 1 and valid[0][2] == valid[0][-1] == fingerprint
+def good_signature(status, fingerprint, *, historical=False):
+    records = [line.split() for line in status.decode('ascii').splitlines() if line.startswith('[GNUPG:] ')]
+    kinds = {row[1] for row in records}
+    valid = [row for row in records if row[1]=='VALIDSIG']
+    bad = {'BADSIG','ERRSIG','REVKEYSIG','NO_PUBKEY','EXPSIG','SIGEXPIRED'}
+    if not historical:
+        bad.update(('EXPKEYSIG','KEYEXPIRED'))
+    return (len(valid)==1 and len(valid[0])>=12 and valid[0][2]==valid[0][-1]==fingerprint
+            and not kinds&bad and ('GOODSIG' in kinds or historical and 'EXPKEYSIG' in kinds))
 
 
 def run(trial, *, supplement_sha256, nonce, env, command):
@@ -84,11 +92,15 @@ def run(trial, *, supplement_sha256, nonce, env, command):
     raw = trial.read(SUPPLEMENT/'supplement.json', cap=64*1024)
     need(trial.pin(raw)['sha256'] == supplement_sha256, 'separately pinned exact supplement')
     packet = trial.decode(raw)
-    need(raw == trial.encoded(packet) and packet['kind'] == 'FIRST_LOGIN_OVERLAY583_SUPPLEMENT_V1'
-         and packet['Root_authority'] is None and packet['installation'] == 'NOT RUN', 'finite staging DATA only')
+    need(raw == trial.encoded(packet) and packet['Root_authority'] is None and packet['installation'] == 'NOT RUN',
+         'finite staging DATA only')
     need({path.name for path in SUPPLEMENT.iterdir()}==set(packet['files'])|{'supplement.json'},
          'exact read-only supplement leaf set')
     stage = load_stage(trial, packet)
+    rehearsal = packet['rehearsal']
+    need(packet['kind']==stage.KIND and stage.valid_rehearsal(rehearsal)
+         and rehearsal['created']<=time.time()<rehearsal['expires'],
+         'Current guest clock must accept the bounded TEST signing key')
     files = {name: trial.read(SUPPLEMENT/name, pin, cap=128*1024) for name, pin in packet['files'].items()}
     before = trial.read(trial.IN/'target.lock', stage.TARGET, cap=256*1024)
     need(packet['overlay_before'] == stage.TARGET and packet['preflight']['sha256'] == stage.PREFLIGHT_SHA
@@ -98,17 +110,19 @@ def run(trial, *, supplement_sha256, nonce, env, command):
     need(packet['overlay_after'] == trial.pin(after), 'exact single-package installed inventory')
     trial.canonical_lock(before, 583)
     trial.canonical_lock(after, 584)
-    return exercise(trial,stage,target,before,after,files,nonce,env,command)
+    return exercise(trial,stage,target,before,after,files,nonce,env,command,rehearsal)
 
 
-def exercise(trial, stage, target, before, after, files, nonce, env, command):
+def exercise(trial, stage, target, before, after, files, nonce, env, command, rehearsal):
     need=trial.need
     trust = trial.ordinary(trial.WORK/'trust')
     need(env.get('GNUPGHOME') == str(trust) and trust.is_dir(), 'existing guest-only private trust directory')
     config = trial.read(trial.CONFIG, cap=4096).decode('ascii')
     need('SigLevel = Required TrustedOnly' in config.splitlines()
          and 'LocalFileSigLevel = Required TrustedOnly' in config.splitlines(), 'existing required signature policy')
-    need(stage.ARCHIVE==ARCHIVE and stage.SIGNER==SIGNER,'exact first-login archive and TEST signer')
+    need(stage.ARCHIVE==ARCHIVE and stage.SIGNER==SIGNER and stage.PUBLIC==PUBLIC,
+         'exact first-login archive and retained original TEST signer')
+    signer = rehearsal['fingerprint']
     argv = command_plan(trial.WORK,target,trial.CONFIG,nonce)
     user = TARGET_WORK/'home'
 
@@ -122,10 +136,10 @@ def exercise(trial, stage, target, before, after, files, nonce, env, command):
         return trial.pin(observed)
 
     initial = checked_inventory('first-login-base', before)
-    call('first-login-import-public',25,files['project-public.gpg'])
+    call('first-login-import-public',25,files[PUBLIC])
     verified = call('first-login-verify-signature',25)
-    need(good_signature(verified,stage.SIGNER), 'exact selected TEST detached package signature required')
-    call('first-login-trust-fixture',25,(stage.SIGNER+':6:\n').encode())
+    need(good_signature(verified,signer), 'exact selected TEST detached package signature required')
+    call('first-login-trust-fixture',25,(signer+':6:\n').encode())
 
     with ExitStack() as stack:
         trial.target_api_mounts(target, env, stack)
@@ -154,7 +168,7 @@ def exercise(trial, stage, target, before, after, files, nonce, env, command):
         call('first-login-remove-fixture-user',20)
 
     return dict(status=PASS, before=initial, installed=installed,
-                after_removal=removed, journey=journey, provenance=stage.PROVENANCE,
+                after_removal=removed, journey=journey, provenance=stage.PROVENANCE, rehearsal=rehearsal,
                 native_arm_build='NOT RUN', M2='NOT RUN', Root_acceptance=None)
 
 
@@ -163,16 +177,14 @@ def load_stage(trial, packet):
     from types import ModuleType
 
     files = packet['files']
-    trial.need(set(files) == {'stage.py','guest.py','target.py','journey.py','owned_process.py',
-                              'cachy-asahi-first-login-0.1.0-2-any.pkg.tar.zst',
-                              'cachy-asahi-first-login-0.1.0-2-any.pkg.tar.zst.sig','project-public.gpg'},
-               'closed supplement file set')
     path = SUPPLEMENT/'stage.py'
     raw = trial.read(path, files['stage.py'], cap=64*1024)
     stage = ModuleType('first_login_overlay_stage_pins')
     stage.__file__ = str(path)
     exec(compile(raw,str(path),'exec'),stage.__dict__)
-    trial.need(all(files[name] == pin for name,pin in stage.MATERIALS.items())
+    trial.need(set(files) == {'stage.py','guest.py','target.py','journey.py','owned_process.py',SIGNATURE,PUBLIC}
+               | set(stage.MATERIALS)
+               and all(files[name] == pin for name,pin in stage.MATERIALS.items())
                and files['journey.py']['sha256'] == stage.JOURNEY_SHA
                and files['owned_process.py']['sha256'] == stage.PROCESS_SHA, 'exact signed archive and unchanged helper pins')
     return stage
@@ -191,7 +203,7 @@ def evidence(trial, directory, ledger, result):
     return raw
 
 
-def readback(raw, *, nonce, base, installed_pin, held, pin, need):
+def readback(raw, *, nonce, base, supplement, held, pin, need):
     """Join exact argv, byte inventories, signer and original in-target evidence."""
     value = json.loads(raw)
     need(set(value)=={'result','commands'} and type(value['commands']) is list,'exact first-login evidence schema')
@@ -217,7 +229,7 @@ def readback(raw, *, nonce, base, installed_pin, held, pin, need):
     installed=b''.join(sorted((base+b'cachy-asahi-first-login 0.1.0-2\n').splitlines(keepends=True)))
     for role,wanted in (('first-login-base',base),('first-login-installed',installed),('first-login-removed',base)):
         need(b''.join(sorted(output[role].splitlines(keepends=True)))==wanted,'physical first-login inventory differs: '+role)
-    need(good_signature(output['first-login-verify-signature'],SIGNER),'retained first-login TEST signature differs')
+    need(good_signature(output['first-login-verify-signature'],supplement['rehearsal']['fingerprint']),'retained first-login TEST signature differs')
     result=value['result']
     journey=json.loads(output['first-login-installed-journey'])
     steps=journey['actor_commands']
@@ -241,9 +253,10 @@ def readback(raw, *, nonce, base, installed_pin, held, pin, need):
              and receipt['signals']==[] and receipt['error'] is None,
              'first-login held user command custody differs')
     need(result['status']==PASS and result['before']==result['after_removal']==pin(base)
-         and result['installed']==pin(installed)==installed_pin
+         and result['installed']==pin(installed)==supplement['after']
          and result['native_arm_build']==result['M2']=='NOT RUN' and result['Root_acceptance'] is None
          and result['provenance']['package_arch']=='any' and result['provenance']['host_build']=='x86_64'
-         and result['provenance']['native_arm_build']=='NOT RUN' and result['provenance']['test_signer']==SIGNER,
+         and result['provenance']['native_arm_build']=='NOT RUN' and result['provenance']['original_test_signer']==SIGNER
+         and result['rehearsal']==supplement['rehearsal'],
          'first-login result is not the exact permitted artifact and transition')
     return result

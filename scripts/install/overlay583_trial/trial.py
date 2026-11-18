@@ -371,27 +371,30 @@ def first_login_selection(staging, digest):
     exec(compile(read(source["stage.py"],cap=128*1024),str(source["stage.py"]),"exec"),pinned.__dict__)
     files = value.get("files",{})
     need(raw==encoded(value) and set(value)=={"kind","files","overlay_before","overlay_after","preflight","provenance",
-                                              "template_profile","Root_authority","installation"}
-         and value["kind"]=="FIRST_LOGIN_OVERLAY583_SUPPLEMENT_V1" and value["Root_authority"] is None
+                                              "template_profile","Root_authority","installation","rehearsal"}
+         and value["kind"]==pinned.KIND and value["Root_authority"] is None
          and value["installation"]=="NOT RUN" and value["provenance"]==pinned.PROVENANCE
          and value["template_profile"]=="fish0.1.0-1-zsh0.1.0-1" and value["overlay_before"]==pinned.TARGET
          and value["preflight"]["sha256"]==pinned.PREFLIGHT_SHA
-         and set(files)==set(pinned.MATERIALS)|set(source)
+         and pinned.valid_rehearsal(value["rehearsal"])
+         and value["rehearsal"]["created"]<=time.time()<value["rehearsal"]["expires"]
+         and set(files)==set(pinned.MATERIALS)|set(source)|{pinned.SIGNATURE,pinned.PUBLIC}
          and {path.name for path in stage.iterdir()}==set(files)|{"supplement.json"},
          "Exact held first-login supplement scope, materials and provenance required")
     for name,wanted in files.items():
         if name in source:
             need(read(source[name],cap=128*1024,collect=False)==wanted,"Staged first-login code differs: "+name)
-        else:
-            need(wanted==pinned.MATERIALS[name],"Staged signed first-login material differs: "+name)
+        elif name in pinned.MATERIALS:
+            need(wanted==pinned.MATERIALS[name],"Original signed first-login material differs: "+name)
         read(stage/name,wanted,cap=128*1024,collect=False)
-    return dict(receipt=receipt,files=files,after=value["overlay_after"])
+    return dict(receipt=receipt,files=files,after=value["overlay_after"],rehearsal=value["rehearsal"])
 
 
 def first_login_plan(packet,nonce,supplement):
     current=target_bytes(packet)
     after=sorted_rows(current+b"cachy-asahi-first-login 0.1.0-2\n")
-    need(set(supplement)=={"receipt","files","after"} and supplement["after"]==pin(after)
+    need(set(supplement)=={"receipt","files","after","rehearsal"} and supplement["after"]==pin(after)
+         and supplement["rehearsal"]["fingerprint"] not in packet["signers"]
          and len(canonical_lock(after,584))==584,
          "First-login must add exactly one package to the selected 583")
     return dict(guest_plan(packet,nonce),kind=FIRST_LOGIN_KIND,first_login=supplement)
@@ -903,7 +906,7 @@ def read_first_login(output,plan,result,observed,*,held):
     addon=first_login_module(plan["first_login"]["files"]["guest.py"])
     body=read(output/FIRST_LOGIN_EVIDENCE,result["first_login"],cap=addon.MAX_EVIDENCE,observed=observed)
     return addon.readback(body,nonce=plan["nonce"],base=target_bytes(plan["packet"]),
-                          installed_pin=plan["first_login"]["after"],held=held,pin=pin,need=need)
+                          supplement=plan["first_login"],held=held,pin=pin,need=need)
 
 
 def read_first_login_hold(output,plan,result,observed):
