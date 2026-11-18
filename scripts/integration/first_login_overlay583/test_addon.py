@@ -1,14 +1,19 @@
 # SPDX-License-Identifier: MIT
 """Fenced first-login staging and guest hook controls."""
 
+from base64 import b64decode
 from hashlib import sha256
 import importlib.util
+from io import StringIO
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
+import time
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 HERE=Path(__file__).resolve().parent
 
@@ -96,6 +101,7 @@ class GuestHook(unittest.TestCase):
                 self.assertEqual(argv[:4],['/usr/bin/chroot',str(target),'/usr/bin/python3','-I'])
                 self.assertEqual(argv[-2],str(GUEST.TARGET_WORK/'target.py'))
                 home=(target/GUEST.TARGET_WORK.relative_to('/')/'home')
+                self.assertEqual(home.parent.stat().st_mode&0o777,0o755)
                 for name,raw in user_state.items():
                     path=home/name
                     path.parent.mkdir(parents=True,exist_ok=True)
@@ -114,8 +120,12 @@ class GuestHook(unittest.TestCase):
         return (paths,stage,target,before,after,files,'a'*32,{'GNUPGHOME':str(trust)},command,REHEARSAL)
 
     def test_signed_single_package_and_retained_native_commands(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            result=GUEST.exercise(*self.fixture(Path(tmp)))
+        previous=os.umask(0o077)
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                result=GUEST.exercise(*self.fixture(Path(tmp)))
+        finally:
+            os.umask(previous)
         self.assertEqual(result['status'],'PASS_ARM16K_OVERLAY583_FIRST_LOGIN_INSTALLED_LIFECYCLE')
         self.assertEqual(result['before'],result['after_removal'])
         self.assertNotEqual(result['before'],result['installed'])
@@ -156,6 +166,51 @@ class GuestHook(unittest.TestCase):
         raw=(HERE/'stage.py').read_bytes()
         exec(compile(raw,module.__file__,'exec'),module.__dict__)
         self.assertEqual(module.PROVENANCE,STAGE.PROVENANCE)
+
+
+class TargetCommand(unittest.TestCase):
+    STEP='first-login-overlay583-inspect'
+
+    def invoke(self, payload, *, expected=0, **fields):
+        receipt=dict(reaped=True,ownership='REAPED',output_complete=True,group_census='EMPTY_TWICE',
+                     timeout=False,signals=[],error=None,exit=1,output=payload)
+        receipt.update(fields)
+        stderr, records = StringIO(), []
+        with patch.object(TARGET.subprocess,'Popen',return_value=object()) as start, patch('sys.stderr',stderr):
+            process=SimpleNamespace(supervise=lambda *args,**kwargs:receipt)
+            try:
+                output=TARGET.checked_command(process,time.monotonic()+10,records,self.STEP,['fixture'],expected)
+            except ValueError as error:
+                output=error
+        self.assertEqual(start.call_args.kwargs['stderr'],TARGET.subprocess.STDOUT)
+        self.assertEqual(records,[dict(step=self.STEP,expected=expected,receipt=receipt)])
+        self.assertNotIn('output',receipt)
+        return output,stderr.getvalue()
+
+    def test_naturally_failed_command_exports_only_bounded_diagnostic(self):
+        body=b'Setup8 cannot open fixture HOME\n'+b'X'*7000
+        result,stderr=self.invoke(body)
+        self.assertRegex(str(result),'exited 1, expected 0')
+        diagnostic=json.loads(stderr)
+        self.assertEqual(
+            {key:value for key,value in diagnostic.items() if key!='stdout_stderr_b64'},
+            dict(kind='first-login-command-output',step=self.STEP,expected=0,exit=1,bytes=len(body)),
+        )
+        self.assertEqual(b64decode(diagnostic['stdout_stderr_b64'],validate=True),body[:4096])
+
+    def test_incomplete_retirement_preserves_refusal_without_releasing_output(self):
+        for fault in (dict(reaped=False),dict(ownership='UNKNOWN'),dict(output_complete=False),
+                      dict(group_census='NOT_OBSERVED'),dict(timeout=True),dict(signals=[15]),dict(error='lost')):
+            with self.subTest(fault=fault):
+                result,stderr=self.invoke(b'incomplete controlled output',**fault)
+                self.assertRegex(str(result),'failed owned retirement')
+                self.assertEqual(stderr,'')
+
+    def test_expected_nonzero_and_success_return_output_without_diagnostic(self):
+        for code in (0,2,75):
+            with self.subTest(code=code):
+                self.assertEqual(self.invoke(b'expected command output',expected=code,exit=code),
+                                 (b'expected command output',''))
 
 
 if __name__=='__main__':

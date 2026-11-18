@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: MIT
 """Run the unchanged installed journey inside the verified disposable target."""
 
+from base64 import b64encode
+from functools import partial
 import importlib.util
 import json
 import os
@@ -15,6 +17,7 @@ import time
 WORK = Path('/run/caa-first-login-overlay583')
 ACCOUNT = 'caa-first-login-guest'
 UID = 29083
+DIAGNOSTIC_BYTES = 4096
 
 
 def load(path, name):
@@ -33,6 +36,30 @@ def run_installed(journey, home, command, uid, gid):
     return journey.run(paths, home, command, uid, gid, label='first-login-overlay583')
 
 
+def checked_command(process, end, records, step, argv, expected=0, cwd=None):
+    cap=min(20,end-time.monotonic())
+    if cap<=1:
+        raise TimeoutError('installed first-login bounded window exhausted')
+    child=subprocess.Popen(argv,cwd=cwd,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,
+                           stderr=subprocess.STDOUT,start_new_session=True,
+                           env={'PATH':'/usr/bin:/bin','LC_ALL':'C.UTF-8','TZ':'UTC'})
+    receipt=process.supervise(child,cap=cap,retirement=1,max_output=256*1024)
+    output=receipt.pop('output')
+    records.append(dict(step=step,expected=expected,receipt=receipt))
+    if (receipt['reaped'] is not True or receipt['ownership']!='REAPED'
+            or receipt['output_complete'] is not True or receipt['group_census']!='EMPTY_TWICE'
+            or receipt['timeout'] or receipt['signals'] or receipt['error'] is not None):
+        raise ValueError('installed first-login command failed owned retirement: '+step)
+    if receipt['exit']!=expected:
+        # Outer guest evidence retains this stderr independently of the journey JSON.
+        print(json.dumps(dict(kind='first-login-command-output', step=step, expected=expected,
+                              exit=receipt['exit'], bytes=len(output),
+                              stdout_stderr_b64=b64encode(output[:DIAGNOSTIC_BYTES]).decode('ascii'))),
+              file=sys.stderr,flush=True)
+        raise ValueError(f'installed first-login command exited {receipt["exit"]}, expected {expected}: {step}')
+    return output
+
+
 def main(nonce):
     if (not sys.flags.isolated or not sys.dont_write_bytecode or os.getuid()!=0
             or os.uname().machine!='aarch64' or os.sysconf('SC_PAGE_SIZE')!=16384
@@ -48,24 +75,8 @@ def main(nonce):
     process=load(WORK/'owned_process.py','first_login_target_owned_process')
     journey=load(WORK/'journey.py','first_login_installed_journey')
     process.prepare()
-    end=time.monotonic()+190
     records=[]
-
-    def command(step,argv,expected=0,cwd=None):
-        cap=min(20,end-time.monotonic())
-        if cap<=1:
-            raise TimeoutError('installed first-login bounded window exhausted')
-        child=subprocess.Popen(argv,cwd=cwd,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT,start_new_session=True,
-                               env={'PATH':'/usr/bin:/bin','LC_ALL':'C.UTF-8','TZ':'UTC'})
-        receipt=process.supervise(child,cap=cap,retirement=1,max_output=256*1024)
-        output=receipt.pop('output')
-        records.append(dict(step=step,expected=expected,receipt=receipt))
-        if (receipt['exit']!=expected or receipt['reaped'] is not True or receipt['ownership']!='REAPED'
-                or receipt['output_complete'] is not True or receipt['group_census']!='EMPTY_TWICE'
-                or receipt['timeout'] or receipt['signals'] or receipt['error'] is not None):
-            raise ValueError('installed first-login command failed owned retirement: '+step)
-        return output
+    command=partial(checked_command,process,time.monotonic()+190,records)
 
     try:
         result=run_installed(journey,home,command,owner.pw_uid,owner.pw_gid)

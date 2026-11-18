@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """End-to-end controller and guest evidence controls without a VM actor."""
 
+from base64 import b64decode
 from pathlib import Path
 import sys
 import tempfile
@@ -68,7 +69,7 @@ class FirstLoginIntegration(unittest.TestCase):
         self.assertEqual(files['code/first-login/guest.py'],self.supplement['files']['guest.py'])
         self.assertEqual((pack/'code/first-login/guest.py').stat().st_mode&0o777,0o444)
 
-    def execute(self, *, refusal=False):
+    def execute(self, *, refusal=False, journey_failure=False):
         inputs=self.work/'inputs'
         work=self.work/'work'
         work.mkdir()
@@ -110,6 +111,9 @@ class FirstLoginIntegration(unittest.TestCase):
             kwargs['stdout'].write(data.get(role,b''))
             if role=='install':
                 (output/'pacman.log').write_bytes(b'fixture base pacman log\n')
+            if journey_failure and role=='first-login-installed-journey':
+                kwargs['stderr'].write(b'bounded failed fixture command diagnostic\n')
+                return SimpleNamespace(returncode=2)
             return SimpleNamespace(returncode=7 if refusal and role=='first-login-verify-signature' else 0)
 
         with (
@@ -171,6 +175,19 @@ class FirstLoginIntegration(unittest.TestCase):
         self.assertEqual(commands[-1]['role'],'first-login-verify-signature')
         self.assertEqual(commands[-1]['exit'],7)
         self.assertNotIn('first-login-install',[row['role'] for row in commands])
+
+    def test_journey_hold_exports_its_diagnostic_in_the_addon_stderr(self):
+        rc,output,plan=self.execute(journey_failure=True)
+        self.assertEqual(rc,T.LIFECYCLE_HOLD_EXIT)
+        result=self.read_fixture(output,plan,held=True)
+        self.assertEqual(result['status'],T.FIRST_LOGIN_HOLD)
+        self.assertEqual(result['phase'],'first-login-installed-journey')
+        self.assertIsNone(result['first_login'])
+        commands=T.decode((output/T.FIRST_LOGIN_EVIDENCE).read_bytes())['commands']
+        self.assertEqual(commands[-1]['role'],'first-login-installed-journey')
+        self.assertEqual(commands[-1]['exit'],2)
+        self.assertEqual(b64decode(commands[-1]['stderr'],validate=True),b'bounded failed fixture command diagnostic\n')
+        self.assertNotIn('first-login-uninstall',[row['role'] for row in commands])
 
 
 if __name__=='__main__':

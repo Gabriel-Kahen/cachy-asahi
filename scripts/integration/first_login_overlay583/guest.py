@@ -144,7 +144,9 @@ def exercise(trial, stage, target, before, after, files, nonce, env, command, re
     with ExitStack() as stack:
         trial.target_api_mounts(target, env, stack)
         target_work = target/TARGET_WORK.relative_to('/')
-        target_work.mkdir(mode=0o755)
+        target_work.mkdir(mode=0o700)
+        # PID 1 uses umask 077. Setup8 must open every HOME ancestor as the fixture user.
+        target_work.chmod(0o755)
         for name in ('journey.py','target.py','owned_process.py'):
             (target_work/name).write_bytes(files[name])
         call('first-login-install',90)
