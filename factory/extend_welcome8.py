@@ -77,12 +77,52 @@ static gboolean actual_peer_focus(void)
     return once(text, before, '')
 
 
+def settle_target_focus(text):
+    # Join the scoped orphan expander's own AT-SPI focus with complete geometry.
+    # A successful GrabFocus reply requests focus and does not prove convergence.
+    before = 'static void ensure_visible(guint pid)'
+    after = '''static gboolean actual_orphan_report_focus(void)
+{
+    atspi_accessible_clear_cache(target);
+    AtspiStateSet *states = atspi_accessible_get_state_set(target);
+    gboolean focused = state(states, ATSPI_STATE_FOCUSED);
+    if (focused) check(state(states, ATSPI_STATE_ENABLED) && state(states, ATSPI_STATE_SENSITIVE),
+                       "focused orphan report must remain enabled");
+    if (states) g_object_unref(states);
+    return focused;
+}
+
+static void ensure_visible(guint pid)'''
+    text = once(text, before, after)
+    before = '''        gboolean geometry_seen = FALSE;
+        gboolean final_visible = peer_focused
+            ? settled_geometry_with(pid, &value, actual_peer_focus, &geometry_seen)
+            : settled_geometry(pid, &value);
+        if (peer_focused && geometry_seen)
+            check(final_visible, "actual peer focused state");'''
+    after = '''        gboolean orphan_report_focus = focus_called && wanted_scope &&
+            !strcmp(wanted_scope, "Orphan assessment") && !strcmp(wanted, "View report");
+        gboolean geometry_seen = FALSE;
+        gboolean final_visible = peer_focused
+            ? settled_geometry_with(pid, &value, actual_peer_focus, &geometry_seen)
+            : orphan_report_focus
+                ? settled_geometry_with(pid, &value, actual_orphan_report_focus, &geometry_seen)
+                : settled_geometry(pid, &value);
+        if (peer_focused && geometry_seen)
+            check(final_visible, "actual peer focused state");
+        if (orphan_report_focus && geometry_seen)
+            check(final_visible, "actual focused control required");'''
+    return once(text, before, after)
+
+
+
+
 def apply(out,selected):
  # These are typed installed-version expectations, not a substitute for execution.
  for name in('gui_contract.py','dns_contract.py','doctor_worker.py'):
   p=out/name;s=p.read_text();assert '0.1.0-7'in s;s=s.replace('0.1.0-7','0.1.0-8');p.write_text(s)
  shutil.copyfile(HERE/'welcome8_stop.py',out/'welcome8_stop.py')
- p=out/'a11y_driver.c';s=p.read_text();s=once(s,'"List stored DNS profiles", "View report" };','"List stored DNS profiles", "View report", "Stop check" };');s=once(s,'check(!strcmp(wanted, "View report") &&','check((!strcmp(wanted, "View report") || (!strcmp(wanted, "Stop check") && !strcmp(argv[4], "Doctor") && !scrolling)) &&');p.write_text(settle_peer_focus(s))
+ p=out/'a11y_driver.c';s=p.read_text();s=once(s,'"List stored DNS profiles", "View report" };','"List stored DNS profiles", "View report", "Stop check" };');s=once(s,'check(!strcmp(wanted, "View report") &&','check((!strcmp(wanted, "View report") || (!strcmp(wanted, "Stop check") && !strcmp(argv[4], "Doctor") && !scrolling)) &&');p.write_text(settle_target_focus(settle_peer_focus(s)))
  p=out/'management_phase.py';s=p.read_text();a="        closing_before=stable();action(ui['labels']['orphans'],scroll=True);closing=observed('orphans',True)";b="        import welcome8_stop\n        welcome8_stop.exercise(base,stage,current,inventory,hooks,request,stable)\n"+a;p.write_text(once(s,a,b))
  # Isolated guest Python registers only independently regenerated source siblings.
  for name in('desktop574_guest.py','doctor_worker.py'):
