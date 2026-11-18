@@ -24,10 +24,12 @@ predecessors' retained maps and before-bodies directly and checks each complete
 tree against `inputs.json`. It has no executable dependency on the llhttp or
 native349 constructor families or on the current carrier binding template.
 
-Use absolute, ordinary paths and a fresh output whose parent already exists:
+Use absolute, ordinary paths and a fresh output whose parent already exists.
+Select factory V2 for the corrected AArch64 finisher.
 
 ```sh
 python3 -I -B scripts/ci/md4c053-reference-native-source/prepare.py \
+  --factory-version 2 \
   --parent /absolute/fixed241/Source-DATA \
   --recipe /absolute/source295/packages/port/md4c053-source-reference \
   --archive /absolute/md4c-472c417005c2c71b8617de4f7b8d6b30411d78f4.tar.gz \
@@ -42,15 +44,23 @@ the bound-carrier95, original95 and Source93/85/76/68/62 inverses then pass. Thi
 not a compressed executable supplied by a network actor. Root reviews the exact
 resulting map/program/policy/workflow and issues fresh separate authority.
 
-The `factory` binding in `inputs.json` requires the existing md4c95 output
-tree `f1218cff0804c456f74f980e36e262532d2d080f`, with 2,035,430 bytes. It
-also fixes the map, program, policy and workflow. Construction checks the
-binding and verifies the physical files after writing. The same check can
-verify an existing local source without executing its code:
+Factory V1 is the default and reproduces the historical tree
+`f1218cff0804c456f74f980e36e262532d2d080f` with 2,035,430 bytes. Factory V2
+reproduces tree `2572f523ae0cffbcc29b14c0995ff7abea800d87` with 2,035,698
+bytes. It binds the corrected finisher at the generated provider's normal
+`finish_pair.py` path and verifies the complete held Source inverse.
+
+The V2 finisher checks the direct dependencies observed in the retained R126
+pair. Every ELF directly needs `libc.so.6` and the AArch64 glibc loader, which
+supplies `__stack_chk_guard`. The HTML library directly needs the core library.
+The CLI directly needs the HTML library and reaches the core transitively.
+
+Verify a physical Source using its original factory version. This reads the
+files as data.
 
 ```sh
 python3 -I -B scripts/ci/md4c053-reference-native-source/prepare.py \
-  --verify-source /absolute/Source-DATA
+  --factory-version 2 --verify-source /absolute/Source-DATA
 ```
 
 All 45 held-base files remain byte-identical, including the exact349 target
@@ -123,9 +133,8 @@ workflow, bind its exact code/map/program/policy, join the canonical caller and
 issue the actual operational role/runtime54/custody/Main-CAS/global-EMPTY/
 freshness/nonce/resource documents. None is synthesized here. A future successful
 native pair provides ordinary unsigned build outputs for separate Root TEST
-signing/admission; it is not official ALARM or release signing. Actual source
-publication, native builds, installation, signing, M2 and release remain NULL
-or NOT RUN.
+signing and admission. The constructor emits local, unissued Source. Its
+receipt leaves publication and native build results empty.
 
 ## Local controls
 
@@ -141,6 +150,8 @@ python3 -I -B -Werror::ResourceWarning scripts/ci/md4c053-reference-native-sourc
 Runtime controls use synthetic bundles and intercepted transports. Finisher
 controls use synthetic XZ packages/native-shaped ELF metadata, never a real ARM
 package. Source integration uses the actual frozen input bytes and generated
-payload/constructor/hook in temporary directories with actor and network fences.
-Passing these controls establishes source contracts only. Retained host717-case
-build evidence belongs to source295; it is not rerun or relabeled native here.
+payload, constructor and provider hook in temporary directories with actor and
+network fences. It checks both exact exported trees and stages their versioned
+finishers. The corrected finisher also has offline replay evidence from the
+two archived R126 AArch64 builds. R126's original hosted outcome was HOLD.
+Release, signing and hardware acceptance are separate from these checks.

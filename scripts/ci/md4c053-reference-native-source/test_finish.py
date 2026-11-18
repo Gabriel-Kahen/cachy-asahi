@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import struct
 import tempfile
+import types
 import unittest
 from unittest.mock import patch
 import tarfile
@@ -16,11 +17,13 @@ import tarfile
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('md4c_model_finisher', HERE / 'finish_pair.py')
 F = importlib.util.module_from_spec(spec); spec.loader.exec_module(F)
+spec = importlib.util.spec_from_file_location('md4c_versioned_factory', HERE / 'prepare.py')
+P = importlib.util.module_from_spec(spec); spec.loader.exec_module(P)
 LICENSE_TEXT = '\n# The MIT License (MIT)\n\nCopyright © 2016-2024 Martin Mitáš\n\nPermission is hereby granted, free of charge, to any person obtaining a\ncopy of this software and associated documentation files (the “Software”),\nto deal in the Software without restriction, including without limitation\nthe rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software, and to permit persons to whom the\nSoftware is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included\nin all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS\nOR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS\nIN THE SOFTWARE.\n'
 IMAGE = 'sha256:' + '1' * 64
 
 
-def model_elf(name, needed=None, soname='DEFAULT', rpath=False):
+def model_elf(name, needed=None, soname='DEFAULT', rpath=False, interpreter=b'/lib/ld-linux-aarch64.so.1\0'):
     expected, libraries = F.ELFS[name]
     if needed is None: needed = sorted(libraries)
     if soname == 'DEFAULT': soname = expected
@@ -37,8 +40,8 @@ def model_elf(name, needed=None, soname='DEFAULT', rpath=False):
     segments = [(1, 5, 0, 0, 0, len(raw), len(raw), 16384),
                 (2, 6, 0x180, 0x180, 0, 16 * len(tags), 16 * len(tags), 8)]
     if not expected:
-        loader = b'/lib/ld-linux-aarch64.so.1\0'; raw[0x280:0x280 + len(loader)] = loader
-        segments.append((3, 4, 0x280, 0x280, 0, len(loader), len(loader), 1))
+        raw[0x280:0x280 + len(interpreter)] = interpreter
+        segments.append((3, 4, 0x280, 0x280, 0, len(interpreter), len(interpreter), 1))
     for index, row in enumerate(segments): struct.pack_into('<IIQQQQQQ', raw, 64 + 56 * index, *row)
     for index, row in enumerate(tags): struct.pack_into('<qQ', raw, 0x180 + 16 * index, *row)
     raw[0x300:0x300 + len(strings)] = strings
@@ -113,10 +116,30 @@ class Controls(unittest.TestCase):
         cases = [(library, bytes(wrong_arch)), (library, model_elf(library, soname='libmd4c.so.1')),
                  (library, model_elf(library, needed=['libc.so.6', 'libforeign.so'])),
                  (library, model_elf(library, rpath=True)),
-                 ('usr/bin/md2html', model_elf('usr/bin/md2html').replace(b'ld-linux-aarch64', b'ld-linux-x86____'))]
+                 ('usr/bin/md2html', model_elf('usr/bin/md2html', interpreter=b'/lib/ld-linux-x86-64.so.2\0'))]
         for name, body in cases:
             with self.subTest(name=name):
                 with self.assertRaises(ValueError): F.elf(body, name)
+
+    def test_r126_direct_dependencies_include_glibc_loader_and_exclude_transitive_core_from_cli(self):
+        finisher = types.ModuleType('md4c_model_finisher_v2')
+        finisher.__file__ = str(HERE / 'finish_pair.py')
+        exec(compile(P.finisher_for(2), finisher.__file__, 'exec'), finisher.__dict__)
+        core, html, cli = 'usr/lib/libmd4c.so.0.5.3', 'usr/lib/libmd4c-html.so.0.5.3', 'usr/bin/md2html'
+        glibc = ['libc.so.6', 'ld-linux-aarch64.so.1']
+        actual = {core: glibc, html: ['libmd4c.so.0', *glibc], cli: ['libmd4c-html.so.0', *glibc]}
+        for name, dependencies in actual.items():
+            with self.subTest(name=name):
+                self.assertEqual(finisher.elf(model_elf(name, needed=dependencies), name)['needed'], sorted(dependencies))
+                for invalid in (dependencies[:-1], dependencies + [dependencies[0]]):
+                    with self.assertRaisesRegex(ValueError, 'exact md4c SONAME and DT_NEEDED closure'):
+                        finisher.elf(model_elf(name, needed=invalid), name)
+        with self.assertRaisesRegex(ValueError, 'expected native loader role'):
+            finisher.elf(model_elf(cli, needed=actual[cli], interpreter=b'/lib/ld-linux-x86-64.so.2\0'), cli)
+        for name, invalid in ((html, glibc), (cli, [*actual[cli], 'libmd4c.so.0'])):
+            with self.subTest(name=name, invalid=invalid):
+                with self.assertRaisesRegex(ValueError, 'exact md4c SONAME and DT_NEEDED closure'):
+                    finisher.elf(model_elf(name, needed=invalid), name)
 
     def test_rehashed_extra_hook_and_wrong_symlink_are_not_provider_packages(self):
         self.build(self.first, 'MODEL-clean-1', extra={'.INSTALL': b'MODEL unexpected script'})

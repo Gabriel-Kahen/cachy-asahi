@@ -107,10 +107,34 @@ class Controls(unittest.TestCase):
             self.assertIn(token, self.new[P.PREFIX+'hosted_owner.py'])
 
     def test_actual_generated_payload_unpacks_installs_and_stages_real_provider(self):
-        root = self.source()
+        self.check_generated_provider(self.source(), self.new, P.finisher_for(1))
+
+    def test_v2_factory_preserves_held_source_and_stages_exact_corrected_finisher(self):
+        root = self.area / 'corrected'
+        result = P.construct(PARENT, RECIPE, ARCHIVE, root, factory_version=2)
+        self.assertEqual(result, P.verify_source(root, factory_version=2))
+        self.assertEqual(result['factory']['kind'], 'MD4C053_NATIVE_SOURCE_FACTORY_V2')
+        self.assertEqual(result['source_map'], P.FACTORY_V2['source']['map'])
+        self.assertEqual(result['files'], 95)
+        self.assertLess(result['bytes'], 2*1024**2)
+        with self.assertRaisesRegex(ValueError, 'exact source census, tree and map required'):
+            P.verify_source(root)
+        bodies = P.P.physical(root)
+        self.assertEqual(P.inverse(bodies, factory_version=2), self.old)
+        self.assertEqual(set(bodies), set(self.new))
+        self.assertEqual({name for name in bodies if bodies[name] != self.new[name]},
+                         {P.MARKER, 'source-map.json', P.PREFIX + 'owner-program.json'})
+        bundle = json.loads(bodies[P.MARKER])['bundle']
+        with self.assertRaisesRegex(ValueError, 'exact native lock and versioned finisher code'):
+            P.validate_bundle(bundle, self.old)
+        raw = P.validate_bundle(bundle, self.old, factory_version=2)['finish_pair.py']
+        self.assertEqual(P.pin(raw)['sha256'], '4c17efdce5aa6d32b86f95de519347abf0da1243217d5d79ec3bac8cc2c9f80a')
+        self.check_generated_provider(root, bodies, raw)
+
+    def check_generated_provider(self, root, bodies, finisher_bytes):
         data = load(root/P.PREFIX/'data.py', 'md4c_integrated_data')
         carrier = load(root/P.PREFIX/'native349_carrier.py', 'md4c_integrated_carrier')
-        payload = ast.parse(self.new[P.PREFIX+'payload.py'])
+        payload = ast.parse(bodies[P.PREFIX+'payload.py'])
         main = next(n for n in payload.body if isinstance(n, ast.FunctionDef) and n.name == 'main')
         start = next(i for i,n in enumerate(main.body) if isinstance(n, ast.Assign)
                      and any(isinstance(t, ast.Name) and t.id == 'base' for t in n.targets))
@@ -122,7 +146,7 @@ class Controls(unittest.TestCase):
         phases = Mock()
         env = dict(root=root, D=data, N=carrier, Path=Path,
             config=dict(pinned_inputs=str(self.area/'MODEL-pinned-inputs')),
-            map_sha=P.pin(self.new['source-map.json'])['sha256'], X=SimpleNamespace(phase=phases))
+            map_sha=P.pin(bodies['source-map.json'])['sha256'], X=SimpleNamespace(phase=phases))
         exec(compile(code, '<actual-source-md4c-payload-segment>', 'exec'), env)
         self.assertFalse((self.area/'native-output').exists())
         namespace = env['namespace']; contract = namespace['C']; here = namespace['HERE']
@@ -146,6 +170,7 @@ class Controls(unittest.TestCase):
         self.assertEqual(len(builds), 2); self.assertEqual(compare[-1], '--require-bytes')
         finisher = contract.module(here/'finish_pair.py', 'md4c_integrated_finisher')
         self.assertEqual(finisher.PACKAGE, 'md4c-0.5.3-1-aarch64.pkg.tar.xz')
+        self.assertEqual(Path(finisher.__file__).read_bytes(), finisher_bytes)
         original = contract.module(here/'contract.py', 'md4c_forwarded_legacy_contract')
         self.assertEqual(Path(original.__file__), here/'contract.py')
         self.assertEqual((output/'md4c-provider-inputs/recipe/PKGBUILD').read_bytes(),
