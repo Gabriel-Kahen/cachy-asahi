@@ -98,6 +98,53 @@ Only that workflow's runner-owned storage is mounted and later retired.
    naturally completed build. The controller retains responsibility for
    exceptional owned-daemon and storage retirement.
 
+## Configure the Root-operated launcher
+
+Import `launch` from this exact directory in the registered Root launcher.
+`launch.load_retained_runtime(r128_source)` revalidates the complete pinned
+R128 namespace and loads its existing controller and signed349 programs.
+The independent input adapter is
+`scripts/ci/qt612-complete-family-native-source/runner_inputs.py` from
+`111743970e2af7aa2b109d2827f316ad2b45e66a`. Select and pin its whole body when
+assembling the launcher Source.
+
+Use `launch.first_stage_controller` within the independently authenticated
+Root controller scope. It changes only the prior pair, controller and
+owned service lifetimes. The scope budget is 21,030 seconds, with 20,940
+seconds of owned work and 90 seconds of cleanup. The work budgets are
+240 seconds for transfer, 2,700 seconds for the signed base and exact 356
+preparation, and 18,000 seconds for the component stage. Provision the
+Root-selected bounded `Commands` accordingly. Use
+`launch.reserve_and_bind` as Root before launching the independently
+authenticated ordinary owner service. Its `transfer` argument is the
+independently admitted acquisition program. It receives the verified
+ext4 root and the three fresh `volume/work` paths `portable`, `operands`
+and `framework`. It must complete credential and temporary-store retirement
+and provide ordinary-user access to the pinned public operands.
+
+`launch.run_owned_payload` takes the resulting prepared data, retained
+`entry`, `carrier`, `rootfs`, `native` and `container_runtime` modules, and the
+supervisor's separate authority callbacks. It runs the known 517-input
+offline audit and 257 original signature verifications, shell proof, and
+exact signed349 construction. The flat bootstrap cache is a temporary
+copy wholly inside the quota and the inherited authenticated handoff
+consumes it. The original re-bound operands remain for readback. The
+subsequent maintained seven-pair signed ALPM transaction requires the
+supervisor's `authenticate_md4c_input` with the current certificate,
+fingerprint, expiry, exact archive/signature pins and its Root evidence.
+The disposable trust keyring is removed within the image transaction.
+The installed inventory is independently re-read as the ordinary user.
+
+After the real 356 image exists, the external
+`select_stage_binding(image=..., inventory_pin=..., source_map_sha256=...,
+component=..., nonce=...)` selects a fresh authenticated binding path and
+SHA-256. The ordinary payload verifies it through the maintained stage
+gate. The supervisor receives separate qualifier and private lifecycle
+callbacks, and retains evidence with `retain_owner_evidence` before the
+Root controller retires the daemon and quota mount. The route remains
+pending hosted registration, authority, acquisition program selection and
+private output signing.
+
 The generated build remains one CPU, one compile job, 4 GiB RAM, no extra
 swap, 4 GiB private tmpfs and 512 PIDs. The two serial builds use 6,900 seconds
 each. Comparison, qualification, lifecycle and cleanup reserve remain
