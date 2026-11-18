@@ -30,7 +30,7 @@
   "native":
     "if": "github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false"
     "runs-on": "ubuntu-24.04-arm"
-    "timeout-minutes": 155
+    "timeout-minutes": "${{ inputs.mode == 'generic16k' && 237 || 155 }}"
     "defaults":
       "run":
         "shell": "bash"
@@ -50,6 +50,21 @@
           "ref": "${{ inputs.source_sha }}"
           "path": "gui606-source"
           "persist-credentials": false
+      -
+        "name": "Bind fresh ARM16K kernel state before the GUI owner clock"
+        "if": "inputs.mode == 'generic16k'"
+        "timeout-minutes": 2
+        "run": |
+          set -euo pipefail
+          python3 -I -B "$CURRENT" kernel-init --case "$CASE" --state "$RUNNER_TEMP/gui606-state"
+      -
+        "name": "Build exact KSM and virtio-input kernel inside this ARM16K job"
+        "if": "inputs.mode == 'generic16k'"
+        "timeout-minutes": 80
+        "uses": "./gui606-source/factory/kernel-keyboard/.github/actions/current606-ksm-virtio-input"
+        "with":
+          "source-sha": "${{ inputs.source_sha }}"
+          "work": "${{ runner.temp }}/gui606-state/keyboard-kernel"
       -
         "name": "Prove complete original348 and published53 plus exact FDK graph successor"
         "id": "proof"
@@ -143,15 +158,6 @@
           "ref": "b48ba616f131ed26520d134064c046ba3d8cfbbe"
           "path": "fdk-selected-source"
           "persist-credentials": false
-      -
-        "name": "Checkout exact managed16K media only after source-bound readiness"
-        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
-        "timeout-minutes": 2
-        "with":
-          "ref": "${{ steps.proof.outputs.kernel_source }}"
-          "path": "kernel-media"
-          "persist-credentials": false
-        "if": "inputs.mode == 'generic16k'"
       -
         "name": "Prove and assemble original immutable GUI native input roles"
         "timeout-minutes": 3
@@ -274,7 +280,7 @@ python3 -I -B gui606-source/service_controls.py\npython3 -I -B \"$CURRENT\" pres
       -
         "name": "One actual current606 Welcome8 GUI case with exact owned retirement"
         "timeout-minutes": 45
-        "run": "timeout --signal=TERM --kill-after=480s 2200s python3 -I -B \"$CURRENT\" run --case \"$CASE\" --state \"$STATE\" --base \"$RUNNER_TEMP/desktop574-${PROFILE}\" --assets \"$RUNNER_TEMP/welcome5-assets\" --carrier \"$GITHUB_WORKSPACE/incoming606\" --tooling \"$GITHUB_WORKSPACE/controller-tooling89\" --bootstrap \"$STATE/bootstrap2\" --kernel-carrier \"$GITHUB_WORKSPACE/kernel-media\" --welcome8 \"$GITHUB_WORKSPACE/welcome8-inputs\" --apps16 \"$GITHUB_WORKSPACE/apps16-inputs\""
+        "run": "set -euo pipefail\nKERNEL_CARRIER=\"$GITHUB_WORKSPACE/kernel-media\"\nif [[ \"$CASE\" == *-generic16k ]]; then KERNEL_CARRIER=\"$STATE/keyboard-kernel/built\"; fi\ntimeout --signal=TERM --kill-after=480s 2200s python3 -I -B \"$CURRENT\" run --case \"$CASE\" --state \"$STATE\" --base \"$RUNNER_TEMP/desktop574-${PROFILE}\" --assets \"$RUNNER_TEMP/welcome5-assets\" --carrier \"$GITHUB_WORKSPACE/incoming606\" --tooling \"$GITHUB_WORKSPACE/controller-tooling89\" --bootstrap \"$STATE/bootstrap2\" --kernel-carrier \"$KERNEL_CARRIER\" --welcome8 \"$GITHUB_WORKSPACE/welcome8-inputs\" --apps16 \"$GITHUB_WORKSPACE/apps16-inputs\""
       -
         "name": "Verify runtime15 retirement before original producer cleanup"
         "if": "always() && steps.proof.outcome == 'success'"

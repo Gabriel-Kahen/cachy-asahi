@@ -20,16 +20,49 @@ def selected(case):A.need(case in CASES,'one independent source-owned case');ret
 def fresh():return load('_current606_ingress',ROOT/'factory/fresh606.py')
 def fresh_data():return A.obj(ROOT/'fresh-test/selection.json')
 
+def kernel_route():
+ return load('_current606_exact_owned_kernel_stage',ROOT/'factory/kernel_stage.py')
+
+def kernel_actor(case,env):
+ _,mode=selected(case);source=env.get('SOURCE_SHA','');ref=env.get('GITHUB_REF','');repo='Gabriel-Kahen/cachy-asahi'
+ workflows={repo+'/'+path+'@'+ref for path in ('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-current606-welcome8-gui.yml')}
+ A.need(mode=='generic16k' and env.get('GITHUB_ACTIONS')=='true' and env.get('GITHUB_REPOSITORY')==repo
+        and env.get('GITHUB_EVENT_NAME')=='workflow_dispatch' and env.get('GITHUB_RUN_ATTEMPT')=='1'
+        and re.fullmatch(r'[a-f0-9]{40}',source) and source==env.get('GITHUB_SHA')==env.get('GITHUB_WORKFLOW_SHA')
+        and re.fullmatch(r'refs/heads/codex/[A-Za-z0-9._/-]+',ref) and env.get('GITHUB_WORKFLOW_REF') in workflows,
+        'exact first ARM16K job, workflow/ref and source checkout')
+
+def kernel_init(case,state,env):
+ kernel_actor(case,env)
+ fresh().current(fresh_data(),full_launch=True,case=case)
+ A.prove(ROOT);profile,mode=selected(case);K=kernel_route();K.route()
+ A.need(mode=='generic16k' and state==Path(env['RUNNER_TEMP'])/'gui606-state' and state.is_absolute()
+        and not state.exists() and not any(q.is_symlink()for q in (state,*state.parents)),
+        'fresh exact ARM16K job state before the GUI owner clock')
+ old=original().prove(ROOT/'original',profile,env,state/'welcome5-runtime')
+ owned=dict(source=env['SOURCE_SHA'],run=int(env['GITHUB_RUN_ID']),attempt=int(env['GITHUB_RUN_ATTEMPT']),
+            case=case,job_token=old['job_token'])
+ A.need(K.module().scope(owned)==owned,'exact first-attempt case-owned kernel init')
+ state.mkdir(mode=0o700)
+ return save(state/'kernel-init.json',dict(status='CURRENT606_R6_KERNEL_INIT_SOURCE_ONLY',**owned,state=str(state),
+                                     media=A.pin(A.read(ROOT/'kernel-media-profile.json'))))
+
 def proof(case,state,env):
  fresh().current(fresh_data(),full_launch=True,case=case)
  fact=A.prove(ROOT);profile,mode=selected(case)
  if mode=='generic16k':
-  media=A.obj(ROOT/'kernel-media-profile.json');A.need(re.fullmatch('[a-f0-9]{40}',media['source']or'')and media['ready']is True,'16K blocked until exact Root-published managed media profile is bound;4K independent')
- A.need(state.is_absolute()and not state.exists()and not any(p.is_symlink()for p in(state,*state.parents)),'fresh fixed owner state');state.mkdir(mode=0o700);old=original().prove(ROOT/'original',profile,env,state/'welcome5-runtime')
+  kernel_actor(case,env)
+  A.need(state==Path(env['RUNNER_TEMP'])/'gui606-state' and state.is_dir() and not any(q.is_symlink()for q in (state,*state.parents))
+         and {q.name for q in state.iterdir()}=={'kernel-init.json','keyboard-kernel'},'exact completed same-job kernel and fresh original GUI owner state')
+  K=kernel_route();K.route();old=original().prove(ROOT/'original',profile,env,state/'welcome5-runtime')
+  owned=dict(source=env['SOURCE_SHA'],run=int(env['GITHUB_RUN_ID']),attempt=int(env['GITHUB_RUN_ATTEMPT']),
+             case=case,job_token=old['job_token'],state=str(state))
+  K.ownership(state/'keyboard-kernel/built',owned,A.obj(state/'kernel-init.json'))
+ else:
+  A.need(state.is_absolute()and not state.exists()and not any(p.is_symlink()for p in(state,*state.parents)),'fresh fixed owner state');state.mkdir(mode=0o700);old=original().prove(ROOT/'original',profile,env,state/'welcome5-runtime')
  value=dict(status='SOURCE_BOUND_CURRENT606_GUI_NATIVE_CASE',source=env['SOURCE_SHA'],run=int(env['GITHUB_RUN_ID']),attempt=int(env['GITHUB_RUN_ATTEMPT']),profile=profile,mode=mode,case=case,state=str(state),source_files=fact['files'],job_token=old['job_token'],owner_seconds=6600,started_monotonic=time.monotonic(),original348=old,fresh_test_selection=A.pin(A.read(ROOT/'fresh-test/selection.json')),actual_GUI='NOT_RUN',Root_acceptance='NOT_ISSUED');value['owner_deadline']=value['started_monotonic']+6600;save(state/'source-proof.json',value)
  with open(env['GITHUB_OUTPUT'],'a')as s:
   s.write('job_token='+old['job_token']+'\n')
-  if mode=='generic16k':s.write('kernel_source='+media['source']+'\n')
  return value
 def binding(case,state):
  A.prove(ROOT);p=A.obj(state/'source-proof.json');profile,mode=selected(case);A.need(p['case']==case and p['profile']==profile and p['mode']==mode and p['state']==str(state)and p['status']=='SOURCE_BOUND_CURRENT606_GUI_NATIVE_CASE','exact proof-bound current case');original().binding(ROOT/'original',profile,p['original348']);return p
@@ -44,8 +77,12 @@ def run(case,state,base,assets,carrier,tooling,bootstrap,kernel_carrier,welcome8
   prepared=input606.prepare(ROOT,carrier,bootstrap,base,state/'ready606',deadline,welcome8,apps16);save(state/'input-preparation.json',prepared)
   kernel=None
   if p['mode']=='generic16k':
-   sys.path.insert(0,str(ROOT/'factory/retained-helpers'));L=load('_gui606_whole_managed_media_source',ROOT/'factory/retained-helpers/legacy_prefill.py');media=A.obj(ROOT/'kernel-media-profile.json');kernel_proof=L.prove(kernel_carrier,kernel_carrier/'.git',media,deadline);A.need(kernel_proof['tree']==media['tree'],'exact whole original kernel carrier tree');save(state/'kernel-media-custody.json',dict(status='CURRENT_CASE_ORIGINAL_MEDIA_CUSTODY_NOT_VM_ACCEPTANCE',source=p['source'],run=p['run'],attempt=p['attempt'],case=case,job_token=p['job_token'],media_profile=A.pin(A.read(ROOT/'kernel-media-profile.json')),carrier=kernel_proof));kernel=tuple(kernel_carrier/media['paths'][n]for n in('Image','config','profile'))
+   A.need(kernel_carrier==state/'keyboard-kernel/built','exact job-owned kernel carrier path')
+   kernel=(kernel_carrier,state/'source-proof.json',state/'kernel-init.json')
   runner=state/'runner';F.emit(ROOT/'original',assets,state/'ready606',runner,p['profile'],p['mode'],kernel,tooling,tooling/'.git',deadline)
+  if p['mode']=='generic16k':
+   save(state/'kernel-media-custody.json',dict(status='SAME_CASE_KERNEL_BUILD_AND_MEDIA_JOIN_DATA_ONLY',
+        **kernel_route().module().scope(p),join=A.obj(runner/'kernel-build-join.json'),evidence=A.obj(runner/'kernel-build-evidence.json')))
   owner=load('_current606_full_original_runtime_owner',ROOT/'factory/run.py');result=owner.run_service1800(ROOT/'original',runner,base,state/'welcome5-runtime',p['profile'],p['mode']);save(state/'actual-invocation.json',dict(purpose='CURRENT606_GUI_NATIVE_ACTUAL_INVOCATION',case=case,profile=p['profile'],mode=p['mode'],source_proof=A.pin(A.read(state/'source-proof.json')),runner_proof=A.pin(A.read(runner/'current606-proof.json')),argv=actual_argv));return result
  finally:
   signal.setitimer(signal.ITIMER_REAL,0)
@@ -90,7 +127,7 @@ def retain(case,state,base,out):
   for q in sorted(runner.rglob('*')):
    if q.is_file():
     name=str(q.relative_to(runner))
-    if q.name=='diagnostic.Image' or name=='install-context606/bundle/packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz':v['private_generated_members'][name]=A.pin(A.read(q,256*1024**2))
+    if name in ('diagnostic.Image','kernel-config','kernel-build-receipt.json','install-context606/bundle/packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz'):v['private_generated_members'][name]=A.pin(A.read(q,256*1024**2))
     else:copy(q,'generated/'+name)
  try:
   F=factory();load('_current606_fresh_whole_runner_export',ROOT/'factory/context606.py').authorize_runner(runner)
@@ -106,14 +143,15 @@ def retain(case,state,base,out):
  save(out/'retention.json',v);return v
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('phase',choices=('preflight','presecret','proof','assets','run','cleanup','retain','transport'));p.add_argument('--case',choices=CASES);p.add_argument('--state',type=Path)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('phase',choices=('preflight','presecret','kernel-init','proof','assets','run','cleanup','retain','transport'));p.add_argument('--case',choices=CASES);p.add_argument('--state',type=Path)
  for n in('base','assets','carrier','tooling','bootstrap','public','project','renewal','output','kernel-carrier','welcome8','apps16'):p.add_argument('--'+n,type=Path)
  a=p.parse_args()
  if a.phase=='preflight':return print(json.dumps(A.prove(ROOT),sort_keys=True))or 0
  if a.phase=='presecret':
   A.prove(ROOT);return fresh().presecret(ROOT/'original',Path(os.environ['WELCOME5_GUI_ASSETS']).absolute())
  state=a.state.absolute();selected(a.case)
- if a.phase=='proof':v=proof(a.case,state,os.environ)
+ if a.phase=='kernel-init':v=kernel_init(a.case,state,os.environ)
+ elif a.phase=='proof':v=proof(a.case,state,os.environ)
  else:
   q=binding(a.case,state)
   if a.phase=='assets':v=fresh().prepare_assets(ROOT/'original',a.public.absolute(),a.project.absolute(),a.output.absolute(),a.renewal.absolute(),original().assets,case=a.case)

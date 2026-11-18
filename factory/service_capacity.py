@@ -46,7 +46,10 @@ def factory(namespace,selected):
  ingress=b";load('_current606_fresh_ingress',HERE/'fresh606.py').prepare_code(held,root,assets,out,selected)\n"
  clock=b"    if mode=='generic16k':changes['guest_clock606']=load('_guest_clock606',HERE/'guest_clock606.py').apply(out,pin,once)\n"
  need(raw.count(progress)==raw.count(ingress)==raw.count(clock)==1,'exact observer, TEST ingress and 16 KiB clock factory seams')
- raw=raw.replace(progress,b'',1).replace(clock,b'',1).replace(ingress,b';held.prepare(root,assets,out,selected)\n',1)
+ seat=b"    if mode=='generic16k':changes['wayland_seat606']=load('_current606_seat',HERE/'wayland_seat606.py').apply(out,selected,'pci',pin,once)\n"
+ kernel=b"    if mode=='generic16k':changes['owned_kernel_profile']=load('_current606_kernel_stage',HERE/'kernel_stage.py').boot_contract(out)\n"
+ need(raw.count(seat)==raw.count(kernel)==1,'exact ARM16K Wayland and kernel-contract seams')
+ raw=raw.replace(kernel,b'',1).replace(seat,b'',1).replace(progress,b'',1).replace(clock,b'',1).replace(ingress,b';held.prepare(root,assets,out,selected)\n',1)
  need(raw.endswith(FACTORY_FOOTER.encode())and pin(raw[:-len(FACTORY_FOOTER.encode())])==p['original_helpers']['factory.py'],'entire original factory before finite opt-in footer')
  space=dict(namespace);original_prepare=namespace['prepare_code'];original_seal=namespace['seal']
  def prepare_code(*args,**kwargs):
