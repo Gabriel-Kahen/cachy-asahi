@@ -160,6 +160,20 @@ class Controls(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'exact first, manually selected'):
                 L.identity(env | wrong)
 
+    def test_original_acquisition_keeps_receipt_private(self):
+        receipt = self.root/'acquisition.json'
+        value = {'status': 'FETCHED_HASH_VERIFIED', 'fixture': True}
+        def acquire(path):
+            raw = json.dumps(value)
+            path.write_text(raw)
+            print(raw)
+            return value
+        screen = io.StringIO()
+        with redirect_stdout(screen):
+            self.assertEqual(L.acquire_private(SimpleNamespace(acquire=acquire), receipt), value)
+        self.assertEqual(screen.getvalue(), '')
+        self.assertEqual(json.loads(receipt.read_text()), value)
+
     def test_owned_stage_does_not_acquire_with_tool_drift(self):
         screen = io.StringIO()
         out = self.root/'keyboard-kernel'

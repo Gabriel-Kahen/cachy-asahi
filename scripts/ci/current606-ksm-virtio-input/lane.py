@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: MIT
 """Prepare the Current606 virtio-input kernel inside the owning ARM CI job."""
 import argparse
+from contextlib import redirect_stdout
+from io import StringIO
 import json
 import os
 from pathlib import Path
@@ -57,6 +59,12 @@ def write(path, body):
         output.write(body if isinstance(body, bytes) else (json.dumps(body, sort_keys=True, indent=2)+'\n').encode())
 
 
+def acquire_private(acquire, *args, **kwargs):
+    # The held helper writes the same bounded receipt to disk and stdout.
+    with redirect_stdout(StringIO()):
+        return acquire.acquire(*args, **kwargs)
+
+
 def build(work, archive):
     source = identity(os.environ)
     temp = Path(os.environ['RUNNER_TEMP'])
@@ -82,7 +90,8 @@ def build(work, archive):
         manifest, manifest_sha = fetch.load_manifest(ROOT/manifest_path)
         inputs = work/'inputs'
         inputs.mkdir(mode=0o700)
-        acquire.acquire(fetch, manifest['inputs'][0], inputs, manifest_sha, work/'acquisition.json', retained_archive=archive)
+        acquire_private(acquire, fetch, manifest['inputs'][0], inputs, manifest_sha, work/'acquisition.json',
+                        retained_archive=archive)
         stage = 'BUILD'
         for name in sources:
             write(work/name, V.read(HERE/name, 256 << 10))
