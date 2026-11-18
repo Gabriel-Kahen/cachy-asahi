@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: MIT
 """Exact public Source206 backend roles and independently selected Main Reader."""
 
+NUMBER = 206
+
 FAMILY = "scripts/ci/first-login-enrollment-native-source/"
 CID = "12827a098e9401998496405efde9de751367a14b"
 REF = "refs/heads/codex/current-onboarding-staging-v7-20261118-r2"

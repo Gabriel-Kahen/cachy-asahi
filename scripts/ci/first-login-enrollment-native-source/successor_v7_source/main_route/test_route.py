@@ -16,6 +16,7 @@ REPO=HERE.parents[4]
 FAMILY='scripts/ci/first-login-enrollment-native-source'
 CANONICAL=FAMILY+'/payload/native/hosted_current_v3.py'
 OPERAND=FAMILY+'/successor_v7_source/payload/hosted.py'
+HISTORICAL_MAIN=REPO/OPERAND
 REGISTRY=FAMILY+'/successor_v7_source/program.json'
 PIN=dict(bytes=68455,sha256='d491626c309a4b0f1fc198fa1cc8515d2412326d0e4fb9947332590d9de0132e')
 LEGACY_PIN=dict(bytes=66263,sha256='f8387c748f31698b45656998248f099a8207bb58f7f9d7e70ef53a73be286d97')
@@ -37,12 +38,12 @@ def load(name,path):
 
 T=load('route_legacy_cascade_helpers',HERE.parents[1]/'successor_v6_source/test_trusted_cascade.py')
 LEGACY=T.L
-L=load('route_adopted_canonical_main',REPO/CANONICAL)
+L=load('route_adopted_source205_main',HISTORICAL_MAIN)
 T.L=L
 
 
 def prefix():
-    tree=ast.parse((REPO/CANONICAL).read_bytes())
+    tree=ast.parse(HISTORICAL_MAIN.read_bytes())
     function=copy.deepcopy(next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='preflight'))
     stops=[i for i,n in enumerate(function.body)if isinstance(n,ast.Expr)and isinstance(n.value,ast.Call)
         and any(isinstance(a,ast.Constant)and a.value=='actual hosted Source/ref/workflow/stage selectors before GET or privilege'for a in n.value.args)]
@@ -56,16 +57,15 @@ class Controls(unittest.TestCase):
     seal=T.Controls.seal
     def setUp(self):
         T.Controls.setUp(self)
-        raw=(REPO/CANONICAL).read_bytes()
+        raw=HISTORICAL_MAIN.read_bytes()
         self.files[CANONICAL]=raw;(self.main/CANONICAL).write_bytes(raw);self.seal()
         self.d['programs']['hosted_launcher']=dict(member=CANONICAL,**PIN)
         self.d['binding']['source_lock']=L.pin((self.root/'source-map.json').read_bytes())
         self.d['binding']['ref']='refs/heads/codex/MODEL-unissued-source205'
         self.d['hosted']['workflow_ref']='example/MODEL/'+T.WORKFLOW+'@'+self.d['binding']['ref']
     def tearDown(self):self.assertEqual(ACTORS,[])
-    def test_canonical_adopts_exact_source205_body_and_legacy_is_immutable(self):
-        raw=(REPO/CANONICAL).read_bytes();self.assertEqual(L.pin(raw),PIN)
-        self.assertEqual(raw,(REPO/OPERAND).read_bytes())
+    def test_historical_source205_and_source196_launchers_are_immutable(self):
+        raw=HISTORICAL_MAIN.read_bytes();self.assertEqual(L.pin(raw),PIN)
         self.assertEqual(L.pin((HERE/'legacy/hosted_v6.py').read_bytes()),LEGACY_PIN)
         self.assertNotEqual(PIN,LEGACY_PIN)
     def test_current_canonical_model_selectors_pass_before_any_actor(self):
@@ -120,14 +120,14 @@ def genuine_cases(root,profile_path):
             self.assertEqual(profile['schema'],7);self.assertEqual(profile['transport_commit'],'9e26ce819a258225cac866341e15d7099038ab9e')
             self.assertEqual(profile['source_map'],dict(bytes=40793,sha256='a6d22a528075c11f6fa2e87d894c41e0ed31befcd17f99a8b92d6c26fccdb815'))
             self.assertEqual(program['roles']['hosted_launcher'],dict(member=CANONICAL,**PIN))
-            self.assertEqual((root/CANONICAL).read_bytes(),(REPO/CANONICAL).read_bytes())
+            self.assertEqual((root/CANONICAL).read_bytes(),HISTORICAL_MAIN.read_bytes())
             self.assertTrue(all(v is None for v in profile['actual'].values()))
             policy_member=program['roles']['policy']['member'];policy=dict(L.decode((root/policy_member).read_bytes()),_member=policy_member)
             d=T.model_delegation(root,profile['delegation_programs'],dict(profile['materials'],**profile['staging_materials']),policy)
             d['binding']['ref']='refs/heads/codex/MODEL-unissued-source205'
             d['hosted']['workflow_ref']='example/MODEL/'+T.WORKFLOW+'@'+d['binding']['ref']
             with tempfile.TemporaryDirectory(prefix='MODEL-Source205-main-route-')as directory:
-                main=Path(directory)/'MODEL-main';target=main/CANONICAL;target.parent.mkdir(parents=True);target.write_bytes((REPO/CANONICAL).read_bytes())
+                main=Path(directory)/'MODEL-main';target=main/CANONICAL;target.parent.mkdir(parents=True);target.write_bytes(HISTORICAL_MAIN.read_bytes())
                 _,checked,actual=prefix()(*T.call_inputs(root,main,d))
                 self.assertEqual(checked,d);self.assertEqual(actual,root)
             self.assertTrue(all(v is None for v in L.decode(profile_path.read_bytes())['actual'].values()));self.assertEqual(ACTORS,[])

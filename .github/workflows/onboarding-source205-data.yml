@@ -45,6 +45,12 @@ jobs:
           ref: 9e26ce819a258225cac866341e15d7099038ab9e
           path: .source205-author-data
           persist-credentials: false
+      - name: Acquire the published Source207 closed DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 5c6bc061d547017fd9be412e3addfc2f8bbf9e65
+          path: .source207-data
+          persist-credentials: false
       - name: Verify input commits and export closed basis DATA
         shell: bash
         run: |
@@ -96,3 +102,14 @@ jobs:
           python -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v7_source/main_route/test_checkpoint.py
           python -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v7_source/main_route/test_terminal.py
           python -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v7_source/main_route/test_source206.py
+      - name: Check Source207 closed Source, four material routes and Main replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 022
+          test "$(git -C .source207-data rev-parse HEAD)" = 5c6bc061d547017fd9be412e3addfc2f8bbf9e65
+          test "$(git -C .source207-data rev-parse HEAD^{tree})" = 828bdb990683df1d35ee85922df6650d5f723a58
+          mkdir -m 700 "$RUNNER_TEMP/source207-data"
+          git -C .source207-data -c tar.umask=0022 archive --format=tar HEAD | tar -xf - -C "$RUNNER_TEMP/source207-data"
+          python -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/successor_v7_source/main_route/test_source207.py \
+            --source-root "$RUNNER_TEMP/source207-data"
