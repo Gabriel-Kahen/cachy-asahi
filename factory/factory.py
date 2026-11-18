@@ -72,6 +72,7 @@ def verify_result(events,lock):
         edit(name,lambda s:once(s,'GENERIC4K_UNPRIVILEGED_ACTUAL_DEFAULT_TOOLS','CURRENT606_'+mode.upper()+'_UNPRIVILEGED_ACTUAL_DEFAULT_TOOLS'))
     if mode=='generic16k':extend16(out)
     load('_source_bound_welcome8_extension',HERE/'extend_welcome8.py').apply(out,obj(out/'candidate-lock.json')['profile'])
+    if mode=='generic16k':load('_current606_expanded_dns_visibility',HERE/'extend_welcome8.py').expanded_dns_visibility(out)
     def status(s):
         need(s.count('PASS_INSTALLED_WELCOME_SINGLE_PROFILE_GUI_METADATA')==2,'exact success assignment and exit gates');return s.replace('PASS_INSTALLED_WELCOME_SINGLE_PROFILE_GUI_METADATA','PASS_CURRENT606_WELCOME8_'+mode.upper()+'_GUI_METADATA')
     edit('desktop574_runtime.py',status)

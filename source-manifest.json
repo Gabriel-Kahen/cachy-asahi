@@ -16,8 +16,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "admission.py": {
-      "bytes": 55201,
-      "sha256": "c389c101728725980e205f99ae9c42779b2c8cdd8da2f979b1dd4700fd4fb2ce"
+      "bytes": 59286,
+      "sha256": "dfbd783adb2fdcf1fae98256c5597ddb5a57cc1f46eecae663b72861022b02fe"
     },
     "apps16-parent.json": {
       "bytes": 6702834,
@@ -483,6 +483,10 @@
       "bytes": 183703,
       "sha256": "1ac2d10cc89baf18d9cf87defcf2d7d64b3162ca20e8e74502b5420f321eab1e"
     },
+    "dns-report-parent.json": {
+      "bytes": 192313,
+      "sha256": "56dc3bcea2d5e8efd369e4f34d61a0351be14d848cc0867bbcb551de5b93bb66"
+    },
     "extension-input-profile.json": {
       "bytes": 8699,
       "sha256": "87ace368d105d15f0b18cc776c4a49f4bca707b37f0356e9e6d4c51dba2da3a7"
@@ -532,12 +536,12 @@
       "sha256": "9674da5a122395df4c496e7af4ed68dfb091d0793e184eff7d317bbb4df1dcf9"
     },
     "factory/extend_welcome8.py": {
-      "bytes": 8164,
-      "sha256": "41f05ad036c5b0ec4e613de378062644c4621d621fabfb5b2fa0243da3b7d630"
+      "bytes": 12720,
+      "sha256": "83ace0f03d75212addeade2810bdd9281d3dc3e7601beda42d9fd7770fb55a7f"
     },
     "factory/factory.py": {
-      "bytes": 21559,
-      "sha256": "20473f3f8a464255c9c52ad9f374d05f6de7d0da8d0f9e74123af49a1680e184"
+      "bytes": 21684,
+      "sha256": "196a5773a64cd8451d9fdca0eaf733db98b360d188a1b53db53a131cea43a5d5"
     },
     "factory/failure_cleanup.py": {
       "bytes": 3973,
@@ -804,8 +808,8 @@
       "sha256": "6d36a067f85d68184587fd6d9e2a8af0190acba6e0b371862400766a9303ae3b"
     },
     "factory/service_capacity.py": {
-      "bytes": 7676,
-      "sha256": "53320b834ba57be82a35e088db82536b27b45c8fd405cfd2cf90aea0de3a8c80"
+      "bytes": 7842,
+      "sha256": "cddec489a10e3cb0c3970c01ee03805a07d00c54d5217724a82a9459c45f4fbc"
     },
     "factory/support/alpm_reader.py": {
       "bytes": 23555,
@@ -2436,5 +2440,5 @@
       "sha256": "8dc56648ae12ed3d87a7b13f4281f5575b865545eecdc04d42816db99ce0fbaa"
     }
   },
-  "status": "SOURCE_ONLY_CURRENT606_BOUNDED_GENERIC16K_INSTALLED_VERIFIER"
+  "status": "SOURCE_ONLY_CURRENT606_EXPANDED_GENERIC16K_DNS_REPORT"
 }

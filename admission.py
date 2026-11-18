@@ -385,3 +385,66 @@ def source_context(root):
 def prove(root):
  fact=_installed_verify_fact(_installed_verify_parent(root).prove(root))
  return dict(fact,status='PASS_WHOLE_R10_AND_BOUNDED_GENERIC16K_INSTALLED_VERIFIER_SOURCE_ONLY')
+
+# Require the expanded DNS report body on the exact R11 ARM16K source.
+_DNS_START='\n# Require the expanded DNS report body on the exact R11 ARM16K source.\n'
+_DNS_PARENT_MANIFEST={'bytes': 106610, 'sha256': '2aa013fdb20bd38cc8189317bf165dde7c8c463de56c1243102564b2f3681765'}
+_DNS_PARENT='b31fbd5272772faded573a09d3ad5d3bc237f510'
+_DNS_PARENT_REF='refs/heads/codex/current606-apps16-16k-verifier-20261118-r11'
+_DNS_CONTEXT={'bytes': 192313, 'sha256': '56dc3bcea2d5e8efd369e4f34d61a0351be14d848cc0867bbcb551de5b93bb66'}
+_DNS_NEW={'factory/extend_welcome8.py': {'bytes': 12720, 'sha256': '83ace0f03d75212addeade2810bdd9281d3dc3e7601beda42d9fd7770fb55a7f'}, 'factory/factory.py': {'bytes': 21684, 'sha256': '196a5773a64cd8451d9fdca0eaf733db98b360d188a1b53db53a131cea43a5d5'}, 'factory/service_capacity.py': {'bytes': 7842, 'sha256': 'cddec489a10e3cb0c3970c01ee03805a07d00c54d5217724a82a9459c45f4fbc'}}
+_DNS_STATUS='SOURCE_ONLY_CURRENT606_EXPANDED_GENERIC16K_DNS_REPORT'
+
+def _dns_original(root):
+ root=Path(root).absolute()
+ raw=read(root/'dns-report-parent.json')
+ need(pin(raw)==_DNS_CONTEXT,'whole exact R11 DNS inverse')
+ context=json.loads(raw)
+ need(context['source']==_DNS_PARENT and context['ref']==_DNS_PARENT_REF and context['actual'] is None,
+      'exact R11 parent and no authority')
+ original_manifest=base64.b64decode(context['manifest'],validate=True)
+ need(pin(original_manifest)==_DNS_PARENT_MANIFEST,'original R11 manifest')
+ originals={**json.loads(original_manifest)['files'],'source-manifest.json':pin(original_manifest)}
+ manifest=obj(root/'source-manifest.json')
+ need(len(originals)==609 and manifest['status']==_DNS_STATUS
+      and all(manifest[key] is None for key in ('actual_source','actual_ref','actual_run'))
+      and set(manifest['files'])==set(originals)-{'source-manifest.json'}|{'dns-report-parent.json'},
+      'exact unissued 610-leaf scoped DNS successor')
+ closed(root,{**manifest['files'],'source-manifest.json':pin(read(root/'source-manifest.json'))})
+ need(all(manifest['files'][name]==value for name,value in _DNS_NEW.items()),
+      'exact finite scoped DNS source changes')
+ before,marker,_=read(root/'admission.py').partition(_DNS_START.encode())
+ need(marker and pin(before)==originals['admission.py'],'complete original R11 admission')
+ need(set(context['before'])==set(_DNS_NEW),'closed exact DNS source inverse')
+ inverse=dict(context['before'])
+ inverse={name:base64.b64decode(body,validate=True) for name,body in inverse.items()}
+ inverse.update({'source-manifest.json':original_manifest,'admission.py':before})
+ def prior_read(path,cap=16*1024**2):
+  name=Path(path).relative_to(root).as_posix()
+  raw=inverse[name] if name in inverse else read(path,cap)
+  need(name in originals and len(raw)<=cap and pin(raw)==originals[name],'whole original R11 input '+name)
+  return raw
+ def prior_closed(where,wanted):
+  prefix='' if where==root else where.relative_to(root).as_posix()+'/'
+  need({name.removeprefix(prefix):value for name,value in originals.items() if name.startswith(prefix)}==wanted,
+       'closed exact original R11 namespace')
+  for name in wanted:prior_read(where/name)
+  return wanted
+ for name in originals:prior_read(root/name)
+ prior=types.ModuleType('_current606_exact_r11_dns_report_parent');prior.__file__=str(root/'admission.py')
+ exec(compile(before,prior.__file__,'exec'),vars(prior))
+ prior.read=prior_read;prior.obj=lambda path:json.loads(prior_read(path));prior.closed=prior_closed
+ return prior
+
+def _dns_fact(fact):
+ need(fact['files']==609 and fact['selected_generic16k_verify']==dict(observer_seconds=720,command_seconds=735,
+      profiles=['minimal','overlay']) and fact['actual'] is None,
+      'whole original R11 with its exact selected verifier caps')
+ return dict(fact,files=610,selected_generic16k_dns_report='SCOPED_EXPANDED_BODY_FOCUS',actual=None)
+
+def source_context(root):
+ return _dns_fact(_dns_original(root).source_context(root))
+
+def prove(root):
+ fact=_dns_fact(_dns_original(root).prove(root))
+ return dict(fact,status='PASS_WHOLE_R11_AND_EXPANDED_GENERIC16K_DNS_REPORT_SOURCE_ONLY')

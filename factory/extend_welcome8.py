@@ -115,6 +115,92 @@ static void ensure_visible(guint pid)'''
     return once(text, before, after)
 
 
+def expanded_dns_visibility(out):
+    """Focus the report body after its one open action, even if the header is visible."""
+    path = out/'a11y_driver.c'
+    text = path.read_text()
+    text = once(text, 'static gboolean snapshot, scrolling;',
+                'static gboolean snapshot, scrolling, report_scrolling;')
+    text = once(text, '    scrolling = !strcmp(argv[2], "scroll");', '''    report_scrolling = !strcmp(argv[2], "scroll-report");
+    check(!report_scrolling || (argc == 5 && !strcmp(argv[3], "View report") &&
+          !strcmp(argv[4], "Stored DNS profiles")), "exact post-open DNS report scope");
+    scrolling = report_scrolling || !strcmp(argv[2], "scroll");''')
+    text = once(text, 'static void ensure_visible(guint pid)', '''static gboolean wait_expanded_dns_report(guint pid)
+{
+    gint64 until = g_get_monotonic_time() + 2 * G_USEC_PER_SEC;
+    do {
+        while (g_get_monotonic_time() < until && g_main_context_iteration(NULL, FALSE)) {}
+        if (expanded_dns_report(pid)) return TRUE;
+        if (g_get_monotonic_time() >= until) break;
+        g_usleep(25000);
+    } while (g_get_monotonic_time() < until);
+    return FALSE;
+}
+
+static gboolean actual_dns_report_focus(void)
+{
+    atspi_accessible_clear_cache(report_text);
+    AtspiStateSet *states = atspi_accessible_get_state_set(report_text);
+    gboolean ready = state(states, ATSPI_STATE_VISIBLE) && state(states, ATSPI_STATE_SHOWING) &&
+        state(states, ATSPI_STATE_FOCUSED) && state(states, ATSPI_STATE_FOCUSABLE) &&
+        state(states, ATSPI_STATE_ENABLED) && state(states, ATSPI_STATE_SENSITIVE);
+    if (states) g_object_unref(states);
+    return ready;
+}
+
+static void focus_expanded_dns_report(guint pid, Geometry *value)
+{
+    check(wait_expanded_dns_report(pid), "DNS report did not expand after its activation");
+    focus_report_text(pid);
+    check(settled_geometry_with(pid, value, actual_dns_report_focus, NULL),
+          "expanded DNS report text is not focused and showing");
+    check(expanded_dns_report(pid), "DNS report expansion preserved after settling");
+    report_ancestry(pid, TRUE);
+}
+
+static void ensure_visible(guint pid)''')
+    text = once(text, '''    Geometry value; gboolean unclipped = settled_geometry(pid, &value), focus_called = FALSE, peer_focused = FALSE, peer_timed_out = FALSE, report_focused = FALSE;
+    if (!unclipped) {''', '''    Geometry value;
+    gboolean unclipped = report_scrolling ? geometry(pid, &value) : settled_geometry(pid, &value);
+    gboolean focus_called = FALSE, peer_focused = FALSE, peer_timed_out = FALSE, report_focused = FALSE;
+    if (report_scrolling) {
+        focus_expanded_dns_report(pid, &value);
+        focus_called = report_focused = TRUE;
+    } else if (!unclipped) {''')
+    path.write_text(text)
+
+    path = out/'management_contract.py'
+    text = path.read_text()
+    path.write_text(once(text,
+        "(method=='EXPANDED_DNS_REPORT_TEXT_FOCUS_SCROLL' and proof['focus_called'] and not proof['unclipped_after_scroll'])",
+        "(method=='EXPANDED_DNS_REPORT_TEXT_FOCUS_SCROLL' and proof['focus_called'])"))
+
+    path = out/'dns_phase.py'
+    text = path.read_text()
+    text = once(text, '    def action(label,scope=None,scroll=False):',
+                '    def action(label,scope=None,scroll=False,expanded=False):')
+    text = once(text, "        proof=hooks['a11y']('scroll'if scroll else'activate',label,scope=scope)",
+        """        operation='scroll-report' if expanded else 'scroll' if scroll else 'activate'
+        proof=hooks['a11y'](operation,label,scope=scope)
+        if expanded:D.expanded_focus(proof)""")
+    text = once(text, "        action('View report',D.TITLE,scroll=True)\n        expected=",
+                     "        action('View report',D.TITLE,scroll=True,expanded=True)\n        expected=")
+    path.write_text(text)
+
+    path = out/'dns_contract.py'
+    text = path.read_text()
+    text = once(text, 'def fixture(value):', '''def expanded_focus(proof):
+    need(proof.get('method')=='EXPANDED_DNS_REPORT_TEXT_FOCUS_SCROLL',
+         'post-open DNS visibility requires focus on the expanded report body')
+
+def fixture(value):''')
+    text = once(text,
+                "len(result['inventory'])==595,'same complete595 inventory required'",
+                "len(result['inventory'])==606,'same complete606 inventory required'")
+    path.write_text(once(text, "        fast=result['retirement_observation'];",
+                              "        expanded_focus(actions[4]['proof'])\n        fast=result['retirement_observation'];"))
+
+
 
 
 def apply(out,selected):
