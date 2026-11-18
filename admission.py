@@ -448,3 +448,68 @@ def source_context(root):
 def prove(root):
  fact=_dns_fact(_dns_original(root).prove(root))
  return dict(fact,status='PASS_WHOLE_R11_AND_EXPANDED_GENERIC16K_DNS_REPORT_SOURCE_ONLY')
+
+# Diagnose strict installed606 equality failures on exact R12 ARM16K.
+_DIFF_START='\n# Diagnose strict installed606 equality failures on exact R12 ARM16K.\n'
+_DIFF_PARENT_MANIFEST={'bytes': 106749, 'sha256': '4e314736a58b58c25fb810e9a82512d3c302baaa9782bbec516f88908e2c45c9'}
+_DIFF_PARENT='37f9d059da1880336de1618b095a2e5eaf918d06'
+_DIFF_PARENT_REF='refs/heads/codex/current606-apps16-16k-dns-report-20261118-r12'
+_DIFF_CONTEXT={'bytes': 152964, 'sha256': '92a5ab9348cd33686cee559d030920123f362c9ba4721837ffd7eec09eddbaf9'}
+_DIFF_NEW={'factory/installed606_progress.py': {'bytes': 17445, 'sha256': 'c2e8ac35e7cce7c30ae3f4745efb0841a308b8289e58053bacfad535392de824'}}
+_DIFF_STATUS='SOURCE_ONLY_CURRENT606_GENERIC16K_INSTALLED_DIFF'
+
+def _diff_original(root):
+ root=Path(root).absolute()
+ raw=read(root/'installed606-diff-parent.json')
+ need(pin(raw)==_DIFF_CONTEXT,'whole exact R12 installed-diff inverse')
+ context=json.loads(raw)
+ need(context['source']==_DIFF_PARENT and context['ref']==_DIFF_PARENT_REF and context['actual'] is None,
+      'exact R12 parent and no authority')
+ original_manifest=base64.b64decode(context['manifest'],validate=True)
+ need(pin(original_manifest)==_DIFF_PARENT_MANIFEST,'original R12 manifest')
+ originals={**json.loads(original_manifest)['files'],'source-manifest.json':pin(original_manifest)}
+ manifest=obj(root/'source-manifest.json')
+ need(len(originals)==610 and manifest['status']==_DIFF_STATUS
+      and all(manifest[key] is None for key in ('actual_source','actual_ref','actual_run'))
+      and set(manifest['files'])==set(originals)-{'source-manifest.json'}|{'installed606-diff-parent.json'},
+      'exact unissued 611-leaf scoped installed verifier diagnostic successor')
+ closed(root,{**manifest['files'],'source-manifest.json':pin(read(root/'source-manifest.json'))})
+ need(all(manifest['files'][name]==value for name,value in _DIFF_NEW.items()),
+      'exact finite scoped installed diff source changes')
+ before,marker,_=read(root/'admission.py').partition(_DIFF_START.encode())
+ need(marker and pin(before)==originals['admission.py'],'complete original R12 admission')
+ need(set(context['before'])==set(_DIFF_NEW),'closed exact installed-diff source inverse')
+ inverse=dict(context['before'])
+ inverse={name:base64.b64decode(body,validate=True) for name,body in inverse.items()}
+ inverse.update({'source-manifest.json':original_manifest,'admission.py':before})
+ def prior_read(path,cap=16*1024**2):
+  name=Path(path).relative_to(root).as_posix()
+  raw=inverse[name] if name in inverse else read(path,cap)
+  need(name in originals and len(raw)<=cap and pin(raw)==originals[name],'whole original R12 input '+name)
+  return raw
+ def prior_closed(where,wanted):
+  prefix='' if where==root else where.relative_to(root).as_posix()+'/'
+  need({name.removeprefix(prefix):value for name,value in originals.items() if name.startswith(prefix)}==wanted,
+       'closed exact original R12 namespace')
+  for name in wanted:prior_read(where/name)
+  return wanted
+ for name in originals:prior_read(root/name)
+ prior=types.ModuleType('_current606_exact_r12_installed_diff_parent');prior.__file__=str(root/'admission.py')
+ exec(compile(before,prior.__file__,'exec'),vars(prior))
+ prior.read=prior_read;prior.obj=lambda path:json.loads(prior_read(path));prior.closed=prior_closed
+ return prior
+
+def _diff_fact(fact):
+ need(fact['files']==610 and fact['selected_generic16k_verify']==dict(observer_seconds=720,command_seconds=735,
+      profiles=['minimal','overlay']) and fact['selected_generic16k_dns_report']=='SCOPED_EXPANDED_BODY_FOCUS'
+      and fact['actual'] is None,
+      'whole original R12 with exact DNS proof and selected verifier caps')
+ return dict(fact,files=611,selected_generic16k_installed_diff='STRICT_EQUALITY_FAILURE_DATA_ONLY',
+             selected_generic16k_staged_sysusers='BEFORE_COMPLETE_PAYLOAD_CAPTURE',actual=None)
+
+def source_context(root):
+ return _diff_fact(_diff_original(root).source_context(root))
+
+def prove(root):
+ fact=_diff_fact(_diff_original(root).prove(root))
+ return dict(fact,status='PASS_WHOLE_R12_AND_GENERIC16K_INSTALLED_DIFF_SOURCE_ONLY')

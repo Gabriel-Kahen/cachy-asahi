@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Bound the installed606 verifier and forward its diagnostic-only progress."""
+"""Initialize staged system users and retain bounded installed606 diagnostics."""
 
 TCG_OBSERVE_SECONDS = 720
 TCG_VERIFY_SECONDS = 735
@@ -84,6 +84,138 @@ class Installed606ProgressForward:
 '''
 
 
+DIFFERENCE = r"""
+import hashlib
+import re
+
+INSTALLED606_DIFF_PREFIX = b'INSTALLED606_DIFFERENCE_DATA '
+INSTALLED606_DIFF_ROW_CAP = 768
+INSTALLED606_DIFF_LIMIT = 2
+INSTALLED606_DIFF_SECTIONS = (
+    'schema_version', 'packages', 'ownership', 'nodes', 'hardlinks',
+    'nonselected_database', 'capabilities', 'payload_bytes', 'qualification', 'other',
+)
+INSTALLED606_DIFF_FIELDS = dict(bytes='size', gid='gid', mode='mode', sha256='content',
+                                target='link_target', type='type', uid='uid')
+INSTALLED606_DIFF_DB_ROLES = ('desc', 'files', 'install', 'mtree')
+
+
+def installed606_diff_wire(row):
+    return INSTALLED606_DIFF_PREFIX + json.dumps(row, separators=(',', ':'), sort_keys=True).encode()
+
+
+def installed606_diff_sample(section, key, old, new, change, expected):
+    if section in ('packages', 'ownership'):
+        if key not in expected:
+            return None
+        kind, token = 'package', key
+    else:
+        kind = 'hardlink_group_sha256' if section == 'hardlinks' else 'path_sha256'
+        token = hashlib.sha256(json.dumps(key, separators=(',', ':'), ensure_ascii=True).encode()).hexdigest()
+    sample = dict(change=change, kind=kind, token=token)
+    if section == 'nodes' and change == 'changed' and type(old) is dict and type(new) is dict:
+        fields = {INSTALLED606_DIFF_FIELDS.get(name, 'other')
+                  for name in old.keys() | new.keys()
+                  if name not in old or name not in new or old[name] != new[name]}
+        sample['fields'] = sorted(fields)
+    if section == 'nonselected_database':
+        role = key.rpartition('/')[2]
+        if role in INSTALLED606_DIFF_DB_ROLES:
+            sample['record'] = role
+    return sample
+
+
+def installed606_diff_rows(actual, baseline, expected):
+    for section in INSTALLED606_DIFF_SECTIONS:
+        old = baseline.get(section)
+        new = actual.get(section)
+        if section == 'other':
+            old = {k: v for k, v in baseline.items() if k not in INSTALLED606_DIFF_SECTIONS[:-1]}
+            new = {k: v for k, v in actual.items() if k not in INSTALLED606_DIFF_SECTIONS[:-1]}
+        if old == new and (section == 'other' or (section in actual) == (section in baseline)):
+            continue
+        summary = dict(schema=1, section=section, counts=dict(added=0, removed=0, changed=0), samples=[])
+        if section == 'hardlinks' and type(old) is list and type(new) is list:
+            if all(type(group) is list and all(type(path) is str for path in group) for group in old + new):
+                old = dict.fromkeys(map(tuple, old))
+                new = dict.fromkeys(map(tuple, new))
+        detailed = section not in ('schema_version', 'payload_bytes', 'qualification', 'other')
+        if detailed and type(old) is dict and type(new) is dict:
+            for key in sorted(old.keys() | new.keys()):
+                if key not in old:
+                    change = 'added'
+                elif key not in new:
+                    change = 'removed'
+                elif old[key] != new[key]:
+                    change = 'changed'
+                else:
+                    continue
+                summary['counts'][change] += 1
+                if len(summary['samples']) < INSTALLED606_DIFF_LIMIT:
+                    sample = installed606_diff_sample(section, key, old.get(key), new.get(key), change, expected)
+                    if sample is not None:
+                        summary['samples'].append(sample)
+        if not any(summary['counts'].values()):
+            summary['counts']['changed'] = 1
+        yield summary
+
+
+def installed606_emit_diff(actual, baseline, expected):
+    rows = installed606_diff_rows(actual, baseline, expected) if type(baseline) is dict else (
+        dict(schema=1, section='other', counts=dict(added=0, removed=0, changed=1), samples=[]),)
+    for row in rows:
+        raw = installed606_diff_wire(row)
+        if len(raw) <= INSTALLED606_DIFF_ROW_CAP:
+            os.write(2, raw + b'\n')
+
+
+def installed606_read_diff(raw):
+    if len(raw) > INSTALLED606_DIFF_ROW_CAP:
+        return None
+    row = json.loads(raw[len(INSTALLED606_DIFF_PREFIX):])
+    if (type(row) is not dict or set(row) != {'schema', 'section', 'counts', 'samples'}
+            or type(row['schema']) is not int or row['schema'] != 1
+            or row['section'] not in INSTALLED606_DIFF_SECTIONS or raw != installed606_diff_wire(row)):
+        return None
+    section, counts, samples = row['section'], row['counts'], row['samples']
+    if (type(counts) is not dict or set(counts) != {'added', 'removed', 'changed'}
+            or any(type(v) is not int or not 0 <= v <= 200_000 for v in counts.values())
+            or not any(counts.values()) or type(samples) is not list or len(samples) > INSTALLED606_DIFF_LIMIT):
+        return None
+    kind = {
+        'packages': 'package', 'ownership': 'package', 'hardlinks': 'hardlink_group_sha256',
+        'nodes': 'path_sha256', 'nonselected_database': 'path_sha256', 'capabilities': 'path_sha256',
+    }.get(section)
+    seen = set()
+    sampled = dict.fromkeys(counts, 0)
+    for sample in samples:
+        if type(sample) is not dict or kind is None:
+            return None
+        names = set(sample)
+        basic = {'change', 'kind', 'token'}
+        if (not basic <= names or not names <= basic | {'fields', 'record'}
+                or sample['kind'] != kind or type(sample['change']) is not str
+                or sample['change'] not in counts or type(sample['token']) is not str):
+            return None
+        token = sample['token']
+        pattern = r'[a-z0-9@_+.-]{1,128}' if kind == 'package' else r'[0-9a-f]{64}'
+        if re.fullmatch(pattern, token) is None or token in seen:
+            return None
+        seen.add(token)
+        sampled[sample['change']] += 1
+        if 'fields' in sample:
+            fields = sample['fields']
+            if (section != 'nodes' or sample['change'] != 'changed' or type(fields) is not list
+                    or not 0 < len(fields) <= 8 or any(type(f) is not str for f in fields)
+                    or fields != sorted(set(fields))
+                    or set(fields) - set(INSTALLED606_DIFF_FIELDS.values()) - {'other'}):
+                return None
+        if 'record' in sample and (section != 'nonselected_database' or sample['record'] not in INSTALLED606_DIFF_DB_ROLES):
+            return None
+    return row if all(sampled[k] <= counts[k] for k in counts) else None
+"""
+
+
 VERIFY_ARGV = "['/usr/bin/python3','-I','-B',str(SHARE/'installed606.py'),'verify','/',str(SHARE/'alpm_reader.py'),str(SHARE/'expected.lock'),str(SHARE/'installed606.json')]"
 
 
@@ -140,6 +272,56 @@ def tcg_verify_capacity(name, text):
     return replace(text, '600_000_000_000', f'{TCG_OBSERVE_SECONDS * 10**9:_}')
 
 
+def tcg_compare_diagnostics(name, text):
+    if name == 'installed606.py':
+        text = replace(text, "def verify(actual,baseline):\n    need(actual==baseline,",
+            "def verify(actual,baseline,report_difference=None):\n"
+            "    same=actual==baseline\n"
+            "    if not same and report_difference is not None:\n"
+            "        try:report_difference(actual,baseline)\n"
+            "        except Exception:pass  # Diagnostics cannot change the strict compare result.\n"
+            "    need(same,")
+        text = replace(text, '    else:verify(actual,read(snapshot))',
+            '    else:verify(actual,read(snapshot),\n'
+            "                (lambda now,before:installed606_emit_diff(now,before,expected)) if report is not None else None)")
+        return replace(text, "if __name__=='__main__':main()", DIFFERENCE + "\nif __name__=='__main__':main()")
+    text = replace(text, 'class Logged:', DIFFERENCE + '\n\nclass Logged:')
+    text = replace(text, '        self.last = (-1, 0, 0, 0, 0, 0)\n',
+                   '        self.last = (-1, 0, 0, 0, 0, 0)\n        self.last_diff = -1\n')
+    text = replace(text, '    def record(self, raw):\n',
+        '    def record(self, raw):\n'
+        '        if raw.startswith(INSTALLED606_DIFF_PREFIX):\n'
+        '            if self.last[0] == len(INSTALLED606_PHASES) - 1:\n'
+        '                try:\n'
+        '                    row = installed606_read_diff(raw)\n'
+        '                    if row is not None:\n'
+        "                        index = INSTALLED606_DIFF_SECTIONS.index(row['section'])\n"
+        '                        if index > self.last_diff:\n'
+        '                            self.last_diff = index\n'
+        "                            self.send('installed606_difference_DATA', status='DIAGNOSTIC_ONLY_NOT_ACCEPTANCE', **row)\n"
+        '                except Exception:\n'
+        '                    pass\n'
+        '            return\n'
+        '        if len(raw) > INSTALLED606_ROW_CAP:\n'
+        '            return\n')
+    return replace(text, 'len(piece) <= INSTALLED606_ROW_CAP:',
+                   'len(piece) <= INSTALLED606_DIFF_ROW_CAP:')
+
+
+def staged_system_users(text):
+    anchor = "python3 -I -B /runner/installed606.py capture "
+    prepare = """# Match the boot sysusers service in the disposable root before measuring its payload.
+[[ "$root" == /out/staged && -d "$root" && ! -L "$root" ]]
+/usr/bin/cmp --silent -- /usr/bin/systemd-sysusers "$root/usr/bin/systemd-sysusers"
+/usr/bin/timeout --signal=TERM --kill-after=3s 15s /usr/bin/systemd-sysusers --root="$root" >/dev/null 2>&1 || {
+  printf '%s\\n' 'staged systemd-sysusers failed before installed606 capture' >&2
+  exit 1
+}
+printf '%s\\n' 'staged systemd-sysusers completed before installed606 capture'
+"""
+    return replace(text, anchor, prepare + anchor)
+
+
 def apply(output, pin, *, mode):
     if mode not in ('generic4k', 'generic16k'):
         raise ValueError('exact supported installed606 mode required')
@@ -149,9 +331,15 @@ def apply(output, pin, *, mode):
         before = path.read_bytes()
         after = transform(before.decode())
         if mode == 'generic16k':
-            after = tcg_verify_capacity(name, after)
+            after = tcg_compare_diagnostics(name, tcg_verify_capacity(name, after))
         after = after.encode()
         compile(after, str(path), 'exec')
         path.write_bytes(after)
         changes[name] = dict(before=pin(before), after=pin(after))
+    if mode == 'generic16k':
+        path = output / 'desktop574_fixture.sh'
+        before = path.read_bytes()
+        after = staged_system_users(before.decode()).encode()
+        path.write_bytes(after)
+        changes[path.name] = dict(before=pin(before), after=pin(after))
     return changes
