@@ -7,7 +7,6 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
 import signal
 import sys
 from types import ModuleType
@@ -34,7 +33,7 @@ def load(path, sha):
     return module
 
 
-V = load(HERE/'verify.py', '35c95b1269d522317fb524fecc8194e59c2ddfd2e136177f6fe5ef290b35a6ae')
+V = load(HERE/'verify.py', 'f65cb968b9f08a19fefa8a8922121060dd89bd6ce6297fd4d93a36c26ecfa4f2')
 
 
 def preflight():
@@ -80,9 +79,20 @@ def build(work, archive):
         write(work/'owner.json', dict(source=source, work_inode=info.st_ino, work_device=info.st_dev, work_uid=info.st_uid))
         stage = 'TOOLS'
         H = load(HERE/'build_kernel.py', V.PINS['build_kernel.py'])
-        tools = {name: H.identity(path) if (path := shutil.which(name, path='/usr/bin:/bin')) else None for name in H.TOOLS}
+        tools = H.tool_inventory()
+        difference = H.tool_difference(tools, H.expected_tools())
+        perl = None
+        if set(difference) == {'perl'}:
+            print('KERNEL_TOOL_HOST_PERL_REPLACED '+json.dumps(difference, sort_keys=True))
+            stage = 'TOOLS_PERL_BASE_RECOVERY'
+            perl = H.recover_perl(work)
+            tools = H.tool_inventory(perl)
+            difference = H.tool_difference(tools, H.expected_tools(perl))
+        stage = 'TOOLS'
         write(work/'tools.json', tools)
-        V.need(tools == H.expected_tools(), 'runner tool bytes differ from the exact R5 AArch64 receipts')
+        if difference:
+            print('HOLD_KERNEL_TOOL_ROLES '+json.dumps(difference, sort_keys=True))
+        V.need(tools == H.expected_tools(perl), 'runner tool bytes differ from the exact R5 AArch64 receipts')
         stage = 'ARCHIVE'
         runtime_path, acquire_path, fetch_path, manifest_path = INPUTS
         acquire = load(ROOT/acquire_path, INPUTS[acquire_path])

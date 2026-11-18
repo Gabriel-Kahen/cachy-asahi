@@ -178,11 +178,53 @@ class Controls(unittest.TestCase):
         screen = io.StringIO()
         out = self.root/'keyboard-kernel'
         with patch.dict(os.environ, actor(self.root), clear=True), patch.object(os, 'uname',
-                return_value=SimpleNamespace(machine='aarch64')), patch.object(os, 'geteuid', return_value=4242),                 patch.object(os, 'getuid', return_value=4242), patch.object(L.shutil, 'which', return_value=None),                 redirect_stdout(screen):
+                return_value=SimpleNamespace(machine='aarch64')), patch.object(os, 'geteuid', return_value=4242),                 patch.object(os, 'getuid', return_value=4242), patch.object(shutil, 'which', return_value=None),                 redirect_stdout(screen):
             self.assertEqual(L.build(out, None), 1)
-        self.assertEqual(screen.getvalue(), 'HOLD_KERNEL_BUILD_TOOLS\n')
+        roles, status = screen.getvalue().splitlines()
+        differences = json.loads(roles.removeprefix('HOLD_KERNEL_TOOL_ROLES '))
+        self.assertEqual(set(differences), set(H.TOOLS))
+        self.assertTrue(all(row['status'] == 'MISSING_OR_UNREADABLE' for row in differences.values()))
+        self.assertEqual(status, 'HOLD_KERNEL_BUILD_TOOLS')
         self.assertEqual({p.name for p in out.iterdir()}, {'owner.json', 'tools.json', 'failure.json'})
         self.assertEqual(json.loads((out/'failure.json').read_text())['stage'], 'TOOLS')
+
+
+    def test_only_perl_drift_requests_the_private_recovery(self):
+        screen = io.StringIO()
+        out = self.root/'keyboard-kernel'
+        host = dict(H.expected_tools(), perl=None)
+        with patch.dict(os.environ, actor(self.root), clear=True), \
+                patch.object(os, 'uname', return_value=SimpleNamespace(machine='aarch64')), \
+                patch.object(os, 'geteuid', return_value=4242), patch.object(os, 'getuid', return_value=4242), \
+                patch.object(L, 'load', return_value=H), patch.object(H, 'tool_inventory', return_value=host), \
+                patch.object(H, 'recover_perl', side_effect=ValueError('modeled recovery stop')) as recover, \
+                redirect_stdout(screen):
+            self.assertEqual(L.build(out, None), 1)
+        recover.assert_called_once_with(out)
+        self.assertEqual(json.loads((out/'failure.json').read_text())['stage'], 'TOOLS_PERL_BASE_RECOVERY')
+        self.assertIn('KERNEL_TOOL_HOST_PERL_REPLACED ', screen.getvalue())
+        self.assertFalse((out/'inputs').exists())
+
+    def test_only_historical_perl_path_can_move(self):
+        held = H.expected_tools()
+        expected = H.expected_tools({'perl': dict(held['perl'], path='/owned/perl-base/usr/bin/perl')})
+        self.assertEqual({role for role in held if held[role] != expected[role]}, {'perl'})
+        self.assertEqual(held['perl']['sha256'], expected['perl']['sha256'])
+        self.assertEqual(H.tool_environment({'perl': expected['perl']}),
+                         dict(PATH='/owned/perl-base/usr/bin:/usr/lib/llvm-18/bin:/usr/bin:/bin',
+                              PERL5LIB='/owned/perl-base/usr/lib/aarch64-linux-gnu/perl-base'))
+        altered = dict(expected, perl=dict(expected['perl'], sha256='0'*64))
+        differences = H.tool_difference(altered, expected)
+        self.assertEqual(differences['perl']['status'], 'IDENTITY_DIFFERS')
+        self.assertTrue(differences['perl']['same_path'])
+        self.assertNotIn('/owned/', json.dumps(differences))
+
+    def test_reject_ambient_private_perl_claim_with_no_archive(self):
+        out, receipt, _ = self.fixture()
+        receipt['private_perl'] = {'archive': H.PERL_DEB}
+        (out/'build-receipt.json').write_text(json.dumps(receipt))
+        with self.assertRaisesRegex(ValueError, 'exact source, tools'):
+            V.complete(out)
 
 
 if __name__ == '__main__':

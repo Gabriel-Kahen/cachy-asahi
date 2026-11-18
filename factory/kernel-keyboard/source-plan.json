@@ -37,8 +37,8 @@
       "sha256": "5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9"
     },
     "build_kernel.py": {
-      "bytes": 14456,
-      "sha256": "ee3bc29634588e5c32d9521c95d8f98a6d350963ad8fe41060ad61eff99427c2"
+      "bytes": 20516,
+      "sha256": "d30dd01f57fafa4a92f30c9ed41664800c9d1d3c983148652ca39510358b98d9"
     },
     "kernel.fragment": {
       "bytes": 1868,

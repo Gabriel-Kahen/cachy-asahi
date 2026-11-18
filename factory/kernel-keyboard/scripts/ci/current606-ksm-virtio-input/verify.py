@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import stat
 import struct
+from types import ModuleType
 
 HERE = Path(__file__).resolve().parent
 SOURCE = '94fb23346d522edf53722357c426a3e58030beea'
@@ -21,7 +22,7 @@ DIAGNOSTICS = b'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\n'
 PINS = {
     'base.config': '5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9',
     'base-build-receipt.json': 'fdd538c9e3c73f906da0c82f0b381b0385306a52d0dc1539ab13ceaa69938398',
-    'build_kernel.py': 'ee3bc29634588e5c32d9521c95d8f98a6d350963ad8fe41060ad61eff99427c2',
+    'build_kernel.py': 'd30dd01f57fafa4a92f30c9ed41664800c9d1d3c983148652ca39510358b98d9',
     'kernel.fragment': '5658e06608f2a6bb7b2f89d38003a0b1327347e4aecf189c25f02f7d17de96c9',
     'diagnostic.fragment': '1e87785cc2f8ba1127b0f24c135191cfbf59496911b3c11efdf195b8328f5121',
 }
@@ -78,12 +79,21 @@ def complete(out):
     need(out.is_absolute() and out.resolve() == out and out.name == 'built' and out.is_dir() and not out.is_symlink(),
          'exact job-owned helper/built directory required')
     pins, expected, diagnostic, base = source(out.parent)
+    helper = out.parent/'build_kernel.py'
+    module = ModuleType('_current606_held_kernel_build_tools')
+    module.__file__ = str(helper)
+    exec(compile(read(helper, 256 << 10), str(helper), 'exec'), vars(module))
+    perl = module.private_perl(out.parent)
+    expected_tools = module.expected_tools(perl)
+    need(all(expected_tools[name] == row for name,row in base['tools'].items() if name != 'perl'),
+         'all non-Perl tool roles equal the historical build')
     receipt = json.loads(read(out/'build-receipt.json', 128 << 10))
     need(receipt['status'] == 'BUILT_ONLY' and receipt['kernel_build'] == 'PASS'
          and receipt['guest_boot'] == receipt['hardware'] == receipt['performance'] == 'NOT RUN'
          and receipt['profile'] == PROFILE and receipt['kernel_release'] == RELEASE
          and receipt['source_commit'] == SOURCE and receipt['boot_diagnostics'] is True
-         and receipt['tools'] == base['tools'] and receipt['build_environment']['host_uname'][-1] == 'aarch64'
+         and receipt['tools'] == expected_tools and receipt.get('private_perl') == perl
+         and receipt['build_environment']['host_uname'][-1] == 'aarch64'
          and all(receipt['build_environment'][key] == base['build_environment'][key]
                  for key in ('jobs', 'build_seconds', 'workspace_limit_bytes', 'per_file_limit_bytes')),
          'complete original native build with exact source, tools and bounded settings')

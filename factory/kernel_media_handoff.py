@@ -9,14 +9,14 @@ import re
 PROFILE='KSM_ADVICE_VIRTIO_INPUT_GENERIC16K_DIAGNOSTIC_V1'
 RELEASE='7.1.13-generic16k-managed-gui'
 OLD_IMAGE='039fbeaff5942de2317f47feec30a5c073691edf5f8cef8849b25d08006d4ddb'
-VERIFIER_PIN=dict(bytes=8449,sha256='35c95b1269d522317fb524fecc8194e59c2ddfd2e136177f6fe5ef290b35a6ae')
-PLAN_PIN=dict(bytes=1490,sha256='9be4a97db3a0ca38e5d723d0c33595efc8ba36d08adf5998769d2ed823a9d59e')
+VERIFIER_PIN=dict(bytes=8999,sha256='f65cb968b9f08a19fefa8a8922121060dd89bd6ce6297fd4d93a36c26ecfa4f2')
+PLAN_PIN=dict(bytes=1490,sha256='39fe64e281498979c84a34769dfaf2ac6cc4a7e93ec9546d99a386dcca04c0b1')
 EXPECTED={
     'profile':PROFILE,'release':RELEASE,'architecture':'aarch64','page_size':16384,
     'schema_version':1,'modules':'DISABLED',
     'source_revision':'94fb23346d522edf53722357c426a3e58030beea',
     'archive_sha256':'874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad',
-    'helper_sha256':'ee3bc29634588e5c32d9521c95d8f98a6d350963ad8fe41060ad61eff99427c2',
+    'helper_sha256':'d30dd01f57fafa4a92f30c9ed41664800c9d1d3c983148652ca39510358b98d9',
     'fragment_sha256':'5658e06608f2a6bb7b2f89d38003a0b1327347e4aecf189c25f02f7d17de96c9',
     'diagnostic_fragment_sha256':'1e87785cc2f8ba1127b0f24c135191cfbf59496911b3c11efdf195b8328f5121',
     'config':dict(bytes=63782,sha256='89823436abe3b5e4d1abd6fd28cfc8dd81e1601e5ce44b6b09c2b486b66b1607'),

@@ -22,6 +22,15 @@ ARCHIVE_ROOT = 'linux-asahi-7.1.13-3'
 COMMIT = '94fb23346d522edf53722357c426a3e58030beea'
 TOOLS = ('make', 'clang', 'clang++', 'ld.lld', 'llvm-ar', 'llvm-nm', 'llvm-strip',
          'llvm-objcopy', 'llvm-objdump', 'llvm-readelf', 'bison', 'flex', 'bc', 'perl', 'sh')
+TOOL_PATH = '/usr/lib/llvm-18/bin:/usr/bin:/bin'
+PERL_BIN = Path('usr/bin/perl')
+PERL_LIB = Path('usr/lib/aarch64-linux-gnu/perl-base')
+PERL_VERSION = '5.38.2-3.2ubuntu0.6'
+PERL_URL = ('https://snapshot.ubuntu.com/ubuntu/20261020T000000Z/pool/main/p/perl/'
+            'perl-base_5.38.2-3.2ubuntu0.6_arm64.deb')
+PERL_DEB = {'bytes': 1780386, 'sha256': '52ff69555911c8ef4350a80b12bbdc823b6c096cb15eb39c540cd84e6c726cc0'}
+PERL_FILES = 616
+PERL_TREE = '64034a200f39b4f27baf04416b39fee8bd8f11c1fb921ae08b577b1a47a4b50c'
 TOTAL_LIMIT = 16 * 1024**3
 DIAGNOSTIC_FRAGMENT = 'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\n'
 
@@ -57,11 +66,118 @@ def expected_config():
     return baseline.replace(INPUT_OFF, INPUT_ON, 1)
 
 
-def expected_tools():
+def expected_tools(private_perl=None):
     baseline = (HERE / 'base-build-receipt.json').read_bytes()
     require(hashlib.sha256(baseline).hexdigest() == BASE_RECEIPT_SHA,
             'exact R5 KSM build receipt required')
-    return json.loads(baseline)['tools']
+    tools = json.loads(baseline)['tools']
+    if private_perl is not None:
+        tools['perl']['path'] = private_perl['perl']['path']
+    return tools
+
+
+def deb_identity(archive):
+    info = archive.lstat()
+    require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_size == PERL_DEB['bytes'],
+            'exact ordinary historical Ubuntu Perl archive size required')
+    actual = identity(archive)
+    require(actual['sha256'] == PERL_DEB['sha256'], 'exact historical Ubuntu Perl archive digest required')
+    return actual
+
+
+def private_perl(work):
+    """Verify both the pinned archive and the exact relocated module tree."""
+    kit, archive = work/'perl-base', work/'perl-base.deb'
+    if not os.path.lexists(kit) and not os.path.lexists(archive):
+        return None
+    require(stat.S_ISDIR(kit.lstat().st_mode) and kit.resolve() == kit, 'ordinary owned Perl directory required')
+    archive_pin = deb_identity(archive)
+    files = {}
+    for path in kit.rglob('*'):
+        info = path.lstat()
+        if stat.S_ISDIR(info.st_mode):
+            continue
+        part = path.relative_to(kit)
+        require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and part != PERL_LIB and
+                (part == PERL_BIN or part.is_relative_to(PERL_LIB)) and info.st_size <= 4*1024**2,
+                'only ordinary historical Perl package members permitted')
+        require(len(files) < PERL_FILES and stat.S_IMODE(info.st_mode) == (0o700 if part == PERL_BIN else 0o600),
+                'exact private Perl file count bound and member mode required')
+        files[part.as_posix()] = {'bytes': info.st_size, 'sha256': sha(path)}
+    digest = hashlib.sha256((json.dumps(files, sort_keys=True, indent=2)+'\n').encode()).hexdigest()
+    require(len(files) == PERL_FILES and digest == PERL_TREE, 'exact historical Perl executable and core module tree required')
+    perl = identity(kit/PERL_BIN)
+    require(all(perl[key] == expected_tools()['perl'][key] for key in ('bytes','sha256')),
+            'relocated interpreter must be the exact R5 Perl bytes')
+    return {'archive': archive_pin, 'perl': perl, 'version': PERL_VERSION, 'url': PERL_URL,
+            'modules': {'files': PERL_FILES-1, 'selected_tree_sha256': PERL_TREE}}
+
+
+def extract_perl(data, kit):
+    """Copy only the one executable and finite regular perl-base modules."""
+    kit.mkdir(mode=0o700)
+    seen = set()
+    total = 0
+    with tarfile.open(fileobj=data, mode='r:') as archive:
+        for member in archive:
+            path = PurePosixPath(member.name)
+            require(not path.is_absolute() and '..' not in path.parts, 'Perl archive path traversal refused')
+            if member.isdir() or not (path == PERL_BIN or path.is_relative_to(PERL_LIB)):
+                continue
+            require(member.isfile() and path not in seen and len(seen) < PERL_FILES
+                    and 0 <= member.size <= 4*1024**2, 'bounded ordinary historical Perl member required')
+            total += member.size
+            require(total <= 8*1024**2, 'bounded expanded historical Perl selection required')
+            seen.add(path)
+            target = kit/path
+            target.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+            with archive.extractfile(member) as source, target.open('xb') as sink:
+                shutil.copyfileobj(source, sink)
+            target.chmod(0o700 if path == PERL_BIN else 0o600)
+    require(len(seen) == PERL_FILES, 'complete historical Perl package selection required')
+
+
+def recover_perl(work):
+    from io import BytesIO
+    candidate, archive = work/'perl-base.deb.part', work/'perl-base.deb'
+    env = {'PATH': TOOL_PATH, 'LC_ALL': 'C', 'HOME': str(work)}
+    result = subprocess.run(['/usr/bin/curl', '-q', '--silent', '--show-error', '--fail', '--proto', '=https',
+                             '--max-time', '35', '--max-filesize', str(PERL_DEB['bytes']), '--output', str(candidate), PERL_URL],
+                            capture_output=True, timeout=40, check=False, env=env)
+    require(result.returncode == 0, 'historical Ubuntu Perl acquisition failed')
+    deb_identity(candidate)
+    candidate.rename(archive)
+    raw = subprocess.run(['/usr/bin/dpkg-deb', '--fsys-tarfile', str(archive)], capture_output=True, timeout=30, check=False, env=env)
+    require(raw.returncode == 0 and 0 < len(raw.stdout) <= 10*1024**2, 'bounded historical Perl package stream required')
+    extract_perl(BytesIO(raw.stdout),work/'perl-base')
+    return private_perl(work)
+
+
+def tool_environment(private=None):
+    if private is None:
+        return {'PATH': TOOL_PATH}
+    kit = Path(private['perl']['path']).parents[2]
+    return {'PATH': str(kit/PERL_BIN.parent)+':'+TOOL_PATH, 'PERL5LIB': str(kit/PERL_LIB)}
+
+
+def tool_inventory(private=None):
+    inventory = {}
+    path = tool_environment(private)['PATH']
+    for role in TOOLS:
+        executable = shutil.which(role, path=path)
+        try:
+            inventory[role] = identity(executable) if executable else None
+        except (OSError, ValueError):
+            inventory[role] = None
+    return inventory
+
+
+def tool_difference(actual, expected):
+    return {name: dict(status='MISSING_OR_UNREADABLE' if row is None else 'IDENTITY_DIFFERS',
+                       expected={k:v for k,v in expected[name].items() if k!='path'},
+                       observed=None if row is None else {k:v for k,v in row.items() if k!='path'},
+                       same_path=row is not None and row['path']==expected[name]['path'])
+            for name,row in actual.items() if row != expected[name]}
 
 
 def config_check(path, boot_diagnostics=False):
@@ -226,7 +342,9 @@ def main():
     report['archive'] = identity(args.archive)
     report['fragment'] = identity(HERE / 'kernel.fragment')
     report['helper'] = identity(__file__)
-    report['tools'] = {name: identity(path) if (path := shutil.which(name, path='/usr/bin:/bin')) else None for name in TOOLS}
+    perl = private_perl(HERE)
+    report['private_perl'] = perl
+    report['tools'] = tool_inventory(perl)
     report['build_environment'] = {'host_uname': list(os.uname()), 'jobs': 2,
                                  'build_seconds': 3600, 'workspace_limit_bytes': TOTAL_LIMIT,
                                  'per_file_limit_bytes': 2 * 1024**3,
@@ -238,7 +356,7 @@ def main():
         print(json.dumps(report, sort_keys=True, indent=2))
         return
     require(args.boot_diagnostics and os.uname().machine == 'aarch64' and
-            report['tools'] == expected_tools(),
+            report['tools'] == expected_tools(perl),
             'exact native AArch64 R5 tool inventory and diagnostic mode required')
     # All mutations belong to one newly created child of this candidate directory.
     output = args.output.absolute()
@@ -257,7 +375,7 @@ def main():
             fragment = output / 'diagnostic.fragment'
             fragment.write_text((HERE / 'kernel.fragment').read_text() + DIAGNOSTIC_FRAGMENT)
             report['diagnostic_fragment'] = identity(fragment)
-        env = {'PATH': '/usr/bin:/bin', 'HOME': str(output), 'TMPDIR': str(output), 'LC_ALL': 'C',
+        env = {**tool_environment(perl), 'HOME': str(output), 'TMPDIR': str(output), 'LC_ALL': 'C',
                'TZ': 'UTC', 'ARCH': 'arm64', 'LLVM': '1', 'KBUILD_BUILD_USER': 'generic16k',
                'KBUILD_BUILD_HOST': 'owned-build-fixture', 'KBUILD_BUILD_VERSION': '1',
                'KBUILD_BUILD_TIMESTAMP': 'Fri Oct 16 00:00:00 UTC 2026',
