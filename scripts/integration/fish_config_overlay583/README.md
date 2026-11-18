@@ -33,10 +33,10 @@ and whole source pack pins.
 R127 on Source 346e897f1b3a0fa273fa74d3331363b6f39b6436, run 44239472740,
 retained two byte-identical 5,516-byte archives with SHA-256
 6dee81130f3ba3e570791cf079d2152893461ec27fa6e2e34a3d614986f9a949.
-The independent terminal is CLOSED_R127_FISH_RAW_CHECK_LOG_EXPORT_HOLD because
-the required raw check logs were unavailable. These archives are source test
-inputs. The stage refuses the retained HOLD receipt. This lane has no new
-signature, guest authority or attempted installation.
+The exporter omitted the two raw check logs and the terminal held. Both log
+bodies were later recovered from the original build transcripts and matched the
+pair's whole-log hashes. The R127 archives support offline controls. The stage
+requires an independently closed native PASS for installation.
 
 Once Root has independently qualified the intended native pair, retain both
 original package files and both raw successful semantic check logs as separate

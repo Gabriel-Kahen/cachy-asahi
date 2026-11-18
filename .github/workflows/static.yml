@@ -310,6 +310,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/install/overlay583_trial -p test_first_login.py
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/integration/first_login_overlay583 -p test_addon.py
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/integration/llhttp_overlay583 -p test_lifecycle.py -k native_call_contract
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/install/overlay583_trial -p test_fish_upgrade.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/llhttp-reference-native-source/test_data.py
       - name: Check explicit lock and ordered suspend without a desktop session
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
