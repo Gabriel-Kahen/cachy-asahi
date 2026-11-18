@@ -3,6 +3,7 @@
 
 import os
 from pathlib import Path
+import stat
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -106,6 +107,33 @@ class AdapterTest(unittest.TestCase):
         self.assertTrue(E.cleanup_passes(closure))
         self.assertFalse(E.cleanup_passes(closure | dict(owned_storage_absent=False)))
         self.assertFalse(E.cleanup_passes(closure | dict(services=dict(owner=natural))))
+
+    def test_stage_helpers_uses_private_modes_and_restores_controller_umask(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp)
+            body = b"fixture staging reader"
+            reader = source/E.RUNTIME_READER
+            reader.parent.mkdir(parents=True)
+            C.write(reader, body)
+            staged = source/"helpers"
+
+            def stage_helpers(**args):
+                args["output"].mkdir(mode=0o700)
+                nested = args["output"]/"scripts/ci/helper"
+                nested.mkdir(mode=0o700, parents=True)
+                for directory in (nested, nested.parent, nested.parent.parent):
+                    self.assertEqual(stat.S_IMODE(directory.stat().st_mode), 0o700)
+                raise ValueError("fixture stage stop")
+
+            previous_umask = os.umask(0o022)
+            try:
+                with patch.object(E, "RUNTIME_READER_SHA", C.pin(body)["sha256"]), \
+                     patch.object(E, "load", return_value=SimpleNamespace(stage_helpers=stage_helpers)), \
+                     self.assertRaisesRegex(ValueError, "fixture stage stop"):
+                    E.stage_runtime_helpers(source, {"sha256": "a"*64}, REPO, staged)
+            finally:
+                observed_umask = os.umask(previous_umask)
+            self.assertEqual(observed_umask, 0o022)
 
     def test_root_356_readback_before_binding(self):
         approval, env = fixture()
