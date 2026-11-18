@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+November 18 — Qt 6.12 base completed signed dependency installation and ordinary-user configure on emulated AArch64 with 16 KiB pages. The exact inventory went 165→349→356, and CMake selected system md4c. The full Qt build and hardware validation remain unrun. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md)
+
 November 18 — R132 completed the signed Asahi maintenance rehearsal on emulated AArch64 with 16 KiB pages. The inventory went 261→626→626. Reversing the Python, NetworkManager and Perl upgrades retained all 365 additions. The guest restored the original initramfs and matched all 362 boot and mount entries. R131 remains on hold. The proposal is unapproved, and installed Asahi kernel boot and physical M2 validation remain open. [R132 validation](validation/asahi626-maintenance-emulated-arm16k-20261118.md)
 
 November 18 — [Reproducible native AArch64 builds passed for md4c 0.5.3 and Fish 0.1.0-2](validation/native-fish-md4c-reproducibility-20261118.md). The exact md4c package has a scoped TEST signature for the Qt fixture. Fish passed the signed upgrade, ordinary-user CDPATH regression and rollback in an emulated ARM guest with 16 KiB pages. All 583 package versions were restored.
