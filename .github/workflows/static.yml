@@ -637,6 +637,7 @@ jobs:
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
           python3 -B -Werror::ResourceWarning scripts/hardware/test_session_probe.py
+          python3 -I -B -Werror::ResourceWarning scripts/hardware/test_prepare_release_evidence.py
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-diagnostics/test_session_probe.py
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-diagnostics/test_package.py
       - name: Check isolated ARM experiment packages with pinned source on host ISA
