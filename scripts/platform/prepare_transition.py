@@ -31,6 +31,7 @@ t, need, auth = p.transaction, p.need, p.recovery.auth
 MAX_BYTES = 512 * 1024**2
 SOURCE_FILES = (
     'scripts/platform/prepare_transition.py', 'scripts/platform/platform_transition.py',
+    'scripts/platform/installed_payload_correspondence.py',
     'scripts/platform/transaction.py', 'scripts/platform/recovery_preflight.py',
     'scripts/platform/tuple_audit.py', 'scripts/platform/recovery_inputs.py',
     'scripts/platform/authenticate_missing.py', 'scripts/platform/archive_coverage.py',
