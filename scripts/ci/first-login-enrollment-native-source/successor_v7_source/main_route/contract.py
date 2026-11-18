@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Pure DATA qualification for an externally Root-selected Source205 ONCE case.
+"""Pure DATA qualification for an externally Root-selected Source205 or Source206 ONCE case.
 
 No clock lookup, filesystem/lease/process observation, request issuance or HTTP.
 Provided Root assertions are checked for consistency, never authenticated here.
@@ -7,10 +7,21 @@ Provided Root assertions are checked for consistency, never authenticated here.
 import ast
 import copy
 import hashlib
+import importlib.util
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 from urllib.parse import urlsplit
+
+def load_source206():
+    path = Path(__file__).resolve().parent.parent / "request_generation/source206.py"
+    spec = importlib.util.spec_from_file_location("source206_contract_roles", path)
+    source = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(source)
+    return source
+
+
+S = load_source206()
 
 FAMILY='scripts/ci/first-login-enrollment-native-source/'
 LAUNCHER=FAMILY+'payload/native/hosted_current_v3.py'
@@ -99,22 +110,40 @@ def canonical_lease(lease):
         and integer(lease['mtime_ns'],1,2**63-1)and integer(lease['ctime_ns'],1,2**63-1),'HOLD_CANONICAL_LEASE')
 
 
+def source206_case(case):
+    return type(case)is dict and case.get('kind') == S.CASE_KIND
+
+
 def validate_case(case,now):
-    issued(case,'ROOT_SOURCE205_ONCE_CASE_V1',('schema','kind','issuer','approved','case_id','source','main','workflow_id','operation','group','stage','nonce','issued_epoch','expires_epoch','canonical_lease','resources','pins'),now)
+    successor = source206_case(case)
+    basis = S.SOURCE if successor else SOURCE205
+    program = S.PROGRAM if successor else PROGRAM
+    profile = S.PROFILE if successor else PROFILE
+    issued(case,S.CASE_KIND if successor else 'ROOT_SOURCE205_ONCE_CASE_V1',('schema','kind','issuer','approved','case_id','source','main','workflow_id','operation','group','stage','nonce','issued_epoch','expires_epoch','canonical_lease','resources','pins'),now)
     need(hexid(case['case_id'],64)and hexid(case['nonce'],64)and case['operation']==OPERATION and case['group']==GROUP
         and case['stage']in ('backend','ui','lifecycle')and integer(case['workflow_id'],1),'HOLD_CASE_SELECTORS')
-    source=case['source'];shape(source,('cid','ref',*SOURCE205,'program','profile'),'HOLD_SOURCE_SHAPE')
+    source=case['source'];shape(source,('cid','ref',*basis,'program','profile'),'HOLD_SOURCE_SHAPE')
+    if successor:
+        need((source['cid'],source['ref'],case['stage'],case['workflow_id'])==(S.CID,S.REF,'backend',S.WORKFLOW_ID),
+             'HOLD_SOURCE206_BACKEND_SELECTORS')
+        need(case['expires_epoch']<=S.TEST_ROLE_EXPIRES,'HOLD_SOURCE206_TEST_ROLE_EXPIRY')
     need(hexid(source['cid'],40)and source['cid']not in (SOURCE196,CONSTRUCTOR)
         and type(source['ref'])is str and re.fullmatch('refs/heads/codex/[A-Za-z0-9._/-]+',source['ref'])
         and all(part not in ('','.','..')and not part.startswith('.')and not part.endswith('.lock')for part in source['ref'].split('/'))
-        and not source['ref'].endswith('.')and same({k:source[k]for k in SOURCE205},SOURCE205)
-        and same(source['program'],PROGRAM)and same(source['profile'],PROFILE),'HOLD_SOURCE205_IDENTITY')
+        and not source['ref'].endswith('.')and same({k:source[k]for k in basis},basis)
+        and same(source['program'],program)and same(source['profile'],profile),
+        'HOLD_SOURCE206_IDENTITY' if successor else 'HOLD_SOURCE205_IDENTITY')
     main=case['main'];shape(main,('cid','tree','launcher','reader','reader_contract','workflow'),'HOLD_MAIN_SHAPE')
     need(hexid(main['cid'],40)and main['cid']!=source['cid']and hexid(main['tree'],40),'HOLD_MAIN_SELECTOR')
     descriptor(main['launcher'],LAUNCHER);need(same(main['launcher'],dict(member=LAUNCHER,**CORE)),'HOLD_MAIN_V7_ADOPTION')
-    descriptor(main['reader'],READER);need(main['reader_contract']=='SOURCE205_FINITE_TRANSPORT_V2','HOLD_MAIN_READER_CONTRACT')
+    if successor:
+        need(same(main['reader'],S.READER)and main['reader_contract']==S.READER_CONTRACT,
+             'HOLD_SOURCE206_MAIN_READER_CONTRACT')
+    else:
+        descriptor(main['reader'],READER);need(main['reader_contract']=='SOURCE205_FINITE_TRANSPORT_V2','HOLD_MAIN_READER_CONTRACT')
     descriptor(main['workflow'],WORKFLOW);need(same(main['workflow'],dict(member=WORKFLOW,**WORKFLOW_PIN)),'HOLD_MAIN_WORKFLOW')
-    need(same(case['resources'],RESOURCES),'HOLD_CASE_RESOURCE_POLICY')
+    resources = dict(RESOURCES, policy=S.POLICY) if successor else RESOURCES
+    need(same(case['resources'],resources),'HOLD_CASE_RESOURCE_POLICY')
     canonical_lease(case['canonical_lease'])
     shape(case['pins'],OPERANDS[1:],'HOLD_CASE_PIN_ROSTER')
     for row in case['pins'].values():whole(row)
@@ -182,17 +211,49 @@ def core_request(core_raw,request_raw):
     return scope['request'](marker,pin(request_raw)['sha256'])
 
 
+def validate_successor_test_role(assembler, case):
+    trust = assembler['test_trust']
+    need(trust['fingerprint']==S.TEST_FINGERPRINT and same(trust['public_key'],S.TEST_PUBLIC_KEY),
+         'HOLD_SOURCE206_TEST_CERTIFICATE')
+    ref = trust['Root_admission']
+    shape(ref,('json','pin'),'HOLD_SOURCE206_TEST_APPROVAL_REFERENCE')
+    need(type(ref['json'])is str,'HOLD_SOURCE206_TEST_APPROVAL_REFERENCE')
+    raw = ref['json'].encode()
+    need(len(raw)<=8192 and pin(raw)==whole(ref['pin'],8192),'HOLD_SOURCE206_TEST_APPROVAL_PIN')
+    approval = decode(raw)
+    need(type(approval)is dict and approval.get('issuer')=='Root' and approval.get('approved')is True
+         and approval.get('scope')=='CURRENT_ONBOARDING_IMAGE_INPUT_TRUST_ONLY'
+         and approval.get('fingerprint')==S.TEST_FINGERPRINT,
+         'HOLD_SOURCE206_TEST_APPROVAL')
+    # The hosted launcher resolves only the declared Source descriptor here.
+    # Inside the inline admission JSON the assembler compares the resolved path.
+    key = approval.get('public_key')
+    shape(key,('path','bytes','sha256'),'HOLD_SOURCE206_TEST_APPROVAL_CERTIFICATE')
+    path = key['path']
+    need(type(path)is str and re.fullmatch(r'/[A-Za-z0-9_./-]{1,1023}',path)
+         and str(PurePosixPath(path))==path and '..' not in PurePosixPath(path).parts
+         and path.endswith('/'+S.TEST_PUBLIC_KEY['member'])
+         and all(same(key[field],S.TEST_PUBLIC_KEY[field]) for field in ('bytes','sha256')),
+         'HOLD_SOURCE206_TEST_APPROVAL_CERTIFICATE')
+    need(integer(approval.get('issued_epoch'),0,case['issued_epoch'])
+         and integer(approval.get('expires_epoch'),case['expires_epoch'],S.TEST_ROLE_EXPIRES),
+         'HOLD_SOURCE206_TEST_APPROVAL_EXPIRY')
+
+
 def validate_request(request_raw,case,core_raw,profile):
+    successor = source206_case(case)
+    policy = S.POLICY if successor else POLICY
+    source_map = S.SOURCE['source_map'] if successor else SOURCE205['source_map']
     need(len(request_raw)<=LIMITS['request_bytes'],'HOLD_REQUEST_CAP');request=core_request(core_raw,request_raw)
     need(request['trusted_main_commit']==case['main']['cid']and same(request['launcher'],case['main']['launcher'])
         and request['staged_inputs']is None and request['staged_root']is None,'HOLD_REQUEST_MAIN')
     d=decode(request['delegation_json'].encode());shape(d,('schema','kind','issuer','approved','scope','binding','stage','nonce','issued_epoch','expires_epoch','programs','materials','policy','capability','context_limits','hosted','image_ids',*FINAL),'HOLD_DELEGATION_SHAPE')
     need(type(d['schema'])is int and d['schema']==4 and d['kind']=='ROOT_DELEGATED_CURRENT_ONBOARDING_PRIVATE_EXECUTION_V4'
         and d['issuer']=='Root'and d['approved']is True and d['scope']=='CURRENT_PRIVATE_STAGE_ONLY'
-        and same(d['binding'],dict(source=case['source']['cid'],ref=case['source']['ref'],run=None,job=None,attempt=1,source_lock=SOURCE205['source_map']))
+        and same(d['binding'],dict(source=case['source']['cid'],ref=case['source']['ref'],run=None,job=None,attempt=1,source_lock=source_map))
         and d['stage']==case['stage']and d['nonce']==case['nonce']and integer(d['issued_epoch'])and integer(d['expires_epoch'])
         and d['issued_epoch']==case['issued_epoch']and d['expires_epoch']==case['expires_epoch']
-        and same(d['policy'],POLICY)and same(d['context_limits'],CONTEXT)and same(d['image_ids'],dict(backend=None,ui=None,lifecycle=None))
+        and same(d['policy'],policy)and same(d['context_limits'],CONTEXT)and same(d['image_ids'],dict(backend=None,ui=None,lifecycle=None))
         and all(d[key]is value for key,value in FINAL.items()),'HOLD_DELEGATION_BINDING')
     capability=dict(operation=OPERATION,stage=case['stage'],allow_provisional_context=True,allow_provisional_image_checks=True,
         allow_pair_adoption=False,allow_host_prerequisites=True,allow_material_staging=True,**CAPS)
@@ -211,7 +272,7 @@ def validate_request(request_raw,case,core_raw,profile):
     shape(grant,('schema','kind','issuer','approved','source','ref','source_lock','nonce','policy','issued_epoch','expires_epoch','redirect_urls','secret_provider','scope','storage_parent'),'HOLD_GRANT_SHAPE')
     need(type(grant['schema'])is int and grant['schema']==3 and grant['kind']=='ROOT_CURRENT_COMPLETE517_STAGING_V3'
         and grant['issuer']=='Root'and grant['approved']is True and grant['source']==case['source']['cid']and grant['ref']==case['source']['ref']
-        and same(grant['source_lock'],SOURCE205['source_map'])and grant['nonce']==case['nonce']and same(grant['policy'],{k:POLICY[k]for k in ('bytes','sha256')})
+        and same(grant['source_lock'],source_map)and grant['nonce']==case['nonce']and same(grant['policy'],{k:policy[k]for k in ('bytes','sha256')})
         and integer(grant['issued_epoch'])and integer(grant['expires_epoch'])and grant['issued_epoch']==case['issued_epoch']and grant['expires_epoch']==case['expires_epoch']
         and grant['secret_provider']=='CALLER_ONE_SHOT_EXACT22'and grant['scope']=='COMPLETE517_PUBLIC_DATA_ONLY'
         and grant['storage_parent']=='/var/lib/cachy-current-material-domain-'+case['nonce'],'HOLD_GRANT_BINDING')
@@ -233,19 +294,27 @@ def validate_request(request_raw,case,core_raw,profile):
     for name in ('official_trust','test_trust'):
         trust=assembler[name];shape(trust,('public_key','fingerprint','Root_admission'),'HOLD_ASSEMBLER_TRUST')
         need(all(trust[key]is not None for key in trust),'HOLD_ASSEMBLER_TRUST_UNISSUED')
+    if successor:
+        validate_successor_test_role(assembler,case)
+        need(assembler['products']=={} and assembler['retention'] is None,
+             'HOLD_EXACT_FIRST_BACKEND_PRODUCTS_AND_RETENTION')
     return request
 
 
 def qualify(operands,expected_pins,*,now,core_raw,profile_raw):
     """Qualify externally supplied bytes only; preserve request bytes unchanged."""
     need(integer(now),'HOLD_EXPLICIT_NOW');shape(operands,OPERANDS,'HOLD_OPERAND_ROSTER');shape(expected_pins,OPERANDS,'HOLD_EXTERNAL_PIN_ROSTER')
-    need(type(profile_raw)is bytes and pin(profile_raw)==PROFILE,'HOLD_EXACT_SOURCE205_PROFILE');profile=decode(profile_raw)
     values={}
     for name,raw in operands.items():
         cap=LIMITS['request_bytes']if name=='request'else MAX_BYTES
         whole(expected_pins[name],cap);need(type(raw)is bytes and 0<len(raw)<=cap and pin(raw)==expected_pins[name],'HOLD_EXTERNAL_'+name.upper()+'_PIN')
         values[name]=decode(raw)
     case=values['case'];validate_case(case,now)
+    successor = source206_case(case)
+    profile_pin = S.PROFILE if successor else PROFILE
+    need(type(profile_raw)is bytes and pin(profile_raw)==profile_pin,
+         'HOLD_EXACT_SOURCE206_PROFILE' if successor else 'HOLD_EXACT_SOURCE205_PROFILE')
+    profile=decode(profile_raw)
     need(all(same(case['pins'][name],expected_pins[name])for name in OPERANDS[1:]),'HOLD_CASE_OPERAND_PINS')
     for name,kind in (('admission','ROOT_SOURCE205_ONCE_ADMISSION_V1'),('registration','ROOT_SOURCE205_WORKFLOW_REGISTRATION_V1'),('readback','ROOT_SOURCE205_READBACK_V1'),('once','ROOT_SOURCE205_ONCE_GUARD_V1')):
         value=values[name]
@@ -255,7 +324,7 @@ def qualify(operands,expected_pins,*,now,core_raw,profile_raw):
             once=('schema','kind','issuer','approved','binding','observed_epoch','once','retry','prior_run_ids','prior_intents','uncertain','post_count','phase','output_fresh','exclusive_intent','runtime_pin','request_pin'))[name]
         issued(value,kind,keys,now);need(same(value['binding'],binding(case)),'HOLD_'+name.upper()+'_BINDING')
         if 'observed_epoch'in value:fresh(value['observed_epoch'],now)
-    admission=values['admission'];need(same(admission['resources'],RESOURCES),'HOLD_ADMISSION_RESOURCES')
+    admission=values['admission'];need(same(admission['resources'],case['resources']),'HOLD_ADMISSION_RESOURCES')
     reservation=admission['reservation'];shape(reservation,('held_by','active','pending','group','operation','no_exemptions'),'HOLD_RESERVATION')
     need(reservation['held_by']=='Root'and type(reservation['active'])is int and reservation['active']==0 and type(reservation['pending'])is int and reservation['pending']==0
         and reservation['group']==GROUP and reservation['operation']==OPERATION and reservation['no_exemptions']is True,'HOLD_RESOURCE_RESERVATION')
@@ -264,7 +333,7 @@ def qualify(operands,expected_pins,*,now,core_raw,profile_raw):
         value=values[name];need(case['issued_epoch']<=value['issued_epoch']and value['expires_epoch']<=case['expires_epoch'],'HOLD_AUTHORITY_ENVELOPE')
     registration=values['registration'];need(registration['repository']==REPOSITORY and type(registration['workflow_id'])is int and registration['workflow_id']==case['workflow_id']
         and registration['path']==WORKFLOW and registration['state']=='active'and same(registration['body_pin'],WORKFLOW_PIN),'HOLD_WORKFLOW_REGISTRATION')
-    readback=values['readback'];need(same(readback['source'],case['source'])and same(readback['main'],case['main'])and same(readback['profile_pin'],PROFILE)
+    readback=values['readback'];need(same(readback['source'],case['source'])and same(readback['main'],case['main'])and same(readback['profile_pin'],profile_pin)
         and readback['publication_complete']is True and readback['main_adoption_complete']is True,'HOLD_READBACK_ADOPTION')
     once=values['once'];need(once['once']is True and once['retry']is False and once['prior_run_ids']==[]and once['prior_intents']==[]
         and once['uncertain']is False and type(once['post_count'])is int and once['post_count']==0 and once['phase']=='BEFORE_POST'
@@ -282,17 +351,23 @@ def qualify(operands,expected_pins,*,now,core_raw,profile_raw):
         once=True,retry=False,uncertain_outcome='RECONCILE_ONLY_NEVER_REDISPATCH')
 
 
-def templates():
+def templates(*,successor=False):
     """Unissued scaffolds only; these values cannot qualify for an actor."""
+    basis = S.SOURCE if successor else SOURCE205
+    program = S.PROGRAM if successor else PROGRAM
+    profile = S.PROFILE if successor else PROFILE
+    reader = copy.deepcopy(S.READER) if successor else dict(member=READER,bytes=None,sha256=None)
+    reader_contract = S.READER_CONTRACT if successor else 'SOURCE205_FINITE_TRANSPORT_V2'
+    resources = dict(RESOURCES,policy=S.POLICY) if successor else RESOURCES
     return {
-        'Root-case.TEMPLATE.json':dict(schema=1,kind='ROOT_SOURCE205_ONCE_CASE_V1',issuer=None,approved=None,case_id=None,
-            source=dict(cid=None,ref=None,**copy.deepcopy(SOURCE205),program=copy.deepcopy(PROGRAM),profile=copy.deepcopy(PROFILE)),
-            main=dict(cid=None,tree=None,launcher=dict(member=LAUNCHER,**CORE),reader=dict(member=READER,bytes=None,sha256=None),reader_contract='SOURCE205_FINITE_TRANSPORT_V2',workflow=dict(member=WORKFLOW,**WORKFLOW_PIN)),
+        'Root-case.TEMPLATE.json':dict(schema=1,kind=S.CASE_KIND if successor else 'ROOT_SOURCE205_ONCE_CASE_V1',issuer=None,approved=None,case_id=None,
+            source=dict(cid=None,ref=None,**copy.deepcopy(basis),program=copy.deepcopy(program),profile=copy.deepcopy(profile)),
+            main=dict(cid=None,tree=None,launcher=dict(member=LAUNCHER,**CORE),reader=reader,reader_contract=reader_contract,workflow=dict(member=WORKFLOW,**WORKFLOW_PIN)),
             workflow_id=None,operation=OPERATION,group=GROUP,stage=None,nonce=None,issued_epoch=None,expires_epoch=None,
             canonical_lease=dict(path=LEASE_PATH,dev=None,inode=None,uid=None,gid=None,mode=0o644,nlink=1,bytes=0,mtime_ns=None,ctime_ns=None),
-            resources=copy.deepcopy(RESOURCES),pins=dict.fromkeys(OPERANDS[1:])),
+            resources=copy.deepcopy(resources),pins=dict.fromkeys(OPERANDS[1:])),
         'admission.TEMPLATE.json':dict(schema=1,kind='ROOT_SOURCE205_ONCE_ADMISSION_V1',issuer=None,approved=None,binding=None,
-            issued_epoch=None,expires_epoch=None,resources=copy.deepcopy(RESOURCES),
+            issued_epoch=None,expires_epoch=None,resources=copy.deepcopy(resources),
             reservation=dict(held_by=None,active=None,pending=None,group=GROUP,operation=OPERATION,no_exemptions=None)),
         'runtime.TEMPLATE.json':dict(schema=1,kind='ROOT_SOURCE205_ONCE_RUNTIME_V1',issuer=None,approved=None,binding=None,
             issued_epoch=None,expires_epoch=None,lease_identity=None,custody=None,sweeps=None)}
