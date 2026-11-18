@@ -15,10 +15,12 @@ HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE))
 import lane as L
 import preflight as P
+import startup
 
 OUTER_CAP=8<<20
 ARTIFACT_CAP=L.BYTE_CAP+OUTER_CAP
 MANIFEST='artifact-manifest.json'
+STARTUP='startup.json'
 INNER_MANIFEST='evidence/inner-public-manifest.json'
 UPLOADER='cf430e030ddbb5b0abf93d22962f4752f3646cd9'
 FIXED=('owner-report.json','actual-domains.json','host-policy.json','host-tools.json')
@@ -64,6 +66,10 @@ def empty_controller(group):
 
 
 def join_inner(selected, public, identity):
+    startup.validate(json.loads(selected[STARTUP]),identity['run'])
+    if 'owner-report.json' not in selected:
+        P.need(set(selected)=={STARTUP},'startup HOLD has only the selected controller diagnostic')
+        return
     report=json.loads(selected['owner-report.json'])
     P.need(all(report[key]==value for key,value in identity.items()),'same external owner receipt')
     inner_raw=selected.get(INNER_MANIFEST)
@@ -93,37 +99,42 @@ def join_inner(selected, public, identity):
                'same Python package, check and exact 345-payload lock')
 
 
-def snapshot(root,owned,target,map_sha,env,observe=empty_controller):
+def snapshot(root,owned,target,map_sha,env,observation,observe=empty_controller):
     overlay=load(root/'scripts/ci/python3148-native-full-profile/overlay.py','python_artifact_source')
     overlay.verify(root,map_sha,overlay.RUNTIME_KIND)
     public=load(root/overlay.FULL/'public_evidence.py','accepted_literal_owner_export')
     P.need(env['GITHUB_RUN_ATTEMPT']=='1' and env['GITHUB_JOB']=='pair'
            and env['GITHUB_REF']==L.REF and re.fullmatch('[1-9][0-9]{1,19}',env['GITHUB_RUN_ID']),
            'exact first-attempt Python hosted role')
-    body=P.read(owned/'owner-report.json',2<<20)
-    report=json.loads(body);run=env['GITHUB_RUN_ID']
+    run=env['GITHUB_RUN_ID']
     identity=dict(source=env['GITHUB_SHA'],ref=L.REF,source_map_sha256=map_sha,run=run,attempt=1,job='pair')
-    P.need(all(report[k]==value for k,value in identity.items()),'same hosted owner identity')
-    group='/system.slice/cachy-python3148-controller-'+run+'-1.scope'
-    P.need(report['controller']['cgroup']==group,'exact controller scope')
-    observe(group)
-    selected={'owner-report.json':body}
-    for name in FIXED[1:]:
-        path=owned/name
+    diagnostic=P.read(observation,16384)
+    startup.validate(json.loads(diagnostic),run)
+    selected={STARTUP:diagnostic}
+    group=startup.group(run)
+    if not owned.is_symlink() and os.access(owned/'owner-report.json',os.R_OK):
+        body=P.read(owned/'owner-report.json',2<<20)
+        report=json.loads(body)
+        P.need(all(report[k]==value for k,value in identity.items()) and report['controller']['cgroup']==group,
+               'same hosted owner and exact controller scope')
+        observe(group)
+        selected['owner-report.json']=body
+        for name in FIXED[1:]:
+            path=owned/name
+            if path.exists():
+                selected[name]=read(path,2<<20)
+        selected['controller-retirement.json']=P.encode(dict(cgroup=group,empty_twice=True,run=run,attempt=1))
+        path=owned/INNER_MANIFEST
         if path.exists():
-            selected[name]=read(path,2<<20)
-    selected['controller-retirement.json']=P.encode(dict(cgroup=group,empty_twice=True,run=run,attempt=1))
-    path=owned/INNER_MANIFEST
-    if path.exists():
-        raw=P.read(path,2<<20)
-        inner=json.loads(raw);rows=inner['files'];exact_names(rows,inner,public)
-        P.need(inner['source']==identity['source'] and inner['source_map_sha256']==map_sha
-               and report['inner_public_evidence']['manifest']==P.pin(raw),'exact owner-selected evidence manifest')
-        selected[INNER_MANIFEST]=raw
-        for name,pin in rows.items():
-            data=read(owned/'evidence'/name,pin['bytes'])
-            P.need(P.pin(data)==pin,'exact retained leaf '+name)
-            selected['evidence/'+name]=data
+            raw=P.read(path,2<<20)
+            inner=json.loads(raw);rows=inner['files'];exact_names(rows,inner,public)
+            P.need(inner['source']==identity['source'] and inner['source_map_sha256']==map_sha
+                   and report['inner_public_evidence']['manifest']==P.pin(raw),'exact owner-selected evidence manifest')
+            selected[INNER_MANIFEST]=raw
+            for name,pin in rows.items():
+                data=read(owned/'evidence'/name,pin['bytes'])
+                P.need(P.pin(data)==pin,'exact retained leaf '+name)
+                selected['evidence/'+name]=data
     join_inner(selected,public,identity)
     total=sum(map(len,selected.values()))
     P.need(total<=ARTIFACT_CAP,'bounded raw upload data bytes')
@@ -153,7 +164,7 @@ def inspect_original(archive, archive_sha, binding, public):
             index={row.filename:row for row in files}
             P.need(MANIFEST in index and index[MANIFEST].file_size<=2<<20,'bounded artifact manifest')
             manifest=json.loads(bundle.read(MANIFEST))
-            fixed=set(FIXED)|{'controller-retirement.json'}
+            fixed=set(FIXED)|{'controller-retirement.json',STARTUP}
             P.need(set(index)==set(manifest['files'])|{MANIFEST}
                    and all(name in fixed or name==INNER_MANIFEST or name.removeprefix('evidence/') in public.PUBLIC_LEAVES
                            and name.startswith('evidence/') for name in manifest['files'])
@@ -179,6 +190,7 @@ if __name__=='__main__':
     cli.add_argument('--root',type=Path,required=True)
     cli.add_argument('--owner-output',type=Path,required=True)
     cli.add_argument('--target',type=Path,required=True)
+    cli.add_argument('--startup',type=Path,required=True)
     cli.add_argument('--runtime-sha256',required=True)
     a=cli.parse_args()
-    print(json.dumps(snapshot(a.root,a.owner_output,a.target,a.runtime_sha256,os.environ),sort_keys=True))
+    print(json.dumps(snapshot(a.root,a.owner_output,a.target,a.runtime_sha256,os.environ,a.startup),sort_keys=True))

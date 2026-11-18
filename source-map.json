@@ -1,9 +1,9 @@
 {
   "files": {
     ".github/workflows/native-arm-python3148-native-full-profile.yml": {
-      "bytes": 9694,
+      "bytes": 11308,
       "mode": 420,
-      "sha256": "7665feebc3d8a3de0e6b27a6c23f2c457653c7f21982448d2a84ece63bd8a660"
+      "sha256": "7e3bd33675354e7071a835b1121f05e9d5bc4277c9193bdb6725182e1e87efd2"
     },
     "packages/port/python3148-source-candidate/.SRCINFO": {
       "bytes": 1679,
@@ -66,9 +66,9 @@
       "sha256": "aa243ab5c6fa5f053579d3854d09c86fb321949012ae5d1dc59875dfc8ecd1b2"
     },
     "scripts/ci/python3148-native-full-profile/artifact.py": {
-      "bytes": 10092,
+      "bytes": 10696,
       "mode": 420,
-      "sha256": "a02b1317ba9f27c38f444a1acddff8b45bb2af6fe6dc7dd293f93e2039a0cd03"
+      "sha256": "dcb64631264d908efa6e3eb6dc7b421fb8dd57238b2de3ec506ad81991a7d966"
     },
     "scripts/ci/python3148-native-full-profile/cache-FORMAT.data": {
       "bytes": 28,
@@ -86,14 +86,14 @@
       "sha256": "d45989ab35f2b62251a0b0d0260f266d129ff4a557ce8f9d4d4346157e51ee65"
     },
     "scripts/ci/python3148-native-full-profile/input_roles.py": {
-      "bytes": 4833,
+      "bytes": 6163,
       "mode": 420,
-      "sha256": "e45211be04af110a2ae54d62d2ff1c57ab617d2dc7865a10678313051fe5deeb"
+      "sha256": "801c7af0f5fc74d34216697713d21d02979fcc23ddd8f9e34684cbaedf31ed7c"
     },
     "scripts/ci/python3148-native-full-profile/lane.py": {
       "bytes": 5077,
       "mode": 420,
-      "sha256": "6d94970766dbd6fe29edd52a534a51d4b8514a3a1a93800e9c5607f69d4a4d67"
+      "sha256": "e972054cc36fb1c544855671a277f0eeb41ddebfcd72b6803b2df8db1ee0b15a"
     },
     "scripts/ci/python3148-native-full-profile/material-pins.json": {
       "bytes": 1676,
@@ -136,9 +136,9 @@
       "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f"
     },
     "scripts/ci/python3148-native-full-profile/overlay.py": {
-      "bytes": 17403,
+      "bytes": 19573,
       "mode": 420,
-      "sha256": "bc32867ec1723925e26ce379dc787cd9a6860b3ca0f4bea88b6094a5fa817cb0"
+      "sha256": "5a21e35ab7a849577f288940c8df4f8d5995f2107acfb69a0e1c409fa1d2d67b"
     },
     "scripts/ci/python3148-native-full-profile/preflight.py": {
       "bytes": 14799,
@@ -169,6 +169,11 @@
       "bytes": 1486,
       "mode": 420,
       "sha256": "913a581de17d5a7ea219c8035861dea2ea18cec803f36b2ed225d80d2e1ab398"
+    },
+    "scripts/ci/python3148-native-full-profile/startup.py": {
+      "bytes": 8280,
+      "mode": 420,
+      "sha256": "c07394bf9c8526e5adbc73263d75bc74971bfa087834d71f87ea7ab3a19d4232"
     }
   },
   "kind": "PYTHON3148_THIN_CODE_SOURCE_V1",

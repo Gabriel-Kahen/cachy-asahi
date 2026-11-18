@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Exact scheduled HTTPS DATA and same-byte staging for the Python build."""
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -98,10 +99,33 @@ def accept(source):
     return {name:P.read(source/name,max(row['bytes'],1),row) for name,row in expected.items()}
 
 
+
+def transfer(source,target,pin,mode):
+    P.need(source==source.resolve() and not source.is_symlink(),'canonical pinned source material')
+    fd=os.open(source,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+    with os.fdopen(fd,'rb') as stream,target.open('xb') as out:
+        before=os.fstat(stream.fileno())
+        identity=lambda info:(info.st_dev,info.st_ino,info.st_mode,info.st_nlink,info.st_size,info.st_mtime_ns,info.st_ctime_ns)
+        P.need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_size==pin['bytes'],
+               'same whole stored operand identity')
+        os.fchmod(out.fileno(),mode)
+        digest=hashlib.sha256()
+        total=0
+        while data:=stream.read(min(65536,pin['bytes']-total+1)):
+            total+=len(data)
+            P.need(total<=pin['bytes'],'strict finite operand length')
+            digest.update(data);out.write(data)
+        P.need(total==pin['bytes'] and digest.hexdigest()==pin['sha256']
+               and identity(before)==identity(os.fstat(stream.fileno()))==identity(source.lstat()),
+               'exact same hashed input throughout bounded staging')
+
+
 def stage(source,dest,uid,gid):
     room(dest)
     P.need(type(uid) is int and uid>0 and type(gid) is int and gid>0,'ordinary build coordinator identity')
-    values=accept(source)
+    expected=pins()
+    P.need(source==source.resolve() and {path.name for path in source.iterdir()}==set(expected),
+           'closed separate Python DATA input role')
     dest.mkdir(mode=0o700)
     delta=dest/'builder-delta';delta.mkdir(mode=0o700)
     cache=dest/'source-cache';cache.mkdir(mode=0o700)
@@ -109,11 +133,11 @@ def stage(source,dest,uid,gid):
         (cache/child).mkdir(mode=0o700)
     P.put(cache/'FORMAT',P.read(HERE/'cache-FORMAT.data',128),0o600)
     P.put(cache/'receipts'/f'{P.CATALOG_SHA}-{P.SOURCE_ID}.json',P.read(HERE/'cache-receipt.json',8192),0o600)
-    for name,raw in values.items():
+    for name,pin in expected.items():
         if name==P.SRC:
-            P.put(cache/'objects'/P.pin(raw)['sha256'],raw,0o600)
+            transfer(source/name,cache/'objects'/pin['sha256'],pin,0o600)
         else:
-            P.put(delta/name,raw,0o400)
+            transfer(source/name,delta/name,pin,0o400)
     for path in sorted(dest.rglob('*'),reverse=True):
         os.chown(path,uid,gid,follow_symlinks=False)
     os.chown(dest,uid,gid,follow_symlinks=False)

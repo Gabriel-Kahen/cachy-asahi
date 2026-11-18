@@ -24,7 +24,7 @@ R12 = {'commit': '19dea1cca35659ad7ab307dfea09c30a77362640',
        'tree': 'de61a2e7351a09d1dcf0471d50c80e3a1a6ee479',
        'map_sha256': '14a3f9d1f12f224bf43a71a7bb4ef9ba3bfe03b5918b25aabc33ce1fdb71a3b2',
        'bytes': 2093900}
-NEW_REF = 'refs/heads/codex/python3148-native-full-profile-source-20261118-r1'
+NEW_REF = 'refs/heads/codex/python3148-native-full-profile-source-20261118-r2'
 
 
 def module(path, name):
@@ -129,7 +129,7 @@ def replace(body, before, after):
 THIN_KIND='PYTHON3148_THIN_CODE_SOURCE_V1'
 RUNTIME_KIND='PYTHON3148_PROJECTED_RUNTIME_V1'
 FILE_NAMES={'overlay.py','lane.py','preflight.py','native_bootstrap.py','material-pins.json','input_roles.py','artifact.py',
-            'expected345.lock','source-plan.json','source-cache-inputs.json','reviewed-inputs.json',
+            'startup.py','expected345.lock','source-plan.json','source-cache-inputs.json','reviewed-inputs.json',
             'cache-FORMAT.data','cache-receipt.json',
             *('notices/python-'+str(i)+'.txt' for i in range(6)),
             'runtime/scripts/build/build_python3148.py','runtime/scripts/build/container-entry-v2.sh'}
@@ -238,6 +238,32 @@ def source(root, expected):
     raw=replace(raw,b"pinned_inputs=str(work/'native349-pinned-inputs'))",
                     b"pinned_inputs=str(work/'native349-pinned-inputs'),python_inputs=str(work/'python-inputs'))")
     raw=replace(raw,b"evidence=work/'fish02-native/evidence'",b"evidence=work/'fish02-native'")
+    begin=b"s=importlib.util.spec_from_file_location('fish02_exact_carrier'"
+    start=(b"ps=importlib.util.spec_from_file_location('python_startup',HERE.parents[1]/'python3148-native-full-profile/startup.py')\n"
+           b"STARTUP=importlib.util.module_from_spec(ps);ps.loader.exec_module(STARTUP)\n"
+           b"STARTUP.phase('owner-python-entry')\n")
+    raw=replace(raw,begin,start+begin)
+    raw=replace(raw,b"LIMIT_FILES=(",b"STARTUP.phase('imports-complete')\nLIMIT_FILES=(")
+    for anchor,label in (
+        (b"    policy=D.decode(D.read(HERE/'policy.json'))","admission-verified"),
+        (b"    os.umask(0o077);a.output.mkdir","controller-domain-verified"),
+    ):
+        raw=replace(raw,anchor,b'    STARTUP.phase('+repr(label).encode()+b')\n'+anchor)
+    for anchor,label,indent,out in (
+        (b"    owner=Controller(","output-created",4,b'a.output'),
+        (b"        self.capacity()","host-context",8,b'self.out'),
+        (b"        self.preflight() # Existing required tools only; no host package manager.","host-tools-probe",8,b'self.out'),
+        (b"        p=self.policy;available=self.capacity()","host-tools-ready",8,b'self.out'),
+        (b"        image=self.out/'storage.img';fd=","storage-reservation",8,b'self.out'),
+        (b"        self.run([self.tool('mkfs.ext4')","loop-attached",8,b'self.out'),
+        (b"        daemon=self.start('daemon',argv)","daemon-starting",8,b'self.out'),
+        (b"        report['pinned_input_carrier']=N.stage","raw-input-staging",8,b'a.output'),
+        (b"        payload=owner.start('owner'","ordinary-owner-starting",8,b'a.output'),
+        (b"        evidence=work/'fish02-native'","payload-terminal",8,b'a.output'),
+        (b"        E.preserve(report,","owner-finalizing",8,b'a.output'),
+        (b"        write(a.output/'owner-report.json',report)","retirement-writing",8,b'a.output'),
+    ):
+        raw=replace(raw,anchor,b' '*indent+b'STARTUP.phase('+repr(label).encode()+b','+out+b')\n'+anchor)
     files[owner]=raw
     for leaf in ('hosted_owner.py','payload.py','public_evidence.py'):
         rel=FULL+leaf
@@ -267,7 +293,9 @@ def source(root, expected):
     policy['python_native_build']=dict(archive_cap=lane.ARCHIVE_CAP,retained_cap=lane.BYTE_CAP,
         build_seconds=P.BUILD_SECONDS,driver_seconds=lane.ACTOR,driver_file_bytes=lane.DRIVER_FILE_CAP,bootstrap_seconds=lane.BOOTSTRAP,
         inner_seconds=lane.INNER,cleanup_seconds=lane.CLEANUP,owned_service_seconds=lane.SERVICES,
-        original_host_package_mutations=0,ordinary_user_build=True)
+        original_host_package_mutations=0,ordinary_user_build=True,
+        startup_observation=dict(seconds=24,observer_ordinary_user=True,only_exact_controller=True,
+                                 cgroup_resource_limits_unchanged=True))
     files[FULL+'policy.json']=encode(policy)
     program=FULL+'owner-program.json'
     held=json.loads(confirmed[program])

@@ -11,8 +11,8 @@ sys.path.insert(0,str(HERE))
 import preflight as P
 import native_bootstrap as bootstrap
 
-REF='refs/heads/codex/python3148-native-full-profile-source-20261118-r1'
-OPERATION='PYTHON3148_NATIVE_FULL_PROFILE_R1'
+REF='refs/heads/codex/python3148-native-full-profile-source-20261118-r2'
+OPERATION='PYTHON3148_NATIVE_FULL_PROFILE_R2'
 CHECK_LOG='python-3.14.8-1.1-aarch64-check.log'
 NATIVE_PASS='PASS_CURRENT_PYTHON3148_FULL_PROFILE'
 MIB=1024**2
