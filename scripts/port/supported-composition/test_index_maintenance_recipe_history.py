@@ -11,6 +11,7 @@ from pathlib import Path
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location("maintenance_history", Path(__file__).with_name("index_maintenance_recipe_history.py"))
 index = importlib.util.module_from_spec(spec)
@@ -37,9 +38,9 @@ class MaintenanceHistoryTests(unittest.TestCase):
     def recipe(name, version):
         return f"pkgname={name}\n# {version}\n".encode()
 
-    def pair(self, name, version):
+    def pair(self, name, version, recipe=None):
         pkginfo = f"pkgname = {name}\npkgbase = {name}\npkgver = {version}\narch = aarch64\n".encode()
-        digest = index.source.digest(self.recipe(name, version))
+        digest = index.source.digest(self.recipe(name, version) if recipe is None else recipe)
         buildinfo = (f"format = 2\npkgname = {name}\npkgbase = {name}\npkgver = {version}\npkgarch = aarch64\n"
                      f"pkgbuild_sha256sum = {digest}\nbuilddate = 1234567890\n").encode()
         filename = f"{name}-{version}-aarch64.pkg.tar.xz"
@@ -61,9 +62,10 @@ class MaintenanceHistoryTests(unittest.TestCase):
         archive_join = self.ref("join.json", json.dumps(receipt).encode())
         return dict(kind=index.KIND, schema_version=1, archive_join=archive_join, candidates=candidates)
 
-    def candidate(self, version):
+    def candidate(self, version, raw=None):
         commit = "a" * 40
-        raw = self.recipe("python", "3.14.8-1")
+        if raw is None:
+            raw = self.recipe("python", "3.14.8-1")
         path = "core/python/PKGBUILD"
         body = dict(type="file", path=path, size=len(raw), encoding="base64",
                     url=f"https://api.github.com/repos/org/package/contents/{path}?ref={commit}",
@@ -95,6 +97,35 @@ class MaintenanceHistoryTests(unittest.TestCase):
         for candidates in ([dict(candidate, version="3.14.9-1")], [candidate, candidate]):
             with self.subTest(candidates=candidates), self.assertRaisesRegex(ValueError, "duplicate candidate or unrelated"):
                 index.compare(self.config(candidates), "b" * 64)
+
+    def test_plugbuild_append_matches_only_the_exact_signed_version(self):
+        values = (b"0" * 128, b"1" * 128)
+        raw = self.recipe("python", "3.14.8-1") + b"sha512sums=('" + b"' '".join(values) + b"')\n"
+        generated = raw + b"\nsha512sums=('" + b"'\n            '".join(values) + b"')\n"
+        self.packages["python"]["forward"] = self.pair("python", "3.14.8-1", generated)
+        cfg = self.config([self.candidate(version, raw) for version in ("3.14.7-1", "3.14.8-1")])
+        unchanged = index.compare(cfg, "b" * 64)
+        self.assertEqual(unchanged["exact_recipe_count"], 0)
+        cfg["plugbuild_client"] = self.ref("client.pl", b"fixture for pinned client")
+        with self.assertRaisesRegex(ValueError, "exact archived Arch Linux ARM plugbuild client"):
+            index.compare(cfg, "b" * 64)
+        with patch.object(index, "PLUGBUILD_CLIENT_SHA256", cfg["plugbuild_client"]["sha256"]):
+            result = index.compare(cfg, "b" * 64)
+        self.assertEqual(result["exact_recipe_count"], 1)
+        self.assertEqual(result["corresponding_source_fulfillment"], "NOT ESTABLISHED")
+        forward, rollback = [row for row in result["packages"] if row["package"]["name"] == "python"]
+        self.assertEqual(forward["candidates"][0]["status"], "SIGNED_RECIPE_DIGEST_MISMATCH")
+        exact = forward["candidates"][0]["plugbuild_candidate"]
+        self.assertEqual(exact["status"], "EXACT_SIGNED_RECIPE_MATCH")
+        self.assertEqual(base64.b64decode(exact["body_base64"]), generated)
+        self.assertNotIn("body_base64", rollback["candidates"][0]["plugbuild_candidate"])
+
+    def test_plugbuild_refuses_unmodeled_checksum_layouts(self):
+        simple = b"b2sums=('" + b"a" * 128 + b"')\n"
+        for raw in (simple + b"source_aarch64=(other)\n",
+                    simple + b"sha256sums=(SKIP)\n", b"b2sums=('SKIP')\n"):
+            with self.subTest(raw=raw):
+                self.assertEqual(index.plugbuild_candidate(raw, "0" * 64)["status"], "UNSUPPORTED_CHECKSUM_LAYOUT")
 
 
 if __name__ == "__main__":

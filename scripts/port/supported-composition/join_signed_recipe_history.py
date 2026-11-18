@@ -31,7 +31,7 @@ ARCH = re.compile(r"https://gitlab\.archlinux\.org/(archlinux/packaging/packages
 OID = re.compile(r"[a-f0-9]{40}")
 
 
-def read_reference(row, limit):
+def read_reference_bytes(row, limit):
     source.fields(row, ("path", "size", "sha256"))
     path = Path(row["path"])
     source.sha(row["sha256"])
@@ -39,10 +39,14 @@ def read_reference(row, limit):
                 and type(row["size"]) is int and 0 < row["size"] <= limit, "absolute exact evidence reference required")
     raw = source.local_read(path.parent, path.name, limit)
     source.need(len(raw) == row["size"] and source.digest(raw) == row["sha256"], "evidence bytes differ from reference")
-    return source.decode(raw)
+    return raw
 
 
-def match_file(repository, commit, path, record):
+def read_reference(row, limit):
+    return source.decode(read_reference_bytes(row, limit))
+
+
+def match_file(repository, commit, path, record, *, include_body=False):
     parts = source.relative(path)
     source.need(OID.fullmatch(commit) and parts[-1] == "PKGBUILD"
                 and all(re.fullmatch(r"[A-Za-z0-9@._+-]+", part) for part in parts), "exact commit and PKGBUILD path required")
@@ -69,8 +73,9 @@ def match_file(repository, commit, path, record):
     blob = hashlib.sha1(f"blob {len(raw)}\0".encode("ascii") + raw).hexdigest()
     source.need(len(raw) == record["size"] and blob == expected_blob
                 and (github or record["content_sha256"] == sha), "Git blob bytes or digest differ")
-    return dict(commit=commit, repository=repository, path=path, file_endpoint=page,
-                git_blob_sha1=blob, pkgbuild_sha256=sha, bytes=len(raw))
+    snapshot = dict(commit=commit, repository=repository, path=path, file_endpoint=page,
+                    git_blob_sha1=blob, pkgbuild_sha256=sha, bytes=len(raw))
+    return (snapshot, raw) if include_body else snapshot
 
 
 def compare(config, config_sha256):
