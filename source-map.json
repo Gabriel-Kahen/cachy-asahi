@@ -96,9 +96,9 @@
       "sha256": "801c7af0f5fc74d34216697713d21d02979fcc23ddd8f9e34684cbaedf31ed7c"
     },
     "scripts/ci/python3148-native-full-profile/lane.py": {
-      "bytes": 5077,
+      "bytes": 5099,
       "mode": 420,
-      "sha256": "d1d7a85f8799cf5abb45f365ab3133a955b8595e003fe1c14860bf4e31419f75"
+      "sha256": "2885a07ea54656bddde4085cb03261f6814656ff042a5e77c803763d56c4bfc7"
     },
     "scripts/ci/python3148-native-full-profile/material-pins.json": {
       "bytes": 1676,
@@ -141,9 +141,9 @@
       "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f"
     },
     "scripts/ci/python3148-native-full-profile/overlay.py": {
-      "bytes": 21841,
+      "bytes": 21847,
       "mode": 420,
-      "sha256": "1ae473b712eeecd6b18918781669bba08a814c930ce5f44b5d58da4ebd3577d7"
+      "sha256": "35d41472052655099095939ac68c3621150c9a6f9a37176242bb8be9ce4b64ee"
     },
     "scripts/ci/python3148-native-full-profile/preflight.py": {
       "bytes": 14799,
