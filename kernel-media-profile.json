@@ -5,7 +5,7 @@
   "files": {
     ".github/actions/current606-ksm-virtio-input/action.yml": {
       "bytes": 2585,
-      "sha256": "0fb7fd791de1ca0e1782b9f0df34217dee2d82eb0bc2577b8c8c01b6578fcd32"
+      "sha256": "b4c87d6e1d0298410cb075635caf259cd6f4eb393c653eb628e8364acaefd9c2"
     },
     "scripts/ci/current606-ksm-virtio-input/base-build-receipt.json": {
       "bytes": 6955,

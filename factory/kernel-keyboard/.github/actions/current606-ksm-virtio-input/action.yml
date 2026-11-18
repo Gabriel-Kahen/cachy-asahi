@@ -22,7 +22,7 @@ runs:
         source_root=$(realpath -e -- "$GITHUB_ACTION_PATH/../../..")
         [[ "$(git -C "$source_root" rev-parse HEAD)" == "$KERNEL_SOURCE_SHA" ]]
         slice="$source_root/scripts/ci/current606-ksm-virtio-input"
-        printf '%s  %s\n' 'b13da909541d5dc0da8cfa28cd953b4fad02508aa0f579c42a7627c0d7cde843' "$slice/lane.py" | sha256sum --check --status
+        printf '%s  %s\n' '2398cd057ebf1790f168ebfb6ffbb059ca95b9e5cb0a86a44b16e7d9e7ade2b5' "$slice/lane.py" | sha256sum --check --status
         python3 -I -B "$slice/lane.py" preflight
         python3 -I -B "$slice/test_controls.py"
     - name: Provision the accepted tools on the disposable runner
