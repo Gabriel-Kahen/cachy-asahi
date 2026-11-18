@@ -46,6 +46,9 @@ printf 'model failed removal\n' > "$temp/original/remove.stderr"
 export_evidence "$temp/original" "$temp/held"
 cmp "$temp/original/result.json" "$temp/held/result.json"
 cmp "$temp/original/remove.stderr" "$temp/held/remove.stderr"
+printf 'model first-login ledger\n' > "$temp/original/first-login.json"
+export_evidence "$temp/original" "$temp/first-login"
+cmp "$temp/original/first-login.json" "$temp/first-login/first-login.json"
 touch "$temp/original/foreign"
 if export_evidence "$temp/original" "$temp/foreign"; then
     printf 'incorrectly exported foreign evidence\n' >&2
@@ -57,4 +60,4 @@ if export_evidence "$temp/original" "$temp/hardlink"; then
     printf 'incorrectly exported hard-linked evidence\n' >&2
     exit 1
 fi
-printf 'guest init evidence export fixture passed (3 cases)\n'
+printf 'guest init evidence export fixture passed (4 cases)\n'

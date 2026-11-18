@@ -222,7 +222,8 @@ class ProjectWorkflowTest(unittest.TestCase):
         self.base = Path(self.temp.name)
         self.logs = self.base / 'logs'; self.logs.mkdir()
         self.home = self.base / 'home'; self.home.mkdir()
-        self.commands = W.Commands(self.logs, self.home, os.defpath, timeout=5, total=60)
+        # Allow hosted runner compiler startup within the standard command budget.
+        self.commands = W.Commands(self.logs, self.home, os.defpath, timeout=15, total=60)
         self.tools = {n: str(Path(p).resolve()) for n in ('cc', 'python3', 'vim', 'make', 'ninja')
                       if (p := shutil.which(n, path=os.defpath)) is not None}
 

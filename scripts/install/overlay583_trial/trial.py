@@ -37,6 +37,11 @@ TIMEOUT = 3600
 LIFECYCLE_HOLD_EXIT = 75
 UPGRADE_KIND = "OVERLAY583_SETUP7_TO_SETUP8_GUEST_PLAN_V1"
 UPGRADE_HOLD = "HOLD_DISPOSABLE_OVERLAY583_SETUP_UPGRADE"
+FIRST_LOGIN_KIND = "OVERLAY583_FIRST_LOGIN_GUEST_PLAN_V1"
+FIRST_LOGIN_PASS = "PASS_DISPOSABLE_OVERLAY583_FIRST_LOGIN_LIFECYCLE"
+FIRST_LOGIN_HOLD = "HOLD_DISPOSABLE_OVERLAY583_FIRST_LOGIN_LIFECYCLE"
+FIRST_LOGIN_EVIDENCE = "first-login.json"
+FIRST_LOGIN_COMMANDS = "first-login-commands"
 INSTALL_PASS = "PASS_DISPOSABLE_PACMAN_TRANSACTION_ONLY"
 LIFECYCLE_PASS = "PASS_DISPOSABLE_OVERLAY583_LIFECYCLE_ONLY"
 LIFECYCLE_HOLD = "HOLD_DISPOSABLE_OVERLAY583_LIFECYCLE"
@@ -336,13 +341,77 @@ def upgrade_module(expected=None):
     return loaded
 
 
+def first_login_sources():
+    root = HERE.parents[2]/"scripts"
+    addon = root/"integration/first_login_overlay583"
+    return {"guest.py":addon/"guest.py","stage.py":addon/"stage.py","target.py":addon/"target.py",
+            "journey.py":root/"integration/first_login_installed_journey.py",
+            "owned_process.py":root/"virtual/owned_process.py"}
+
+
+def first_login_module(expected):
+    path = HERE/"first-login/guest.py" if HERE==PLAN.parent else first_login_sources()["guest.py"]
+    raw = read(path,expected,cap=128*1024)
+    spec = importlib.util.spec_from_file_location("overlay583_first_login",path)
+    loaded = importlib.util.module_from_spec(spec)
+    exec(compile(raw,str(path),"exec"),loaded.__dict__)
+    return loaded
+
+
+def first_login_selection(staging, digest):
+    stage = ordinary(staging)
+    raw = read(stage/"supplement.json",cap=64*1024)
+    receipt = pin(raw)
+    need(HEX.fullmatch(digest or "") and receipt["sha256"]==digest,
+         "External first-login supplement digest differs")
+    value = decode(raw)
+    source = first_login_sources()
+    spec = importlib.util.spec_from_file_location("overlay583_first_login_stage",source["stage.py"])
+    pinned = importlib.util.module_from_spec(spec)
+    exec(compile(read(source["stage.py"],cap=128*1024),str(source["stage.py"]),"exec"),pinned.__dict__)
+    files = value.get("files",{})
+    need(raw==encoded(value) and set(value)=={"kind","files","overlay_before","overlay_after","preflight","provenance",
+                                              "template_profile","Root_authority","installation","rehearsal"}
+         and value["kind"]==pinned.KIND and value["Root_authority"] is None
+         and value["installation"]=="NOT RUN" and value["provenance"]==pinned.PROVENANCE
+         and value["template_profile"]=="fish0.1.0-1-zsh0.1.0-1" and value["overlay_before"]==pinned.TARGET
+         and value["preflight"]["sha256"]==pinned.PREFLIGHT_SHA
+         and pinned.valid_rehearsal(value["rehearsal"])
+         and value["rehearsal"]["created"]<=time.time()<value["rehearsal"]["expires"]
+         and set(files)==set(pinned.MATERIALS)|set(source)|{pinned.SIGNATURE,pinned.PUBLIC}
+         and {path.name for path in stage.iterdir()}==set(files)|{"supplement.json"},
+         "Exact held first-login supplement scope, materials and provenance required")
+    for name,wanted in files.items():
+        if name in source:
+            need(read(source[name],cap=128*1024,collect=False)==wanted,"Staged first-login code differs: "+name)
+        elif name in pinned.MATERIALS:
+            need(wanted==pinned.MATERIALS[name],"Original signed first-login material differs: "+name)
+        read(stage/name,wanted,cap=128*1024,collect=False)
+    return dict(receipt=receipt,files=files,after=value["overlay_after"],rehearsal=value["rehearsal"])
+
+
+def first_login_plan(packet,nonce,supplement):
+    current=target_bytes(packet)
+    after=sorted_rows(current+b"cachy-asahi-first-login 0.1.0-2\n")
+    need(set(supplement)=={"receipt","files","after","rehearsal"} and supplement["after"]==pin(after)
+         and supplement["rehearsal"]["fingerprint"] not in packet["signers"]
+         and len(canonical_lock(after,584))==584,
+         "First-login must add exactly one package to the selected 583")
+    return dict(guest_plan(packet,nonce),kind=FIRST_LOGIN_KIND,first_login=supplement)
+
+
 def target_bytes(packet):
     raw = "".join(f'{name} {row["version"]}\n' for name,row in sorted(packet["packages"].items())).encode("ascii")
     need(pin(raw)==packet["target"],"Derived target inventory differs")
     return raw
 
 
-def selected_plan(packet, nonce, *, lifecycle=False, signature_recovery=False, predecessor=None, predecessor_pin=None):
+def selected_plan(packet, nonce, *, lifecycle=False, signature_recovery=False, predecessor=None, predecessor_pin=None,
+                  first_login=None):
+    if first_login is not None:
+        need(not lifecycle and not signature_recovery and predecessor is None and predecessor_pin is None,
+             "Choose only one Overlay583 operation")
+        return first_login_plan(packet,nonce,first_login)
     if predecessor is None:
         need(predecessor_pin is None,"Unexpected predecessor digest")
         return guest_plan(packet,nonce,lifecycle=lifecycle,signature_recovery=signature_recovery)
@@ -366,6 +435,8 @@ def evidence_names(plan):
         snapshots.update(("removed.lock","reinstalled.lock"))
     if plan.get("signature_recovery"):
         snapshots.update(("refused.lock",DB_BEFORE,DB_AFTER))
+    if plan.get("kind")==FIRST_LOGIN_KIND:
+        snapshots.add(FIRST_LOGIN_EVIDENCE)
     return snapshots | {
         f"{role}.{stream}" for role in roles for stream in ("stdout", "stderr")
     }
@@ -437,7 +508,10 @@ def guest(plan_sha256, worker_sha256):
          and Path("/proc/cmdline").read_text().split().count("cachy_overlay583_nonce="+nonce)==1,
          "Exact owned guest boot nonce required")
     upgrade = upgrade_module(plan["upgrade_worker"]) if plan.get("kind")==UPGRADE_KIND else None
-    if upgrade is None:
+    first_login = first_login_module(plan["first_login"]["files"]["guest.py"]) if plan.get("kind")==FIRST_LOGIN_KIND else None
+    if first_login is not None:
+        need(plan==first_login_plan(packet,nonce,plan["first_login"]),"Exact selected first-login plan required")
+    elif upgrade is None:
         need(plan==guest_plan(packet,nonce,lifecycle=lifecycle,signature_recovery=recovery),"Exact selected guest plan required")
     else:
         predecessor = upgrade.check_stage(IN/upgrade.PREDECESSOR,plan["predecessor"]["receipt"])
@@ -459,12 +533,10 @@ def guest(plan_sha256, worker_sha256):
     if lifecycle:
         baseline = read(IN/BASE_INVENTORY,packet["baseline"],cap=256*1024,observed=observed)
         need(lifecycle_operands(packet)[0]==baseline,"Guest base inventory differs")
-    if upgrade is not None:
-        return execute_guest(plan,lock,observed,deadline,upgrade=upgrade)
-    return execute_guest(plan,lock,observed,deadline)
+    return execute_guest(plan,lock,observed,deadline,upgrade=upgrade,first_login=first_login)
 
 
-def execute_guest(plan, lock, observed, deadline, *, upgrade=None):
+def execute_guest(plan, lock, observed, deadline, *, upgrade=None, first_login=None):
     packet = plan["packet"]
     lifecycle = plan.get("lifecycle") is True
     if lifecycle:
@@ -478,21 +550,30 @@ def execute_guest(plan, lock, observed, deadline, *, upgrade=None):
     env = {"PATH":"/usr/bin:/bin","HOME":str(WORK/"home"),"GNUPGHOME":str(WORK/"trust"),"LC_ALL":"C","TZ":"UTC"}
     commands = []
     phase = "trust"
+    addon_output, addon_commands, addon_result = WORK/FIRST_LOGIN_COMMANDS, [], None
 
-    def run(role, argv, seconds, contents=None):
+    def run(role, argv, seconds, contents=None, *, log=OUTPUT, ledger=commands):
         nonlocal phase
         phase = role
         remaining = deadline-time.monotonic()
         need(remaining>0,"Guest transaction deadline exhausted")
-        with (OUTPUT/(role+".stdout")).open("xb") as stdout, (OUTPUT/(role+".stderr")).open("xb") as stderr:
+        with (log/(role+".stdout")).open("xb") as stdout, (log/(role+".stderr")).open("xb") as stderr:
             result = subprocess.run(argv, env=env, input=contents,
                                     stdin=subprocess.DEVNULL if contents is None else None,
                                     stdout=stdout, stderr=stderr, timeout=min(remaining,seconds), check=False)
-        commands.append(dict(role=role,argv=argv,exit=result.returncode))
+        ledger.append(dict(role=role,argv=argv,exit=result.returncode))
         need(result.returncode==expected_exit(role), f"Guest command failed: {role} (exit {result.returncode})")
 
+    def run_addon(role,argv,seconds,contents=None):
+        need(role in first_login.ROLES and role not in {row["role"] for row in addon_commands},
+             "Exact single-use first-login command label required")
+        run(role,argv,seconds,contents,log=addon_output,ledger=addon_commands)
+        if role in ("first-login-install","first-login-uninstall"):
+            check_hooks(addon_output,role)
+        return read(addon_output/(role+".stdout"),cap=256*1024)
+
     def transaction():
-        nonlocal phase
+        nonlocal phase, addon_result
         gpg = ["/usr/bin/gpg","--batch","--no-options"]
         for index,name in enumerate(GPG_PATHS):
             phase = "import-"+str(index)
@@ -515,6 +596,11 @@ def execute_guest(plan, lock, observed, deadline, *, upgrade=None):
                     run_signature_probe(packet,argv,seconds,run,env,config,observed)
                 else:
                     run_operation(role,argv,seconds,expected,run,env,config if lifecycle else None)
+        if first_login is not None:
+            phase = "first-login"
+            addon_output.mkdir(mode=0o700)
+            addon_result = first_login.run(sys.modules[__name__],supplement_sha256=plan["first_login"]["receipt"]["sha256"],
+                                           nonce=plan["nonce"],env=env,command=run_addon)
         phase = "seal"
         unchanged(observed)
         check_repos(IN,packet["files"],packet["aliases"])
@@ -529,7 +615,7 @@ def execute_guest(plan, lock, observed, deadline, *, upgrade=None):
     try:
         transaction()
     except errors as error:
-        if not lifecycle and upgrade is None:
+        if not lifecycle and upgrade is None and first_login is None:
             raise
         hold = phase
         print(f"overlay583 guest {phase}: {error}",file=sys.stderr,flush=True)
@@ -537,7 +623,7 @@ def execute_guest(plan, lock, observed, deadline, *, upgrade=None):
         try:
             retire_trust()
         except errors as error:
-            if not lifecycle and upgrade is None:
+            if not lifecycle and upgrade is None and first_login is None:
                 raise
             hold = hold or "trust-retirement"
             print(f"overlay583 guest trust-retirement: {error}",file=sys.stderr,flush=True)
@@ -545,12 +631,18 @@ def execute_guest(plan, lock, observed, deadline, *, upgrade=None):
     if upgrade is not None:
         passed = upgrade.PASS
     hold_status = UPGRADE_HOLD if upgrade is not None else LIFECYCLE_HOLD
+    if first_login is not None:
+        passed, hold_status = FIRST_LOGIN_PASS, FIRST_LOGIN_HOLD
     result = dict(status=hold_status if hold else passed,
                   nonce=plan["nonce"],plan=pin(encoded(plan)),commands=commands,Root_acceptance=None)
     if hold:
         result["phase"] = hold
     else:
         result["installed_lock"] = packet["target"]
+    if first_login is not None:
+        addon = first_login.evidence(sys.modules[__name__],addon_output,addon_commands,addon_result)
+        (OUTPUT/FIRST_LOGIN_EVIDENCE).write_bytes(addon)
+        result["first_login"] = pin(addon)
     (OUTPUT/"result.json").write_bytes(encoded(result))
     return LIFECYCLE_HOLD_EXIT if hold else 0
 
@@ -776,11 +868,14 @@ def read_result(output, plan, *, held=False):
                     package_count=None if held else 583, Root_acceptance=None, Asahi_installation=None, M2=None)
     if plan.get("lifecycle"):
         return read_lifecycle_result(output,plan,result,held,observed)
+    first_login = plan.get("kind")==FIRST_LOGIN_KIND
+    if first_login and held:
+        return read_first_login_hold(output,plan,result,observed)
     need(not held,"Lifecycle opt-in required for hold readback")
     target = plan["packet"]["target"]
     installed = read(output/"installed.lock",target,cap=256*1024,observed=observed)
     canonical_lock(installed,583)
-    need(result["status"]==INSTALL_PASS
+    need(result["status"]==(FIRST_LOGIN_PASS if first_login else INSTALL_PASS)
          and result["nonce"]==plan["nonce"] and result["plan"]==pin(encoded(plan))
          and result["installed_lock"]==target and result["Root_acceptance"] is None,
          "Unbound guest completion receipt")
@@ -795,21 +890,58 @@ def read_result(output, plan, *, held=False):
     files = {name:read(output/name,cap=8*1024**2,collect=False,observed=observed)
              for name in sorted(expected_files)}
     need(sum(row["bytes"] for row in files.values()) <= 32*1024**2, "Guest evidence byte budget exceeded")
+    if first_login:
+        addon = read_first_login(output,plan,result,observed,held=False)
+        unchanged(observed)
+        return dict(status="MATCHED_DISPOSABLE_OVERLAY583_FIRST_LOGIN_EVIDENCE",
+                    installed_lock=target,package_count=583,files=files,first_login=addon,Root_acceptance=None,
+                    Asahi_installation=None,M2=None)
     unchanged(observed)
     return dict(status="MATCHED_DISPOSABLE_OVERLAY583_TRANSACTION_EVIDENCE",
                 installed_lock=target,package_count=583,files=files,Root_acceptance=None,
                 Asahi_installation=None,M2=None)
 
 
+def read_first_login(output,plan,result,observed,*,held):
+    addon=first_login_module(plan["first_login"]["files"]["guest.py"])
+    body=read(output/FIRST_LOGIN_EVIDENCE,result["first_login"],cap=addon.MAX_EVIDENCE,observed=observed)
+    return addon.readback(body,nonce=plan["nonce"],base=target_bytes(plan["packet"]),
+                          supplement=plan["first_login"],held=held,pin=pin,need=need)
+
+
+def read_first_login_hold(output,plan,result,observed):
+    need(result["status"]==FIRST_LOGIN_HOLD and result["nonce"]==plan["nonce"]
+         and result["plan"]==pin(encoded(plan)) and result["Root_acceptance"] is None
+         and "installed_lock" not in result and type(result["phase"]) is str,
+         "Exact held first-login receipt required")
+    ledger=command_ledger(plan)
+    commands=result["commands"]
+    need([ (row["role"],row["argv"]) for row in commands ]==ledger[:len(commands)]
+         and all(type(row["exit"]) is int and (row["exit"]==0 or index==len(commands)-1)
+                 for index,row in enumerate(commands)), "Held base command ledger differs")
+    names={path.name for path in output.iterdir()}
+    need({"result.json",FIRST_LOGIN_EVIDENCE}<=names<=evidence_names(plan), "Held first-login evidence namespace differs")
+    addon=read_first_login(output,plan,result,observed,held=True)
+    files={name:read(output/name,cap=8*1024**2,collect=False,observed=observed) for name in sorted(names)}
+    need(sum(row["bytes"] for row in files.values())<=32*1024**2,"Held first-login evidence budget exceeded")
+    unchanged(observed)
+    return dict(status=FIRST_LOGIN_HOLD,installed_lock=None,package_count=None,phase=result["phase"],
+                files=files,first_login=addon,Root_acceptance=None,Asahi_installation=None,M2=None)
+
+
 def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection, lifecycle=False,
-              signature_recovery=False, predecessor=None, predecessor_pin=None):
+              signature_recovery=False, predecessor=None, predecessor_pin=None,
+              first_login=None, first_login_pin=None):
     """Bridge to a selected VM owner. The owner authenticates all actual authority."""
     need(getattr(executor,"API",None)=="ROOT_OWNED_OVERLAY583_VM_V1","Owned disposable ARM VM executor required")
     staging = ordinary(staging)
     packet = choose(staging,selected_lock=PINS)
+    need((first_login is None)==(first_login_pin is None),"Exact first-login path and receipt pin required together")
+    supplement = first_login_selection(first_login,first_login_pin["sha256"]) if first_login is not None else None
+    need(supplement is None or supplement["receipt"]==first_login_pin,"Exact issued first-login receipt differs")
     plan = selected_plan(admit(packet,read(preflight,preflight_pin,cap=128*1024),preflight_pin),
                          nonce,lifecycle=lifecycle,signature_recovery=signature_recovery,
-                         predecessor=predecessor,predecessor_pin=predecessor_pin)
+                         predecessor=predecessor,predecessor_pin=predecessor_pin,first_login=supplement)
     worker = ordinary(HERE/"trial.py")
     worker_pin = read(worker,collect=False,cap=128*1024)
     plan_sha = pin(encoded(plan))["sha256"]
@@ -827,8 +959,11 @@ def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection, 
         upgrade = upgrade_module(plan["upgrade_worker"])
         need(upgrade.check_stage(predecessor,predecessor_pin)==plan["predecessor"],
              "Predecessor operands changed during the trial")
+    if supplement is not None:
+        need(first_login_selection(first_login,first_login_pin["sha256"])==supplement,
+             "First-login operands changed during the trial")
     if result.get("held") is True:
-        need(plan.get("lifecycle") or plan.get("kind")==UPGRADE_KIND,"Lifecycle opt-in required for hold evidence")
+        need(plan.get("lifecycle") or plan.get("kind") in (UPGRADE_KIND,FIRST_LOGIN_KIND),"Lifecycle opt-in required for hold evidence")
         return read_result(result["evidence"],plan,held=True)
     return read_result(result["evidence"],plan)
 
