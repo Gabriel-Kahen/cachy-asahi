@@ -73,3 +73,48 @@ First Login package carrier projection with its own operation identity, exact
 policy and public retention map. Raw addition to that existing Fish Source
 would fail its immutable namespace and size checks. This packet contains no
 dispatch or signing authority and the hosted build pair remains unrun.
+
+## Thin Source and dispatch preparation
+
+```sh
+python3 -I -B scripts/ci/first-login-v2-native-pair/overlay.py thin \
+  --root "$PWD" --output "$THIN"
+python3 -I -B scripts/ci/first-login-v2-native-pair/overlay.py plan \
+  --parent "$FISH" --overlay "$THIN" --thin-map-sha256 "$THIN_MAP_SHA256"
+```
+
+The first command emits the exact package recipe and its disjoint workflow.
+The second command verifies the entire public Fish r12 commit, Git tree, file
+modes, source map and existing full inverse. It computes the projected executor
+seal from operand pins alone. The original Fish Source, thin Source and
+projected runtime each preserve the strict 2 MiB cap. Historical inverse files
+remain in the separate immutable parent and are checked before composition.
+The entire held inner Source stays byte-for-byte unchanged.
+
+The new workflow must be registered from Main before Root selects
+`refs/heads/codex/first-login-v2-native-source-20261118-r1`. An eventual Root
+caller pins the exact thin branch commit and thin map, then puts the independent
+projected runtime map and owner-program/policy pins in the two separately
+reviewed admission and runtime documents. Both documents retain the held
+Fish runner's admission schema and require
+`operation=FIRST_LOGIN_V2_PACKAGE_PAIR`. The runtime document also requires
+`thin_map_sha256` and all existing resource, host-tool and ownership checks.
+The workflow retains the existing concurrency group so the two package trials
+serialize.
+
+An optional approved caller transports the exact 34,280 public bytes as one
+base64 input of 45,708 characters. The order is the Setup8 XZ archive, its
+detached TEST signature, and the TEST public certificate. All three must match
+their independent pins. The package materials stay outside Git and the
+workflow reads the input from its event file so its step environment and
+terminal evidence omit the packet. Only the established carrier step uses
+the existing scoped public-input repository credential. The composed runtime
+and both original checkouts are separate. A mismatch fails before that carrier
+or the native actor is entered. Confirm TEST validity independently before use.
+
+After actual terminal retention, use the exact retained comparator with
+`--require-bytes`, then run `pair.py finish` against the two retained builds,
+their comparison, immutable image ID, and exact staged 342-package lock.
+Join those checks to the actual workflow Source, first attempt, scope absence,
+daemon cleanup and independent Root verdict. The Git bundle, plans and test
+fixtures are development inputs and do not establish a native result.

@@ -17,6 +17,10 @@ def bind(native, source, dependency, certificate, contract):
     node, = (node for node in ast.parse(text).body
              if isinstance(node, ast.FunctionDef) and node.name == 'build')
     original = ast.get_source_segment(text, node)
+    contract.need(callable(getattr(native, 'PINNED_CONTEXT_TRANSFER', None))
+                  and original.count('shutil.copyfile(') == 3,
+                  'existing authenticated same-inode native context handoff required')
+    original = original.replace('shutil.copyfile(', 'PINNED_CONTEXT_TRANSFER(')
     setup = contract.SETUP
     signer = contract.PINS['setup8']['test_signer']
     transaction = (

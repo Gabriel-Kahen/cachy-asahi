@@ -45,6 +45,7 @@ class PairTests(unittest.TestCase):
     def test_bootstrap_wrapper_stages_only_pinned_dependency_before_actor_boundary(self):
         source = native_source.read_bytes()
         native = ModuleType('fake_native')
+        native.PINNED_CONTEXT_TRANSFER = self.fail
         certificate_bytes = b'actor-fenced dummy public certificate bytes'
         test_pins = {**pair.PINS['setup8'], 'certificate': {
             'bytes': len(certificate_bytes), 'sha256': pair.digest(certificate_bytes)}}
@@ -61,6 +62,7 @@ class PairTests(unittest.TestCase):
                 self.assertIn('gpgv --status-fd 1 --keyring /tmp/setup8/public.gpg', code)
                 self.assertIn("expected['cachy-asahi-setup'] = '0.3.0-1'", code)
                 self.assertNotIn('SigLevel = Never', code)
+                self.assertEqual(code.count('PINNED_CONTEXT_TRANSFER('), 3)
                 self.assertEqual(list(context.iterdir()), [])
                 native._stage_exact_setup8(context)
                 self.assertEqual({item.name for item in (context/'setup8').iterdir()},
