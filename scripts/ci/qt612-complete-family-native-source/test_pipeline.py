@@ -140,6 +140,47 @@ class Controls(unittest.TestCase):
             inventory_path=str(inventory),entry_pin=dict(bytes=1,sha256='4'*64),source_date_epoch=1,
             builds=[dict(attempt=str(i),argv=['MODEL_BUILD',str(i)],env={}) for i in (1,2)],compare=['MODEL_COMPARE'])
 
+    def stage_workspace(self):
+        plan = self.model_plan()
+        plan['cache'] = str(self.root/'cache')
+        return plan, dict(source=self.root/'source', source_map_sha256='0'*64,
+                          output=self.root/'out', work=self.root/'work',
+                          failure_output=self.root/'failure')
+
+    def test_invalid_workspace_stops_before_any_stage_callback(self):
+        plan, paths = self.stage_workspace()
+        paths['work'].mkdir()
+        paths['failure_output'].mkdir()
+        occupied = self.root/'occupied'
+        occupied.mkdir()
+        (occupied/'build-2').mkdir()
+        file_parent = self.root/'file'
+        file_parent.touch()
+        with patch.object(N, 'require_actual_family') as binding:
+            for changes, message in (
+                (dict(work=paths['work']), 'FRESH_FAMILY_QUALIFIER_WORK'),
+                (dict(failure_output=paths['failure_output']), 'FRESH_FAMILY_FAILURE_OUTPUT'),
+                (dict(failure_output=self.root/'missing-parent'/'failure'), 'FRESH_FAMILY_FAILURE_OUTPUT'),
+                (dict(work=self.root/'missing-parent'/'scratch'), 'FRESH_FAMILY_QUALIFIER_WORK'),
+                (dict(output=file_parent/'attempt'), 'FAMILY_STAGE_OUTPUT_DIRECTORY'),
+                (dict(output=occupied), 'FRESH_FAMILY_STAGE_OUTPUTS'),
+                (dict(output=paths['source']/'attempt'), 'DISJOINT_FAMILY_STAGE_WRITE_PATHS'),
+                (dict(output=Path(plan['cache'])/'attempt'), 'DISJOINT_FAMILY_STAGE_WRITE_PATHS'),
+                (dict(work=paths['output']/'qualifier-input'), 'DISJOINT_FAMILY_STAGE_WRITE_PATHS'),
+            ):
+                with self.subTest(changes=changes), self.assertRaisesRegex(ValueError, message):
+                    N.run_stage(plan, object(), **(paths | dict(work=self.root/'new-work',
+                                failure_output=self.root/'new-failure') | changes))
+            binding.assert_not_called()
+
+    def test_workspace_allows_shared_parent_and_scratch_under_fresh_output(self):
+        plan, paths = self.stage_workspace()
+        paths['work'] = paths['output']/'scratch'
+        with patch.object(N, 'require_actual_family', side_effect=ValueError('MODEL reached binding')) as binding:
+            with self.assertRaisesRegex(ValueError, 'MODEL reached binding'):
+                N.run_stage(plan, object(), **paths)
+            binding.assert_called_once()
+
     def executor(self,*,fail=False,reaped=True):
         events=[]
         class ModelExecutor:

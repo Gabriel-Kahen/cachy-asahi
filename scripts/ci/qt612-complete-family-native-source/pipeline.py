@@ -324,7 +324,34 @@ def _drive_stage(plan,executor,*,source,source_map_sha256,output,work,failure_ou
         raise P.ProducerHold(phase,primary,retained) from None
 
 
+def check_stage_workspace(*, source, inventory, cache, output, work, failure_output):
+    """Reject filesystem collisions before the first owned executor callback."""
+    source, inventory, cache, output, work, failure_output = map(
+        M.ordinary, (source, inventory, cache, output, work, failure_output))
+    output_parent = next((parent for parent in output.parents if parent.exists()), None)
+    need(output_parent is not None and output_parent.is_dir() and (not output.exists() or output.is_dir()),
+         'FAMILY_STAGE_OUTPUT_DIRECTORY')
+    slots = tuple(output / name for name in (
+        'build-1', 'build-2', 'comparison.json', 'qualifier-input',
+        'qualification.json', 'qualification.rawlog', 'lifecycle.json', 'lifecycle.rawlog'))
+    need(not any(path.exists() or path.is_symlink() for path in slots),
+         'FRESH_FAMILY_STAGE_OUTPUTS')
+    need(not work.exists() and (work.parent.is_dir() or work.parent == output),
+         'FRESH_FAMILY_QUALIFIER_WORK')
+    # Failure retention must be possible even if the first build creates nothing.
+    need(not failure_output.exists() and failure_output.parent.is_dir(),
+         'FRESH_FAMILY_FAILURE_OUTPUT')
+    reads = (source, inventory, cache)
+    writes = (*slots, work, failure_output)
+    for index, path in enumerate(writes):
+        need(all(not path.is_relative_to(other) and not other.is_relative_to(path)
+                 for other in (*reads, *writes[:index])),
+             'DISJOINT_FAMILY_STAGE_WRITE_PATHS')
+
+
 def run_stage(plan,executor,*,source,source_map_sha256,output,work,failure_output):
+    check_stage_workspace(source=source, inventory=plan['inventory_path'], cache=plan['cache'],
+                          output=output, work=work, failure_output=failure_output)
     binding=require_actual_family(plan['component'],source=source,source_map_sha256=source_map_sha256)
     need(plan['image']==binding['image'] and plan['nonce']==binding['nonce']
          and plan['inventory_pin']==binding['inventory_pin'],'SAME_ACTUAL_STAGE_BINDING')
