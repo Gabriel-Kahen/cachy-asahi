@@ -279,8 +279,8 @@ def prerequisite_controller(args):
 
 
 BASE_FIELDS=('base_lock','bootstrap_profile','base_materials','supplemental_materials','keyring_materials')
-MATERIAL_STAGER_PIN=dict(bytes=43583,sha256='da365c903750c47b7465cfb8002f3a110747497d5755bd4b7eb903c410355289')
-MATERIAL_DOMAIN_PIN=dict(bytes=44646,sha256='af2efcc9f2b58af8c02e8de92e4a3a8704f90c34aea8109ce2a3725bd5600b04')
+MATERIAL_STAGER_PIN=dict(bytes=45425,sha256='fcdcc703b99083f5dfb8b29026718d54fc99015c7c66b5b320e2da1d7a8cb1cc')
+MATERIAL_DOMAIN_PIN=dict(bytes=44646,sha256='f6f44432af8b699529108ae73d194cd766934c43b0c424b6453d6ee38e85d471')
 MATERIAL_SECRET_NAMES=tuple(['CACHY_OLD_FOUR_'+tag+'_%02d'%i for tag,count in(('JBIGKIT',2),('JBIGKIT_SIG',1),('LIBTIFF',15),('LIBTIFF_SIG',1))for i in range(1,count+1)]+['CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01','CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02','CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01'])
 
 
