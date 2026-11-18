@@ -85,28 +85,33 @@ select_disks() {
 }
 
 export_evidence() {
-    local source=/trial-work/evidence dest=/trial-export/evidence
-    local role name file metadata links bytes total=0
-    local -a expected=(installed.lock result.json pacman.log)
-    for role in import-0 import-1 import-2 ownertrust refresh resolve install query check; do
-        expected+=("$role.stdout" "$role.stderr")
-    done
-    [[ -d $source && ! -L $source ]]
+    local source=$1 dest=$2
+    local name file metadata links bytes total=0
+    [[ -d $source && ! -L $source && -f $source/result.json ]] || return 1
     shopt -s nullglob dotglob
     local -a actual=("$source"/*)
-    [[ ${#actual[@]} == "${#expected[@]}" ]]
-    mkdir -m 0700 "$dest"
-    for name in "${expected[@]}"; do
-        file=$source/$name
-        [[ -f $file && ! -L $file ]]
-        metadata=$(stat -c '%d %i %h %s %y %z' -- "$file")
-        read -r _ _ links bytes _ <<< "$metadata"
-        [[ $links == 1 && $bytes =~ ^(0|[1-9][0-9]{0,7})$ && $bytes -le 8388608 ]]
+    [[ ${#actual[@]} -le 39 ]] || return 1
+    mkdir -m 0700 "$dest" || return 1
+    for file in "${actual[@]}"; do
+        name=${file##*/}
+        case "$name" in
+            installed.lock|removed.lock|reinstalled.lock|result.json|pacman.log) ;;
+            *.stdout|*.stderr)
+                case "${name%.*}" in
+                    import-[012]|ownertrust|refresh|resolve|install|query|check|remove-plan|remove|query-base|check-base|reinstall-plan|reinstall|query-restored|check-restored) ;;
+                    *) return 1 ;;
+                esac ;;
+            *) return 1 ;;
+        esac
+        [[ -f $file && ! -L $file ]] || return 1
+        metadata=$(stat -c '%d %i %h %s %y %z' -- "$file") || return 1
+        read -r _ _ links bytes _ <<< "$metadata" || return 1
+        [[ $links == 1 && $bytes =~ ^(0|[1-9][0-9]{0,7})$ && $bytes -le 8388608 ]] || return 1
         total=$((total+bytes))
-        [[ $total -le 33554432 ]]
-        head -c "$((bytes+1))" -- "$file" > "$dest/$name"
-        [[ $(stat -c '%s' -- "$dest/$name") == "$bytes" ]]
-        [[ $(stat -c '%d %i %h %s %y %z' -- "$file") == "$metadata" ]]
+        [[ $total -le 33554432 ]] || return 1
+        head -c "$((bytes+1))" -- "$file" > "$dest/$name" || return 1
+        [[ $(stat -c '%s' -- "$dest/$name") == "$bytes" ]] || return 1
+        [[ $(stat -c '%d %i %h %s %y %z' -- "$file") == "$metadata" ]] || return 1
     done
 }
 
@@ -134,14 +139,18 @@ mkdir -m 0700 /trial-scratch/work
 mount -n --bind /trial-scratch/work /trial-work
 
 phase=transaction
+outcome='PASS 16384'
 LD_LIBRARY_PATH=/trial-media/runtime/usr/lib \
-    /trial-media/runtime/usr/bin/python3.14 -I -B /trial-code/trial.py guest "$plan" "$worker"
+    /trial-media/runtime/usr/bin/python3.14 -I -B /trial-code/trial.py guest "$plan" "$worker" || {
+        [[ $? == 75 ]]
+        outcome='HOLD lifecycle'
+    }
 
 phase=export
 mount -n -t ext4 -o rw,nosuid,nodev,noexec "$result" /trial-export
-export_evidence
+export_evidence /trial-work/evidence /trial-export/evidence
 phase=retirement
 sync
 umount -n /trial-export /trial-work /trial-scratch /trial-code /trial-inputs /trial-media
-printf 'OVERLAY583 %s PASS 16384\n' "$nonce"
+printf 'OVERLAY583 %s %s\n' "$nonce" "$outcome"
 poweroff_guest

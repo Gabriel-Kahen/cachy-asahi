@@ -27,7 +27,29 @@ early init script depended on process substitution. The corrected script reads
 mount metadata directly, and the fresh second trial produced the result above.
 The source used in that trial is identified by controller commit `44806f32`.
 
-The evidence covers the fresh package transaction in a generic emulated guest.
-Integrated removal, reinstallation, Asahi boot and desktop behavior, physical
-M2 validation and production release acceptance are separate milestones.
+## Removal and signed reinstall
+
+A separate fresh 16 KiB AArch64 VM ran the opt-in lifecycle from controller
+commit `42765466`. It installed the selected 583-package set, previewed and
+removed the nine overlay packages, and verified the exact 574-package base.
+It then previewed and reinstalled the same repository-qualified versions
+from the signed local staging with a fresh package cache. Pacman passed its
+local database check at each of the three checkpoints.
+
+| Checkpoint | Packages | Inventory SHA-256 |
+| --- | --- | --- |
+| Fresh install | 583 | `12e5f0d74f8530fee9cc2b10ad7887748c2f9d5fdfed259b498f4b3db87167ba` |
+| Overlay removed | 574 | `cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac` |
+| Signed overlay reinstalled | 583 | `12e5f0d74f8530fee9cc2b10ad7887748c2f9d5fdfed259b498f4b3db87167ba` |
+
+The independent terminal check rehashed all 39 retained evidence files,
+compared each complete inventory against the selected lock, and observed the
+scope and both owned containers absent twice. Its receipt SHA-256 is
+`f76e909c4054a0ca9ead3fdf43117ecdc9891ac4adf648f936f6033c647080fe`.
+The controller report SHA-256 is
+`ef06917ac13e89ecdb5aecdb2c71bfaeddae8a4cddc2a936183eaa9fd4c3b6ba`.
+
+These runs cover the selected test staging in a generic emulated guest. A
+previous-release upgrade, Asahi boot and desktop, physical M2 validation and
+production release acceptance remain pending.
 [Offline installer trial source](../../scripts/install/overlay583_trial/README.md)

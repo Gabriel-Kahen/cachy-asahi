@@ -19,6 +19,7 @@ KIT = "offline-overlay-kit"
 RELEASE = KIT+"/release"
 BASE_REPO = "desktop574-test"
 OVERLAY_REPO = "setup8-shells-overlay-test"
+BASE_INVENTORY = BASE+"/installed-inventory.lock"
 REPOS = {OVERLAY_REPO: RELEASE+"/repo", BASE_REPO: BASE+"/repo"}
 SUFFIXES = (".db.tar.gz", ".db.tar.gz.sig", ".files.tar.gz", ".files.tar.gz.sig")
 GPG_PATHS = (KIT+"/public.gpg", BASE+"/repository-TEST-public.gpg", BASE+"/archlinuxarm.gpg")
@@ -31,6 +32,11 @@ CONFIG, TARGET, OUTPUT = WORK/"pacman.conf", WORK/"target", WORK/"evidence"
 PLAN = Path("/trial-code/plan.json")
 PINS = {'bytes': 2568, 'sha256': '0ed0f7ccd177280d6a9132c436e71aac4a669d04f5ba6a1f66f738b78cd9e3ff'}
 TIMEOUT = 3600
+LIFECYCLE_HOLD_EXIT = 75
+INSTALL_PASS = "PASS_DISPOSABLE_PACMAN_TRANSACTION_ONLY"
+LIFECYCLE_PASS = "PASS_DISPOSABLE_OVERLAY583_LIFECYCLE_ONLY"
+LIFECYCLE_HOLD = "HOLD_DISPOSABLE_OVERLAY583_LIFECYCLE"
+HOOK_FAILURE = re.compile(rb"(?im)^error: (?:failed to execute|command failed)")
 
 
 def need(value, message):
@@ -150,7 +156,7 @@ def choose(staging, *, selected_lock):
          and base_receipt["original_signer"] == signers[2], "Exact separate repository and package signers required")
     need(set(base_indexes)=={BASE_REPO+suffix for suffix in SUFFIXES},"Exact signed base index map required")
     target = canonical_lock(contents["target.lock"],583)
-    baseline = canonical_lock(contents[BASE+"/installed-inventory.lock"],574)
+    baseline = canonical_lock(contents[BASE_INVENTORY],574)
     packages, file_pins, aliases = {}, {}, {}
     for repo, rows, count in ((BASE_REPO,base["packages"],574),(OVERLAY_REPO,overlay["packages"],9)):
         need(len(rows)==count, "Repository package count differs")
@@ -187,7 +193,8 @@ def choose(staging, *, selected_lock):
     check_repos(stage,file_pins,aliases)
     unchanged(observed)
     return dict(schema=1,kind="OVERLAY583_TRANSACTION_DATA_V1",main_commit=wanted["main_commit"],
-                target=pins["target.lock"],packages=packages,files=file_pins,aliases=aliases,
+                target=pins["target.lock"],baseline=pins[BASE_INVENTORY],
+                packages=packages,files=file_pins,aliases=aliases,
                 trust={name:pins[name] for name in GPG_PATHS},signers=list(signers),
                 staging_receipt=pins["staging.json"],base_receipt=pins[BASE+"/staging.json"],
                 base_lock=pins[BASE+"/desktop574-inputs.lock.json"],kit=pins[KIT+"/kit.json"],
@@ -233,14 +240,31 @@ def admit(packet, receipt, receipt_pin):
     return dict(packet,preflight=receipt_pin)
 
 
-def guest_plan(packet, nonce):
+def lifecycle_operands(packet):
+    baseline, overlay, resolution = [], [], []
+    for name,row in sorted(packet["packages"].items()):
+        version, repo = row["version"], row["repo"]
+        need(NAME.fullmatch(name) and NAME.fullmatch(version) and repo in REPOS,
+             "Invalid lifecycle package identity")
+        if repo == BASE_REPO:
+            baseline.append(f"{name} {version}\n")
+        else:
+            overlay.append(f"{name} {version}\n")
+            resolution.append(f"{name} {version} {repo}\n")
+    base_lock = "".join(baseline).encode("ascii")
+    need(len(baseline)==574 and len(overlay)==9 and pin(base_lock)==packet["baseline"],
+         "Exact authenticated baseline and nine overlay operands required")
+    return base_lock, "".join(overlay).encode("ascii"), "".join(resolution).encode("ascii")
+
+
+def guest_plan(packet, nonce, *, lifecycle=False):
     need(packet["preflight"] is not None and re.fullmatch("[0-9a-f]{32}",nonce or ""),
          "Selected preflight and guest nonce required")
     options = ["--config",str(CONFIG),"--root",str(TARGET),"--dbpath",str(TARGET/"var/lib/pacman"),
                "--gpgdir",str(WORK/"trust"),"--cachedir",str(WORK/"cache"),"--logfile",str(OUTPUT/"pacman.log")]
     command = ["/usr/bin/pacman",*options]
     targets = [row["repo"]+"/"+name for name,row in sorted(packet["packages"].items())]
-    return dict(kind="OVERLAY583_OWNED_GUEST_PLAN_V1",nonce=nonce,packet=packet,
+    plan = dict(kind="OVERLAY583_OWNED_GUEST_PLAN_V1",nonce=nonce,packet=packet,
                 timeout_seconds=TIMEOUT,Root_acceptance=None,
                 operations=[
                     ["refresh",[*command,"--sync","--refresh","--noconfirm"],60],
@@ -249,6 +273,24 @@ def guest_plan(packet, nonce):
                     ["query",[*command,"--query"],60],
                     ["check",[*command,"--database","--check"],60],
                 ])
+    if lifecycle:
+        lifecycle_operands(packet)
+        names = [name for name,row in sorted(packet["packages"].items()) if row["repo"]==OVERLAY_REPO]
+        repo_names = [OVERLAY_REPO+"/"+name for name in names]
+        options[options.index("--cachedir")+1] = str(WORK/"lifecycle-cache")
+        command = ["/usr/bin/pacman",*options]
+        plan["lifecycle"] = True
+        plan["operations"] += [
+            ["remove-plan",[*command,"--remove","--print","--print-format","%n %v","--",*names],60],
+            ["remove",[*command,"--remove","--noconfirm","--",*names],180],
+            ["query-base",[*command,"--query"],60],
+            ["check-base",[*command,"--database","--check"],60],
+            ["reinstall-plan",[*command,"--sync","--print","--print-format","%n %v %r","--",*repo_names],60],
+            ["reinstall",[*command,"--sync","--noconfirm","--",*repo_names],300],
+            ["query-restored",[*command,"--query"],60],
+            ["check-restored",[*command,"--database","--check"],60],
+        ]
+    return plan
 
 
 def mount_mode(path, mode, lines):
@@ -258,9 +300,28 @@ def mount_mode(path, mode, lines):
 
 def evidence_names(plan):
     roles = {"import-0", "import-1", "import-2", "ownertrust"} | {row[0] for row in plan["operations"]}
-    return {"installed.lock", "result.json", "pacman.log"} | {
+    snapshots = {"installed.lock", "result.json", "pacman.log"}
+    if plan.get("lifecycle"):
+        snapshots.update(("removed.lock","reinstalled.lock"))
+    return snapshots | {
         f"{role}.{stream}" for role in roles for stream in ("stdout", "stderr")
     }
+
+
+def sorted_rows(raw):
+    return b"".join(sorted(raw.splitlines(keepends=True)))
+
+
+def role_outputs(plan, target):
+    packet = plan["packet"]
+    expected = dict(resolve=(pacman_plan(packet),None), query=(target,"installed.lock"))
+    if plan.get("lifecycle"):
+        baseline, removed, resolution = lifecycle_operands(packet)
+        expected.update({
+            "remove-plan":(removed,None), "query-base":(baseline,"removed.lock"),
+            "reinstall-plan":(resolution,None), "query-restored":(target,"reinstalled.lock"),
+        })
+    return expected
 
 
 def target_api_mounts(target, env, stack):
@@ -272,7 +333,8 @@ def target_api_mounts(target, env, stack):
         ("dev","tmpfs","mode=0755,nosuid,noexec,size=4m"),
     ):
         path = target/name
-        path.mkdir(mode=0o755)
+        path.mkdir(mode=0o755,exist_ok=True)
+        need(path.is_dir() and not path.is_symlink(),"Ordinary guest API mountpoint required: "+name)
         subprocess.run(["/usr/bin/mount","-n","-t",kind,"-o",options,kind,str(path)],
                        env=env,stdin=subprocess.DEVNULL,timeout=15,check=True)
         stack.callback(subprocess.run,["/usr/bin/umount","-n",str(path)],
@@ -304,7 +366,8 @@ def guest(plan_sha256, worker_sha256):
     need(pin(raw)["sha256"]==plan_sha256,"Guest plan differs")
     plan = decode(raw)
     packet, nonce = plan["packet"], plan["nonce"]
-    need(plan==guest_plan(packet,nonce)
+    lifecycle = plan.get("lifecycle") is True
+    need(raw==encoded(plan) and plan==guest_plan(packet,nonce,lifecycle=lifecycle)
          and Path("/proc/cmdline").read_text().split().count("cachy_overlay583_nonce="+nonce)==1,
          "Exact owned guest boot nonce required")
     start = time.monotonic()
@@ -321,94 +384,228 @@ def guest(plan_sha256, worker_sha256):
     lock = read(IN/"target.lock",packet["target"],cap=256*1024,observed=observed)
     target_rows = canonical_lock(lock,583)
     need(target_rows=={name:row["version"] for name,row in packet["packages"].items()},"Guest target differs")
+    if lifecycle:
+        baseline = read(IN/BASE_INVENTORY,packet["baseline"],cap=256*1024,observed=observed)
+        need(lifecycle_operands(packet)[0]==baseline,"Guest base inventory differs")
+    return execute_guest(plan,lock,observed,deadline)
+
+
+def execute_guest(plan, lock, observed, deadline):
+    packet = plan["packet"]
+    lifecycle = plan.get("lifecycle") is True
+    if lifecycle:
+        (WORK/"lifecycle-cache").mkdir(mode=0o700)
     for p in (OUTPUT,TARGET,WORK/"cache",WORK/"trust",WORK/"home"):
         p.mkdir(mode=0o700)
-    CONFIG.write_text("[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\n"
-                      "LocalFileSigLevel = Required TrustedOnly\n"+
-                      "".join(f"[{repo}]\nServer = file://{IN/relative}\n" for repo,relative in REPOS.items()))
+    config = ("[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\n"
+              "LocalFileSigLevel = Required TrustedOnly\n"+
+              "".join(f"[{repo}]\nServer = file://{IN/relative}\n" for repo,relative in REPOS.items())).encode("ascii")
+    CONFIG.write_bytes(config)
     env = {"PATH":"/usr/bin:/bin","HOME":str(WORK/"home"),"GNUPGHOME":str(WORK/"trust"),"LC_ALL":"C","TZ":"UTC"}
     commands = []
+    phase = "trust"
 
     def run(role, argv, seconds, contents=None):
+        nonlocal phase
+        phase = role
         remaining = deadline-time.monotonic()
         need(remaining>0,"Guest transaction deadline exhausted")
         with (OUTPUT/(role+".stdout")).open("xb") as stdout, (OUTPUT/(role+".stderr")).open("xb") as stderr:
             result = subprocess.run(argv, env=env, input=contents,
                                     stdin=subprocess.DEVNULL if contents is None else None,
                                     stdout=stdout, stderr=stderr, timeout=min(remaining,seconds), check=False)
-        need(result.returncode==0, f"Guest command failed: {role} (exit {result.returncode})")
         commands.append(dict(role=role,argv=argv,exit=result.returncode))
+        need(result.returncode==0, f"Guest command failed: {role} (exit {result.returncode})")
 
-    gpg = ["/usr/bin/gpg","--batch","--no-options"]
-    try:
+    def transaction():
+        nonlocal phase
+        gpg = ["/usr/bin/gpg","--batch","--no-options"]
         for index,name in enumerate(GPG_PATHS):
-            run("import-"+str(index),[*gpg,"--import"],30,read(IN/name,packet["trust"][name],cap=1024**2,observed=observed))
+            phase = "import-"+str(index)
+            run(phase,[*gpg,"--import"],30,read(IN/name,packet["trust"][name],cap=1024**2,observed=observed))
         signers=packet["signers"]
         need(len(signers)==len(set(signers))==3 and all(re.fullmatch("[0-9A-F]{40}",x) for x in signers),
              "Expected the selected public trust identities")
         run("ownertrust",[*gpg,"--import-ownertrust"],30,"".join(x+":6:\n" for x in signers).encode("ascii"))
         rootdb = TARGET/"var/lib/pacman"
         rootdb.mkdir(parents=True,mode=0o700)
+        expected = role_outputs(plan,lock)
         # File-repository refresh may create ALPM's database version marker only.
         for role,argv,seconds in plan["operations"]:
-            if role=="install":
-                with ExitStack() as mounts:
-                    target_api_mounts(TARGET,env,mounts)
-                    run(role,argv,seconds)
-                stderr = read(OUTPUT/"install.stderr",cap=8*1024**2)
-                need(not re.search(rb"(?im)^error: (?:failed to execute|command failed)",stderr),
-                     "Pacman reported a failed scriptlet or hook")
-            else:
-                run(role,argv,seconds)
-            if role=="refresh":
-                local=rootdb/"local"
-                need(not local.exists() or {p.name for p in local.iterdir()} <= {"ALPM_DB_VERSION"},
-                     "Candidate target unexpectedly preinstalled")
-            if role=="resolve":
-                proposed=read(OUTPUT/"resolve.stdout",cap=256*1024)
-                need(b"".join(sorted(proposed.splitlines(keepends=True)))==pacman_plan(packet),
-                     "Guest pacman resolution or repository origins differ")
-            if role=="query":
-                installed=read(OUTPUT/"query.stdout",cap=256*1024)
-                installed=b"".join(sorted(installed.splitlines(keepends=True)))
-                need(installed==lock,"Guest installed pacman lock differs")
-                (OUTPUT/"installed.lock").write_bytes(installed)
+            phase = role
+            run_operation(role,argv,seconds,expected,run,env,config if lifecycle else None)
+        phase = "seal"
         unchanged(observed)
         check_repos(IN,packet["files"],packet["aliases"])
-    finally:
+
+    def retire_trust():
         # Only the newly created guest trust directory is selected.
         subprocess.run(["/usr/bin/gpgconf","--homedir",env["GNUPGHOME"],"--kill","all"],
                        env=env,stdin=subprocess.DEVNULL,timeout=30,check=True)
-    (OUTPUT/"result.json").write_bytes(encoded(dict(status="PASS_DISPOSABLE_PACMAN_TRANSACTION_ONLY",
-        nonce=nonce,plan=pin(raw),installed_lock=packet["target"],commands=commands,
-        Root_acceptance=None)))
+
+    errors = (ValueError,OSError,subprocess.SubprocessError)
+    hold = None
+    try:
+        transaction()
+    except errors as error:
+        if not lifecycle:
+            raise
+        hold = phase
+        print(f"overlay583 guest {phase}: {error}",file=sys.stderr,flush=True)
+    finally:
+        try:
+            retire_trust()
+        except errors as error:
+            if not lifecycle:
+                raise
+            hold = hold or "trust-retirement"
+            print(f"overlay583 guest trust-retirement: {error}",file=sys.stderr,flush=True)
+    result = dict(status=LIFECYCLE_HOLD if hold else LIFECYCLE_PASS if lifecycle else INSTALL_PASS,
+                  nonce=plan["nonce"],plan=pin(encoded(plan)),commands=commands,Root_acceptance=None)
+    if hold:
+        result["phase"] = hold
+    else:
+        result["installed_lock"] = packet["target"]
+    (OUTPUT/"result.json").write_bytes(encoded(result))
+    return LIFECYCLE_HOLD_EXIT if hold else 0
 
 
-def read_result(output, plan):
+def run_operation(role, argv, seconds, expected, run, env, config):
+    if config is not None:
+        read(CONFIG,pin(config),cap=4096)
+        ordinary(TARGET/"var/lib/pacman")
+        if role=="reinstall":
+            need(not list(ordinary(WORK/"lifecycle-cache").iterdir()),"Reinstall cache must start empty")
+    if role in ("install","remove","reinstall"):
+        with ExitStack() as mounts:
+            target_api_mounts(TARGET,env,mounts)
+            run(role,argv,seconds)
+        check_hooks(OUTPUT,role)
+    else:
+        run(role,argv,seconds)
+    if role=="refresh":
+        local = TARGET/"var/lib/pacman/local"
+        need(not local.exists() or {p.name for p in local.iterdir()} <= {"ALPM_DB_VERSION"},
+             "Candidate target unexpectedly preinstalled")
+    if role in expected:
+        wanted, snapshot = expected[role]
+        raw = sorted_rows(read(OUTPUT/(role+".stdout"),cap=256*1024))
+        need(raw==wanted,"Guest pacman evidence differs: "+role)
+        if snapshot:
+            (OUTPUT/snapshot).write_bytes(raw)
+
+
+def check_hooks(output, role, observed=None):
+    stderr = read(output/(role+".stderr"),cap=8*1024**2,observed=observed)
+    need(not HOOK_FAILURE.search(stderr),"Pacman reported a failed scriptlet or hook: "+role)
+
+
+def command_ledger(plan):
+    gpg = ["/usr/bin/gpg","--batch","--no-options"]
+    return ([("import-"+str(i),[*gpg,"--import"]) for i in range(3)]
+            +[("ownertrust",[*gpg,"--import-ownertrust"])]
+            +[(role,argv) for role,argv,_ in plan["operations"]])
+
+
+def read_lifecycle_outputs(output, plan, completed, observed):
+    snapshots = set()
+    target_rows = "".join(
+        f'{name} {row["version"]}\n'
+        for name,row in sorted(plan["packet"]["packages"].items())
+    ).encode("ascii")
+    expected = role_outputs(plan,target_rows)
+    need(pin(target_rows)==plan["packet"]["target"],"Derived lifecycle target pin differs")
+    for role in completed:
+        if role in ("install","remove","reinstall"):
+            check_hooks(output,role,observed)
+        if role in expected:
+            wanted, snapshot = expected[role]
+            actual = sorted_rows(read(output/(role+".stdout"),cap=256*1024,observed=observed))
+            need(actual==wanted,"Original lifecycle evidence differs: "+role)
+            if snapshot:
+                read(output/snapshot,pin(wanted),cap=256*1024,observed=observed)
+                snapshots.add(role)
+    return {stage:dict(package_count=count,lock=pin(expected[query][0])) for stage,count,query,check in (
+        ("before_remove",583,"query","check"),("after_remove",574,"query-base","check-base"),
+        ("after_reinstall",583,"query-restored","check-restored"),
+    ) if query in snapshots and check in completed}
+
+
+def read_lifecycle_result(output, plan, result, held, observed):
+    expected = command_ledger(plan)
+    available = {path.name for path in output.iterdir()}
+    allowed = evidence_names(plan)
+    need("result.json" in available and available <= allowed and (held or available==allowed),
+         "Missing or extra guest evidence")
+    expected_status = LIFECYCLE_HOLD if held else LIFECYCLE_PASS
+    outcome_field = "phase" if held else "installed_lock"
+    need(set(result)=={"status","nonce","plan","commands","Root_acceptance",outcome_field}
+         and result["status"]==expected_status and result["nonce"]==plan["nonce"]
+         and result["plan"]==pin(encoded(plan)) and result["Root_acceptance"] is None,
+         "Unbound guest lifecycle receipt")
+    ledger = result["commands"]
+    phase = result.get("phase")
+    phases = ["trust",*(role for role,_ in expected),"seal","trust-retirement"]
+    if held:
+        need(phase in phases,"Unrecognized lifecycle hold phase")
+        completed_count = min(len(expected),max(0,phases.index(phase)-1))
+        attempt_count = completed_count + int(phase in phases[1:-2])
+        need(type(ledger) is list and completed_count<=len(ledger)<=attempt_count,
+             "Incomplete lifecycle command prefix")
+    else:
+        need(result["installed_lock"]==plan["packet"]["target"],"Unbound restored inventory")
+        completed_count = attempt_count = len(expected)
+        need(type(ledger) is list and len(ledger)==completed_count,"Incomplete lifecycle command ledger")
+    completed = [role for role,_ in expected[:completed_count]]
+    for index,(role,argv) in enumerate(expected[:attempt_count]):
+        logs = {role+".stdout",role+".stderr"}
+        allowed -= logs
+        if index<len(ledger):
+            record = ledger[index]
+            need(type(record) is dict and set(record)=={"role","argv","exit"}
+                 and record["role"]==role and record["argv"]==argv and type(record["exit"]) is int
+                 and (index>=completed_count or record["exit"]==0) and logs<=available,
+                 "Guest lifecycle command ledger differs")
+    attempted = {role for role,_ in expected[:attempt_count]}
+    for role,name in (("query","installed.lock"),("query-base","removed.lock"),
+                      ("query-restored","reinstalled.lock")):
+        if role not in attempted:
+            need(name not in available,"Unexpected snapshot after lifecycle hold")
+    need(not any(name.endswith((".stdout",".stderr")) for name in available & allowed),
+         "Unexpected logs after lifecycle hold")
+    snapshots = read_lifecycle_outputs(output,plan,completed,observed)
+    files = {name:read(output/name,cap=8*1024**2,collect=False,observed=observed)
+             for name in sorted(available)}
+    need(sum(row["bytes"] for row in files.values()) <= 32*1024**2, "Guest evidence byte budget exceeded")
+    unchanged(observed)
+    return dict(status=LIFECYCLE_HOLD if held else "MATCHED_DISPOSABLE_OVERLAY583_LIFECYCLE_EVIDENCE",
+                phase=phase,verified_locks=snapshots,files=files,Root_acceptance=None,
+                Asahi_installation=None,M2=None)
+
+
+def read_result(output, plan, *, held=False):
     """Reopen the owned guest's original evidence and compare the exact lock."""
     output = ordinary(output)
     observed = {}
     need(not any(p.is_symlink() or not p.is_file() for p in output.iterdir()),
          "Ordinary bounded guest evidence required")
+    result_raw = read(output/"result.json",cap=1024**2,observed=observed)
+    result = decode(result_raw)
+    if plan.get("lifecycle"):
+        return read_lifecycle_result(output,plan,result,held,observed)
+    need(not held,"Lifecycle opt-in required for hold readback")
     target = plan["packet"]["target"]
     installed = read(output/"installed.lock",target,cap=256*1024,observed=observed)
     canonical_lock(installed,583)
-    result_raw = read(output/"result.json",cap=1024**2,observed=observed)
-    result = decode(result_raw)
-    need(result["status"]=="PASS_DISPOSABLE_PACMAN_TRANSACTION_ONLY"
+    need(result["status"]==INSTALL_PASS
          and result["nonce"]==plan["nonce"] and result["plan"]==pin(encoded(plan))
          and result["installed_lock"]==target and result["Root_acceptance"] is None,
          "Unbound guest completion receipt")
-    gpg = ["/usr/bin/gpg","--batch","--no-options"]
-    expected_commands=[("import-"+str(i),[*gpg,"--import"]) for i in range(3)]
-    expected_commands.append(("ownertrust",[*gpg,"--import-ownertrust"]))
-    expected_commands.extend((role,argv) for role,argv,_ in plan["operations"])
-    need(result["commands"]==[dict(role=role,argv=argv,exit=0) for role,argv in expected_commands],
+    need(result["commands"]==[dict(role=role,argv=argv,exit=0) for role,argv in command_ledger(plan)],
          "Guest command ledger differs")
     before=read(output/"resolve.stdout",cap=256*1024,observed=observed)
     after=read(output/"query.stdout",cap=256*1024,observed=observed)
-    need(b"".join(sorted(before.splitlines(keepends=True)))==pacman_plan(plan["packet"])
-         and b"".join(sorted(after.splitlines(keepends=True)))==installed,
+    need(sorted_rows(before)==pacman_plan(plan["packet"]) and sorted_rows(after)==installed,
          "Original pacman plan or installed inventory differs")
     expected_files = evidence_names(plan)
     need({p.name for p in output.iterdir()}==expected_files,"Missing or extra guest evidence")
@@ -421,12 +618,13 @@ def read_result(output, plan):
                 Asahi_installation=None,M2=None)
 
 
-def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection):
+def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection, lifecycle=False):
     """Bridge to a selected VM owner. The owner authenticates all actual authority."""
     need(getattr(executor,"API",None)=="ROOT_OWNED_OVERLAY583_VM_V1","Owned disposable ARM VM executor required")
     staging = ordinary(staging)
     packet = choose(staging,selected_lock=PINS)
-    plan = guest_plan(admit(packet,read(preflight,preflight_pin,cap=128*1024),preflight_pin),nonce)
+    plan = guest_plan(admit(packet,read(preflight,preflight_pin,cap=128*1024),preflight_pin),
+                      nonce,lifecycle=lifecycle)
     worker = ordinary(HERE/"trial.py")
     worker_pin = read(worker,collect=False,cap=128*1024)
     plan_sha = pin(encoded(plan))["sha256"]
@@ -440,6 +638,9 @@ def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection):
     executor.require_absent_twice(nonce)
     need(choose(staging,selected_lock=PINS)==packet,"Repository operands changed during the trial")
     read(worker,worker_pin,cap=128*1024,collect=False)
+    if result.get("held") is True:
+        need(lifecycle,"Lifecycle opt-in required for hold evidence")
+        return read_result(result["evidence"],plan,held=True)
     return read_result(result["evidence"],plan)
 
 
@@ -486,8 +687,7 @@ def main():
     worker.add_argument("worker_sha256")
     args=parser.parse_args()
     if args.mode=="guest":
-        guest(args.plan_sha256,args.worker_sha256)
-        return
+        return guest(args.plan_sha256,args.worker_sha256)
     def passive(event,_args):
         need(not event.startswith(("subprocess.","socket.","ctypes."))
              and event not in ("os.system","os.exec","os.fork","os.forkpty","os.posix_spawn"),
@@ -500,4 +700,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

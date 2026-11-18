@@ -71,7 +71,7 @@ def absolute(path):
     return path
 
 
-def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issuer=None):
+def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issuer=None, lifecycle=False):
     paths = {key:absolute(value) for key,value in
              dict(staging=staging,preflight=preflight,kernel=kernel,config=config,baseline=baseline,output=output).items()}
     for key,path in paths.items():
@@ -82,12 +82,15 @@ def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issu
         pinned(paths[key],ref)
     packet = T.choose(paths["staging"],selected_lock=T.PINS)
     receipt = T.read(paths["preflight"],packet["authenticated_preflight"],cap=128<<10)
-    plan = T.guest_plan(T.admit(packet,receipt,T.pin(receipt)),nonce)
-    return dict(kind=KIND,issuer=issuer,nonce=nonce,actor_image=ACTOR_IMAGE,
+    plan = T.guest_plan(T.admit(packet,receipt,T.pin(receipt)),nonce,lifecycle=lifecycle)
+    authority = dict(kind=KIND,issuer=issuer,nonce=nonce,actor_image=ACTOR_IMAGE,
                 paths={key:str(path) for key,path in paths.items()},
                 preflight=packet["authenticated_preflight"], plan=T.pin(T.encoded(plan)),
                 references={key:dict(bytes=value[0],sha256=value[1]) for key,value in REFERENCES.items()},
                 tools=tool_pins(), source=source_pins())
+    if lifecycle:
+        authority["lifecycle"] = True
+    return authority
 
 
 def tool_pins():
@@ -175,9 +178,13 @@ def runtime_payload(inputs, runtime):
 
 def input_tree(staging, worker, worker_pin, plan, packed):
     inputs, code = packed/"inputs",packed/"code"
-    packet = T.decode(plan)["packet"]
+    selected = T.decode(plan)
+    packet = selected["packet"]
     files = {}
-    for name,wanted in (packet["files"] | packet["trust"] | {"target.lock":packet["target"]}).items():
+    operands = packet["files"] | packet["trust"] | {"target.lock":packet["target"]}
+    if selected.get("lifecycle"):
+        operands[T.BASE_INVENTORY] = packet["baseline"]
+    for name,wanted in operands.items():
         checked_copy(staging/name,inputs/name,wanted)
         files["inputs/"+name] = wanted
     aliases = {"inputs/"+name:target for name,target in packet["aliases"].items()}
@@ -251,21 +258,27 @@ def qemu_argv(out, nonce, partuuid, plan_sha, worker_sha):
     return argv
 
 
-def serial_pass(data, nonce):
+def serial_pass(data, nonce, *, lifecycle=False):
     rows = [line for line in data.splitlines() if line.startswith(b"OVERLAY583 ")]
+    if lifecycle and rows==[f"OVERLAY583 {nonce} HOLD lifecycle".encode()]:
+        return False
     T.need(rows==[f"OVERLAY583 {nonce} PASS 16384".encode()],"Missing, repeated or failed guest terminal receipt")
+    return True
 
 
-def export_result(reader, disk_path, output, plan):
+def export_result(reader, disk_path, output, plan, *, held=False):
     expected = {"evidence/"+name for name in T.evidence_names(plan)}
-    with reader.Ext4Reader(disk_path,max_nodes=32,max_file_bytes=8<<20) as disk:
+    with reader.Ext4Reader(disk_path,max_nodes=64,max_file_bytes=8<<20) as disk:
         nodes = disk.inventory()["nodes"]
-        T.need(set(nodes)==expected|{".","lost+found","evidence"}
+        files = set(nodes)-{".","lost+found","evidence"}
+        correct_files = ("evidence/result.json" in files and files<=expected
+                         if held and plan.get("lifecycle") else not held and files==expected)
+        T.need(correct_files and {".","lost+found","evidence"}<=set(nodes)
                and all(nodes[name]["type"]=="directory" for name in (".","lost+found","evidence")),
                "Result disk evidence namespace differs")
-        T.need(sum(nodes[name]["size"] for name in expected)<=32<<20,"Result disk byte budget exceeded")
+        T.need(sum(nodes[name]["size"] for name in files)<=32<<20,"Result disk byte budget exceeded")
         output.mkdir(mode=0o700)
-        for name in sorted(expected):
+        for name in sorted(files):
             row = nodes[name]
             T.need(row["type"]=="file" and row["uid"]==row["gid"]==0 and row["mode"]==0o600
                    and row["links"]==1,"Result disk file identity differs")
@@ -328,7 +341,7 @@ class Controller:
 
     def authenticate(self, selection, *, plan_sha256, worker, nonce):
         actor_boundary(self.paths)
-        actual = binding(**self.paths,nonce=nonce,issuer="Root")
+        actual = binding(**self.paths,nonce=nonce,issuer="Root",lifecycle=self.authority.get("lifecycle") is True)
         T.need(self.authority==selection==actual and actual["plan"]["sha256"]==plan_sha256
                and actual["source"]["scripts/install/overlay583_trial/trial.py"]==worker,
                "Root authority, reviewed operands or trial binding differ")
@@ -399,7 +412,9 @@ class Controller:
         observation = self.runtime.receipt(out/"qemu.json")
         T.need(self.runtime.natural(observation) and observation["argv"]==command,"Natural owned QEMU exit required")
         self.require_absent_twice(nonce)
-        serial_pass(T.read(out/"qemu.stdout",cap=1<<20),nonce)
+        selected_plan = T.decode(plan)
+        held = not serial_pass(T.read(out/"qemu.stdout",cap=1<<20),nonce,
+                               lifecycle=selected_plan.get("lifecycle") is True)
         for name,ref in before.items():
             T.read(out/name,ref,cap=INPUT_SIZE,collect=False)
         pinned(stock,REFERENCES["baseline"])
@@ -407,8 +422,8 @@ class Controller:
                "Reviewed source or tool bytes changed during the trial")
         self.command("fsck-result-readback","e2fsck",["-fn",result],60,time.monotonic()+70)
         evidence = out/"evidence"
-        export_result(self.reader,result,evidence,T.decode(plan))
-        return dict(exit=0,natural=True,reaped=True,output_complete=True,evidence=evidence)
+        export_result(self.reader,result,evidence,selected_plan,held=held)
+        return dict(exit=0,natural=True,reaped=True,output_complete=True,evidence=evidence,held=held)
 
     def require_absent_twice(self, nonce):
         T.need(nonce==self.authority["nonce"],"Unmatched retirement observation")
@@ -435,6 +450,7 @@ def main():
     bind = sub.add_parser("bind")
     for key in ("staging","preflight","kernel","config","baseline","output","nonce"):
         bind.add_argument("--"+key,required=True)
+    bind.add_argument("--lifecycle",action="store_true")
     run = sub.add_parser("run")
     run.add_argument("--authority",required=True)
     run.add_argument("--authority-sha256",required=True)
@@ -447,7 +463,8 @@ def main():
     authority = load_authority(args["authority"],args["authority_sha256"])
     actor = Controller(authority)
     value = T.run_owned(actor,staging=actor.paths["staging"],preflight=actor.paths["preflight"],
-                        preflight_pin=authority["preflight"],nonce=authority["nonce"],selection=authority)
+                        preflight_pin=authority["preflight"],nonce=authority["nonce"],selection=authority,
+                        lifecycle=authority.get("lifecycle") is True)
     T.need(load_authority(args["authority"],args["authority_sha256"])==authority,
            "Root authority changed during the trial")
     value.update(emulation="QEMU_TCG_AARCH64_16K",nonce=authority["nonce"],
@@ -455,11 +472,14 @@ def main():
                  qemu_receipt=T.read(actor.out/"qemu.json",cap=128<<10,collect=False),
                  serial=T.read(actor.out/"qemu.stdout",cap=1<<20,collect=False),
                  result_disk=T.read(actor.out/"result.raw",cap=RESULT_SIZE,collect=False))
-    (actor.out/"scratch.raw").unlink()
+    held = value["status"]==T.LIFECYCLE_HOLD
+    if not held:
+        (actor.out/"scratch.raw").unlink()
     with (actor.out/"report.json").open("xb") as stream:
         stream.write(T.encoded(value))
     print(T.encoded(value).decode(),end="")
+    return 1 if held else 0
 
 
 if __name__=="__main__":
-    main()
+    raise SystemExit(main())

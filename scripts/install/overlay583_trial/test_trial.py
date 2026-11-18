@@ -3,9 +3,11 @@
 
 from contextlib import ExitStack
 import importlib.util
+import io
 from pathlib import Path
 import sys
 import tempfile
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -27,7 +29,8 @@ def model_inputs():
     packages = {f"model-{i:03d}":dict(version="1-1",repo=T.BASE_REPO if i<574 else T.OVERLAY_REPO) for i in range(583)}
     raw = "".join(f"{name} 1-1\n" for name in packages).encode()
     fake = T.pin(b"inert fixture")
-    packet = dict(target=T.pin(raw),packages=packages,kit=fake,release=fake,base_lock=fake,
+    baseline = b"".join(raw.splitlines(keepends=True)[:574])
+    packet = dict(target=T.pin(raw),baseline=T.pin(baseline),packages=packages,kit=fake,release=fake,base_lock=fake,
                   base_receipt=fake,signers=["A"*40,"B"*40,"C"*40],release_declares_synthetic_fixture=True,preflight=None)
     receipt = dict(status="verified-offline-install-preflight",base_archives_authenticated=True,
                    base_rootfs_authenticated=True,synthetic=True,pacman_siglevel="Required TrustedOnly",
@@ -48,10 +51,10 @@ class Trial(unittest.TestCase):
         self.out = Path(scratch.name)
         self.packet,self.receipt,self.raw = model_inputs()
 
-    def plan(self):
+    def plan(self, *, lifecycle=False):
         raw = T.encoded(self.receipt)
         admitted = T.admit(self.packet,raw,T.pin(raw))
-        return T.guest_plan(admitted,"1"*32)
+        return T.guest_plan(admitted,"1"*32,lifecycle=lifecycle)
 
     def test_plan_keeps_normal_pacman_transaction_and_pinned_origins(self):
         plan=self.plan()
@@ -65,6 +68,134 @@ class Trial(unittest.TestCase):
             self.assertNotIn("--sysupgrade",argv)
             self.assertEqual(argv[argv.index("--root")+1], str(T.TARGET))
             self.assertEqual(argv[argv.index("--gpgdir")+1],str(T.WORK/"trust"))
+
+    def test_lifecycle_has_exact_unqualified_remove_and_repo_qualified_reinstall(self):
+        plan = self.plan(lifecycle=True)
+        self.assertNotIn("lifecycle", self.plan())
+        by_role = {role:argv for role,argv,_ in plan["operations"]}
+        names = [f"model-{i:03d}" for i in range(574,583)]
+        ops = (("remove-plan","--remove",names),("remove","--remove",names),
+               ("reinstall-plan","--sync",[T.OVERLAY_REPO+"/"+n for n in names]),
+               ("reinstall","--sync",[T.OVERLAY_REPO+"/"+n for n in names]))
+        for role,flag,selected in ops:
+            argv = by_role[role]
+            self.assertEqual(argv[argv.index("--cachedir")+1],str(T.WORK/"lifecycle-cache"))
+            self.assertEqual(argv[argv.index(flag):argv.index("--")],
+                             [flag,"--print","--print-format",
+                              "%n %v" if flag=="--remove" else "%n %v %r"]
+                             if role.endswith("-plan") else [flag,"--noconfirm"])
+            self.assertEqual(argv[argv.index("--")+1:],selected)
+        for role in ("check","check-base","check-restored"):
+            self.assertEqual(by_role[role][-2:],["--database","--check"])
+        with self.assertRaisesRegex(ValueError,"Exact authenticated baseline"):
+            T.guest_plan(dict(plan["packet"],baseline=T.pin(b"wrong base")),"1"*32,lifecycle=True)
+
+    def execute_model(self, *, corrupt_role=None, command_failure=None, hook_failure=None):
+        inputs, work = self.out/"inputs", self.out/"work"
+        work.mkdir()
+        for name in T.GPG_PATHS:
+            path = inputs/name
+            path.parent.mkdir(parents=True,exist_ok=True)
+            path.write_bytes(b"model trust")
+        self.packet.update(files={},aliases={},trust={name:T.pin(b"model trust") for name in T.GPG_PATHS})
+        evidence, config, target = work/"evidence",work/"pacman.conf",work/"target"
+        with patch.multiple(T,IN=inputs,WORK=work,OUTPUT=evidence,CONFIG=config,TARGET=target):
+            plan = self.plan(lifecycle=True)
+            operations = iter(plan["operations"])
+            outputs = T.role_outputs(plan,self.raw)
+            log = []
+            def command(argv, **streams):
+                role = None
+                if argv[0]=="/usr/bin/pacman":
+                    role,expected_cmd,_ = next(operations)
+                    self.assertEqual(argv,expected_cmd)
+                    log.append(role)
+                    (evidence/"pacman.log").write_bytes(b"model pacman")
+                    if role in outputs:
+                        raw = outputs[role][0]
+                        if role==corrupt_role:
+                            raw = raw.replace(b" 1-1",b" 1-2",1)
+                        streams["stdout"].write(raw)
+                    if role==hook_failure:
+                        streams["stderr"].write(b"error: command failed model scriptlet\n")
+                return SimpleNamespace(returncode=17 if role and role==command_failure else 0)
+            with patch.object(T.subprocess,"run",side_effect=command), \
+                 patch.object(T,"target_api_mounts") as mounts, \
+                 patch.object(T,"check_repos"), patch.object(sys,"stderr",io.StringIO()):
+                exit_code = T.execute_guest(plan,self.raw,{},time.monotonic()+60)
+                self.assertEqual(mounts.call_count,
+                                 sum(role in ("install","remove","reinstall") for role in log))
+        return evidence,plan,exit_code,log
+
+    def test_lifecycle_success_reopens_three_original_locks_and_checks(self):
+        evidence,plan,exit_code,log = self.execute_model()
+        self.assertEqual(exit_code,0)
+        self.assertEqual(log,[role for role,_,_ in plan["operations"]])
+        result = T.read_result(evidence,plan)
+        self.assertEqual(result["status"],"MATCHED_DISPOSABLE_OVERLAY583_LIFECYCLE_EVIDENCE")
+        self.assertEqual(result["verified_locks"],{
+            "before_remove":dict(package_count=583,lock=self.packet["target"]),
+            "after_remove":dict(package_count=574,lock=self.packet["baseline"]),
+            "after_reinstall":dict(package_count=583,lock=self.packet["target"]),
+        })
+        self.assertEqual((evidence/"installed.lock").read_bytes(),(evidence/"reinstalled.lock").read_bytes())
+        (evidence/"reinstall-plan.stdout").write_bytes(T.lifecycle_operands(self.packet)[2].replace(
+            T.OVERLAY_REPO.encode(),T.BASE_REPO.encode()))
+        with self.assertRaisesRegex(ValueError,"reinstall-plan"):
+            T.read_result(evidence,plan)
+
+    def test_wrong_removal_preview_holds_before_mutation(self):
+        evidence,plan,exit_code,log = self.execute_model(corrupt_role="remove-plan")
+        self.assertEqual(exit_code,T.LIFECYCLE_HOLD_EXIT)
+        self.assertNotIn("remove",log)
+        result = T.read_result(evidence,plan,held=True)
+        self.assertEqual(result["phase"],"remove-plan")
+        self.assertEqual(set(result["verified_locks"]),{"before_remove"})
+        self.assertIn("remove-plan.stdout",result["files"])
+        with self.assertRaises(ValueError):
+            T.read_result(evidence,plan)
+
+    def test_same_count_wrong_base_holds_and_preserves_mismatch(self):
+        evidence,plan,exit_code,log = self.execute_model(corrupt_role="query-base")
+        self.assertEqual(exit_code,T.LIFECYCLE_HOLD_EXIT)
+        self.assertNotIn("reinstall",log)
+        result = T.read_result(evidence,plan,held=True)
+        self.assertEqual(result["phase"],"query-base")
+        self.assertEqual(set(result["verified_locks"]),{"before_remove"})
+        self.assertFalse((evidence/"removed.lock").exists())
+        (evidence/"reinstall.stdout").touch()
+        with self.assertRaisesRegex(ValueError,"Unexpected logs after lifecycle hold"):
+            T.read_result(evidence,plan,held=True)
+
+    def test_reinstall_error_retains_verified_base_and_failed_exit(self):
+        evidence,plan,exit_code,log = self.execute_model(command_failure="reinstall")
+        self.assertEqual(exit_code,T.LIFECYCLE_HOLD_EXIT)
+        self.assertEqual(log[-1],"reinstall")
+        result = T.read_result(evidence,plan,held=True)
+        self.assertEqual(result["phase"],"reinstall")
+        self.assertEqual(set(result["verified_locks"]),{"before_remove","after_remove"})
+        body = T.decode((evidence/"result.json").read_bytes())
+        self.assertEqual(body["commands"][-1]["exit"],17)
+        with self.assertRaisesRegex(ValueError,"Unbound guest lifecycle receipt"):
+            T.read_result(evidence,dict(plan,nonce="f"*32),held=True)
+
+    def test_failing_base_db_check_holds_after_recording_raw_inventory(self):
+        evidence,plan,exit_code,log = self.execute_model(command_failure="check-base")
+        self.assertEqual(exit_code,T.LIFECYCLE_HOLD_EXIT)
+        self.assertEqual(log[-1],"check-base")
+        result = T.read_result(evidence,plan,held=True)
+        self.assertEqual(result["phase"],"check-base")
+        self.assertEqual(result["files"]["removed.lock"],self.packet["baseline"])
+        self.assertEqual(set(result["verified_locks"]),{"before_remove"})
+
+    def test_success_exit_with_removal_scriptlet_error_holds(self):
+        evidence,plan,exit_code,log = self.execute_model(hook_failure="remove")
+        self.assertEqual(exit_code,T.LIFECYCLE_HOLD_EXIT)
+        result = T.read_result(evidence,plan,held=True)
+        self.assertEqual(log[-1],"remove")
+        self.assertEqual(result["phase"],"remove")
+        self.assertIn("remove.stderr",result["files"])
+        self.assertEqual(set(result["verified_locks"]),{"before_remove"})
 
     def test_reject_preflight_plan_and_signer_drift_even_when_repinned(self):
         for field in ("pacman_plan_sha256","base_package_signer","base_receipt_sha256"):
