@@ -99,16 +99,28 @@ class AcquisitionTests(unittest.TestCase):
             # The other offline controls permanently fence ctypes in shared discovery.
             with (patch.object(A, "public_targets", return_value=targets),
                   patch.object(A.K, "publish", side_effect=publish_fixture) as commit):
-                with self.assertRaisesRegex(A.AcquisitionError, "HTTP_WHOLE_INPUT_PIN_MISMATCH"):
-                    A.acquire(args, root, self.response(b"wrong"))
+                stages = []
+                with self.assertRaisesRegex(A.AcquisitionError, "HTTP_WHOLE_INPUT_PIN_MISMATCH") as held:
+                    A.acquire(args, root, self.response(b"wrong"), mark=stages.append)
+                self.assertEqual(stages, ["ACQUISITION_INPUT_CHECK", "PUBLIC_INPUT_RETRIEVAL"])
+                self.assertEqual((held.exception.ordinal, held.exception.reason), (1, "HTTP_WHOLE_INPUT_PIN_MISMATCH"))
                 self.assertFalse(output.exists())
                 commit.assert_not_called()
                 self.assertFalse(list(root.glob(".qt-acquisition-*")))
-                result = A.acquire(args, root, self.response(b"bytes"))
+                stages.clear()
+                result = A.acquire(args, root, self.response(b"bytes"), mark=stages.append)
+                self.assertEqual(stages, ["ACQUISITION_INPUT_CHECK", "PUBLIC_INPUT_RETRIEVAL", "ACQUIRED_INPUT_COMMIT"])
                 self.assertEqual(result["GPG"], "NOT_RUN")
                 commit.assert_called_once()
                 self.assertEqual((output / path).read_bytes(), b"bytes")
                 self.assertEqual((output / "trust" / A.CERT).read_bytes(), b"certificate")
+
+    def test_public_failure_detail_never_uses_response_message(self):
+        with A.urllib.error.HTTPError(self.url+"?token=opaque", 404, "secret diagnostic", Message(), io.BytesIO()) as error:
+            report = A.AcquisitionError("fixture/path", 17, error)
+            self.assertEqual((report.ordinal, report.reason), (17, "HTTP_404"))
+        self.assertEqual(A.public_failure(ValueError("OPAQUE_CREDENTIAL")), "PUBLIC_VALIDATION")
+        self.assertEqual(A.public_failure(A.urllib.error.URLError("secret path")), "PUBLIC_TRANSPORT")
 
     def test_bounded_job_log_replay_selects_one_child_only(self):
         payload = b"synthetic archive body"

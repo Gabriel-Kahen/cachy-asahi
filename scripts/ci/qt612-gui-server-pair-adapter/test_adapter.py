@@ -2,7 +2,8 @@
 """Offline controls. No process, lock, socket or native entry is permitted."""
 
 from contextlib import redirect_stderr
-from io import StringIO
+from email.message import Message
+from io import BytesIO, StringIO
 import os
 from pathlib import Path
 import stat
@@ -195,6 +196,41 @@ class AdapterTest(unittest.TestCase):
         with patch.object(E, "root_dispatch", side_effect=fail), redirect_stderr(stderr):
             self.assertEqual(E.main(args), 2)
         self.assertEqual(stderr.getvalue(), "HOLD_QT612_PAIR: STORAGE_ALLOCATION_ADMISSION\n")
+
+    def test_r128_transport_tracks_stage_and_keeps_credentials_on_api_origin(self):
+        token = "fixture_only_no_secret_00000000"
+        url = "https://fixture.blob.core.windows.net/log?sealed=opaque"
+        headers = Message()
+        headers["Location"] = url
+        redirect = E.urllib.error.HTTPError(E.LOG_URL, 302, "opaque", headers, BytesIO())
+        body = BytesIO(b"fixture body")
+        body.status, body.headers = 200, Message()
+        seen, stages = [], []
+
+        def open_url(request, timeout):
+            self.assertEqual(timeout, 8)
+            seen.append((request.full_url, request.get_header("Authorization")))
+            if request.full_url == E.LOG_URL:
+                raise redirect
+            return body
+
+        with patch.object(E.urllib.request, "build_opener", return_value=SimpleNamespace(open=open_url)):
+            self.assertEqual(E.fetch(E.LOG_URL, 20, token=token, mark=stages.append), b"fixture body")
+        self.assertEqual(seen, [(E.LOG_URL, "Bearer "+token), (url, None)])
+        self.assertEqual(stages, ["R128_LOG_API", "R128_LOG_REDIRECT", "R128_LOG_BODY"])
+
+        def deny(request, timeout):
+            raise E.urllib.error.HTTPError(request.full_url, 403, "private text /path", Message(), BytesIO())
+
+        trace = E.ControllerTrace()
+        with patch.object(E.urllib.request, "build_opener", return_value=SimpleNamespace(open=deny)):
+            with self.assertRaises(E.HTTPReadRefused) as held:
+                E.fetch(E.LOG_URL, 20, token=token, mark=trace.mark)
+        trace.acquisition_detail = held.exception.reason
+        stderr = StringIO()
+        with redirect_stderr(stderr):
+            trace.hold()
+        self.assertEqual(stderr.getvalue(), "HOLD_QT612_PAIR: R128_LOG_API\nHOLD_QT612_ACQUISITION: HTTP_403\n")
 
     def test_root_356_readback_before_binding(self):
         approval, env = fixture()
