@@ -21,7 +21,7 @@ def fresh():return load('_current606_ingress',ROOT/'factory/fresh606.py')
 def fresh_data():return A.obj(ROOT/'fresh-test/selection.json')
 
 def proof(case,state,env):
- fresh().current(fresh_data(),full_launch=True)
+ fresh().current(fresh_data(),full_launch=True,case=case)
  fact=A.prove(ROOT);profile,mode=selected(case)
  if mode=='generic16k':
   media=A.obj(ROOT/'kernel-media-profile.json');A.need(re.fullmatch('[a-f0-9]{40}',media['source']or'')and media['ready']is True,'16K blocked until exact Root-published managed media profile is bound;4K independent')
@@ -39,7 +39,7 @@ def run(case,state,base,assets,carrier,tooling,bootstrap,kernel_carrier,welcome8
  def interrupted(*_):raise TimeoutError('unchanged6600 native owner interrupted')
  previous={s:signal.signal(s,interrupted)for s in(signal.SIGTERM,signal.SIGINT,signal.SIGALRM)};signal.setitimer(signal.ITIMER_REAL,deadline-time.monotonic())
  try:
-  f=fresh();f.current(fresh_data(),full_launch=False);f.recorded(fresh_data(),A.obj(assets/f.INDEX))
+  f=fresh();f.current(fresh_data(),full_launch=False,case=case);f.recorded(fresh_data(),A.obj(assets/f.INDEX),case=case)
   import input606
   prepared=input606.prepare(ROOT,carrier,bootstrap,base,state/'ready606',deadline,welcome8,apps16);save(state/'input-preparation.json',prepared)
   kernel=None
@@ -116,7 +116,7 @@ def main():
  if a.phase=='proof':v=proof(a.case,state,os.environ)
  else:
   q=binding(a.case,state)
-  if a.phase=='assets':v=fresh().prepare_assets(ROOT/'original',a.public.absolute(),a.project.absolute(),a.output.absolute(),a.renewal.absolute(),original().assets)
+  if a.phase=='assets':v=fresh().prepare_assets(ROOT/'original',a.public.absolute(),a.project.absolute(),a.output.absolute(),a.renewal.absolute(),original().assets,case=a.case)
   elif a.phase=='run':v=run(a.case,state,a.base.absolute(),a.assets.absolute(),a.carrier.absolute(),a.tooling.absolute(),a.bootstrap.absolute(),a.kernel_carrier.absolute(),a.welcome8.absolute(),a.apps16.absolute(),list(sys.argv[1:]))
   elif a.phase=='cleanup':v=cleanup(a.case,state,a.base.absolute())
   elif a.phase=='transport':v=load('_current606_safe_public_transport',ROOT/'transport.py').pack(a.public.absolute(),a.output.absolute(),q)

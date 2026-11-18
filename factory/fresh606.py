@@ -80,13 +80,45 @@ def close(packet, files, *, original=False):
     return {n: read(packet / n, 128 * 1024, w) for n, w in files.items()}
 
 
-def current(data, *, full_launch):
-    key, window = data['signer'], data['window']
-    start, end, now = window['start'], window['end'], time.time()
+
+SERIAL_PAIR = ('minimal-generic16k', 'overlay-generic16k')
+SERIAL_STATUS = 'APPROVED_CURRENT606_PUBLIC_TEST_SERIAL_ARM16K_WINDOW'
+SERIAL_SCOPE = 'CURRENT606_GUI_TEST_PUBLIC_INGRESS_SERIAL_ARM16K_ONLY'
+
+def case_window(data, case):
+    window = data['window']
+    if case not in SERIAL_PAIR:
+        return window, window['start']
+    review = data['serial_pair_review']
+    approved = review['approved_utc']
+    need(pin(encoded(review)) == data['serial_pair_review_pin']
+         and review['scope'] == SERIAL_SCOPE and review['status'] == SERIAL_STATUS
+         and review['issuer'] == 'Root' and review['case_order'] == list(SERIAL_PAIR)
+         and review['production_trust'] is False and review['native_acceptance'] is False
+         and review['signer_terminal'] == data['terminal_pin']
+         and review['independent_signer'] == data['independent_receipt_pin']
+         and review['packet_index'] == data['public_files']['index.json']
+         and review['certificate'] == data['signer']
+         and review['original_window'] == window
+         and type(approved) is int and window['start'] <= approved,
+         'exact Root scoped public TEST serial ARM16K review')
+    higher = review['serial_window']
+    need(higher == dict(start=window['start'], end=window['start']+86400,
+                       seconds=86400, min_remaining_seconds=28620, observed=approved)
+         and approved <= higher['end'] - 28620
+         and higher['end'] < data['signer']['expires'],
+         'reviewed 24-hour public TEST window with full unchanged launch reserve')
+    return higher, approved
+
+
+def current(data, *, full_launch, case=None):
+    window, allowed = case_window(data, case)
+    key, start, end, now = data['signer'], window['start'], window['end'], time.time()
     need(key['key_created'] == key['certificate_selfsig_created'] == key['validity_anchor'] == start
-         and key['expires'] - start == 14 * 86400 and start <= now < end < key['expires']
-         and end - start == window['seconds'] == 43200 and window['min_remaining_seconds'] == 28620,
-         'actual current TEST certificate and independent 12-hour window')
+         and key['expires'] - start == 14 * 86400 and start <= allowed <= now < end < key['expires']
+         and end - start == window['seconds'] == (86400 if case in SERIAL_PAIR else 43200)
+         and window['min_remaining_seconds'] == 28620,
+         'actual current TEST certificate and exact case-approved window')
     need(not full_launch or end - now >= 28620, 'TEST window has less than 477 minutes remaining for new entry')
     return now
 
@@ -150,8 +182,8 @@ def asset_bodies(assets, data):
     return paths
 
 
-def verify_live(data, packet, bodies):
-    current(data, full_launch=True)
+def verify_live(data, packet, bodies, *, case=None):
+    started = current(data, full_launch=True, case=case)
     raw, contents, signing, binary = data_only(data, packet, bodies)
     deadline = time.monotonic() + 60
     report = {}
@@ -175,20 +207,32 @@ def verify_live(data, packet, bodies):
     # Bind the copy to the same stable files that were mathematically checked.
     late_raw, late_contents, _, _ = data_only(data, packet, bodies)
     need(late_raw == raw and late_contents == contents, 'late whole original/fresh packet identity')
-    return dict(scope=SCOPE, certificate=data['signer'], window=data['window'], verified=current(data, full_launch=False),
+    case_data = dict(serial_case=case, verification_started=started) if case in SERIAL_PAIR else {}
+    return dict(scope=SCOPE, certificate=data['signer'], window=case_window(data,case)[0],
+                verified=current(data, full_launch=False, case=case), **case_data,
                 packet_index=data['public_files']['index.json'], detached=report, public_verifier_home_retired=not home.exists(), actual=None)
 
 
-def recorded(data, receipt, *, run_start=None, run_end=None):
-    need(receipt['scope'] == SCOPE and receipt['certificate'] == data['signer'] and receipt['window'] == data['window']
+def recorded(data, receipt, *, run_start=None, run_end=None, case=None):
+    stated = receipt.get('serial_case')
+    need((case is None and (stated is None or (stated in SERIAL_PAIR and run_start is run_end is None)))
+         or (stated == (case if case in SERIAL_PAIR else None)), 'same exact public TEST case')
+    window, allowed = case_window(data, stated)
+    need(receipt['scope'] == SCOPE and receipt['certificate'] == data['signer'] and receipt['window'] == window
          and receipt['packet_index'] == data['public_files']['index.json'] and receipt['public_verifier_home_retired'] is True
          and receipt['actual'] is None and set(receipt['detached']) == set(DOCUMENTS) | {'catalog'}, 'scoped live public verification receipt')
     verified = receipt['verified']
-    need(type(verified) in (int, float) and math.isfinite(verified) and data['window']['start'] <= verified < data['window']['end'], 'finite verified TEST window')
+    need(type(verified) in (int, float) and math.isfinite(verified) and allowed <= verified < window['end'], 'finite verified TEST window')
+    if stated is not None:
+        started = receipt['verification_started']
+        need(type(started) in (int, float) and math.isfinite(started)
+             and allowed <= started <= verified and window['end'] - started >= window['min_remaining_seconds'],
+             'actual public verification began with the full unchanged reserve')
     if run_start is not None or run_end is not None:
         need(type(run_start) in (int, float) and type(run_end) in (int, float)
-             and data['window']['start'] <= run_start <= verified <= run_end < data['window']['end']
-             and data['window']['end'] - run_start >= data['window']['min_remaining_seconds'], 'actual case interval inside the qualified TEST launch window')
+             and allowed <= run_start <= verified <= run_end < window['end']
+             and (stated is None or run_start <= started)
+             and window['end'] - run_start >= window['min_remaining_seconds'], 'actual case interval inside the qualified TEST launch window')
     for role, row in receipt['detached'].items():
         expected = data['independent_detached'][role]
         need(type(row['gpgv_exit']) is int and row['gpgv_exit'] == 0 and row['input_pin'] == expected['input_pin']
@@ -197,13 +241,13 @@ def recorded(data, receipt, *, run_start=None, run_end=None):
     return receipt
 
 
-def prepare_assets(source, public, project, output, packet, original_assets):
+def prepare_assets(source, public, project, output, packet, original_assets, *, case=None):
     data = decode(read(source.parent / 'fresh-test/selection.json'))
     need(packet == source.parent / 'fresh-test/public' and not output.exists(), 'Source-owned TEST packet and fresh output')
     original_assets.revision(public, OLD_SOURCES['held77'])
     original_assets.revision(project, OLD_SOURCES['native73'])
     bodies = operand_paths(public, project, data)
-    receipt = verify_live(data, packet, bodies)
+    receipt = verify_live(data, packet, bodies, case=case)
     policy = original_assets.C.selection(source)
     value = original_assets.assemble_data(source, public / 'payload', project / 'payload', output, policy)
     shutil.copytree(packet, output / 'fresh-test-public')

@@ -196,6 +196,62 @@
     }
   },
   "scope": "CURRENT606_GUI_TEST_PUBLIC_INGRESS_ONLY",
+  "serial_pair_review": {
+    "approved_utc": 1795004726,
+    "case_order": [
+      "minimal-generic16k",
+      "overlay-generic16k"
+    ],
+    "certificate": {
+      "certificate_selfsig_created": 1794991472,
+      "expires": 1796201072,
+      "fingerprint": "7F17A10021208924CCB32A70DEB2CB5E7C601EE9",
+      "key_created": 1794991472,
+      "uid": "CACHY-ASAHI TEST ONLY d60dd84ad843ae6dcdc97b15713f359d <test-only@invalid.example>",
+      "validity_anchor": 1794991472
+    },
+    "independent_signer": {
+      "bytes": 13946,
+      "sha256": "5371ef0794cda49d6ef8edbbb53185ea4d31af34d3c7834097e6b429ee994863"
+    },
+    "issuer": "Root",
+    "native_acceptance": false,
+    "original_selection": {
+      "bytes": 15127,
+      "sha256": "8f23d60de08284df9d33c03e3c0a23b75d959a2f259655ae5c39a7ab6b833009"
+    },
+    "original_window": {
+      "end": 1795034672,
+      "min_remaining_seconds": 28620,
+      "observed": 1794991473.512823,
+      "seconds": 43200,
+      "start": 1794991472
+    },
+    "packet_index": {
+      "bytes": 1790,
+      "sha256": "1526818a4b16e32b6b2d2c324f78d9fa546bd86b82f89e9333ae2c98e034c509"
+    },
+    "parent": "542b9247ef45ab70c918991f415821d178d5da86",
+    "parent_tree": "f0c3fda73486024e8a53e796e97803a4c005e213",
+    "production_trust": false,
+    "scope": "CURRENT606_GUI_TEST_PUBLIC_INGRESS_SERIAL_ARM16K_ONLY",
+    "serial_window": {
+      "end": 1795077872,
+      "min_remaining_seconds": 28620,
+      "observed": 1795004726,
+      "seconds": 86400,
+      "start": 1794991472
+    },
+    "signer_terminal": {
+      "bytes": 2408,
+      "sha256": "1fa4c31d663b993338cd56f1e52f623be0937c5402a183f8b646532aaec92d24"
+    },
+    "status": "APPROVED_CURRENT606_PUBLIC_TEST_SERIAL_ARM16K_WINDOW"
+  },
+  "serial_pair_review_pin": {
+    "bytes": 1606,
+    "sha256": "cc175a6c48b19f753337d7242ca2174850375b549f7dbe21f7ba07e588c41cf2"
+  },
   "signer": {
     "certificate_selfsig_created": 1794991472,
     "expires": 1796201072,
