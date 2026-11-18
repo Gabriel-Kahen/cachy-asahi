@@ -11,14 +11,30 @@ md4c >=0.5.3 and <0.6 remains required. The cached 0.6.0-2 fails that constraint
 The 206-package alternative lacks 25 direct dependencies and its transitive
 graphics closure has not been established. See `dependency-audit.DATA.json`.
 
-`source.py --request /ABS/request.json --request-sha256 HASH --output /ABS/fresh`
-verifies the five frozen recipes, upstream archives, original inputs and
-available baseline files. The request contains `framework`, `providers`,
-`archives`, `base_provider`, `candidate_map`, and `md4c`. Provider values are
-absolute checkout roots keyed by component. Archive values are absolute
-archive paths under the same keys. Base provider uses the existing whole-pin
-reference, and the candidate map uses the existing six-addition format.
-`prepare_cache` stages the five reviewed archives into a private offline cache.
+## Prepare and check locally
+
+Copy `source-request.TEMPLATE.json` outside the checkout and fill in the
+absolute paths from `family.lock.json`. Use this checkout for the framework
+and all five provider roots. The family pins select Main's ShaderTools and
+Declarative access-time repair at `3d2b6922`. Supply the five pinned upstream
+archives from local storage.
+
+Set `base_provider` to the historical baseline reference with `path`, `bytes`,
+and `sha256`, and `candidate_map` to the six-addition candidate map path.
+Leave `md4c` null until its archive, signature, and metadata are independently
+selected. Source preparation can verify and stage the inputs with md4c pending.
+
+```sh
+adapter=scripts/ci/qt612-complete-family-native-source
+request_sha=$(sha256sum "$REQUEST" | cut -d ' ' -f1)
+python3 -I -B "$adapter/source.py" --request "$REQUEST" --request-sha256 "$request_sha" --output "$SOURCE_OUT"
+python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$adapter" -p 'test_*.py'
+```
+
+Use a fresh absolute `SOURCE_OUT` outside all input checkouts.
+`source.prepare_cache` accepts that Source directory, its returned map SHA-256,
+and a fresh output directory for the five reviewed offline archives. The
+passive tests use inert fixtures and require no package tooling or archives.
 
 For the project-built `md4c-0.5.3-1-aarch64.pkg.tar.xz` provider, pass the
 independently selected exact byte counts and SHA-256s for the archive and its
@@ -35,14 +51,10 @@ Use the JSON object on stdout as `md4c` in the family request, or as the
 The helper binds byte pins, package identity, and the frozen `glibc` dependency.
 Native pair qualification and detached-signature authentication remain Root inputs.
 
-Pass `consumer_root` in the preparation request to include E's frozen
-`a7421e42564e67307086e3f8a048fe578390d1cd` checkout. Its interface selects
-the original ShaderTools recipe at `785d680499feaa7de18d35e6ccd46ee9df4e2891`.
-The lock binds its recipe tree, active inputs, provider interface, and upstream
-archive bytes. The original ShaderTools reader can reject an unchanged file
-when a filesystem updates access time during the read. The failure reproduced
-on a local inert fixture. The separately pinned repair at `3d2b6922` changes
-the recipe, source helper and checksums, and requires a separate selection.
+Set `consumer_root` to this checkout to include the desktop consumer. Its
+interface binds all five pinned provider commits, including the repaired
+ShaderTools and Declarative readers. The lock also binds the consumer's whole
+file set. Earlier staged Source directories retain their original locks.
 
 Once md4c is available, `pipeline.builder_image_plan` reopens the selected
 dependency and preceding provider pairs and emits the normal signed package

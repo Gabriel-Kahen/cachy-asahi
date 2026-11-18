@@ -33,7 +33,7 @@ source=("https://download.qt.io/official_releases/qt/6.12/$pkgver/submodules/qts
 sha256sums=('c7d84f436e1aaef39fdcadebf2bd71bdf24dc69497e13f2e0198873cbbfea2ab'
             '4f06d082f5e93d8eeb418fdd4e9a4dfaa6205e4808c2c0001cdb613d99014426'
             '30d1c92679f1853336843193a6a6cd72be4a6b1ba2466384732cd3ded2d2de91'
-            '7e5672b20569e864fbfd9852d4af51994ad292b511adfdfd4c531818ba7f777b'
+            '2f28d2dae7d43d8bfd862e9e09e4aced62a5d2dd503cea5055ef47b4c5149f48'
             'fece5a639573df37b17f8639af435d1e9f7913c476db8c0c14f97753296109f7'
             '0220adf2acdba80b3efb0d8e801d50f6ba586e824e8caf5944b2f9364f149050'
             '225f70874d4ff3e54f8bd164e58078ad5c356e7ac43fd497843bbe688adb0ec9'
