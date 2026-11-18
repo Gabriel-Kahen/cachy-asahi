@@ -111,7 +111,9 @@ uses the exact retained R127 members and original Setup8 and Fish templates
 in unprivileged temporary host fixtures. It runs no pacman operation or VM.
 This evidence is separate from the future installed ARM16K result.
 
-    python3 -I -B scripts/integration/fish_config_overlay583/test_upgrade.py
+    CAA_OVERLAY583_STAGING="$staging" CAA_OVERLAY583_PREFLIGHT="$preflight" \
+      CAA_FISH_R127_EVIDENCE_DIR="$r127_evidence" \
+      python3 -I -B scripts/integration/fish_config_overlay583/test_upgrade.py
     python3 -I -B -m unittest discover -s scripts/install/overlay583_trial -p 'test_fish_upgrade.py'
 
 The focused selection and refusal tests run without local archive artifacts.

@@ -16,10 +16,9 @@ import unittest
 
 HERE=Path(__file__).resolve().parent
 TREE=HERE.parents[2]
-BASE=Path("/home/gabe/Documents/ChatGPT/cachy-asahi-staging-install-lock-20261117-overlay583")
-PRE=BASE.parent/"cachy-asahi-staging-install-lock-20261117-preflight583-results/retained583.json"
-HELD=Path(os.environ.get("CAA_FISH_R127_EVIDENCE_DIR",
-    TREE.parent/"cachy-asahi/artifacts/development/orchestrator-resume-20261114/Root-fish70-r11-native-result-r127-r1"))
+BASE=Path(os.environ.get("CAA_OVERLAY583_STAGING", "/missing-overlay583-staging"))
+PRE=Path(os.environ.get("CAA_OVERLAY583_PREFLIGHT", "/missing-overlay583-preflight.json"))
+HELD=Path(os.environ.get("CAA_FISH_R127_EVIDENCE_DIR", "/missing-fish-r127-evidence"))
 NONCE="9"*32
 SUCCESSOR=dict(bytes=5516,sha256="6dee81130f3ba3e570791cf079d2152893461ec27fa6e2e34a3d614986f9a949")
 
