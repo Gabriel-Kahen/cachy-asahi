@@ -1,0 +1,42 @@
+name: Build Current606 KSM and virtio-input kernel
+description: Build the exact generic16K kernel into private output on the owning ARM job.
+inputs:
+  source-sha:
+    description: Exact manually selected workflow and checkout source SHA
+    required: true
+  work:
+    description: Fresh owned output directory inside RUNNER_TEMP
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Whole source and build-only input controls
+      shell: bash
+      env:
+        KERNEL_SOURCE_SHA: ${{ inputs.source-sha }}
+      run: |
+        set -euo pipefail
+        [[ "$GITHUB_ACTIONS" == true && "$GITHUB_REPOSITORY" == Gabriel-Kahen/cachy-asahi ]]
+        [[ "$GITHUB_EVENT_NAME" == workflow_dispatch && "$GITHUB_RUN_ATTEMPT" == 1 && "$RUNNER_ARCH" == ARM64 ]]
+        [[ "$KERNEL_SOURCE_SHA" =~ ^[a-f0-9]{40}$ && "$KERNEL_SOURCE_SHA" == "$GITHUB_SHA" ]]
+        source_root=$(realpath -e -- "$GITHUB_ACTION_PATH/../../..")
+        [[ "$(git -C "$source_root" rev-parse HEAD)" == "$KERNEL_SOURCE_SHA" ]]
+        slice="$source_root/scripts/ci/current606-ksm-virtio-input"
+        printf '%s  %s\n' '9889d9d2f5a9d3670c20ab15c72829a2c3a2c8c430420907a1f4be2091cfbcb0' "$slice/lane.py" | sha256sum --check --status
+        python3 -I -B "$slice/lane.py" preflight
+        python3 -I -B "$slice/test_controls.py"
+    - name: Provision the accepted tools on the disposable runner
+      shell: bash
+      run: |
+        set -euo pipefail
+        timeout --kill-after=10s 180s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 update -qq
+        timeout --kill-after=10s 240s sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 install -y --no-install-recommends build-essential bc clang lld llvm flex bison libssl-dev libelf-dev python3 ca-certificates
+    - name: Build and verify the kernel inside the owning job
+      shell: bash
+      env:
+        KERNEL_SOURCE_SHA: ${{ inputs.source-sha }}
+        KERNEL_WORK: ${{ inputs.work }}
+      run: |
+        set -euo pipefail
+        source_root=$(realpath -e -- "$GITHUB_ACTION_PATH/../../..")
+        python3 -I -B "$source_root/scripts/ci/current606-ksm-virtio-input/lane.py" build --work "$KERNEL_WORK"
