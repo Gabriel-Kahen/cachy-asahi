@@ -1,0 +1,15 @@
+{
+  "archlinuxarm-binary.gpg":{"bytes":2228,"sha256":"9403f923eed777ba0896a0b225e1522d3a7625234694c753ae26b27c29672aae"},
+  "archlinuxarm-source.gpg":{"bytes":3098,"sha256":"6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"},
+  "bluez-libs-5.87-2-aarch64.pkg.tar.xz":{"bytes":88556,"sha256":"8c8be9961b8a952aeaf99b56a623d541977b563d0586512e881179eab1b12728"},
+  "bluez-libs-5.87-2-aarch64.pkg.tar.xz.sig":{"bytes":566,"sha256":"f34fd321d395cfad78b99ea70ed2f9581a01b4dc1ce0180bf85e9b16905a6e1d"},
+  "libxss-1.2.5-1-aarch64.pkg.tar.xz":{"bytes":14148,"sha256":"1ebc34a29420166cb25040bfbff5d6ff732eff92de9cf07fcd92835e7d68bb9c"},
+  "libxss-1.2.5-1-aarch64.pkg.tar.xz.sig":{"bytes":566,"sha256":"4fac34a807b362a170f6129550b7014ed14994a49fd2766ded745eacdbf3e301"},
+  "tcl-8.6.16-1-aarch64.pkg.tar.xz":{"bytes":2477844,"sha256":"2918e59dfb1517de884e3287978b1b20428e9c1ac274344c17ff52ce0ef07c32"},
+  "tcl-8.6.16-1-aarch64.pkg.tar.xz.sig":{"bytes":566,"sha256":"03603caeb3d180dd1d2d1dee0e1c4bfb3115e0c874e817f35a5232680551af72"},
+  "tk-8.6.16-1-aarch64.pkg.tar.xz":{"bytes":1879164,"sha256":"dc4a897af830da89c018edd7334ae7c819de62b3846ae1d57619b474b44dd80a"},
+  "tk-8.6.16-1-aarch64.pkg.tar.xz.sig":{"bytes":566,"sha256":"997aa528ad40c158442862233a3291bfe1cb3e179fcffaeb79122b1a7e369807"},
+  "Python-3.14.8.tar.xz":{"bytes":24130644,"sha256":"c2215904f02b175596dc49351585104f4bc20341e1c47378b26a2c274360ce73"},
+  "Python-3.14.8.tar.xz.sigstore":{"bytes":7489,"sha256":"717dc4647497932e50c5596236de67445812ee1deed4e58f90d8e25bdb0ba7f2"},
+  "Python-3.14.8.tar.xz.spdx.json":{"bytes":3127983,"sha256":"9c0cb6e7a66a295f1e5d633a2b66cbff6d7305015dbc43fe6b3c5eadadd9bcb0"}
+}

@@ -1,0 +1,183 @@
+{
+  "files": {
+    ".github/workflows/native-arm-python3148-native-full-profile.yml": {
+      "bytes": 9694,
+      "mode": 420,
+      "sha256": "7665feebc3d8a3de0e6b27a6c23f2c457653c7f21982448d2a84ece63bd8a660"
+    },
+    "packages/port/python3148-source-candidate/.SRCINFO": {
+      "bytes": 1679,
+      "mode": 420,
+      "sha256": "83651e56458cc4de73292d5b690e18378fa4e4de209833df7cba33fd4def8bf8"
+    },
+    "packages/port/python3148-source-candidate/CPython-LICENSE": {
+      "bytes": 13804,
+      "mode": 420,
+      "sha256": "b0e25a78cffb43f4d92de8b61ccfa1f1f98ecbc22330b54b5251e7b6ba010231"
+    },
+    "packages/port/python3148-source-candidate/EXTERNALLY-MANAGED": {
+      "bytes": 242,
+      "mode": 420,
+      "sha256": "d15f1508fc398399561dacc6338739bb6b68f6f4116330dadb21e9067b1dd654"
+    },
+    "packages/port/python3148-source-candidate/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "4d263ff2b095160e3b9244a132d248234241b83eed71b849decef6a3ba3fa795"
+    },
+    "packages/port/python3148-source-candidate/PKGBUILD": {
+      "bytes": 3073,
+      "mode": 420,
+      "sha256": "30c8d332c80dbd2b34ac950ae46a4ead14526005ba90b33cc0efcf9cb03731fd"
+    },
+    "packages/port/python3148-source-candidate/README.md": {
+      "bytes": 6550,
+      "mode": 420,
+      "sha256": "6442afb9cbefabc1f33a684c26f3f1085dd6367a6cc1206c2b01151272c86ac1"
+    },
+    "packages/port/python3148-source-candidate/check_runtime.py": {
+      "bytes": 2883,
+      "mode": 420,
+      "sha256": "062e00a1400613c92a9b9a552511c857e3d44d69f75499467357e2a1474b8df0"
+    },
+    "packages/port/python3148-source-candidate/check_source.py": {
+      "bytes": 3321,
+      "mode": 420,
+      "sha256": "b4dac5a68dbf98fadfd3074bbf1bb16876e5bc7363ac05fb72963458d2167e06"
+    },
+    "packages/port/python3148-source-candidate/check_stage.py": {
+      "bytes": 2506,
+      "mode": 420,
+      "sha256": "c33bd2e430685971306e77d41397d237d2330baa030d6e8e6fabc4da9240c232"
+    },
+    "packages/port/python3148-source-candidate/posix-2024.patch": {
+      "bytes": 3166,
+      "mode": 420,
+      "sha256": "76d1307b5f73ed9eb5e46b672c8f55bd93474173f4ca834a54d0ee7536fa0a7f"
+    },
+    "packages/port/python3148-source-candidate/source-provenance.json": {
+      "bytes": 1466,
+      "mode": 420,
+      "sha256": "1be00c301fb307a3cbc0fec3b61005b5d26dae4b2fe3e1d1a8b4dd87ede2e385"
+    },
+    "packages/port/python3148-source-candidate/test_source.py": {
+      "bytes": 2024,
+      "mode": 420,
+      "sha256": "aa243ab5c6fa5f053579d3854d09c86fb321949012ae5d1dc59875dfc8ecd1b2"
+    },
+    "scripts/ci/python3148-native-full-profile/artifact.py": {
+      "bytes": 10092,
+      "mode": 420,
+      "sha256": "a02b1317ba9f27c38f444a1acddff8b45bb2af6fe6dc7dd293f93e2039a0cd03"
+    },
+    "scripts/ci/python3148-native-full-profile/cache-FORMAT.data": {
+      "bytes": 28,
+      "mode": 420,
+      "sha256": "da163b8c4b855c77b0074778ecedf02f021d81e6b5f4140b638bcbef8f6a22d0"
+    },
+    "scripts/ci/python3148-native-full-profile/cache-receipt.json": {
+      "bytes": 2016,
+      "mode": 420,
+      "sha256": "92d4eac677bf1636924a2ec3e08e439797f2524a5a53baeaf134cf4a5c9156a2"
+    },
+    "scripts/ci/python3148-native-full-profile/expected345.lock": {
+      "bytes": 6732,
+      "mode": 420,
+      "sha256": "d45989ab35f2b62251a0b0d0260f266d129ff4a557ce8f9d4d4346157e51ee65"
+    },
+    "scripts/ci/python3148-native-full-profile/input_roles.py": {
+      "bytes": 4833,
+      "mode": 420,
+      "sha256": "e45211be04af110a2ae54d62d2ff1c57ab617d2dc7865a10678313051fe5deeb"
+    },
+    "scripts/ci/python3148-native-full-profile/lane.py": {
+      "bytes": 5077,
+      "mode": 420,
+      "sha256": "6d94970766dbd6fe29edd52a534a51d4b8514a3a1a93800e9c5607f69d4a4d67"
+    },
+    "scripts/ci/python3148-native-full-profile/material-pins.json": {
+      "bytes": 1676,
+      "mode": 420,
+      "sha256": "b1e9bbb7e26ae0e6fe2b0e6414571d9952af3db67ff2bc7fe5a97559ea8e9643"
+    },
+    "scripts/ci/python3148-native-full-profile/native_bootstrap.py": {
+      "bytes": 4787,
+      "mode": 420,
+      "sha256": "8bcf0f165cdce4eadd38717425f17f95867b902436b794c4597ac8a305a19f75"
+    },
+    "scripts/ci/python3148-native-full-profile/notices/python-0.txt": {
+      "bytes": 446,
+      "mode": 420,
+      "sha256": "f2c1d094466270ed41fc4dd2904d91b34d58cbb5033403b2de5cc153aba8e608"
+    },
+    "scripts/ci/python3148-native-full-profile/notices/python-1.txt": {
+      "bytes": 60039,
+      "mode": 420,
+      "sha256": "cd6f471c0bfdb099efefc25ddff9b3df8bf62e10428987f1f05e6f2f9e35d563"
+    },
+    "scripts/ci/python3148-native-full-profile/notices/python-2.txt": {
+      "bytes": 13804,
+      "mode": 420,
+      "sha256": "b0e25a78cffb43f4d92de8b61ccfa1f1f98ecbc22330b54b5251e7b6ba010231"
+    },
+    "scripts/ci/python3148-native-full-profile/notices/python-3.txt": {
+      "bytes": 15063,
+      "mode": 420,
+      "sha256": "f948498992e522edc050b1c0147e7125c33f16fce2b9fc6e02539b2fb10fdd71"
+    },
+    "scripts/ci/python3148-native-full-profile/notices/python-4.txt": {
+      "bytes": 1144,
+      "mode": 420,
+      "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87"
+    },
+    "scripts/ci/python3148-native-full-profile/notices/python-5.txt": {
+      "bytes": 3273,
+      "mode": 420,
+      "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f"
+    },
+    "scripts/ci/python3148-native-full-profile/overlay.py": {
+      "bytes": 17403,
+      "mode": 420,
+      "sha256": "bc32867ec1723925e26ce379dc787cd9a6860b3ca0f4bea88b6094a5fa817cb0"
+    },
+    "scripts/ci/python3148-native-full-profile/preflight.py": {
+      "bytes": 14799,
+      "mode": 420,
+      "sha256": "fe6a6bf153a4ac076ac23a8682ae019f3546dc62755534db47f2b80919371090"
+    },
+    "scripts/ci/python3148-native-full-profile/reviewed-inputs.json": {
+      "bytes": 1053,
+      "mode": 420,
+      "sha256": "aaea9ed1ee7952d8a862cafb8976d3f4547bbf8e54e9b1ca5e63d2996a4aec70"
+    },
+    "scripts/ci/python3148-native-full-profile/runtime/scripts/build/build_python3148.py": {
+      "bytes": 14082,
+      "mode": 420,
+      "sha256": "f9b855ec27aacacce07ee328c64e0d09fc490c84608b1a03e0d76da2b0d962b7"
+    },
+    "scripts/ci/python3148-native-full-profile/runtime/scripts/build/container-entry-v2.sh": {
+      "bytes": 2470,
+      "mode": 420,
+      "sha256": "c5fcc6ecbfdef7a8c4a76ad7e5a9d205afebdfacd780a4b65c34724f0524d488"
+    },
+    "scripts/ci/python3148-native-full-profile/source-cache-inputs.json": {
+      "bytes": 21819,
+      "mode": 420,
+      "sha256": "e8c33e22fe95b02dff4dd795be779c038424db50d2270a0073d0bf7428a881a4"
+    },
+    "scripts/ci/python3148-native-full-profile/source-plan.json": {
+      "bytes": 1486,
+      "mode": 420,
+      "sha256": "913a581de17d5a7ea219c8035861dea2ea18cec803f36b2ed225d80d2e1ab398"
+    }
+  },
+  "kind": "PYTHON3148_THIN_CODE_SOURCE_V1",
+  "roles": {
+    "fish_r12": {
+      "bytes": 2093900,
+      "commit": "19dea1cca35659ad7ab307dfea09c30a77362640",
+      "map_sha256": "14a3f9d1f12f224bf43a71a7bb4ef9ba3bfe03b5918b25aabc33ce1fdb71a3b2",
+      "tree": "de61a2e7351a09d1dcf0471d50c80e3a1a6ee479"
+    }
+  }
+}

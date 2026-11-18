@@ -1,0 +1,571 @@
+{
+  "purpose": "source-cache-inputs",
+  "schema_version": 1,
+  "sources": [
+    {
+      "license": "PSF-2.0; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 446,
+          "id": "python-notice-0",
+          "path": "notices/python-0.txt",
+          "sha256": "f2c1d094466270ed41fc4dd2904d91b34d58cbb5033403b2de5cc153aba8e608"
+        },
+        {
+          "bytes": 60039,
+          "id": "python-notice-1",
+          "path": "notices/python-1.txt",
+          "sha256": "cd6f471c0bfdb099efefc25ddff9b3df8bf62e10428987f1f05e6f2f9e35d563"
+        },
+        {
+          "bytes": 13804,
+          "id": "python-notice-2",
+          "path": "notices/python-2.txt",
+          "sha256": "b0e25a78cffb43f4d92de8b61ccfa1f1f98ecbc22330b54b5251e7b6ba010231"
+        },
+        {
+          "bytes": 15063,
+          "id": "python-notice-3",
+          "path": "notices/python-3.txt",
+          "sha256": "f948498992e522edc050b1c0147e7125c33f16fce2b9fc6e02539b2fb10fdd71"
+        },
+        {
+          "bytes": 1144,
+          "id": "python-notice-4",
+          "path": "notices/python-4.txt",
+          "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87"
+        },
+        {
+          "bytes": 3273,
+          "id": "python-notice-5",
+          "path": "notices/python-5.txt",
+          "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f"
+        }
+      ],
+      "material": {
+        "bytes": 24130644,
+        "id": "candidate-source-0",
+        "path": "materials/python-Python-3.14.8.tar.xz",
+        "sha256": "c2215904f02b175596dc49351585104f4bc20341e1c47378b26a2c274360ce73"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate Python-3.14.8.tar.xz",
+      "url": "https://www.python.org/ftp/python/3.14.8/Python-3.14.8.tar.xz"
+    },
+    {
+      "license": "PSF-2.0; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 446,
+          "id": "python-notice-0",
+          "path": "notices/python-0.txt",
+          "sha256": "f2c1d094466270ed41fc4dd2904d91b34d58cbb5033403b2de5cc153aba8e608"
+        },
+        {
+          "bytes": 60039,
+          "id": "python-notice-1",
+          "path": "notices/python-1.txt",
+          "sha256": "cd6f471c0bfdb099efefc25ddff9b3df8bf62e10428987f1f05e6f2f9e35d563"
+        },
+        {
+          "bytes": 13804,
+          "id": "python-notice-2",
+          "path": "notices/python-2.txt",
+          "sha256": "b0e25a78cffb43f4d92de8b61ccfa1f1f98ecbc22330b54b5251e7b6ba010231"
+        },
+        {
+          "bytes": 15063,
+          "id": "python-notice-3",
+          "path": "notices/python-3.txt",
+          "sha256": "f948498992e522edc050b1c0147e7125c33f16fce2b9fc6e02539b2fb10fdd71"
+        },
+        {
+          "bytes": 1144,
+          "id": "python-notice-4",
+          "path": "notices/python-4.txt",
+          "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87"
+        },
+        {
+          "bytes": 3273,
+          "id": "python-notice-5",
+          "path": "notices/python-5.txt",
+          "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f"
+        }
+      ],
+      "material": {
+        "bytes": 553,
+        "id": "candidate-source-1",
+        "path": "materials/python-EXTERNALLY-MANAGED",
+        "sha256": "c07b94bf7dcbe7be5ba0cee29971a005a5be65002cbfb59c5a8f661fa92aa82f"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate EXTERNALLY-MANAGED",
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/373b5d20b459d1ca60712db4f50eafa0d053ee26/core/python/EXTERNALLY-MANAGED"
+    },
+    {
+      "license": "PSF-2.0; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 446,
+          "id": "python-notice-0",
+          "path": "notices/python-0.txt",
+          "sha256": "f2c1d094466270ed41fc4dd2904d91b34d58cbb5033403b2de5cc153aba8e608"
+        },
+        {
+          "bytes": 60039,
+          "id": "python-notice-1",
+          "path": "notices/python-1.txt",
+          "sha256": "cd6f471c0bfdb099efefc25ddff9b3df8bf62e10428987f1f05e6f2f9e35d563"
+        },
+        {
+          "bytes": 13804,
+          "id": "python-notice-2",
+          "path": "notices/python-2.txt",
+          "sha256": "b0e25a78cffb43f4d92de8b61ccfa1f1f98ecbc22330b54b5251e7b6ba010231"
+        },
+        {
+          "bytes": 15063,
+          "id": "python-notice-3",
+          "path": "notices/python-3.txt",
+          "sha256": "f948498992e522edc050b1c0147e7125c33f16fce2b9fc6e02539b2fb10fdd71"
+        },
+        {
+          "bytes": 1144,
+          "id": "python-notice-4",
+          "path": "notices/python-4.txt",
+          "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87"
+        },
+        {
+          "bytes": 3273,
+          "id": "python-notice-5",
+          "path": "notices/python-5.txt",
+          "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f"
+        }
+      ],
+      "material": {
+        "bytes": 3166,
+        "id": "candidate-source-2",
+        "path": "materials/python-python-posix-2024.patch",
+        "sha256": "76d1307b5f73ed9eb5e46b672c8f55bd93474173f4ca834a54d0ee7536fa0a7f"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate python-posix-2024.patch",
+      "url": "https://github.com/python/cpython/commit/927eb448aad6436d794ec9f55780013e25609600.patch"
+    },
+    {
+      "license": "LGPL-2.1-or-later; GPL-2.0-or-later; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 18092,
+          "id": "networkmanager-notice-0",
+          "path": "notices/networkmanager-0.txt",
+          "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+        },
+        {
+          "bytes": 18139,
+          "id": "networkmanager-notice-1",
+          "path": "notices/networkmanager-1.txt",
+          "sha256": "d054d9104adacf508dcfec7cd139cd58070e845215b09c1801c3dbb0e1f0c375"
+        },
+        {
+          "bytes": 26530,
+          "id": "networkmanager-notice-2",
+          "path": "notices/networkmanager-2.txt",
+          "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+        }
+      ],
+      "material": {
+        "bytes": 13056926,
+        "id": "candidate-source-3",
+        "path": "materials/networkmanager-NetworkManager-7406dfbcc35beed79bf2734e3e7376ead320bd99.tar.gz",
+        "sha256": "843306ad54a3006ef7a60ba62932a3a2015cc87d46bd438fd5ac906d952c88d6"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate NetworkManager-7406dfbcc35beed79bf2734e3e7376ead320bd99.tar.gz",
+      "url": "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/archive/7406dfbcc35beed79bf2734e3e7376ead320bd99/NetworkManager-7406dfbcc35beed79bf2734e3e7376ead320bd99.tar.gz"
+    },
+    {
+      "license": "Artistic-1.0-Perl; GPL-1.0-or-later; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 6321,
+          "id": "perl-notice-0",
+          "path": "notices/perl-0.txt",
+          "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+        },
+        {
+          "bytes": 12522,
+          "id": "perl-notice-1",
+          "path": "notices/perl-1.txt",
+          "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+        },
+        {
+          "bytes": 1896,
+          "id": "perl-notice-2",
+          "path": "notices/perl-2.txt",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        },
+        {
+          "bytes": 18263,
+          "id": "perl-notice-3",
+          "path": "notices/perl-3.txt",
+          "sha256": "cbde1d74ae7aace16ab2151bb7401a494eaa89f2f382964035f6f5bed7fec23a"
+        },
+        {
+          "bytes": 2428,
+          "id": "perl-notice-4",
+          "path": "notices/perl-4.txt",
+          "sha256": "be89e624ca8def3072cd62a28bd58137b4cd08b741fd3baebb5c88e7e1a6f1b4"
+        }
+      ],
+      "material": {
+        "bytes": 22610875,
+        "id": "candidate-source-4",
+        "path": "materials/perl-perl5-bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz",
+        "sha256": "16b23f32e34df12709fc5fa0a7028d3df3c3cfceca21e38faada6a025edff725"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate perl5-bc3dab4d4f66de5ea67dda34e5feb5230a54c603.tar.gz",
+      "url": "https://codeload.github.com/Perl/perl5/tar.gz/bc3dab4d4f66de5ea67dda34e5feb5230a54c603"
+    },
+    {
+      "license": "Artistic-1.0-Perl; GPL-1.0-or-later; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 6321,
+          "id": "perl-notice-0",
+          "path": "notices/perl-0.txt",
+          "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+        },
+        {
+          "bytes": 12522,
+          "id": "perl-notice-1",
+          "path": "notices/perl-1.txt",
+          "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+        },
+        {
+          "bytes": 1896,
+          "id": "perl-notice-2",
+          "path": "notices/perl-2.txt",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        },
+        {
+          "bytes": 18263,
+          "id": "perl-notice-3",
+          "path": "notices/perl-3.txt",
+          "sha256": "cbde1d74ae7aace16ab2151bb7401a494eaa89f2f382964035f6f5bed7fec23a"
+        },
+        {
+          "bytes": 2428,
+          "id": "perl-notice-4",
+          "path": "notices/perl-4.txt",
+          "sha256": "be89e624ca8def3072cd62a28bd58137b4cd08b741fd3baebb5c88e7e1a6f1b4"
+        }
+      ],
+      "material": {
+        "bytes": 160,
+        "id": "candidate-source-5",
+        "path": "materials/perl-config.over",
+        "sha256": "dcd8c90bbe3d9ffedb94b986fb7dd58aa9ba005e7a4146ef050d5e38c0bd62a2"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate config.over",
+      "url": "https://gitlab.archlinux.org/archlinux/packaging/packages/perl/-/raw/0264e08d302d7ae91c53d8bb78b9a7753c0ab67f/config.over"
+    },
+    {
+      "license": "Artistic-1.0-Perl; GPL-1.0-or-later; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 6321,
+          "id": "perl-notice-0",
+          "path": "notices/perl-0.txt",
+          "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+        },
+        {
+          "bytes": 12522,
+          "id": "perl-notice-1",
+          "path": "notices/perl-1.txt",
+          "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+        },
+        {
+          "bytes": 1896,
+          "id": "perl-notice-2",
+          "path": "notices/perl-2.txt",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        },
+        {
+          "bytes": 18263,
+          "id": "perl-notice-3",
+          "path": "notices/perl-3.txt",
+          "sha256": "cbde1d74ae7aace16ab2151bb7401a494eaa89f2f382964035f6f5bed7fec23a"
+        },
+        {
+          "bytes": 2428,
+          "id": "perl-notice-4",
+          "path": "notices/perl-4.txt",
+          "sha256": "be89e624ca8def3072cd62a28bd58137b4cd08b741fd3baebb5c88e7e1a6f1b4"
+        }
+      ],
+      "material": {
+        "bytes": 464,
+        "id": "candidate-source-6",
+        "path": "materials/perl-perlbin.sh",
+        "sha256": "35491e903f0d93df995cda3c11a900a7e96df699d53f5ba49e1379150aaf0fbb"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate perlbin.sh",
+      "url": "https://gitlab.archlinux.org/archlinux/packaging/packages/perl/-/raw/0264e08d302d7ae91c53d8bb78b9a7753c0ab67f/perlbin.sh"
+    },
+    {
+      "license": "Artistic-1.0-Perl; GPL-1.0-or-later; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 6321,
+          "id": "perl-notice-0",
+          "path": "notices/perl-0.txt",
+          "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+        },
+        {
+          "bytes": 12522,
+          "id": "perl-notice-1",
+          "path": "notices/perl-1.txt",
+          "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+        },
+        {
+          "bytes": 1896,
+          "id": "perl-notice-2",
+          "path": "notices/perl-2.txt",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        },
+        {
+          "bytes": 18263,
+          "id": "perl-notice-3",
+          "path": "notices/perl-3.txt",
+          "sha256": "cbde1d74ae7aace16ab2151bb7401a494eaa89f2f382964035f6f5bed7fec23a"
+        },
+        {
+          "bytes": 2428,
+          "id": "perl-notice-4",
+          "path": "notices/perl-4.txt",
+          "sha256": "be89e624ca8def3072cd62a28bd58137b4cd08b741fd3baebb5c88e7e1a6f1b4"
+        }
+      ],
+      "material": {
+        "bytes": 468,
+        "id": "candidate-source-7",
+        "path": "materials/perl-perlbin.csh",
+        "sha256": "3834ddced7051fd6e2d189db48c9266efe21bad467d2c6700c9c232830f6bfd9"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate perlbin.csh",
+      "url": "https://gitlab.archlinux.org/archlinux/packaging/packages/perl/-/raw/0264e08d302d7ae91c53d8bb78b9a7753c0ab67f/perlbin.csh"
+    },
+    {
+      "license": "Artistic-1.0-Perl; GPL-1.0-or-later; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 6321,
+          "id": "perl-notice-0",
+          "path": "notices/perl-0.txt",
+          "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+        },
+        {
+          "bytes": 12522,
+          "id": "perl-notice-1",
+          "path": "notices/perl-1.txt",
+          "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+        },
+        {
+          "bytes": 1896,
+          "id": "perl-notice-2",
+          "path": "notices/perl-2.txt",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        },
+        {
+          "bytes": 18263,
+          "id": "perl-notice-3",
+          "path": "notices/perl-3.txt",
+          "sha256": "cbde1d74ae7aace16ab2151bb7401a494eaa89f2f382964035f6f5bed7fec23a"
+        },
+        {
+          "bytes": 2428,
+          "id": "perl-notice-4",
+          "path": "notices/perl-4.txt",
+          "sha256": "be89e624ca8def3072cd62a28bd58137b4cd08b741fd3baebb5c88e7e1a6f1b4"
+        }
+      ],
+      "material": {
+        "bytes": 337,
+        "id": "candidate-source-8",
+        "path": "materials/perl-perlbin.fish",
+        "sha256": "9b49a13607df8966a3f86f698d25f4b577be66405cc08f98869a03295617d3d1"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate perlbin.fish",
+      "url": "https://gitlab.archlinux.org/archlinux/packaging/packages/perl/-/raw/0264e08d302d7ae91c53d8bb78b9a7753c0ab67f/perlbin.fish"
+    },
+    {
+      "license": "Artistic-1.0-Perl; GPL-1.0-or-later; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 6321,
+          "id": "perl-notice-0",
+          "path": "notices/perl-0.txt",
+          "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+        },
+        {
+          "bytes": 12522,
+          "id": "perl-notice-1",
+          "path": "notices/perl-1.txt",
+          "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+        },
+        {
+          "bytes": 1896,
+          "id": "perl-notice-2",
+          "path": "notices/perl-2.txt",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        },
+        {
+          "bytes": 18263,
+          "id": "perl-notice-3",
+          "path": "notices/perl-3.txt",
+          "sha256": "cbde1d74ae7aace16ab2151bb7401a494eaa89f2f382964035f6f5bed7fec23a"
+        },
+        {
+          "bytes": 2428,
+          "id": "perl-notice-4",
+          "path": "notices/perl-4.txt",
+          "sha256": "be89e624ca8def3072cd62a28bd58137b4cd08b741fd3baebb5c88e7e1a6f1b4"
+        }
+      ],
+      "material": {
+        "bytes": 1346,
+        "id": "candidate-source-9",
+        "path": "materials/perl-detect-old-perl-modules.sh",
+        "sha256": "c5db3dcd1db71724fa4df5db34586688aa8db92ac6ffcbddaaa213c71cceff20"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate detect-old-perl-modules.sh",
+      "url": "https://gitlab.archlinux.org/archlinux/packaging/packages/perl/-/raw/0264e08d302d7ae91c53d8bb78b9a7753c0ab67f/detect-old-perl-modules.sh"
+    },
+    {
+      "license": "Artistic-1.0-Perl; GPL-1.0-or-later; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 6321,
+          "id": "perl-notice-0",
+          "path": "notices/perl-0.txt",
+          "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+        },
+        {
+          "bytes": 12522,
+          "id": "perl-notice-1",
+          "path": "notices/perl-1.txt",
+          "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+        },
+        {
+          "bytes": 1896,
+          "id": "perl-notice-2",
+          "path": "notices/perl-2.txt",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        },
+        {
+          "bytes": 18263,
+          "id": "perl-notice-3",
+          "path": "notices/perl-3.txt",
+          "sha256": "cbde1d74ae7aace16ab2151bb7401a494eaa89f2f382964035f6f5bed7fec23a"
+        },
+        {
+          "bytes": 2428,
+          "id": "perl-notice-4",
+          "path": "notices/perl-4.txt",
+          "sha256": "be89e624ca8def3072cd62a28bd58137b4cd08b741fd3baebb5c88e7e1a6f1b4"
+        }
+      ],
+      "material": {
+        "bytes": 229,
+        "id": "candidate-source-10",
+        "path": "materials/perl-detect-old-perl-modules.hook",
+        "sha256": "c96c0b5ea4874f8ef6a1582d3389ad5ce566bc316de411e14bf2fb870510507f"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate detect-old-perl-modules.hook",
+      "url": "https://gitlab.archlinux.org/archlinux/packaging/packages/perl/-/raw/0264e08d302d7ae91c53d8bb78b9a7753c0ab67f/detect-old-perl-modules.hook"
+    },
+    {
+      "license": "Artistic-1.0-Perl; GPL-1.0-or-later; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 6321,
+          "id": "perl-notice-0",
+          "path": "notices/perl-0.txt",
+          "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+        },
+        {
+          "bytes": 12522,
+          "id": "perl-notice-1",
+          "path": "notices/perl-1.txt",
+          "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+        },
+        {
+          "bytes": 1896,
+          "id": "perl-notice-2",
+          "path": "notices/perl-2.txt",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        },
+        {
+          "bytes": 18263,
+          "id": "perl-notice-3",
+          "path": "notices/perl-3.txt",
+          "sha256": "cbde1d74ae7aace16ab2151bb7401a494eaa89f2f382964035f6f5bed7fec23a"
+        },
+        {
+          "bytes": 2428,
+          "id": "perl-notice-4",
+          "path": "notices/perl-4.txt",
+          "sha256": "be89e624ca8def3072cd62a28bd58137b4cd08b741fd3baebb5c88e7e1a6f1b4"
+        }
+      ],
+      "material": {
+        "bytes": 2924,
+        "id": "candidate-source-11",
+        "path": "materials/perl-568e6fd238867bb9e99fa3f47cba3169009239e0.patch",
+        "sha256": "b763455236629383cf720ae6e60cfa42ce01e23728693a779abb8275f90a9e40"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate 568e6fd238867bb9e99fa3f47cba3169009239e0.patch",
+      "url": "https://github.com/Perl/perl5/commit/568e6fd238867bb9e99fa3f47cba3169009239e0.patch"
+    },
+    {
+      "license": "Artistic-1.0-Perl; GPL-1.0-or-later; declarations only, legal completeness not accepted",
+      "license_evidence": [
+        {
+          "bytes": 6321,
+          "id": "perl-notice-0",
+          "path": "notices/perl-0.txt",
+          "sha256": "dd90d4f42e4dcadf5a7c09eea0189d93c7b37ae560c91f0f6d5233ed3b9292a2"
+        },
+        {
+          "bytes": 12522,
+          "id": "perl-notice-1",
+          "path": "notices/perl-1.txt",
+          "sha256": "8979e6dd61852041643c5c5c40ea63b2bd1b438a67d114e62cbaef808c514315"
+        },
+        {
+          "bytes": 1896,
+          "id": "perl-notice-2",
+          "path": "notices/perl-2.txt",
+          "sha256": "c6dbbf828498be844a89eaa3b84adbab3199e342eb5cb2ed2f0d4ba7ec0f38a3"
+        },
+        {
+          "bytes": 18263,
+          "id": "perl-notice-3",
+          "path": "notices/perl-3.txt",
+          "sha256": "cbde1d74ae7aace16ab2151bb7401a494eaa89f2f382964035f6f5bed7fec23a"
+        },
+        {
+          "bytes": 2428,
+          "id": "perl-notice-4",
+          "path": "notices/perl-4.txt",
+          "sha256": "be89e624ca8def3072cd62a28bd58137b4cd08b741fd3baebb5c88e7e1a6f1b4"
+        }
+      ],
+      "material": {
+        "bytes": 4229,
+        "id": "candidate-source-12",
+        "path": "materials/perl-54cf3d44cbbedd17d774e9a37921963e8fd5d0cb.patch",
+        "sha256": "c7cc877ae64338c3a91398116d34ae9bb76c8835632f3259aa205eb70ded920a"
+      },
+      "revision": "UNBOUND to retained binary; observed candidate 54cf3d44cbbedd17d774e9a37921963e8fd5d0cb.patch",
+      "url": "https://github.com/Perl/perl5/commit/54cf3d44cbbedd17d774e9a37921963e8fd5d0cb.patch"
+    }
+  ]
+}

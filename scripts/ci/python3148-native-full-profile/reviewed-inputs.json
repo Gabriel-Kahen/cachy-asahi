@@ -1,0 +1,14 @@
+{
+  ".SRCINFO": "83651e56458cc4de73292d5b690e18378fa4e4de209833df7cba33fd4def8bf8",
+  "CPython-LICENSE": "b0e25a78cffb43f4d92de8b61ccfa1f1f98ecbc22330b54b5251e7b6ba010231",
+  "EXTERNALLY-MANAGED": "d15f1508fc398399561dacc6338739bb6b68f6f4116330dadb21e9067b1dd654",
+  "LICENSE": "4d263ff2b095160e3b9244a132d248234241b83eed71b849decef6a3ba3fa795",
+  "PKGBUILD": "30c8d332c80dbd2b34ac950ae46a4ead14526005ba90b33cc0efcf9cb03731fd",
+  "README.md": "6442afb9cbefabc1f33a684c26f3f1085dd6367a6cc1206c2b01151272c86ac1",
+  "check_runtime.py": "062e00a1400613c92a9b9a552511c857e3d44d69f75499467357e2a1474b8df0",
+  "check_source.py": "b4dac5a68dbf98fadfd3074bbf1bb16876e5bc7363ac05fb72963458d2167e06",
+  "check_stage.py": "c33bd2e430685971306e77d41397d237d2330baa030d6e8e6fabc4da9240c232",
+  "posix-2024.patch": "76d1307b5f73ed9eb5e46b672c8f55bd93474173f4ca834a54d0ee7536fa0a7f",
+  "source-provenance.json": "1be00c301fb307a3cbc0fec3b61005b5d26dae4b2fe3e1d1a8b4dd87ede2e385",
+  "test_source.py": "aa243ab5c6fa5f053579d3854d09c86fb321949012ae5d1dc59875dfc8ecd1b2"
+}

@@ -1,0 +1,57 @@
+{
+  "inputs_sha256": "e8c33e22fe95b02dff4dd795be779c038424db50d2270a0073d0bf7428a881a4",
+  "legal_acceptance": false,
+  "object_path": "objects/c2215904f02b175596dc49351585104f4bc20341e1c47378b26a2c274360ce73",
+  "purpose": "source-cache-receipt",
+  "schema_version": 1,
+  "source": {
+    "license": "PSF-2.0; declarations only, legal completeness not accepted",
+    "license_evidence": [
+      {
+        "bytes": 446,
+        "id": "python-notice-0",
+        "path": "notices/python-0.txt",
+        "sha256": "f2c1d094466270ed41fc4dd2904d91b34d58cbb5033403b2de5cc153aba8e608"
+      },
+      {
+        "bytes": 60039,
+        "id": "python-notice-1",
+        "path": "notices/python-1.txt",
+        "sha256": "cd6f471c0bfdb099efefc25ddff9b3df8bf62e10428987f1f05e6f2f9e35d563"
+      },
+      {
+        "bytes": 13804,
+        "id": "python-notice-2",
+        "path": "notices/python-2.txt",
+        "sha256": "b0e25a78cffb43f4d92de8b61ccfa1f1f98ecbc22330b54b5251e7b6ba010231"
+      },
+      {
+        "bytes": 15063,
+        "id": "python-notice-3",
+        "path": "notices/python-3.txt",
+        "sha256": "f948498992e522edc050b1c0147e7125c33f16fce2b9fc6e02539b2fb10fdd71"
+      },
+      {
+        "bytes": 1144,
+        "id": "python-notice-4",
+        "path": "notices/python-4.txt",
+        "sha256": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87"
+      },
+      {
+        "bytes": 3273,
+        "id": "python-notice-5",
+        "path": "notices/python-5.txt",
+        "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f"
+      }
+    ],
+    "material": {
+      "bytes": 24130644,
+      "id": "candidate-source-0",
+      "path": "materials/python-Python-3.14.8.tar.xz",
+      "sha256": "c2215904f02b175596dc49351585104f4bc20341e1c47378b26a2c274360ce73"
+    },
+    "revision": "UNBOUND to retained binary; observed candidate Python-3.14.8.tar.xz",
+    "url": "https://www.python.org/ftp/python/3.14.8/Python-3.14.8.tar.xz"
+  },
+  "source_completeness_accepted": false
+}
