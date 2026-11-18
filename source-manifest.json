@@ -16,8 +16,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "admission.py": {
-      "bytes": 46448,
-      "sha256": "27577d55e4f4599d86f5a57a97f27a56d6fb1aadf582dca5b14a694a9c913ffa"
+      "bytes": 46573,
+      "sha256": "5e747f780dd3609f57a34526167ffdf92049e978e9e8af9151505b82505f3c66"
     },
     "apps16-parent.json": {
       "bytes": 6702834,
@@ -532,8 +532,8 @@
       "sha256": "9674da5a122395df4c496e7af4ed68dfb091d0793e184eff7d317bbb4df1dcf9"
     },
     "factory/extend_welcome8.py": {
-      "bytes": 3084,
-      "sha256": "60fe88efeccf19de8f56d11066302b43d24a02e499713b84dd17949010b07aa1"
+      "bytes": 6217,
+      "sha256": "6b9bf7cfedd933a0a702280b2ffd8198a14a9e62764906885fa43a22d0f361cf"
     },
     "factory/factory.py": {
       "bytes": 21277,
@@ -828,8 +828,8 @@
       "sha256": "231201eb684938480cf87f8e43dd192294b2273343b4d7ae4a73ba7ac983b6cb"
     },
     "fresh-test/progress576-inverse.json": {
-      "bytes": 294619,
-      "sha256": "d784a9429eb75950b177a83d11cc42ca83acb87aab8b70c6a699386a56799356"
+      "bytes": 298769,
+      "sha256": "6fbb25b800b6aec2b9d2d1374ebb5f997f445f0dd8491318d19a0764d43a7ce4"
     },
     "fresh-test/public/LICENSE": {
       "bytes": 1081,
