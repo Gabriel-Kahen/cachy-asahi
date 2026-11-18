@@ -41,13 +41,16 @@ FIRST_LOGIN_KIND = "OVERLAY583_FIRST_LOGIN_GUEST_PLAN_V1"
 FIRST_LOGIN_PASS = "PASS_DISPOSABLE_OVERLAY583_FIRST_LOGIN_LIFECYCLE"
 FIRST_LOGIN_HOLD = "HOLD_DISPOSABLE_OVERLAY583_FIRST_LOGIN_LIFECYCLE"
 FIRST_LOGIN_EVIDENCE = "first-login.json"
-FIRST_LOGIN_COMMANDS = "first-login-commands"
 LLHTTP_KIND = "OVERLAY583_LLHTTP_GUEST_PLAN_V1"
 LLHTTP_PASS = "PASS_DISPOSABLE_OVERLAY583_LLHTTP_LIFECYCLE"
 LLHTTP_HOLD = "HOLD_DISPOSABLE_OVERLAY583_LLHTTP_LIFECYCLE"
+FISH_UPGRADE_KIND = "OVERLAY583_FISH_CONFIG_UPGRADE_GUEST_PLAN_V1"
+FISH_UPGRADE_PASS = "PASS_DISPOSABLE_OVERLAY583_FISH_CONFIG_UPGRADE"
+FISH_UPGRADE_HOLD = "HOLD_DISPOSABLE_OVERLAY583_FISH_CONFIG_UPGRADE"
 ADDON_MODES = {
     FIRST_LOGIN_KIND: ("first_login", FIRST_LOGIN_EVIDENCE, FIRST_LOGIN_PASS, FIRST_LOGIN_HOLD),
     LLHTTP_KIND: ("llhttp", "llhttp.json", LLHTTP_PASS, LLHTTP_HOLD),
+    FISH_UPGRADE_KIND: ("fish_upgrade", "fish-upgrade.json", FISH_UPGRADE_PASS, FISH_UPGRADE_HOLD),
 }
 HOLD_KINDS = {UPGRADE_KIND, *ADDON_MODES}
 INSTALL_PASS = "PASS_DISPOSABLE_PACMAN_TRANSACTION_ONLY"
@@ -438,6 +441,41 @@ def llhttp_plan(packet,nonce,supplement):
     return dict(guest_plan(packet,nonce),kind=LLHTTP_KIND,llhttp=supplement)
 
 
+def fish_upgrade_sources():
+    root=HERE.parents[2]/"scripts/integration/fish_config_overlay583"
+    return {leaf:root/leaf for leaf in ("guest.py","operands.py","probe.py","bridge.py")}
+
+
+def fish_upgrade_module(leaf, expected=None):
+    path=HERE/"fish-upgrade"/leaf if HERE==PLAN.parent else fish_upgrade_sources()[leaf]
+    raw=read(path,expected,cap=128*1024)
+    spec=importlib.util.spec_from_file_location("overlay583_fish_upgrade_"+path.stem,path)
+    loaded=importlib.util.module_from_spec(spec)
+    exec(compile(raw,str(path),"exec"),loaded.__dict__)
+    return loaded
+
+
+def fish_trial():
+    from types import SimpleNamespace
+
+    return SimpleNamespace(need=need,read=read,ordinary=ordinary,pin=pin,decode=decode,encoded=encoded,
+                           sorted_rows=sorted_rows,canonical_lock=canonical_lock,target_bytes=target_bytes,
+                           guest_plan=guest_plan,WORK=WORK,CONFIG=CONFIG,TARGET=TARGET,IN=IN)
+
+
+def fish_upgrade_selection(staging, digest):
+    source=fish_upgrade_sources()
+    return fish_upgrade_module("operands.py").check_stage(fish_trial(),staging,digest,sources=source["guest.py"].parent)
+
+
+def fish_upgrade_plan(packet, nonce, supplement):
+    files=supplement["files"]
+    bridge=fish_upgrade_module("bridge.py",files["bridge.py"])
+    policy=fish_upgrade_module("operands.py",files["operands.py"])
+    worker=fish_upgrade_module("guest.py",files["guest.py"])
+    return bridge.selected_plan(fish_trial(),policy,worker,packet,nonce,supplement)
+
+
 def target_bytes(packet):
     raw = "".join(f'{name} {row["version"]}\n' for name,row in sorted(packet["packages"].items())).encode("ascii")
     need(pin(raw)==packet["target"],"Derived target inventory differs")
@@ -445,7 +483,11 @@ def target_bytes(packet):
 
 
 def selected_plan(packet, nonce, *, lifecycle=False, signature_recovery=False, predecessor=None, predecessor_pin=None,
-                  first_login=None, llhttp=None):
+                  first_login=None, llhttp=None, fish_upgrade=None):
+    if fish_upgrade is not None:
+        need(first_login is None and llhttp is None and not lifecycle and not signature_recovery
+             and predecessor is None and predecessor_pin is None, "Choose only one Overlay583 operation")
+        return fish_upgrade_plan(packet,nonce,fish_upgrade)
     if llhttp is not None:
         need(first_login is None and not lifecycle and not signature_recovery
              and predecessor is None and predecessor_pin is None, "Choose only one Overlay583 operation")
@@ -553,10 +595,14 @@ def guest(plan_sha256, worker_sha256):
     upgrade = upgrade_module(plan["upgrade_worker"]) if plan.get("kind")==UPGRADE_KIND else None
     first_login = first_login_module(plan["first_login"]["files"]["guest.py"]) if plan.get("kind")==FIRST_LOGIN_KIND else None
     llhttp = llhttp_module("guest.py",plan["llhttp"]["files"]["guest.py"]) if plan.get("kind")==LLHTTP_KIND else None
+    fish_upgrade = (fish_upgrade_module("guest.py",plan["fish_upgrade"]["files"]["guest.py"])
+                    if plan.get("kind")==FISH_UPGRADE_KIND else None)
     if first_login is not None:
         need(plan==first_login_plan(packet,nonce,plan["first_login"]),"Exact selected first-login plan required")
     elif llhttp is not None:
         need(plan==llhttp_plan(packet,nonce,plan["llhttp"]),"Exact selected llhttp plan required")
+    elif fish_upgrade is not None:
+        need(plan==fish_upgrade_plan(packet,nonce,plan["fish_upgrade"]),"Exact selected Fish upgrade plan required")
     elif upgrade is None:
         need(plan==guest_plan(packet,nonce,lifecycle=lifecycle,signature_recovery=recovery),"Exact selected guest plan required")
     else:
@@ -579,10 +625,10 @@ def guest(plan_sha256, worker_sha256):
     if lifecycle:
         baseline = read(IN/BASE_INVENTORY,packet["baseline"],cap=256*1024,observed=observed)
         need(lifecycle_operands(packet)[0]==baseline,"Guest base inventory differs")
-    return execute_guest(plan,lock,observed,deadline,upgrade=upgrade,first_login=first_login,llhttp=llhttp)
+    return execute_guest(plan,lock,observed,deadline,upgrade=upgrade,first_login=first_login,llhttp=llhttp,fish_upgrade=fish_upgrade)
 
 
-def execute_guest(plan, lock, observed, deadline, *, upgrade=None, first_login=None, llhttp=None):
+def execute_guest(plan, lock, observed, deadline, *, upgrade=None, first_login=None, llhttp=None, fish_upgrade=None):
     packet = plan["packet"]
     lifecycle = plan.get("lifecycle") is True
     if lifecycle:
@@ -596,9 +642,17 @@ def execute_guest(plan, lock, observed, deadline, *, upgrade=None, first_login=N
     env = {"PATH":"/usr/bin:/bin","HOME":str(WORK/"home"),"GNUPGHOME":str(WORK/"trust"),"LC_ALL":"C","TZ":"UTC"}
     commands = []
     phase = "trust"
-    addon=first_login if first_login is not None else llhttp
+    addon=first_login or llhttp or fish_upgrade
     addon_mode=ADDON_MODES.get(plan.get("kind"))
-    addon_output=WORK/(FIRST_LOGIN_COMMANDS if first_login is not None else "llhttp-commands")
+    addon_output=WORK/(addon_mode[0].replace("_","-")+"-commands") if addon_mode else None
+    fish_commands=None
+    fish_roles=()
+    if fish_upgrade is not None:
+        pins=plan["fish_upgrade"]["files"]
+        policy=fish_upgrade_module("operands.py",pins["operands.py"])
+        probe=fish_upgrade_module("probe.py",pins["probe.py"])
+        fish_commands=fish_upgrade.command_plan(fish_trial(),policy,probe)
+        fish_roles=tuple(fish_commands)
     addon_commands, addon_result = [], None
 
     def run(role, argv, seconds, contents=None, *, log=OUTPUT, ledger=commands):
@@ -614,10 +668,16 @@ def execute_guest(plan, lock, observed, deadline, *, upgrade=None, first_login=N
         need(result.returncode==expected_exit(role), f"Guest command failed: {role} (exit {result.returncode})")
 
     def run_addon(role,argv,seconds,contents=None):
-        need(role in addon.ROLES and role not in {row["role"] for row in addon_commands},
-             "Exact single-use addon command label required")
+        if fish_commands is not None:
+            index=len(addon_commands)
+            need(index<len(fish_roles) and fish_roles[index]==role and fish_commands[role]==argv,
+                 "Exact next Fish command and arguments required")
+        else:
+            need(role in addon.ROLES and role not in {row["role"] for row in addon_commands},
+                 "Exact single-use addon command label required")
         run(role,argv,seconds,contents,log=addon_output,ledger=addon_commands)
-        if role in ("first-login-install","first-login-uninstall","llhttp-install","llhttp-uninstall"):
+        if role in ("first-login-install","first-login-uninstall","llhttp-install","llhttp-uninstall",
+                    "fish-upgrade","fish-restore"):
             check_hooks(addon_output,role)
         return read(addon_output/(role+".stdout"),cap=256*1024)
 
@@ -691,6 +751,8 @@ def execute_guest(plan, lock, observed, deadline, *, upgrade=None, first_login=N
         result["installed_lock"] = packet["target"]
     if addon is not None:
         key,name,*_=addon_mode
+        if fish_commands is not None and hold is None:
+            need(tuple(row["role"] for row in addon_commands)==fish_roles,"Complete Fish command ledger required")
         raw=addon.evidence(sys.modules[__name__],addon_output,addon_commands,addon_result)
         (OUTPUT/name).write_bytes(raw)
         result[key]=pin(raw)
@@ -958,6 +1020,13 @@ def read_addon(output,plan,result,observed,mode,*,held):
     key,name,*_=mode
     supplement=plan[key]
     guest_pin=supplement["files"]["guest.py"]
+    if key=="fish_upgrade":
+        addon=fish_upgrade_module("guest.py",guest_pin)
+        policy=fish_upgrade_module("operands.py",supplement["files"]["operands.py"])
+        probe=fish_upgrade_module("probe.py",supplement["files"]["probe.py"])
+        body=read(output/name,result[key],cap=addon.MAX_EVIDENCE,observed=observed)
+        return addon.readback(fish_trial(),policy,probe,body,baseline=target_bytes(plan["packet"]),
+                              stage=supplement,held=held)
     extra={}
     if key=="llhttp":
         addon=llhttp_module("guest.py",guest_pin)
@@ -992,7 +1061,7 @@ def read_addon_hold(output,plan,result,observed,mode):
 
 def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection, lifecycle=False,
               signature_recovery=False, predecessor=None, predecessor_pin=None,
-              first_login=None, first_login_pin=None, llhttp=None, llhttp_pin=None):
+              first_login=None, first_login_pin=None, llhttp=None, llhttp_pin=None, fish_upgrade=None, fish_upgrade_pin=None):
     """Bridge to a selected VM owner. The owner authenticates all actual authority."""
     need(getattr(executor,"API",None)=="ROOT_OWNED_OVERLAY583_VM_V1","Owned disposable ARM VM executor required")
     staging = ordinary(staging)
@@ -1003,9 +1072,12 @@ def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection, 
     need((llhttp is None)==(llhttp_pin is None),"Exact llhttp path and receipt pin required together")
     lib=llhttp_selection(llhttp,llhttp_pin["sha256"]) if llhttp is not None else None
     need(lib is None or lib["receipt"]==llhttp_pin,"Exact issued llhttp receipt differs")
+    need((fish_upgrade is None)==(fish_upgrade_pin is None),"Exact Fish upgrade path and receipt pin required together")
+    fish=fish_upgrade_selection(fish_upgrade,fish_upgrade_pin["sha256"]) if fish_upgrade is not None else None
+    need(fish is None or fish["receipt"]==fish_upgrade_pin,"Exact issued Fish upgrade receipt differs")
     plan = selected_plan(admit(packet,read(preflight,preflight_pin,cap=128*1024),preflight_pin),
                          nonce,lifecycle=lifecycle,signature_recovery=signature_recovery,
-                         predecessor=predecessor,predecessor_pin=predecessor_pin,first_login=supplement,llhttp=lib)
+                         predecessor=predecessor,predecessor_pin=predecessor_pin,first_login=supplement,llhttp=lib,fish_upgrade=fish)
     worker = ordinary(HERE/"trial.py")
     worker_pin = read(worker,collect=False,cap=128*1024)
     plan_sha = pin(encoded(plan))["sha256"]
@@ -1028,6 +1100,8 @@ def run_owned(executor, *, staging, preflight, preflight_pin, nonce, selection, 
              "First-login operands changed during the trial")
     if lib is not None:
         need(llhttp_selection(llhttp,llhttp_pin["sha256"])==lib,"llhttp operands changed during the trial")
+    if fish is not None:
+        need(fish_upgrade_selection(fish_upgrade,fish_upgrade_pin["sha256"])==fish,"Fish upgrade operands changed during the trial")
     if result.get("held") is True:
         need(plan.get("lifecycle") or plan.get("kind") in HOLD_KINDS,"Lifecycle opt-in required for hold evidence")
         return read_result(result["evidence"],plan,held=True)

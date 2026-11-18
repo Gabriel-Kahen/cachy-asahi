@@ -58,7 +58,7 @@ def pinned(path, ref, *, allowed_links=(1,)):
     return T.read(path,dict(bytes=size,sha256=digest),cap=size,collect=False,allowed_links=allowed_links)
 
 
-def source_pins(*, upgrade=False, first_login=False, llhttp=False):
+def source_pins(*, upgrade=False, first_login=False, llhttp=False, fish_upgrade=False):
     paths = [HERE/name for name in ("controller.py","trial.py","guest-init.sh","staging-pins.json")]
     paths += [PERL/name for name in ("runtime.py","contracts.py","helper-origin.json",
                                     "frozen/independent_readback.py","frozen/owned_process.py")]
@@ -68,6 +68,8 @@ def source_pins(*, upgrade=False, first_login=False, llhttp=False):
         paths.extend(T.first_login_sources().values())
     if llhttp:
         paths.extend(T.llhttp_sources().values())
+    if fish_upgrade:
+        paths.extend(T.fish_upgrade_sources().values())
     return {str(path.relative_to(REPO)):T.read(path,cap=128<<10,collect=False) for path in paths}
 
 
@@ -79,15 +81,21 @@ def absolute(path):
 
 def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issuer=None, lifecycle=False,
             signature_recovery=False, predecessor=None, predecessor_sha256=None,
-            first_login=None, first_login_sha256=None, llhttp=None, llhttp_sha256=None):
+            first_login=None, first_login_sha256=None, llhttp=None, llhttp_sha256=None, fish_upgrade=None, fish_upgrade_sha256=None):
     paths = {key:absolute(value) for key,value in
              dict(staging=staging,preflight=preflight,kernel=kernel,config=config,baseline=baseline,output=output).items()}
     T.need((predecessor is None)==(predecessor_sha256 is None),"Predecessor path and external receipt digest required together")
     T.need((first_login is None)==(first_login_sha256 is None),"First-login path and external receipt digest required together")
     T.need((llhttp is None)==(llhttp_sha256 is None),"llhttp path and external receipt digest required together")
-    T.need(not ((first_login is not None or llhttp is not None) and
-                (lifecycle or signature_recovery or predecessor is not None))
-           and (first_login is None or llhttp is None), "Choose only one Overlay583 operation")
+    T.need((fish_upgrade is None)==(fish_upgrade_sha256 is None),"Fish upgrade path and external receipt digest required together")
+    addons=sum(path is not None for path in (first_login,llhttp,fish_upgrade))
+    T.need(addons<=1 and not (addons and (lifecycle or signature_recovery or predecessor is not None)),
+           "Choose only one Overlay583 operation")
+    fish=None
+    if fish_upgrade is not None:
+        paths["fish_upgrade"]=absolute(fish_upgrade)
+        fish=T.fish_upgrade_selection(paths["fish_upgrade"],fish_upgrade_sha256)
+        T.need(fish["rehearsal"]["expires"]-time.time()>T.TIMEOUT,"Fish TEST key must cover the guest budget")
     lib=None
     if llhttp is not None:
         paths["llhttp"]=absolute(llhttp)
@@ -115,16 +123,19 @@ def binding(*, staging, preflight, kernel, config, baseline, output, nonce, issu
     receipt = T.read(paths["preflight"],packet["authenticated_preflight"],cap=128<<10)
     plan = T.selected_plan(T.admit(packet,receipt,T.pin(receipt)),nonce,lifecycle=lifecycle,
                            signature_recovery=signature_recovery,predecessor=paths.get("predecessor"),
-                           predecessor_pin=predecessor_pin,first_login=supplement,llhttp=lib)
+                           predecessor_pin=predecessor_pin,first_login=supplement,llhttp=lib,fish_upgrade=fish)
     authority = dict(kind=KIND,issuer=issuer,nonce=nonce,actor_image=ACTOR_IMAGE,
                 paths={key:str(path) for key,path in paths.items()},
                 preflight=packet["authenticated_preflight"], plan=T.pin(T.encoded(plan)),
                 references={key:dict(bytes=value[0],sha256=value[1]) for key,value in REFERENCES.items()},
-                tools=tool_pins(), source=source_pins(upgrade=predecessor_pin is not None,first_login=supplement is not None,llhttp=lib is not None))
+                tools=tool_pins(), source=source_pins(upgrade=predecessor_pin is not None,first_login=supplement is not None,
+                                                 llhttp=lib is not None,fish_upgrade=fish is not None))
     if supplement is not None:
         authority["first_login"] = supplement["receipt"]
     if lib is not None:
         authority["llhttp"]=lib["receipt"]
+    if fish is not None:
+        authority["fish_upgrade"]=fish["receipt"]
     if predecessor_pin is not None:
         authority["predecessor"] = predecessor_pin
     if lifecycle or signature_recovery:
@@ -217,7 +228,7 @@ def runtime_payload(inputs, runtime):
     return nodes
 
 
-def input_tree(staging, worker, worker_pin, plan, packed, *, predecessor=None, first_login=None, llhttp=None):
+def input_tree(staging, worker, worker_pin, plan, packed, *, predecessor=None, first_login=None, llhttp=None, fish_upgrade=None):
     inputs, code = packed/"inputs",packed/"code"
     selected = T.decode(plan)
     packet = selected["packet"]
@@ -244,7 +255,11 @@ def input_tree(staging, worker, worker_pin, plan, packed, *, predecessor=None, f
     if mode is not None:
         key=mode[0]
         supplement=selected[key]
-        path,validator=(llhttp,T.llhttp_selection) if key=="llhttp" else (first_login,T.first_login_selection)
+        path,validator={
+            "first_login":(first_login,T.first_login_selection),
+            "llhttp":(llhttp,T.llhttp_selection),
+            "fish_upgrade":(fish_upgrade,T.fish_upgrade_selection),
+        }[key]
         T.need(path is not None and validator(path,supplement["receipt"]["sha256"])==supplement,
                "Exact issued addon media required")
         prefix=key.replace("_","-")
@@ -410,7 +425,8 @@ class Controller:
                          signature_recovery=self.authority.get("signature_recovery") is True,
                          predecessor_sha256=self.authority.get("predecessor",{}).get("sha256"),
                          first_login_sha256=self.authority.get("first_login",{}).get("sha256"),
-                         llhttp_sha256=self.authority.get("llhttp",{}).get("sha256"))
+                         llhttp_sha256=self.authority.get("llhttp",{}).get("sha256"),
+                         fish_upgrade_sha256=self.authority.get("fish_upgrade",{}).get("sha256"))
         T.need(self.authority==selection==actual and actual["plan"]["sha256"]==plan_sha256
                and actual["source"]["scripts/install/overlay583_trial/trial.py"]==worker,
                "Root authority, reviewed operands or trial binding differ")
@@ -468,7 +484,8 @@ class Controller:
 
         packed = out/"input-tree"
         manifest = input_tree(staging,worker,worker_pin,plan,packed,predecessor=self.paths.get("predecessor"),
-                              first_login=self.paths.get("first_login"),llhttp=self.paths.get("llhttp"))
+                              first_login=self.paths.get("first_login"),llhttp=self.paths.get("llhttp"),
+                              fish_upgrade=self.paths.get("fish_upgrade"))
         inputs = self.filesystem("inputs","OV583_INPUT",INPUT_SIZE,nonce,deadline,packed)
         verify_input(self.reader,inputs,manifest)
         shutil.rmtree(packed)
@@ -490,7 +507,7 @@ class Controller:
             T.read(out/name,ref,cap=INPUT_SIZE,collect=False)
         pinned(stock,REFERENCES["baseline"])
         T.need(source_pins(upgrade="predecessor" in self.authority,first_login="first_login" in self.authority,
-                           llhttp="llhttp" in self.authority)==self.authority["source"]
+                           llhttp="llhttp" in self.authority,fish_upgrade="fish_upgrade" in self.authority)==self.authority["source"]
                and tool_pins()==self.authority["tools"],
                "Reviewed source or tool bytes changed during the trial")
         self.command("fsck-result-readback","e2fsck",["-fn",result],60,time.monotonic()+70)
@@ -531,6 +548,8 @@ def main():
     bind.add_argument("--first-login-sha256")
     bind.add_argument("--llhttp")
     bind.add_argument("--llhttp-sha256")
+    bind.add_argument("--fish-upgrade")
+    bind.add_argument("--fish-upgrade-sha256")
     run = sub.add_parser("run")
     run.add_argument("--authority",required=True)
     run.add_argument("--authority-sha256",required=True)
@@ -548,7 +567,8 @@ def main():
                         signature_recovery=authority.get("signature_recovery") is True,
                         predecessor=actor.paths.get("predecessor"),predecessor_pin=authority.get("predecessor"),
                         first_login=actor.paths.get("first_login"),first_login_pin=authority.get("first_login"),
-                        llhttp=actor.paths.get("llhttp"),llhttp_pin=authority.get("llhttp"))
+                        llhttp=actor.paths.get("llhttp"),llhttp_pin=authority.get("llhttp"),
+                        fish_upgrade=actor.paths.get("fish_upgrade"),fish_upgrade_pin=authority.get("fish_upgrade"))
     T.need(load_authority(args["authority"],args["authority_sha256"])==authority,
            "Root authority changed during the trial")
     value.update(emulation="QEMU_TCG_AARCH64_16K",nonce=authority["nonce"],
@@ -556,7 +576,7 @@ def main():
                  qemu_receipt=T.read(actor.out/"qemu.json",cap=128<<10,collect=False),
                  serial=T.read(actor.out/"qemu.stdout",cap=1<<20,collect=False),
                  result_disk=T.read(actor.out/"result.raw",cap=RESULT_SIZE,collect=False))
-    held = value["status"] in (T.LIFECYCLE_HOLD,T.UPGRADE_HOLD,T.FIRST_LOGIN_HOLD,T.LLHTTP_HOLD)
+    held = value["status"] in (T.LIFECYCLE_HOLD,T.UPGRADE_HOLD,T.FIRST_LOGIN_HOLD,T.LLHTTP_HOLD,T.FISH_UPGRADE_HOLD)
     if not held:
         (actor.out/"scratch.raw").unlink()
     with (actor.out/"report.json").open("xb") as stream:
