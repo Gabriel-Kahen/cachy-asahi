@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Inert source and receipt controls for the disposable install adapter."""
 
+from contextlib import ExitStack
 import importlib.util
 from pathlib import Path
 import sys
@@ -125,6 +126,16 @@ class Trial(unittest.TestCase):
         T.mount_mode("/trial-inputs","ro",["66 41 0:99 / /trial-inputs ro - ext4 /dev/vdx ro"])
         with self.assertRaises(ValueError):
             T.mount_mode("/trial-inputs","ro",["66 41 0:99 / /trial-inputs rw - ext4 /dev/vdx rw"])
+
+    def test_install_api_mounts_retire_in_reverse_order_on_failure(self):
+        with patch.object(T.subprocess,"run") as command, \
+             patch.object(T.os,"mknod",side_effect=OSError("fixture refuses node creation")):
+            with self.assertRaisesRegex(OSError,"fixture refuses"), ExitStack() as owned:
+                T.target_api_mounts(self.out,{},owned)
+        calls = [row.args[0] for row in command.call_args_list]
+        self.assertEqual([row[0] for row in calls],["/usr/bin/mount"]*4+["/usr/bin/umount"]*4)
+        self.assertEqual([row[-1] for row in calls[4:]],
+                         [str(self.out/name) for name in ("dev","run","sys","proc")])
 
     def test_owned_process_bridge_requires_owned_natural_exit(self):
         events=[]

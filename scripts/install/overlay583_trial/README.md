@@ -21,9 +21,17 @@ authentication and leaves transaction authorization and installation false.
 
 ## Connect a disposable ARM VM
 
+The r118-based controller is `controller.py`. In the Root-owned offline
+tool image, `bind` emits the candidate authority for the selected kernel,
+reference disk, staging, worker and nonce. Root issues that selection
+separately. The transaction entry is `controller.py run --authority
+<selection> --authority-sha256 <sha256>`. It uses a read-only derived boot
+disk, a 2 GiB read-only input disk, 16 GiB scratch, and a 64 MiB evidence disk.
+
 Load `trial.py` and the maintained `scripts/virtual/owned_process.py` as Python
 modules. Wrap the controller in `trial.OwnedVMAdapter` and use
-`trial.run_owned` from the controller's authorized entry point.
+`trial.run_owned` from the controller's authorized entry point when adapting
+another VM owner.
 
 ```python
 executor = trial.OwnedVMAdapter(
@@ -69,9 +77,9 @@ scriptlets enabled, then compares the installed inventory byte-for-byte to
 `target.lock` and checks the local database. The controller reopens the
 guest logs and exact lock after retirement.
 
-The passive preparation ran against real staging. The focused fixture suite
-exercises the plan, ownership bridge and evidence reader without launching
-an actor. The VM controller, image and first real transaction remain pending.
-This trial measures package installation and pacman inventory in the
-scratch target. Root acceptance, installed Asahi, and M2 hardware results
-are unset.
+The passive preparation ran against real staging. The focused fixture suites
+exercise the plan, ownership bridge, controller and evidence readers without
+launching an actor. Root issuance and the first real transaction remain
+pending. This trial measures package installation and pacman inventory in the
+scratch target. Root acceptance, installed Asahi, and M2 hardware results are
+unset.

@@ -2,6 +2,7 @@
 """Prepare and verify an exact offline 583-package disposable guest trial."""
 
 import argparse
+from contextlib import ExitStack
 import hashlib
 import json
 import os
@@ -69,13 +70,13 @@ def identity(info):
             info.st_mtime_ns, info.st_ctime_ns)
 
 
-def read(path, expected=None, *, cap=MAX_MEMBER, collect=True, observed=None):
+def read(path, expected=None, *, cap=MAX_MEMBER, collect=True, observed=None, allowed_links=(1,)):
     path = ordinary(path)
     fd = os.open(path, os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
     with os.fdopen(fd,"rb") as stream:
         before = os.fstat(stream.fileno())
-        need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and 0 <= before.st_size <= cap,
-             "Finite single-link file required: "+path.name)
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink in allowed_links and 0 <= before.st_size <= cap,
+             "Finite ordinary file with selected link count required: "+path.name)
         if expected is not None:
             need(type(expected) is dict and set(expected) == {"bytes","sha256"}
                  and type(expected["bytes"]) is int and expected["bytes"] == before.st_size
@@ -255,6 +256,36 @@ def mount_mode(path, mode, lines):
     need(len(found)==1 and mode in found[0][5].split(","), "Expected isolated mount at "+str(path))
 
 
+def evidence_names(plan):
+    roles = {"import-0", "import-1", "import-2", "ownertrust"} | {row[0] for row in plan["operations"]}
+    return {"installed.lock", "result.json", "pacman.log"} | {
+        f"{role}.{stream}" for role in roles for stream in ("stdout", "stderr")
+    }
+
+
+def target_api_mounts(target, env, stack):
+    """Provide the normal chroot API filesystems using guest-only mounts."""
+    for name,kind,options in (
+        ("proc","proc","ro,nosuid,nodev,noexec"),
+        ("sys","sysfs","ro,nosuid,nodev,noexec"),
+        ("run","tmpfs","mode=0755,nosuid,nodev,noexec,size=64m"),
+        ("dev","tmpfs","mode=0755,nosuid,noexec,size=4m"),
+    ):
+        path = target/name
+        path.mkdir(mode=0o755)
+        subprocess.run(["/usr/bin/mount","-n","-t",kind,"-o",options,kind,str(path)],
+                       env=env,stdin=subprocess.DEVNULL,timeout=15,check=True)
+        stack.callback(subprocess.run,["/usr/bin/umount","-n",str(path)],
+                       env=env,stdin=subprocess.DEVNULL,timeout=15,check=True)
+    for name,major,minor in (("null",1,3),("zero",1,5),("full",1,7),("random",1,8),
+                             ("urandom",1,9),("tty",5,0)):
+        path = target/"dev"/name
+        os.mknod(path,stat.S_IFCHR|0o666,os.makedev(major,minor))
+        path.chmod(0o666)
+    for name,source in (("fd","/proc/self/fd"),("stdin","fd/0"),("stdout","fd/1"),("stderr","fd/2")):
+        (target/"dev"/name).symlink_to(source)
+
+
 def guest(plan_sha256, worker_sha256):
     """Run only from the externally owned offline disposable ARM guest."""
     need(os.getuid()==os.geteuid()==0 and os.uname().machine=="aarch64", "A native ARM guest root is required")
@@ -320,7 +351,15 @@ def guest(plan_sha256, worker_sha256):
         rootdb.mkdir(parents=True,mode=0o700)
         # File-repository refresh may create ALPM's database version marker only.
         for role,argv,seconds in plan["operations"]:
-            run(role,argv,seconds)
+            if role=="install":
+                with ExitStack() as mounts:
+                    target_api_mounts(TARGET,env,mounts)
+                    run(role,argv,seconds)
+                stderr = read(OUTPUT/"install.stderr",cap=8*1024**2)
+                need(not re.search(rb"(?im)^error: (?:failed to execute|command failed)",stderr),
+                     "Pacman reported a failed scriptlet or hook")
+            else:
+                run(role,argv,seconds)
             if role=="refresh":
                 local=rootdb/"local"
                 need(not local.exists() or {p.name for p in local.iterdir()} <= {"ALPM_DB_VERSION"},
@@ -371,8 +410,7 @@ def read_result(output, plan):
     need(b"".join(sorted(before.splitlines(keepends=True)))==pacman_plan(plan["packet"])
          and b"".join(sorted(after.splitlines(keepends=True)))==installed,
          "Original pacman plan or installed inventory differs")
-    expected_files={"installed.lock","result.json","pacman.log"} | {
-        f"{role}.{stream}" for role,_ in expected_commands for stream in ("stdout","stderr")}
+    expected_files = evidence_names(plan)
     need({p.name for p in output.iterdir()}==expected_files,"Missing or extra guest evidence")
     files = {name:read(output/name,cap=8*1024**2,collect=False,observed=observed)
              for name in sorted(expected_files)}
