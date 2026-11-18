@@ -1,24 +1,42 @@
 # Development onboarding example
 
-Use this small original program to exercise the installed terminal, an existing
-editor and native compiler after the accepted overlay setup. It is an onboarding
-smoke check, not a representative benchmark or performance claim.
+Use this exercise after the accepted installation and first login. From an
+ordinary terminal, you will clone a reviewed local Git revision, build and run
+the pinned MIT-licensed C example, edit your own copy, then rebuild and run it.
 
-From the frozen project source, open `hello.c` with the base's installed editor,
-then build and run with an already installed C compiler:
+You need an already installed Git, Python 3, a C compiler available as `cc`, and
+an editor such as Vim or Nano. Run without `sudo`. From the reviewed project
+checkout, choose a fresh path outside that checkout. Resolve any missing tools
+through the accepted base transaction before beginning the exercise.
 
 ```sh
-mkdir -p build/onboarding
-cc -Wall -Wextra -Werror -O2 examples/development/hello.c -o build/onboarding/hello
-./build/onboarding/hello
+work="$HOME/cachy-asahi-development"
+revision=$(git rev-parse HEAD)
+python3 examples/development/onboarding.py prepare "$work" --revision "$revision"
 ```
 
-Expected output is `Hello from cachy-asahi`. No command installs dependencies or
-changes system settings. Record source/compiler/base/overlay versions, exact
-machine and execution context, command results, editing/terminal behavior and
-whether the example survives lock and resume. Do not commit the generated binary.
-If an editor/compiler is missing, resolve it through the accepted complete base
-transaction before the independent onboarding exercise.
+The command takes a shallow, sparse local clone into `$work/checkout`, verifies
+the original `hello.c`, and runs the baseline. Expect `Hello from cachy-asahi`.
 
-Development-host x86 execution verifies only this example. Exact M2 onboarding
-and native application behavior remain NOT RUN until performed on each target.
+Open the copy in your editor. In the `puts` call, change the greeting to
+`Hello from my installed terminal`, then save it and close the editor.
+
+```sh
+vim "$work/checkout/examples/development/hello.c"
+python3 examples/development/onboarding.py rebuild "$work" \
+  --expect "Hello from my installed terminal"
+```
+
+You can choose a different greeting and pass that same line to `--expect`.
+Both builds use `cc -Wall -Wextra -Werror -O2`. The exercise keeps the edited clone
+and creates a separate directory for each build report, source snapshot and
+available executable under `$work/evidence`. The reports include the exact Git
+commit and source and binary hashes, compiler version, and compile and run
+commands, outputs and exit codes. A failed rebuild leaves your edit and previous
+evidence available so you can correct the source and try again.
+
+For the independent installation exercise, record the exact machine, installed
+base and overlay versions and whether you used a real desktop terminal and edited
+the example yourself. The script records build and run observations. It leaves
+editor behavior, lock and resume, and M2 acceptance to the target exercise.
+Development-host execution and scripted-editor smoke are separate evidence.
