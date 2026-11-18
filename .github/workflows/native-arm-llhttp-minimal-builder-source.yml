@@ -29,7 +29,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   pair:
-    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false && github.ref == 'refs/heads/codex/llhttp-minimal206-authenticated-source-20261118-r11'
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false && github.ref == 'refs/heads/codex/llhttp-minimal206-authenticated-source-20261118-r12'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 35
     steps:
