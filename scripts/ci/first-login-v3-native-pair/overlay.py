@@ -24,7 +24,7 @@ R12 = {'commit': '19dea1cca35659ad7ab307dfea09c30a77362640',
        'tree': 'de61a2e7351a09d1dcf0471d50c80e3a1a6ee479',
        'map_sha256': '14a3f9d1f12f224bf43a71a7bb4ef9ba3bfe03b5918b25aabc33ce1fdb71a3b2',
        'bytes': 2093900}
-NEW_REF = 'refs/heads/codex/first-login-v3-native-source-20261118-r4'
+NEW_REF = 'refs/heads/codex/first-login-v3-native-source-20261118-r5'
 CONTROLLER_MEMORY = 1024**3
 AVAILABLE_MEMORY = 11 * 1024**3
 
