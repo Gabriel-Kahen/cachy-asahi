@@ -9,6 +9,7 @@ import sys
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 P = SimpleNamespace(**run_path(str(HERE / "prepare.py")))
@@ -20,7 +21,7 @@ def no_actor(event, args):
         raise AssertionError("Network or actor operation in capsule model: " + event)
     if event == "subprocess.Popen":
         path = Path(args[0])
-        if path not in {Path("/usr/bin") / name for name in ("git", "debugfs", "mke2fs", "e2fsck")}:
+        if path not in {Path("/usr/bin") / name for name in ("debugfs", "mke2fs", "e2fsck")}:
             raise AssertionError("No actor or runtime command in capsule model: " + str(path))
 
 
@@ -50,6 +51,33 @@ class CapsuleTests(unittest.TestCase):
             runner.write_bytes(b"altered")
             with self.assertRaisesRegex(ValueError, "External digest differs"):
                 P.descriptor(descriptor, C.pin(body)["sha256"])
+
+    def test_changed_or_symlinked_importer_is_refused_before_staging(self):
+        with TemporaryDirectory(dir=HERE, prefix="qtgui-model-") as tmp:
+            model = Path(tmp)
+            source = model / "source"
+            source.mkdir()
+            checkout = model / "checkout"
+            (checkout / P.PORTABLE).mkdir(parents=True)
+            for name in P.PORTABLE_PINS:
+                (checkout / name).write_bytes((P.REPO / name).read_bytes())
+            with patch.dict(P.stage_source.__globals__, REPO=checkout):
+                for name in P.PORTABLE_PINS:
+                    with self.subTest(name=name):
+                        path = checkout / name
+                        body = path.read_bytes()
+                        path.write_bytes(bytes([body[0] ^ 1]) + body[1:])
+                        with self.assertRaisesRegex(ValueError, "Exact original file pin required"):
+                            P.stage_source(source)
+                        self.assertEqual(list(source.iterdir()), [])
+                        path.write_bytes(body)
+                target = Path(P.PORTABLE) / "guest.sh"
+                path = checkout / target
+                path.unlink()
+                path.symlink_to(P.REPO / target)
+                with self.assertRaisesRegex(ValueError, "Canonical read-only path required"):
+                    P.stage_source(source)
+                self.assertEqual(list(source.iterdir()), [])
 
     def test_new_private_model_boot_result_and_exact_sealed_site(self):
         with TemporaryDirectory(dir=HERE, prefix="qtgui-model-") as tmp:

@@ -20,8 +20,15 @@ REPO = HERE.parents[2]
 LANE = HERE.relative_to(REPO).as_posix()
 K = SimpleNamespace(**run_path(str(HERE / "continuation.py")))
 C = K.C
-APP_B = "500223f8936bd394a81334e5d436c133beafafb2"
 PORTABLE = "scripts/integration/qt612_md4c_compile"
+# The original importer 500223f8 and public port ac9ed3ce have the same four
+# bodies. Checkout admission uses the held pins from the QtCore capsule.
+PORTABLE_PINS = {PORTABLE + "/" + name: C.file_pin(size, digest) for name, (size, digest) in {
+    "actor.py": (13358, "69ec1bde10f36ff727dda51a80d354b6265b8a2295b46fdc1f86838382191f22"),
+    "common.py": (10435, "c83ff6391a56c05fbae56668af8f3f020c739531488eedb99b0309dc54465ddf"),
+    "prepare.py": (29158, "e0212da30780cdf3507c796f6f523d4c5e0e37716395b3477fc66b8daa0e2740"),
+    "guest.sh": (8854, "4c9f3c4f19ab72474091eb65ff2f4970635e70fd91c5fce143802b46b466d485"),
+}.items()}
 FORMAT_TOOLS = {"debugfs", "e2fsck", "mke2fs"}
 OWN = {LANE + "/" + leaf for leaf in ("actor.py", "gui_capsule.py", "guest-init.sh", "guest_link.py",
                                       "continuation.py", "elf_readback.py", "inspect_checkpoint.py",
@@ -39,13 +46,10 @@ SHARED = {
 
 
 def stage_source(source):
-    inherited = {PORTABLE + "/" + leaf for leaf in ("actor.py", "common.py", "prepare.py", "guest.sh")}
-    for name in sorted(OWN | SHARED | inherited):
-        if name in inherited:
-            body = subprocess.check_output(["/usr/bin/git", "--no-replace-objects", "show", APP_B + ":" + name],
-                                           cwd=REPO, timeout=15)
-        else:
-            body = C.read(REPO / name, 2 << 20)[0]
+    inherited = {name: C.read(REPO / name, pin["bytes"], pin)[0] for name, pin in PORTABLE_PINS.items()}
+    source_files = OWN | SHARED | inherited.keys()
+    for name in sorted(source_files):
+        body = inherited[name] if name in inherited else C.read(REPO / name, 2 << 20)[0]
         C.need(0 < len(body) <= 2 << 20, "Bounded complete source leaf required")
         path = source / name
         path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -56,7 +60,7 @@ def stage_source(source):
     spec = importlib.util.spec_from_file_location("qtgui_preparer_capsule", source / LANE / "gui_capsule.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    C.need(module.SOURCE_FILES == OWN | SHARED | inherited, "Exact runtime source namespace required")
+    C.need(module.SOURCE_FILES == source_files, "Exact runtime source namespace required")
     return module
 
 
