@@ -24,7 +24,9 @@ R12 = {'commit': '19dea1cca35659ad7ab307dfea09c30a77362640',
        'tree': 'de61a2e7351a09d1dcf0471d50c80e3a1a6ee479',
        'map_sha256': '14a3f9d1f12f224bf43a71a7bb4ef9ba3bfe03b5918b25aabc33ce1fdb71a3b2',
        'bytes': 2093900}
-NEW_REF = 'refs/heads/codex/first-login-v3-native-source-20261118-r3'
+NEW_REF = 'refs/heads/codex/first-login-v3-native-source-20261118-r4'
+CONTROLLER_MEMORY = 1024**3
+AVAILABLE_MEMORY = 11 * 1024**3
 
 
 def module(path, name):
@@ -145,6 +147,63 @@ def selected_setup(encoded):
     return bodies
 
 
+def controller_projection(owner, policy, workflow):
+    policy = json.loads(policy)
+    controller = policy['controller']
+    P.need(controller == dict(AS_bytes=512 * 1024**2, memory_bytes=512 * 1024**2,
+                              cpus=1, pids=64, swap_bytes=0)
+           and policy['minimum_available_bytes'] == 10 * 1024**3,
+           'exact held controller and host memory policy')
+    total = sum(policy[role]['memory_bytes'] for role in ('owner', 'daemon')) + policy['host_reserve_bytes']
+    P.need(total + CONTROLLER_MEMORY == AVAILABLE_MEMORY
+           and workflow.count(f'--property=MemoryMax={CONTROLLER_MEMORY} '.encode()) == 1,
+           'exact workflow scope and complete node memory budget')
+    controller['memory_bytes'] = CONTROLLER_MEMORY
+    policy['minimum_available_bytes'] = AVAILABLE_MEMORY
+
+    owner = replace(owner, b'    def capacity(self):', b'''    def controller_stage(self, phase):
+        # Read fixed cgroup counters only, outside the build or daemon domains.
+        def scalar(name):
+            with (self.controller_path/name).open() as stream:
+                raw=stream.read(32).strip()
+            return str(int(raw))
+        try:
+            current,peak=scalar('memory.current'),scalar('memory.peak')
+            with (self.controller_path/'memory.events.local').open() as stream:
+                events=dict(line.split() for line in stream.read(1024).splitlines())
+            fields=f'CURRENT={current} PEAK={peak} OOM={int(events["oom"])} OOM_KILL={int(events["oom_kill"])}'
+        except (OSError, ValueError, KeyError):
+            fields='COUNTERS=unavailable'
+        print(f'FIRST_LOGIN_V3_CONTROLLER_PHASE={phase} {fields}',file=sys.stderr,flush=True)
+
+    def capacity(self):''')
+    owner = replace(owner,
+        b"        D.need(available>=p['minimum_available_bytes']and",
+        b"""        D.need(p['minimum_available_bytes']==sum(p[role]['memory_bytes'] for role in
+               ('controller','owner','daemon'))+p['host_reserve_bytes'],'complete node memory budget')
+        D.need(available>=p['minimum_available_bytes']and""")
+    owner = replace(owner,
+        b"""        D.need(p['minimum_available_bytes']>=p['owner']['memory_bytes']+p['daemon']['memory_bytes']+p['host_reserve_bytes']
+               and p['minimum_disk_bytes']>=p['storage_bytes']+p['host_reserve_bytes'],'aggregate policy inequality')""",
+        b"""        D.need(p['minimum_disk_bytes']>=p['storage_bytes']+p['host_reserve_bytes'],'aggregate disk policy inequality')""")
+    owner = replace(owner,
+        b"    owner=Controller(a.root,a.output,policy,actual['nonce'],a.runner_uid,a.runner_gid)",
+        b"""    owner=Controller(a.root,a.output,policy,actual['nonce'],a.runner_uid,a.runner_gid)
+    owner.controller_path=Path('/sys/fs/cgroup'+actual_group)""")
+    stages = (
+        ('owner', 'scope-bound', b'        daemon,available,disk=owner.setup()'),
+        ('self', 'volume-created', b"        self.run([self.tool('mount'),"),
+        ('self', 'volume-mounted', b'        # Work and daemon storage share'),
+        ('self', 'daemon-starting', b"        daemon=self.start('daemon',argv)"),
+        ('owner', 'daemon-ready', b"        report['pinned_input_carrier']=N.stage"),
+        ('owner', 'carrier-staged', b'        allowed={k:v for k,v in os.environ'),
+        ('owner', 'owner-started', b"        observed=dict(kind='FISH02_NO_HOST_APT_ACTUAL_DOMAINS_V4'"),
+    )
+    for receiver, phase, anchor in stages:
+        owner = replace(owner, anchor, f'        {receiver}.controller_stage({phase!r})\n'.encode() + anchor)
+    return owner, encode(policy)
+
+
 def runtime_material(confirmed, thin_bodies, setup, supplemental_pins=None):
     # Historical inverses stay in the verified external role. They are not opened by the runtime.
     briefs = {'source-ro-binding.json', 'libffi-recovery-inverse.json',
@@ -221,7 +280,9 @@ def module_first_login(root):
         after = (P.FIRST_LOGIN+'-aarch64-'+phase+'.log').encode()
         P.need(policy.count(before) == 2 and after not in policy, 'exact retained host-named phase log')
         policy = policy.replace(before, after)
-    files[export_name], files[policy_name] = export, policy
+    owner_name = FULL + 'hosted_owner.py'
+    files[owner_name], files[policy_name] = controller_projection(files[owner_name], policy, thin_bodies[WORKFLOW])
+    files[export_name] = export
 
     for name in ('hosted_owner.py', 'public_evidence.py', 'payload.py', 'retain.py'):
         rel = FULL + name

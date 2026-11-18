@@ -1,9 +1,9 @@
 {
   "files": {
     ".github/workflows/native-arm-first-login-v3-native-pair.yml": {
-      "bytes": 9780,
+      "bytes": 9781,
       "mode": 420,
-      "sha256": "b3ec170cd35a1f8ee89b6cd4b23dae5257b050db34e37660d88217ad61b73779"
+      "sha256": "e5f85d3a2047b74c762bc32b03e567e2deb1549ddf7e6a52388fdda9e22297b2"
     },
     "packages/tools/cachy-asahi-first-login-v3/.SRCINFO": {
       "bytes": 1704,
@@ -76,9 +76,9 @@
       "sha256": "e706f95814a6d15b4c164ce64425e53b8f90ac4e49e09db232daee4e0b7696e4"
     },
     "scripts/ci/first-login-v3-native-pair/overlay.py": {
-      "bytes": 17836,
+      "bytes": 21645,
       "mode": 420,
-      "sha256": "20f032781d31e12cdbbbd20abc5c30a299504ca2fdc4988aaf4a782a112f7fcb"
+      "sha256": "54c4523bad85f9f36938c5dc2a10c34584e004ed5837a5cb5e4ae6884360a6f6"
     },
     "scripts/ci/first-login-v3-native-pair/pair.py": {
       "bytes": 11428,
