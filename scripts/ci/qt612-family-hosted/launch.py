@@ -456,7 +456,7 @@ class SignedDependencies:
 
 
 def run_owned_payload(*, pipeline, family_source, bootstrap, supervisor, commands,
-                      prepared, socket, nonce, auth, stage_mode, lifecycle_credential=None):
+                      prepared, socket, nonce, auth, stage_mode, lifecycle_credential=None, stage=lambda _: None):
     """Start after the controller has launched its authenticated ordinary service."""
     need(os.getuid() == os.geteuid() > 0, "The authenticated ordinary payload owns the Qt build")
     need(stage_mode in ("pair-only", "signed-lifecycle")
@@ -482,13 +482,17 @@ def run_owned_payload(*, pipeline, family_source, bootstrap, supervisor, command
     outputs = work/"gui-output"
     errors = []
     try:
+        stage("SIGNED349_BUILD")
         base = baseline.construct()
+        stage("SIGNED356_BUILD")
         selected = dependencies.construct(source=source, source_map_sha256=source_map_sha256, baseline=base,
                                           auth=auth, authenticate=supervisor.authenticate_md4c_input)
+        stage("SOURCE_CACHE")
         cache = work/"source-cache"
         family_source.prepare_cache(source=source, source_map_sha256=source_map_sha256, output=cache)
         # The concrete image ID is available only after the signed transaction.
         # The independent supervisor supplies the already authenticated binding.
+        stage("REQUEST_HANDOFF")
         binding, binding_sha256 = supervisor.select_stage_binding(
             image=selected["image"], inventory_pin=selected["inventory"], source_map_sha256=source_map_sha256,
             component=executor.COMPONENT, nonce=nonce, mode=stage_mode)
