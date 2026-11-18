@@ -73,6 +73,26 @@ class RuntimeSourceTests(unittest.TestCase):
                     prepare.public_leaf(path, raw)
         prepare.public_leaf(prepare.SIGNED, b"fixture checked independently")
 
+    def test_md4c_projection_requires_the_complete_original_receipt_sha256(self):
+        receipt = "0817066cbec53daf2ed52569340141f842caa03db86cb3fc35d10a4db0f48e97"
+        model = dict(schema=1, kind="ROOT_QT612_R128_MD4C_TEST_AUTHORITY_V1", issuer="Root", approved=True,
+            status="PASS_MD4C_R128_EXACT_ARCHIVES_SCOPED_TEST_ONLY", source=prepare.R128["commit"],
+            run=44241902162, job=134591565463, attempt=1,
+            original_log=dict(bytes=2255414, sha256="ec0b1d79132cb9bcb2e5646ac2e70f675c57b8747f60cdab2737dc5bacc4d734"),
+            original_receipt=dict(bytes=2466, sha256=receipt),
+            archive=dict(bytes=74076, sha256="19149e51f05a7d93426dda7a66fd80d67bd235cab7ac4505130f7de6d40b5b95"),
+            signature=prepare.MD4C[prepare.SIGNED], certificate=prepare.MD4C[prepare.CERTIFICATE],
+            fingerprint="D02BE98DE9C0986C1120951315A8B1E319DBEE03", created_epoch=1794978886, expires_epoch=1795065286)
+        path = self.root/"MODEL-md4c-authority.json"
+        raw = R.canonical(model)
+        path.write_bytes(raw)
+        self.assertEqual(prepare.md4c_authority(path, R.pin(raw)["sha256"]), raw)
+        model["original_receipt"]["sha256"] = receipt.replace("86cb", "")
+        raw = R.canonical(model)
+        path.write_bytes(raw)
+        with self.assertRaisesRegex(ValueError, "Exact already selected"):
+            prepare.md4c_authority(path, R.pin(raw)["sha256"])
+
     def test_exact_entry_is_optional_and_only_selected_git_blobs_are_adopted(self):
         repo = self.root/"repo"
         repo.mkdir()

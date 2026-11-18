@@ -171,7 +171,7 @@ def md4c_authority(path, sha256):
            and authority["source"] == R128["commit"] and authority["run"] == 44241902162
            and authority["job"] == 134591565463 and authority["attempt"] == 1
            and authority["original_log"] == {"bytes": 2255414, "sha256": "ec0b1d79132cb9bcb2e5646ac2e70f675c57b8747f60cdab2737dc5bacc4d734"}
-           and authority["original_receipt"] == {"bytes": 2466, "sha256": "0817066cbec53daf2ed52569340141f842caa03db3fc35d10a4db0f48e97"}
+           and authority["original_receipt"] == {"bytes": 2466, "sha256": "0817066cbec53daf2ed52569340141f842caa03db86cb3fc35d10a4db0f48e97"}
            and authority["archive"] == {"bytes": 74076, "sha256": "19149e51f05a7d93426dda7a66fd80d67bd235cab7ac4505130f7de6d40b5b95"}
            and authority["signature"] == MD4C[SIGNED] and authority["certificate"] == MD4C[CERTIFICATE]
            and authority["fingerprint"] == "D02BE98DE9C0986C1120951315A8B1E319DBEE03"
