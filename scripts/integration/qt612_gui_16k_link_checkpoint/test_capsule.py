@@ -33,6 +33,22 @@ def fs_profile():
             for name in P.FORMAT_TOOLS if (path := Path("/usr/bin") / name).is_file()}
 
 
+def copy_model_extent(source, target, *, start=0, count, destination=0, existing=False):
+    # CI runs this synthetic filesystem control without requiring host reflinks.
+    if count != 64 * K.MIB:
+        raise ValueError("Expected only the fixed model extent")
+    with source.open("rb") as src, target.open("r+b" if existing else "xb") as dst:
+        src.seek(start)
+        dst.seek(destination)
+        remaining = count
+        while remaining:
+            block = src.read(min(K.MIB, remaining))
+            if not block:
+                raise ValueError("Truncated model extent")
+            dst.write(block)
+            remaining -= len(block)
+
+
 class CapsuleTests(unittest.TestCase):
     def test_descriptor_requires_independent_input_digests(self):
         with TemporaryDirectory(dir=HERE, prefix="qtgui-model-") as tmp:
@@ -124,8 +140,9 @@ class CapsuleTests(unittest.TestCase):
                 mbr[510:] = b"\x55\xaa"
                 struct.pack_into("<II", mbr, 454, offset // 512, size // 512)
                 stream.write(mbr)
-            q.P.clone(result, boot, count=size, destination=offset, existing=True)
-            P.patch_boot(q, tools, boot, nonce, payload, size=offset + size)
+            copy_model_extent(result, boot, count=size, destination=offset, existing=True)
+            with patch.object(q.P, "clone", copy_model_extent):
+                P.patch_boot(q, tools, boot, nonce, payload, size=offset + size)
             self.assertEqual(boot.read_bytes()[440:444], struct.pack("<I", int(nonce[:8], 16)))
 
             refs = {name: dict(path=str(model / name), **C.pin(name.encode()))
