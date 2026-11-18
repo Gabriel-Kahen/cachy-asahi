@@ -17,7 +17,7 @@
     },
     "admission.py": {
       "bytes": 50313,
-      "sha256": "a988abc31eccdf07d87d0d8fff71c28365da3a282e48aaec52078c82580ce428"
+      "sha256": "d252e59a67518b4addd3ff38ad0b9d6ba7d8744fc63adcf35f717ab8671f22d1"
     },
     "apps16-parent.json": {
       "bytes": 6702834,
@@ -680,8 +680,8 @@
       "sha256": "ac2c253dbcfe40ea5fbce950b7a31b8402c8c29cb438764d990400288351010b"
     },
     "factory/kernel_stage.py": {
-      "bytes": 7225,
-      "sha256": "b48bde263079b3aad26d1179884bc2a4700635532a13cda0101594804b5523fe"
+      "bytes": 7535,
+      "sha256": "aaf67829dc65bbc76125a33a01cf0ea0cbc6d2990343d5d4e6b78843217994ab"
     },
     "factory/original606.lock": {
       "bytes": 12043,

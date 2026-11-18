@@ -1,8 +1,14 @@
 # SPDX-License-Identifier: MIT
 """Stage the job-owned KSM keyboard profile and preserve the original MOPS source proof."""
+import importlib.util
 import json
 from pathlib import Path
-import factory as F
+
+# Load the held sibling explicitly before any kernel or GUI factory work.
+_factory_spec = importlib.util.spec_from_file_location(
+    '_current606_kernel_stage_factory', Path(__file__).resolve().with_name('factory.py'))
+F = importlib.util.module_from_spec(_factory_spec)
+_factory_spec.loader.exec_module(F)
 
 def source_support():
     root=F.HERE/'kernel-build-context';proof=F.obj(root/'primary-profile.json')
