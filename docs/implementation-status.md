@@ -11,14 +11,14 @@
 | Python 3.14.8 | One independently verified native AArch64 4 KiB build supplied the TEST-signed package for an emulated ARM16K upgrade and rollback. The original compiled consumer ran on both Python versions, `_tkinter` passed, and the guest restored all 626 package versions and the original Python library bytes. [Native build and guest rehearsal](validation/python3148-native-r4-and-asahi628-20261118.md) |
 | Qtbase 6.12, emulated AArch64 with 16 KiB pages | Q3 verified the signed dependency transactions, reached the exact 356-package inventory and passed ordinary-user configure against system md4c. The Markdown importer compiled and QtCore linked with 16 KiB-compatible load segments. QtGui and the full build remain open. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md) · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md) |
 
-The Current606 R14 minimal desktop rehearsal displayed all 15 required views
-and passed the complete installed-state comparison after the session. All
-606 package identities and 114,247 payload nodes matched the baseline. The
-outer validator rejected the guest record because it interpreted seven
-post-session diagnostic phases as other profiles. Minimal acceptance remains
-held and the same-source overlay case remains unrun.
-[Current606 R14 rehearsal](validation/current606-minimal-emulated-arm16k-r14-20261119.md)
-· [Earlier R13 symlink hold](validation/current606-minimal-emulated-arm16k-r13-20261118.md)
+The Current606 R15 minimal desktop rehearsal passed the host GUI contract,
+displayed all 15 required views and shut down cleanly. All 606 packages and
+114,247 installed entries matched the baseline after the session. GitHub
+marked the evidence-export step failed at its two-minute limit, just after the
+finished result was written. The complete 248-member artifact was uploaded and
+independently reviewed. The hosted case remains held and the overlay is unrun.
+[Current606 R15 rehearsal](validation/current606-minimal-emulated-arm16k-r15-20261119.md)
+· [Earlier R14 validator hold](validation/current606-minimal-emulated-arm16k-r14-20261119.md)
 
 Production repository staging with an approved release signer, stable
 promotion, installed Asahi kernel boot and recovery, both physical M2 Air
