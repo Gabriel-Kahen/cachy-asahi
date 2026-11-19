@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Compose the retained native349 runtime and the first Qt hosted stage."""
 
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -13,6 +14,7 @@ from types import ModuleType
 import capacity
 import executor
 import evidence
+import signed349_bind
 
 need = executor.need
 R128_MAP_SHA256 = "42bffdd05941787940bbc5a459cb4ce66cf26b0b01b6e5ebdb96e3d1b2e9d473"
@@ -287,6 +289,16 @@ def scoped_runner(commands, socket):
             argv = [argv[0], "--host=unix://" + str(endpoint), *argv[1:]]
         return commands(argv, seconds, check=check, env={"DOCKER_BUILDKIT": "0", **(env or {})})
 
+    @contextmanager
+    def retirement():
+        previous = commands.state.cleaning
+        commands.state.cleaning = True
+        try:
+            yield
+        finally:
+            commands.state.cleaning = previous
+
+    run.retirement = retirement
     return run
 
 
@@ -390,7 +402,8 @@ class SignedBase:
             if argv[:3] == [executor.DOCKER, "image", "import"]:
                 stage("SIGNED349_ROOTFS_IMPORT")
             elif argv[:2] == [executor.DOCKER, "build"]:
-                return run_signed349_image_build(self.runner, argv, *args, stage=stage, **kwargs)
+                return signed349_bind.assemble(self, argv, *args, **kwargs, out=out, handoff=handoff, stage=stage,
+                    classify=signed349_build_reason, retirement=self.runner.retirement)
             elif argv[:2] == [executor.DOCKER, "run"] and argv[-1] == "/builder-packages.lock":
                 stage("SIGNED349_INVENTORY")
             return self.runner(argv, *args, **kwargs)
