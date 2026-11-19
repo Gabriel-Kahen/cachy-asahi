@@ -65,6 +65,16 @@ def genuine_trial(root, program=None, timeout=None):
     return code, b.read_json(root / 'trial/trial.json')
 
 
+def fixture_sysfs(root):
+    device = root / 'class/hwmon/hwmon0'
+    device.mkdir(parents=True)
+    for name, value in {'name': 'integration-fixture', 'temp1_input': '42000',
+                        'temp1_label': 'fixture', 'temp1_type': '1',
+                        'temp1_enable': '1', 'temp1_fault': '0'}.items():
+        (device / name).write_text(value + '\n')
+    return root
+
+
 class IntegrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -72,13 +82,7 @@ class IntegrationTests(unittest.TestCase):
         cls.reference = Path(cls.shared.name)
         # Sensor paths are generated fixture files; only owned workloads/clocks
         # are real. Host sysfs reads can outlive the bounded sampler drain.
-        cls.sysfs = cls.reference / 'fixture-sysfs'
-        device = cls.sysfs / 'class/hwmon/hwmon0'
-        device.mkdir(parents=True)
-        for name, value in {'name': 'integration-fixture', 'temp1_input': '42000',
-                            'temp1_label': 'fixture', 'temp1_type': '1',
-                            'temp1_enable': '1', 'temp1_fault': '0'}.items():
-            (device / name).write_text(value + '\n')
+        cls.sysfs = fixture_sysfs(cls.reference / 'fixture-sysfs')
         discover = m.discover
         cls.enterClassContext(patch.object(m, 'discover', side_effect=lambda: discover(cls.sysfs)))
         cls.enterClassContext(patch.object(a, 'load_dependencies', return_value=(m, owner)))
