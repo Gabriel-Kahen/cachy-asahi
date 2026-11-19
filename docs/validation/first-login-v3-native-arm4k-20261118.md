@@ -28,6 +28,23 @@ independent reader verified the pair. [R4 hosted run](https://github.com/Gabriel
 | Independent reader result | `70546c85cd333dc23ab753d8aa2f5a59929495070b29f5f6e78703ad6b791b24` |
 | Root terminal acceptance | `4afc71772b6fdb5c1598f2a656130dd1fc910cc63be46d3ac2daa3f5f6b37289` |
 
-Signed installation and an installed first-login session using this
-archive, native 16 KiB execution, physical M2 testing, and production
-release acceptance remain open.
+## Signed install and shell lifecycle on emulated ARM with 16 KiB pages
+
+On November 19 UTC, a local AArch64 guest with 16,384-byte pages installed
+the exact build-pair archive with its detached TEST signature. The ordinary
+user ran First Login with Setup8 and completed ten shell startups. The
+rehearsal checked rejection of the ambient test interpreter, preserved the
+user's Fish and Zsh edits, and removed the package. The complete inventory
+matched the expected 583 → 584 → 583 package sequence, with identical
+before-installation and after-removal locks. The guest, both owned
+containers and the temporary isolation fixture retired.
+
+The first attempt stopped before candidate installation because the test
+fixture put its interpreter on a `noexec` mount. The second attempt moved
+the complete fixture to an owned executable path, retained the mount
+protections, and used the identical archive, detached signature and TEST
+certificate. Independent closure passed with terminal SHA-256
+`2fd1b9f7b00c3ddd24ad58214a1bdd1a9d48209754614214142c9cbf46eb6a17`.
+
+Graphical first login, native 16 KiB execution, physical M2 testing and
+production release acceptance remain open.
