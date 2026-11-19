@@ -6,24 +6,24 @@
       "sha256": "a9a4f1d15753357a211cbad1d638f6b821ec8de223943b014ad47d86a103522f"
     },
     "inputs/md4c/Root-r128-TEST-authority.DATA.json": {
-      "bytes": 1034,
+      "bytes": 1170,
       "mode": 420,
-      "sha256": "cc3dd84c1f96b5204df4e2edd33b10cc4e7907d460c68a311b6122a8c1fca712"
+      "sha256": "b975ae30c0361432c665de8da025f3cb58ecb0a431922f3135645278c27d93c5"
     },
     "inputs/md4c/md4c-0.5.3-1-aarch64.pkg.tar.xz.sig": {
       "bytes": 119,
       "mode": 420,
-      "sha256": "63dda83d805e4ad8023fcbe35b6abc63e74646becd4f9e2ada339526a2fddc85"
+      "sha256": "efe73e02383cbe16a9478952a43b22c3db256d1070275c3264f62240e48db18a"
     },
     "inputs/md4c/md4c-r128-TEST-public.gpg": {
       "bytes": 265,
       "mode": 420,
-      "sha256": "4d1ea2e70ae86992f626a38acd9c61a3d9060261c5fb733bd99e91cc6ab27095"
+      "sha256": "662fb30f2002c9a26570f4c43e3dfd85fcbdcb38c417ad9378d922b18f0821ff"
     },
     "portable/selection.DATA.json": {
       "bytes": 94853,
       "mode": 420,
-      "sha256": "b77534069ae44c5214f988c8898501e328ba5d562236969ee356a3a2d1dd538f"
+      "sha256": "8bcb66d71136b1775f8836cc064ffaa9aeb0319a0a8baec8ed5b4d77fffeaf03"
     },
     "portable/skeleton/contracts/declarative/BUILD-CONTRACT.json": {
       "bytes": 12044,
@@ -1103,7 +1103,7 @@
     "runtime-inputs.DATA.json": {
       "bytes": 4662,
       "mode": 420,
-      "sha256": "46c5420c4f7337e606f8846208b547a973ce7415f00c25b812c63be8165bad79"
+      "sha256": "3e49ce17d4c07f3a7eefdceecec801bf5569bbc1074ada10f8ec4923ca5058da"
     },
     "scripts/ci/qt612-complete-family-native-source/acquire_runner_inputs.py": {
       "bytes": 18960,
@@ -1196,9 +1196,9 @@
       "sha256": "abfed5c1804099ae74e93bb7a30b423fc24d3f7a617fbfa0320f65369db13ad8"
     },
     "scripts/ci/qt612-gui-server-pair-adapter/contract.py": {
-      "bytes": 13076,
+      "bytes": 13210,
       "mode": 420,
-      "sha256": "98d37fd4ce207db848db7799778451b3b22425f1475890208b89fccd2f006b49"
+      "sha256": "e45fe33446d32eb7f717d1e70eeb78fcda70b98c64937402f2c62add5169f824"
     },
     "scripts/ci/qt612-gui-server-pair-adapter/entry.py": {
       "bytes": 45107,
