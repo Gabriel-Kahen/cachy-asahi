@@ -26,3 +26,30 @@ wrong package provenance, and a base that already contains Platform Tools.
 ```sh
 python3.14 -I -B -Werror scripts/integration/platform_tools_overlay583/test_project_reader.py
 ```
+
+## Private mount-root successor
+
+The earlier fixture ran ordinary bubblewrap from inside a chroot. Linux rejects
+creation of a user namespace from that context. The mount-root successor first
+creates a private guest mount namespace, reuses the installed target and its
+four API mounts, detaches the boot root, and then runs the same ordinary-user
+probe. The independent Reader links that mount-root witness to the ordinary
+process. A complete, naturally reaped bubblewrap failure carries a finite
+reason, byte count and digest.
+
+Project the exact three source leaves from the reviewed prior stage. This
+expects the already-corrected Platform Tools Reader described above.
+
+```sh
+python3.14 -I -B -Werror scripts/integration/platform_tools_overlay583/project_mount_root.py \
+  --stage "$previous_stage" --handoff-sha256 "$previous_handoff_sha256" \
+  --output "$new_source_directory"
+python3.14 -I -B -Werror scripts/integration/platform_tools_overlay583/test_mount_root.py
+```
+
+The output directory must be new and outside the previous stage. The projection
+changes only the guest driver, target driver and independent Reader. Stage
+assembly and live authorization still require separate exact source, package,
+plan and scope bindings. The tests exercise fixture code with inert system calls.
+Actual verification requires the separate owned ARM16K guest and all original
+package, inventory, fallback and cleanup checks.
