@@ -513,3 +513,68 @@ def source_context(root):
 def prove(root):
  fact=_diff_fact(_diff_original(root).prove(root))
  return dict(fact,status='PASS_WHOLE_R12_AND_GENERIC16K_INSTALLED_DIFF_SOURCE_ONLY')
+
+# Settle the selected boot mtab link before exact ARM16K payload capture.
+_MTAB_START='\n# Settle the selected boot mtab link before exact ARM16K payload capture.\n'
+_MTAB_PARENT_MANIFEST={'bytes': 106897, 'sha256': 'ed1803dee3f87a19422ec25c41c85b58e93dd761589beef51fdaddb66999911e'}
+_MTAB_PARENT='5b1b053cedad53529fd8497797008757039f1406'
+_MTAB_PARENT_REF='refs/heads/codex/current606-apps16-16k-installed-diff-20261118-r13'
+_MTAB_CONTEXT={'bytes': 166028, 'sha256': '6af374f635ea716e7ee2a4d94a92ac9a30b8aa57d8b2737ecb9e0314382d9c96'}
+_MTAB_NEW={'factory/installed606_progress.py': {'bytes': 18964, 'sha256': '1faa8b0c7a2d787a9a4e6238dfe48aa2fbac7b711122968ddd0b51331de722a6'}}
+_MTAB_STATUS='SOURCE_ONLY_CURRENT606_GENERIC16K_STAGED_MTAB'
+
+def _mtab_original(root):
+ root=Path(root).absolute()
+ raw=read(root/'installed606-mtab-parent.json')
+ need(pin(raw)==_MTAB_CONTEXT,'whole exact R13 staged mtab inverse')
+ context=json.loads(raw)
+ need(context['source']==_MTAB_PARENT and context['ref']==_MTAB_PARENT_REF and context['actual'] is None,
+      'exact R13 parent and no authority')
+ original_manifest=base64.b64decode(context['manifest'],validate=True)
+ need(pin(original_manifest)==_MTAB_PARENT_MANIFEST,'original R13 manifest')
+ originals={**json.loads(original_manifest)['files'],'source-manifest.json':pin(original_manifest)}
+ manifest=obj(root/'source-manifest.json')
+ need(len(originals)==611 and manifest['status']==_MTAB_STATUS
+      and all(manifest[key] is None for key in ('actual_source','actual_ref','actual_run'))
+      and set(manifest['files'])==set(originals)-{'source-manifest.json'}|{'installed606-mtab-parent.json'},
+      'exact unissued 612-leaf scoped mtab staging successor')
+ closed(root,{**manifest['files'],'source-manifest.json':pin(read(root/'source-manifest.json'))})
+ need(all(manifest['files'][name]==value for name,value in _MTAB_NEW.items()),
+      'exact finite scoped mtab source change')
+ before,marker,_=read(root/'admission.py').partition(_MTAB_START.encode())
+ need(marker and pin(before)==originals['admission.py'],'complete original R13 admission')
+ need(set(context['before'])==set(_MTAB_NEW),'closed exact staged mtab source inverse')
+ inverse=dict(context['before'])
+ inverse={name:base64.b64decode(body,validate=True) for name,body in inverse.items()}
+ inverse.update({'source-manifest.json':original_manifest,'admission.py':before})
+ def prior_read(path,cap=16*1024**2):
+  name=Path(path).relative_to(root).as_posix()
+  raw=inverse[name] if name in inverse else read(path,cap)
+  need(name in originals and len(raw)<=cap and pin(raw)==originals[name],'whole original R13 input '+name)
+  return raw
+ def prior_closed(where,wanted):
+  prefix='' if where==root else where.relative_to(root).as_posix()+'/'
+  need({name.removeprefix(prefix):value for name,value in originals.items() if name.startswith(prefix)}==wanted,
+       'closed exact original R13 namespace')
+  for name in wanted:prior_read(where/name)
+  return wanted
+ for name in originals:prior_read(root/name)
+ prior=types.ModuleType('_current606_exact_r13_staged_mtab_parent');prior.__file__=str(root/'admission.py')
+ exec(compile(before,prior.__file__,'exec'),vars(prior))
+ prior.read=prior_read;prior.obj=lambda path:json.loads(prior_read(path));prior.closed=prior_closed
+ return prior
+
+def _mtab_fact(fact):
+ need(fact['files']==611 and fact['selected_generic16k_verify']==dict(observer_seconds=720,command_seconds=735,
+      profiles=['minimal','overlay']) and fact['selected_generic16k_dns_report']=='SCOPED_EXPANDED_BODY_FOCUS'
+      and fact['selected_generic16k_installed_diff']=='STRICT_EQUALITY_FAILURE_DATA_ONLY'
+      and fact['selected_generic16k_staged_sysusers']=='BEFORE_COMPLETE_PAYLOAD_CAPTURE'
+      and fact['actual'] is None,'whole original R13 with exact strict observer and boot system users')
+ return dict(fact,files=612,selected_generic16k_staged_mtab='BEFORE_COMPLETE_PAYLOAD_CAPTURE',actual=None)
+
+def source_context(root):
+ return _mtab_fact(_mtab_original(root).source_context(root))
+
+def prove(root):
+ fact=_mtab_fact(_mtab_original(root).prove(root))
+ return dict(fact,status='PASS_WHOLE_R13_AND_GENERIC16K_STAGED_MTAB_SOURCE_ONLY')

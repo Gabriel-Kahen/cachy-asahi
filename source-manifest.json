@@ -16,8 +16,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "admission.py": {
-      "bytes": 63405,
-      "sha256": "13662bf6527b874a12663a2d829774d420644f634247a33264984a3da084f1c8"
+      "bytes": 67577,
+      "sha256": "8ffd0185a8fa1cf23c42c72b6172fb27170854a12e43fec121ecc4d01d786208"
     },
     "apps16-parent.json": {
       "bytes": 6702834,
@@ -568,8 +568,8 @@
       "sha256": "ac65ced048da8effe7c7cd78d49365bea47d9aed3b0ddf0846bcc9397dfb1401"
     },
     "factory/installed606_progress.py": {
-      "bytes": 17445,
-      "sha256": "c2e8ac35e7cce7c30ae3f4745efb0841a308b8289e58053bacfad535392de824"
+      "bytes": 18964,
+      "sha256": "1faa8b0c7a2d787a9a4e6238dfe48aa2fbac7b711122968ddd0b51331de722a6"
     },
     "factory/inventory-vm-profile.json": {
       "bytes": 900,
@@ -966,6 +966,10 @@
     "installed606-diff-parent.json": {
       "bytes": 152964,
       "sha256": "92a5ab9348cd33686cee559d030920123f362c9ba4721837ffd7eec09eddbaf9"
+    },
+    "installed606-mtab-parent.json": {
+      "bytes": 166028,
+      "sha256": "6af374f635ea716e7ee2a4d94a92ac9a30b8aa57d8b2737ecb9e0314382d9c96"
     },
     "installed606-verify-parent.json": {
       "bytes": 151450,
@@ -2444,5 +2448,5 @@
       "sha256": "8dc56648ae12ed3d87a7b13f4281f5575b865545eecdc04d42816db99ce0fbaa"
     }
   },
-  "status": "SOURCE_ONLY_CURRENT606_GENERIC16K_INSTALLED_DIFF"
+  "status": "SOURCE_ONLY_CURRENT606_GENERIC16K_STAGED_MTAB"
 }

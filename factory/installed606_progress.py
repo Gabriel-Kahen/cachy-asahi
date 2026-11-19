@@ -322,6 +322,34 @@ printf '%s\\n' 'staged systemd-sysusers completed before installed606 capture'
     return replace(text, anchor, prepare + anchor)
 
 
+def staged_mount_table(text):
+    anchor = "python3 -I -B /runner/installed606.py capture "
+    prepare = """# Apply only the selected systemd boot link before the full payload baseline.
+mtab="$root/etc/mtab"
+tmpfiles_conf="$root/usr/lib/tmpfiles.d/etc.conf"
+[[ "$root" == /out/staged && -d "$root" && ! -L "$root" && -d "$root/etc" && ! -L "$root/etc" ]]
+[[ -L "$mtab" && $(/usr/bin/stat --format='%a:%u:%g:%h' -- "$mtab") == 777:0:0:1 ]]
+case "$(/usr/bin/readlink -- "$mtab")" in
+  ../proc/self/mounts) mtab_input=archive-relative ;;
+  /proc/mounts|/proc/self/mounts) mtab_input=proc-absolute ;;
+  *) printf '%s\\n' 'unexpected staged mtab symlink target' >&2; exit 1 ;;
+esac
+[[ -f "$tmpfiles_conf" && ! -L "$tmpfiles_conf" ]]
+printf '%s  %s\\n' e819001e4ce10527081861713def4018b031fefcd9f6249ed652dd630280a014 "$tmpfiles_conf" |
+  /usr/bin/sha256sum --check --status
+/usr/bin/cmp --silent -- /usr/bin/systemd-tmpfiles "$root/usr/bin/systemd-tmpfiles"
+/usr/bin/timeout --signal=TERM --kill-after=3s 15s /usr/bin/systemd-tmpfiles \\
+  --root="$root" --create --boot --prefix=/etc/mtab "$tmpfiles_conf" >/dev/null 2>&1 || {
+  printf '%s\\n' 'staged systemd mtab rule failed before installed606 capture' >&2
+  exit 1
+}
+[[ -L "$mtab" && $(/usr/bin/stat --format='%a:%u:%g:%h' -- "$mtab") == 777:0:0:1 &&
+   $(/usr/bin/readlink -- "$mtab") == ../proc/self/mounts ]]
+printf 'staged mtab settled before installed606 capture (%s)\\n' "$mtab_input"
+"""
+    return replace(text, anchor, prepare + anchor)
+
+
 def apply(output, pin, *, mode):
     if mode not in ('generic4k', 'generic16k'):
         raise ValueError('exact supported installed606 mode required')
@@ -339,7 +367,7 @@ def apply(output, pin, *, mode):
     if mode == 'generic16k':
         path = output / 'desktop574_fixture.sh'
         before = path.read_bytes()
-        after = staged_system_users(before.decode()).encode()
+        after = staged_mount_table(staged_system_users(before.decode())).encode()
         path.write_bytes(after)
         changes[path.name] = dict(before=pin(before), after=pin(after))
     return changes
