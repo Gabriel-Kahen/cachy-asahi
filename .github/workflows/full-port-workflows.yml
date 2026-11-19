@@ -131,7 +131,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install Lua for window protocol model controls
         if: matrix.component == 'app-window'
-        timeout-minutes: 3
+        timeout-minutes: 5
         shell: bash
         run: |
           set -euo pipefail
