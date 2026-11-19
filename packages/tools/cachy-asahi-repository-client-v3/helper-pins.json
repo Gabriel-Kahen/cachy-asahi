@@ -1,8 +1,8 @@
 {
   "files": {
     "scripts/client/client_v3.py": {
-      "bytes": 29503,
-      "sha256": "4cf428452d08ea212d8bb92d899329f3445d15877c5b79e5ff5f138b0a696e76"
+      "bytes": 29808,
+      "sha256": "3e0d3ff114fbf6eadf718cfc78b42140e0a0740083ec8c66c694944cae022fe9"
     }
   },
   "required_runtime": {

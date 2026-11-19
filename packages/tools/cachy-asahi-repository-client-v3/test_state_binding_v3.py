@@ -26,7 +26,7 @@ class Controls(unittest.TestCase):
   self.actual=dict(synthetic=True,release_id='fixture',repo_name='fixture',targets=targets);self.metadata=dict(schema_version=1,type=c.TYPE,scope='development',namespace='dev.fixture',sequence=2,issued_utc=c.utc(self.now-timedelta(seconds=30)),expires_utc=c.utc(self.now+timedelta(hours=1)),signer=self.key,**self.actual)
   self.metadata_path=self.base/'metadata.json';self.metadata_path.write_bytes(c.encoded(self.metadata));(self.base/'signature').write_bytes(b'TEST-MOCKED-SIGNATURE');(self.base/'public.gpg').write_bytes(b'TEST-MOCKED-KEYRING');(self.bundle/'release.json.sig').write_bytes(b'TEST-MOCKED-RELEASE-SIGNATURE')
   self.args=argparse.Namespace(bundle=str(self.bundle),metadata=str(self.metadata_path),signature=str(self.base/'signature'),public_keyring=str(self.base/'public.gpg'),state_dir=str(self.state),namespace='dev.fixture',signer=self.key,minimum_sequence=1,apply=True)
- def verify(self,module,callback=lambda:None):
+ def verify(self,module,callback=lambda:None,*,live_clock=False):
   case=self;calls=[]
   class MockVerifier:
    def __init__(self,*unused):pass
@@ -36,7 +36,7 @@ class Controls(unittest.TestCase):
     return dict(primary_fingerprint=case.key)
    def bundle(self,*unused):raise AssertionError('no package actor in this state-only fixture')
   with patch.object(module,'Verifier',MockVerifier),patch.object(module,'describe',return_value=(self.actual,dict(signer=self.key,files={}),b'TEST-MOCKED-RELEASE')):
-   result=module.verify(self.args,now=self.now)
+   result=module.verify(self.args,now=None if live_clock else self.now)
   self.assertEqual(calls,['signature','signature']);return result
  def replace_state(self):self.state.rename(self.detached);self.state.mkdir(mode=0o700)
  def assert_detached_preserved(self):
@@ -73,6 +73,37 @@ class Controls(unittest.TestCase):
   result=self.verify(c,lambda:(self.state/'notes').write_bytes(b'keep'));self.assertEqual(result['status'],'applied-development');self.assertEqual((self.state/'notes').read_bytes(),b'keep')
  def test_readonly_verification_never_commits(self):
   self.args.apply=False;result=self.verify(c);self.assertEqual(result['status'],'verified-development');self.assertFalse(result['state_changed']);self.assertEqual((self.state/'checkpoint.json').read_bytes(),self.prior_raw)
+ def test_envelope_expiring_during_verification_refuses_before_completion(self):
+  expires = self.now + timedelta(seconds=1)
+  self.metadata['expires_utc'] = c.utc(expires)
+  self.metadata_path.write_bytes(c.encoded(self.metadata))
+
+  class Clock(datetime):
+   current = self.now
+
+   @classmethod
+   def now(cls, tz):
+    return cls.current.astimezone(tz)
+
+  def expire():
+   Clock.current = expires
+
+  for apply in (False, True):
+   with self.subTest(apply=apply), patch.object(c, 'datetime', Clock):
+    Clock.current = self.now
+    self.args.apply = apply
+    with self.assertRaisesRegex(c.Error, 'metadata is expired'):
+     self.verify(c, expire, live_clock=True)
+    self.assertEqual((self.state/'checkpoint.json').read_bytes(), self.prior_raw)
+
+  self.metadata['expires_utc'] = c.utc(expires + timedelta(seconds=1))
+  self.metadata_path.write_bytes(c.encoded(self.metadata))
+  with patch.object(c, 'datetime', Clock):
+   Clock.current = self.now
+   result = self.verify(c, expire, live_clock=True)
+  self.assertEqual(result['status'], 'applied-development')
+  self.assertEqual(result['checked_utc'], c.utc(expires))
+  self.assertEqual(json.loads((self.state/'checkpoint.json').read_bytes())['verified_utc'], c.utc(expires))
  def test_primary_signature_refusal_is_not_replaced_by_path_check(self):
   primary=c.Error('TEST primary signature refusal')
   def refusal():self.replace_state();raise primary

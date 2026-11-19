@@ -9,8 +9,8 @@
   },
   "candidate": {
     "pin": {
-      "bytes": 29503,
-      "sha256": "4cf428452d08ea212d8bb92d899329f3445d15877c5b79e5ff5f138b0a696e76"
+      "bytes": 29808,
+      "sha256": "3e0d3ff114fbf6eadf718cfc78b42140e0a0740083ec8c66c694944cae022fe9"
     },
     "source_commit": null,
     "source_path": "scripts/client/client_v3.py"
@@ -44,6 +44,6 @@
     "version": "0.1.0-1"
   },
   "schema_version": 1,
-  "source_kind": "maintained project v3 source derived from pinned project v2; candidate not yet committed",
-  "version": "0.1.0-1"
+  "source_kind": "maintained project v3 source derived from pinned project v2; candidate selected by byte pin",
+  "version": "0.1.0-2"
 }
