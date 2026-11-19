@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Check pinned response, custody and original-log handling without network."""
+"""Check pinned transport and custody without network."""
 import argparse
 import base64
 from email.message import Message
@@ -68,6 +68,70 @@ class AcquisitionTests(unittest.TestCase):
         for name in ("../../x", "/root", "a//b", "a/../b", "alt?url=other", "a%2fb"):
             with self.assertRaisesRegex(ValueError, "RELATIVE_PUBLIC"):
                 A.git_url("e" * 40, name)
+
+    def test_unscoped_whole_body_retains_existing_range_header_behavior(self):
+        body = b"exact body"
+        response = Response(self.url, body, length=len(body))
+        response.headers["Content-Range"] = f"bytes 0-{len(body)-1}/{len(body)}"
+        target = io.BytesIO()
+        A.receive(lambda *_a, **_k: response, self.url, A.C.pin(body), target)
+        self.assertEqual(target.getvalue(), body)
+
+    def test_one_pinned_suffix_requires_exact_range_and_whole_digest(self):
+        body, offset = b"exact pinned recovery", 5
+        want = A.C.pin(body)
+        extent = f"bytes {offset}-{len(body)-1}/{len(body)}"
+        for returned_extent, suffix, reason in ((extent, body[offset:], None),
+                                                (extent.replace("bytes 5-", "bytes 4-"), body[offset:], "CONTENT_RANGE"),
+                                                (extent, b"!" + body[offset+1:], "WHOLE_INPUT_PIN")):
+            with self.subTest(extent=returned_extent, cause=reason), patch.object(A, "RESUME_PIN", want):
+                initial = Response(A.RESUME_URL, body)
+                initial.headers["Accept-Ranges"] = "bytes"
+
+                def stalled(*_args):
+                    if not initial.tell():
+                        return initial.read(offset)
+                    raise TimeoutError("modeled body stall")
+
+                initial.read1 = stalled
+                remaining = Response(A.RESUME_URL, suffix, status=206)
+                remaining.headers["Content-Range"] = returned_extent
+                requests, replies = [], iter((initial, remaining))
+
+                def opener(request, timeout):
+                    self.assertEqual((request.full_url, timeout), (A.RESUME_URL, 30))
+                    requests.append(request.get_header("Range"))
+                    return next(replies)
+
+                target = io.BytesIO()
+                if reason is None:
+                    A.receive(opener, A.RESUME_URL, want, target)
+                    self.assertEqual(target.getvalue(), body)
+                else:
+                    with self.assertRaisesRegex(ValueError, reason):
+                        A.receive(opener, A.RESUME_URL, want, target)
+                self.assertEqual(requests, [None, f"bytes={offset}-{len(body)-1}"])
+
+    def test_whole_deadline_zero_progress_and_foreign_route_do_not_retry(self):
+        body = b"exact pinned recovery"
+        for url, error, prefix in ((A.RESUME_URL, A.AcquisitionDeadline, body[:5]),
+                                   (A.RESUME_URL, TimeoutError, b""),
+                                   (self.url, TimeoutError, body[:5])):
+            with self.subTest(url=url, error=error, prefix=prefix), patch.object(A, "RESUME_PIN", A.C.pin(body)):
+                response = Response(url, body)
+                response.headers["Accept-Ranges"] = "bytes"
+                def stalled(*_args):
+                    if prefix and not response.tell():
+                        return response.read(len(prefix))
+                    raise error("modeled timeout")
+                response.read1 = stalled
+                opened = []
+                def opener(request, timeout):
+                    opened.append(request)
+                    return response
+                with self.assertRaises(error):
+                    A.receive(opener, url, A.C.pin(body), io.BytesIO())
+                self.assertEqual(len(opened), 1)
 
     def test_acquisition_publishes_only_verified_set(self):
         with tempfile.TemporaryDirectory(prefix="qt-acquisition-test-") as directory:
