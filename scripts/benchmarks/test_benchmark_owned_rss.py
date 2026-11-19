@@ -95,10 +95,17 @@ def prepare(root,owned=True,program=ALLOCATION,paired=False):
  return config,identity
 
 
-def run(root,slot=0,identity=None):
+def run(root,slot=0,identity=None,dependencies=None):
  if identity is None: identity=b.state_identity(b.read_json(root/'state.json'))
  directory=root/('trial-'+str(slot))
- with patch.object(b,'live_identity',return_value=identity):
+ collector,owner=dependencies if dependencies is not None else a.load_dependencies()
+ # Keep the real owned process, /proc RSS reads and clocks. Host sysfs sensors
+ # can block an otherwise successful RSS control during the sampler drain.
+ sensors=t.fixture_sysfs(root/('fixture-sysfs-'+str(slot)))
+ discover=collector.discover
+ with (patch.object(b,'live_identity',return_value=identity),
+       patch.object(a,'load_dependencies',return_value=(collector,owner)),
+       patch.object(collector,'discover',side_effect=lambda:discover(sensors))):
   code=b.run(root/'plan.json',slot,root/'state.json',root/'conditions.json',root,directory,platform_metrics=True)
  return code,b.read_json(directory/'trial.json'),directory
 
@@ -138,8 +145,7 @@ class OwnedRssTests(unittest.TestCase):
   root=self.root/'descendant';ready=root/'descendant-ready.json';boundary={}
   prepare(root,program=DESCENDANT.replace('READY_PATH',repr(str(ready))))
   dependencies=descendant_ready_owner(ready,boundary)
-  with patch.object(a,'load_dependencies',return_value=dependencies):
-   code,trial,directory=run(root)
+  code,trial,directory=run(root,dependencies=dependencies)
   self.assertTrue(boundary,'allocated descendant did not reach the bounded readiness boundary')
   metrics=trial['metrics']
   if code:
@@ -166,6 +172,11 @@ class OwnedRssTests(unittest.TestCase):
   self.assertIsNone(trial['metrics']['root_rss_kib'])
   self.assertNotIn('owned_rss',trial)
   self.assertFalse((directory/'owned-rss.json').exists())
+  inventory=b.read_json(directory/'platform-metrics/inventory.json')
+  self.assertEqual(inventory['sysfs_root'],str(root/'fixture-sysfs-0'))
+  capture=b.read_json(directory/'platform-metrics/capture.json')
+  self.assertTrue(capture['worker_stopped'])
+  self.assertTrue(capture['supervision']['reaped'])
 
  def test_invalid_config_and_old_core_cannot_select_rss(self):
   config=b.read_json(self.base/'config.json')
