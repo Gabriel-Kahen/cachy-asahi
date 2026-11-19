@@ -27,8 +27,7 @@ reported 606 packages and the separate controller image held 590.
   `c7edfd4e94a324beea6f69b8158c9177fe7ff51c61b897738fecda53b6a5221f`.
   [R16 source](https://github.com/Gabriel-Kahen/cachy-asahi/tree/229b143302608ca0a726f5618dc404fe11fcde74)
 
-The matching overlay case started from the same exact Source after independent
-minimal acceptance. Its separate result is pending. Physical M2 validation,
-target power and performance measurements, and stable release acceptance
-remain open.
-[Overlay run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/44462779800)
+The matching overlay case passed from the same exact source after independent
+minimal acceptance. Physical M2 validation, target power and performance
+measurements, and stable release acceptance remain open.
+[Overlay result](current606-overlay-emulated-arm16k-r16-20261119.md)
