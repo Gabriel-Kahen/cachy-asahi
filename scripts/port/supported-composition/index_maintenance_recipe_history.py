@@ -9,17 +9,23 @@ The command reads existing signature verification evidence and rechecks its
 archive and signature bytes. It executes neither recipes nor network requests.
 The optional plugbuild_client reference enables a candidate reconstruction
 using the archived Arch Linux ARM client's checksum append step.
+Optional build_inputs compare a retained final PKGBUILD or a historical
+workunit, with separately retained checksum stdout when supplied.
 """
 
 import argparse
 import base64
+import gzip
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
 import re
 import sys
+import tarfile
 import tempfile
+import zlib
 
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location("maintenance_archive_join", HERE / "join_maintenance_rollback.py")
@@ -38,6 +44,18 @@ PLUGBUILD_SOURCE = (
 CHECKSUM_FIELD = re.compile(rb"(?m)^((?:md5|sha1|sha224|sha256|sha384|sha512|b2)sums)(?:_\w+)?=")
 CHECKSUM_ARRAY = re.compile(rb"(?m)^((?:sha512|b2)sums)=\(([^)]+)\)[ \t]*$")
 CHECKSUM_VALUES = re.compile(rb"'[0-9a-f]{128}'(?:[ \t\n]+'[0-9a-f]{128}')*")
+MAX_RECIPE = 192 * 1024
+MAX_WORKUNIT = 2 * 1024**2
+MAX_WORKUNIT_TAR = 16 * 1024**2
+MAX_CHECKSUM_OUTPUT = 16 * 1024
+
+
+def buildtime_recipe(raw, expected):
+    digest = source.digest(raw)
+    result = dict(bytes=len(raw), pkgbuild_sha256=digest, status="SIGNED_RECIPE_DIGEST_MISMATCH")
+    if digest == expected:
+        result.update(status="EXACT_SIGNED_RECIPE_MATCH", body_base64=base64.b64encode(raw).decode("ascii"))
+    return result
 
 
 def plugbuild_candidate(raw, expected):
@@ -52,13 +70,55 @@ def plugbuild_candidate(raw, expected):
     values = body.split()
     generated = prefix + (b"\n" + b" " * len(prefix)).join(values) + b")\n"
     # client.pl appends the output of echo '' followed by makepkg -g.
-    expanded = raw + b"\n" + generated
-    digest = source.digest(expanded)
-    detail = dict(bytes=len(expanded), pkgbuild_sha256=digest)
-    if digest != expected:
-        return dict(detail, status="SIGNED_RECIPE_DIGEST_MISMATCH")
-    return dict(detail, status="EXACT_SIGNED_RECIPE_MATCH",
-                body_base64=base64.b64encode(expanded).decode("ascii"))
+    return buildtime_recipe(raw + b"\n" + generated, expected)
+
+
+def workunit_recipe(raw, pkgbase):
+    """Read one ordinary <pkgbase>/PKGBUILD from the bounded gzip workunit."""
+    with gzip.GzipFile(fileobj=io.BytesIO(raw)) as compressed:
+        body = compressed.read(MAX_WORKUNIT_TAR + 1)
+    source.need(0 < len(body) <= MAX_WORKUNIT_TAR, "bounded decompressed workunit required")
+    seen = set()
+    recipe = None
+    with tarfile.open(fileobj=io.BytesIO(body), mode="r:") as archive:
+        for member in archive:
+            name = member.name.removeprefix("./")
+            parts = source.relative(name)
+            # Official workunits carry an ancillary license symlink. Only the
+            # regular PKGBUILD body is opened and no member is extracted.
+            source.need(len(seen) < 256 and name not in seen and parts[0] == pkgbase
+                        and (member.isfile() or member.isdir() or member.issym()), "closed workunit namespace required")
+            seen.add(name)
+            if parts == (pkgbase, "PKGBUILD"):
+                source.need(member.isfile() and 0 < member.size <= MAX_RECIPE, "bounded workunit PKGBUILD required")
+                with archive.extractfile(member) as stream:
+                    recipe = stream.read(MAX_RECIPE + 1)
+                source.need(len(recipe) == member.size, "complete workunit PKGBUILD required")
+    source.need(recipe is not None, "workunit PKGBUILD missing")
+    return recipe
+
+
+def compare_build_input(row, package, use_plugbuild):
+    fields = ("package", "version", "kind", "artifact")
+    replay = "checksum_stdout" in row
+    source.fields(row, (*fields, "checksum_stdout") if replay else fields)
+    role = row["kind"]
+    source.need(role in ("final-pkgbuild", "workunit"), "known build input role required")
+    source.need(not replay or role == "workunit" and use_plugbuild,
+                "workunit checksum replay requires the pinned Plugbuild client")
+    artifact = row["artifact"]
+    raw = history.read_reference_bytes(artifact, MAX_RECIPE if role == "final-pkgbuild" else MAX_WORKUNIT)
+    if role == "workunit":
+        raw = workunit_recipe(raw, package["pkgbase"])
+    expected = package["signed_pkgbuild_sha256"]
+    result = dict(kind=role, artifact=artifact, **buildtime_recipe(raw, expected))
+    if replay:
+        stdout = history.read_reference_bytes(row["checksum_stdout"], MAX_CHECKSUM_OUTPUT)
+        result["checksum_stdout"] = row["checksum_stdout"]
+        result["plugbuild_candidate"] = buildtime_recipe(raw + b"\n" + stdout, expected)
+    elif role == "workunit" and use_plugbuild and result["status"] != "EXACT_SIGNED_RECIPE_MATCH":
+        result["plugbuild_candidate"] = plugbuild_candidate(raw, expected)
+    return result
 
 
 def signed_input(name, version, arch, repo, pair, temporary):
@@ -115,15 +175,18 @@ def signed_packages(join, temporary):
 def compare(config, pin):
     fields = ("kind", "schema_version", "archive_join", "candidates")
     use_plugbuild = "plugbuild_client" in config
-    source.fields(config, (*fields, "plugbuild_client") if use_plugbuild else fields)
+    use_build_inputs = "build_inputs" in config
+    source.fields(config, fields + tuple(key for key in ("plugbuild_client", "build_inputs") if key in config))
     if use_plugbuild:
         ref = config["plugbuild_client"]
         client = history.read_reference_bytes(ref, history.MAX_RESPONSE)
         source.need(source.digest(client) == PLUGBUILD_CLIENT_SHA256,
                     "exact archived Arch Linux ARM plugbuild client required")
     candidates = config["candidates"]
+    build_inputs = config.get("build_inputs", [])
     source.need(config["kind"] == KIND and config["schema_version"] == 1
-                and type(candidates) is list and 0 < len(candidates) <= 96, "bounded maintenance history config required")
+                and type(candidates) is type(build_inputs) is list and len(candidates) <= 96
+                and len(build_inputs) <= 12 and (candidates or build_inputs), "bounded maintenance history config required")
     join = history.read_reference(config["archive_join"], source.MAX_JSON)
     with tempfile.TemporaryDirectory(prefix="maintenance-recipe-history-") as temporary:
         packages = signed_packages(join, temporary)
@@ -145,12 +208,25 @@ def compare(config, pin):
         if use_plugbuild and not match:
             candidate["plugbuild_candidate"] = plugbuild_candidate(raw, expected)
         grouped[key].append(candidate)
+    build_grouped = {key: [] for key in packages}
+    seen_inputs = set()
+    for row in build_inputs:
+        key = row["package"], row["version"]
+        source.need(key in packages, "unrelated build input package or version")
+        candidate = compare_build_input(row, packages[key], use_plugbuild)
+        identity = key + (candidate["kind"], candidate["artifact"]["sha256"],
+                          candidate.get("checksum_stdout", {}).get("sha256"))
+        source.need(identity not in seen_inputs, "duplicate build input")
+        seen_inputs.add(identity)
+        build_grouped[key].append(candidate)
     for key, result in packages.items():
         entries = grouped[key]
         result["candidates"] = entries
+        if use_build_inputs:
+            result["build_inputs"] = build_grouped[key]
         matched = any(row["status"] == "EXACT_SIGNED_RECIPE_MATCH"
                       or row.get("plugbuild_candidate", {}).get("status") == "EXACT_SIGNED_RECIPE_MATCH"
-                      for row in entries)
+                      for row in (*entries, *build_grouped[key]))
         result["status"] = "EXACT_SIGNED_RECIPE_MATCH" if matched else "SIGNED_RECIPE_UNRECOVERED"
     result = dict(kind=KIND + "-result", schema_version=1, config_sha256=pin, archive_join=config["archive_join"],
                   packages=list(packages.values()), package_count=len(packages),
@@ -160,7 +236,11 @@ def compare(config, pin):
     if use_plugbuild:
         result["plugbuild"] = dict(method="APPEND_BLANK_LINE_AND_MAKEPKG_GENERATED_CHECKSUMS", client=ref,
                                    source_url=PLUGBUILD_SOURCE, source_revision=PLUGBUILD_REVISION,
-                                   checksum_values="PUBLIC_RECIPE_DECLARATIONS")
+                                   checksum_values=("PUBLIC_RECIPE_DECLARATIONS_OR_PINNED_STDOUT"
+                                                    if any("checksum_stdout" in row for row in build_inputs)
+                                                    else "PUBLIC_RECIPE_DECLARATIONS"))
+    if use_build_inputs:
+        result["build_input_count"] = len(seen_inputs)
     return result
 
 
@@ -182,7 +262,8 @@ def main():
             target.write(encoded)
         print(f"{result['exact_recipe_count']}/{result['package_count']} exact recipes, "
               f"{result['candidate_count']} candidates, SHA-256 {source.digest(encoded)}")
-    except (OSError, ValueError, TypeError, KeyError, AttributeError, *index.stream.DECODER_ERRORS) as error:
+    except (OSError, ValueError, TypeError, KeyError, AttributeError, EOFError, tarfile.TarError,
+            zlib.error, *index.stream.DECODER_ERRORS) as error:
         print(f"maintenance recipe history refused: {error}", file=sys.stderr)
         return 1
     return 0

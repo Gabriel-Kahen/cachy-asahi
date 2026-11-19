@@ -75,6 +75,20 @@ class MaintenanceHistoryTests(unittest.TestCase):
         return dict(package="python", version=version, repository="https://github.com/org/package",
                     commit=commit, path=path, file_response=self.ref(version + ".json", json.dumps(body).encode()))
 
+    def workunit(self, recipe, extra=None):
+        raw = io.BytesIO()
+        with tarfile.open(fileobj=raw, mode="w:gz") as archive:
+            if recipe is not None:
+                member = tarfile.TarInfo("./python/PKGBUILD")
+                member.size = len(recipe)
+                archive.addfile(member, io.BytesIO(recipe))
+            if extra:
+                archive.addfile(extra)
+        return raw.getvalue()
+
+    def build_input(self, kind, raw, *, version="3.14.8-1"):
+        return dict(package="python", version=version, kind=kind, artifact=self.ref(kind + ".artifact", raw))
+
     def test_same_blob_matches_only_the_expected_version(self):
         candidates = [self.candidate(version) for version in ("3.14.7-1", "3.14.8-1")]
         result = index.compare(self.config(candidates), "b" * 64)
@@ -126,6 +140,59 @@ class MaintenanceHistoryTests(unittest.TestCase):
                     simple + b"sha256sums=(SKIP)\n", b"b2sums=('SKIP')\n"):
             with self.subTest(raw=raw):
                 self.assertEqual(index.plugbuild_candidate(raw, "0" * 64)["status"], "UNSUPPORTED_CHECKSUM_LAYOUT")
+
+    def test_final_bytes_match_only_the_exact_signed_input(self):
+        recipe = self.recipe("python", "3.14.8-1")
+        exact = self.build_input("final-pkgbuild", recipe)
+        drift = dict(exact, version="3.14.7-1")
+        cfg = dict(self.config([]), build_inputs=[exact, drift])
+        result = index.compare(cfg, "b" * 64)
+        forward, rollback = [row for row in result["packages"] if row["package"]["name"] == "python"]
+        self.assertEqual(result["exact_recipe_count"], 1)
+        self.assertEqual(result["build_input_count"], 2)
+        self.assertEqual(base64.b64decode(forward["build_inputs"][0]["body_base64"]), recipe)
+        self.assertEqual(rollback["status"], "SIGNED_RECIPE_UNRECOVERED")
+        self.assertNotIn("body_base64", rollback["build_inputs"][0])
+        self.assertEqual(result["corresponding_source_fulfillment"], "NOT ESTABLISHED")
+        with self.assertRaisesRegex(ValueError, "duplicate build input"):
+            index.compare(dict(cfg, build_inputs=[exact, exact]), "b" * 64)
+
+    def test_historical_workunit_plus_exact_checksum_stdout(self):
+        recipe = self.recipe("python", "3.14.8-1")
+        stdout = b"sha512sums=('"+b"a"*128+b"')\n"
+        target = recipe + b"\n" + stdout
+        self.packages["python"]["forward"] = self.pair("python", "3.14.8-1", target)
+        row = self.build_input("workunit", self.workunit(recipe))
+        row["checksum_stdout"] = self.ref("checksum.out", stdout)
+        cfg = dict(self.config([]), build_inputs=[row])
+        with self.assertRaisesRegex(ValueError, "pinned Plugbuild client"):
+            index.compare(cfg, "b" * 64)
+        cfg["plugbuild_client"] = self.ref("client.pl", b"fixture client")
+        with patch.object(index, "PLUGBUILD_CLIENT_SHA256", cfg["plugbuild_client"]["sha256"]):
+            result = index.compare(cfg, "b" * 64)
+            self.assertEqual(result["exact_recipe_count"], 1)
+            forward = next(row for row in result["packages"] if row["package"]["version"] == "3.14.8-1")
+            self.assertEqual(base64.b64decode(forward["build_inputs"][0]["plugbuild_candidate"]["body_base64"]), target)
+            row["checksum_stdout"] = self.ref("checksum.out", stdout.rstrip(b"\n"))
+            self.assertEqual(index.compare(cfg, "b" * 64)["exact_recipe_count"], 0)
+
+    def test_workunit_namespace_and_expansion_are_bounded(self):
+        recipe = self.recipe("python", "3.14.8-1")
+        raw = self.workunit(recipe)
+        self.assertEqual(index.workunit_recipe(raw, "python"), recipe)
+        for leaf in ("../foreign", "perl/PKGBUILD", "python/PKGBUILD"):
+            with self.subTest(leaf=leaf), self.assertRaises(ValueError):
+                index.workunit_recipe(self.workunit(recipe, tarfile.TarInfo(leaf)), "python")
+        link = tarfile.TarInfo("python/LICENSES/0BSD.txt")
+        link.type = tarfile.SYMTYPE
+        link.linkname = "../LICENSE"
+        self.assertEqual(index.workunit_recipe(self.workunit(recipe, link), "python"), recipe)
+        link.name = "python/PKGBUILD"
+        with self.assertRaisesRegex(ValueError, "bounded workunit PKGBUILD"):
+            index.workunit_recipe(self.workunit(None, link), "python")
+        with patch.object(index, "MAX_WORKUNIT_TAR", 512):
+            with self.assertRaisesRegex(ValueError, "bounded decompressed workunit"):
+                index.workunit_recipe(raw, "python")
 
 
 if __name__ == "__main__":

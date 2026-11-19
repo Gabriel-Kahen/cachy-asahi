@@ -380,6 +380,27 @@ and Python `3.14.7-1`. Python `3.14.8-1` and Perl `5.42.3-1` still need the
 historical workunit or final build-time recipe. The original Git snapshots and
 their separate digest results remain available for comparison.
 
+Add optional `build_inputs` rows to the same configuration when the builder
+provides bytes. Use `kind: final-pkgbuild` for the exact post-checksum
+`PKGBUILD` or `kind: workunit` for the original gzip tar containing
+`<pkgbase>/PKGBUILD`. Each row names the exact `package` and `version` and
+pins the `artifact` with the same absolute `path`, `size`, and `sha256`
+reference used for candidate responses. A workunit can also pin the
+builder's verbatim `makepkg -g` output in `checksum_stdout` when the archived
+`plugbuild_client` is selected. Both fields carry bytes without executing
+the recipe or unpacking into the filesystem.
+
+```sh
+python3 -I -B scripts/port/supported-composition/index_maintenance_recipe_history.py \
+  --config "$recipe_intake" --config-sha256 "$intake_sha256" --output "$fresh_result"
+```
+
+The reader emits `body_base64` on an exact record under `build_inputs` or
+its `plugbuild_candidate` only when the bytes match that version's signed
+`.BUILDINFO` digest. Current workunits and adjacent snapshots with different
+bytes stay recorded as mismatches. A matching recipe leaves the full
+corresponding-source and license review open.
+
 ### Check a generated AArch64 SONAME dependency
 
 `compose_reviewed_soname.py` accepts one separately pinned development
