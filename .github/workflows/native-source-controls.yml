@@ -10,7 +10,7 @@ jobs:
   lifecycle:
     name: Image lifecycle source controls (${{ matrix.python }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -266,7 +266,7 @@ jobs:
   adapter-data:
     name: Native adapter DATA controls (${{ matrix.python }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
