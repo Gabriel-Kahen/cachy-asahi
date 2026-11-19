@@ -19,9 +19,10 @@ ROOT_ENTRY='a0d61f0cefae8bb5b1ab9fabd63016ace46451bc01eb432d895eeee42ca1d245'
 RUNTIME_WRAPPER_SHA='87a494064ebc6ec4e17d9a00f4cf3c6e3ffed2560e32b8ce558c008a98166bce'
 BASE_SOURCE='3a415e51ad5380ff20cde6455fc9c51255d268ff'
 EXAMPLE_SOURCE='868f7f4aca866605c69ae911508c4767d2b18280'
-SCOPE='cachy-overlay583-development-onboarding-r1.scope'
-PREFIX='caa-overlay583-development-onboarding-r1-'
+SCOPE='cachy-overlay583-development-onboarding-r2.scope'
+PREFIX='caa-overlay583-development-onboarding-r2-'
 TRIAL='scripts/install/overlay583_trial/trial.py'
+GUEST_INIT='scripts/install/overlay583_trial/guest-init.sh'
 OWNER='scripts/virtual/owned_process.py'
 EXAMPLE='examples/development/'
 BASE_ROLE='OVERLAY583_OWNED_GUEST_PLAN_V1'
@@ -132,6 +133,12 @@ def once(text,old,new):
     return text.replace(old,new,1)
 
 
+def project_guest_init(raw):
+    """Expose the one extra onboarding receipt through the existing export bounds."""
+    return once(raw.decode(),'|first-login.json|refusal-db-before.json|',
+                '|first-login.json|installed-onboarding.json|refusal-db-before.json|').encode()
+
+
 def project_worker(original, selected, probe):
     prefix='''
 
@@ -171,7 +178,7 @@ def project_shell(raw, handoff):
                     ('   --first-login /inputs/first-login --first-login-sha256 "$supplement"','')):
         source=once(source,old,new)
     require(source.count('overlay583-first-login')==2,'exact retained output path seams')
-    return source.replace('overlay583-first-login','overlay583-development-onboarding').encode()
+    return source.replace('overlay583-first-login','overlay583-development-onboarding-r2').encode()
 
 
 def runtime_entry(path, runner, runtime_wrapper):
@@ -222,6 +229,7 @@ def prepare(output, held, runtime_wrapper):
           if name.startswith(('scripts/install/overlay583_trial/','scripts/integration/arm16k_perl5423_vm/'))}
     require(len(work)==9 and ref(work[TRIAL])==old['source'][TRIAL] and ref(selected['owned_process'].encode())==old['source'][OWNER],
             'entire exact held base runtime and compiler child supervisor')
+    work[GUEST_INIT]=project_guest_init(work[GUEST_INIT])
     work[TRIAL]=project_worker(work[TRIAL],selected,(HERE/'guest.py').read_text())
     for name,raw in work.items():
         path=output/'source'/name
@@ -233,7 +241,7 @@ def prepare(output, held, runtime_wrapper):
             'base plan byte-match without unrelated addon')
     raw=trial.encoded(plan)
     (output/'plan-template.DATA.json').write_bytes(raw)
-    result=dict(kind='OVERLAY583_DEVELOPMENT_ONBOARDING_ROOT_OPERANDS_ONLY_V1',root_scope=SCOPE,
+    result=dict(kind='OVERLAY583_DEVELOPMENT_ONBOARDING_ROOT_OPERANDS_ONLY_V2',root_scope=SCOPE,
         source={name:ref(raw) for name,raw in work.items()},base_source=BASE_SOURCE,staging=old['staging'],
         docker=old['docker'],actor_image=old['actor_image'],references=old['references'],tools=old['tools'],
         preflight=old['preflight'],plan_template=dict(nonce=plan['nonce'],**ref(raw)),

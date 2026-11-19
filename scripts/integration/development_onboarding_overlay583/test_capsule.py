@@ -74,6 +74,23 @@ class PortableSourceChecks(unittest.TestCase):
         self.assertEqual(result['commands'],[])
         self.assertTrue(result['workspace_removed'])
 
+    def test_inventory_stderr_cannot_pollute_or_overfill_the_lock(self):
+        owner=C.module(C.ROOT/C.OWNER,'onboarding_inventory_owner_test')
+        owner.prepare()
+        warning=b"warning: Public keyring not found; have you run 'pacman-key --init'?\n"
+        rows=b'z 2\na 1\n'
+        args=[sys.executable,'-I','-B','-c',
+              f'import os; os.write(2, {warning!r}); os.write(1, {rows!r})']
+        with tempfile.TemporaryDirectory(prefix='onboarding-inventory-') as d:
+            receipt,stderr=G.inventory_capture(owner,args,os.environ,6,Path(d))
+            self.assertEqual(receipt['output'],rows)
+            self.assertEqual(stderr,warning)
+            self.assertTrue(receipt['passed'] and receipt['reaped'] and receipt['output_complete'])
+            self.assertEqual(receipt['group_census'],'EMPTY_TWICE')
+            args[-1]='import os; os.write(1, b"a"*140000); os.write(2, b"b"*140000)'
+            with self.assertRaisesRegex(ValueError,'bounded inventory command streams'):
+                G.inventory_capture(owner,args,os.environ,6,Path(d))
+
 
 class HeldSourceChecks(unittest.TestCase):
     @unittest.skipUnless(os.environ.get('CACHY_ONBOARDING_HELD') and os.environ.get('CACHY_ONBOARDING_RUNTIME_WRAPPER'),
@@ -103,6 +120,41 @@ class HeldSourceChecks(unittest.TestCase):
             self.assertIn(b'RuntimeSession',raw)
             self.assertNotIn(b'--signature-review-sha256',raw)
             compile(raw,str(path),'exec')
+
+    @unittest.skipUnless(os.environ.get('CACHY_ONBOARDING_HELD'),'Select the exact retained init program')
+    def test_export_retains_only_the_explicit_onboarding_receipt(self):
+        held=Path(os.environ['CACHY_ONBOARDING_HELD'])
+        pin=json.loads(C.body(held/'HANDOFF.DATA.json',C.BASE_SHA))['source'][C.GUEST_INIT]
+        original=C.body(held/'source'/C.GUEST_INIT,pin['sha256'])
+        projected=C.project_guest_init(original)
+        self.assertEqual(projected.replace(b'|installed-onboarding.json',b'',1),original)
+
+        def export(init, src, dest):
+            function=init.decode().split('export_evidence() {',1)[1].split('\n[[ $$',1)[0]
+            code='set -eu; umask 077\nexport_evidence() {'+function+'\nexport_evidence "$1" "$2"\n'
+            return subprocess.run(['/usr/bin/bash','-c',code,'test',src,dest],env={'PATH':'/usr/bin:/bin','LC_ALL':'C'},
+                                  stdin=subprocess.DEVNULL,capture_output=True,timeout=10)
+
+        with tempfile.TemporaryDirectory(prefix='onboarding-export-') as d:
+            root=Path(d)
+            source=root/'evidence'
+            source.mkdir()
+            report=source/'installed-onboarding.json'
+            report.write_bytes(b'unit fixture\n')
+            (source/'result.json').write_text('{}\n')
+            self.assertEqual(export(original,source,root/'old').returncode,1)
+            self.assertEqual(export(projected,source,root/'new').returncode,0)
+            self.assertEqual((root/'new'/report.name).read_bytes(),report.read_bytes())
+            self.assertEqual((root/'new'/report.name).stat().st_mode&0o777,0o600)
+            (source/'unexpected').touch()
+            self.assertEqual(export(projected,source,root/'unknown').returncode,1)
+            (source/'unexpected').unlink()
+            with report.open('wb') as file:
+                file.truncate(8*1024**2+1)
+            self.assertEqual(export(projected,source,root/'over-cap').returncode,1)
+            report.unlink()
+            report.symlink_to('result.json')
+            self.assertEqual(export(projected,source,root/'symlink').returncode,1)
 
 
 if __name__=='__main__':

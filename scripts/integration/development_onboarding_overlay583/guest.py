@@ -6,10 +6,11 @@ from pathlib import Path
 import json
 import os
 import re
+import resource
 import shutil
 import stat
 import subprocess
-from tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory, TemporaryFile
 import time
 from types import ModuleType
 
@@ -17,6 +18,7 @@ UID = GID = 29085
 EXAMPLE = 'examples/development/hello.c'
 GREETING = 'Hello from cachy-asahi'
 EDIT = 'Hello from my installed terminal'
+OUTPUT_CAP = 256 * 1024
 LABELS = ('shell','git-version','cc-version','nano-version','source-clone','prepare','edit','rebuild',
           'verify','baseline-elf','rebuild-elf','inventory-unchanged')
 
@@ -28,6 +30,22 @@ def require(ok, message):
 
 def digest(raw):
     return sha256(raw).hexdigest()
+
+
+def inventory_capture(owner, argv, env, cap, workspace):
+    def limit_output_file():
+        _, hard = resource.getrlimit(resource.RLIMIT_FSIZE)
+        limit = OUTPUT_CAP if hard == resource.RLIM_INFINITY else min(hard, OUTPUT_CAP)
+        resource.setrlimit(resource.RLIMIT_FSIZE, (limit, limit))
+
+    with TemporaryFile(dir=workspace) as stderr:
+        child=subprocess.Popen(argv,env=env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=stderr,
+                               preexec_fn=limit_output_file,start_new_session=True)
+        result=owner.supervise(child,cap=cap,retirement=1,max_output=OUTPUT_CAP)
+        stderr.seek(0)
+        diagnostic=stderr.read(OUTPUT_CAP+1)
+        require(len(result['output'])+len(diagnostic)<=OUTPUT_CAP,'bounded inventory command streams')
+        return result, diagnostic
 
 
 def executable_pins(target, expected):
@@ -104,7 +122,7 @@ def verify_evidence(receipt, selected):
 
 
 def validate(receipt, selected, lock, nonce):
-    require(receipt['kind']=='OVERLAY583_INSTALLED_DEVELOPMENT_ONBOARDING_R1' and receipt['nonce']==nonce and
+    require(receipt['kind']=='OVERLAY583_INSTALLED_DEVELOPMENT_ONBOARDING_R2' and receipt['nonce']==nonce and
             receipt['fixture_commit']==selected['fixture_commit'] and receipt['upstream_commit']==selected['upstream_commit'] and
             receipt['initial_lock']==lock and receipt['installed_tools']==selected['tool_versions'] and
             receipt['scope']=='SCRIPTED_EDIT_INSTALLED_ARM16K_ONLY','exact installed onboarding receipt')
@@ -116,6 +134,11 @@ def validate(receipt, selected, lock, nonce):
                 receipt['verified']['source_revision']==receipt['fixture_commit'] and
                 receipt['readback_executed_binary'] is False and receipt['hardware'] is None,
                 'complete exact removed ordinary-user workspace and retained result')
+        diagnostic=rows[-1]['inventory_stderr']
+        require(set(diagnostic)=={'bytes','sha256'} and type(diagnostic['bytes']) is int and
+                0<=diagnostic['bytes']<=OUTPUT_CAP-lock['bytes'] and
+                re.fullmatch(r'[a-f0-9]{64}',diagnostic['sha256']),
+                'separate bounded inventory stderr receipt')
         for row in rows:
             proc=row['process']
             require(proc['exit']==0 and proc['reaped'] is proc['output_complete'] is True and
@@ -133,7 +156,7 @@ def exercise(trial, plan, lock, env, deadline, selected):
     target=trial.TARGET
     workspace=Path('/var/tmp')/('caa-development-onboarding-'+nonce)
     host=target/workspace.relative_to('/')
-    receipt=dict(kind='OVERLAY583_INSTALLED_DEVELOPMENT_ONBOARDING_R1',status='HOLD',nonce=nonce,
+    receipt=dict(kind='OVERLAY583_INSTALLED_DEVELOPMENT_ONBOARDING_R2',status='HOLD',nonce=nonce,
                  fixture_commit=selected['fixture_commit'],upstream_commit=selected['upstream_commit'],
                  scope='SCRIPTED_EDIT_INSTALLED_ARM16K_ONLY',initial_lock=trial.pin(lock),final_lock=None,
                  installed_tools=selected['tool_versions'],commands=[],hardware=None,workspace_removed=False,
@@ -185,12 +208,16 @@ def exercise(trial, plan, lock, env, deadline, selected):
             require(label==LABELS[len(receipt['commands'])],'exact next onboarding role')
             cap=min(60,end-time.monotonic())
             require(cap>1,'bounded onboarding clock exhausted')
-            command=[*map(str,argv)] if label=='inventory-unchanged' else [*chroot,*map(str,argv)]
-            child=subprocess.Popen(command,env=env,stdin=subprocess.DEVNULL,
-                                   stdout=subprocess.PIPE,stderr=subprocess.STDOUT,start_new_session=True)
-            observed=owner.supervise(child,cap=cap,retirement=1,max_output=256*1024)
+            extra={}
+            if label=='inventory-unchanged':
+                observed, diagnostic=inventory_capture(owner,list(map(str,argv)),env,cap,host)
+                extra['inventory_stderr']=trial.pin(diagnostic)
+            else:
+                child=subprocess.Popen([*chroot,*map(str,argv)],env=env,stdin=subprocess.DEVNULL,
+                                       stdout=subprocess.PIPE,stderr=subprocess.STDOUT,start_new_session=True)
+                observed=owner.supervise(child,cap=cap,retirement=1,max_output=OUTPUT_CAP)
             output=observed.pop('output')
-            receipt['commands'].append(dict(label=label,process=observed,output_sha256=digest(output)))
+            receipt['commands'].append(dict(label=label,process=observed,output_sha256=digest(output),**extra))
             require(observed['passed'] is True and observed['exit']==0 and observed['group_census']=='EMPTY_TWICE',
                     'owned onboarding role failed: '+label)
             return output

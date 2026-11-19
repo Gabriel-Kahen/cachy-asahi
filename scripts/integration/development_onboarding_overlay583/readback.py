@@ -11,7 +11,7 @@ import sys
 DATA=Path(__file__).resolve().parent
 TRIAL='scripts/install/overlay583_trial/trial.py'
 EXT4='scripts/integration/arm16k_perl5423_vm/frozen/independent_readback.py'
-BOUND_OUTPUT='/out/overlay583-development-onboarding'
+BOUND_OUTPUT='/out/overlay583-development-onboarding-r2'
 
 
 def module(path,name):
@@ -120,7 +120,7 @@ def main():
     raw=r.file(DATA/'HANDOFF.DATA.json',128*1024)
     data=r.decode(raw)
     r.need(r.pin(raw)['sha256']==a.handoff_sha256 and raw==r.encode(data) and
-           data['kind']=='OVERLAY583_DEVELOPMENT_ONBOARDING_ROOT_OPERANDS_ONLY_V1','exact dedicated handoff')
+           data['kind']=='OVERLAY583_DEVELOPMENT_ONBOARDING_ROOT_OPERANDS_ONLY_V2','exact dedicated handoff')
     src=DATA/'source'
     r.need({str(p.relative_to(src)) for p in src.rglob('*') if p.is_file() or p.is_symlink()}==set(data['source']),
            'exact nine original-plus-worker source members')

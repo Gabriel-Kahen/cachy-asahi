@@ -6,7 +6,7 @@ The small deterministic Git fixture includes the exact `hello.c`, `onboarding.py
 
 ## Data preparation
 
-The preparation requires the exact accepted Overlay583 controller capsule, its retained boot and base inputs, the held Runtime44 wrapper, and a trusted checkout with both Git source revisions. Choose the capsule and wrapper by their reviewed whole inputs. Use a fresh absolute private output.
+The R2 preparation requires the exact accepted Overlay583 controller capsule, its retained boot and base inputs, the held Runtime44 wrapper, and a trusted checkout with both Git source revisions. Choose the capsule and wrapper by their reviewed whole inputs. Use a fresh absolute private output. R2 adds the onboarding receipt to the guest's fixed export list and keeps the final package inventory stream separate from pacman's keyring warning.
 
 ```sh
 /usr/bin/python3.14 -I -B -Werror scripts/integration/development_onboarding_overlay583/capsule.py \
@@ -17,10 +17,10 @@ CACHY_ONBOARDING_HELD="$OVERLAY583_CAPSULE" CACHY_ONBOARDING_RUNTIME_WRAPPER="$H
 /usr/bin/bash "$OUT/root-entry.sh" --preflight "$HANDOFF_SHA"
 ```
 
-For an independently authorized Root operation, refresh canonical Runtime44 while other actors and local scopes are absent. Run the same exact owned bind/run path in `cachy-overlay583-development-onboarding-r1.scope`. The locked wrapper uses the original ordinary-owner scope and pidfd controls and retains the descriptor through container retirement. The parent must retain the once intent on interruption. After the scope exits:
+For an independently authorized Root operation, refresh canonical Runtime44 while other actors and local scopes are absent. Run the exact owned bind/run path in `cachy-overlay583-development-onboarding-r2.scope`. The locked wrapper retains the descriptor through container retirement. The parent must retain the once intent on interruption. After the scope exits:
 
 ```sh
-/usr/bin/systemd-run --user --scope --unit=cachy-overlay583-development-onboarding-r1.scope \
+/usr/bin/systemd-run --user --scope --unit=cachy-overlay583-development-onboarding-r2.scope \
   /usr/bin/python3.14 -I -B -Werror "$OUT/enter.py" \
   --runtime44-profile "$RUNTIME44" --runtime44-profile-sha256 "$RUNTIME44_SHA" \
   --handoff-sha256 "$HANDOFF_SHA"
