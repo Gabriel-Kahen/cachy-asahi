@@ -30,6 +30,10 @@ python3 -B scripts/release/export_repository.py \
   --gpg-home /secure/release-verification --key FULL_AUTHENTICATED_FINGERPRINT
 ```
 
+For a stable export that checks the package archive digests against their signed
+build provenance, use `scripts/release/export_repository_v2.py` with the same
+arguments. Both commands produce the same endpoint layout.
+
 Add `--apply` to materialize and select that local generation. Preview creates no
 repository or endpoint files. Signature checks use the supplied existing GPG
 home; source and endpoint cooperative locks refuse concurrent writers.
