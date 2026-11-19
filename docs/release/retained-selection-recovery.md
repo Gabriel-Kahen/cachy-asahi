@@ -14,7 +14,10 @@ an installed package/database/base combination, boot or session.
 ## Supported recovery
 
 Both the currently advertised bundle and the retained target must pass the
-existing real signed release/promotion verifier, including all native/M2 gates.
+signed release and promotion checks used by `export_repository_v2.py`, including
+all native/M2 gates. The verified archive bytes in the signed file map must
+match the digest in the package record, spec, provenance and repository index.
+The verified release and promotion must also match the generation's file pins.
 Both must use the same explicitly pinned signing fingerprint, repository name,
 architecture, complete base inventory digest, selected/protected package names,
 supported model set and coordinated compatibility sets. The target must have an
@@ -92,7 +95,8 @@ Planning and application take the existing nonblocking shared `.release.lock`
 and exclusive endpoint-directory lock. Existing release writers and exporters
 use these same locks. Authorization bytes/signature, current generation and
 target source state are reverified during materialization and immediately before
-selection; reused retained generations receive the same final checks.
+selection; reused retained generations receive the same final checks. These
+checks include archive lineage on both the current bundle and the retained target.
 
 Before the existing atomic symlink replacement commits visibility, a failure
 preserves the selected generation. Temporary partial copies are cleaned. A
@@ -116,6 +120,8 @@ TEST keys, signatures, metadata, withdrawal records, file copies and symlink
 replacements in temporary directories. Only existing stable factual gates are
 explicitly modeled in test adapters. A separate unmodified-validator CLI test
 requires synthetic stable refusal and unchanged endpoint state.
+The signed digest-mismatch fixtures exercise both the advertised and retained
+bundles, including a target that changes after staging.
 
 These are local source/filesystem checks, not native ARM, generic ARM/16K, M2,
 production trust/custody, public publication, installed downgrade or actual
