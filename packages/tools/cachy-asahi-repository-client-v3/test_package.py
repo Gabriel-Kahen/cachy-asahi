@@ -49,10 +49,10 @@ class Controls(unittest.TestCase):
    with __import__('unittest.mock',fromlist=['patch']).patch.object(sys,'argv',['cachy-asahi-repository-client','verify','--help']):
     with self.assertRaises(SystemExit)as caught:runpy.run_path(str(self.stage/'usr/bin/cachy-asahi-repository-client'),run_name='__main__')
   self.assertEqual(caught.exception.code,0);self.assertIn('--state-dir',stream.getvalue());self.assertIn('--apply',stream.getvalue())
- def test_new10_against_staged_v3_helper(self):
+ def test_state_and_expiry_controls_against_staged_v3_helper(self):
   self.stage_data();client=self.stage/'usr/share/cachy-asahi/repository-runtime/scripts/client/client_v3.py'
   with __import__('unittest.mock',fromlist=['patch']).patch.object(sys,'argv',['state-tests','--client',str(client),'--before',str(ROOT/'state-binding-before-v2.py.txt')]):m=load('_staged_v3_state_controls',ROOT/'test_state_binding_v3.py')
-  result=unittest.TestResult();unittest.defaultTestLoader.loadTestsFromTestCase(m.Controls).run(result);self.assertEqual(result.testsRun,10);self.assertEqual(result.errors,[]);self.assertEqual(result.failures,[]);self.assertEqual(result.skipped,[])
+  result=unittest.TestResult();unittest.defaultTestLoader.loadTestsFromTestCase(m.Controls).run(result);self.assertEqual(result.testsRun,11);self.assertEqual(result.errors,[]);self.assertEqual(result.failures,[]);self.assertEqual(result.skipped,[])
  def test_makepkg_workspace_fifo_and_unreadable_pkg_are_not_recipe_inputs(self):
   work=self.base/'makepkg-work';copy_recipe(self.recipe,work)
   fifo=work/'logpipe.actual';os.mkfifo(fifo,0o600)

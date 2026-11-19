@@ -437,7 +437,9 @@ def commit(root, value):
 
 
 def verify(args, *, now=None):
-    now = now or datetime.now(timezone.utc)
+    live_clock = now is None
+    if live_clock:
+        now = datetime.now(timezone.utc)
     signer = fingerprint(args.signer)
     need(isinstance(args.namespace, str) and NAMESPACE.fullmatch(args.namespace), 'canonical repository namespace required')
     with state_directory(args.state_dir, args.apply) as state, contextlib.ExitStack() as stack:
@@ -465,17 +467,21 @@ def verify(args, *, now=None):
         verifier.verify(release_snapshot, read_member(root, 'release.json.sig', MAX_SIGNATURE))
         for ref in actual['targets']['databases'] + actual['targets']['packages']:
             verifier.bundle(root, ref, release['files'][ref['path'] + '.sig'])
+        stack.close()
+        if args.apply:
+            check_state_directory(args.state_dir, state)
+        # Verification can outlive the envelope, so check again before reporting or applying it.
+        checked_at = datetime.now(timezone.utc) if live_clock else now
+        validate_envelope(metadata, checked_at)
+        against_state(old, metadata, metadata_sha, checked_at, args.minimum_sequence)
         value = {k: metadata[k] for k in ('scope', 'namespace', 'signer', 'sequence', 'issued_utc')}
         value.update(schema_version=1, metadata_sha256=metadata_sha,
-                     release_sha256=actual['targets']['release_record']['sha256'], verified_utc=utc(now))
+                     release_sha256=actual['targets']['release_record']['sha256'], verified_utc=utc(checked_at))
         result = {'status': 'verified-development', 'scope': SCOPE, 'stable_accepted': False,
                   'cold_start': old is None, 'state_changed': False, 'metadata_sha256': metadata_sha,
                   'sequence': metadata['sequence'], 'namespace': args.namespace, 'signer': receipt,
-                  'release_sha256': value['release_sha256'], 'checked_utc': utc(now)}
+                  'release_sha256': value['release_sha256'], 'checked_utc': value['verified_utc']}
         if args.apply:
-            # Every verification/cleanup operation precedes checkpoint mutation.
-            stack.close()
-            check_state_directory(args.state_dir, state)
             durable = commit(state, value)
             result.update(status='applied-development', state_changed=True, checkpoint_directory_synced=durable)
         return result
