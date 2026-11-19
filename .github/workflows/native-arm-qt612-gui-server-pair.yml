@@ -51,7 +51,7 @@ jobs:
           umask 077
           workflow="$GITHUB_WORKSPACE/qt612-workflow"
           test "$(git -C "$workflow" rev-parse HEAD)" = "$GITHUB_SHA"
-          python3 -I -B "$workflow/scripts/ci/qt612-gui-server-pair-workflow/workflow_entry.py" preflight \
+          python3 -I -B "$workflow/scripts/ci/qt612-gui-server-pair-workflow/workflow_entry_r128_test_renewal.py" preflight \
             --approval "$RUNNER_TEMP/qt612-pair-$GITHUB_RUN_ID-1.approval.json" \
             --github-output "$GITHUB_OUTPUT"
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -75,7 +75,7 @@ jobs:
           set -euo pipefail
           umask 077
           workflow="$GITHUB_WORKSPACE/qt612-workflow"
-          python3 -I -B "$workflow/scripts/ci/qt612-gui-server-pair-workflow/workflow_entry.py" verify \
+          python3 -I -B "$workflow/scripts/ci/qt612-gui-server-pair-workflow/workflow_entry_r128_test_renewal.py" verify \
             --workflow-root "$workflow" \
             --approval "$RUNNER_TEMP/qt612-pair-$GITHUB_RUN_ID-1.approval.json" \
             --runtime-source "$GITHUB_WORKSPACE/qt612-runtime-source" \

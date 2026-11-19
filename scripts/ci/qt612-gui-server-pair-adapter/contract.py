@@ -25,12 +25,12 @@ R128_TREE = "1b204ef98333aaf116fb1fe346b49b37a19e8ef7"
 R128_MAP = dict(bytes=20426, sha256="42bffdd05941787940bbc5a459cb4ce66cf26b0b01b6e5ebdb96e3d1b2e9d473")
 PACKAGE = "md4c-0.5.3-1-aarch64.pkg.tar.xz"
 ARCHIVE = dict(bytes=74076, sha256="19149e51f05a7d93426dda7a66fd80d67bd235cab7ac4505130f7de6d40b5b95")
-SIGNATURE = dict(bytes=119, sha256="63dda83d805e4ad8023fcbe35b6abc63e74646becd4f9e2ada339526a2fddc85")
+SIGNATURE = dict(bytes=119, sha256="efe73e02383cbe16a9478952a43b22c3db256d1070275c3264f62240e48db18a")
 CERT = "md4c-r128-TEST-public.gpg"
-CERTIFICATE = dict(bytes=265, sha256="4d1ea2e70ae86992f626a38acd9c61a3d9060261c5fb733bd99e91cc6ab27095")
+CERTIFICATE = dict(bytes=265, sha256="662fb30f2002c9a26570f4c43e3dfd85fcbdcb38c417ad9378d922b18f0821ff")
 ORIGINAL_RECEIPT = dict(bytes=2466, sha256="0817066cbec53daf2ed52569340141f842caa03db86cb3fc35d10a4db0f48e97")
-MD4C_AUTHORITY = dict(bytes=1034, sha256="cc3dd84c1f96b5204df4e2edd33b10cc4e7907d460c68a311b6122a8c1fca712")
-FINGERPRINT = "D02BE98DE9C0986C1120951315A8B1E319DBEE03"
+MD4C_AUTHORITY = dict(bytes=1170, sha256="b975ae30c0361432c665de8da025f3cb58ecb0a431922f3135645278c27d93c5")
+FINGERPRINT = "CE8ED75F205581BFF9C470173F6B1AA9DA3ABD8A"
 R128_LOG = dict(bytes=2255414, sha256="ec0b1d79132cb9bcb2e5646ac2e70f675c57b8747f60cdab2737dc5bacc4d734")
 INPUTS = ("portable_selection", "route_plan", "md4c_signature", "md4c_certificate", "md4c_authority")
 DISPATCH_ENV = ("GITHUB_ACTIONS", "GITHUB_EVENT_NAME", "GITHUB_REPOSITORY", "GITHUB_ACTOR",
@@ -214,11 +214,12 @@ def entries(root, approved, *, destination=None):
 def trust(raw, expected, now, bootstrap_end_utc, certificate):
     need(pin(raw) == whole(expected) and len(raw) <= 8192, "WHOLE_ROOT_SELECTED_R128_TEST_PROJECTION")
     row = decode(raw)
-    exact = dict(schema=1, kind="ROOT_QT612_R128_MD4C_TEST_AUTHORITY_V1", issuer="Root", approved=True,
+    exact = dict(schema=1, kind="ROOT_QT612_R128_MD4C_TEST_RENEWAL_AUTHORITY_V1", issuer="Root", approved=True,
                  status="PASS_MD4C_R128_EXACT_ARCHIVES_SCOPED_TEST_ONLY", source=R128_COMMIT,
                  run=44241902162, job=134591565463, attempt=1, original_log=R128_LOG,
                  original_receipt=ORIGINAL_RECEIPT, archive=ARCHIVE, signature=SIGNATURE, certificate=CERTIFICATE,
-                 fingerprint=FINGERPRINT, created_epoch=1794978886, expires_epoch=1795065286)
+                 fingerprint=FINGERPRINT, created_epoch=1795068921, expires_epoch=1795155321,
+                 renewal_receipt=dict(bytes=2328, sha256="d4defeda32d8084e04a300c21d505b3fec0d8e7741508ba760d163fdd0c6fbc3"))
     need(encoded(row) == encoded(exact) and row["created_epoch"] <= now < bootstrap_end_utc < row["expires_epoch"],
          "CURRENT_SCOPED_R128_TEST_AUTHORITY")
     return dict(certificate=dict(path=str(certificate), **CERTIFICATE), fingerprint=FINGERPRINT,

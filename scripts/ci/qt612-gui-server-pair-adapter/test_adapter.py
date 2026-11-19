@@ -370,7 +370,7 @@ class AdapterTest(unittest.TestCase):
 
     @unittest.skipUnless(R128 and AUTHORITY, "Exact retained R128 Source and path-free authority were not selected")
     def test_retained_r128_copy_and_negative_authority(self):
-        selected = dict(bytes=1034, sha256="cc3dd84c1f96b5204df4e2edd33b10cc4e7907d460c68a311b6122a8c1fca712")
+        selected = C.MD4C_AUTHORITY
         data = C.read(AUTHORITY, 8192, selected)
         value = C.decode(data)
         now = value["created_epoch"] + 60
