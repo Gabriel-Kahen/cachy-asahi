@@ -1,0 +1,46 @@
+{
+  "audit_date": "2026-10-11",
+  "status": "source-audited; upstream-not-reused",
+  "packaging_repository": "https://github.com/CachyOS/CachyOS-PKGBUILDS",
+  "packaging_commit": "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f",
+  "upstream_repository": "https://github.com/CachyOS/cachyos-fish-config",
+  "upstream_tag": "v16",
+  "upstream_commit": "cc78c7f7a8a7a623aaaa9283994b64ce4fc50d6a",
+  "audited_archive_url": "https://codeload.github.com/CachyOS/cachyos-fish-config/tar.gz/cc78c7f7a8a7a623aaaa9283994b64ce4fc50d6a",
+  "audited_tag_archive_sha256": "97a0b603f393be3422465ff9e18f2d03ccfc33657b672de6ba89b3a3ac3b473d",
+  "declared_license": "MIT",
+  "main_config_license": "missing",
+  "bundled_done_version": "1.19.1",
+  "bundled_done_license": "MIT; embedded complete notice",
+  "plugin_bang_bang_license_reference_commit": "ec991b80ba7d4dda7a962167b036efc5c2d79419",
+  "plugin_bang_bang_license": "MIT; upstream source credit in config; copyright notice absent in copied functions",
+  "new_recipe_sources": "local original files, checksummed by PKGBUILD",
+  "release_blockers": [
+    "clean native aarch64 build and repeat build pending",
+    "target configuration install/removal and M2 validation pending"
+  ],
+  "audited_commit_archive_sha256": "3d92eb0fe806528a5ef048cf006a49beabdf49535783363b227399ae09ff3ce1",
+  "source_files": {
+    "README.md": {
+      "sha256": "a179aa55d38e868c1167603eaf1ea85998b94e494df26fe6d4dde97479cb5c7c",
+      "bytes": 23
+    },
+    "cachyos-config.fish": {
+      "sha256": "8c72c4eaf67728a4e15d71f4efad310cb838daf28b3dbc83ca19ff583819620a",
+      "bytes": 3690
+    },
+    "conf.d/done.fish": {
+      "sha256": "ee7e5fe7ffe7abfe1eea87cd0ebf46618d8f6fd0fb589688f3f661c21a03bdea",
+      "bytes": 13274
+    },
+    "config.fish": {
+      "sha256": "1adf785f89e0c28afacf4c45afcd3d44bc7c026fd58072009d894c57f4ff7b03",
+      "bytes": 160
+    }
+  },
+  "packaging_recipe_sha256": "4984713c826641fe8cd1afe141d3ff0c74e2a7e7e080091f98933b5da4c74092",
+  "packaging_hook_sha256": "931138b9c180bc35e97d76a10188e549b3c7e6caabd4755608ab4c213695a477",
+  "packaging_hook_registered": false,
+  "original_project_license": "MIT",
+  "original_project_license_sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+}

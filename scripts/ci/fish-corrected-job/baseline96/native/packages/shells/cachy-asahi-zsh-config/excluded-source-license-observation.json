@@ -1,0 +1,228 @@
+{
+  "oh-my-zsh": {
+    "repository": "ohmyzsh/ohmyzsh",
+    "commit": "106f9874a22ec8cfa1e69ae8e1143d8720f087dc",
+    "license_files": [
+      {
+        "path": "LICENSE.txt",
+        "url": "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/106f9874a22ec8cfa1e69ae8e1143d8720f087dc/LICENSE.txt",
+        "sha256": "6772e603fd19666902ab7541f49f3d9e92637539fb0840605615d8c6d18fc3f6",
+        "first_line": "MIT License"
+      },
+      {
+        "path": "plugins/gradle/LICENSE",
+        "url": "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/106f9874a22ec8cfa1e69ae8e1143d8720f087dc/plugins/gradle/LICENSE",
+        "sha256": "b797aa323201d88b2610852ba0bb4954e363d308e2661e5129f4fd52d39a311d",
+        "first_line": "Copyright (c) 2017 Eric Wendelin"
+      },
+      {
+        "path": "plugins/ipfs/LICENSE",
+        "url": "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/106f9874a22ec8cfa1e69ae8e1143d8720f087dc/plugins/ipfs/LICENSE",
+        "sha256": "2b423e31277597a07ce23633a46d54cfb8958ab8bab327e818d62d6c8e99810f",
+        "first_line": "The MIT License (MIT)"
+      },
+      {
+        "path": "plugins/kube-ps1/LICENSE",
+        "url": "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/106f9874a22ec8cfa1e69ae8e1143d8720f087dc/plugins/kube-ps1/LICENSE",
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+        "first_line": "                                 Apache License"
+      },
+      {
+        "path": "plugins/lando/LICENSE",
+        "url": "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/106f9874a22ec8cfa1e69ae8e1143d8720f087dc/plugins/lando/LICENSE",
+        "sha256": "e2568575ff3d86e27737d818d70dbcdda88fc8c06a4ee3d7a2ac06c0ad93a219",
+        "first_line": "MIT License"
+      },
+      {
+        "path": "plugins/wd/LICENSE",
+        "url": "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/106f9874a22ec8cfa1e69ae8e1143d8720f087dc/plugins/wd/LICENSE",
+        "sha256": "1c770a183f46b173c260b41ae754df8655824c91835ddc7865d15f4ad2a2c672",
+        "first_line": "The MIT License (MIT)"
+      },
+      {
+        "path": "plugins/z/LICENSE",
+        "url": "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/106f9874a22ec8cfa1e69ae8e1143d8720f087dc/plugins/z/LICENSE",
+        "sha256": "fdc191b8b4d8a5eb58062816e9708b171f7650c841d10ccead129e301f4fc649",
+        "first_line": "MIT License"
+      },
+      {
+        "path": "plugins/zsh-autosuggestions/LICENSE",
+        "url": "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/106f9874a22ec8cfa1e69ae8e1143d8720f087dc/plugins/zsh-autosuggestions/LICENSE",
+        "sha256": "4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8",
+        "first_line": "Copyright (c) 2013 Thiago de Arruda"
+      },
+      {
+        "path": "plugins/zsh-interactive-cd/LICENSE",
+        "url": "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/106f9874a22ec8cfa1e69ae8e1143d8720f087dc/plugins/zsh-interactive-cd/LICENSE",
+        "sha256": "9931b48b8a031881163ccbf80730460ee3ad43178b10df56b528ff49a95690fe",
+        "first_line": "Copyright 2017-2018 Henry Chang"
+      },
+      {
+        "path": "plugins/zsh-navigation-tools/LICENSE",
+        "url": "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/106f9874a22ec8cfa1e69ae8e1143d8720f087dc/plugins/zsh-navigation-tools/LICENSE",
+        "sha256": "e758d199c5eca23d7842d8fba1b7ad8a5d2fa4aee234327696c6a090b5384541",
+        "first_line": "This software is dual-licensed under MIT and GPLv3."
+      },
+      {
+        "path": "plugins/zsh-syntax-highlighting/LICENSE",
+        "url": "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/106f9874a22ec8cfa1e69ae8e1143d8720f087dc/plugins/zsh-syntax-highlighting/LICENSE",
+        "sha256": "d810908db3cb75d30e46f5e55b18c8f483e1bc625b8f7dc5a581f5ad353af82e",
+        "first_line": "Copyright (c) 2010-2020 zsh-syntax-highlighting contributors"
+      }
+    ],
+    "scope": "License file discovery only; not a full bundled-code/source-license clearance. Candidate is excluded from derivative."
+  },
+  "powerlevel10k": {
+    "repository": "romkatv/powerlevel10k",
+    "commit": "d05a1b00f9a61f9578bf9dc19b8451942dde8734",
+    "license_files": [
+      {
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/romkatv/powerlevel10k/d05a1b00f9a61f9578bf9dc19b8451942dde8734/LICENSE",
+        "sha256": "4fb6c63d7d7ece6d4a68c9a8cc42d3c6a5c7e1303f0b501f68aa6b470270aec6",
+        "first_line": "Copyright (c) 2009-2014 Robby Russell and contributors (see https://github.com/robbyrussell/oh-my-zsh/contributors)"
+      },
+      {
+        "path": "gitstatus/LICENSE",
+        "url": "https://raw.githubusercontent.com/romkatv/powerlevel10k/d05a1b00f9a61f9578bf9dc19b8451942dde8734/gitstatus/LICENSE",
+        "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+        "first_line": "                    GNU GENERAL PUBLIC LICENSE"
+      }
+    ],
+    "scope": "License file discovery only; not a full bundled-code/source-license clearance. Candidate is excluded from derivative."
+  },
+  "fzf": {
+    "repository": "junegunn/fzf",
+    "commit": "c0a193e031f01fb50bf6f7be4381990a3753f7cf",
+    "license_files": [
+      {
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/junegunn/fzf/c0a193e031f01fb50bf6f7be4381990a3753f7cf/LICENSE",
+        "sha256": "a296f423c0d30ce3581435e78e7e36c5fe73984a882d8720c72e713b4593588b",
+        "first_line": "The MIT License (MIT)"
+      },
+      {
+        "path": "src/LICENSE",
+        "url": "https://raw.githubusercontent.com/junegunn/fzf/c0a193e031f01fb50bf6f7be4381990a3753f7cf/src/LICENSE",
+        "sha256": "a296f423c0d30ce3581435e78e7e36c5fe73984a882d8720c72e713b4593588b",
+        "first_line": "The MIT License (MIT)"
+      }
+    ],
+    "scope": "License file discovery only; not a full bundled-code/source-license clearance. Candidate is excluded from derivative."
+  },
+  "zsh-autosuggestions": {
+    "repository": "zsh-users/zsh-autosuggestions",
+    "commit": "85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5",
+    "license_files": [
+      {
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/zsh-users/zsh-autosuggestions/85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5/LICENSE",
+        "sha256": "4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8",
+        "first_line": "Copyright (c) 2013 Thiago de Arruda"
+      }
+    ],
+    "scope": "License file discovery only; not a full bundled-code/source-license clearance. Candidate is excluded from derivative."
+  },
+  "zsh-completions": {
+    "repository": "zsh-users/zsh-completions",
+    "commit": "6661b4b68173784ba31ef10ce4b5cb1c9ecfdcac",
+    "license_files": [
+      {
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/zsh-users/zsh-completions/6661b4b68173784ba31ef10ce4b5cb1c9ecfdcac/LICENSE",
+        "sha256": "06f527f610f2d623f6a9d0be48729952ce4654c7fb1b5618afcd879750e1c419",
+        "first_line": "The Z Shell is copyright (c) 1992-2017 Paul Falstad, Richard Coleman,"
+      }
+    ],
+    "scope": "License file discovery only; not a full bundled-code/source-license clearance. Candidate is excluded from derivative."
+  },
+  "zsh-history-substring-search": {
+    "repository": "zsh-users/zsh-history-substring-search",
+    "commit": "a0bdb0d47dbaba31dba2db7af8c48a5d9c74049a",
+    "license_files": [
+      {
+        "path": "zsh-history-substring-search.zsh (license header)",
+        "url": "https://raw.githubusercontent.com/zsh-users/zsh-history-substring-search/a0bdb0d47dbaba31dba2db7af8c48a5d9c74049a/zsh-history-substring-search.zsh",
+        "sha256": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3",
+        "observed_license": "BSD 3-clause grant in source header"
+      }
+    ],
+    "scope": "License file discovery only; not a full bundled-code/source-license clearance. Candidate is excluded from derivative."
+  },
+  "zsh-syntax-highlighting": {
+    "repository": "zsh-users/zsh-syntax-highlighting",
+    "commit": "e6683f20e5c38d3e5447f45845d04ddda75d0f23",
+    "license_files": [
+      {
+        "path": "COPYING.md",
+        "url": "https://raw.githubusercontent.com/zsh-users/zsh-syntax-highlighting/e6683f20e5c38d3e5447f45845d04ddda75d0f23/COPYING.md",
+        "sha256": "d810908db3cb75d30e46f5e55b18c8f483e1bc625b8f7dc5a581f5ad353af82e",
+        "first_line": "Copyright (c) 2010-2020 zsh-syntax-highlighting contributors"
+      }
+    ],
+    "scope": "License file discovery only; not a full bundled-code/source-license clearance. Candidate is excluded from derivative."
+  },
+  "pkgfile": {
+    "repository": "falconindy/pkgfile",
+    "commit": "f47d3855a4dff011871e2437cd6954b5b8b2ea8f",
+    "license_files": [
+      {
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/falconindy/pkgfile/f47d3855a4dff011871e2437cd6954b5b8b2ea8f/LICENSE",
+        "sha256": "231fe4f6dc788dd2e62648dc84b5a63b94be19e32e20bdd94d607cb96b83ca50",
+        "first_line": "Copyright 2011-2018 by Dave Reisner <d@falconindy.com>"
+      }
+    ],
+    "scope": "License file discovery only; not a full bundled-code/source-license clearance. Candidate is excluded from derivative."
+  },
+  "powerline": {
+    "repository": "powerline/powerline",
+    "commit": "11808cbe5c16e4621edcaefa916b5add81eab799",
+    "license_files": [
+      {
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/powerline/powerline/11808cbe5c16e4621edcaefa916b5add81eab799/LICENSE",
+        "sha256": "46d5355e4734468135d8e4a30d0916292cc4df2b3ec30aa68c866f82497933be",
+        "first_line": "Copyright 2013 Kim Silkeb\u00e6kken and other contributors"
+      }
+    ],
+    "scope": "License file discovery only; not a full bundled-code/source-license clearance. Candidate is excluded from derivative."
+  },
+  "vim": {
+    "repository": "vim/vim",
+    "commit": "7eb646597d6b6be42f5941cf194938afa3af5208",
+    "license_files": [
+      {
+        "path": "LICENSE",
+        "url": "https://raw.githubusercontent.com/vim/vim/7eb646597d6b6be42f5941cf194938afa3af5208/LICENSE",
+        "sha256": "0b3f1f330cb1b179bb17c7c687d4cec601e0aa3462bc7f890ad4c3888d37d720",
+        "first_line": "VIM LICENSE"
+      },
+      {
+        "path": "runtime/pack/dist/opt/editorconfig/LICENSE",
+        "url": "https://raw.githubusercontent.com/vim/vim/7eb646597d6b6be42f5941cf194938afa3af5208/runtime/pack/dist/opt/editorconfig/LICENSE",
+        "sha256": "0e4e2e0aaa42ff79d0548070ee51d80773786be683da865cf9d23ba383a769ac",
+        "first_line": "Unless otherwise stated, all files are distributed under the Simplified BSD"
+      },
+      {
+        "path": "runtime/pack/dist/opt/netrw/LICENSE.txt",
+        "url": "https://raw.githubusercontent.com/vim/vim/7eb646597d6b6be42f5941cf194938afa3af5208/runtime/pack/dist/opt/netrw/LICENSE.txt",
+        "sha256": "9c65b12c2e22ab4e628508c7baf96ecbf7016eaa608756ddd8476b5b23e46037",
+        "first_line": "Unless otherwise stated, all files in this directory are distributed under the"
+      },
+      {
+        "path": "src/libvterm/LICENSE",
+        "url": "https://raw.githubusercontent.com/vim/vim/7eb646597d6b6be42f5941cf194938afa3af5208/src/libvterm/LICENSE",
+        "sha256": "66c627cf44f0c59daf81ba442e62e9b3d3cd1091a41e116de5ea9058a57bbba7",
+        "first_line": ""
+      },
+      {
+        "path": "src/xdiff/COPYING",
+        "url": "https://raw.githubusercontent.com/vim/vim/7eb646597d6b6be42f5941cf194938afa3af5208/src/xdiff/COPYING",
+        "sha256": "6f679d0555a9a5aad08a4e88cdba552cf62bb46585084572f3cfd1b0c7e6ec4f",
+        "first_line": "\t\t  GNU LESSER GENERAL PUBLIC LICENSE"
+      }
+    ],
+    "scope": "License file discovery only; not a full bundled-code/source-license clearance. Candidate is excluded from derivative."
+  }
+}

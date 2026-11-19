@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: MIT
+# Original opt-in alternative; upstream configuration reuse is not licensed.
+pkgname=cachy-asahi-zsh-config
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Opt-in original Zsh completion settings for the cachy-asahi overlay'
+arch=('any')
+license=('MIT')
+depends=('zsh')
+source=('config.zsh' 'NOTICE' 'usage.md' 'LICENSE')
+sha256sums=(
+  '7639b938dca689c445b64cc307148e2d3f85c5399d51c8ce69072dcf835baa6f'
+  '20f1a90870566d337745019d5c465db48e14a566df3222c48a3320dc441e4de8'
+  '19a9df455ad2c42b01eb184bdfb0b14402fe372e397fa91cc0ee28dd766bb65d'
+  '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+  zsh -n "$srcdir/config.zsh"
+}
+
+package() {
+  install -Dm644 "$srcdir/config.zsh" "$pkgdir/usr/share/cachy-asahi/zsh/config.zsh"
+  install -Dm644 "$srcdir/usage.md" "$pkgdir/usr/share/cachy-asahi/zsh/README.md"
+  install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+  install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
