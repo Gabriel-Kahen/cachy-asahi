@@ -644,3 +644,70 @@ def source_context(root):
 def prove(root):
  fact=_profile_events_fact(_profile_events_original(root).prove(root))
  return dict(fact,status='PASS_WHOLE_R14_AND_GENERIC16K_PROFILE_EVENT_CONTRACT_SOURCE_ONLY')
+
+# Bind the complete ARM16K retention source once before export.
+_RETENTION_BINDING_START='\n# Bind the complete ARM16K retention source once before export.\n'
+_RETENTION_BINDING_PARENT_MANIFEST={'bytes': 107206, 'sha256': '753eff37b92ea97e8a573ac3d4de0f85effedbcb1192e65288c203d9dce5eb16'}
+_RETENTION_BINDING_PARENT='4c92878695ead3f22b53b997a691695ecb629bb0'
+_RETENTION_BINDING_PARENT_REF='refs/heads/codex/current606-apps16-16k-profile-events-20261119-r15'
+_RETENTION_BINDING_CONTEXT={'bytes': 165473, 'sha256': '1a10833243b5c0163e93482392ab031295e88aeb909e4e1eb2a305ad0cfd68ff'}
+_RETENTION_BINDING_NEW={'native.py': {'bytes': 16882, 'sha256': '5baad73063e8126dfebae0c38a939f17749f40066c66fe3e0a9eaa5f3ebbf602'}}
+_RETENTION_BINDING_STATUS='SOURCE_ONLY_CURRENT606_ARM16K_SINGLE_RETENTION_BINDING_NO_GUI_ACCEPTANCE'
+
+def _retention_binding_original(root):
+ root=Path(root).absolute()
+ raw=read(root/'retention-binding-parent.json')
+ need(pin(raw)==_RETENTION_BINDING_CONTEXT,'whole exact R15 retention binding inverse')
+ context=json.loads(raw)
+ need(context['source']==_RETENTION_BINDING_PARENT and context['ref']==_RETENTION_BINDING_PARENT_REF and context['actual'] is None,
+      'exact R15 parent and no authority')
+ original_manifest=base64.b64decode(context['manifest'],validate=True)
+ need(pin(original_manifest)==_RETENTION_BINDING_PARENT_MANIFEST,'original R15 manifest')
+ originals={**json.loads(original_manifest)['files'],'source-manifest.json':pin(original_manifest)}
+ manifest=obj(root/'source-manifest.json')
+ need(len(originals)==613 and manifest['status']==_RETENTION_BINDING_STATUS
+      and all(manifest[key] is None for key in ('actual_source','actual_ref','actual_run'))
+      and set(manifest['files'])==set(originals)-{'source-manifest.json'}|{'retention-binding-parent.json'},
+      'exact unissued 614-leaf scoped retention binding successor')
+ closed(root,{**manifest['files'],'source-manifest.json':pin(read(root/'source-manifest.json'))})
+ need(all(manifest['files'][name]==value for name,value in _RETENTION_BINDING_NEW.items()),
+      'exact finite scoped retention source change')
+ before,marker,_=read(root/'admission.py').partition(_RETENTION_BINDING_START.encode())
+ need(marker and pin(before)==originals['admission.py'],'complete original R15 admission')
+ need(set(context['before'])==set(_RETENTION_BINDING_NEW),'closed exact retention source inverse')
+ inverse=dict(context['before'])
+ inverse={name:base64.b64decode(body,validate=True) for name,body in inverse.items()}
+ inverse.update({'source-manifest.json':original_manifest,'admission.py':before})
+ def prior_read(path,cap=16*1024**2):
+  name=Path(path).relative_to(root).as_posix()
+  raw=inverse[name] if name in inverse else read(path,cap)
+  need(name in originals and len(raw)<=cap and pin(raw)==originals[name],'whole original R15 input '+name)
+  return raw
+ def prior_closed(where,wanted):
+  prefix='' if where==root else where.relative_to(root).as_posix()+'/'
+  need({name.removeprefix(prefix):value for name,value in originals.items() if name.startswith(prefix)}==wanted,
+       'closed exact original R15 namespace')
+  for name in wanted:prior_read(where/name)
+  return wanted
+ for name in originals:prior_read(root/name)
+ prior=types.ModuleType('_current606_exact_r15_retention_parent');prior.__file__=str(root/'admission.py')
+ exec(compile(before,prior.__file__,'exec'),vars(prior))
+ prior.read=prior_read;prior.obj=lambda path:json.loads(prior_read(path));prior.closed=prior_closed
+ return prior
+
+def _retention_binding_fact(fact):
+ need(fact['files']==613 and fact['selected_generic16k_verify']==dict(observer_seconds=720,command_seconds=735,
+      profiles=['minimal','overlay']) and fact['selected_generic16k_dns_report']=='SCOPED_EXPANDED_BODY_FOCUS'
+      and fact['selected_generic16k_installed_diff']=='STRICT_EQUALITY_FAILURE_DATA_ONLY'
+      and fact['selected_generic16k_staged_sysusers']=='BEFORE_COMPLETE_PAYLOAD_CAPTURE'
+      and fact['selected_generic16k_staged_mtab']=='BEFORE_COMPLETE_PAYLOAD_CAPTURE'
+      and fact['selected_generic16k_profile_events']=='STRICT_TYPED_DIAGNOSTIC_PROJECTION'
+      and fact['actual'] is None,'whole original R15 with strict observer and profile event contract')
+ return dict(fact,files=614,selected_generic16k_retention_binding='ONE_COMPLETE_SOURCE_PROOF_BEFORE_OUTPUT',actual=None)
+
+def source_context(root):
+ return _retention_binding_fact(_retention_binding_original(root).source_context(root))
+
+def prove(root):
+ fact=_retention_binding_fact(_retention_binding_original(root).prove(root))
+ return dict(fact,status='PASS_WHOLE_R15_AND_ARM16K_SINGLE_RETENTION_BINDING_SOURCE_ONLY')

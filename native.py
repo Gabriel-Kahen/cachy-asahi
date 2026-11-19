@@ -153,7 +153,8 @@ def main():
  if a.phase=='kernel-init':v=kernel_init(a.case,state,os.environ)
  elif a.phase=='proof':v=proof(a.case,state,os.environ)
  else:
-  q=binding(a.case,state)
+  # ARM16K retention performs this same whole proof before creating its export.
+  q=None if a.phase=='retain' and a.case.endswith('-generic16k') else binding(a.case,state)
   if a.phase=='assets':v=fresh().prepare_assets(ROOT/'original',a.public.absolute(),a.project.absolute(),a.output.absolute(),a.renewal.absolute(),original().assets,case=a.case)
   elif a.phase=='run':v=run(a.case,state,a.base.absolute(),a.assets.absolute(),a.carrier.absolute(),a.tooling.absolute(),a.bootstrap.absolute(),a.kernel_carrier.absolute(),a.welcome8.absolute(),a.apps16.absolute(),list(sys.argv[1:]))
   elif a.phase=='cleanup':v=cleanup(a.case,state,a.base.absolute())

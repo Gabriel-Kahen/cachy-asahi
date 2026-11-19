@@ -16,8 +16,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "admission.py": {
-      "bytes": 72097,
-      "sha256": "f11a51c52afd889510aa16367d885ac16f1d61ff299ca5851cd06084b5088a42"
+      "bytes": 76736,
+      "sha256": "62648c37caef066a6916f01b525957498bd89ae42dbc31f638591cc61feae949"
     },
     "apps16-parent.json": {
       "bytes": 6702834,
@@ -1004,8 +1004,8 @@
       "sha256": "5d958633b3ebab98381d5acb741d4001243a96dc8153121d468c26c0f868952e"
     },
     "native.py": {
-      "bytes": 16736,
-      "sha256": "86e5dc11452c90603f4e9b4bdb5817b82c593d6972569fde55a4517744c0adb8"
+      "bytes": 16882,
+      "sha256": "5baad73063e8126dfebae0c38a939f17749f40066c66fe3e0a9eaa5f3ebbf602"
     },
     "official3-carrier-profile.json": {
       "bytes": 1387,
@@ -2415,6 +2415,10 @@
       "bytes": 134419,
       "sha256": "a05970c136dc61f92f3cbb6299f79260eca7c9ec1a0def88e2a9888a48a1da6b"
     },
+    "retention-binding-parent.json": {
+      "bytes": 165473,
+      "sha256": "1a10833243b5c0163e93482392ab031295e88aeb909e4e1eb2a305ad0cfd68ff"
+    },
     "selected-fdk-carrier-profile.json": {
       "bytes": 4425,
       "sha256": "dfb1be1fcf4ebcba4c88ed184516268cc5945dda6f4462d5254533d839af4bb3"
@@ -2452,5 +2456,5 @@
       "sha256": "8dc56648ae12ed3d87a7b13f4281f5575b865545eecdc04d42816db99ce0fbaa"
     }
   },
-  "status": "SOURCE_ONLY_CURRENT606_GENERIC16K_PROFILE_EVENT_CONTRACT"
+  "status": "SOURCE_ONLY_CURRENT606_ARM16K_SINGLE_RETENTION_BINDING_NO_GUI_ACCEPTANCE"
 }
