@@ -76,6 +76,27 @@ containers were removed. Attempts 4–6 retain actual successful installed runs;
 5 adds complete snapshots, 6 includes failure-path cleanup hardening. No earlier
 refusal or extracted-payload result is reclassified.
 
+## Signed upgrade and rollback on November 19, 2026
+
+An offline x86_64 container passed a TEST-signed install of
+`0.1.0-1`, upgrade to `0.1.0-2`, rollback to `0.1.0-1`, and final
+removal. The 36 checks and 29 commands included four package transactions,
+the unsigned refusal, exact 39-file payloads, and offline verification of
+the candidate and recovery handoffs. The rehearsal preserved caller data
+and both checkpoints. The inventory counts were 139 → 140 → 140 → 140 → 139,
+with identical package names and versions in the first and last inventories.
+
+The initial trial stopped before container creation because its exact
+historical image was unavailable. The successful trial used a successor
+image built from the pinned Arch base and the two archived packages
+verified against its public keyring. Independent image readback matched
+the original 139-package lock. Both trials used the same signed fixtures.
+The owned container and the local scope retired. The independent terminal
+SHA-256 is `5b449218eb784d8f41daeb732e1a5b4069b81af7ef3af0b87301553c06cc0dcb`.
+
+Physical Asahi installation, native ARM and production release acceptance
+remain open.
+
 ## Exact test counts
 
 Commands use `python -I -B -Werror::ResourceWarning <path> -v`.
