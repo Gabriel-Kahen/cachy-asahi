@@ -36,14 +36,17 @@ RETIRE_EXPORT_SECONDS = 180
 SIGNED349_PROGRESS = (
     "SIGNED349_BUILD", "SIGNED349_PROVIDER", "SIGNED349_CACHE", "SIGNED349_INPUTS", "SIGNED349_AUDIT",
     "SIGNED349_CONTEXT", "SIGNED349_ROOTFS_IMPORT", "SIGNED349_ROOTFS_SHELL", "SIGNED349_IMAGE_BUILD",
-    "SIGNED349_INVENTORY", "SIGNED349_CONTEXT_RETIRE",
+    "SIGNED349_IMAGE_READBACK", "SIGNED349_INVENTORY", "SIGNED349_CONTEXT_RETIRE",
 )
 SIGNED349_REASONS = ("PERMISSION", "MISSING", "DEADLINE", "NO_SPACE", "MEMORY",
                     "SIGNATURE_REFUSAL", "CHECK_REFUSED", "OS_ERROR", "OTHER")
+SIGNED349_IMAGE_FAILURES = ("IMAGE_BUILD_NO_SPACE", "IMAGE_BUILD_READ_ONLY", "IMAGE_BUILD_DAEMON",
+    "IMAGE_BUILD_CONTEXT", "IMAGE_BUILD_EXEC_FORMAT", "IMAGE_BUILD_SIGNATURE", "IMAGE_BUILD_ALPM",
+    "IMAGE_BUILD_KEYRING", "IMAGE_BUILD_STEP", "IMAGE_BUILD_NONZERO", "IMAGE_BUILD_RETIREMENT")
 OWNER_PROGRESS = ("SERVICE_JOIN", "SERVICE_HELPERS", "SERVICE_VOLUME", "SERVICE_DOMAIN",
                   *SIGNED349_PROGRESS, "SIGNED356_BUILD", "SOURCE_CACHE", "REQUEST_HANDOFF")
 HELPERS = {
-    f"{C.HOSTED}/launch.py": "79a23da0f49213e2be91f2acc291852da6330cbc0b5d6f78ee10eb8831768679",
+    f"{C.HOSTED}/launch.py": "675a7da0bbcbc1a598fe14a0f337c813b789332d157d459228bfe174919fc4fd",
     f"{C.HOSTED}/executor.py": "d91457ba75dd5d61c1bae9cc09ac468d5e05de049f87409669dd769efe7b4ba6",
     f"{C.HOSTED}/evidence.py": "47815cc2d62e8cc8d6488ce0f92efe7d608dda1d6c0aa3451dff22414ef0dbcc",
     f"{C.HOSTED}/capacity.py": "74fd7b29b12264c85e4475f4fdcc067dfa6fa56f9879f94f13d6ba1e2e306075",
@@ -396,6 +399,8 @@ def signed349_failure_reason(error):
     if isinstance(error, ValueError):
         if str(error).startswith("signature verification failed: "):
             return "SIGNATURE_REFUSAL"
+        if str(error) in SIGNED349_IMAGE_FAILURES:
+            return str(error)
         return "CHECK_REFUSED"
     return "OTHER"
 
@@ -407,7 +412,8 @@ def read_signed349_failure(work, uid, phase):
         raw = C.read(work/"ordinary-signed349-failure.json", 192, owner=uid, mode=0o600)
     except (ValueError, OSError):
         return None
-    return next((reason for reason in SIGNED349_REASONS if raw == C.encoded([phase, reason])), None)
+    reasons = SIGNED349_REASONS + (SIGNED349_IMAGE_FAILURES if phase == "SIGNED349_IMAGE_BUILD" else ())
+    return next((reason for reason in reasons if raw == C.encoded([phase, reason])), None)
 
 
 def wait_for_image_request(owner, marker, work, trace):
