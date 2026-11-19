@@ -15,6 +15,7 @@ from types import ModuleType
 
 SCOPES = {"pacman": "local", "hyprctl": "hypr", "wpctl": "audio", "git": "local"}
 COMPLETE = {"observed", "query-warning", "query-failed", "query-denied"}
+TARGET_PAGE_SIZE = 16_384
 
 
 @cache
@@ -73,6 +74,15 @@ def target_size(architecture, compatible):
     return None
 
 
+def exact_target_size(architecture, compatible):
+    """Require an unambiguous device-tree identity for a selected baseline."""
+    identifiers = (compatible or "").split("\n")
+    if ("apple,t8112" not in identifiers or len(set(identifiers)) != len(identifiers)
+            or any(not value or not value.isascii() or not value.isprintable() for value in identifiers)):
+        return None
+    return target_size(architecture, compatible)
+
+
 def repository_facts(config, database_dir):
     content = read_text(config)
     repositories = [] if content is None else re.findall(r"^\s*\[([^]]+)\]", content, re.M)
@@ -127,13 +137,14 @@ def main():
     architecture = platform.machine()
     compatible = read_text("/proc/device-tree/compatible")
     size = target_size(architecture, compatible)
+    page_size = os.sysconf("SC_PAGE_SIZE")
     contexts = session_probe().contexts(os.environ)
     record = {
         "schema_version": 1, "record_type": "environment-baseline",
         "collected_at": datetime.now(timezone.utc).isoformat(), "operator": args.operator,
         "execution_context": args.execution_context, "architecture": architecture,
         "machine_model": read_text("/proc/device-tree/model"), "device_tree_compatible": compatible,
-        "m2_air_size": size, "page_size_bytes": os.sysconf("SC_PAGE_SIZE"),
+        "m2_air_size": size, "page_size_bytes": page_size,
         "kernel": platform.release(), "os_release": read_text("/etc/os-release"),
         "packages": command(["pacman", "-Q"], contexts),
         "repositories": repository_facts("/etc/pacman.conf", "/var/lib/pacman/sync"),
@@ -154,8 +165,11 @@ def main():
             return 1
     else:
         sys.stdout.write(encoded)
-    if args.require_m2_air and (size is None or args.execution_context != "physical"):
-        print("Not a declared physical M2 Air baseline; hardware gates remain NOT RUN.", file=sys.stderr)
+    if args.require_m2_air and (args.execution_context != "physical" or page_size != TARGET_PAGE_SIZE
+                                or exact_target_size(architecture, compatible) is None):
+        print("Required M2 Air baseline needs a declared physical AArch64 context, an unambiguous Air model, "
+              "the M2 SoC identifier apple,t8112, and 16 KiB pages. The hardware gates remain NOT RUN.",
+              file=sys.stderr)
         return 2
     return 0
 
