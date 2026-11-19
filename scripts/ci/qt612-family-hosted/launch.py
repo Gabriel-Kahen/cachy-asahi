@@ -251,6 +251,42 @@ def scoped_runner(commands, socket):
     return run
 
 
+def signed349_build_reason(result):
+    """Classify bounded private Docker output without returning any of its text."""
+    tail = (result.stderr[-65536:] + b"\n" + result.stdout[-65536:]).lower()
+    for reason, markers in (
+        ("IMAGE_BUILD_NO_SPACE", (b"no space left on device", b"disk quota exceeded")),
+        ("IMAGE_BUILD_READ_ONLY", (b"read-only file system",)),
+        ("IMAGE_BUILD_DAEMON", (b"cannot connect to the docker daemon", b"error during connect:")),
+        ("IMAGE_BUILD_CONTEXT", (b"error checking context:", b"unable to prepare context:",
+                                 b"error creating build context")),
+        ("IMAGE_BUILD_EXEC_FORMAT", (b"exec format error",)),
+        ("IMAGE_BUILD_SIGNATURE", (b" is unknown trust", b"(invalid or corrupted package (pgp signature))",
+                                   b"required key missing from keyring")),
+        ("IMAGE_BUILD_ALPM", (b"error: failed to commit transaction", b"error: failed to prepare transaction")),
+        ("IMAGE_BUILD_KEYRING", (b"gpg: can't connect to the agent", b"gpg: key generation failed")),
+        ("IMAGE_BUILD_STEP", (b"returned a non-zero code:",)),
+    ):
+        if any(marker in tail for marker in markers):
+            return reason
+    return "IMAGE_BUILD_NONZERO"
+
+
+def run_signed349_image_build(runner, argv, seconds, *, stage):
+    stage("SIGNED349_IMAGE_BUILD")
+    try:
+        # The retained runner still verifies natural retirement and complete bounded output.
+        result = runner(argv, seconds, check=False)
+    except ValueError as error:
+        if str(error) == "natural owned command retirement required":
+            raise ValueError("IMAGE_BUILD_RETIREMENT") from None
+        raise
+    if result.returncode != 0:
+        raise ValueError(signed349_build_reason(result))
+    stage("SIGNED349_IMAGE_READBACK")
+    return result
+
+
 class SignedBase:
     """Use the exact retained R128 bootstrap callbacks and source operands."""
 
@@ -315,7 +351,7 @@ class SignedBase:
             if argv[:3] == [executor.DOCKER, "image", "import"]:
                 stage("SIGNED349_ROOTFS_IMPORT")
             elif argv[:2] == [executor.DOCKER, "build"]:
-                stage("SIGNED349_IMAGE_BUILD")
+                return run_signed349_image_build(self.runner, argv, *args, stage=stage, **kwargs)
             elif argv[:2] == [executor.DOCKER, "run"] and argv[-1] == "/builder-packages.lock":
                 stage("SIGNED349_INVENTORY")
             return self.runner(argv, *args, **kwargs)
