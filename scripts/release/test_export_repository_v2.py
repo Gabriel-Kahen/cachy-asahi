@@ -68,6 +68,22 @@ class ExportV2Tests(unittest.TestCase):
             v2.export(*self.args, apply=True)
         self.assertEqual(list(self.fixture.endpoint.iterdir()), [])
 
+    def test_describe_retained_release_preserves_default_selection_and_legacy_plan(self):
+        fixture = self.fixture
+        fixture.promote('fixture-2')
+        before = fixture.snapshot(fixture.root)
+        args = fixture.root, fixture.key, fixture.env
+        with mock.patch.object(v2.R, 'gates_check', side_effect=lambda *args: v2.R.load(args[-1])):
+            current, _ = v2.describe(*args)
+            self.assertEqual(current['selected_release'], 'fixture-2')
+            retained = v2.describe(*args, release_id='fixture-1')
+            self.assertEqual(retained, v2.E.describe(*args, release_id='fixture-1'))
+            for invalid in ('', '../fixture-1', 'current'):
+                with self.subTest(invalid=invalid), self.assertRaises(v2.R.Error):
+                    v2.describe(*args, release_id=invalid)
+        self.assertEqual(fixture.snapshot(fixture.root), before)
+        self.assertEqual(list(fixture.endpoint.iterdir()), [])
+
     def test_signed_archive_record_mismatch_refuses_before_materialization(self):
         release = self.fixture.root / 'stable/fixture-1/release.json'
         changed = v2.R.load(release)

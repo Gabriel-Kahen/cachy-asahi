@@ -51,19 +51,24 @@ def stable(directory, promotion, key, env, release_id, files, aliases):
     return {name: (path, pins[name]) for name, path in paths.items()}
 
 
-def describe(root, key, env):
+def describe(root, key, env, *, release_id=None):
+    """Authenticate the default export view or an exact retained release."""
+    if release_id is not None:
+        E.managed_directory(root)
     R.storage_check(root)
     for name in ('stable', 'promotions', 'withdrawals'):
         path = root / name
         if path.exists() or path.is_symlink():
             E.managed_directory(path)
-    selected = root / 'stable/current'
-    if not selected.is_symlink():
-        # The existing path authenticates signed withdrawal-only generations.
-        plan, sources = E.describe(root, key, env)
-        R.require(plan['selected_release'] is None, 'source selection changed during export')
-        return plan, sources
-    release_id = R.valid_name(os.readlink(selected))
+    if release_id is None:
+        selected = root / 'stable/current'
+        if not selected.is_symlink():
+            # The existing path authenticates signed withdrawal-only generations.
+            plan, sources = E.describe(root, key, env)
+            R.require(plan['selected_release'] is None, 'source selection changed during export')
+            return plan, sources
+        release_id = os.readlink(selected)
+    release_id = R.valid_name(release_id)
     directory = root / 'stable' / release_id
     withdrawals = root / 'withdrawals'
     R.require(not (withdrawals / (release_id + '.json')).exists(), 'selected release is withdrawn')

@@ -16,9 +16,10 @@ import sys
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-spec = importlib.util.spec_from_file_location('recovery_export', HERE / 'export_repository.py')
-E = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(E)
+spec = importlib.util.spec_from_file_location('recovery_export', HERE / 'export_repository_v2.py')
+V2 = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(V2)
+E = V2.E
 R = E.r
 MAX_PLAN_BYTES = 4 * 1024**2
 
@@ -46,6 +47,20 @@ def promoted_time(promotion):
     return timestamp
 
 
+def verified_promotion(directory, promotion, key, env, release_id, files, aliases):
+    try:
+        return V2.stable(directory, promotion, key, env, release_id, files, aliases)
+    except V2.C.r.Error as error:
+        raise R.Error(str(error)) from error
+
+
+def describe_retained(root, key, env, release_id):
+    try:
+        return V2.describe(root, key, env, release_id=release_id)
+    except V2.C.r.Error as error:
+        raise R.Error(str(error)) from error
+
+
 def observe(root, endpoint, key, env, expected_current, target, reason):
     """Caller holds both existing export locks. Return a complete source view."""
     R.require(isinstance(expected_current, str) and E.GENERATION.fullmatch(expected_current),
@@ -62,11 +77,14 @@ def observe(root, endpoint, key, env, expected_current, target, reason):
               'current generation schema/signer differs')
     current_id = R.valid_name(current_plan['selected_release'])
     R.require(current_id != target, 'recovery requires a distinct retained predecessor')
-    current_manifest = E.stable(current / 'release', current / 'promotion.json', key, env, current_id)
-    R.require(bound_json(current / 'release/release.json', current_plan['files']['release/release.json']) == current_manifest,
-              'current manifest differs from authenticated generation')
+    files, aliases = ({name.removeprefix('release/'): value for name, value in current_plan[role].items()
+                       if name.startswith('release/')} for role in ('files', 'symlinks'))
+    promoted = verified_promotion(current / 'release', current / 'promotion.json', key, env, current_id, files, aliases)
+    R.require(all(current_plan['files'][name] == pin for name, (_, pin) in promoted.items()),
+              'current promotion differs from authenticated generation')
+    current_manifest = bound_json(current / 'release/release.json', files['release.json'])
     current_spec = bound_json(current / 'release/spec.json', current_manifest['files']['spec.json'])
-    target_plan, sources = E.describe(root, key, env, release_id=target)
+    target_plan, sources = describe_retained(root, key, env, target)
     target_directory = root / 'stable' / target
     target_manifest = bound_json(target_directory / 'release.json', target_plan['files']['release/release.json'])
     target_spec = bound_json(target_directory / 'spec.json', target_manifest['files']['spec.json'])

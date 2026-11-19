@@ -110,6 +110,59 @@ class Recovery(unittest.TestCase):
         with self.gates():
             return H.recover(self.root, self.endpoint, self.home, self.key, self.plan_path, apply)
 
+    def resign(self, path):
+        path.with_name(path.name + '.sig').unlink()
+        H.R.sign(path, self.key, self.env)
+
+    def mismatched_lineage(self, rid):
+        directory = self.root / 'stable' / rid
+        release = directory / 'release.json'
+        manifest = H.R.load(release)
+        package, = manifest['packages']
+        archive = directory / 'repo' / package['filename']
+        archive_pin = H.R.sha(archive)
+        self.assertEqual(package['sha256'], archive_pin)
+        wrong = '0' * 64
+        package['sha256'] = wrong
+        provenance = directory / package['provenance']
+        data = H.R.load(provenance)
+        data['artifact_sha256'] = wrong
+        H.R.write(provenance, data)
+        spec = directory / 'spec.json'
+        selected = H.R.load(spec)
+        selected['packages'][0]['artifact']['sha256'] = wrong
+        selected['packages'][0]['provenance']['sha256'] = H.R.sha(provenance)
+        H.R.write(spec, selected)
+        for kind in ('db', 'files'):
+            path = directory / 'repo' / f"{selected['repo_name']}.{kind}.tar.gz"
+            raw = io.BytesIO(path.read_bytes())
+            with tarfile.open(fileobj=raw) as before, tarfile.open(path, 'w:gz') as after:
+                for member in before.getmembers():
+                    if member.isfile():
+                        body = before.extractfile(member).read()
+                        if member.name.endswith('/desc'):
+                            field = b'%SHA256SUM%\n'
+                            self.assertEqual(body.count(field + archive_pin.encode()), 1)
+                            body = body.replace(field + archive_pin.encode(), field + wrong.encode())
+                        after.addfile(member, io.BytesIO(body))
+                    else:
+                        after.addfile(member)
+            self.resign(path)
+        manifest['files'] = H.R.payload_files(directory)
+        H.R.write(release, manifest)
+        self.resign(release)
+        promotion = self.root / 'promotions' / (rid + '.json')
+        record = H.R.load(promotion)
+        record['release_sha256'] = H.R.sha(release)
+        record['gates']['release_sha256'] = record['release_sha256']
+        H.R.write(promotion, record)
+        self.resign(promotion)
+        # The unchanged verifier validates actual package/index signatures and
+        # signed metadata, but only the file map carries the actual archive hash.
+        H.R.verify_release(directory, self.key, self.env)
+        self.assertEqual(H.R.sha(archive), manifest['files']['repo/' + package['filename']])
+        return H.R.sha(release), H.R.sha(promotion)
+
     def snapshot(self, directory):
         return {p.relative_to(directory).as_posix(): ('link', os.readlink(p)) if p.is_symlink()
                 else ('file', p.read_bytes()) for p in directory.rglob('*') if p.is_file() or p.is_symlink()}
@@ -136,6 +189,26 @@ class Recovery(unittest.TestCase):
         result = self.recover(False)
         self.assertEqual(result['status'], 'planned-local-endpoint')
         self.assertEqual((self.snapshot(self.root), self.snapshot(self.endpoint)), before)
+
+    def test_signed_target_lineage_mismatch_refuses_plan_preview_and_apply(self):
+        self.pair()
+        plan = self.proposal()
+        plan['target_release_sha256'], plan['target_promotion_sha256'] = self.mismatched_lineage('previous')
+        self.sign(plan)
+        reason = 'artifact digest differs from signed file map'
+        self.failure_preserves_endpoint(self.proposal, reason)
+        self.failure_preserves_endpoint(lambda: self.recover(False), reason)
+        self.failure_preserves_endpoint(self.recover, reason)
+
+    def test_signed_current_lineage_mismatch_refuses_legacy_generation(self):
+        self.pair()
+        plan = self.proposal()
+        plan['current_release_sha256'], _ = self.mismatched_lineage('successor')
+        plan['expected_current'] = self.export()['selection']
+        self.sign(plan)
+        reason = 'artifact digest differs from signed file map'
+        self.failure_preserves_endpoint(self.proposal, reason)
+        self.failure_preserves_endpoint(self.recover, reason)
 
     def test_recovery_retains_signed_authorization_and_ordinary_export_is_explicitly_independent(self):
         self.pair()
@@ -344,6 +417,20 @@ class Recovery(unittest.TestCase):
         with mock.patch.object(H.E, 'copy_file', side_effect=drift):
             self.failure_preserves_endpoint(self.recover)
 
+    def test_target_lineage_changes_after_staging_before_retention(self):
+        self.pair()
+        self.sign()
+        original = H.E.generation_check
+
+        def drift(directory, plan):
+            original(directory, plan)
+            if directory.parent.name.startswith('.export-'):
+                self.mismatched_lineage('previous')
+
+        with mock.patch.object(H.E, 'generation_check', side_effect=drift):
+            self.failure_preserves_endpoint(self.recover, 'artifact digest differs from signed file map')
+        self.assertFalse(any(path.name.startswith('.') for path in self.endpoint.iterdir()))
+
     def test_target_gate_is_rechecked_independently_of_current_gate(self):
         self.pair()
         self.sign()
@@ -357,7 +444,7 @@ class Recovery(unittest.TestCase):
 
     def test_target_manifest_and_promotion_rereads_remain_bound_to_verified_maps(self):
         self.pair()
-        original = H.E.describe
+        original = H.describe_retained
         for relative in ('stable/previous/release.json', 'promotions/previous.json'):
             path = self.root / relative
             raw = path.read_bytes()
@@ -366,7 +453,7 @@ class Recovery(unittest.TestCase):
                 path.write_bytes(raw + b'\n')
                 return result
             try:
-                with self.subTest(relative=relative), mock.patch.object(H.E, 'describe', side_effect=drift):
+                with self.subTest(relative=relative), mock.patch.object(H, 'describe_retained', side_effect=drift):
                     self.failure_preserves_endpoint(self.proposal, 'authenticated metadata changed')
             finally:
                 path.write_bytes(raw)
