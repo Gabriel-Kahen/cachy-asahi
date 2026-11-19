@@ -16,8 +16,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "admission.py": {
-      "bytes": 67577,
-      "sha256": "8ffd0185a8fa1cf23c42c72b6172fb27170854a12e43fec121ecc4d01d786208"
+      "bytes": 72097,
+      "sha256": "f11a51c52afd889510aa16367d885ac16f1d61ff299ca5851cd06084b5088a42"
     },
     "apps16-parent.json": {
       "bytes": 6702834,
@@ -808,8 +808,8 @@
       "sha256": "6d36a067f85d68184587fd6d9e2a8af0190acba6e0b371862400766a9303ae3b"
     },
     "factory/service_capacity.py": {
-      "bytes": 7842,
-      "sha256": "cddec489a10e3cb0c3970c01ee03805a07d00c54d5217724a82a9459c45f4fbc"
+      "bytes": 9205,
+      "sha256": "d9f900e2163d70724a3c69f37f08ccbfcea94f8c58c9986a8f04c5c2c2031386"
     },
     "factory/support/alpm_reader.py": {
       "bytes": 23555,
@@ -2407,6 +2407,10 @@
       "bytes": 270793,
       "sha256": "5a49f9a081e05d32d150b57a220ed8cd51c88f6a5409e59fe20fdbac1f96efaa"
     },
+    "profile-events-parent.json": {
+      "bytes": 153415,
+      "sha256": "255a13bba1dc6053347ffa82ee660265fc3cf6ea1e81cf216df117ff2bdb1aad"
+    },
     "readback-progress-parent.json": {
       "bytes": 134419,
       "sha256": "a05970c136dc61f92f3cbb6299f79260eca7c9ec1a0def88e2a9888a48a1da6b"
@@ -2448,5 +2452,5 @@
       "sha256": "8dc56648ae12ed3d87a7b13f4281f5575b865545eecdc04d42816db99ce0fbaa"
     }
   },
-  "status": "SOURCE_ONLY_CURRENT606_GENERIC16K_STAGED_MTAB"
+  "status": "SOURCE_ONLY_CURRENT606_GENERIC16K_PROFILE_EVENT_CONTRACT"
 }

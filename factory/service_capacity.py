@@ -39,6 +39,37 @@ def function_copy(fn,space):
  # Rebind the EXECUTING function globals, not merely a module attribute.
  value=types.FunctionType(fn.__code__,space,fn.__name__,fn.__defaults__,fn.__closure__);value.__kwdefaults__=fn.__kwdefaults__;return value
 
+def profile_event_contract(out):
+ contract=Path(out)/'contract.py'
+ before=read(contract)
+ need(before.count(b"'foreign or missing profile event'")==2,'exact held profile event guards')
+ after=before+b'''
+_profile_full_gui=verify_result
+
+def verify_result(events,lock):
+    from post_session import STAGES
+
+    # Keep diagnostics in the raw report without putting them in the profile stage namespace.
+    profile_events = []
+    last_ordinal = 0
+    for event in events:
+        if event.get('event') != 'post_session_stage_DATA':
+            profile_events.append(event)
+            continue
+        ordinal = event.get('ordinal')
+        C.need(set(event) == {'event', 'schema', 'stage', 'ordinal', 'status'}
+               and type(event['schema']) is int and event['schema'] == 1
+               and type(ordinal) is int and last_ordinal < ordinal <= len(STAGES)
+               and event['stage'] == STAGES[ordinal - 1]
+               and event['status'] == 'DIAGNOSTIC_ONLY_NOT_ACCEPTANCE',
+               'malformed or unordered post-session diagnostic event')
+        last_ordinal = ordinal
+    return _profile_full_gui(profile_events,lock)
+'''
+ ast.parse(after,filename=str(contract))
+ contract.write_bytes(after)
+ return dict(before=pin(before),after=pin(after))
+
 def factory(namespace,selected):
  p=profile();need(selected=='tcg1800','explicit fixed service profile only')
  raw=read(Path(namespace['__file__']))
@@ -53,8 +84,11 @@ def factory(namespace,selected):
  raw=raw.replace(dns,b'',1).replace(kernel,b'',1).replace(seat,b'',1).replace(progress,b'',1).replace(clock,b'',1).replace(ingress,b';held.prepare(root,assets,out,selected)\n',1)
  need(raw.endswith(FACTORY_FOOTER.encode())and pin(raw[:-len(FACTORY_FOOTER.encode())])==p['original_helpers']['factory.py'],'entire original factory before finite opt-in footer')
  space=dict(namespace);original_prepare=namespace['prepare_code'];original_seal=namespace['seal']
- def prepare_code(*args,**kwargs):
-  result=original_prepare(*args,**kwargs);apply(args[2]if len(args)>2 else kwargs['out']);return result
+ def prepare_code(root,assets,out,selected,mode):
+  source,changes=original_prepare(root,assets,out,selected,mode)
+  apply(out)
+  if mode=='generic16k':changes['profile_events']=profile_event_contract(out)
+  return source,changes
  def seal(out,*args,**kwargs):
   result=original_seal(out,*args,**kwargs);result['service_validation_profile']=annotation();(Path(out)/'current606-proof.json').write_bytes(enc(result));return result
  space.update(prepare_code=prepare_code,seal=seal)

@@ -578,3 +578,69 @@ def source_context(root):
 def prove(root):
  fact=_mtab_fact(_mtab_original(root).prove(root))
  return dict(fact,status='PASS_WHOLE_R13_AND_GENERIC16K_STAGED_MTAB_SOURCE_ONLY')
+
+# Keep typed post-session diagnostics out of the ARM16K profile namespace.
+_PROFILE_EVENTS_START='\n# Keep typed post-session diagnostics out of the ARM16K profile namespace.\n'
+_PROFILE_EVENTS_PARENT_MANIFEST={'bytes': 107046, 'sha256': 'cb69b7c97a00300e67fd856509e528b9e5ab11dda2b638cda10a5905865b4dcf'}
+_PROFILE_EVENTS_PARENT='caefc14a686f3fa7aaa6d76cfa7df764da478498'
+_PROFILE_EVENTS_PARENT_REF='refs/heads/codex/current606-apps16-16k-installed-mtab-20261118-r14'
+_PROFILE_EVENTS_CONTEXT={'bytes': 153415, 'sha256': '255a13bba1dc6053347ffa82ee660265fc3cf6ea1e81cf216df117ff2bdb1aad'}
+_PROFILE_EVENTS_NEW={'factory/service_capacity.py': {'bytes': 9205, 'sha256': 'd9f900e2163d70724a3c69f37f08ccbfcea94f8c58c9986a8f04c5c2c2031386'}}
+_PROFILE_EVENTS_STATUS='SOURCE_ONLY_CURRENT606_GENERIC16K_PROFILE_EVENT_CONTRACT'
+
+def _profile_events_original(root):
+ root=Path(root).absolute()
+ raw=read(root/'profile-events-parent.json')
+ need(pin(raw)==_PROFILE_EVENTS_CONTEXT,'whole exact R14 profile event contract inverse')
+ context=json.loads(raw)
+ need(context['source']==_PROFILE_EVENTS_PARENT and context['ref']==_PROFILE_EVENTS_PARENT_REF and context['actual'] is None,
+      'exact R14 parent and no authority')
+ original_manifest=base64.b64decode(context['manifest'],validate=True)
+ need(pin(original_manifest)==_PROFILE_EVENTS_PARENT_MANIFEST,'original R14 manifest')
+ originals={**json.loads(original_manifest)['files'],'source-manifest.json':pin(original_manifest)}
+ manifest=obj(root/'source-manifest.json')
+ need(len(originals)==612 and manifest['status']==_PROFILE_EVENTS_STATUS
+      and all(manifest[key] is None for key in ('actual_source','actual_ref','actual_run'))
+      and set(manifest['files'])==set(originals)-{'source-manifest.json'}|{'profile-events-parent.json'},
+      'exact unissued 613-leaf scoped profile event contract successor')
+ closed(root,{**manifest['files'],'source-manifest.json':pin(read(root/'source-manifest.json'))})
+ need(all(manifest['files'][name]==value for name,value in _PROFILE_EVENTS_NEW.items()),
+      'exact finite scoped profile event source change')
+ before,marker,_=read(root/'admission.py').partition(_PROFILE_EVENTS_START.encode())
+ need(marker and pin(before)==originals['admission.py'],'complete original R14 admission')
+ need(set(context['before'])==set(_PROFILE_EVENTS_NEW),'closed exact profile event source inverse')
+ inverse=dict(context['before'])
+ inverse={name:base64.b64decode(body,validate=True) for name,body in inverse.items()}
+ inverse.update({'source-manifest.json':original_manifest,'admission.py':before})
+ def prior_read(path,cap=16*1024**2):
+  name=Path(path).relative_to(root).as_posix()
+  raw=inverse[name] if name in inverse else read(path,cap)
+  need(name in originals and len(raw)<=cap and pin(raw)==originals[name],'whole original R14 input '+name)
+  return raw
+ def prior_closed(where,wanted):
+  prefix='' if where==root else where.relative_to(root).as_posix()+'/'
+  need({name.removeprefix(prefix):value for name,value in originals.items() if name.startswith(prefix)}==wanted,
+       'closed exact original R14 namespace')
+  for name in wanted:prior_read(where/name)
+  return wanted
+ for name in originals:prior_read(root/name)
+ prior=types.ModuleType('_current606_exact_r14_profile_event_parent');prior.__file__=str(root/'admission.py')
+ exec(compile(before,prior.__file__,'exec'),vars(prior))
+ prior.read=prior_read;prior.obj=lambda path:json.loads(prior_read(path));prior.closed=prior_closed
+ return prior
+
+def _profile_events_fact(fact):
+ need(fact['files']==612 and fact['selected_generic16k_verify']==dict(observer_seconds=720,command_seconds=735,
+      profiles=['minimal','overlay']) and fact['selected_generic16k_dns_report']=='SCOPED_EXPANDED_BODY_FOCUS'
+      and fact['selected_generic16k_installed_diff']=='STRICT_EQUALITY_FAILURE_DATA_ONLY'
+      and fact['selected_generic16k_staged_sysusers']=='BEFORE_COMPLETE_PAYLOAD_CAPTURE'
+      and fact['selected_generic16k_staged_mtab']=='BEFORE_COMPLETE_PAYLOAD_CAPTURE'
+      and fact['actual'] is None,'whole original R14 with exact strict observer and boot normalization')
+ return dict(fact,files=613,selected_generic16k_profile_events='STRICT_TYPED_DIAGNOSTIC_PROJECTION',actual=None)
+
+def source_context(root):
+ return _profile_events_fact(_profile_events_original(root).source_context(root))
+
+def prove(root):
+ fact=_profile_events_fact(_profile_events_original(root).prove(root))
+ return dict(fact,status='PASS_WHOLE_R14_AND_GENERIC16K_PROFILE_EVENT_CONTRACT_SOURCE_ONLY')
