@@ -10,6 +10,8 @@ python3 scripts/hardware/capture-baseline.py --operator NAME --execution-context
 
 The collector queries installed package versions, local repository database hashes, kernel, page size, device-tree identity, Hyprland and audio status. Run it as the normal desktop user so the optional probes can find that user's local session sockets. The collector does not install anything, change services, exercise audio, suspend, or validate hardware.
 
+With `--require-m2-air`, the capture requires a declared physical AArch64 context, 16 KiB pages, and unique device-tree identities that include `apple,t8112` and exactly one supported Air model. An incompatible capture still writes the private diagnostic record and exits 2. Hardware validation stays `NOT RUN` pending independent review and machine tests.
+
 Use a new `--output` filename on a path with no symbolic links. The collector creates the raw report with mode 0600 and any missing directories with private permissions. Review reports before sharing them because desktop and audio status may include application names. Unavailable and failed probes remain explicit in JSON.
 
 Record recovery prerequisites and the full machine/version record from `docs/hardware-validation.md` alongside the JSON. Save actual base repository/package artifacts separately: database hashes do not preserve downloadable versions. Record firmware and boot integration versions from installed packages and supplement omissions manually. Firmware contents and device serial numbers are not collected.

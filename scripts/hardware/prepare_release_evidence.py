@@ -43,10 +43,11 @@ def captured_at(value):
 
 
 def model_identity(baseline):
-    size = capture.target_size(baseline["architecture"], baseline["device_tree_compatible"])
+    size = capture.exact_target_size(baseline["architecture"], baseline["device_tree_compatible"])
     client.need(baseline["record_type"] == "environment-baseline" and baseline["schema_version"] == 1
                 and baseline["validation_result"] == "NOT RUN" and baseline["execution_context"] == "physical"
-                and size in MODELS and baseline["m2_air_size"] == size and baseline["page_size_bytes"] == 16_384,
+                and size in MODELS and baseline["m2_air_size"] == size
+                and baseline["page_size_bytes"] == capture.TARGET_PAGE_SIZE,
                 "an unambiguous captured physical-context M2 Air with 16 KiB pages is required")
     return MODELS[size]
 

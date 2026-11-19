@@ -53,8 +53,10 @@ class DraftTests(unittest.TestCase):
         (self.root / leaf).write_bytes(content)
         return dict(path=leaf, sha256=client.digest(content))
 
-    def cli(self, board="apple,j413", size="13-inch", session=False, review_pin=None, session_identity=None):
-        self.baseline.update(device_tree_compatible=f"{board}\napple,t8112", m2_air_size=size)
+    def cli(self, board="apple,j413", size="13-inch", session=False, review_pin=None, session_identity=None,
+            compatible=None):
+        self.baseline.update(device_tree_compatible=f"{board}\napple,t8112" if compatible is None else compatible,
+                             m2_air_size=size)
         before = self.put("baseline.raw.json", self.baseline)
         self.review.update(baseline_sha256=before["sha256"], session_sha256=None)
         options = []
@@ -106,6 +108,19 @@ class DraftTests(unittest.TestCase):
         self.assertIn("unambiguous", self.cli("apple,j413\napple,j415")[2])
         self.review["machine_id"] = "PRIVATE-TAG-serial"
         self.assertIn("independently pinned", self.cli()[2])
+        self.assertFalse(self.output.exists())
+
+    def test_nominal_m2_review_requires_soc_identity_unique_ids_and_16k_pages(self):
+        for index, compatible in enumerate(("apple,j413", "apple,j413\napple,t8103",
+                                            "apple,j413\napple,j413\napple,t8112",
+                                            "apple,j413\napple,t8112\napple,t8112")):
+            with self.subTest(compatible=compatible):
+                self.output = self.root / f"refused-{index}"
+                self.assertIn("unambiguous", self.cli(compatible=compatible)[2])
+                self.assertFalse(self.output.exists())
+        self.output = self.root / "refused-small-pages"
+        self.baseline["page_size_bytes"] = 4096
+        self.assertIn("unambiguous", self.cli()[2])
         self.assertFalse(self.output.exists())
 
     def test_independent_review_pin_package_bytes_and_protected_version_refusal(self):

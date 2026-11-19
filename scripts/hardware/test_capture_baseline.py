@@ -128,25 +128,40 @@ class BaselineTests(unittest.TestCase):
             self.assertEqual(first["configured_repositories"], ["core"])
             self.assertNotEqual(first["sync_databases"][0]["sha256"], second["sync_databases"][0]["sha256"])
 
-    def test_cli_refusal_on_ambiguous_identity(self):
-        """Ensure --require-m2-air refuses ambiguous device-tree identifiers."""
-        args = ["capture-baseline.py", "--operator", "test", "--execution-context", "physical", "--require-m2-air"]
-        with patch.object(sys, 'argv', args), \
-             patch.object(baseline.platform, "machine", return_value="aarch64"), \
-             patch.object(baseline, "read_text", return_value="apple,j413\napple,j415"), \
-             patch.object(baseline, "command", return_value={}), \
-             patch.object(baseline, "repository_facts", return_value={}), \
-             patch("sys.stdout", new=io.StringIO()) as fake_out, \
-             patch("sys.stderr", new=io.StringIO()) as fake_err:
-
-            exit_code = baseline.main()
-
-            self.assertEqual(exit_code, 2)
-            self.assertIn("hardware gates remain NOT RUN", fake_err.getvalue())
-
-            record = json.loads(fake_out.getvalue())
-            self.assertIsNone(record["m2_air_size"])
-            self.assertEqual(record["validation_result"], "NOT RUN")
+    def test_required_m2_capture_checks_identity_and_page_size_but_retains_raw_report(self):
+        cases = (
+            ("13-inch", "apple,j413\napple,t8112", 16384, "physical", 0),
+            ("15-inch", "apple,j415\napple,t8112\napple,arm-platform", 16384, "physical", 0),
+            ("13-inch", "apple,j413", 16384, "physical", 2),
+            ("15-inch", "apple,j415\napple,t8103", 16384, "physical", 2),
+            ("13-inch", "apple,j413\napple,j413\napple,t8112", 16384, "physical", 2),
+            ("13-inch", "apple,j413\napple,t8112\napple,t8112", 16384, "physical", 2),
+            (None, "apple,j413\napple,j415\napple,t8112", 16384, "physical", 2),
+            ("13-inch", "apple,j413\napple,t8112", 4096, "physical", 2),
+            ("13-inch", "apple,j413\napple,t8112", 16384, "virtual", 2),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            for index, (label, compatible, pages, context, expected) in enumerate(cases):
+                with self.subTest(compatible=compatible, pages=pages, context=context):
+                    output = Path(directory) / f"{index}.json"
+                    args = ["capture-baseline.py", "--operator", "test", "--execution-context", context,
+                            "--require-m2-air", "--output", str(output)]
+                    with patch.object(sys, "argv", args), \
+                         patch.object(baseline.platform, "machine", return_value="aarch64"), \
+                         patch.object(baseline.os, "sysconf", return_value=pages), \
+                         patch.object(baseline, "read_text", return_value=compatible), \
+                         patch.object(baseline, "command", return_value={}), \
+                         patch.object(baseline, "repository_facts", return_value={}), \
+                         patch("sys.stdout", new=io.StringIO()) as stdout, \
+                         patch("sys.stderr", new=io.StringIO()) as stderr:
+                        self.assertEqual(baseline.main(), expected)
+                    self.assertEqual(stdout.getvalue(), "")
+                    self.assertEqual("hardware gates remain NOT RUN" in stderr.getvalue(), expected == 2)
+                    self.assertEqual(stat.S_IMODE(output.stat().st_mode), 0o600)
+                    record = json.loads(output.read_bytes())
+                    self.assertEqual(record["m2_air_size"], label)
+                    self.assertEqual(record["page_size_bytes"], pages)
+                    self.assertEqual(record["validation_result"], "NOT RUN")
 
 
 if __name__ == "__main__":
