@@ -47,8 +47,14 @@ QT_MIRROR = "https://qt.mirror.constant.com/archive/qt/6.12/6.12.0/submodules/"
 LIMIT = 2 * 1024**3
 PUBLIC_HOSTS = {"raw.githubusercontent.com", "ca.us.mirror.archlinuxarm.org", "qt.mirror.constant.com"}
 PUBLIC_GUARDS = {"EXACT_PUBLIC_HTTPS_ROUTE_REQUIRED", "EXACT_HTTP_BODY_REQUIRED", "HTTP_CONTENT_LENGTH_MISMATCH",
-                 "HTTP_BODY_OVER_LIMIT", "HTTP_WHOLE_INPUT_PIN_MISMATCH", "SAFE_ACQUIRED_RELATIVE_PATH",
+                 "HTTP_CONTENT_RANGE_MISMATCH", "HTTP_BODY_OVER_LIMIT", "HTTP_WHOLE_INPUT_PIN_MISMATCH", "SAFE_ACQUIRED_RELATIVE_PATH",
                  "ACQUIRED_LEAF_REPLACED"}
+RESUME_URL = REPO + "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad/packages/hyprland-0.56.2-4-aarch64.pkg.tar.xz"
+RESUME_PIN = dict(bytes=49_886_060, sha256="4183f5212200625c278eefbbf70c912f1e8803df7ed99a8a2988beb4f4c74e04")
+
+
+class AcquisitionDeadline(TimeoutError):
+    """The existing whole transfer alarm cannot enter socket recovery."""
 
 
 class AcquisitionError(ValueError):
@@ -183,21 +189,46 @@ def receive(open_url, url, expected, target):
     parsed = urllib.parse.urlsplit(url)
     need(parsed.scheme == "https" and parsed.netloc in PUBLIC_HOSTS
          and not parsed.query and not parsed.fragment, "EXACT_PUBLIC_HTTPS_ROUTE_REQUIRED")
-    request = urllib.request.Request(url, headers={"Accept-Encoding": "identity",
-                                                    "User-Agent": "cachy-asahi-qt612-pinned-inputs/1"})
-    with open_url(request, timeout=30) as response:
-        need(response.status == 200 and response.geturl() == url
-             and response.headers.get("Content-Encoding", "identity").lower() == "identity", "EXACT_HTTP_BODY_REQUIRED")
-        lengths = response.headers.get_all("Content-Length", [])
-        need(not lengths or lengths == [str(expected["bytes"])], "HTTP_CONTENT_LENGTH_MISMATCH")
-        total = 0
-        digest = hashlib.sha256()
-        while block := response.read1(min(65_536, expected["bytes"] - total + 1)):
-            total += len(block)
-            need(total <= expected["bytes"], "HTTP_BODY_OVER_LIMIT")
-            digest.update(block)
-            target.write(block)
-        need(dict(bytes=total, sha256=digest.hexdigest()) == expected, "HTTP_WHOLE_INPUT_PIN_MISMATCH")
+    total, size, digest = 0, expected["bytes"], hashlib.sha256()
+
+    def stream(offset=None):
+        nonlocal total
+        request = urllib.request.Request(url, headers={"Accept-Encoding": "identity",
+                                                        "User-Agent": "cachy-asahi-qt612-pinned-inputs/1"})
+        if offset is not None:
+            request.add_header("Range", f"bytes={offset}-{size-1}")
+        with open_url(request, timeout=30) as response:
+            status = 200 if offset is None else 206
+            need(response.status == status and response.geturl() == url
+                 and response.headers.get("Content-Encoding", "identity").lower() == "identity", "EXACT_HTTP_BODY_REQUIRED")
+            if offset is not None:
+                need(response.headers.get_all("Content-Range", []) == [f"bytes {offset}-{size-1}/{size}"],
+                     "HTTP_CONTENT_RANGE_MISMATCH")
+                need([item.lower() for item in response.headers.get_all("Content-Encoding", [])] in ([], ["identity"]),
+                     "EXACT_HTTP_BODY_REQUIRED")
+            lengths = response.headers.get_all("Content-Length", [])
+            need(not lengths or lengths == [str(size - (offset or 0))], "HTTP_CONTENT_LENGTH_MISMATCH")
+            resumable = (offset is None and url == RESUME_URL and expected == RESUME_PIN
+                         and response.headers.get_all("Accept-Ranges", []) == ["bytes"]
+                         and not response.headers.get_all("Content-Range", []))
+            while True:
+                try:
+                    block = response.read1(min(65_536, size - total + 1))
+                except TimeoutError as error:
+                    if resumable and 0 < total < size and not isinstance(error, AcquisitionDeadline):
+                        return total
+                    raise
+                if not block:
+                    return None
+                total += len(block)
+                need(total <= size, "HTTP_BODY_OVER_LIMIT")
+                digest.update(block)
+                target.write(block)
+
+    offset = stream()
+    if offset is not None:
+        stream(offset)
+    need(dict(bytes=total, sha256=digest.hexdigest()) == expected, "HTTP_WHOLE_INPUT_PIN_MISMATCH")
 
 
 def materialize(writer, name, fetch):
@@ -251,7 +282,7 @@ def r128_package(raw, expected):
 @contextmanager
 def time_limit(seconds):
     def expired(_signal, _frame):
-        raise TimeoutError("QT_ACQUISITION_DEADLINE")
+        raise AcquisitionDeadline("QT_ACQUISITION_DEADLINE")
     need(1 <= seconds <= 1800 and signal.getitimer(signal.ITIMER_REAL) == (0, 0), "BOUNDED_ACQUISITION_DEADLINE")
     previous = signal.signal(signal.SIGALRM, expired)
     signal.setitimer(signal.ITIMER_REAL, seconds)
