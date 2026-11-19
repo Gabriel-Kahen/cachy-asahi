@@ -76,6 +76,8 @@ class PortableSourceChecks(unittest.TestCase):
 
 
 class HeldSourceChecks(unittest.TestCase):
+    @unittest.skipUnless(os.environ.get('CACHY_ONBOARDING_HELD') and os.environ.get('CACHY_ONBOARDING_RUNTIME_WRAPPER'),
+                         'Select the exact retained controller and Runtime44 inputs')
     def test_worker_preserves_exact_base_install_and_guest_guards(self):
         sel=dict(bundle='INPUT_DATA_ONLY')
         original=C.invoke(C.ROOT,'show',C.BASE_SOURCE+':'+C.TRIAL)
@@ -85,7 +87,9 @@ class HeldSourceChecks(unittest.TestCase):
         before,after=map(functions,(original,candidate))
         self.assertEqual({k for k in before if before[k]!=after[k]},{'evidence_names','execute_guest','read_result'})
         self.assertEqual(after['target_api_mounts'],before['target_api_mounts'])
-        root=C.body(C.HELD/'root-entry.sh',C.ROOT_ENTRY)
+        held=Path(os.environ['CACHY_ONBOARDING_HELD'])
+        runtime_wrapper=Path(os.environ['CACHY_ONBOARDING_RUNTIME_WRAPPER'])
+        root=C.body(held/'root-entry.sh',C.ROOT_ENTRY)
         shell=C.project_shell(root,'1'*64)
         self.assertIn(b'--pull=never --init=false --read-only --network=none --cap-drop=ALL',shell)
         self.assertIn(b'assert_owned',shell)
@@ -93,7 +97,7 @@ class HeldSourceChecks(unittest.TestCase):
         self.assertNotIn(b'--first-login',shell)
         with tempfile.TemporaryDirectory(prefix='onboarding-entry-fenced-') as scope:
             path=Path(scope)/'enter.py'
-            C.runtime_entry(path,C.ref(shell)['sha256'])
+            C.runtime_entry(path,C.ref(shell)['sha256'],runtime_wrapper)
             raw=path.read_bytes()
             self.assertIn(C.SCOPE.encode(),raw)
             self.assertIn(b'RuntimeSession',raw)

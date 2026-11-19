@@ -14,10 +14,8 @@ import tempfile
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[2]
-HELD=Path('/home/gabe/.cache/cachy-asahi-first-login-overlay583-20261118/root-actual-first-login-r2-DATA')
 BASE_SHA='113a28f6925162d9933c93c569536cb5eafe1c31e46a46cd31b22b2753c50d02'
 ROOT_ENTRY='a0d61f0cefae8bb5b1ab9fabd63016ace46451bc01eb432d895eeee42ca1d245'
-RUNTIME_WRAPPER=Path('/home/gabe/.cache/Root-first-login-r5-runtime44-UNISSUED.UPjmKRbi/enter.py')
 RUNTIME_WRAPPER_SHA='87a494064ebc6ec4e17d9a00f4cf3c6e3ffed2560e32b8ce558c008a98166bce'
 BASE_SOURCE='3a415e51ad5380ff20cde6455fc9c51255d268ff'
 EXAMPLE_SOURCE='868f7f4aca866605c69ae911508c4767d2b18280'
@@ -176,8 +174,8 @@ def project_shell(raw, handoff):
     return source.replace('overlay583-first-login','overlay583-development-onboarding').encode()
 
 
-def runtime_entry(path, runner):
-    source=body(RUNTIME_WRAPPER,RUNTIME_WRAPPER_SHA).decode()
+def runtime_entry(path, runner, runtime_wrapper):
+    source=body(runtime_wrapper,RUNTIME_WRAPPER_SHA).decode()
     replacements=(
         ('First Login R5 guest','installed onboarding guest'),
         ('Exact First Login operand changed','Exact onboarding operand changed'),
@@ -208,7 +206,7 @@ def module(path,name):
     return result
 
 
-def prepare(output, held=HELD):
+def prepare(output, held, runtime_wrapper):
     require(output.is_absolute() and output.resolve()==output and not output.exists() and output.parent.stat().st_uid==os.getuid(),
             'fresh private onboarding capsule')
     old=json.loads(body(held/'HANDOFF.DATA.json',BASE_SHA))
@@ -245,7 +243,7 @@ def prepare(output, held=HELD):
     (output/'HANDOFF.DATA.json').write_bytes(raw)
     runner=project_shell(body(held/'root-entry.sh',ROOT_ENTRY),ref(raw)['sha256'])
     (output/'root-entry.sh').write_bytes(runner)
-    runtime_entry(output/'enter.py',ref(runner)['sha256'])
+    runtime_entry(output/'enter.py',ref(runner)['sha256'],runtime_wrapper)
     close=body(held/'readback.py','2bc376d321305e91448e04af9d7eecd9f2b3366796ffc5271c973e7df376e342')
     (output/'held-readback.py').write_bytes(close)
     (output/'readback.py').write_bytes((HERE/'readback.py').read_bytes())
@@ -256,6 +254,7 @@ def prepare(output, held=HELD):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
-    parser.add_argument('--held',type=Path,default=HELD,help='exact accepted base controller capsule')
+    parser.add_argument('--held',type=Path,required=True,help='exact accepted base controller capsule')
+    parser.add_argument('--runtime-wrapper',type=Path,required=True,help='exact held Runtime44 wrapper')
     args=parser.parse_args()
-    print(json.dumps(prepare(args.output,args.held),sort_keys=True,indent=2))
+    print(json.dumps(prepare(args.output,args.held,args.runtime_wrapper),sort_keys=True,indent=2))

@@ -6,11 +6,13 @@ The small deterministic Git fixture includes the exact `hello.c`, `onboarding.py
 
 ## Data preparation
 
-The preparation requires the exact accepted local Overlay583 controller capsule, current retained boot/base inputs and the full trusted checkout with both Git source revisions. The default `--held` is the known local capsule. An explicit equivalent absolute `--held` resolves the same whole input pins. Use a fresh absolute private output.
+The preparation requires the exact accepted Overlay583 controller capsule, its retained boot and base inputs, the held Runtime44 wrapper, and a trusted checkout with both Git source revisions. Choose the capsule and wrapper by their reviewed whole inputs. Use a fresh absolute private output.
 
 ```sh
-/usr/bin/python3.14 -I -B -Werror scripts/integration/development_onboarding_overlay583/capsule.py --output "$OUT"
-/usr/bin/python3.14 -I -B -Werror scripts/integration/development_onboarding_overlay583/test_capsule.py -v
+/usr/bin/python3.14 -I -B -Werror scripts/integration/development_onboarding_overlay583/capsule.py \
+  --held "$OVERLAY583_CAPSULE" --runtime-wrapper "$HELD_WRAPPER" --output "$OUT"
+CACHY_ONBOARDING_HELD="$OVERLAY583_CAPSULE" CACHY_ONBOARDING_RUNTIME_WRAPPER="$HELD_WRAPPER" \
+  /usr/bin/python3.14 -I -B -Werror scripts/integration/development_onboarding_overlay583/test_capsule.py -v
 /usr/bin/python3.14 -I -B -Werror "$OUT/enter.py" --check-code
 /usr/bin/bash "$OUT/root-entry.sh" --preflight "$HANDOFF_SHA"
 ```
