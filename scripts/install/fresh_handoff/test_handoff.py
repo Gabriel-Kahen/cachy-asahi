@@ -8,6 +8,7 @@ No native actor, ALPM transaction, installed session or M2 is exercised.
 """
 import argparse
 import copy
+from datetime import datetime, timezone
 import importlib.util
 import json
 import os
@@ -105,6 +106,65 @@ class HandoffTests(unittest.TestCase):
         self.assertEqual(len(checked['actions']), 8)
         self.assertTrue((relocated/'recovery/recovery/packages/original-00/archive').is_file())
         self.assertIn('boot/session restoration', (relocated/'ACTIONS.txt').read_text())
+
+    def test_candidate_and_predecessor_use_their_own_checkpoint(self):
+        candidate = self.chosen['candidate']
+        candidate['namespace'] = 'dev.candidate'
+        recovery = self.chosen['recovery']
+        recovery_state = self.root / 'recovery-state'
+        recovery_state.mkdir(mode=0o700)
+        now = datetime.now(timezone.utc)
+        issued = '2020-01-01T00:00:00Z'
+        metadata = {
+            row['namespace']: dict(scope=H.C.SCOPE, namespace=row['namespace'], signer=row['signer'],
+                                   sequence=sequence, issued_utc=issued)
+            for row, sequence in ((candidate, 9), (recovery, 3))
+        }
+        pins = {key: H.C.digest(H.C.encoded(row)) for key, row in metadata.items()}
+        for state, row in ((self.f.state, candidate), (recovery_state, recovery)):
+            namespace = row['namespace']
+            value = dict(metadata[namespace], schema_version=1, metadata_sha256=pins[namespace],
+                         release_sha256=row['release_sha256'], verified_utc=issued)
+            with H.C.state_directory(state, True) as fd:
+                H.C.commit(fd, value)
+        before = [H.K.inventory(state) for state in (self.f.state, recovery_state)]
+
+        def checkpoint_then_fixture(args):
+            # Only fixture kit authentication is simulated. The same receiver
+            # checkpoint parsing, locking and rollback checks run as in verify.
+            with H.C.state_directory(args.state_dir, False) as fd:
+                H.C.against_state(H.C.checkpoint(fd), metadata[args.namespace],
+                                  pins[args.namespace], now, args.minimum_sequence)
+            if Path(args.kit).name == 'candidate':
+                return dict(release_sha256=candidate['release_sha256'])
+            return self.original_inspect(args)
+
+        self.save()
+        H.K.inspect.side_effect = checkpoint_then_fixture
+        with self.assertRaisesRegex(H.C.Error, 'PREDECESSOR_AUTH_REFUSED: checkpoint namespace'):
+            H.prepare(self.args)
+        self.assertFalse(self.output.exists())
+        self.args.recovery_state_dir = recovery_state
+        result = self.build()
+        argv = ['verify', '--workspace', str(self.output), '--state-dir', str(self.f.state),
+                '--selection-sha256', self.args.selection_sha256,
+                '--receipt-sha256', result['receipt_sha256']]
+        with mock.patch('sys.stderr') as errors:
+            self.assertEqual(H.main(argv), 1)
+            self.assertIn('PREDECESSOR_AUTH_REFUSED: checkpoint namespace', errors.write.call_args_list[0].args[0])
+        with mock.patch('sys.stdout') as output:
+            self.assertEqual(H.main([*argv, '--recovery-state-dir', str(recovery_state)]), 0)
+            self.assertEqual(json.loads(output.write.call_args_list[0].args[0])['status'], 'HELD_DEVELOPMENT_HANDOFF')
+
+        self.check.recovery_state_dir = recovery_state
+        for row, label in ((candidate, 'CANDIDATE'), (recovery, 'PREDECESSOR')):
+            with self.subTest(role=label):
+                envelope = metadata[row['namespace']]
+                envelope['sequence'] -= 1
+                with self.assertRaisesRegex(H.C.Error, label + '_AUTH_REFUSED: metadata sequence rollback'):
+                    H.verify(self.check)
+                envelope['sequence'] += 1
+        self.assertEqual(before, [H.K.inventory(state) for state in (self.f.state, recovery_state)])
 
     def test_genuine_TEST_signed_candidate_and_signature_refusal(self):
         kit_tests = load('fresh_signed_candidate_fixtures', ROOT / 'scripts/release/test_offline_kit.py')
@@ -227,6 +287,10 @@ class HandoffTests(unittest.TestCase):
                 self.args.output = target
                 with self.assertRaises(H.C.Error): H.prepare(self.args)
         self.args.output = self.output
+        self.args.recovery_state_dir = self.output / 'nested-state'
+        with self.assertRaisesRegex(H.C.Error, 'roots must be disjoint'):
+            H.prepare(self.args)
+        del self.args.recovery_state_dir
         alias = self.root/'alias'
         alias.symlink_to(self.root, target_is_directory=True)
         self.args.output = alias/'new-handoff'
