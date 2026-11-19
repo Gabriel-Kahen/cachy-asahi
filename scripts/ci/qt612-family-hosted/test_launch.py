@@ -24,6 +24,47 @@ FINGERPRINT = "B2"*20
 
 
 class LaunchTests(unittest.TestCase):
+    def test_retire_only_pinned_superseded_transfer_files(self):
+        R = executor.load(HERE.parent/"qt612-complete-family-native-source/runner_inputs.py",
+                          "qt612_test_transfer_retirement")
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            acquired, bound = work/"acquired", work/"bound"
+            roles = ["operands/qt-upstream/archive.tar.xz", "framework/group/recipe",
+                     "operands/base-materials/rootfs.tar.gz", "operands/dependencies/md4c.pkg"]
+            payload = b"bounded synthetic exact operand"
+            for name in roles:
+                path = acquired/name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(payload)
+            projected = {"archives/one/archive.tar.xz": "archive.tar.xz", "code/recipe": "group/recipe"}
+            files = {name: R.C.pin(payload) for name in projected}
+            for name in files:
+                path = bound/name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(payload)
+            args = (R, acquired, bound, {"new_source_map": {"sha256":"a"*64}}, work.stat().st_dev)
+            second = acquired/roles[1]
+            with patch.object(R.C, "read_source", return_value={"files":files}), \
+                    patch.object(R, "mapped_archive_paths", return_value={list(projected)[0]: "archive.tar.xz"}), \
+                    patch.object(R, "mapped_git_paths", return_value={"code/recipe": "group/recipe"}):
+                second.write_bytes(b"x"*len(payload))
+                with self.assertRaisesRegex(ValueError, "STABLE_WHOLE_FILE_PIN"):
+                    launch.retire_transfer_duplicates(*args)
+                self.assertTrue((acquired/roles[0]).is_file())
+                second.write_bytes(payload)
+                foreign = second.with_name("unselected")
+                foreign.write_bytes(b"held")
+                with self.assertRaisesRegex(ValueError, "finite superseded transfer namespace"):
+                    launch.retire_transfer_duplicates(*args)
+                self.assertTrue(foreign.is_file())
+                foreign.unlink()
+                actual = launch.retire_transfer_duplicates(*args)
+            self.assertEqual((actual["files"], actual["bytes"]), (2, 2*len(payload)))
+            self.assertFalse(any((acquired/name).exists() for name in roles[:2]))
+            self.assertTrue(all((acquired/name).read_bytes() == payload for name in roles[2:]))
+            self.assertTrue(all((bound/name).read_bytes() == payload for name in files))
+
     def test_known_controller_projects_only_owned_unit_duration(self):
         class Controller:
             def __init__(self, root, out, policy, nonce, uid, gid):
@@ -108,15 +149,17 @@ class LaunchTests(unittest.TestCase):
                 patch.object(capacity, "require_after", side_effect=lambda *_: events.append("after") or {}), \
                 patch.object(capacity, "require_transfer_volume", return_value={"volume":{
                     "device":2, "inode":5, "mount":7}}), \
+                patch.object(launch, "retire_transfer_duplicates",
+                             side_effect=lambda *_: events.append("retire-duplicates") or {"files":35}), \
                 patch.object(launch, "expose_readonly_tree") as expose, patch.object(Path, "chmod"):
             result = launch.reserve_and_bind(model, inputs, transfer, selection_sha256="a"*64,
                                              logical_bytes=180, stage=stages.append)
         self.assertEqual([e[0] if isinstance(e, tuple) else e for e in events],
                          ["fresh", "exclusive-create", "allocation-admission", "allocate", "after", "mounted",
-                          "workspace", "transfer", "bind", "workspace-reread"])
+                          "workspace", "transfer", "bind", "retire-duplicates", "workspace-reread"])
         self.assertEqual(stages, ["STORAGE_FRESHNESS", "OWNED_HOST_SETUP", "STORAGE_ALLOCATION_ADMISSION",
                                   "STORAGE_ALLOCATION", "STORAGE_ALLOCATION_READBACK", "OWNED_HOST_SETUP",
-                                  "OWNED_VOLUME_JOIN", "INPUT_ACQUISITION", "INPUT_BINDING", "INPUT_EXPOSURE"])
+                                  "OWNED_VOLUME_JOIN", "INPUT_ACQUISITION", "INPUT_BINDING", "INPUT_TRANSFER_RETIREMENT", "INPUT_EXPOSURE"])
         self.assertEqual(events[6], ("workspace", output/"volume", 2, 5, 7))
         self.assertEqual(events[7][1], dict(owned_workspace=output/"volume", device=2, inode=5, mount_id=7,
                                              portable=output/"volume/work/portable", output=output/"volume/work/acquired"))

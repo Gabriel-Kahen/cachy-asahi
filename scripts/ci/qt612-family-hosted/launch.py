@@ -89,6 +89,42 @@ def expose_readonly_tree(root):
         entry.chmod(0o555)
 
 
+def retire_transfer_duplicates(runner_inputs, acquired, source, receipt, volume_device):
+    """Retire the Root-owned archive/framework transfer copies after complete binding."""
+    C, M = runner_inputs.C, runner_inputs.M
+    source, acquired = M.ordinary(source), M.ordinary(acquired)
+    mapping = C.read_source(source, receipt["new_source_map"]["sha256"])
+    archives = runner_inputs.mapped_archive_paths()
+    framework = runner_inputs.mapped_git_paths(mapping)
+    groups = ((acquired/"operands/qt-upstream", archives), (acquired/"framework", framework))
+    observed, disposable = {}, {}
+    for root, members in groups:
+        need(root.is_dir() and not root.is_symlink() and root.stat().st_dev == volume_device,
+             "Exact acquired duplicate roots on the settled owned loop")
+        candidates = {root/leaf for leaf in members.values()}
+        found = {path for path in root.rglob("*") if not path.is_dir() or path.is_symlink()}
+        need(candidates == found and len(candidates) == len(members),
+             "Complete finite superseded transfer namespace")
+        for item, name in members.items():
+            path = root/name
+            expected = runner_inputs.pin(mapping["files"][item])
+            M.stream(path, expected, observed, cap=128*1024**2, mode=0o644)
+            original = path.lstat()
+            replacement = (source/item).lstat()
+            need(original.st_dev == replacement.st_dev == volume_device and original.st_uid == os.geteuid()
+                 and original.st_nlink == 1 and original.st_ino != replacement.st_ino,
+                 "Only an independently pinned Root-owned duplicate may retire")
+            disposable[path] = (expected["bytes"], original.st_blocks*512)
+    M.unchanged(observed)
+    # Both the full bound Source and all discardable inputs were rechecked.
+    # The 517 authoritative provider operands and seven signed dependency pairs stay in place.
+    for path in sorted(disposable):
+        need(M.identity(path.lstat()) == observed[str(path)], "Same original duplicate before retirement")
+        path.unlink()
+    return dict(files=len(disposable), bytes=sum(row[0] for row in disposable.values()),
+                allocated_bytes=sum(row[1] for row in disposable.values()))
+
+
 def reserve_and_bind(controller, runner_inputs, transfer, *, selection_sha256, logical_bytes, stage):
     """Enter the exact owned controller, then acquire and bind inside its volume."""
     need(os.getuid() == os.geteuid() == 0, "Root-owned native controller required")
@@ -158,12 +194,14 @@ def reserve_and_bind(controller, runner_inputs, transfer, *, selection_sha256, l
              "Complete scoped acquisition byte receipt required")
         stage("INPUT_BINDING")
         receipt = runner_inputs.bind_inputs(portable, selection_sha256, operands, framework, work/"bound", layout)
-    need(receipt["status"] == "BOUND_RUNNER_SOURCE_DATA_ONLY" and receipt["base_roles"] == 517
-         and receipt["packages"] == 7 and receipt["GPG"] == "NOT_RUN",
-         "Exact selected 517 and seven dependency input bindings required")
+        need(receipt["status"] == "BOUND_RUNNER_SOURCE_DATA_ONLY" and receipt["base_roles"] == 517
+             and receipt["packages"] == 7 and receipt["GPG"] == "NOT_RUN",
+             "Exact selected 517 and seven dependency input bindings required")
+        bound = work/"bound"
+        source = bound/"Source-DATA"
+        stage("INPUT_TRANSFER_RETIREMENT")
+        reclaimed = retire_transfer_duplicates(runner_inputs, acquired, source, receipt, identity["device"])
     stage("INPUT_EXPOSURE")
-    bound = work/"bound"
-    source = bound/"Source-DATA"
     for public in (source, operands, acquired/"trust"):
         expose_readonly_tree(public)
     acquired.chmod(0o711)
@@ -171,7 +209,8 @@ def reserve_and_bind(controller, runner_inputs, transfer, *, selection_sha256, l
     return dict(daemon=daemon, work=work, bound=work/"bound", operands=operands, acquisition=acquisition,
                 input_test_certificate=acquired/"trust/md4c-r128-TEST-public.gpg",
                 source=source, input_receipt=receipt, storage=evidence,
-                transfer_budget=owned, empty_inner_bytes=disk, admitted_memory_bytes=memory)
+                transfer_budget=owned, empty_inner_bytes=disk, admitted_memory_bytes=memory,
+                retired_transfer_duplicates=reclaimed)
 
 
 EPOCH_PACKAGE = re.compile(
