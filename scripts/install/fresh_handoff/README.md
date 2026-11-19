@@ -25,9 +25,8 @@ boot restoration.
 Use a trusted checkout that contains this command and whose owning tool/package
 interfaces match `source_commit`. Obtain the two existing workspaces through the
 procedures in [offline kit](../../release/offline_kit.py) and
-[recovery bundle](../../release/recovery_bundle.py). Keep the external receiver
-state directory outside all input/output roots. It remains external after
-transport; no checkpoint or signing home is copied.
+[recovery bundle](../../release/recovery_bundle.py). Keep receiver state
+outside all input/output roots. Each checkpoint remains external after transport.
 
 Write an independently reviewed selection with exactly these fields (replace
 **all** placeholders with actual externally selected identities):
@@ -64,13 +63,22 @@ different signers yield `SIGNER_TRANSITION_HELD`; a separately reviewed key
 transition remains a distinct gate. The recovery archive signer remains the
 maintained tool's fixed ALARM anchor, separate from either project-kit identity.
 
+`--state-dir` selects the candidate receiver checkpoint directory. Pass
+`--recovery-state-dir` with the independently maintained predecessor receiver
+directory when the predecessor has its own namespace or earlier checkpoint.
+Use the same two external directories for preparation and verification. If
+omitted, both roles use `--state-dir` and must satisfy that checkpoint. Both
+roles still require their independently selected namespace, signer and sequence
+floor. Verification reads both checkpoints without advancing them.
+
 ```sh
 python3 -I -B scripts/install/fresh_handoff/handoff.py prepare \
   --selection /absolute/operator-selection.json \
   --selection-sha256 "$EXTERNAL_SELECTION_SHA256" \
   --candidate /absolute/candidate-kit \
   --recovery /absolute/recovery-workspace \
-  --state-dir /absolute/external-receiver-state \
+  --state-dir /absolute/candidate-receiver-state \
+  --recovery-state-dir /absolute/predecessor-receiver-state \
   --output /absolute/private-parent/fresh-handoff
 ```
 
@@ -118,7 +126,8 @@ python3 -I -B /absolute/moved/fresh-handoff/operator/scripts/install/fresh_hando
   --workspace /absolute/moved/fresh-handoff \
   --receipt-sha256 "$EXTERNAL_HANDOFF_RECEIPT_SHA256" \
   --selection-sha256 "$EXTERNAL_SELECTION_SHA256" \
-  --state-dir /absolute/external-receiver-state
+  --state-dir /absolute/candidate-receiver-state \
+  --recovery-state-dir /absolute/predecessor-receiver-state
 ```
 
 The entrypoint checks the exact finite inventory and external runtime pin before

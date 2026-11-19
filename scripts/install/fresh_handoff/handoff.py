@@ -111,17 +111,23 @@ def checked_role(label, function):
 def fresh_recovery(recovery, prior):
     return R.verify_recovery_signatures(recovery, prior['recovery_packages'])
 
-def inspect_inputs(candidate, recovery, chosen, state):
-    common = dict(state_dir=str(state))
+def receiver_states(args):
+    candidate = C.absolute(str(args.state_dir))
+    recovery = getattr(args, 'recovery_state_dir', None)
+    return candidate, candidate if recovery is None else C.absolute(str(recovery))
+
+
+def inspect_inputs(candidate, recovery, chosen, states):
+    candidate_state, recovery_state = states
     candidate_args = {key: chosen['candidate'][key] for key in
                       ('kit_sha256', 'signer', 'namespace', 'minimum_sequence')}
     checked = checked_role('CANDIDATE_AUTH_REFUSED',
-        lambda: K.inspect(argparse.Namespace(kit=str(candidate), **common, **candidate_args)))
+        lambda: K.inspect(argparse.Namespace(kit=str(candidate), state_dir=str(candidate_state), **candidate_args)))
     need(checked['release_sha256'] == chosen['candidate']['release_sha256'], 'candidate release differs')
     recovery_args = {key: chosen['recovery'][key] for key in
                      ('receipt_sha256', 'selection_sha256', 'signer', 'namespace', 'minimum_sequence')}
     prior = checked_role('PREDECESSOR_AUTH_REFUSED',
-        lambda: R.verify(argparse.Namespace(workspace=str(recovery), **common, **recovery_args)))
+        lambda: R.verify(argparse.Namespace(workspace=str(recovery), state_dir=str(recovery_state), **recovery_args)))
     need(prior['predecessor_release_sha256'] == chosen['recovery']['release_sha256'], 'predecessor release differs')
     need(chosen['candidate']['signer'] == chosen['recovery']['signer'],
          'SIGNER_TRANSITION_HELD: a separately reviewed signer transition is required')
@@ -186,10 +192,10 @@ def instructions(chosen):
     return ('\n'.join(lines) + '\n').encode()
 
 
-def boundary(output, candidate, recovery, state):
-    paths = [C.absolute(str(p)) for p in (output, candidate, recovery, state)]
+def boundary(output, candidate, recovery, states):
+    paths = [C.absolute(str(p)) for p in (output, candidate, recovery)]
     for i, first in enumerate(paths):
-        for second in paths[i + 1:]:
+        for second in (*paths[i + 1:], *states):
             need(not first.is_relative_to(second) and not second.is_relative_to(first), 'handoff/input/state roots must be disjoint')
     return paths
 
@@ -222,8 +228,9 @@ def report(chosen, pin, refs, runtime_pin):
 
 
 def verify(args):
-    root, state = C.absolute(str(args.workspace)), C.absolute(str(args.state_dir))
-    need(not root.is_relative_to(state) and not state.is_relative_to(root), 'receiver state must be outside handoff')
+    root, states = C.absolute(str(args.workspace)), receiver_states(args)
+    for state in states:
+        need(not root.is_relative_to(state) and not state.is_relative_to(root), 'receiver state must be outside handoff')
     fd = C.directory(root)
     try:
         info = os.fstat(fd)
@@ -247,7 +254,7 @@ def verify(args):
          'OPERATOR_SOURCE_BINDING_REFUSED')
     need(receipt['composer_sha256'] == C.digest(C.read_path(Path(__file__).resolve(), C.MAX_JSON)),
          'trusted composer differs from handoff')
-    inspect_inputs(root / 'candidate', root / 'recovery', chosen, state)
+    inspect_inputs(root / 'candidate', root / 'recovery', chosen, states)
     need(C.read_path(root / 'ACTIONS.txt', C.MAX_JSON) == instructions(chosen), 'operator instructions differ')
     after, after_links = K.inventory(root)
     need(after.pop(RECEIPT, None) == args.receipt_sha256 and after == files and after_links == links,
@@ -256,12 +263,13 @@ def verify(args):
 
 
 def prepare(args):
-    output, candidate, recovery, state = boundary(args.output, args.candidate, args.recovery, args.state_dir)
+    states = receiver_states(args)
+    output, candidate, recovery = boundary(args.output, args.candidate, args.recovery, states)
     need(not output.exists() and not output.is_symlink(), 'fresh output required')
     raw = R.pinned(C.absolute(str(args.selection)), args.selection_sha256)
     chosen = selection(raw)
     refs = source_refs(chosen['source_commit'])
-    inspect_inputs(candidate, recovery, chosen, state)
+    inspect_inputs(candidate, recovery, chosen, states)
     parent = C.directory(output.parent)
     try:
         info = os.fstat(parent)
@@ -283,7 +291,7 @@ def prepare(args):
             receipt_raw = C.encoded(receipt)
             need(len(receipt_raw) <= C.MAX_JSON, 'handoff receipt too large')
             R.write(staging, RECEIPT, receipt_raw)
-            checked = verify(argparse.Namespace(workspace=str(staging), state_dir=str(state),
+            checked = verify(argparse.Namespace(workspace=str(staging), state_dir=states[0], recovery_state_dir=states[1],
                              selection_sha256=args.selection_sha256, receipt_sha256=C.digest(receipt_raw)))
             K.publish(staging, parent, output, (created.st_dev, created.st_ino))
     finally:
@@ -299,6 +307,8 @@ def main(argv=None):
     for command in (build, check):
         command.add_argument('--selection-sha256', required=True)
         command.add_argument('--state-dir', required=True, type=Path)
+        command.add_argument('--recovery-state-dir', type=Path,
+                             help='external predecessor receiver state (defaults to --state-dir)')
     for name in ('selection', 'candidate', 'recovery', 'output'):
         build.add_argument('--' + name, required=True, type=Path)
     check.add_argument('--workspace', required=True, type=Path)
