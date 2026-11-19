@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Offline controls. No process, lock, socket or native entry is permitted."""
 
+import json
 from contextlib import nullcontext, redirect_stderr
 from email.message import Message
 from io import BytesIO, StringIO
@@ -318,6 +319,28 @@ class AdapterTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "ROOT_READBACK_OF_FRESH"):
                 E.authenticate_356(owner, launch, pipeline, marker, inventory, request, trace)
             self.assertEqual(trace.stage.name, "SIGNED356_READBACK")
+
+    def test_no_space_trace_reports_only_observed_loop_and_outer_counters(self):
+        samples = iter((dict(outer=[300,40], loop=[200,20]), dict(outer=[300,40], loop=[31,19]),
+                        dict(outer=[290,39], loop=[41,3]), dict(outer=[291,40], loop=[101,9])))
+        trace = E.ControllerTrace()
+        trace.storage_trace = E.StorageTrace(lambda: next(samples))
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            trace.storage_trace.build_tick(work, 0)
+            E.atomic_marker(E.ordinary_progress_marker(work, "SIGNED349_IMAGE_BUILD"),
+                            "SIGNED349_IMAGE_BUILD", 0o600)
+            for moment in (1, 1.25, 2):
+                trace.storage_trace.build_tick(work, moment)
+            trace.storage_trace.record("owner_exit")
+        trace.bootstrap_reason = "IMAGE_BUILD_NO_SPACE"
+        result = StringIO()
+        with redirect_stderr(result):
+            trace.hold()
+        row = json.loads(result.getvalue().split("HOLD_QT612_STORAGE: ")[1])
+        self.assertEqual(row, dict(before_owner=dict(outer=[300,40], loop=[200,20]),
+                                   build_minimum=dict(outer=[290,39], loop=[31,3]), build_samples=2,
+                                   owner_exit=dict(outer=[291,40], loop=[101,9])))
 
     def test_image_request_wait_distinguishes_exit_deadline_and_arrival(self):
         trace = E.ControllerTrace()

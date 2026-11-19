@@ -6,6 +6,7 @@ import argparse
 import errno
 from enum import Enum, auto
 import importlib.util
+import json
 import math
 import os
 from pathlib import Path
@@ -46,10 +47,10 @@ SIGNED349_IMAGE_FAILURES = ("IMAGE_BUILD_NO_SPACE", "IMAGE_BUILD_READ_ONLY", "IM
 OWNER_PROGRESS = ("SERVICE_JOIN", "SERVICE_HELPERS", "SERVICE_VOLUME", "SERVICE_DOMAIN",
                   *SIGNED349_PROGRESS, "SIGNED356_BUILD", "SOURCE_CACHE", "REQUEST_HANDOFF")
 HELPERS = {
-    f"{C.HOSTED}/launch.py": "675a7da0bbcbc1a598fe14a0f337c813b789332d157d459228bfe174919fc4fd",
+    f"{C.HOSTED}/launch.py": "4d8401528c661c45e09782b40fc11ed8a7c06c31114c5141a6cc6d6d4e9249fb",
     f"{C.HOSTED}/executor.py": "d91457ba75dd5d61c1bae9cc09ac468d5e05de049f87409669dd769efe7b4ba6",
     f"{C.HOSTED}/evidence.py": "47815cc2d62e8cc8d6488ce0f92efe7d608dda1d6c0aa3451dff22414ef0dbcc",
-    f"{C.HOSTED}/capacity.py": "74fd7b29b12264c85e4475f4fdcc067dfa6fa56f9879f94f13d6ba1e2e306075",
+    f"{C.HOSTED}/capacity.py": "32cebcbcaf3a64317085346a9c40f1e4175a672873633391036a62b5413f6834",
     f"{C.FAMILY}/pipeline.py": "9a1c8ead909e0a72ca435188e075eff9107dd0700c375db0c6c76db7d69b8024",
     f"{C.FAMILY}/source.py": "ffe26712c63d7f826cdb2185f3c05b1a049534ea81aa4c04a835f4e9e90051ce",
     f"{C.FAMILY}/runner_inputs.py": "6441ca1d47bdb10d0ac8c514f2677e934fa8b6ce05fe4324e21c289989528201",
@@ -93,6 +94,7 @@ class Stage(Enum):
     PUBLIC_INPUT_RETRIEVAL = auto()
     ACQUIRED_INPUT_COMMIT = auto()
     INPUT_BINDING = auto()
+    INPUT_TRANSFER_RETIREMENT = auto()
     INPUT_EXPOSURE = auto()
     ORDINARY_SERVICE_HANDOFF = auto()
     SIGNED356_REQUEST_WAIT = auto()
@@ -112,6 +114,7 @@ class ControllerTrace:
     acquisition_detail = None
     owner_detail = None
     bootstrap_reason = None
+    storage_trace = None
 
     def mark(self, name):
         self.stage = Stage[name]
@@ -124,6 +127,9 @@ class ControllerTrace:
             print("HOLD_QT612_OWNER: " + " ".join(self.owner_detail), file=sys.stderr, flush=True)
         if self.bootstrap_reason is not None:
             print("HOLD_QT612_SIGNED349: " + self.bootstrap_reason, file=sys.stderr, flush=True)
+        if self.bootstrap_reason == "IMAGE_BUILD_NO_SPACE" and self.storage_trace is not None:
+            body = json.dumps(self.storage_trace.evidence, sort_keys=True, separators=(",", ":"))
+            print("HOLD_QT612_STORAGE: " + body, file=sys.stderr, flush=True)
 
 
 def load(path, name):
@@ -416,12 +422,45 @@ def read_signed349_failure(work, uid, phase):
     return next((reason for reason in reasons if raw == C.encoded([phase, reason])), None)
 
 
+class StorageTrace:
+    """Sample fixed counters only. A missed sample does not assert usable space."""
+
+    def __init__(self, sample):
+        self.sample = sample
+        self.next_sample = 0
+        self.evidence = dict(before_owner=None, build_minimum=None, owner_exit=None, build_samples=0)
+        self.record("before_owner")
+
+    def record(self, phase):
+        try:
+            value = self.sample()
+        except (OSError, ValueError):
+            return
+        if phase == "build_minimum":
+            prior = self.evidence[phase]
+            if prior is not None:
+                value = {key: [min(a, b) for a, b in zip(value[key], prior[key], strict=True)]
+                         for key in ("outer", "loop")}
+            self.evidence["build_samples"] += 1
+        self.evidence[phase] = value
+
+    def build_tick(self, work, now):
+        if now < self.next_sample:
+            return
+        self.next_sample = now + 1
+        if (ordinary_progress_marker(work, "SIGNED349_IMAGE_BUILD").is_file()
+                and not ordinary_progress_marker(work, "SIGNED349_IMAGE_READBACK").is_file()):
+            self.record("build_minimum")
+
+
 def wait_for_image_request(owner, marker, work, trace):
     poll = select.poll()
     pidfd = owner.pidfds["owner"]  # The exact original service PID, pinned by Controller.start.
     poll.register(pidfd, select.POLLIN)
     end, uid = marker["ends"]["bootstrap"], marker["uid"]
     while (remaining := end - time.monotonic()) > 0:
+        if trace.storage_trace is not None:
+            trace.storage_trace.build_tick(work, end - remaining)
         try:
             return C.read(work/"image-request.json", C.MIB, owner=uid, mode=0o600)
         except FileNotFoundError:
@@ -433,6 +472,8 @@ def wait_for_image_request(owner, marker, work, trace):
                 phase = last_ordinary_progress(work, uid)
                 trace.owner_detail = ("OWNER_EXITED", phase)
                 trace.bootstrap_reason = read_signed349_failure(work, uid, phase)
+                if trace.storage_trace is not None and phase == "SIGNED349_IMAGE_BUILD":
+                    trace.storage_trace.record("owner_exit")
                 raise ValueError("ORIGINAL_ORDINARY_SERVICE_EXITED_BEFORE_IMAGE_HANDOFF") from None
     trace.owner_detail = ("REQUEST_DEADLINE", last_ordinary_progress(work, uid))
     raise TimeoutError("BOUND_IMAGE_REQUEST_DEADLINE")
@@ -799,7 +840,11 @@ def root_dispatch(args, trace):
                 gid=args.runner_gid, ends=ends, md4c=auth)
             check_daemon(marker, retained)
             C.need(time.monotonic() < ends["transfer"], "WHOLE_TRANSFER_BUDGET")
-            report.update(acquisition=prepared["acquisition"], storage=prepared["storage"], source_map=map_pin)
+            report.update(acquisition=prepared["acquisition"], storage=prepared["storage"], source_map=map_pin,
+                          retired_transfer_duplicates=prepared["retired_transfer_duplicates"])
+            host = prepared["storage"]["after"]["host"]
+            trace.storage_trace = StorageTrace(lambda: launch.capacity.space_sample(
+                output, work.parent, host_identity=host, loop_identity=vol))
             started_owner(owner, marker, control)
             trace.mark("SIGNED356_REQUEST_WAIT")
             request = wait_for_image_request(owner, marker, work, trace)

@@ -26,7 +26,8 @@ def observe(path):
             rows = stream.read(8193).splitlines()
         mount, = (int(row.split()[1]) for row in rows if row.startswith("mnt_id:"))
         return dict(path=str(path), device=st.st_dev, inode=st.st_ino, mount=mount,
-                    free_bytes=fs.f_bavail * fs.f_frsize, fragment_bytes=fs.f_frsize,
+                    free_bytes=fs.f_bavail * fs.f_frsize, free_inodes=fs.f_favail,
+                    fragment_bytes=fs.f_frsize,
                     readonly=bool(fs.f_flag & os.ST_RDONLY), observed_monotonic_ns=time.monotonic_ns())
     finally:
         os.close(fd)
@@ -74,3 +75,15 @@ def require_transfer_volume(output, after, logical_bytes):
             or volume["readonly"] or work["readonly"] or min(volume["free_bytes"], work["free_bytes"]) < minimum):
         raise ValueError("Bulk transfer needs sufficient space on the verified owned loop mount")
     return dict(volume=volume, work=work, logical_bytes=logical_bytes, minimum_free_bytes=minimum)
+
+
+def space_sample(output, volume, *, host_identity, loop_identity):
+    """Return only space counters for the same observed outer and loop filesystems."""
+    outer, loop = observe(output), observe(volume)
+    keys = ("device", "inode", "mount")
+    if (any(outer[key] != host_identity[key] for key in keys)
+            or any(loop[key] != loop_identity[key] for key in keys)
+            or outer["readonly"] or loop["readonly"]):
+        raise ValueError("Capacity sampling lost the exact owned filesystem")
+    return {name: [value["free_bytes"], value["free_inodes"]]
+            for name, value in (("outer", outer), ("loop", loop))}
