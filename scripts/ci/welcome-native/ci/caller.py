@@ -38,7 +38,7 @@ def prove(workspace,manifest,environment):
          'exact source/workflow revision required')
     need(environment['RUNNER_ARCH']=='ARM64' and environment['RUNNER_OS']=='Linux','native ARM runner required')
     run,attempt=environment['GITHUB_RUN_ID'],environment['GITHUB_RUN_ATTEMPT']
-    need(re.fullmatch('[1-9][0-9]{0,19}',run) and re.fullmatch('[1-9][0-9]{0,9}',attempt),'run identity differs')
+    need(re.fullmatch('[1-9][0-9]{0,19}',run) and attempt=='1','run identity differs')
     for name,row in manifest['files'].items():
         path=Path(name);need(not path.is_absolute() and '..' not in path.parts,'unsafe source path')
         target=workspace/path;info=regular(target,16*1024**2)
@@ -60,7 +60,7 @@ def retain(base,runtime,proof,output,retained):
         except Exception as error:result['errors'].append(str(error)[:512])
     copy(retained,'retained-inputs.json',8*1024**2)
     try:
-        spec=importlib.util.spec_from_file_location('_welcome8_cache_data',Path(__file__).resolve().parents[1]/'cache_data.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);m.validate(read(retained,8*1024**2))
+        spec=importlib.util.spec_from_file_location('_welcome9_cache_data',Path(__file__).resolve().parents[1]/'cache_data.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);m.validate(read(retained,8*1024**2))
     except Exception as error:result['errors'].append(str(error)[:512])
     copy(proof,'source-proof.json',128*1024)
     for name in ('report.json','installed-packages.lock'):copy(base/name,'base/'+name,512*1024)
@@ -86,7 +86,7 @@ def retain(base,runtime,proof,output,retained):
             # Only the exact expected candidate basename; arbitrary artifacts stay private.
             arch='aarch64'
             for suffix in ('xz','zst'):
-                version='0.1.0-8'
+                version='0.1.0-9'
                 name=product+'-'+version+'-'+arch+'.pkg.tar.'+suffix
                 copy(directory/'artifacts'/name,'packages/'+prefix+'/'+name,8*1024**2,False)
     try:
@@ -95,7 +95,7 @@ def retain(base,runtime,proof,output,retained):
         need(original['ownership']['token']==source['job_token'] and original['owned_cleanup']['status']=='PASS' and
              original['owned_cleanup']['image']==dict(id=original['image'],absence_verified=True) and
              original['owned_cleanup']['probe']['absence_verified'] is True,'original owned builder cleanup incomplete')
-        need(report['status']=='PASS_NATIVE_WELCOME8_BUILD_PAIR_CONTENTS_ONLY' and
+        need(report['status']=='PASS_NATIVE_WELCOME9_BUILD_PAIR_CONTENTS_ONLY' and
              report['base_image']==original['image'] and report['base_count']==574 and
              set(report['products'])==set(NAMES),'native product pair absent')
         need(len(report['cleanup'])==3 and len({r['container'] for r in report['cleanup']})==3 and all(r.get('status')=='PASS' and r.get('absence_verified') is True
@@ -108,7 +108,7 @@ def retain(base,runtime,proof,output,retained):
                 relative='packages/'+product+'-'+side+'/'+build['archive']
                 need(relative in result['files'] and result['files'][relative]['sha256']==build['sha256'], 'candidate archive/hash absent')
         need(not result['errors'],'public evidence incomplete')
-        result.update(status='PASS_NATIVE_WELCOME8_BUILD_PAIR_RETAINED_ONLY',reproducibility={
+        result.update(status='PASS_NATIVE_WELCOME9_BUILD_PAIR_RETAINED_ONLY',reproducibility={
             name:report['products'][name]['comparison']['packages'] for name in NAMES})
     except Exception as error:result['errors'].append(str(error)[:512])
     (output/'retention.json').write_text(json.dumps(result,indent=2)+'\n');return result
@@ -126,7 +126,7 @@ def main():
         with args.proof.open('x') as stream:json.dump(result,stream,indent=2);stream.write('\n')
         with open(os.environ['GITHUB_OUTPUT'],'a') as stream:stream.write('job_token='+result['job_token']+'\n')
     else:result=retain(args.base,args.runtime,args.proof,args.output,args.retained)
-    print(json.dumps(result,indent=2));return int(result['status'] not in ('SOURCE_PROOF_PASS','PASS_NATIVE_WELCOME8_BUILD_PAIR_RETAINED_ONLY'))
+    print(json.dumps(result,indent=2));return int(result['status'] not in ('SOURCE_PROOF_PASS','PASS_NATIVE_WELCOME9_BUILD_PAIR_RETAINED_ONLY'))
 
 
 if __name__=='__main__':raise SystemExit(main())

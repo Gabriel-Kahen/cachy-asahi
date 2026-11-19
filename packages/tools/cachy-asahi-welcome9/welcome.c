@@ -184,6 +184,10 @@ static void management_present(const ManagementResult *result, ManagementView *v
         char *text;
         if (result->state == MANAGEMENT_COMPLETE && result->retired) {
             text = g_strdup_printf("%s\nElapsed: %.1f seconds.", report.summary, result->elapsed_ms / 1000.0);
+        } else if (result->state == MANAGEMENT_CANCELLED && result->retired) {
+            text = g_strdup_printf("%s\n%s\nElapsed: %.1f seconds.", outcome,
+                result->diagnostic ? result->diagnostic : "The check's processes were retired.",
+                result->elapsed_ms / 1000.0);
         } else {
             text = g_strdup_printf("%s\n%s\n%s\nExit status: %d; elapsed: %.1f seconds.",
                 outcome, report.summary,
@@ -252,7 +256,7 @@ static void management_done(ManagementJob *job, const ManagementResult *result, 
     view->job = NULL;
     view->stopping = FALSE;
     if (!view->owner->closing) gtk_widget_set_sensitive(view->stop, FALSE);
-    if (view->owner->closing) {
+    if (view->owner->closing || result->state == MANAGEMENT_CANCELLED) {
         ManagementReport report = {MANAGEMENT_REPORT_INVALID, NULL};
         management_present(result, view, report);
         return;

@@ -9,11 +9,11 @@ import shlex
 import struct
 
 NAME='cachy-asahi-welcome'
-VERSION='0.1.0-8'
+VERSION='0.1.0-9'
 BOOT='cachy-asahi-boot-report'
 NAMES=(NAME,)
 HERE=Path(__file__).resolve().parent
-RECIPE='packages/tools/cachy-asahi-welcome8'
+RECIPE='packages/tools/cachy-asahi-welcome9'
 RECIPES={NAME:RECIPE,BOOT:'packages/tools/cachy-asahi-boot-report'}
 VERSIONS={NAME:VERSION,BOOT:'0.1.0-1'}
 FILES={
@@ -76,7 +76,7 @@ def recipe(source, name=NAME):
         need(not any(x in value for x in ('$','`','\\',';','\n\n')), 'dynamic recipe field')
         values[key]=shlex.split(value[1:-1] if value.startswith('(') else value,comments=True)
     need(set(values)==set(keys) and values['pkgname']==[NAME] and values['arch']==['aarch64'] and
-         values['pkgver']==['0.1.0'] and values['pkgrel']==['8'],'Welcome recipe identity differs')
+         values['pkgver']==['0.1.0'] and values['pkgrel']==['9'],'Welcome recipe identity differs')
     need('at-spi2-core' in values['depends'],'explicit audited ATK package dependency required')
     atk_dependency(source)
     names=values['source'];pins=values['sha256sums']
@@ -89,8 +89,8 @@ def recipe(source, name=NAME):
     checked=load('welcome_original_source_check',root/'check_source.py').check(root)
     need(checked['installed_files']==9,'original source/payload check differs')
     values['pkgbase']=[NAME]
-    checks=load('welcome8_recipe_metadata',source/'scripts/checks/package_checks.py')
-    need(checks.metadata((root/'.SRCINFO').read_text())==values,'whole declared Welcome8 metadata differs')
+    checks=load('welcome9_recipe_metadata',source/'scripts/checks/package_checks.py')
+    need(checks.metadata((root/'.SRCINFO').read_text())==values,'whole declared Welcome9 metadata differs')
     return dict(metadata=values,input_sha256={n:digest(root/n) for n in sorted(expected)})
 
 
@@ -142,7 +142,7 @@ def payload(report, source, name=NAME):
 
 
 def check_log(path, name=NAME):
-    need(name==NAME and path.stat().st_size<=16*1024**2,'bounded Welcome8 build log required')
+    need(name==NAME and path.stat().st_size<=16*1024**2,'bounded Welcome9 build log required')
     text=path.read_text(errors='strict')
     cases=('status/installed','status/unavailable','status/duplicate','status/lookalike','status/malformed','status/oversized','status/json-controls',
       'management/boot-fixed-list-argv','management/dns-fixed-argv','management/dns-metadata-files','management/api','management/success','management/nonzero','management/missing','management/output-limit','management/timeout','management/cancel-detached','management/complete-detached','management/unrelated-child-isolation','management/environment','management/binary-output','management/invalid-utf8','management/root-guard',
@@ -157,7 +157,7 @@ def check_log(path, name=NAME):
     need(not re.search(r'^not ok|^FAILED|^ERROR|skipped=',text,re.M) and text.count('# SKIP')==(1 if skip in rows else 0),'unexpected failure/skip refused')
     for marker in ('Starting check()','PASS_SOURCE_PAYLOAD_CONTRACT',"'pinned_sources': 25","'installed_files': 9"):
         need(marker in text,'full check() marker absent: '+marker)
-    return dict(status='PASS_REQUIRED_WELCOME8_BUILD_CHECKS',C_cases=41,C_pass=40 if skip in rows else 41,CLI_cases=5,
+    return dict(status='PASS_REQUIRED_WELCOME9_BUILD_CHECKS',C_cases=41,C_pass=40 if skip in rows else 41,CLI_cases=5,
       root_guard='NOT_EXERCISED_ORDINARY_UID_REQUIRES_UID0'if skip in rows else'ACTUAL_UID0_GUARD_PASS',
       source_payload='PASS',pinned_sources=25,check_enabled=True,GUI='NOT_RUN',installed_lifecycle='NOT_RUN')
 
@@ -178,10 +178,10 @@ def validate_lifecycle(value):
 
 def activation(source):
     import json
-    value=json.loads((source/'scripts/ci/welcome-native/welcome8-policy.json').read_text())
+    value=json.loads((source/'scripts/ci/welcome-native/welcome9-policy.json').read_text())
     need(set(value)=={'schema_version','status','recipe','version','input_sha256','actual_source','actual_ref','actual_run'},'closed Boot policy required')
     need(value['schema_version']==1 and all(value[k]is None for k in ('actual_source','actual_ref','actual_run')),'actual identities must remain NULL')
-    need(value['status']=='ROOT_SELECTED_WELCOME8_NATIVE_PAIR_SOURCE_ONLY'and value['recipe']==RECIPES[NAME]and value['version']==VERSIONS[NAME]and value['input_sha256']==recipe(source,NAME)['input_sha256'],'exact Boot selection remains UNBOUND/differs')
+    need(value['status']=='SELECTED_WELCOME9_NATIVE_PAIR_SOURCE_ONLY'and value['recipe']==RECIPES[NAME]and value['version']==VERSIONS[NAME]and value['input_sha256']==recipe(source,NAME)['input_sha256'],'exact Boot selection remains UNBOUND/differs')
     return value
 
 

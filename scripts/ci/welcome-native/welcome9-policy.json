@@ -3,15 +3,15 @@
   "actual_run": null,
   "actual_source": null,
   "input_sha256": {
-    ".SRCINFO": "2b999149c5ec51f6d2696c7a80b4004e132e56ed5f60fa390608b61d7e97d8f5",
+    ".SRCINFO": "00c8c4bc1feb536e41891f570c2836e911b7c427759af6810c0386d5cf66dbf4",
     "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
     "Makefile": "5852aae746876364ecba6efb022976e9d88d50fd2a0c4b41afbaabba64ff8e2c",
     "NOTICE": "824d3bd893458e840530c044d3899b43debca97cd5f5b9ebcf9cbd4785c9d6f0",
-    "PKGBUILD": "317520fdefabf4f9a8b5a2632ee03cc5ab4653d6bb50086b15145ad0f83048f5",
-    "README.md": "56284b326cbc6a604fb33866e0acb8d9bc57ba43d36b1e81b448242c97fa9c34",
+    "PKGBUILD": "21f1640d4dd75b61940797c7adc0dbf74f7fc83b1b4b84cac179d6ab1493f7dc",
+    "README.md": "f51e8ec82e6c2e7227fce875fd98d5ceaba2e3dcbd0f41e97b9a3f680925ec94",
     "boot-fixtures.h": "ea5469eb9ad83177abdaffd00db29ef7a038533a9183b74b2ca54080c40fc34f",
     "cachy-asahi-welcome.svg": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73",
-    "check_source.py": "6c81d44ddd66e9f0bce61eba8e832e03257622bd2b71e68b06c43411aed7df4c",
+    "check_source.py": "8f11697bf650fa72cfe2f706c14b8dd22e6062b34198469e802c85ec06cb2305",
     "first-run.txt": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb",
     "io.github.GabrielKahen.CachyAsahiWelcome.desktop": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441",
     "management-report.c": "0444c703af23404733d802bd90b1e6dbdabc4bd19012d2bbd5bd0ca7edfb06b6",
@@ -25,14 +25,14 @@
     "test_cli.py": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972",
     "test_management.c": "87096d177fc6a207bb9330852153b83dc9f25deb01035c7dfadc82b5392c65eb",
     "test_management_report.c": "f60e4915427dba8244a99f803a63c24a58b807accf3a0c9f958f85496af73212",
-    "test_management_ui.c": "65ccb1030bbf3b596c0bbb82bfae6b2b93e4fd6c0fa8fcfa00fb027555e59b0d",
+    "test_management_ui.c": "44fd99ead952cab9d9072a383540a908f0737d0bd33c37f73a00730f7ff851e6",
     "test_report_work.c": "0cb5df7b5e3c302c1732a5f85f684421a58c34404582300fb47f24d580e48ea2",
     "test_status.c": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e",
     "updates.txt": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8",
-    "welcome.c": "add5cc8ed8974b39306f3561132b7505fe2f787e9f48deed0e59df58c8a0f6b3"
+    "welcome.c": "a6e83af9bd5704df9f7a85c38af3476e7d476674c4205025eae8a30b6328bffc"
   },
-  "recipe": "packages/tools/cachy-asahi-welcome8",
+  "recipe": "packages/tools/cachy-asahi-welcome9",
   "schema_version": 1,
-  "status": "ROOT_SELECTED_WELCOME8_NATIVE_PAIR_SOURCE_ONLY",
-  "version": "0.1.0-8"
+  "status": "SELECTED_WELCOME9_NATIVE_PAIR_SOURCE_ONLY",
+  "version": "0.1.0-9"
 }

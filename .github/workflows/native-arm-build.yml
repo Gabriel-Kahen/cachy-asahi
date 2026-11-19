@@ -1,4 +1,4 @@
-name: native-arm-welcome8-build-pair
+name: native-arm-welcome9-build-pair
 on:
   workflow_dispatch:
     inputs:
@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: native-arm-welcome8-build-pair
+  group: native-arm-welcome9-build-pair
   cancel-in-progress: false
 jobs:
   native:
@@ -34,14 +34,14 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'f119e2724b3484038f1155ac3f7020f317de8b17b54987081599ce51e48a7692' "$SLICE/ci/caller.py" 'a1b8ca5ddc7ea7dc437d8dcda487ed58b16ad7a719778cfec1a9f78f93014bd6' "$SLICE/ci/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '2e95dc6a31fb375f9c8abfab8933529513775d272d7c04f9b176f0de4539db7f' "$SLICE/ci/caller.py" 'b00fb2717d7963c0f62bbf1b9e6091a5a03473eaad145a3459557c9a27feef44' "$SLICE/ci/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/ci/caller.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/ci/source-manifest.json" --proof "$RUNNER_TEMP/product-native-source-proof.json"
       - name: Focused source and hosted entry controls
         timeout-minutes: 3
         run: |
           set -euo pipefail
           python3 -I -B scripts/ci/test_maintained_desktop574.py
-          python3 -B -m unittest discover -s "$SLICE" -p test_welcome8_native.py
+          python3 -B -m unittest discover -s "$SLICE" -p test_welcome9_native.py
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:
@@ -146,7 +146,7 @@ jobs:
           python3 -I -B scripts/ci/maintained_desktop574.py build
           --inputs scripts/ci/maintained-desktop574-inputs.json
           --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
-      - name: Native Welcome8 fresh build pair only
+      - name: Native Welcome9 fresh build pair only
         timeout-minutes: 37
         run: >-
           timeout --signal=TERM --kill-after=30s 2100s
@@ -168,14 +168,14 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'f119e2724b3484038f1155ac3f7020f317de8b17b54987081599ce51e48a7692' "$SLICE/ci/caller.py" | sha256sum --check
+          printf '%s  %s\n' '2e95dc6a31fb375f9c8abfab8933529513775d272d7c04f9b176f0de4539db7f' "$SLICE/ci/caller.py" | sha256sum --check
           python3 -I -B "$SLICE/ci/caller.py" retain --proof "$RUNNER_TEMP/product-native-source-proof.json" --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/product-native-runtime" --output "$RUNNER_TEMP/product-native-public" --retained "$RUNNER_TEMP/welcome8-retained-custody.json"
       - name: Upload only the bounded public evidence directory
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         timeout-minutes: 2
         with:
-          name: welcome8-native-build-pair-${{ github.run_id }}-${{ github.run_attempt }}
+          name: welcome9-native-build-pair-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 3
           if-no-files-found: ignore
           path: ${{ runner.temp }}/product-native-public/

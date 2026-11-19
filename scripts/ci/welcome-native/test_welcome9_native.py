@@ -8,7 +8,7 @@ HERE=Path(__file__).resolve().parent;SOURCE=HERE.parents[2]
 class Controls(unittest.TestCase):
  def test_complete_recipe27_hashes_metadata_and_owned_payload(self):
   C.verify_source(SOURCE);v=C.recipe(SOURCE,C.NAME)
-  self.assertEqual(len(v['input_sha256']),27);self.assertEqual(v['metadata']['pkgrel'],['8']);self.assertEqual(len(v['metadata']['source']),25)
+  self.assertEqual(len(v['input_sha256']),27);self.assertEqual(v['metadata']['pkgrel'],['9']);self.assertEqual(len(v['metadata']['source']),25)
   self.assertEqual(set(C.NAMES),{C.NAME});self.assertEqual(len(C.FILES),9)
   self.assertIn('cachy-asahi-boot-report>=0.1.0-1: optional read-only visible boot history',v['metadata']['optdepends'])
  def test_audited_linkage_exactly_adds_atk_without_unexpected_sonames(self):
@@ -29,7 +29,7 @@ class Controls(unittest.TestCase):
   for token in ("result.get('machine')==183","b'/lib/ld-linux-aarch64.so.1\\0'",'dynamic string table outside file-backed load','unsafe DT_NEEDED','linkage(needed)'):
    self.assertIn(token,body)
  def test_source_identity_remains_null_and_only_root_selection_activates(self):
-  value=json.loads((HERE/'welcome8-policy.json').read_bytes())
+  value=json.loads((HERE/'welcome9-policy.json').read_bytes())
   self.assertTrue(all(value[k]is None for k in('actual_source','actual_ref','actual_run')))
   if value['status']=='UNBOUND':
    with self.assertRaises(ValueError):C.activation(SOURCE)
@@ -47,6 +47,6 @@ class Controls(unittest.TestCase):
   self.assertNotIn("context=out/'lifecycle-inputs'",main);self.assertNotIn("report['lifecycle']",main)
   for token in('signal.setitimer(signal.ITIMER_REAL,1800)','for name in reversed(containers):',"execute(['docker','rm','-f',name]", "row['absence_verified']=True",'finally:'):
    self.assertIn(token,main)
-  self.assertIn("for side in ('a','b')",main);self.assertIn("report['status']='PASS_NATIVE_WELCOME8_BUILD_PAIR_CONTENTS_ONLY'",main)
+  self.assertIn("for side in ('a','b')",main);self.assertIn("report['status']='PASS_NATIVE_WELCOME9_BUILD_PAIR_CONTENTS_ONLY'",main)
 if __name__=='__main__':
  with patch.object(subprocess,'Popen',side_effect=AssertionError('NO_NATIVE_SOURCE_ACTORS')),patch.object(subprocess,'run',side_effect=AssertionError('NO_NATIVE_SOURCE_ACTORS')):unittest.main()

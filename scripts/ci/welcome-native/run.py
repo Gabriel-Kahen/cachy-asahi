@@ -62,6 +62,9 @@ def build(source,out,base,image,lock,name,side,epoch,execute,containers,checks,b
     execute(argv,directory/'build.log',240)
     required=('environment.txt','packages.lock','config.sha256','makepkg.conf','pacman.conf','generated.SRCINFO')
     C.need(all((artifacts/n).is_file() and not (artifacts/n).is_symlink() for n in required),'build evidence incomplete')
+    environment=(artifacts/'environment.txt').read_text().splitlines()
+    C.need(len(environment)>=3 and 'aarch64' in environment[0].split() and environment[1]=='4096',
+           'actual ordinary AArch64 4KiB build environment required')
     C.need(inventory((artifacts/'packages.lock').read_text())==base,'build inventory differs')
     bind.bind_generated(reviewed['metadata'],checks.metadata((artifacts/'generated.SRCINFO').read_text()))
     archives=[f for f in artifacts.glob('*.pkg.tar.*') if not f.name.endswith('.sig')]
@@ -107,14 +110,14 @@ def main():
     for name in ('source','base-dir','output'):parser.add_argument('--'+name,type=Path,required=True)
     args=parser.parse_args();source,base_dir,out=(C.safe(p.absolute()) for p in (args.source,args.base_dir,args.output))
     C.need(platform.system()=='Linux' and platform.machine() in ('aarch64','arm64') and
-           os.getuid()==os.geteuid()>0 and not any(k.startswith('DOCKER_') for k in os.environ),'ordinary native ARM host required')
+           os.getuid()==os.geteuid()>0 and os.sysconf('SC_PAGE_SIZE')==4096 and not any(k.startswith('DOCKER_') for k in os.environ),'ordinary native ARM host required')
     C.need(not out.exists() and not out.is_relative_to(source) and not out.is_relative_to(base_dir),'fresh separate output required')
     C.verify_source(source);C.activation(source);out.mkdir(mode=0o700);(out/'home').mkdir(mode=0o700)
     env=dict(ENV,HOME=str(out/'home'));common=C.load('product_logged',source/'scripts/virtual/common.py')
     checks=C.load('product_checks',source/'scripts/checks/package_checks.py')
     sys.path.insert(0,str(source/'scripts/build'));sys.path.insert(0,str(source/'scripts/checks'))
     bind=C.load('product_build_binding',source/'scripts/build/build.py');comparison=C.load('product_comparison',source/'scripts/build/compare.py')
-    report=dict(status='FAIL',scope='UNSELECTED_WELCOME8_BUILD_PAIR_ONLY_NO_ALPM_GUI' ,hardware='NOT_RUN',GUI='NOT_RUN',
+    report=dict(status='FAIL',scope='UNSELECTED_WELCOME9_BUILD_PAIR_ONLY_NO_ALPM_GUI' ,hardware='NOT_RUN',GUI='NOT_RUN',
                 products={},commands=[],cleanup=[],original_ten_composition='UNCHANGED')
     containers=[];active=None;first=None
 
@@ -171,7 +174,7 @@ def main():
             report['products'][name]=dict(comparison=result,builds=[dict(archive=r['archive'].name,sha256=C.digest(r['archive']),
                 payload=r['payload'],elf=r['elf'],tests=r['tests']) for r in pair])
             products[name]=dict(archive=pair[0]['archive'].name,sha256=C.digest(pair[0]['archive']),version=C.VERSIONS[name],payload=pair[0]['payload'])
-        report['status']='PASS_NATIVE_WELCOME8_BUILD_PAIR_CONTENTS_ONLY'
+        report['status']='PASS_NATIVE_WELCOME9_BUILD_PAIR_CONTENTS_ONLY'
     except BaseException as error:first=error;report.update(error=str(error)[:1024],error_type=type(error).__name__)
     finally:
         signal.setitimer(signal.ITIMER_REAL,0)

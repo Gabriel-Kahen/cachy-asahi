@@ -346,6 +346,10 @@ int main(int argc, char **argv)
     wait_job(dns);
     g_assert_nonnull(strstr(gtk_label_get_text(GTK_LABEL(dns->summary)), "Check cancelled."));
     g_assert_nonnull(strstr(gtk_label_get_text(GTK_LABEL(dns->summary)), "processes were retired"));
+    const char *cancelled = gtk_label_get_text(GTK_LABEL(dns->summary));
+    g_assert_null(strstr(cancelled, "Report format is invalid or unsupported"));
+    g_assert_null(strstr(cancelled, "Exit status"));
+    g_assert_nonnull(strstr(cancelled, "Elapsed:"));
     g_assert_false(dns->stopping); g_assert_false(gtk_widget_get_sensitive(dns->stop));
     g_assert_true(gtk_widget_get_sensitive(dns->button));
     g_assert_false(welcome->closing); g_assert_true(gtk_widget_get_visible(GTK_WIDGET(window)));

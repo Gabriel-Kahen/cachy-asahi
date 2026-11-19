@@ -33,7 +33,7 @@ def check(root=HERE):
         assert path.is_file() and not path.is_symlink()
         assert re.fullmatch('[0-9a-f]{64}',pin) and hashlib.sha256(path.read_bytes()).hexdigest()==pin,name
     assert "license=('MIT')" in recipe and "arch=('aarch64')" in recipe
-    assert re.search(r'^pkgrel=8$', recipe, re.M)
+    assert re.search(r'^pkgrel=9$', recipe, re.M)
     assert "'cachy-asahi-doctor: optional local observation report'" in recipe
     assert "'cachy-asahi-orphans: optional installed metadata assessment'" in recipe
     assert "'cachy-asahi-dns>=0.1.0-2: optional read-only stored profile discovery'" in recipe

@@ -181,3 +181,8 @@ behavior or installed path changes. The optional GTK fixture control uses a real
 owned helper and a separate-session child and proves both retire, then retries a
 normal check. This is host/synthetic GUI control only. Native ARM build, installed
 lifecycle, current606 GUI, 16K, Apple hardware and performance remain unqualified.
+
+The 0.1.0-9 candidate presents a confirmed Stop as a cancellation and keeps the
+bounded raw preview available. A later successful check still prepares its
+normal report. The GTK fixture checks process retirement and retry on a
+private display.
