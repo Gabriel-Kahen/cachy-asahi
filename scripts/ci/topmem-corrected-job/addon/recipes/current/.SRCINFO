@@ -1,0 +1,20 @@
+pkgbase = cachy-asahi-topmem
+	pkgdesc = Read-only current-user resident-memory process diagnostic for cachy-asahi
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	source = cachy-asahi-topmem
+	source = test_topmem.py
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	sha256sums = 96c1b49a92cb6e97d1fe5c51c23f452d79341f2d71cd624cd3197d33b29633b1
+	sha256sums = 207d3c924e37b3e27be2e0024dfe786716cd4464d3042125af543dfbdec6b847
+	sha256sums = 90082e9119cdea843b0e060f4061a300015dffd6a25c55d12a72b0a75348cf2b
+	sha256sums = 07227afce6f380bcf3deaf9b273fb286f6bcee69b5f1dddec9ebcd1dc2ecd098
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-topmem

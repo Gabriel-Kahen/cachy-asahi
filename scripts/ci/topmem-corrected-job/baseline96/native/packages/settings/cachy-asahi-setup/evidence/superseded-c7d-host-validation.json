@@ -1,0 +1,50 @@
+{
+  "observed_date": "2026-10-11",
+  "recorded_at_utc": "2026-10-12T00:22:15.106518+00:00",
+  "host_architecture": "x86_64",
+  "python": "3.14.7 (main, Aug 14 2026, 06:38:32) [GCC 16.2.1 20260810]",
+  "makepkg": "makepkg (pacman) 7.1.0",
+  "classification": "two temporary-directory package assemblies on same x86_64 host; not clean native aarch64 builds or package installation",
+  "canonical_sha256": "c7d4b9b93241c112af7b620a01eed55b1946232f4075f7cd52bd0ff532666f07",
+  "payload_comparison": "PASS",
+  "artifact_bytes_match": false,
+  "prepare_drift_refusal": "PASS",
+  "native_aarch64": "NOT RUN",
+  "installed": "NOT RUN",
+  "hardware": "NOT RUN",
+  "builds": [
+    {
+      "command": "makepkg --config /etc/makepkg.conf --noconfirm",
+      "exit_code": 0,
+      "artifact": "/tmp/cachy-asahi-setup-build-iltsjlff/recipe/cachy-asahi-setup-0.1.0-1-any.pkg.tar.zst",
+      "artifact_sha256": "e210f6032da42d2785ae626515481ba9d265be8efb6b3e59f26d4c977f953aca",
+      "payload_sha256": {
+        "usr/bin/cachy-asahi-setup": "c7d4b9b93241c112af7b620a01eed55b1946232f4075f7cd52bd0ff532666f07",
+        "usr/share/doc/cachy-asahi-setup/README.md": "b258754e7e89a70de2c34d230ba8dfd26b50c9156132b76f65465d1f5edaef29",
+        "usr/share/licenses/cachy-asahi-setup/LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "usr/share/licenses/cachy-asahi-setup/NOTICE": "2c28b96b5e4dca86c8a71aa0df728a049820d5951812f20241be96e7000d9744"
+      },
+      "log": "evidence/host-build-1.txt",
+      "artifact_static_status": "artifact-static-pass",
+      "payload_count": 4
+    },
+    {
+      "command": "makepkg --config /etc/makepkg.conf --noconfirm",
+      "exit_code": 0,
+      "artifact": "/tmp/cachy-asahi-setup-build-gadvqkbg/recipe/cachy-asahi-setup-0.1.0-1-any.pkg.tar.zst",
+      "artifact_sha256": "a783d9ac56e5cedc296ff52aeda522c34ef2a275c76f2385e3fce6048fd314dc",
+      "payload_sha256": {
+        "usr/bin/cachy-asahi-setup": "c7d4b9b93241c112af7b620a01eed55b1946232f4075f7cd52bd0ff532666f07",
+        "usr/share/doc/cachy-asahi-setup/README.md": "b258754e7e89a70de2c34d230ba8dfd26b50c9156132b76f65465d1f5edaef29",
+        "usr/share/licenses/cachy-asahi-setup/LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "usr/share/licenses/cachy-asahi-setup/NOTICE": "2c28b96b5e4dca86c8a71aa0df728a049820d5951812f20241be96e7000d9744"
+      },
+      "log": "evidence/host-build-2.txt",
+      "artifact_static_status": "artifact-static-pass",
+      "payload_count": 4
+    }
+  ],
+  "packaged_cli_smoke": "PASS; temporary prefix/home only",
+  "synchronization_tests": "9 passed",
+  "status": "superseded; canonical defects corrected in new source"
+}

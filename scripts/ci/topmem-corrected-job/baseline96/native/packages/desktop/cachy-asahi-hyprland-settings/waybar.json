@@ -1,0 +1,14 @@
+{
+  "layer": "top",
+  "position": "top",
+  "modules-left": ["hyprland/workspaces"],
+  "modules-center": ["clock"],
+  "modules-right": ["network", "battery"],
+  "clock": { "format": "{:%a %d %b %H:%M}" },
+  "network": {
+    "format-wifi": "Wi-Fi {signalStrength}%",
+    "format-ethernet": "Ethernet",
+    "format-disconnected": "Offline"
+  },
+  "battery": { "format": "Battery {capacity}%", "format-charging": "Charging {capacity}%" }
+}
