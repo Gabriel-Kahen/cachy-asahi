@@ -74,8 +74,12 @@ def invoke(repo,*words,stamp=False):
 
 
 def fixture(path):
+    return bundle_fixture(path,lambda name:invoke(ROOT,'show',EXAMPLE_SOURCE+':'+name))
+
+
+def bundle_fixture(path,read_source):
     wanted=(EXAMPLE+'hello.c',EXAMPLE+'onboarding.py',EXAMPLE+'README.md','LICENSE')
-    paths={name:invoke(ROOT,'show',EXAMPLE_SOURCE+':'+name) for name in wanted}
+    paths={name:read_source(name) for name in wanted}
     require(ref(paths[EXAMPLE+'hello.c'])['sha256']=='fc4d365017395544876cf526639d8dfa1b4f6784d7f92887ee35c40146f749b5' and
             ref(paths[EXAMPLE+'onboarding.py'])['sha256']=='7a46c6df2546120f7aa0e6ce77b75b86a3d12ca851f898a3cf085a781952fa9f',
             'exact #583/#587 maintained input bytes')

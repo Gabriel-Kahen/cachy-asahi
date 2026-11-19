@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -18,25 +19,36 @@ spec.loader.exec_module(C)
 G=C.module(HERE/'guest.py','onboarding_guest_test')
 
 
-class Onboarding(unittest.TestCase):
+class PortableSourceChecks(unittest.TestCase):
     def test_deterministic_bundle_and_real_documented_host_cli(self):
-        with tempfile.TemporaryDirectory(prefix='onboarding-host-smoke-') as path:
+        def read_source(name):
+            return (C.ROOT/name).read_bytes()
+
+        with tempfile.TemporaryDirectory(dir='/var/tmp',prefix='onboarding-host-smoke-') as path:
             root=Path(path)
-            first=C.fixture(root/'source.bundle')
-            second=C.fixture(root/'again.bundle')
+            bundle=root/'source.bundle'
+            first=C.bundle_fixture(bundle,read_source)
+            second=C.bundle_fixture(root/'again.bundle',read_source)
             self.assertEqual(first,second)
-            origin=root/'source'
-            C.invoke(root,'clone','--no-local','--branch','onboarding',str(root/'source.bundle'),str(origin))
+            self.assertEqual(first['fixture_commit'],'c077e76ebfcabcc091b1d1590b173e7eb6d4f91f')
+            bundle.chmod(0o444)
+            home=root/'home'
+            home.mkdir(mode=0o700)
+            origin=home/'origin'
+            C.invoke(root,'-c','protocol.allow=never','-c','protocol.file.allow=always',
+                     'clone','--no-local','--branch','onboarding',str(bundle),str(origin))
             self.assertEqual(C.invoke(origin,'rev-parse','HEAD').decode().strip(),first['fixture_commit'])
             script=origin/'examples/development/onboarding.py'
             driver=root/'driver/examples/development/onboarding.py'
             driver.parent.mkdir(parents=True)
             driver.write_bytes(b64decode(first['program']))
+            driver.chmod(0o444)
             self.assertEqual(driver.read_bytes(),script.read_bytes())
-            work=root/'work'
-            env=dict(PATH='/usr/bin:/bin',HOME=str(root),LC_ALL='C.UTF-8',TZ='UTC',GIT_ALLOW_PROTOCOL='file')
+            work=home/'exercise'
+            env=dict(PATH='/usr/bin:/bin',HOME=str(home),TMPDIR=str(home),LC_ALL='C.UTF-8',TZ='UTC',
+                     GIT_CONFIG_NOSYSTEM='1',GIT_CONFIG_GLOBAL='/dev/null',GIT_ALLOW_PROTOCOL='file')
             def run(*args):
-                result=subprocess.run(['/usr/bin/python3.14','-I','-B',str(driver),*map(str,args)],env=env,
+                result=subprocess.run([sys.executable,'-I','-B',str(driver),*map(str,args)],env=env,
                     stdin=subprocess.DEVNULL,capture_output=True,timeout=20,check=True)
                 return result.stdout
             self.assertIn(G.GREETING.encode(),run('prepare',work,'--source',origin,'--revision',first['fixture_commit']))
@@ -44,6 +56,8 @@ class Onboarding(unittest.TestCase):
             edit.write_bytes(edit.read_bytes().replace(G.GREETING.encode(),G.EDIT.encode()))
             self.assertIn(G.EDIT.encode(),run('rebuild',work,'--expect',G.EDIT))
             edited=next((work/'evidence').glob('rebuild-*'))
+            for directory in (work/'evidence/baseline',edited):
+                self.assertTrue(os.access(directory/'hello',os.X_OK))
             retained=json.loads(run('verify',edited))
             self.assertEqual(retained['source_revision'],first['fixture_commit'])
             self.assertEqual(retained['scope'],'retained-build-evidence')
@@ -60,6 +74,8 @@ class Onboarding(unittest.TestCase):
         self.assertEqual(result['commands'],[])
         self.assertTrue(result['workspace_removed'])
 
+
+class HeldSourceChecks(unittest.TestCase):
     def test_worker_preserves_exact_base_install_and_guest_guards(self):
         sel=dict(bundle='INPUT_DATA_ONLY')
         original=C.invoke(C.ROOT,'show',C.BASE_SOURCE+':'+C.TRIAL)

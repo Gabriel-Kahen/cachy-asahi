@@ -26,4 +26,10 @@ attempt=$(cat "$OUT/root-run.claim/attempt.path")
 /usr/bin/python3.14 -I -B -Werror "$OUT/readback.py" --handoff-sha256 "$HANDOFF_SHA" close --attempt "$attempt"
 ```
 
-The independent reader checks controller authority, QEMU and container retirement, the boot's 16K marker, exact installed inventory, original file exports against the result ext4 disk, and both saved build/report pairs without running their executables. The guest report explicitly distinguishes the local scripted edit and compiler workflow from independent human onboarding, desktop terminal interaction and physical M2. A fixture build on the local development host is only a software control for the guest route.
+The independent reader checks controller authority, QEMU and container retirement, the boot's 16K marker, exact installed inventory, original file exports against the result ext4 disk, and both saved build/report pairs without running their executables. The guest report explicitly distinguishes the local scripted edit and compiler workflow from independent human onboarding, desktop terminal interaction and physical M2.
+
+The ordinary Git clone and both compiled programs run beneath the guest's `/var/tmp` on writable ext4 scratch. The guest keeps `/run` and `/tmp` mounted with `noexec`. A software control runs the same clone, edit, build and verification under the development host's executable `/var/tmp`. It needs Git, a C compiler and a regular checkout of the example sources.
+
+```sh
+python -I -B scripts/integration/development_onboarding_overlay583/test_capsule.py PortableSourceChecks -v
+```
