@@ -178,18 +178,44 @@ jobs:
           stage=$(mktemp -d /tmp/caa-operator.XXXXXXXX)
           chmod 700 "$stage"
           printf 'TMPDIR=%s\n' "$stage" >> "$GITHUB_ENV"
-      - name: Install actual debugger fixture prerequisites
-        if: matrix.component == 'debugger'
+      - name: Install debugger or recovery prerequisites from signed Ubuntu sources
+        if: matrix.component == 'debugger' || matrix.component == 'recovery-bundle'
+        timeout-minutes: 7
+        shell: bash
+        env:
+          COMPONENT: ${{ matrix.component }}
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y gdb build-essential
-          gdb --version
-      - name: Install public verification and recovery archive tools
-        if: matrix.component == 'recovery-bundle'
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y gpgv libarchive-tools
-          gpgv --version
+          set -euo pipefail
+          case "$COMPONENT" in
+            debugger) packages=(gdb build-essential) ;;
+            recovery-bundle) packages=(gpgv libarchive-tools) ;;
+            *) exit 1 ;;
+          esac
+          # Run 44480029637 stalled on the hosted runner's mirrorlist during update.
+          apt_stage=$(mktemp -d "$RUNNER_TEMP/caa-component-apt.XXXXXXXX")
+          trap 'rm -f "$apt_stage/ubuntu.sources"; rmdir "$apt_stage"' EXIT
+          cat > "$apt_stage/ubuntu.sources" <<'SOURCES'
+          Types: deb
+          URIs: https://archive.ubuntu.com/ubuntu
+          Suites: noble noble-updates
+          Components: main universe
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+          Types: deb
+          URIs: https://security.ubuntu.com/ubuntu
+          Suites: noble-security
+          Components: main universe
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          SOURCES
+          apt_get=(timeout --kill-after=15s 180s sudo apt-get
+            -o "Dir::Etc::sourcelist=$apt_stage/ubuntu.sources"
+            -o Dir::Etc::sourceparts=- -o APT::Get::List-Cleanup=0
+            -o Acquire::Languages=none -o Acquire::Retries=2
+            -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20
+          )
+          "${apt_get[@]}" -o APT::Update::Error-Mode=any update
+          "${apt_get[@]}" install --no-install-recommends -y "${packages[@]}"
+          "${packages[0]}" --version
       - name: Install exact Noble security planning version and archive tools
         if: matrix.component == 'security-operation' || matrix.component == 'security-maintenance-package'
         run: |
