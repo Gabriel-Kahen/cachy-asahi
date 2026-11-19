@@ -109,6 +109,9 @@ def build(args):
     raw['verify.py'] = replace(raw['verify.py'], b' inv=H.read(public/\'actual-invocation.json\');',
                               b" ingress=H.load('_current606_new_ingress_reader',H.HERE/'fresh606_reader.py').verify(H,root,public,originals,binding,case,own)\n inv=H.read(public/'actual-invocation.json');")
     raw['verify.py'] = replace(raw['verify.py'], b'value=dict(service_validation_DATA=service_data,', b'value=dict(fresh_test_ingress_DATA=ingress,service_validation_DATA=service_data,')
+    if getattr(args, 'rich_cleanup_receipts', False):
+        from seal_cleanup_reader import patch_verify
+        raw['verify.py'] = patch_verify(raw['verify.py'], source_rows)
     for name, body in raw.items():
         if name.endswith('.py'):
             compile(body,name,'exec')
@@ -129,4 +132,6 @@ if __name__ == '__main__':
     for field in ('original-reader','basis','qualification','qualification-output','source','assets','output'):
         parser.add_argument('--'+field,required=True,type=lambda p:Path(p).absolute())
     parser.add_argument('--publication',type=lambda p:Path(p).absolute())
+    parser.add_argument('--rich-cleanup-receipts', action='store_true',
+                        help='derive the positive Reader for source-owned cleanup stdout receipts')
     print(json.dumps(build(parser.parse_args()),sort_keys=True))

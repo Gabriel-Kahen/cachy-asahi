@@ -83,6 +83,10 @@
         {
           "name": "Exact source, prior route, eight cleanup bodies and path refusals",
           "run": "python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_failure_cleanup.py"
+        },
+        {
+          "name": "Positive Reader cleanup receipt compatibility",
+          "run": "python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_cleanup_receipt_reader.py"
         }
       ]
     }
