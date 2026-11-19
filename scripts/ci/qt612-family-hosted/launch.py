@@ -174,26 +174,68 @@ def reserve_and_bind(controller, runner_inputs, transfer, *, selection_sha256, l
                 transfer_budget=owned, empty_inner_bytes=disk, admitted_memory_bytes=memory)
 
 
-def base_cache(M, provider, path):
-    """Materialize one temporary flat cache in the loop for the retained mover."""
+EPOCH_PACKAGE = re.compile(
+    r"[a-z0-9][a-z0-9._+@-]*-(?:0|[1-9][0-9]*):[A-Za-z0-9._+~]+"
+    r"-[1-9][0-9]*(?:\.[0-9]+)*-(?:aarch64|any)\.pkg\.tar\.xz(?:\.sig)?"
+)
+
+
+def cache_roster(M, provider):
     refs = {}
     for group in ("base_materials", "supplemental_materials", "keyring_materials"):
-        for name, ref in provider[group].items():
+        records = provider[group]
+        for name, ref in records.items():
             need(name not in refs and Path(name).name == name and Path(ref["path"]).name == name,
                  "Unique exact flat baseline cache leaf required")
+            if ":" in name:
+                counterpart = name.removesuffix(".sig") if name.endswith(".sig") else name+".sig"
+                need(group != "keyring_materials" and len(name) <= 255 and EPOCH_PACKAGE.fullmatch(name)
+                     and counterpart in records, "Exact paired epoch-bearing ALPM cache leaf required")
+            else:
+                M.member(name)
             refs[name] = ref
     need(len(refs) == 517, "Complete signed349 cache required")
+    return refs
+
+
+def cache_epoch_package(M, writer, name, ref, observed):
+    # The provider already authenticated this archive/signature slot. Keep this
+    # flat ALPM name out of the generic relative Source member grammar.
+    need(len(name) <= 255 and EPOCH_PACKAGE.fullmatch(name) and Path(ref["path"]).name == name,
+         "Exact flat epoch-bearing package output required")
+    writer.check()
+    path = writer.root/name
+    fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC,
+                 0o600, dir_fd=writer.directory(writer.root))
+    with os.fdopen(fd, "wb") as output:
+        os.fchmod(output.fileno(), 0o600)
+        M.stream(Path(ref["path"]), {key:ref[key] for key in ("bytes", "sha256")}, observed,
+                 cap=2*capacity.GIB, target=output)
+        output.flush()
+        info = os.fstat(output.fileno())
+        need(stat.S_ISREG(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o600
+             and info.st_nlink == 1 and info.st_uid == os.geteuid()
+             and M.identity(info) == M.identity(path.lstat()), "Same private epoch cache output")
+        writer.files[path] = M.identity(info)
+    writer.check()
+
+
+def base_cache(M, provider, path):
+    """Materialize the independently authenticated flat cache in the owned loop."""
+    refs = cache_roster(M, provider)
     writer = M.Writer(path)
     observed = {}
     try:
         for name, ref in sorted(refs.items()):
-            writer.put(name, source=Path(ref["path"]), expected={k:ref[k] for k in ("bytes", "sha256")},
-                       observed=observed, cap=2*capacity.GIB, mode=0o600)
+            if ":" in name:
+                cache_epoch_package(M, writer, name, ref, observed)
+            else:
+                writer.put(name, source=Path(ref["path"]), expected={k:ref[k] for k in ("bytes", "sha256")},
+                           observed=observed, cap=2*capacity.GIB, mode=0o600)
         M.unchanged(observed)
     finally:
         writer.close()
     return refs
-
 
 def scoped_runner(commands, socket):
     """Give the exact inherited bootstrap only its selected local daemon."""
@@ -222,7 +264,8 @@ class SignedBase:
         self.imported = self.image = None
         self.tag = None
 
-    def construct(self):
+    def construct(self, stage=lambda _: None):
+        stage("SIGNED349_PROVIDER")
         C, M = self.C, self.C.M
         source = M.ordinary(self.source)
         mapping = C.read_source(source, self.source_map_sha256)
@@ -236,6 +279,7 @@ class SignedBase:
         inventory = C.P.reference(provider["baseline_inventory"], observed, collect=True)
         M.unchanged(observed)
 
+        stage("SIGNED349_CACHE")
         work = M.ordinary(self.output)
         need(work.name == "llhttp-reference-native" and work.parent.name == "work"
              and not work.exists(), "Fresh private inherited baseline transaction output required")
@@ -247,6 +291,7 @@ class SignedBase:
                 for p in provider[group].values()):
             raise ValueError("Insufficient loop space for temporary signed349 bootstrap materials")
         refs = base_cache(M, provider, cache)
+        stage("SIGNED349_INPUTS")
         lock_path = out/"inputs.lock.json"
         with lock_path.open("xb") as f:
             f.write(lock)
@@ -263,12 +308,23 @@ class SignedBase:
             M.stream(path, {k:ref[k] for k in ("bytes", "sha256")}, {}, cap=2*capacity.GIB)
             return path
 
+        stage("SIGNED349_AUDIT")
         native.fetch = fetch
         self.entry.C.audit_adapter(native, self.entry.C.read(Path(native.__file__)))
-        self.tag = self.entry.bootstrap_adapter(native, self.runner, out, self.nonce, self.scopes, self.runtime)
+        def build_run(argv, *args, **kwargs):
+            if argv[:3] == [executor.DOCKER, "image", "import"]:
+                stage("SIGNED349_ROOTFS_IMPORT")
+            elif argv[:2] == [executor.DOCKER, "build"]:
+                stage("SIGNED349_IMAGE_BUILD")
+            elif argv[:2] == [executor.DOCKER, "run"] and argv[-1] == "/builder-packages.lock":
+                stage("SIGNED349_INVENTORY")
+            return self.runner(argv, *args, **kwargs)
+
+        self.tag = self.entry.bootstrap_adapter(native, build_run, out, self.nonce, self.scopes, self.runtime)
         need(native.audit(inputs, cache, out) == 256, "Actual 256 packages and signed rootfs required")
         checks = M.decode((out/"cache-checksums.json").read_bytes())
         need(len(checks) == len(refs) == 517, "Complete 517 audited inputs required")
+        stage("SIGNED349_CONTEXT")
         handoff = self.carrier.install_context_handoff(native, inputs, cache, out)
         fresh = [executor.DOCKER, "image", "ls", "-a", "--quiet", "--no-trunc", "--filter"]
         for selector in ("reference="+self.tag, "label="+self.entry.LABEL+"="+self.nonce):
@@ -276,14 +332,16 @@ class SignedBase:
         shell = {}
 
         def probe(image, labels):
+            stage("SIGNED349_ROOTFS_SHELL")
             shell.update(self.entry.probe_signed_rootfs(self.runner, out, self.nonce,
                          self.scopes, self.runtime, image, labels))
 
-        self.imported = self.rootfs.SignedRootfsBootstrap(native, self.runner, out, self.nonce,
+        self.imported = self.rootfs.SignedRootfsBootstrap(native, build_run, out, self.nonce,
                                                         operation=self.entry.ROOTFS_OPERATION, probe=probe)
         self.image = native.build(inputs, cache, out, {})
         need(shell.get("status") == "SHELL_PASS" and (out/"packages.lock").read_bytes() == inventory
              and re.fullmatch(r"sha256:[0-9a-f]{64}", self.image), "Exact actual native signed349 result required")
+        stage("SIGNED349_CONTEXT_RETIRE")
         handoff.retire_context()
         return dict(image=self.image, inventory=C.pin(inventory), shell=shell, input_count=len(checks),
                     official_signature_count=257, inventory_extension=extension)
@@ -483,7 +541,7 @@ def run_owned_payload(*, pipeline, family_source, bootstrap, supervisor, command
     errors = []
     try:
         stage("SIGNED349_BUILD")
-        base = baseline.construct()
+        base = baseline.construct(stage=stage)
         stage("SIGNED356_BUILD")
         selected = dependencies.construct(source=source, source_map_sha256=source_map_sha256, baseline=base,
                                           auth=auth, authenticate=supervisor.authenticate_md4c_input)
