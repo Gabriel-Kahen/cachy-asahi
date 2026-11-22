@@ -1,7 +1,0 @@
-{
-  "case": "failed source rerun after previous PASS",
-  "failure_propagated": true,
-  "old_summary_invalidated": true,
-  "packages_built_or_installed": false,
-  "status": "PASS"
-}
