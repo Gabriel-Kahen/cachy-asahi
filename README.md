@@ -8,22 +8,9 @@ Initial target: an M2 MacBook Air running Asahi Arch Linux ARM and Hyprland. The
 
 ## Status
 
-Recent hosted AArch64 builds produced reproducible Fish, md4c, llhttp and
-First Login packages with 4 KiB pages. On emulated AArch64 with 16 KiB pages,
-the TEST-signed Overlay583 install and shell lifecycle, the Current606 desktop
-pair, and the 626-package Asahi maintenance rehearsal passed their documented
-checks.
+Implementation is underway in six coordinated workstreams: desktop packaging, shells/defaults, ARM build/validation and setup, signed releases/recovery, performance measurement, and native ARM CI. Four original configuration/setup packages, baseline capture, build inspection, release recovery and measurement tooling are implemented and locally tested. All ten selected development recipes have passed native ARM build pairs with byte-identical archives. The core package/configuration lifecycle and signed test-repository cases pass, and the 574-package upstream desktop set installs offline with an exact inventory; see [current execution and limits](docs/implementation-status.md). Target installation, a supported installer, stable release and M2 hardware validation remain unfinished. This is an independent project, not an official CachyOS or Asahi distribution.
 
-- [Native build evidence](docs/validation/native-fish-md4c-reproducibility-20261118.md)
-- [Overlay583 lifecycle](docs/validation/offline-overlay583-emulated-install-20261117.md)
-- [Current606 desktop pair](docs/validation/current606-overlay-emulated-arm16k-r16-20261119.md)
-- [Asahi maintenance rehearsal](docs/validation/asahi626-maintenance-emulated-arm16k-20261118.md)
-
-Production promotion, installed Asahi kernel boot and recovery, and physical
-validation on both M2 Air sizes remain open. See the
-[implementation status](docs/implementation-status.md) and
-[release acceptance criteria](docs/acceptance.md). This is an independent
-project with no official CachyOS or Asahi affiliation.
+See [implementation status](docs/implementation-status.md) for the complete outline's execution gates and [coordination](docs/orchestration.md) for worker ownership. Candidate recipes and tools are development artifacts until their gates pass.
 
 ## First milestone
 
@@ -40,9 +27,7 @@ Kernel experiments and CPU-specific optimization follow a measured, working base
 - [Development outline](outline.md): full project sequence and dependencies.
 - [Implementation status](docs/implementation-status.md): progress, missing resources and acceptance evidence.
 - [Full-goal acceptance](docs/acceptance.md): required results for both Air sizes and the maintained final system.
-- [Open GitHub issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues): focused engineering follow-ups.
-- [Historical execution backlog](docs/backlog.md): prior work, decisions and evidence.
-- [Historical branch archive](https://github.com/Gabriel-Kahen/cachy-asahi/tree/archive/branches-2026-11-22): original GitHub branch names and exact commits.
+- [Execution backlog](docs/backlog.md): accountable tasks, dependencies and next actions for blockers.
 - [Baseline contract](docs/baseline.md): environment collector, protected platform and hardware test counts.
 - [Coordination](docs/orchestration.md): active workstreams, file ownership and integration responsibilities.
 - [Installation draft](docs/installation.md): candidate package/configuration ownership and unexecuted target procedure.
