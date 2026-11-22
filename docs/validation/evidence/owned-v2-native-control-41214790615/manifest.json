@@ -1,0 +1,32 @@
+{
+  "acceptance": false,
+  "attempt": "1",
+  "control_step_outcome": "success",
+  "files": {
+    "control/intent.json": {
+      "bytes": 1195,
+      "sha256": "ec58f4b5a647f88884b36fb5511bda55f8fbefe4199cc774902f534e3607484f"
+    },
+    "control/result.json": {
+      "bytes": 2131,
+      "sha256": "9a0844ba8a149c9f1a6be5e56efc37107ab74a3be9b68704cc31d6d627eb2d70"
+    },
+    "control/runtime-result.json": {
+      "bytes": 1652,
+      "sha256": "6da3c5a27fc0555ceca11936abc16c6f44ff28402085bebd81117dabf083d322"
+    },
+    "source-provenance.json": {
+      "bytes": 1752,
+      "sha256": "a0debc7cb58179e4b37726eadab71f190bdba23b7a9162f60ad2adacadef8b8e"
+    }
+  },
+  "missing": [],
+  "operation": "owned-v2-adopted-zero-pre-package-v1",
+  "run": "41214790615",
+  "runtime_source": "3ab5da1b4a11495075a9660ad09625a4ff5f0f64",
+  "schema": 1,
+  "scope": "PROCESS_CONTROL_ONLY_NO_COMPONENT_ALARM_M2_NATIVE16K_PERFORMANCE_RELEASE_ACCEPTANCE",
+  "source_guard_outcome": "success",
+  "status": "BOUNDED_PASSIVE_PROCESS_CONTROL_DATA_ONLY",
+  "workflow_source": "9e7c58f51548b7d901ac90084883f41b9dba4e90"
+}
