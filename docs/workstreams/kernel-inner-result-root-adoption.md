@@ -1,9 +1,0 @@
-# Kernel inner-result registration
-
-October 13, 2026. Root adopts the reviewed worker finalization/nonfinite-JSON correction, failure-only inner diagnostic and exact derived source bindings. The selected stage has29 rows; the job packet has120 rows/2,128,336 bytes, SHA256 `6d307a07f28f12c840013b26c11f5a53708232377bda5b52a031c7e4363543ff`. Shared FDK evidence is the separately adopted `aab9c7961bfe3cdd1fd298c7609cfcb5d9853201a110016a9f0348b6fe9fb175`. The existing workflow remains unchanged.
-
-Root authenticates all189 proposal artifacts and the reviewed source union. Only the three pending coordinator bindings change: stage lock, packet code's digest/count literals, and packet lock. The other selected files match the held correction exactly. Proposal277 tests pass with zero skips; independent94 tests/529 assertions pass. Counts overlap and are separate observations. The reviewed packet and source checks retain four recipes/71 pins, original159 history, strict schema3 COMPLETE for PASS and failure-only schema4 diagnostics.
-
-Selected proposal receipt: `123c861b4b18f0806efcf4723632bf44b8b7040932bfffb4ceaf7e540574de70`; independent binding receipt: `3b779cb73a51e06cd83a0bfb8ca045253f111b6f233739e8338f61c0cca80f84`. Root adoption `artifacts/reviews/kernel-inner-result-root-adoption-20261013/adoption.json`, SHA256 `34e880a4f8906edbc8d6f0c2c4be5ac066156286c6c5b6d681dda834a9a7d57f`. Committed-source Git authentication remains the next publication check.
-
-Historical Kernel7 remains FAIL at baseline START CLI1 with worker exit/compiler/inner cause UNKNOWN. Native Kernel8 is NOT RUN; the common frozen input acquisition must first recover the four exact missing Vim objects. No compiler, package, native, 16K, M2, performance, supported release or full R1–R5/M5–M9 acceptance is supplied by source diagnostics.
