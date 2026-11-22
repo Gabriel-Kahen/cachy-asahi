@@ -1,1 +1,0 @@
-New Python, Bash and documentation: MIT. Unmodified exact GNU glibc primary files retain their upstream copyright/license notices; see primary/COPYING.LESSERv2 and primary/COPYINGv2 plus acquisition.DATA.json. Public historical DATA records and package-derived ownership/hash/SONAME facts are provenance evidence, not project-built provider binaries.

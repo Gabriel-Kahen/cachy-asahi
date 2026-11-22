@@ -1,7 +1,0 @@
-{
-  "image": "sha256:bbf8eb6c20508541b7db66e0ef053c6a56cbd6c1209ab95d6491ab26e7457613",
-  "output": "Deleted: sha256:bbf8eb6c20508541b7db66e0ef053c6a56cbd6c1209ab95d6491ab26e7457613\nDeleted: sha256:822a85a49a278244d032330a9c55626446cc8e8685f142970ae045eddc9e8865\nDeleted: sha256:1d2647e3d1705cbfad39dc4229f76ff8684a0a8c473cdaa8f266fd535f1d5e31\nDeleted: sha256:bfe9ff1eb41910d8f11e05f93aeb75197011943f1de369e8dff68506155fbf07\nDeleted: sha256:3ae3eedaadc446101f119c49c8a7103d1b23902b736570aadbe37c42ef4305d8\nDeleted: sha256:3ca7c891f6103e2c1d8ccf493359538c27afad8362ff51949a9dadd3fce9d931\n",
-  "parent_base_preserved": true,
-  "reference_images_absent": true,
-  "status": "OWN_REFERENCE_CHAIN_REMOVED_NO_FORCE"
-}

@@ -1,6 +1,0 @@
-{
-  "actual_provider_acceptance": null,
-  "returncode": 1,
-  "scope": "CMake project NONE only, no compiler/build/install/actor",
-  "status": "NORMAL_DEPENDENCY_HOLD"
-}

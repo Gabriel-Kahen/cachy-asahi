@@ -1,3 +1,0 @@
-# Retain exact upstream/actual evidence bytes, including original whitespace.
-upstream/** -text -whitespace
-evidence/*.rawlog -text -whitespace
