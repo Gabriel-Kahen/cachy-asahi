@@ -183,10 +183,10 @@ jobs:
         timeout-minutes: 7
         shell: bash
         env:
-          COMPONENT: ${{ matrix.component }}
+          PREREQUISITE_COMPONENT: ${{ matrix.component }}
         run: |
           set -euo pipefail
-          case "$COMPONENT" in
+          case "$PREREQUISITE_COMPONENT" in
             debugger) packages=(gdb build-essential) ;;
             recovery-bundle) packages=(gpgv libarchive-tools) ;;
             *) exit 1 ;;
