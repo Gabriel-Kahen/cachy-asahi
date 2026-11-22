@@ -1,8 +1,0 @@
-{
-  "schema": 1,
-  "bootstrap_reference_source": "25dc3e65bdb6137c87a9409067fe9b2cf6e9763f",
-  "frozen_bootstrap_source_map_sha256": "4b1de3aade5116206318570d1d44ee1063342faeab54935748b1b7c179a99e96",
-  "original_source_map_sha256": "0c37bef7218caa6cb0f0e6d1b22ed5053b10a228f53e15076f5803d2fcf86b3e",
-  "expected349_sha256": "579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453",
-  "scope": "PINNED_SOURCE_DATA_ONLY_NO_NATIVE_OR_MUTATION_QUALIFICATION"
-}

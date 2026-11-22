@@ -1,8 +1,0 @@
-{
-  "actual_provider": null,
-  "exit": 1,
-  "native": null,
-  "reason": "EXACT6.12.0 provider unavailable; host6.11.2 refused",
-  "scope": "CMake projectNONE only; no compiler/build/install or native actor",
-  "status": "NORMAL_DEPENDENCY_HOLD"
-}

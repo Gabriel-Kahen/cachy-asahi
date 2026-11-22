@@ -1,9 +1,0 @@
-    admitted_raw = p.pinned(xs['inventory'], 1024**2)
-    admitted = alpm_inventory(admitted_raw)
-    packages = []
-    for desc in Path('/var/lib/pacman/local').glob('*/desc'):
-        c.need(len(packages) < 400, 'finite installed image inventory')
-        packages.append(read_alpm_desc(desc, admitted))
-    inventory = ('\n'.join(sorted(packages)) + '\n').encode()
-    c.need(c.pin(inventory)['sha256'] == INVENTORY and inventory == admitted_raw,
-           'actual signed349 image inventory differs')

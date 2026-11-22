@@ -1,8 +1,0 @@
-{
-  "function_bytes": 6581,
-  "function_sha256": "91f6e40dada9fc96a902e3c04b7941a9d0d389dbb358d76f61a06ea729b34216",
-  "license": "MIT",
-  "origin": "packages/port/qt612-declarative-source-reference/check_stage.py",
-  "origin_commit": "7d173c861a62e497017d161cf37643ae0175e51e",
-  "reuse": "EXACT_VERBATIM_AST_FUNCTION"
-}

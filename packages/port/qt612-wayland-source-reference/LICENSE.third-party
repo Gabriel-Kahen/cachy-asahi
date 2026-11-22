@@ -1,7 +1,0 @@
-QtWayland source licensing is recorded per upstream SPDX headers and REUSE.toml.
-The compositor uses GPL-3.0-only or a commercial alternative; client/other files
-retain their own LGPL/GPL/BSD/MIT alternatives. No commercial license is granted.
-Exact upstream LICENSES, attribution and third-party notice inputs are staged
-under source/ as listed in source-notices.json. Qtbase protocol inputs and their
-notices remain supplied by the separately selected compatible Qtbase provider.
-The source inventory is byte evidence, not legal acceptance.

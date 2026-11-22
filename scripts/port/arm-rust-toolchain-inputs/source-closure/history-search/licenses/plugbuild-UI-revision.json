@@ -1,7 +1,0 @@
-{
-  "commit": "853e993eba55285abbd09db082f38edb5fef83ad",
-  "primary_request_url": "https://api.github.com/repos/archlinuxarm/plugbuild-UI/commits/master",
-  "raw_response_not_redistributed": "response contained code patches; factual revision/tree IDs retained only",
-  "raw_response_sha256": "86e289be4a6e3e4240577ff2f8e0cccc75fee7934cc559b212917570b7510779",
-  "tree": "981296f026c5fc3247363a08fd048b4a22da480a"
-}

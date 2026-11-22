@@ -1,9 +1,0 @@
-[Unit]
-Description=Owned ARM16K UI result observer
-Requires=arm16k-seat-install.service
-After=arm16k-seat-install.service
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/python3 -I -B /usr/local/libexec/arm-ui-observer.py
-TimeoutStartSec=380
-RemainAfterExit=yes

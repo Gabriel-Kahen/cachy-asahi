@@ -1,5 +1,0 @@
-{
-  "reserved_compressed_bytes": 157995219,
-  "logical_cap": 1073741824,
-  "note": "This actual attempt owns its full reservation even if it refuses; never restart with reset counters."
-}

@@ -1,3 +1,0 @@
-# Retain exact pinned upstream DATA formatting; project code keeps normal checks.
-data/input.Kconfig whitespace=-blank-at-eof
-data/virtio.Kconfig whitespace=-space-before-tab
