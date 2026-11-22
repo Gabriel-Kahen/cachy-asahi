@@ -1,5 +1,0 @@
-{
-  "diagnostic": "gpg: Signature made Sun Oct 11 19:29:20 2026 EDT\ngpg:                using RSA key 68B3537F39A313B3E574D06777193F152BDBE6A6\ngpg: Good signature from \"Arch Linux ARM Build System <builder@archlinuxarm.org>\" [unknown]\ngpg: WARNING: This key is not certified with a trusted signature!\ngpg:          There is no indication that the signature belongs to the owner.\nPrimary key fingerprint: 68B3 537F 39A3 13B3 E574  D067 7719 3F15 2BDB E6A6\n",
-  "exit": 0,
-  "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 68B3537F39A313B3E574D06777193F152BDBE6A6 0\n[GNUPG:] SIG_ID NJ7BxOGwfIcK6+s1Wjqy5gVzDWI 2026-10-11 1791761360\n[GNUPG:] GOODSIG 77193F152BDBE6A6 Arch Linux ARM Build System <builder@archlinuxarm.org>\n[GNUPG:] VALIDSIG 68B3537F39A313B3E574D06777193F152BDBE6A6 2026-10-11 1791761360 0 4 0 1 10 00 68B3537F39A313B3E574D06777193F152BDBE6A6\n[GNUPG:] TRUST_UNDEFINED 0 pgp\n"
-}
