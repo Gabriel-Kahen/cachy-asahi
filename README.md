@@ -1,47 +1,40 @@
-# cachy-asahi
+# Cachy-Asahi branch archive
 
-An experimental CachyOS package and configuration overlay for Asahi Linux on Apple Silicon.
+This archive records the GitHub branch tips as observed on November 22, 2026.
+[github-branch-tips.tsv](github-branch-tips.tsv) maps each original branch name
+to its exact commit. The archive's parent history retains those commits and
+their trees. Each line starts with the commit SHA, followed by the full branch
+ref.
 
-Long-term goal: a complete maintained CachyOS-derived ARM distribution covering signed package builds, native performance engineering, Apple hardware integration, CachyOS tools/desktop, and the full installation/update/recovery lifecycle. The overlay is the first delivery stage; see [the five responsibilities](goal.md#five-responsibilities-of-the-complete-port).
+Four additional historical Actions source commits are listed in
+[historical-actions-sources.tsv](historical-actions-sources.tsv).
 
-Initial target: an M2 MacBook Air running Asahi Arch Linux ARM and Hyprland. The 13-inch and 15-inch models require separate hardware validation.
+Fetch the archive with `git fetch origin tag archive/branches-2026-11-22`.
+Inspect any archived source with `git show <commit>` or restore its original
+branch with `git branch <branch> <commit>`. The archive tree contains the index
+only. Archived branches include experiments, refused runs, and superseded
+install candidates. Consult the original validation record before using one.
 
-## Status
+## Historical pull requests
 
-Implementation is underway in six coordinated workstreams: desktop packaging, shells/defaults, ARM build/validation and setup, signed releases/recovery, performance measurement, and native ARM CI. Four original configuration/setup packages, baseline capture, build inspection, release recovery and measurement tooling are implemented and locally tested. All ten selected development recipes have passed native ARM build pairs with byte-identical archives. The core package/configuration lifecycle and signed test-repository cases pass, and the 574-package upstream desktop set installs offline with an exact inventory; see [current execution and limits](docs/implementation-status.md). Target installation, a supported installer, stable release and M2 hardware validation remain unfinished. This is an independent project, not an official CachyOS or Asahi distribution.
-
-See [implementation status](docs/implementation-status.md) for the complete outline's execution gates and [coordination](docs/orchestration.md) for worker ownership. Candidate recipes and tools are development artifacts until their gates pass.
-
-## First milestone
-
-Produce a small, reproducible ARM package overlay that applies selected CachyOS desktop and shell configuration to an existing Asahi installation. Preserve the Asahi boot components, firmware, kernel, Mesa integration, and audio stack.
-
-Start with configuration packages. Audit their dependencies and licenses, pin upstream revisions, build in a clean aarch64 environment, and test installation and removal on the target MacBook.
-
-Kernel experiments and CPU-specific optimization follow a measured, working baseline. An x86 optimization result is not evidence of an M2 improvement.
-
-## Project files
-
-- [Project goal](goal.md): the long-term purpose and ambition.
-- [Roadmap](docs/roadmap.md): implementation milestones and completion criteria.
-- [Development outline](outline.md): full project sequence and dependencies.
-- [Implementation status](docs/implementation-status.md): progress, missing resources and acceptance evidence.
-- [Full-goal acceptance](docs/acceptance.md): required results for both Air sizes and the maintained final system.
-- [Execution backlog](docs/backlog.md): accountable tasks, dependencies and next actions for blockers.
-- [Baseline contract](docs/baseline.md): environment collector, protected platform and hardware test counts.
-- [Coordination](docs/orchestration.md): active workstreams, file ownership and integration responsibilities.
-- [Installation draft](docs/installation.md): candidate package/configuration ownership and unexecuted target procedure.
-- [Contributing](docs/contributing.md): source/evidence requirements, bug reports and maintenance responsibilities.
-- [Performance evidence](docs/performance.md): final-system measurement requirements and local harness.
-- [Development example](examples/development/README.md): a small terminal/editor/compiler onboarding smoke check, separate from benchmarks.
-- [Agent work plan](docs/agent-work.md): bounded parallel tasks and integration responsibilities.
-- [Hardware validation](docs/hardware-validation.md): evidence required before support claims.
-- [Source notes](docs/sources.md): starting references, checked October 11, 2026.
-- [Package candidates](manifests/packages.toml): a starting inventory, not an install list.
-- [Contributor instructions](AGENTS.md): evidence and collaboration rules.
-
-## Development boundaries
-
-The first deliverable is an overlay for an existing installation. Broader ARM repositories, applicable Cachy management tools, measured ARM tuning, maintained Asahi integration and complete installation/releases are required later milestones. A custom macOS partitioner and replacement of Asahi's hardware stack are implementation choices, not requirements for their own sake.
-
-Original project code and documentation use the [MIT license](LICENSE). Third-party material retains its own terms; audit upstream licenses and notices before redistribution. The initial original templates do not resolve the license gaps found in excluded CachyOS assets.
+- [#7](https://github.com/Gabriel-Kahen/cachy-asahi/pull/7) and [#11](https://github.com/Gabriel-Kahen/cachy-asahi/pull/11) used an earlier maintained
+  composition. Later signed Overlay583 and Asahi626 rehearsals are in the
+  repository's validation documentation.
+- [#8](https://github.com/Gabriel-Kahen/cachy-asahi/pull/8), [#9](https://github.com/Gabriel-Kahen/cachy-asahi/pull/9), [#10](https://github.com/Gabriel-Kahen/cachy-asahi/pull/10),
+  [#14](https://github.com/Gabriel-Kahen/cachy-asahi/pull/14), and [#15](https://github.com/Gabriel-Kahen/cachy-asahi/pull/15) covered early ARM tool
+  observations, callers, and package pairs. Later integration uses the tool
+  recipes and signed ARM trials on main. The original native sources stay
+  available in this archive.
+- [#12](https://github.com/Gabriel-Kahen/cachy-asahi/pull/12), [#16](https://github.com/Gabriel-Kahen/cachy-asahi/pull/16), and [#23](https://github.com/Gabriel-Kahen/cachy-asahi/pull/23)
+  covered experimental signer, compiler, and installer transport. The
+  recorded installer container trial failed during the Docker proc mount.
+- [#18](https://github.com/Gabriel-Kahen/cachy-asahi/pull/18), [#19](https://github.com/Gabriel-Kahen/cachy-asahi/pull/19), and [#21](https://github.com/Gabriel-Kahen/cachy-asahi/pull/21) were
+  diagnostic branches for older FDK, updater, and KSM work. Later validation
+  uses the canonical FDK pair, Updater607, and KSM2.
+- [#20](https://github.com/Gabriel-Kahen/cachy-asahi/pull/20), [#24](https://github.com/Gabriel-Kahen/cachy-asahi/pull/24), and [#25](https://github.com/Gabriel-Kahen/cachy-asahi/pull/25)
+  covered archived JBIG/TIFF trials. [#13](https://github.com/Gabriel-Kahen/cachy-asahi/pull/13) carries the original
+  candidate and canonical gzip commits.
+- [#26](https://github.com/Gabriel-Kahen/cachy-asahi/pull/26), [#27](https://github.com/Gabriel-Kahen/cachy-asahi/pull/27), and [#28](https://github.com/Gabriel-Kahen/cachy-asahi/pull/28)
+  covered historical screenshot trials. The accepted region-cancel source
+  and run are recorded under `docs/reviews` on main, with later product-source
+  improvements in [#367](https://github.com/Gabriel-Kahen/cachy-asahi/pull/367) and [#496](https://github.com/Gabriel-Kahen/cachy-asahi/pull/496).
