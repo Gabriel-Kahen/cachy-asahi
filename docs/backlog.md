@@ -1,5 +1,12 @@
 # Execution backlog
 
+Track active engineering follow-ups in
+[GitHub Issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues).
+The [implementation status](implementation-status.md) records current evidence
+and [acceptance.md](acceptance.md) defines the milestone gates.
+
+## Historical execution log
+
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
 
 October 14, 02:38 UTC: diagnostic ARM run `38500392517` completes with
