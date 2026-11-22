@@ -1,4 +1,0 @@
-# Exact upstream bytes are pinned in results.json; do not normalize whitespace.
-alarm-rust-package.html -whitespace
-plugbuild-UI-README.markdown -whitespace
-plugbuild-UI-server.js -whitespace

@@ -1,7 +1,0 @@
-==> Making package: cachy-asahi-libgit2-reference 1:1.9.7-1 (Mon Nov 16 23:53:16 2026)
-==> Retrieving sources...
-  -> Found libgit2-1.9.7.tar.gz
-  -> Found smoke.c
-==> Validating source files with sha256sums...
-    libgit2-1.9.7.tar.gz ... Passed
-    smoke.c ... Passed

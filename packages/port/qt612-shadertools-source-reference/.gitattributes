@@ -1,4 +1,0 @@
-# Preserve exact primary source/notice and actual evidence bytes.
-upstream/** -text -whitespace
-evidence/*.rawlog -text -whitespace
-upstream/*.tar.xz -filter -diff -merge -text

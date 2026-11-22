@@ -1,1 +1,0 @@
-query { rust: repository(owner: "rust-lang", name: "rust") { builder: object(expression: "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4:src/bootstrap/src/core/builder/mod.rs") { ... on Blob { oid byteSize text } } cargobuilder: object(expression: "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4:src/bootstrap/src/core/builder/cargo.rs") { ... on Blob { oid byteSize text } } } }

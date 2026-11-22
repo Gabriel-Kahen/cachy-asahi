@@ -1,4 +1,0 @@
-Original project material is distributed under the MIT license in LICENSE.
-enroll.py and rotate.py are unchanged copies of the project repository tools;
-source-provenance.json records their source paths and SHA-256 identities.
-GnuPG and pacman are external dependencies and are not bundled.

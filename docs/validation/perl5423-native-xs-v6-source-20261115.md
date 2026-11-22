@@ -1,7 +1,0 @@
-# XS v6 inventory-bound ALPM descriptor Source
-
-The retained v5 failure reaches `c.read(desc)` then the global ordinary-path guard; the concrete path was not logged. Its pinned349 inventory has21 epoch-version rows. Colon-bearing descriptor names reproduce the rejected class, but the actual rejected filename remains inferred. A secondary preentry write failure occurred because the actor had not yet created output. The failed v5 Source/run/Original remain closed and unqualified.
-
-The new `hosted_source_v6/` adds a fixed-root, exact-inventory-bound ALPM desc reader with NOFOLLOW directory-FD ancestry, single-link ordinary/bounded/stable file checks and exact NAME/VERSION matching. Global `c.path` and Docker delimiter restrictions remain byte-identical. The actor inventory block is explicitly revised; every other runtime/probe/cap/work-volume/resource function stays unchanged except the finite dispatch diagnostic change preserving the primary error with a bounded secondary note. No early success/output is invented.
-
-Twenty-two fenced controls passed, including the full321→316 inverse and real owned DirFD fixtures for the three epoch examples plus unsafe-path/alias/mutation/inventory and error-chain negatives. Source export/publication, native/XS/Reader/GET/lease/Docker/compiler actors were not run. Future Root admission and matching Reader remain required; native16K/M2/performance/release are unqualified.
