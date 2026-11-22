@@ -1,8 +1,0 @@
--- Install configuration: "RELEASE"
--- Installing: recipe-audit/work/stage-llhttp/usr/lib/libllhttp.so.9.3.1
--- Installing: recipe-audit/work/stage-llhttp/usr/lib/libllhttp.so.9.3
--- Installing: recipe-audit/work/stage-llhttp/usr/lib/libllhttp.so
--- Installing: recipe-audit/work/stage-llhttp/usr/include/llhttp.h
--- Installing: recipe-audit/work/stage-llhttp/usr/lib/pkgconfig/libllhttp.pc
--- Installing: recipe-audit/work/stage-llhttp/usr/lib/cmake/llhttp/llhttp-config.cmake
--- Installing: recipe-audit/work/stage-llhttp/usr/lib/cmake/llhttp/llhttp-config-release.cmake
