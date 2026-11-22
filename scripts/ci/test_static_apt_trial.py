@@ -49,9 +49,11 @@ class TrialControls(unittest.TestCase):
 from pathlib import Path
 name = Path(sys.argv[0]).name
 args = sys.argv[1:]
-if name in ('sudo', 'dpkg-query'):
+if name in ('sudo', 'dpkg-query', 'timeout'):
     with open(os.environ['ACTOR_LOG'], 'a') as stream:
         stream.write(json.dumps(dict(name=name, args=args)) + '\\n')
+    if name == 'timeout':
+        raise SystemExit(subprocess.run(args[2:]).returncode)
 elif name == 'python3':
     if args[-1:] == ['packages']:
         subprocess.run([sys.executable, *args], check=True)
@@ -61,7 +63,7 @@ elif name == 'python3':
         actor.chmod(0o755)
         tools = next(line for line in (root / 'scripts/ci/static_apt_install.sh').read_text().splitlines() if line.startswith('for tool in '))
         names = shlex.split(tools.split('for tool in ', 1)[1].split(';', 1)[0])
-        for name in {*names, 'sudo', 'dpkg-query', 'python3'}:
+        for name in {*names, 'sudo', 'dpkg-query', 'python3', 'timeout'}:
             (commands / name).symlink_to(actor.name)
         env = dict(PATH=str(commands) + ':/usr/bin:/bin', RUNNER_TEMP=str(self.root),
                    ACTOR_LOG=str(log), GITHUB_OUTPUT=str(self.root / 'output'), ImageVersion='fixture')
@@ -72,8 +74,13 @@ elif name == 'python3':
         calls = [json.loads(line) for line in log.read_text().splitlines()]
         apt_calls = [row['args'] for row in calls if row['name'] == 'sudo' and row['args'][0] == 'apt-get']
         source = ['-o', 'Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources', '-o', 'Dir::Etc::sourceparts=-']
-        self.assertEqual([args[1:5] for args in apt_calls], [source] * 3)
-        self.assertEqual(apt_calls[0][5:], ['-o', 'APT::Update::Error-Mode=any', '--no-list-cleanup', 'update'])
+        transport = ['-o', 'Acquire::http::Timeout=20', '-o', 'Acquire::https::Timeout=20', '-o', 'Acquire::Retries=2']
+        prefix = [*source, *transport]
+        start = 1 + len(prefix)
+        self.assertEqual([args[1:start] for args in apt_calls], [prefix] * 3)
+        self.assertEqual(apt_calls[0][start:], ['-o', 'APT::Update::Error-Mode=any', '--no-list-cleanup', 'update'])
+        self.assertEqual([row['args'] for row in calls if row['name'] == 'timeout'],
+                         [['--kill-after=15s', '240s', 'sudo', *apt_calls[0]]])
         installs = [row['args'][row['args'].index('install') + 1:] for row in calls
                     if row['name'] == 'sudo' and 'install' in row['args']]
         self.assertEqual(installs, [trial.PACKAGES, trial.PACKAGES])
