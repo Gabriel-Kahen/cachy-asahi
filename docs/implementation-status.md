@@ -1,5 +1,11 @@
 # Implementation and acceptance status
 
+Track current engineering follow-ups in
+[GitHub Issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues).
+The [historical execution log](backlog.md) records earlier decisions and
+evidence. The [branch archive](https://github.com/Gabriel-Kahen/cachy-asahi/tree/archive/branches-2026-11-22)
+maps original GitHub branch names to their exact commits.
+
 ## Release status on November 18, 2026
 
 | Area | Verified scope |
