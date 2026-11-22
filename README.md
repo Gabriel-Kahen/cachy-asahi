@@ -1,12 +1,40 @@
-# Fresh latest607 software installer: complete original274 closure
+# Cachy-Asahi branch archive
 
-Source-only child of the exact accepted Six853 source and the complete qualified274 installer library, not an installed607 acceptance record. The fixed607 package/archive target, eight incoming source payloads, protected601 including Runtime1, six derived604 runtime bodies, signatures/trust gates, original owner, full root observation, cleanup and clocks are held from frozen1098. Boot1 starts absent. Asahi platform packages stay unchanged; no macOS partitioner, hardware, M2, performance, release, or native-container P0 credit.
+This archive records the GitHub branch tips as observed on November 22, 2026.
+[github-branch-tips.tsv](github-branch-tips.tsv) maps each original branch name
+to its exact commit. The archive's parent history retains those commits and
+their trees. Each line starts with the commit SHA, followed by the full branch
+ref.
 
-The original218 publication lacked recipe/control leaves and failed its deep input gate; it is retained through a whole byte inverse, not used as an incomplete274 library. Complete274 bd0cf1891083d011b70edab10501c317d3720b78 contains all271 manifest rows plus two workflow aliases and the manifest itself. The issued historical604 Root decision and independent records are retained DATA with exact source/policy binding; their scope does not authorize a fresh607 result.
+Four additional historical Actions source commits are listed in
+[historical-actions-sources.tsv](historical-actions-sources.tsv).
 
-The workflow retains the original274 body through a counted inverse. It separately authenticates the current child using the required `fresh_source_revision == github.sha` input before actors. `source` selects the fixed274 library. The unchanged255-byte control shell must execute exactly39+11 tests under a presecret root-authority controller in a child mount/network namespace backed by a private128MiB/16384-inode tmpfs. Only finite byte-pinned source fixtures are copied. Source controls retire their child process group on timeout/signals and verify the host namespace/mount and empty owned directory after retirement. Product runtime and all original clocks are unchanged: engine4500, independent readback600, QEMU5400, VM owner9600, outer15600, workflow270/350 minutes. Source-control owner120 seconds is the retained local qualification cap, not a product clock.
+Fetch the archive with `git fetch origin tag archive/branches-2026-11-22`.
+Inspect any archived source with `git show <commit>` or restore its original
+branch with `git branch <branch> <commit>`. The archive tree contains the index
+only. Archived branches include experiments, refused runs, and superseded
+install candidates. Consult the original validation record before using one.
 
-Run `python3 -I -B implementation/run.py --source-preflight` for the closed namespace, whole1098/218/274/853 byte joins, runtime/workflow inverses and historical qualification binding. Native selectors remain NULL; fresh607, hardware, M2 and performance are NOT_RUN. The future workflow does not infer fresh installation from Six coexistence acceptance. No native run, signing, package installation, or acceptance parser was executed during this source preparation.
+## Historical pull requests
 
-
-Explicit generic16K TEST mode keeps the default4K six emitted bodies exact. Its kernel20 input is accepted BUILD_ONLY, never prior boot/lifecycle evidence. It uses the same607 ledger, signatures, ALPM/toolchain, namespace, post-parent root readback and retirement predicates with all old clocks. The stock rootfs kernel/modules/depmod remain unchanged; the separately pinned Image is QEMU input only. New actual/source/ref/run/Root authority and16K fit remain UNBOUND/NOT_RUN. It is not an Asahi/platform change or M2 compatibility result. See implementation/page-mode-profile.json for exact source/license/input scope.
+- [#7](https://github.com/Gabriel-Kahen/cachy-asahi/pull/7) and [#11](https://github.com/Gabriel-Kahen/cachy-asahi/pull/11) used an earlier maintained
+  composition. Later signed Overlay583 and Asahi626 rehearsals are in the
+  repository's validation documentation.
+- [#8](https://github.com/Gabriel-Kahen/cachy-asahi/pull/8), [#9](https://github.com/Gabriel-Kahen/cachy-asahi/pull/9), [#10](https://github.com/Gabriel-Kahen/cachy-asahi/pull/10),
+  [#14](https://github.com/Gabriel-Kahen/cachy-asahi/pull/14), and [#15](https://github.com/Gabriel-Kahen/cachy-asahi/pull/15) covered early ARM tool
+  observations, callers, and package pairs. Later integration uses the tool
+  recipes and signed ARM trials on main. The original native sources stay
+  available in this archive.
+- [#12](https://github.com/Gabriel-Kahen/cachy-asahi/pull/12), [#16](https://github.com/Gabriel-Kahen/cachy-asahi/pull/16), and [#23](https://github.com/Gabriel-Kahen/cachy-asahi/pull/23)
+  covered experimental signer, compiler, and installer transport. The
+  recorded installer container trial failed during the Docker proc mount.
+- [#18](https://github.com/Gabriel-Kahen/cachy-asahi/pull/18), [#19](https://github.com/Gabriel-Kahen/cachy-asahi/pull/19), and [#21](https://github.com/Gabriel-Kahen/cachy-asahi/pull/21) were
+  diagnostic branches for older FDK, updater, and KSM work. Later validation
+  uses the canonical FDK pair, Updater607, and KSM2.
+- [#20](https://github.com/Gabriel-Kahen/cachy-asahi/pull/20), [#24](https://github.com/Gabriel-Kahen/cachy-asahi/pull/24), and [#25](https://github.com/Gabriel-Kahen/cachy-asahi/pull/25)
+  covered archived JBIG/TIFF trials. [#13](https://github.com/Gabriel-Kahen/cachy-asahi/pull/13) carries the original
+  candidate and canonical gzip commits.
+- [#26](https://github.com/Gabriel-Kahen/cachy-asahi/pull/26), [#27](https://github.com/Gabriel-Kahen/cachy-asahi/pull/27), and [#28](https://github.com/Gabriel-Kahen/cachy-asahi/pull/28)
+  covered historical screenshot trials. The accepted region-cancel source
+  and run are recorded under `docs/reviews` on main, with later product-source
+  improvements in [#367](https://github.com/Gabriel-Kahen/cachy-asahi/pull/367) and [#496](https://github.com/Gabriel-Kahen/cachy-asahi/pull/496).
