@@ -1,13 +1,40 @@
-# Latest-tools607 Apps6 → Apps16 updater and recovery — source only
+# Cachy-Asahi branch archive
 
-This finite target inherits the accepted Six853 tools and original604 archive ledger. The signed before607 cache contains Apps6 and exactly the same other606 packages as after607. Its seven non-Apps incoming products are Doctor2, KSM2, Setup6, Welcome8, Boot1, DNS2 and Sysctl2; Runtime1 and the Asahi/platform baseline are held. Only the accepted29664-byte Apps16 archive replaces Apps6 in the copied root.
+This archive records the GitHub branch tips as observed on November 22, 2026.
+[github-branch-tips.tsv](github-branch-tips.tsv) maps each original branch name
+to its exact commit. The archive's parent history retains those commits and
+their trees. Each line starts with the commit SHA, followed by the full branch
+ref.
 
-All three original decisions remain separate: normal commits and synchronizes the checkpoint; precommit86 commits nothing; postcommit87 proves the committed after state with the old checkpoint. Whole original ALPM, ownership, signatures, auxiliary checks, checkpoint, source-preservation, original-parent retirement, independent readback, disposal and cleanup predicates remain. Typed inventory operands change only in named functions. Complete byte inverses and before/new maps accompany each case. Original nested stage1200/copy1200/normaldriver1860/faultdriver2400/verify600, owner3900 and job-owner15600/job21000 clocks remain.
+Four additional historical Actions source commits are listed in
+[historical-actions-sources.tsv](historical-actions-sources.tsv).
 
-The public1178-file namespace-corrected fresh-installer source af2f3946c5a83077c6234f618c3287ca1a873292 is a pinned SOURCE input, with no fresh/baseline acceptance. It retains complete public274 instead of the incomplete218 source. Neither that source nor the accepted Six coexistence result establishes fresh607 or Apps6-baseline607 acceptance. Both independent Root authority slots and their decision carrier remain UNBOUND. The named fresh publication is only a source identity. The runtime refuses before output creation, signing, secrets or actors until a distinct immutable successor binds genuine decisions. A newly materialized signed cache is not an accepted installed baseline.
+Fetch the archive with `git fetch origin tag archive/branches-2026-11-22`.
+Inspect any archived source with `git show <commit>` or restore its original
+branch with `git branch <branch> <commit>`. The archive tree contains the index
+only. Archived branches include experiments, refused runs, and superseded
+install candidates. Consult the original validation record before using one.
 
-Core7 automatic-hook/PID1 integration is a separate required, unqualified track. This fixed607 software target is not the final integrated system, complete port, M2 hardware validation, boot recovery or release acceptance. No native updater, fresh or baseline result has run here.
+## Historical pull requests
 
-`python3 -I -B entry.py --source-preflight` runs the closed source guard. `test_source.py` executes exactly7 non-actor groups. The registered and named workflows retain all55 original native workflow roles plus seven fixed input stages; current authority is deliberately UNBOUND. The source-held recovery wrapper's actual emitted artifact directory is used explicitly, correcting its old copy4k/recovery4k spelling mismatch without changing retention bounds.
-
-The immutable external library489, corrected fresh1176, Apps16 carrier94/native22/current606record16 and issued Six22/public991 inputs are explicit canonical disjoint paths. No collected Python is executed. Current actual selectors are NULL. Root owns publication, future bindings, dispatch, actual decisions and acceptance.
+- [#7](https://github.com/Gabriel-Kahen/cachy-asahi/pull/7) and [#11](https://github.com/Gabriel-Kahen/cachy-asahi/pull/11) used an earlier maintained
+  composition. Later signed Overlay583 and Asahi626 rehearsals are in the
+  repository's validation documentation.
+- [#8](https://github.com/Gabriel-Kahen/cachy-asahi/pull/8), [#9](https://github.com/Gabriel-Kahen/cachy-asahi/pull/9), [#10](https://github.com/Gabriel-Kahen/cachy-asahi/pull/10),
+  [#14](https://github.com/Gabriel-Kahen/cachy-asahi/pull/14), and [#15](https://github.com/Gabriel-Kahen/cachy-asahi/pull/15) covered early ARM tool
+  observations, callers, and package pairs. Later integration uses the tool
+  recipes and signed ARM trials on main. The original native sources stay
+  available in this archive.
+- [#12](https://github.com/Gabriel-Kahen/cachy-asahi/pull/12), [#16](https://github.com/Gabriel-Kahen/cachy-asahi/pull/16), and [#23](https://github.com/Gabriel-Kahen/cachy-asahi/pull/23)
+  covered experimental signer, compiler, and installer transport. The
+  recorded installer container trial failed during the Docker proc mount.
+- [#18](https://github.com/Gabriel-Kahen/cachy-asahi/pull/18), [#19](https://github.com/Gabriel-Kahen/cachy-asahi/pull/19), and [#21](https://github.com/Gabriel-Kahen/cachy-asahi/pull/21) were
+  diagnostic branches for older FDK, updater, and KSM work. Later validation
+  uses the canonical FDK pair, Updater607, and KSM2.
+- [#20](https://github.com/Gabriel-Kahen/cachy-asahi/pull/20), [#24](https://github.com/Gabriel-Kahen/cachy-asahi/pull/24), and [#25](https://github.com/Gabriel-Kahen/cachy-asahi/pull/25)
+  covered archived JBIG/TIFF trials. [#13](https://github.com/Gabriel-Kahen/cachy-asahi/pull/13) carries the original
+  candidate and canonical gzip commits.
+- [#26](https://github.com/Gabriel-Kahen/cachy-asahi/pull/26), [#27](https://github.com/Gabriel-Kahen/cachy-asahi/pull/27), and [#28](https://github.com/Gabriel-Kahen/cachy-asahi/pull/28)
+  covered historical screenshot trials. The accepted region-cancel source
+  and run are recorded under `docs/reviews` on main, with later product-source
+  improvements in [#367](https://github.com/Gabriel-Kahen/cachy-asahi/pull/367) and [#496](https://github.com/Gabriel-Kahen/cachy-asahi/pull/496).
