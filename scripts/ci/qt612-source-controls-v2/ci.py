@@ -14,7 +14,7 @@ import tempfile
 import types
 
 HERE = Path(__file__).resolve().parent
-LOCK_SHA256 = '53cab0b39f5b564a12ed179795110e4817c29e598ca0ddcd43bb0472d0e0ca50'
+LOCK_SHA256 = '83ee503f04e0e13311c38a3b3a8f7fd1742ac1cbf29ecc6a9fca6057bd6afb7e'
 PINS_SHA256 = 'd7a926b22338ab56ed246fbf17a0023b973ba741887d4ebe9dd956d0672d4afe'
 PYTHONS = ((3, 12, 13), (3, 14, 6))
 

@@ -1,5 +1,11 @@
 # Implementation and acceptance status
 
+**November 24, 2026.** [Overlay Preview 1](release/overlay-preview-1.md) makes
+five separately validated project packages available on GitHub with exact
+corresponding source and checksums. The shell overlay passed a combined
+disposable Arch install, activation, removal and reinstall. The production
+repository and physical M2 hardware validation remain open.
+
 Track current engineering follow-ups in
 [GitHub Issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues).
 The [historical execution log](backlog.md) records earlier decisions and

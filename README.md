@@ -6,11 +6,15 @@ Long-term goal: a complete maintained CachyOS-derived ARM distribution covering 
 
 Initial target: an M2 MacBook Air running Asahi Arch Linux ARM and Hyprland. The 13-inch and 15-inch models require separate hardware validation.
 
+## Download the overlay preview
+
+[Overlay Preview 1](https://github.com/Gabriel-Kahen/cachy-asahi/releases/tag/overlay-preview-1) provides Fish and Zsh configuration packages, the setup and first-login tools, and an optional Hyprland template for existing Hyprland 0.56.x installations (0.56.2 or newer). The packages contain scripts and configuration. Installation leaves your existing Asahi platform and user configuration in place. Activation is opt-in.
+
+Use the [preview guide](docs/release/overlay-preview-1.md) to verify the downloads, preview the package transaction, activate the settings, and remove them while preserving your edits. The release includes matching source and SHA-256 checksums.
+
 ## Status
 
-Implementation is underway in six coordinated workstreams: desktop packaging, shells/defaults, ARM build/validation and setup, signed releases/recovery, performance measurement, and native ARM CI. Four original configuration/setup packages, baseline capture, build inspection, release recovery and measurement tooling are implemented and locally tested. All ten selected development recipes have passed native ARM build pairs with byte-identical archives. The core package/configuration lifecycle and signed test-repository cases pass, and the 574-package upstream desktop set installs offline with an exact inventory; see [current execution and limits](docs/implementation-status.md). Target installation, a supported installer, stable release and M2 hardware validation remain unfinished. This is an independent project, not an official CachyOS or Asahi distribution.
-
-See [implementation status](docs/implementation-status.md) for the complete outline's execution gates and [coordination](docs/orchestration.md) for worker ownership. Candidate recipes and tools are development artifacts until their gates pass.
+This is an independent experimental project. The preview packages have native AArch64 build evidence and individual package or lifecycle checks. Physical validation on both M2 Air sizes, the production signed repository, and a supported installer remain open. See [implementation status](docs/implementation-status.md) for the evidence and release gates.
 
 ## First milestone
 

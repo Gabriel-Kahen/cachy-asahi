@@ -464,10 +464,10 @@
       "sha256": "3b69788477fae58fad7e483b61ec39af752622676bbe480146a79181af456d6b"
     },
     "README.md": {
-      "bytes": 4871,
+      "bytes": 4815,
       "kind": "file",
       "mode": 420,
-      "sha256": "12ecaba1ec389041f9244cb8c692b8ed73bd07ef73c7766bbe29c3d661ac3fdb"
+      "sha256": "8fbff880fc8293b4a3dc006fa2207f66a40a8ad669f4f4814cc4e646cac2c34e"
     },
     "scripts/build/build_v2.py": {
       "bytes": 13242,
