@@ -4,7 +4,16 @@
 
 Execution requires uid/euid0 inside a single-user mapped namespace or explicitly tokened disposable container, only the loopback network interface, `PATH=/usr/bin:/bin`, no loader/GPG/ALPM/pacman environment overrides, and an owner token in `CACHY_ASAHI_APPS_TRANSACTION` (32 lowercase hex digits). A real container must also be network isolated. Root paths and source parents must be canonical without aliases, and the workspace parent must be owned0700. The owner must exclude other actors from this workspace.
 
-Supply `--apps-source` pointing to the exact installed or source Apps runtime directory, its externally pinned `--apps-provenance-sha256`, and `--repository-source` for the exact three-helper runtime tree. The provenance pin binds Apps code, inventory reader, entrypoint and helper pins before import. Signed native release provenance is required for nonsynthetic releases; those transactions run only on aarch64. Synthetic any-package tests may run on x86_64 with the existing pinned ALPM ABI.
+Supply `--apps-source` pointing to a reviewed directory containing
+`source-provenance.json`, `cachy-asahi-apps`, `apps.py`, `inventory.py` and
+`helper-pins.json` side by side. Use the matching Apps recipe sources or assemble
+an exact copy of those files from the package's `bin`, `lib` and `share/doc` paths.
+Supply the externally pinned `--apps-provenance-sha256` and
+`--repository-source` for the exact three-helper runtime tree. The provenance
+pin binds Apps code, inventory reader, entrypoint and helper pins before import.
+Signed native release provenance is required for nonsynthetic releases; those
+transactions run only on aarch64. Synthetic any-package tests may run on x86_64
+with the existing pinned ALPM ABI.
 
 1. Run `prepare-copy --source SEED --workspace FRESH_WORKSPACE` with the three source options above. It refuses `/`, overlapping roots, existing workspaces, locked/malformed ALPM databases, unsupported nodes/links/auxiliaries and insufficient byte/inode capacity. The original complete copier preserves the seed and verifies the copy. The output binds the exact workspace/root inode identities, owner token and four complete before digests.
 2. Use the unchanged Apps `inventory` command against `WORKSPACE/root/var/lib/pacman`, writing outside the target root. Then use Apps' signed `plan install APP...`, `plan remove APP...`, or explicit `plan reinstall APP...` with that inventory and explicit release/catalog/keyring/signer pins. Save the original complete canonical planner JSON, including its binding and helper pins.
