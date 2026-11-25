@@ -1,4 +1,4 @@
-# #622 native JBIG and TIFF build pairs and fresh signed lifecycle
+# #622 native JBIG and TIFF builds and signed lifecycle
 
 On November 25, 2026, the hosted lane at
 `ea225d8e9b0aee46ae2b93aca022b5a94b6d0956`, attempt 1, passed both
@@ -65,6 +65,75 @@ private runner cache. Docker daemon build-cache retirement is unverified.
 The run published bounded metadata and hashes in its job log and uploaded
 zero Actions artifacts.
 
+## Historical provider replacement and restoration on native ARM64
+
+On November 25, 2026, attempt 1 of the hosted migration lane completed
+successfully at selected caller and reusable-workflow revision
+`3baa5a9054201ca68580fa889ecbdcb3147ac6b6`. The
+`project-libraries-migration` dispatch selected `native-migration` and
+skipped the unrelated native job. One GitHub-hosted Linux AArch64 runner
+with 4,096-byte pages ran both offline build pairs, repeated the fresh
+signed lifecycle, and performed the historical transaction in a separate
+offline Minimal206 container.
+[Run 45711465597](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45711465597)
+· [Pair and migration job 139550733936](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45711465597/job/139550733936)
+
+The job reverified the same Minimal206 producer and inputs, three official
+codec signatures, and exact recipe tree recorded above. Both native pairs
+were byte-identical and matched the archive sizes and SHA-256 hashes above.
+The migration staged those exact archives from the same job and signed
+them with disposable TEST signer
+`A3FD2561711389C71E9C0B77D310A1AA285B41F6`.
+The historical carrier ref `refs/heads/native622-historical-r1` pinned
+parentless commit `564f5c74b11b73eb43fe6b1879412c82ade3e6be` and tree
+`96812687497a5f7674136b187a6a56300781bbe7`. It contained exactly the
+three original archives and their detached signatures. The job verified
+all three with the pinned ALARM keyring. Independent local verification
+extracted those six blobs from the pinned Git commit, hashed them, and
+confirmed all three signatures with `gpgv` against the pinned keyring
+and primary signer `68B3537F39A313B3E574D06777193F152BDBE6A6`.
+
+| Original ALARM package | Archive SHA-256 | Detached signature SHA-256 |
+| --- | --- | --- |
+| `jbigkit 2.1-8` | `ecaddb099f4a1f1bcbc1497fd0f3dc98581552b9eacaa17c5568211c38bec1db` | `f00be593f9ab5855f9e450d054e6cacd319ec834ef7fc97c51bcf3be3ebfdb1f` |
+| `libtiff 4.7.2-1` | `02a5d2d74019b39befd6cf63d9bde95a2d16f91b4d0d56939498375e0e491ffd` | `8dae1efda531e3ac7db09512cfe0c619eaae6787cc16fdea1315588b4fc340fa` |
+| `lcms2 2.19.1-1` | `5f93d01820b4e1a463f3cb11e19916bb3761b4faca20d4e1f0854329ba3f46f8` | `3e35d43d7cd15dc360e2c250b32610f97330b239ba30d2917d6998c1d337dd5c` |
+
+Pacman required package signatures, skipped scriptlets, and ran with the
+builder hook masks in place. One transaction replaced both original
+providers and one transaction restored them with `lcms2` installed
+throughout. All four exact inventory and database checks passed. The
+independent observer recomputed the four hashes from the selected
+revision's Minimal206 lock and the explicit historical and project package
+sets. The hashes matched both the native receipt and the emulated fixture.
+
+| Checkpoint | Packages | SHA-256 of sorted inventory |
+| --- | ---: | --- |
+| Minimal206 | 206 | `303cb32db7378e2cdd5d7645df1dc1f5e7a30fc9ea588f0d2867eede21127e66` |
+| Historical providers and consumer | 212 | `9203a23bef9d2a8ba4eb9135536d146ae8a8d89b936072e89851c91afde6cd87` |
+| Project providers and unchanged consumer | 212 | `abbc68dd92b0324962fb309f848bad485f745368fd769516fcf4300aef0283e4` |
+| Historical providers restored | 212 | `9203a23bef9d2a8ba4eb9135536d146ae8a8d89b936072e89851c91afde6cd87` |
+
+All three provider checkpoints passed ownership, SONAME and loader
+checks, a 32×4 JBIG/TIFF roundtrip, and a 2×2 RGB TIFF conversion with the
+unchanged `tificc`. All four installed project library hashes matched
+the hosted payload receipts. The restored original library and consumer
+hashes matched the first historical checkpoint, and project-only SONAMEs
+and source bundle entry points were absent.
+[Disposable migration driver](../../scripts/ci/project-libraries-native/migration622.sh)
+
+The terminal receipt reports `NATIVE_BUILD_PAIRS_AND_HISTORICAL_MIGRATION_PASSED`
+and migration log SHA-256
+`36552de4f8393e7f4a0d171cb3f1eac4d49fe343efb86bfbb93a21f2e1aa708f`.
+Both private runner caches were retired. The job verified absence of its
+scoped containers and builder images, including the imported rootfs
+image. Docker daemon build-cache retirement remains unverified. The
+independent observer watched the run to successful completion and verified
+both retirement acknowledgments and zero uploaded Actions artifacts.
+The local signature check removed its temporary extracted archives,
+signatures, and dearmored keyring. The retained public job log has SHA-256
+`881f8f269ea095e3e08fb9f4cd2f8d0ca298b434b1d98baa600803de813d743b`.
+
 ## Historical providers on a reduced emulated fixture
 
 A separate local, offline AArch64 QEMU user-mode fixture ran with 4,096-byte
@@ -88,33 +157,23 @@ The hosted receipt exposes archive and ELF hashes and the builder
 inventory hash. Raw hosted PKGINFO and BUILDINFO bytes were unavailable for
 a direct metadata comparison.
 
-| Checkpoint | Packages | SHA-256 of sorted inventory |
-| --- | ---: | --- |
-| Minimal206 | 206 | `303cb32db7378e2cdd5d7645df1dc1f5e7a30fc9ea588f0d2867eede21127e66` |
-| Historical providers and consumer | 212 | `9203a23bef9d2a8ba4eb9135536d146ae8a8d89b936072e89851c91afde6cd87` |
-| Project providers and unchanged consumer | 212 | `abbc68dd92b0324962fb309f848bad485f745368fd769516fcf4300aef0283e4` |
-| Historical providers restored | 212 | `9203a23bef9d2a8ba4eb9135536d146ae8a8d89b936072e89851c91afde6cd87` |
-
-One signed transaction replaced both original providers together. A second
-transaction restored both. All three provider checkpoints passed the
-package database and file checks, loader resolution, the 32×4 TIFF/JBIG
-codec roundtrip and a 2×2 RGB TIFF conversion with the unchanged
-`lcms2` `tificc`. The four installed project shared libraries matched
-the hosted ELF hashes. After restoration, the original library and
-consumer file hashes matched the first checkpoint, and stale project
-SONAMEs and source bundle entry points were absent.
-[Disposable migration driver](../../scripts/ci/project-libraries-native/migration622.sh)
+The emulated transaction and restoration passed the same four inventories
+listed above. All three provider checkpoints passed database and file
+checks, loader resolution, the TIFF/JBIG roundtrip, and the unchanged
+`tificc` conversion. The four installed project library hashes matched
+the hosted ELF hashes. On restoration, the original library and consumer
+hashes matched their initial values and project-only paths were absent.
 
 ## Remaining qualification
 
-The native migration option needs the newly rebuilt, exact hosted TIFF
-archive in the same job that runs the transaction. The original providers
-and representative consumer are available through the separate pinned
-historical carrier. The emulated fixture qualifies the exact historical
-provider pair against the recorded local TIFF archive on the reduced
-inventory. Qualification on the intended maintenance composition still
-depends on reviewing that composition and its installed consumers before
-running the replacement and restoration there.
+The passed native gate covers the reduced Minimal206 fixture with the
+pinned historical providers, three codecs and the single installed
+reverse consumer `lcms2`. For the intended maintenance composition,
+pin the selected signed inventory and identify its installed direct and
+transitive consumers. Verify provider resolution, package conflicts and
+ABI compatibility there, exercise the installed consumers before and
+after replacement, and verify restoration of the original inventory and
+payloads. Evaluation on that composition remains open.
 [Historical reverse-consumer evidence](../workstreams/maintained-reverse-consumer-migration-impact.md)
 
 Native 16 KiB execution, physical M2 Air testing, production trust, and

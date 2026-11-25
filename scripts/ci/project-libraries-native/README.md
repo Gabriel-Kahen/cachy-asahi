@@ -167,7 +167,8 @@ Daemon build-cache retirement is unverified.
 The disposable test uses the exact old JBIG and TIFF providers, signed
 `lcms2 2.19.1-1`, and the three verified codec packages. It replaces both
 old providers in one transaction and restores both in one transaction with
-the consumer installed throughout. [Emulated result and native boundary](../../../docs/validation/project-libraries-native-20261125.md#historical-providers-on-a-reduced-emulated-fixture)
+the consumer installed throughout. [Native migration result](../../../docs/validation/project-libraries-native-20261125.md#historical-provider-replacement-and-restoration-on-native-arm64)
+· [Emulated fixture result](../../../docs/validation/project-libraries-native-20261125.md#historical-providers-on-a-reduced-emulated-fixture)
 
 The native option fetches a separate parentless six-file carrier from the
 same private repository with the existing read-only
@@ -178,14 +179,14 @@ basenames under `alarm-cache/`.
 | --- | --- | --- |
 | `refs/heads/native622-historical-r1` | `564f5c74b11b73eb43fe6b1879412c82ade3e6be` | `96812687497a5f7674136b187a6a56300781bbe7` |
 
-After publishing the separate private ref, select `lane=native-migration`
-when using the standalone registered workflow. On a reviewed
-`native-arm-build.yml` caller, add a `project-libraries-migration` mode
-that selects `lane=native-migration` and excludes the unrelated native job.
-The reusable job authenticates the two carriers in separate steps, rebuilds
-both package pairs, and consumes the passing exact archives inside the
-same job. It runs the fresh lifecycle first, then uses a new disposable
-instance of Minimal206 for the old-provider migration.
+Run 45711465597 used the published private ref and the reviewed caller at
+`3baa5a9054201ca68580fa889ecbdcb3147ac6b6`. The caller's
+`project-libraries-migration` mode selects `lane=native-migration` and
+skips the unrelated native job. The reusable job authenticates the two
+carriers in separate steps, rebuilds both package pairs, and consumes the
+exact passing archives inside the same job. It runs the fresh lifecycle
+first, then uses a new disposable Minimal206 container for the historical
+replacement and restoration.
 
 ```sh
 gh workflow run native-arm-build.yml \
