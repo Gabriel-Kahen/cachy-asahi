@@ -2,6 +2,7 @@
 """Local, no-engine controls for the #622 intake, signature and cleanup boundaries."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -179,6 +180,75 @@ class BuilderTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "same scoped container"):
                     scope.retire()
                 self.assertEqual(call.call_count, 2)
+
+    def test_build_pair_real_driver_can_launch_and_handle_timeout(self):
+        image = "sha256:" + "a" * 64
+        for timeout in (False, True):
+            with self.subTest(timeout=timeout), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                scope = build622.DockerScope(root)
+                scope.images["minimal206"] = image
+                recipe = root / "recipes/jbigkit"
+                recipe.mkdir(parents=True)
+                fixture = b"fixture"
+                (recipe / "fixture").write_bytes(fixture)
+                pkgbuild = recipe / "PKGBUILD"
+                pkgbuild.write_text(
+                    "pkgname=fixture\npkgver=1\npkgrel=1\narch=(aarch64)\nlicense=(MIT)\n"
+                    f"source=(fixture)\nsha256sums=({hashlib.sha256(fixture).hexdigest()})\n"
+                )
+                hashes = {path.name: build622.sha(path) for path in recipe.iterdir()}
+                (recipe.parent / "jbigkit-reviewed-inputs.json").write_text(json.dumps(hashes))
+                lock = root / "expected206.lock"
+                lock.write_text("fixture 1-1\n")
+                captures = [json.dumps([{"Id": image, "Architecture": "arm64", "Os": "linux"}]), "aarch64"]
+
+                def run(argv, **options):
+                    name, = scope.names
+                    self.assertRegex(name, r"^cachy-asahi-[0-9a-f]{16}$")
+                    output = root / "jbigkit-1"
+                    self.assertEqual(argv, [
+                        build622.DOCKER, "--config", str(scope.config), "--host", "unix:///run/docker.sock",
+                        "run", "--rm", "--name", name, "--label", f"{build622.LABEL}={scope.nonce}",
+                        "--memory-swap=4g", "--pull=never", "--platform", "linux/arm64",
+                        "--user", f"{os.getuid()}:{os.getgid()}", "--cap-drop=ALL",
+                        "--security-opt=no-new-privileges", "--read-only", "--pids-limit", "512",
+                        "--memory", "4g", "--cpus", "4", "--network", "none", "--tmpfs",
+                        "/tmp:rw,nosuid,nodev,exec,size=4g", "--env", "CACHY_ASAHI_CONTAINER=1",
+                        "--env", f"SOURCE_DATE_EPOCH={build622.EPOCH['jbigkit']}",
+                        "--mount", f"type=bind,src={output / 'inputs'},dst=/inputs,readonly",
+                        "--mount", f"type=bind,src={output / 'artifacts'},dst=/out",
+                        "--mount", f"type=bind,src={build622.BUILD / 'container-entry-v2.sh'},dst=/builder-entry.sh,readonly",
+                        "--mount", f"type=bind,src={output / 'expected-packages.lock'},dst=/expected-packages.lock,readonly",
+                        "--entrypoint", "/bin/bash", image, "/builder-entry.sh",
+                    ])
+                    self.assertEqual(options["timeout"], 900)
+                    self.assertEqual(options["stderr"], subprocess.STDOUT)
+                    options["stdout"].write(b"docker reached\n")
+                    if timeout:
+                        raise subprocess.TimeoutExpired(argv, options["timeout"])
+                    return subprocess.CompletedProcess(argv, 2)
+
+                def owned():
+                    name, = scope.names
+                    return iter([{"Name": "/" + name}])
+
+                with (patch.object(scope, "build_v2_capture", side_effect=captures),
+                      patch.object(scope, "owned_containers", side_effect=owned),
+                      patch.object(scope, "remove_container") as remove,
+                      patch("build622.subprocess.run", side_effect=run) as executed):
+                    with self.assertRaisesRegex(ValueError, "jbigkit isolated build 1"):
+                        build622.build_pair(scope, "jbigkit", image, lock, root)
+                    self.assertEqual(executed.call_count, 1)
+                    if timeout:
+                        remove.assert_called_once_with({"Name": "/" + next(iter(scope.names))})
+                    else:
+                        remove.assert_not_called()
+                self.assertEqual((root / "jbigkit-1/build.log").read_bytes(), b"docker reached\n")
+                report = json.loads((root / "jbigkit-1/provenance.json").read_text())
+                self.assertEqual(report["status"], "failed")
+                expected = "builder timeout" if timeout else "container build exited 2"
+                self.assertIn(expected, report["error"])
 
     def test_existing_build_runner_receives_nonce_label_and_swap_limit(self):
         with tempfile.TemporaryDirectory() as temporary:

@@ -279,6 +279,7 @@ def build_pair(docker, name, image, lock, scratch):
     recipe = scratch / "recipes" / name
     builder = load(BUILD / "build_v2.py", "_native622_build_v2")
     builder.subprocess = SimpleNamespace(check_output=docker.build_v2_capture, run=docker.build_v2_run,
+                                         STDOUT=subprocess.STDOUT, DEVNULL=subprocess.DEVNULL,
                                          TimeoutExpired=subprocess.TimeoutExpired,
                                          SubprocessError=subprocess.SubprocessError)
     paths = []
