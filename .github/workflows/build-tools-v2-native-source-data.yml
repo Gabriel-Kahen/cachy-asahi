@@ -3,11 +3,13 @@ on:
   pull_request:
     paths:
       - 'scripts/ci/build-tools-v2-native-source/**'
+      - 'scripts/workflows/developer_workflow.py'
       - '.github/workflows/build-tools-v2-native-source-data.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/ci/build-tools-v2-native-source/**'
+      - 'scripts/workflows/developer_workflow.py'
       - '.github/workflows/build-tools-v2-native-source-data.yml'
 permissions:
   contents: read

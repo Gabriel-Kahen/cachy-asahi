@@ -229,8 +229,8 @@ class SelectionTests(unittest.TestCase):
 
     def test_sparse_selector_checkout_keeps_dependency_and_workflow_inputs(self):
         workflows = HERE.parents[2] / '.github/workflows'
-        names = ('full-port-workflows', 'parallel-development-tools')
-        patterns = ['*.py', '/scripts/ci/component_selection/', '/.github/workflows/static.yml']
+        names = ('static', 'full-port-workflows', 'parallel-development-tools')
+        patterns = ['*.py', '/scripts/ci/component_selection/']
         patterns.extend(f'/.github/workflows/{name}.yml' for name in names)
         for name in names:
             with self.subTest(name=name):

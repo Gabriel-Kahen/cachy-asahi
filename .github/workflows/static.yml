@@ -1619,6 +1619,15 @@ jobs:
           persist-credentials: false
           fetch-depth: 2
           fetch-tags: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          # Keep reviewed Python sources and the workflow files read by the selector tests.
+          sparse-checkout: |
+            *.py
+            /scripts/ci/component_selection/
+            /.github/workflows/static.yml
+            /.github/workflows/full-port-workflows.yml
+            /.github/workflows/parallel-development-tools.yml
       - name: Check selector failure and coverage controls
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_select.py
