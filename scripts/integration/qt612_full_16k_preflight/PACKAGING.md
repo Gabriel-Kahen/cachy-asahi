@@ -2,7 +2,9 @@
 
 This handoff starts after independent full-build readback and host retirement.
 The source preflight can stage an unissued packaging plan and its guest
-worker. Packaging, signing, installation and rollback remain `NOT_RUN`.
+worker. A separate boot payload and offline reader define the package
+guest boundary. Packaging, signing, installation and rollback remain
+`NOT_RUN`.
 
 ## Assemble from the completed build
 
@@ -90,16 +92,30 @@ remain independent runner inputs.
 | `created_utc`, `expires_utc` | Current entry window, with a maximum length of one hour |
 | `makepkg_configuration` | Original Q3 `/etc/makepkg.conf` whole pin in `main`, exact private map of `*.conf` drop-in pins in `dropins` |
 
-A package launcher can reuse the [full-target site owner](full_site.py)
-for exact CID creation, scoped attachment, emergency cleanup and
-post-scope observation. Give it a distinct role, attempt directory,
-staging and storage mounts, scope, actor and cancellation budget.
-Its guest init must bind the boot and selected child, install the exact
-stage and selection at `/qtmedia/packaging`, and provide a bounded uptime
-deadline. Keep the package output in a separate owned result carrier
-with bounds for one unsigned archive, the stage contract and complete
-private command streams. A package actor and its independent host and
-guest result readback are still required for a live trial.
+The [execution adapter](package_execution.py) checks a current external
+selection and derives the exact QEMU arguments, resource limits, boot
+payload pins and separate `QT16K_PKG` result carrier. Its `boot_bundle()`
+returns the actual payload bytes to an owned provisioner. The
+[package PID 1](package-guest-init.sh) validates the sealed boot and
+virtio media, reuses the full-build storage helpers, and exposes the
+package plan at `/qtmedia/packaging` read-only. It caps each retained
+command stream, the stage contract, and the single unsigned archive.
+
+The remaining host adapter needs role-aware create, inspect, attach,
+recovery and retirement callbacks in the [existing site owner](full_site.py).
+Provision the new nested boot payload from the pinned template, using a
+fresh PARTUUID and separately formatted ext4 result. Reuse the runner's
+tool pins, allocation watcher and bounded process capture. Verify the
+five-node backing chain, container mount modes, actor exit, result fsck,
+and exact CID retirement. The adapter emits no host authority. The
+historic full-build source and its launch scope keep their original pins.
+
+The [offline reader](package_result.py) takes the staged plan and exact
+external SHA-256s for the original selection, QEMU serial and result image.
+It checks one scoped terminal, the bounded ext4 namespace, the command
+receipts and the unsigned archive pin. It reads the archive hash without
+extracting the archive. A host retirement receipt and clean fsck remain
+separate requirements for subsequent signing.
 
 The worker checks the exact completed build's 18 library bodies and
 aliases, final Ninja log, configuration and local recipe inputs before

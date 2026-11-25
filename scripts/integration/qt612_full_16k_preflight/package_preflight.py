@@ -134,7 +134,7 @@ def prepare(args):
     C.need(checks["PKGBUILD"] == original, "Packaged recipe must derive from the exact Q3 build recipe")
     plan = dict(kind=W.PLAN_KIND, authority=None, scope=W.SCOPE, nonce=args.nonce,
                 source_build_nonce=old_nonce, source_evidence=evidence, readonly_media=readonly, q3=q3refs,
-                fresh_child=dict(path="/out/package-overlay.qcow2", backing="/inputs/complete.qcow2",
+                fresh_child=dict(path="/out/overlay.qcow2", backing="/inputs/complete.qcow2",
                                  backing_format="qcow2", storage="fresh-writable-child-only"),
                 worker=W.worker_contract(sidecar, R.G, deps, files, completed),
                 expected_archive=W.archive_contract(files["recipe/PKGBUILD"]),
