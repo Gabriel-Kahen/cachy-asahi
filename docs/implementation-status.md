@@ -6,6 +6,11 @@ corresponding source and checksums. The shell overlay passed a combined
 disposable Arch install, activation, removal and reinstall. The production
 repository and physical M2 hardware validation remain open.
 
+**November 25, 2026.** The original November 22 QtGui run passed independent
+readback with the corrected ELF reader. It linked QtGui and QtDBus in the
+pinned 356-package emulated AArch64 16 KiB guest and preserved QtCore. Full Qt
+build and installation remain open. [QtGui evidence](validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
+
 Track current engineering follow-ups in
 [GitHub Issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues).
 The [historical execution log](backlog.md) records earlier decisions and

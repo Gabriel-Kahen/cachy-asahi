@@ -380,6 +380,16 @@ and Python `3.14.7-1`. Python `3.14.8-1` and Perl `5.42.3-1` still need the
 historical workunit or final build-time recipe. The original Git snapshots and
 their separate digest results remain available for comparison.
 
+The November 25 replay verified both detached package signatures and
+recovered the same four recipes. The current public workunits contain newer
+versions, and the retained files and public archive indexes returned no exact
+match for the two build-time digests below.
+
+| Signed package | Required build-time `PKGBUILD` SHA-256 |
+| --- | --- |
+| Python `3.14.8-1` | `b694b720c69f90803d20da64413f0573f61ea8582f20a09865ff91e1350196c0` |
+| Perl `5.42.3-1` | `c2baa2348228937f72de62581cca687039a976ac2cef93928ee3909b18fa6ed7` |
+
 Add optional `build_inputs` rows to the same configuration when the builder
 provides bytes. Use `kind: final-pkgbuild` for the exact post-checksum
 `PKGBUILD` or `kind: workunit` for the original gzip tar containing

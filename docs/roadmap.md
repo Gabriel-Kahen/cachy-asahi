@@ -17,12 +17,14 @@ maintenance rehearsal. The Asahi proposal remains unapproved.
 · [Asahi maintenance](validation/asahi626-maintenance-emulated-arm16k-20261118.md)
 
 Qtbase passed dependency installation and configure in emulated 16 KiB AArch64.
-The Markdown importer compiled and the QtCore shared library linked.
-Full Qt build validation, selection of the supported Asahi composition,
+QtCore and QtGui linked, and the QtGui reader verified the dynamic relocation
+to the pinned system md4c provider. Full Qt build and installation, selection
+of the supported Asahi composition,
 installed Asahi kernel boot and recovery, both physical M2 Air sizes and
 production release promotion remain open.
 [Qtbase validation](validation/qtbase612-emulated-arm16k-configure-20261118.md)
 · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md)
+· [QtGui link](validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
 · [Implementation status](implementation-status.md)
 
 ## Five required workstreams

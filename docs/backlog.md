@@ -9,7 +9,9 @@ and [acceptance.md](acceptance.md) defines the milestone gates.
 
 [Overlay Preview 1](release/overlay-preview-1.md) is published with five
 architecture-independent packages and matching source. The preview guide
-records the tested shell lifecycle and the limits of that release.
+records the tested shell lifecycle and the limits of that release. A
+[local TEST-signed pair](validation/b08-b09-signed-staging-20261125.md) changed
+only the Fish package and exercised staging, comparison and withdrawal.
 
 - The current native library and kernel work is tracked in
   [#622](https://github.com/Gabriel-Kahen/cachy-asahi/issues/622) and

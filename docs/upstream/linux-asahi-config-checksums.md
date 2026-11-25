@@ -6,6 +6,11 @@ NOT MERGED**, with one changed file and two checksum replacements. This is an
 actual upstream contribution required by `outline.md` section 9; it does not
 accept the platform, kernel build, hardware, performance or complete port.
 
+The maintainer closed PR #99 after applying the two checksum corrections
+in [upstream main](https://github.com/asahi-alarm/PKGBUILDs/commit/16d7033c36d72194254c31b0bbad6b97f448dff0).
+A November 25 readback rehashed the 240,666-byte config at that commit
+and matched both corrected checksums.
+
 The config update at `b6c99b08e5f6d9bad8e23b88db69570436471961` retained stale
 SHA-256 and BLAKE2 entries in `linux-asahi/PKGBUILD`. Fresh primary API queries
 and a clean upstream checkout confirmed the mismatch remained present at main
