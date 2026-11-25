@@ -244,7 +244,8 @@ class ELF:
                 harness.need(off + filesz <= self.size and filesz <= memsz and va + memsz <= 2**64 and pa + memsz <= 2**64,
                              'ELF segment range invalid')
                 if ptype == 1:
-                    harness.need(align >= 4096, '16K ELF load geometry/permissions required; WX refused [ALIGN_MIN]')
+                    minimum_alignment = 4096 if kernel_image else 16384
+                    harness.need(align >= minimum_alignment, '16K ELF load geometry/permissions required; WX refused [ALIGN_MIN]')
                     harness.need(align & (align - 1) == 0, '16K ELF load geometry/permissions required; WX refused [ALIGN_POWER_TWO]')
                     harness.need(va % align == off % align, '16K ELF load geometry/permissions required; WX refused [VA_ALIGN]')
                     harness.need(pa % align == off % align, '16K ELF load geometry/permissions required; WX refused [PA_ALIGN]')

@@ -379,6 +379,9 @@ class BuildChecks(unittest.TestCase):
             with self.subTest(alignment=alignment):
                 path.write_bytes(original); self.mutate(path,112,'<Q',alignment)
                 self.assertEqual(self.verify(build)['status'], 'BUILD_OUTPUT_STRUCTURE_VERIFIED')
+                if alignment < 16384:
+                    with self.assertRaisesRegex(ValueError, 'ALIGN_MIN'):
+                        verifier.ELF(path, 3, 4 * 1024**3)
         for field in (80, 88):
             with self.subTest(field=field):
                 path.write_bytes(original); self.mutate(path,112,'<Q',4096)
