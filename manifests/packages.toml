@@ -179,6 +179,11 @@ prior_setup7_native_build = "PASS0.1.0-7 Root-accepted native pair40438301356: b
 prior_setup7_native_build_commit = "9946417aaa22cd4a5aeb0db6dc422396aa031f4d"
 prior_setup7_native_evidence = "docs/validation/setup7-status-native-20261027.md"
 prior_setup7_installation = "PASS0.1.0-7 unsigned generic aarch64/4096 disposable lifecycle40438301356:8+6 transitions,24 observations,6 recovery+19 status cases/0 installed skips; source-enforced preservation and receipt-only cleanup"
+successor_candidate_version = "0.3.1-1"
+successor_recipe = "packages/tools/cachy-asahi-setup8-v2/PKGBUILD"
+successor_host_evidence = "packages/tools/cachy-asahi-setup8-v2/README.md"
+successor_native_build = "NOT RUN"
+successor_installation = "NOT RUN"
 
 [[packages]]
 name = "cachy-asahi-ksmctl"
@@ -211,6 +216,7 @@ selected_for_development = true
 selected_for_release = false
 candidate_version = "4.4.2-3"
 source_validation = "PASS patched-source, optional Check failures and native adapter preflight on the pinned 354-package inventory"
+source_validation_evidence = "docs/validation/updater-442-3-preflight-20261125.md"
 native_build = "NOT RUN"
 historical_native_build_version = "4.4.2-2"
 historical_native_build = "PASS native build pair, signed disposable installation and seven Check/refusal cases"
