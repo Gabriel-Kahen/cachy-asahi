@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import platform
 import signal
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -35,6 +36,34 @@ def receipt():
 
 
 class StageTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        checkout = Path(__file__).resolve().parents[2]
+        release_helpers = ('scripts/release/release.py', 'scripts/release/test_release.py')
+        cls.source = checkout
+        if all(s.digest(s.read(checkout / name)) == s.FROZEN[name] for name in release_helpers):
+            return
+
+        held = os.environ.get('FROZEN_CLIENT_RELEASE_HELPERS')
+        temporary = tempfile.TemporaryDirectory(prefix='client-stage-frozen-source-')
+        cls.addClassCleanup(temporary.cleanup)
+        cls.source = Path(temporary.name)
+        for name in (*s.FROZEN, 'scripts/client/stage.py', 'scripts/ci/source_suites.py',
+                     'scripts/port/refreshed-desktop/proposed-builder-inventory.lock'):
+            if name not in release_helpers:
+                data = s.read(checkout / name)
+            elif held:
+                data = s.checked(Path(held) / name, s.FROZEN[name])
+            else:
+                # Use the last main revision carrying the frozen helper pair.
+                revision = '565e10bfe7ef00b0528881dfba08e0f0fe50721c'
+                data = subprocess.check_output(['git', '-C', str(checkout), 'show', f'{revision}:{name}'], timeout=10)
+            target = cls.source / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+        stage_sha = s.digest(s.read(checkout / 'scripts/client/stage.py'))
+        s.source_pins(cls.source, stage_sha, s.GUARD_SHA)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='client-stage-portable-')
         self.addCleanup(self.temp.cleanup)
@@ -72,7 +101,7 @@ class StageTests(unittest.TestCase):
             with self.assertRaises(ValueError):s.inventory(wrong)
 
     def test_bootstrap_actual_inventory_and_image_binding(self):
-        lock = Path('scripts/port/refreshed-desktop/proposed-builder-inventory.lock').read_bytes()
+        lock = (self.source / 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock').read_bytes()
         value = {'status': 'image-provisioned', 'image_id': IMAGE, 'inputs_sha256': s.INPUTS_SHA,
                  'packages_lock_sha256': s.PACKAGES_SHA}
         self.assertEqual(s.bootstrap(json.dumps(value).encode(), lock, IMAGE), value)
@@ -81,7 +110,7 @@ class StageTests(unittest.TestCase):
             with self.assertRaises(ValueError):s.bootstrap(json.dumps(changed).encode(), lock, IMAGE)
 
     def test_frozen_sources_rechecked_and_guard_is_fixed(self):
-        root = Path(__file__).resolve().parents[2]
+        root = self.source
         files, pins = s.source_pins(root, hashlib.sha256(s.read(root / 'scripts/client/stage.py')).hexdigest(), s.GUARD_SHA)
         self.assertEqual(len(files), 7)
         self.assertEqual({k: pins[k] for k in s.FROZEN}, s.FROZEN)
@@ -89,7 +118,7 @@ class StageTests(unittest.TestCase):
         with self.assertRaises(ValueError):s.source_pins(root, '0' * 64, '0' * 64)
 
     def test_source_delivery_is_required_checked_worker_source(self):
-        root = Path(__file__).resolve().parents[2]
+        root = self.source
         stage_sha = s.digest(s.read(root / 'scripts/client/stage.py'))
         files, pins = s.source_pins(root, stage_sha, s.GUARD_SHA)
         helper = 'scripts/release/source_delivery.py'
@@ -108,7 +137,7 @@ class StageTests(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):s.source_pins(self.root, stage_sha, s.GUARD_SHA)
 
     def test_release_helper_pair_pins_reject_byte_drift(self):
-        root = Path(__file__).resolve().parents[2]
+        root = self.source
         stage_sha = s.digest(s.read(root / 'scripts/client/stage.py'))
         files, pins = s.source_pins(root, stage_sha, s.GUARD_SHA)
         for name, data in files.items():
@@ -279,7 +308,7 @@ class StageTests(unittest.TestCase):
         boot = self.root / 'bootstrap.json'
         boot.write_text(json.dumps({'status': 'image-provisioned', 'image_id': IMAGE,
                         'inputs_sha256': s.INPUTS_SHA, 'packages_lock_sha256': s.PACKAGES_SHA}))
-        source = Path(__file__).resolve().parents[2]
+        source = self.source
         args = argparse.Namespace(image=IMAGE, bootstrap=boot, bootstrap_sha256=s.digest(boot.read_bytes()),
                     packages=source / 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock',
                     packages_sha256=s.PACKAGES_SHA, source=source,

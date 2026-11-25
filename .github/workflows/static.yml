@@ -621,6 +621,7 @@ jobs:
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         env:
           PYTHONDONTWRITEBYTECODE: '1'
+          FROZEN_CLIENT_RELEASE_HELPERS: ${{ github.workspace }}/.ci-inputs/apps-package-release
         run: |
           python3 -B - <<'PY'
           import importlib.util, tempfile, unittest
