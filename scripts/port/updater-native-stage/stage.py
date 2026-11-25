@@ -258,6 +258,10 @@ def disk_check(root,expected_identity=None):
         raise error
     def mismatch(actual,before):
         return next(name for name,a,b in zip(('DEVICE','INODE','OWNER','MODE'),identity(actual),identity(before)) if a!=b)
+    def same_directory_identity(actual, before, depth):
+        # Copying can change descendant modes. Check each observed mode separately.
+        current, original = identity(actual), identity(before)
+        return current == original if depth == 0 else current[:3] == original[:3]
     def directory(info):
         need(stat.S_ISDIR(info.st_mode) and info.st_uid==os.getuid(),'private-directory-owner')
         need(info.st_mode & 0o500==0o500 and not info.st_mode & 0o7022,'private-directory-permission')
@@ -270,17 +274,18 @@ def disk_check(root,expected_identity=None):
             need(not Path(os.fsdecode(name)).is_relative_to(root),'private-nested-mount')
     def validate(parent,name,fd,before,depth):
         opened=os.fstat(fd);directory(opened)
-        if not identity(opened)==identity(before):
+        if not same_directory_identity(opened,before,depth):
             refuse('OPEN_FD_IDENTITY',depth,lambda:mismatch(opened,before))
         try:current=os.stat(name,dir_fd=parent,follow_symlinks=False)
         except FileNotFoundError:
             if not (depth>0 and opened.st_nlink==0):
                 refuse('ROOT_PATH_MISSING' if depth==0 else 'LINKED_CHILD_PATH_MISSING',depth,'NONE')
             return False
-        matched=identity(current)==identity(before)
+        matched=same_directory_identity(current,before,depth)
         if not (matched and stat.S_ISDIR(current.st_mode)):
             refuse('PATH_IDENTITY' if not matched else 'PATH_NOT_DIRECTORY',depth,
                    (lambda:mismatch(current,before)) if not matched else 'TYPE')
+        directory(current)
         return True
     def walk(parent,name,fd,before,prefix,depth):
         nonlocal count,size

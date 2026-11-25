@@ -1420,11 +1420,13 @@ class DiskCheckTests(unittest.TestCase):
         return observe
 
 
-    def test_directory_leaf_all_original_sites_and_components_close_every_fd(self):
-        proposal = [('OPEN_FD_IDENTITY', ('ROOT', 'DESCENDANT'), ('DEVICE', 'INODE', 'MODE')),
+    def test_directory_leaf_identity_mismatches_close_every_fd(self):
+        proposal = [('OPEN_FD_IDENTITY', ('ROOT',), ('DEVICE', 'INODE', 'MODE')),
+                    ('OPEN_FD_IDENTITY', ('DESCENDANT',), ('DEVICE', 'INODE')),
                     ('ROOT_PATH_MISSING', ('ROOT',), ('NONE',)),
                     ('LINKED_CHILD_PATH_MISSING', ('DESCENDANT',), ('NONE',)),
-                    ('PATH_IDENTITY', ('ROOT', 'DESCENDANT'), ('DEVICE', 'INODE', 'OWNER', 'MODE')),
+                    ('PATH_IDENTITY', ('ROOT',), ('DEVICE', 'INODE', 'OWNER', 'MODE')),
+                    ('PATH_IDENTITY', ('DESCENDANT',), ('DEVICE', 'INODE', 'OWNER')),
                     ('PATH_NOT_DIRECTORY', ('ROOT', 'DESCENDANT'), ('TYPE',)),
                     ('CHILD_OPEN_REAPPEARED', ('DESCENDANT',), ('NONE',))]
         cases = 0
@@ -1442,7 +1444,90 @@ class DiskCheckTests(unittest.TestCase):
                         for fd in acquired:
                             with self.assertRaises(OSError): os.fstat(fd)
                         cases += 1
-        self.assertEqual(cases, 19)
+        self.assertEqual(cases, 17)
+        for check in ('OPEN_FD_IDENTITY', 'PATH_IDENTITY'):
+            historical = {'availability': 'OBSERVED', 'check': check,
+                          'scope': 'DESCENDANT', 'component': 'MODE'}
+            self.assertEqual(stage.directory_leaf_projection(historical), historical)
+
+    def scan_during_chmod(self, leaf, window, mode):
+        original_mode = stat.S_IMODE(leaf.stat().st_mode)
+        real_open, real_stat, real_fstat = os.open, os.stat, os.fstat
+        initial_stat = descriptor_stat = changed = False
+        opened_fd = None
+
+        def chmod():
+            nonlocal changed
+            leaf.chmod(mode)
+            changed = True
+
+        def open_leaf(path, flags, *args, **kwargs):
+            nonlocal opened_fd
+            if self.name(path) != leaf.name:
+                return real_open(path, flags, *args, **kwargs)
+            self.assertTrue(initial_stat)
+            self.assertTrue(flags & os.O_NOFOLLOW)
+            if window == 'path-stat-to-open':
+                chmod()
+            opened_fd = real_open(path, flags, *args, **kwargs)
+            return opened_fd
+
+        def stat_fd(fd):
+            nonlocal descriptor_stat
+            info = real_fstat(fd)
+            if fd == opened_fd:
+                descriptor_stat = True
+            return info
+
+        def stat_leaf(path, *args, **kwargs):
+            nonlocal initial_stat
+            if self.name(path) == leaf.name:
+                self.assertIs(kwargs.get('follow_symlinks'), False)
+                if initial_stat and window == 'open-to-path-stat' and not changed:
+                    self.assertTrue(descriptor_stat)
+                    chmod()
+                initial_stat = True
+            return real_stat(path, *args, **kwargs)
+
+        try:
+            with mock.patch.object(stage.os, 'open', side_effect=open_leaf), \
+                    mock.patch.object(stage.os, 'stat', side_effect=stat_leaf), \
+                    mock.patch.object(stage.os, 'fstat', side_effect=stat_fd):
+                return stage.disk_check(self.root)
+        finally:
+            leaf.chmod(original_mode)
+            self.assertTrue(changed, 'chmod window was reached')
+
+    def test_permitted_descendant_chmod_in_both_observation_windows(self):
+        leaf = self.root / 'cache'
+        leaf.mkdir(mode=0o700)
+        (leaf / 'payload').write_bytes(b'owned')
+        for window in ('path-stat-to-open', 'open-to-path-stat'):
+            for old_mode, new_mode in ((0o700, 0o755), (0o755, 0o700)):
+                with self.subTest(window=window, old_mode=oct(old_mode), new_mode=oct(new_mode)):
+                    leaf.chmod(old_mode)
+                    self.assertEqual(self.scan_during_chmod(leaf, window, new_mode),
+                                     {'members': 2, 'bytes': 5})
+
+    def test_disallowed_descendant_chmod_in_both_observation_windows(self):
+        leaf = self.root / 'cache'
+        leaf.mkdir(mode=0o700)
+        for mode in (0o600, 0o720, 0o702, 0o1700, 0o2700, 0o4700):
+            with self.subTest(window='initial-path-stat', mode=oct(mode)):
+                leaf.chmod(mode)
+                with self.assertRaisesRegex(ValueError, '^private-directory-permission$'):
+                    stage.disk_check(self.root)
+                leaf.chmod(0o700)
+            for window in ('path-stat-to-open', 'open-to-path-stat'):
+                with self.subTest(window=window, mode=oct(mode)), \
+                        self.assertRaisesRegex(ValueError, '^private-directory-permission$'):
+                    self.scan_during_chmod(leaf, window, mode)
+
+    def test_root_chmod_remains_fatal_in_both_observation_windows(self):
+        for window, reason in (('path-stat-to-open', 'private-root-identity'),
+                               ('open-to-path-stat', 'private-directory-identity')):
+            with self.subTest(window=window), self.assertRaisesRegex(ValueError, '^' + reason + '$'):
+                self.scan_during_chmod(self.root, window, 0o755)
 
     def test_directory_leaf_component_selection_preserves_original_identity_order(self):
         real_stat = os.stat
