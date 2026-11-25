@@ -45,6 +45,20 @@ the verbatim `makepkg -g` output for replay against the pinned Plugbuild client.
 The unsent request draft and four exact recipe bodies are in
 `~/.cache/cachy-asahi-r132-plugbuild-custody-20261118/actual/`.
 
+A later November 25 search verified the retained recovery pack seals and
+checked both required digests across its 795,235 file/member records.
+Neither digest appeared. Anonymous public reads again returned newer
+workunits, errors on the original builder log routes, no exact Software
+Heritage object, and no Wayback availability at the signed build dates.
+The exact Common Crawl retry returned HTTP 503, so that archive remains
+inconclusive. The signed Perl and Python forward recipe gaps remain open.
+
+| Later recovery evidence | SHA-256 |
+| --- | --- |
+| Recovery pack and public archive audit | `0532e40a9f7cdb79922019e147fc56094604019e83e6211384e8351a0e4ffe9f` |
+| Fresh public body and response checks | `4a4b9592f051b92a70c13e13057670e49c2801889b5ad354e1dd677021474bfc` |
+| Exact Common Crawl retry | `222886029858e32bc834fc1f4ce8a5804a3893d320943b8be21f434d180c9f47` |
+
 Complete corresponding source, license review, production trust and support
 approval remain open for the [626-package proposal](supported-composition-maintenance.md).
 The [R132 guest record](../validation/asahi626-maintenance-emulated-arm16k-20261118.md)
