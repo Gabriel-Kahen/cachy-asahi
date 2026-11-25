@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -I
 # SPDX-License-Identifier: MIT
-"""Offline verification of an explicit settings011/session-lock010 package prefix.
+"""Offline verification of an explicit Settings and SessionLock package prefix.
 
 No installation, payload execution, session connection or native qualification.
 """
@@ -9,6 +9,7 @@ from contextlib import contextmanager
 import hashlib
 import io
 import json
+import lzma
 import os
 from pathlib import Path, PurePosixPath
 import platform
@@ -23,6 +24,7 @@ import time
 SETTINGS = "cachy-asahi-hyprland-settings"
 LOCKER = "cachy-asahi-session-lock"
 PROFILE = "hyprland011-session-lock010"
+SUCCESSOR_PROFILE = "hyprland011-session-lock011"
 MAX_FILE = 262144
 MAX_ARCHIVE = 2097152
 METADATA = {".PKGINFO", ".BUILDINFO", ".MTREE"}
@@ -41,6 +43,8 @@ OLD_LOCK = 'hl.bind("SUPER + L", hl.dsp.exec_cmd("swaylock --color 000000"))'
 NEW_LOCK = 'hl.bind("SUPER + L", hl.dsp.exec_cmd("cachy-asahi-session-lock lock"))'
 SUSPEND = 'hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("cachy-asahi-session-lock suspend"))'
 HELPER_DEPS = [f"{LOCKER}>=0.1.0", f"{LOCKER}<0.2.0"]
+HELPER_PROVENANCE = f"usr/share/doc/{LOCKER}/source-provenance.json"
+IDLE_DEPENDENCY = "swayidle>=1.8.0: explicit idle-timeout locking"
 
 
 class Refused(ValueError):
@@ -110,13 +114,17 @@ def load_profile(path, checksum):
     require(sha(data) == checksum, "source profile checksum mismatch")
     profile = unique_json(data)
     require(isinstance(profile, dict) and set(profile) == {"schema", "profile", "qualification", "packages"}, "invalid source profile fields")
-    require(type(profile["schema"]) is int and profile["schema"] == 1 and profile["profile"] == PROFILE and
+    require(type(profile["schema"]) is int and profile["schema"] == 1 and profile["profile"] in (PROFILE, SUCCESSOR_PROFILE) and
             profile["qualification"] == "OFFLINE_PACKAGE_PREFIX_ONLY", "unsupported source profile")
+    successor = profile["profile"] == SUCCESSOR_PROFILE
     require(isinstance(profile["packages"], dict) and set(profile["packages"]) == set(VERSIONS), "exact settings/helper pair required")
     for name, item in profile["packages"].items():
         require(isinstance(item, dict) and set(item) == {"source_commit", "metadata", "payload"}, "invalid package profile fields")
         require(re.fullmatch(r"[0-9a-f]{40}", item["source_commit"]) is not None, "invalid source commit")
-        require(isinstance(item["payload"], dict) and set(item["payload"]) == PAYLOAD[name], "exact reviewed payload required")
+        version, paths = VERSIONS[name], PAYLOAD[name]
+        if successor and name == LOCKER:
+            version, paths = "0.1.1-1", paths | {HELPER_PROVENANCE}
+        require(isinstance(item["payload"], dict) and set(item["payload"]) == paths, "exact reviewed payload required")
         for path, entry in item["payload"].items():
             clean_path(path)
             require(isinstance(entry, dict) and set(entry) == {"sha256", "bytes", "mode"}, "invalid payload declaration")
@@ -128,16 +136,27 @@ def load_profile(path, checksum):
         metadata = item["metadata"]
         require(isinstance(metadata, dict) and all(isinstance(key, str) and isinstance(values, list) and values and
                 all(isinstance(value, str) and value for value in values) for key, values in metadata.items()), "invalid metadata declarations")
-        for key, value in {"pkgname": [name], "pkgbase": [name], "pkgver": [VERSIONS[name]], "arch": ["any"], "license": ["MIT"]}.items():
+        for key, value in {"pkgname": [name], "pkgbase": [name], "pkgver": [version], "arch": ["any"], "license": ["MIT"]}.items():
             require(metadata.get(key) == value, f"unsupported {name} {key}")
         require(not set(metadata) & {"builddate", "packager", "size", "conflict", "provides", "replaces", "backup"}, "unsupported metadata declaration")
     settings_deps = profile["packages"][SETTINGS]["metadata"].get("depend", [])
     require(all(value in settings_deps for value in HELPER_DEPS + ["hyprland>=0.56.2", "hyprland<0.57.0"]), "missing compatible settings dependency bounds")
-    require(profile["packages"][LOCKER]["metadata"].get("depend") == ["python>=3.11", "swaylock>=1.8.6", "systemd>=248"], "unexpected helper dependencies")
+    helper = profile["packages"][LOCKER]["metadata"]
+    dependencies = ["python>=3.11", "swaylock>=1.8.6", "systemd>=248"]
+    if successor:
+        dependencies.append("coreutils")
+        require(helper.get("optdepend") == [IDLE_DEPENDENCY], "unexpected helper optional dependencies")
+    require(helper.get("depend") == dependencies, "unexpected helper dependencies")
     return profile
 
 
 def decompress(data):
+    if data.startswith(b"\xfd7zXZ\x00"):
+        decoder = lzma.LZMADecompressor(format=lzma.FORMAT_XZ, memlimit=64 * 1024**2)
+        output = decoder.decompress(data, max_length=MAX_ARCHIVE + 1)
+        require(len(output) <= MAX_ARCHIVE, "archive decompression exceeds limit")
+        require(decoder.eof and not decoder.unused_data, "incomplete or trailing XZ data")
+        return output
     if not data.startswith(b"\x28\xb5\x2f\xfd"):
         return data
     # Decompress the already-hashed held bytes, never reopen a replaceable pathname.
@@ -305,7 +324,7 @@ def verify(args):
     verify_semantics(files)
     verify_prefix(args.prefix, files)
     return {"schema": 1, "record_type": "offline-desktop-session-lock-prefix-verification",
-            "status": "desktop-session-lock-prefix-pass", "profile": PROFILE, "profile_sha256": args.profile_sha256,
+            "status": "desktop-session-lock-prefix-pass", "profile": profile["profile"], "profile_sha256": args.profile_sha256,
             "packages": records, "payload_files": len(files), "payload_sha256": {name: sha(data) for name, data in sorted(files.items())},
             "checks": {"exact_archives_metadata_payload": "PASS", "audited_Lua_binding_delta": "PASS", "exact_assembled_prefix": "PASS"},
             "host_arch": platform.machine(), "read_only": True, "payload_executed": False,
@@ -327,7 +346,7 @@ def main(argv=None):
         require(all(re.fullmatch(r"[0-9a-f]{64}", value) for value in
                     (args.profile_sha256, args.settings_sha256, args.session_lock_sha256)), "exact SHA256 arguments required")
         report = verify(args)
-    except (OSError, ValueError, KeyError, TypeError, tarfile.TarError, subprocess.SubprocessError) as exc:
+    except (OSError, ValueError, KeyError, TypeError, lzma.LZMAError, tarfile.TarError, subprocess.SubprocessError) as exc:
         print(json.dumps({"schema": 1, "status": "refused", "error": str(exc), "payload_executed": False}))
         return 2
     print(json.dumps(report, sort_keys=True, indent=2, allow_nan=False))

@@ -1,0 +1,174 @@
+{
+  "packages": {
+    "cachy-asahi-hyprland-settings": {
+      "metadata": {
+        "arch": [
+          "any"
+        ],
+        "depend": [
+          "hyprland>=0.56.2",
+          "hyprland<0.57.0",
+          "alacritty",
+          "wofi",
+          "swaylock",
+          "wireplumber",
+          "brightnessctl",
+          "python",
+          "cachy-asahi-session-lock>=0.1.0",
+          "cachy-asahi-session-lock<0.2.0"
+        ],
+        "license": [
+          "MIT"
+        ],
+        "makedepend": [
+          "lua",
+          "python"
+        ],
+        "optdepend": [
+          "waybar: optional status bar template",
+          "mako: optional notification template",
+          "noto-fonts: readable sans-serif text",
+          "xdg-desktop-portal-hyprland: base-session screencast integration",
+          "xdg-desktop-portal-gtk: base-session file chooser integration",
+          "hyprpolkitagent: authorization agent if absent from the base session",
+          "grim: optional explicit screenshot-to-file capture",
+          "slurp: optional screenshot region selection"
+        ],
+        "pkgbase": [
+          "cachy-asahi-hyprland-settings"
+        ],
+        "pkgdesc": [
+          "Opt-in Hyprland Lua configuration preserving the existing Asahi platform"
+        ],
+        "pkgname": [
+          "cachy-asahi-hyprland-settings"
+        ],
+        "pkgver": [
+          "0.1.1-1"
+        ],
+        "url": [
+          "https://github.com/Gabriel-Kahen/cachy-asahi"
+        ],
+        "xdata": [
+          "pkgtype=pkg"
+        ]
+      },
+      "payload": {
+        "usr/bin/cachy-asahi-screenshot": {
+          "bytes": 11854,
+          "mode": 493,
+          "sha256": "7dc01c020275f2d482f326bad0592e59bde140ba9cc349849ac5916e883e7c7d"
+        },
+        "usr/share/cachy-asahi/hyprland/hyprland.lua": {
+          "bytes": 2963,
+          "mode": 420,
+          "sha256": "2f5965eb7310cfcc2abf7699e96f248618c030a700ce6efed2c0a7167d4d75e1"
+        },
+        "usr/share/cachy-asahi/hyprland/mako.conf": {
+          "bytes": 100,
+          "mode": 420,
+          "sha256": "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504"
+        },
+        "usr/share/cachy-asahi/hyprland/waybar.css": {
+          "bytes": 257,
+          "mode": 420,
+          "sha256": "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5"
+        },
+        "usr/share/cachy-asahi/hyprland/waybar.json": {
+          "bytes": 436,
+          "mode": 420,
+          "sha256": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0"
+        },
+        "usr/share/doc/cachy-asahi-hyprland-settings/README.md": {
+          "bytes": 11003,
+          "mode": 420,
+          "sha256": "465f7f9f1d16d07cfb197fad25bb72aed2107ec4b520eda57f6a146aed4c6b69"
+        },
+        "usr/share/doc/cachy-asahi-hyprland-settings/source-provenance.json": {
+          "bytes": 1746,
+          "mode": 420,
+          "sha256": "6ffad84f1e8658914165cc670f4f649c47c00de6babeb473c39c7f5197735da9"
+        },
+        "usr/share/licenses/cachy-asahi-hyprland-settings/LICENSE": {
+          "bytes": 1081,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "usr/share/licenses/cachy-asahi-hyprland-settings/NOTICE": {
+          "bytes": 1406,
+          "mode": 420,
+          "sha256": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c"
+        }
+      },
+      "source_commit": "76385030c78e67e17616229555843746a3da492b"
+    },
+    "cachy-asahi-session-lock": {
+      "metadata": {
+        "arch": [
+          "any"
+        ],
+        "depend": [
+          "python>=3.11",
+          "swaylock>=1.8.6",
+          "systemd>=248",
+          "coreutils"
+        ],
+        "license": [
+          "MIT"
+        ],
+        "optdepend": [
+          "swayidle>=1.8.0: explicit idle-timeout locking"
+        ],
+        "pkgbase": [
+          "cachy-asahi-session-lock"
+        ],
+        "pkgdesc": [
+          "Explicit and idle Wayland locking with readiness-ordered suspend requests"
+        ],
+        "pkgname": [
+          "cachy-asahi-session-lock"
+        ],
+        "pkgver": [
+          "0.1.1-1"
+        ],
+        "url": [
+          "https://github.com/Gabriel-Kahen/cachy-asahi"
+        ],
+        "xdata": [
+          "pkgtype=pkg"
+        ]
+      },
+      "payload": {
+        "usr/bin/cachy-asahi-session-lock": {
+          "bytes": 12598,
+          "mode": 493,
+          "sha256": "d8c293ad29960dc000f825f204d53e31bae7c7fa6834a351569ac936497abdfd"
+        },
+        "usr/share/doc/cachy-asahi-session-lock/README.md": {
+          "bytes": 10725,
+          "mode": 420,
+          "sha256": "7264d90f047e75f9f7be1ed0471f3f50362acbd75da607d77d05c10cc082d712"
+        },
+        "usr/share/doc/cachy-asahi-session-lock/source-provenance.json": {
+          "bytes": 2202,
+          "mode": 420,
+          "sha256": "8a51acede63208b1d856479b5edae4388ba3deba246869ac59aefab6284a1e23"
+        },
+        "usr/share/licenses/cachy-asahi-session-lock/LICENSE": {
+          "bytes": 1081,
+          "mode": 420,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "usr/share/licenses/cachy-asahi-session-lock/NOTICE": {
+          "bytes": 450,
+          "mode": 420,
+          "sha256": "5ae1678fe537fff2a5a0dd2f8e0b40523b55e7c9ac5acd7c3c2eab6f75b4e94e"
+        }
+      },
+      "source_commit": "d721a0eac52b348c2370ff4c536f624923752c57"
+    }
+  },
+  "profile": "hyprland011-session-lock011",
+  "qualification": "OFFLINE_PACKAGE_PREFIX_ONLY",
+  "schema": 1
+}

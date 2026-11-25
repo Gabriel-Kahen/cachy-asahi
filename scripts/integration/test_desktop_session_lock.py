@@ -5,6 +5,7 @@ from copy import deepcopy
 import importlib.util
 import io
 import json
+import lzma
 import os
 from pathlib import Path
 import stat
@@ -22,6 +23,7 @@ V = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(V)
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_PROFILE = Path(__file__).with_name("profiles") / "desktop-session-lock011.json"
+SUCCESSOR_PROFILE = SOURCE_PROFILE.with_name("desktop-session-lock011-idle.json")
 
 
 class DesktopSessionLock(unittest.TestCase):
@@ -130,6 +132,45 @@ class DesktopSessionLock(unittest.TestCase):
             self.assertEqual(compressed.returncode, 0)
             path.write_bytes(compressed.stdout)
         self.assertEqual(V.verify(self.args())["payload_files"], 13)
+
+    def select_successor(self):
+        self.profile = json.loads(SUCCESSOR_PROFILE.read_bytes())
+        recipe = ROOT / "packages/tools/cachy-asahi-session-lock011"
+        self.payload[V.LOCKER] = {path: (recipe / Path(path).name).read_bytes()
+                                  for path in self.profile["packages"][V.LOCKER]["payload"]}
+        self.write_profile()
+        self.assemble()
+        self.write_archive(V.LOCKER)
+
+    def test_successor_pair_accepts_exact_xz_archive_and_rejects_old_helper(self):
+        helper = self.archives[V.LOCKER]
+        old = helper.read_bytes()
+        self.select_successor()
+        helper.write_bytes(lzma.compress(helper.read_bytes()))
+        report = V.verify(self.args())
+        self.assertEqual(report["profile"], "hyprland011-session-lock011")
+        self.assertEqual(report["payload_files"], 14)
+        helper.write_bytes(old)
+        self.refused("archive payload differs")
+
+    def test_successor_requires_provenance_and_optional_idle_dependency(self):
+        self.select_successor()
+        row = self.profile["packages"][V.LOCKER]
+        provenance = row["payload"].pop(V.HELPER_PROVENANCE)
+        self.write_profile()
+        self.refused("exact reviewed payload")
+        row["payload"][V.HELPER_PROVENANCE] = provenance
+        row["metadata"].pop("optdepend")
+        self.write_profile()
+        self.refused("unexpected helper optional dependencies")
+
+    def test_xz_rejects_truncated_concatenated_and_oversized_output(self):
+        compressed = lzma.compress(b"fixture")
+        for data in (compressed[:-4], compressed + compressed):
+            with self.subTest(data=data), self.assertRaisesRegex(V.Refused, "incomplete or trailing XZ"):
+                V.decompress(data)
+        with self.assertRaisesRegex(V.Refused, "decompression exceeds limit"):
+            V.decompress(lzma.compress(b" " * (V.MAX_ARCHIVE + 1)))
 
     def test_archive_digest_mismatch_refused_before_decompression(self):
         args = self.args()
