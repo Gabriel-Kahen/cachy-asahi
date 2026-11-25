@@ -177,7 +177,14 @@ def native248_rows(root, source_packet, deadline):
     return rows
 
 
-def native248_copy(origin, target, name, size, pin, deadline):
+def unlink_retained_cache_file(directory, name, wanted, identity=retained_cache_identity):
+    node = os.stat(name, dir_fd=directory, follow_symlinks=False)
+    require(wanted is not None and identity(node) == wanted and stat.S_ISREG(node.st_mode) and
+            stat.S_IMODE(node.st_mode) == 0o600 and node.st_nlink == 1, 'retained-cache-cleanup-owner-refused')
+    os.unlink(name, dir_fd=directory)
+
+
+def native248_copy(origin, target, name, size, pin, deadline, owned):
     def stat_at(parent):
         return os.stat(name, dir_fd=parent, follow_symlinks=False)
 
@@ -193,28 +200,42 @@ def native248_copy(origin, target, name, size, pin, deadline):
         require(native248_file_identity(os.fstat(source.fileno())) == native248_file_identity(before),
                 'native248-input-identity-drift')
         fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | flags, 0o600, dir_fd=target)
+        owned.append((name, None))
         with os.fdopen(fd, 'wb', buffering=0) as output:
             created = os.fstat(fd)
             require(private_file(created) and created.st_size == 0, 'native248-cache-file-refused')
-            hasher, total = hashlib.sha256(), 0
-            while block := source.read(min(1024**2, size - total + 1)):
-                within(deadline)
-                total += len(block)
-                require(total <= size and output.write(block) == len(block), 'native248-copy-refused')
-                hasher.update(block)
-            require(total == size and hasher.hexdigest() == pin, 'native248-input-pin-drift')
-            require(native248_file_identity(os.fstat(source.fileno())) == native248_file_identity(stat_at(origin)) ==
-                    native248_file_identity(before), 'native248-input-identity-drift')
-            after = os.fstat(fd)
-            require(private_file(after) and after.st_size == size and
-                    retained_cache_identity(after) == retained_cache_identity(created) and
-                    native248_file_identity(after) == native248_file_identity(stat_at(target)),
+            try:
+                hasher, total = hashlib.sha256(), 0
+                while block := source.read(min(1024**2, size - total + 1)):
+                    within(deadline)
+                    total += len(block)
+                    require(total <= size and output.write(block) == len(block), 'native248-copy-refused')
+                    hasher.update(block)
+                require(total == size and hasher.hexdigest() == pin, 'native248-input-pin-drift')
+                require(native248_file_identity(os.fstat(source.fileno())) == native248_file_identity(stat_at(origin)) ==
+                        native248_file_identity(before), 'native248-input-identity-drift')
+            finally:
+                # Snapshot the partial as well as a complete copy while its own fd is live.
+                first = sys.exception()
+                try:
+                    after = os.fstat(fd)
+                    require(private_file(after) and retained_cache_identity(after) == retained_cache_identity(created),
+                            'native248-cache-identity-drift')
+                    owned[-1] = (name, native248_file_identity(after))
+                except Exception:
+                    if first is None:
+                        raise
+                    first.add_note('native248-cache-journal-uncertain')
+            require(after.st_size == size and native248_file_identity(after) == native248_file_identity(stat_at(target)),
                     'native248-cache-identity-drift')
     return native248_file_identity(before), native248_file_identity(after)
 
 
-def seed_native248_cache(root, cache, source_packet, deadline):
+def seed_native248_cache(root, cache, source_packet, deadline, receipt=None):
     """Copy only the locked package pairs into a fresh cache, before any producer runs."""
+    if receipt is None:
+        receipt = {}
+    receipt.update(status='FAIL', cleanup='NOT_NEEDED')
     rows = native248_rows(root, source_packet, deadline)
     run = os.environ.get('GITHUB_RUN_ID', '')
     attempt = os.environ.get('GITHUB_RUN_ATTEMPT', '')
@@ -233,7 +254,17 @@ def seed_native248_cache(root, cache, source_packet, deadline):
             within(deadline)
             flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
             fd = os.open(name, flags, dir_fd=parent)
-            stack.callback(os.close, fd)
+
+            def release(_kind, first, _traceback):
+                try:
+                    os.close(fd)
+                except BaseException as error:
+                    receipt.update(status='HOLD', cleanup='UNCERTAIN')
+                    if first is None or not isinstance(error, Exception) and isinstance(first, Exception):
+                        raise
+                    first.add_note('native248-cache-close-uncertain')
+
+            stack.push(release)
             node = os.fstat(fd)
             require(stat.S_ISDIR(node.st_mode) and (not private or
                     (node.st_uid == os.geteuid() and stat.S_IMODE(node.st_mode) == 0o700)),
@@ -245,37 +276,74 @@ def seed_native248_cache(root, cache, source_packet, deadline):
             os.lseek(fd, 0, os.SEEK_SET)
             return set(os.listdir(fd))
 
+        def check_chain(entries):
+            for name, anchor, fd, identity in entries:
+                within(deadline)
+                require(retained_cache_identity(os.fstat(fd)) == identity ==
+                        retained_cache_identity(os.stat(name, dir_fd=anchor, follow_symlinks=False)),
+                        'native248-directory-identity-drift')
+
         parent = hold('/')
         for part in temp.parts[1:]:
             parent = hold(part, parent)
         info = os.fstat(parent)
         require(info.st_uid == os.geteuid() and not info.st_mode & 0o022, 'native248-runner-temp-refused')
+        parent_chain = list(chain)
         stage = hold(NATIVE248_DIRECTORY + token, parent, private=True)
         origin = hold('packages', stage, private=True)
         require(names(stage) == {'packages'} and names(origin) == rows.keys(),
                 'native248-input-membership-refused')
-        # A failed partial remains unusable because both bootstrap and this mkdir
-        # require a fresh path. No unverified cache names are removed here.
-        os.mkdir(cache.name, 0o700, dir_fd=parent)
+        receipt.update(status='HOLD', cleanup='UNCERTAIN')
+        try:
+            os.mkdir(cache.name, 0o700, dir_fd=parent)
+        except FileExistsError:
+            receipt.update(status='FAIL', cleanup='NOT_NEEDED')
+            raise
         created = os.stat(cache.name, dir_fd=parent, follow_symlinks=False)
         target = hold(cache.name, parent, private=True)
         require(retained_cache_identity(created) == retained_cache_identity(os.fstat(target)),
                 'native248-cache-identity-drift')
-        require(not names(target), 'native248-cache-not-empty')
-        copied = {name: native248_copy(origin, target, name, *pins, deadline) for name, pins in rows.items()}
-        for name, (before, after) in copied.items():
+        target_chain = [*parent_chain, chain[-1]]
+        owned = []
+        try:
+            require(not names(target), 'native248-cache-not-empty')
+            copied = {}
+            for name, pins in rows.items():
+                check_chain(target_chain)
+                copied[name] = native248_copy(origin, target, name, *pins, deadline, owned)
+            for name, (before, after) in copied.items():
+                within(deadline)
+                require(before == native248_file_identity(os.stat(name, dir_fd=origin, follow_symlinks=False)) and
+                        after == native248_file_identity(os.stat(name, dir_fd=target, follow_symlinks=False)),
+                        'native248-cache-identity-drift')
+            check_chain(chain)
+            require(names(stage) == {'packages'} and names(origin) == names(target) == rows.keys(),
+                    'native248-final-membership-refused')
             within(deadline)
-            require(before == native248_file_identity(os.stat(name, dir_fd=origin, follow_symlinks=False)) and
-                    after == native248_file_identity(os.stat(name, dir_fd=target, follow_symlinks=False)),
-                    'native248-cache-identity-drift')
-        for name, anchor, fd, identity in chain:
-            within(deadline)
-            require(retained_cache_identity(os.fstat(fd)) == identity ==
-                    retained_cache_identity(os.stat(name, dir_fd=anchor, follow_symlinks=False)),
-                    'native248-directory-identity-drift')
-        require(names(stage) == {'packages'} and names(origin) == names(target) == rows.keys(),
-                'native248-final-membership-refused')
-        within(deadline)
+        except BaseException as first:
+            try:
+                check_chain(target_chain)
+                # Check each named leaf against its own creation journal before unlinking.
+                for name, wanted in reversed(owned):
+                    check_chain(target_chain)
+                    unlink_retained_cache_file(target, name, wanted, native248_file_identity)
+                check_chain(target_chain)
+                require(not names(target), 'native248-cache-cleanup-not-empty')
+                check_chain(target_chain)
+                os.rmdir(cache.name, dir_fd=parent)
+                check_chain(parent_chain)
+                try:
+                    os.stat(cache.name, dir_fd=parent, follow_symlinks=False)
+                except FileNotFoundError:
+                    require(os.fstat(target).st_nlink == 0, 'native248-cache-cleanup-absence-unproven')
+                else:
+                    raise ValueError('native248-cache-cleanup-absence-unproven')
+            except Exception:
+                first.add_note('native248-cache-cleanup-uncertain')
+            else:
+                receipt.update(status='FAIL', cleanup='ROLLED_BACK')
+            raise
+    receipt.update(status='PIN_MATCH', objects=len(rows), cleanup='NOT_NEEDED')
 
 
 def rollback_retained_private_cache(receipt, deadline, first):
@@ -290,11 +358,7 @@ def rollback_retained_private_cache(receipt, deadline, first):
             require(retained_cache_identity(os.fstat(receipt['directory'])) == receipt['parent'] and
                     retained_cache_identity(receipt['cache'].lstat()) == receipt['parent'],
                     'retained-cache-directory-refused')
-            node = os.stat(filename, dir_fd=receipt['directory'], follow_symlinks=False)
-            require(retained_cache_identity(node) == wanted and stat.S_ISREG(node.st_mode) and
-                    stat.S_IMODE(node.st_mode) == 0o600 and node.st_nlink == 1,
-                    'retained-cache-cleanup-owner-refused')
-            os.unlink(filename, dir_fd=receipt['directory'])
+            unlink_retained_cache_file(receipt['directory'], filename, wanted)
         except BaseException as error:
             receipt['errors'].append(error)
             if not isinstance(error, Exception) and isinstance(first, Exception):
@@ -1836,6 +1900,7 @@ def composed_main(args, pins, *, entry):
     require(previous_timer == (0.0,0.0),'active-enclosing-timer-refused')
     previous = {sig:signal.getsignal(sig) for sig in (signal.SIGINT,signal.SIGTERM,signal.SIGALRM)}
     development = session = None
+    native248_receipt = {}
     try:
         for sig in previous:signal.signal(sig,interrupt)
         within(deadline);signal.setitimer(signal.ITIMER_REAL,deadline-time.monotonic())
@@ -1860,10 +1925,10 @@ def composed_main(args, pins, *, entry):
         session, callbacks, runtime, argv = composed_sources(ROOT,source_packet,grant_raw,args.execution_grant_sha256,
                                                             runtime_raw,output,cache,deadline,composition=composition)
         within(deadline)
-        output.mkdir(mode=0o700)
         if native248:
-            seed_native248_cache(ROOT, cache, source_packet, deadline)
-        else:
+            seed_native248_cache(ROOT, cache, source_packet, deadline, native248_receipt)
+        output.mkdir(mode=0o700)
+        if not native248:
             cache.mkdir(mode=0o700, exist_ok=True)
         if composition == packet.INSTALLER_COMPOSITION:
             seed_receipt = {}
@@ -1885,7 +1950,7 @@ def composed_main(args, pins, *, entry):
             development.report.update(source_packet_sha256=args.development_sha256,composition=composition,
                                       execution_grant_sha256=args.execution_grant_sha256)
             if native248:
-                development.report['native248_retained_inputs'] = {'status':'PIN_MATCH','objects':496}
+                development.report['native248_retained_inputs'] = native248_receipt
         development.run_composed(session,callbacks,runtime,argv)
         publication_end = min(workflow_end,time.monotonic()+120)
         development.publication_deadline = publication_end
@@ -1903,8 +1968,13 @@ def composed_main(args, pins, *, entry):
             elif composition == packet.ZSH_COMPOSITION:development.persist_zsh()
             else:development.persist()
         else:
-            print(json.dumps({'purpose':'same-job-native-development','status':'FAIL','execution':'NOT RUN',
-                              'error_code':'composed-bootstrap-refused'},sort_keys=True))
+            summary = {'purpose':'same-job-native-development','status':'FAIL','execution':'NOT RUN',
+                       'error_code':'composed-bootstrap-refused'}
+            if native248_receipt:
+                summary['native248_retained_inputs'] = native248_receipt
+                if native248_receipt['status'] != 'PIN_MATCH':
+                    summary['error_code'] = 'native248-seed-refused'
+            print(json.dumps(summary,sort_keys=True),flush=True)
         raise
     finally:
         retirement_failed = False

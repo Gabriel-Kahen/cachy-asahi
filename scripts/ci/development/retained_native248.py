@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: MIT
 """Stage exact carrier DATA for the maintained desktop workflow."""
 
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
 import shutil
+import signal
 import stat
 import subprocess
 import sys
@@ -45,6 +46,77 @@ def sha(raw):
 
 def live(deadline):
     require(time.monotonic() < deadline, "native248-preparation-deadline")
+
+
+class StageSignals:
+    """Latch controls in parent code, delivering them inside owned child waits."""
+
+    def __init__(self):
+        self.pending = None
+        self.child_uncertain = False
+        self.previous = {}
+
+    def remember(self, signum, _frame):
+        if self.pending is None:
+            self.pending = signum
+
+    def check(self):
+        if self.pending is not None:
+            raise InterruptedError("native248-stage-interrupted")
+
+    @contextmanager
+    def active(self):
+        try:
+            for number in (signal.SIGINT, signal.SIGTERM):
+                self.previous[number] = signal.getsignal(number)
+                signal.signal(number, self.remember)
+            yield
+        finally:
+            for number, handler in self.previous.items():
+                signal.signal(number, handler)
+
+    def bind(self, transport):
+        owner = transport.op
+        prepare, supervise = owner.prepare, owner.supervise
+
+        def preparation():
+            self.check()
+            prepare()
+
+        def owned_wait(*args, **kwargs):
+            previous_uncertainty = self.child_uncertain
+            self.child_uncertain = True
+            delivered = retiring = False
+            clock, members = owner.time, owner._members
+
+            def sleep(seconds):
+                nonlocal delivered
+                if not delivered and not retiring and self.pending is not None:
+                    delivered = True
+                    self.check()
+                clock.sleep(seconds)
+
+            def census(pid, deadline, *, live=False):
+                nonlocal retiring
+                if not live:
+                    retiring = True
+                return members(pid, deadline, live=live)
+
+            # The pinned supervisor catches the first interrupted wait and
+            # retires its reserved child. Never interrupt its post-reap census.
+            owner.time = types.SimpleNamespace(monotonic=clock.monotonic,
+                                               monotonic_ns=clock.monotonic_ns, sleep=sleep)
+            owner._members = census
+            try:
+                outcome = supervise(*args, **kwargs)
+            finally:
+                owner.time, owner._members = clock, members
+            self.child_uncertain = previous_uncertainty or (
+                outcome["reaped"] is not True or outcome["ownership"] != "REAPED"
+                or outcome["group_census"] != "EMPTY_TWICE")
+            return outcome
+
+        owner.prepare, owner.supervise = preparation, owned_wait
 
 
 def owned_directory(path, *, private):
@@ -148,7 +220,7 @@ def verify_ref(transport, scratch, deadline):
             "native248-carrier-ref-drift")
 
 
-def project(data, packages, pins, raw_inputs, deadline):
+def project(data, packages, pins, raw_inputs, deadline, check):
     index_raw = (data / "index.json").read_bytes()
     require(sha(index_raw) == INDEX_SHA and (data / "native-inputs.lock.json").read_bytes() == raw_inputs,
             "native248-carrier-lock")
@@ -161,6 +233,7 @@ def project(data, packages, pins, raw_inputs, deadline):
     destination_id = owned_directory(packages, private=True)
     require(not os.listdir(packages), "native248-stage-not-empty")
     for name, row in sorted(pins.items()):
+        check()
         live(deadline)
         require(owned_directory(source, private=True) == source_id and
                 owned_directory(packages, private=True) == destination_id, "native248-stage-drift")
@@ -184,9 +257,30 @@ def project(data, packages, pins, raw_inputs, deadline):
             "native248-stage-membership")
 
 
+def retire_directory(parent, name, directory, identity, deadline):
+    live(deadline)
+    named = os.stat(name, dir_fd=parent, follow_symlinks=False)
+    held = os.fstat(directory)
+    require((named.st_dev, named.st_ino) == (held.st_dev, held.st_ino) == identity
+            and stat.S_ISDIR(named.st_mode) and stat.S_IMODE(named.st_mode) == 0o700
+            and named.st_uid == os.geteuid(), "native248-retirement-custody")
+    shutil.rmtree(name, dir_fd=parent)
+    try:
+        os.stat(name, dir_fd=parent, follow_symlinks=False)
+    except FileNotFoundError:
+        require(os.fstat(directory).st_nlink == 0, "native248-retirement-absence")
+    else:
+        raise ValueError("native248-retirement-absence")
+    live(deadline)
+
+
 @contextmanager
-def stage(environment, git_sha, raw_inputs, fetch, deadline):
+def stage(environment, git_sha, raw_inputs, fetch, deadline, *, cleanup_deadline=None, receipt=None):
     """Authenticate and deliver before yielding a path, then retire only this stage."""
+    if receipt is None:
+        receipt = {}
+    if cleanup_deadline is None:
+        cleanup_deadline = deadline
     run = environment["GITHUB_RUN_ID"]
     attempt = environment["GITHUB_RUN_ATTEMPT"]
     require(re.fullmatch(r"[1-9][0-9]{0,19}", run) and re.fullmatch(r"[1-9][0-9]{0,9}", attempt),
@@ -194,34 +288,96 @@ def stage(environment, git_sha, raw_inputs, fetch, deadline):
     temporary = Path(environment["RUNNER_TEMP"])
     temp_id = owned_directory(temporary, private=False)
     require(shutil.rmtree.avoids_symlink_attacks, "native248-safe-retirement")
-    pins = package_pins(raw_inputs)
-    profile = carrier_profile(fetch(TRANSPORT_SOURCE, *DECLARATION, deadline))
-    verify_git(git_sha, deadline)
+    controls = StageSignals()
     destination = temporary / f"maintained-desktop-v2-native248-{run}-{attempt}"
-    destination.mkdir(mode=0o700)
-    identity = owned_directory(destination, private=True)
-    try:
-        packages = destination / "packages"
-        packages.mkdir(mode=0o700)
-        with tempfile.TemporaryDirectory(prefix="maintained-native248-", dir=temporary) as work:
-            scratch = Path(work)
-            code = scratch / "code"
-            code.mkdir(mode=0o700)
-            transport = load_transport(fetch, code, deadline)
-            verify_ref(transport, scratch, deadline)
+    handed_off = retired = False
+    receipt["cleanup"] = "NOT_NEEDED"
+
+    def guarded_fetch(*args):
+        controls.check()
+        raw = fetch(*args)
+        controls.check()
+        return raw
+
+    with controls.active(), ExitStack() as stack:
+        def hold(path, identity):
+            fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+
+            def release(_kind, first, _trace):
+                try:
+                    os.close(fd)
+                except OSError:
+                    receipt["cleanup"] = "UNCERTAIN"
+                    if first is None:
+                        raise
+                    first.add_note("native248-stage-close-uncertain")
+
+            stack.push(release)
+            node = os.fstat(fd)
+            require((node.st_dev, node.st_ino) == identity, "native248-held-directory")
+            return fd
+
+        try:
+            pins = package_pins(raw_inputs)
+            profile = carrier_profile(guarded_fetch(TRANSPORT_SOURCE, *DECLARATION, deadline))
             verify_git(git_sha, deadline)
-            policy = transport.reference_policy()
-            require(deadline - time.monotonic() >= policy["outer_seconds"], "native248-delivery-budget")
-            receipt = transport.deliver(url=REMOTE, expected_source=CARRIER, profile_raw=profile,
-                                        profile_sha256=PROFILE_SHA, destination=scratch / "delivery",
-                                        executable_root=code, policy=policy)
-            require(receipt["status"] == "PASS_EXACT_RETAINED_GIT_DATA_ONLY" and receipt["tree"] == TREE
-                    and receipt["blob_joins"] == 1154, "native248-carrier-proof")
-            project(scratch / "delivery/data", packages, pins, raw_inputs, deadline)
-        live(deadline)
-        yield
-    finally:
-        require(owned_directory(temporary, private=False) == temp_id
-                and owned_directory(destination, private=True) == identity, "native248-retirement-custody")
-        shutil.rmtree(destination)
-        require(not os.path.lexists(destination), "native248-retirement")
+            controls.check()
+            parent = hold(temporary, temp_id)
+            receipt["cleanup"] = "UNCERTAIN"
+            try:
+                os.mkdir(destination.name, 0o700, dir_fd=parent)
+            except FileExistsError:
+                receipt["cleanup"] = "NOT_NEEDED"
+                raise
+            identity = owned_directory(destination, private=True)
+            directory = hold(destination, identity)
+            try:
+                packages = destination / "packages"
+                packages.mkdir(mode=0o700)
+                scratch = Path(tempfile.mkdtemp(prefix="transport-", dir=destination))
+                scratch_id = owned_directory(scratch, private=True)
+                scratch_fd = hold(scratch, scratch_id)
+                code = scratch / "code"
+                code.mkdir(mode=0o700)
+                transport = load_transport(guarded_fetch, code, deadline)
+                controls.bind(transport)
+                verify_ref(transport, scratch, deadline)
+                controls.check()
+                verify_git(git_sha, deadline)
+                policy = transport.reference_policy()
+                require(deadline - time.monotonic() >= policy["outer_seconds"], "native248-delivery-budget")
+                proof = transport.deliver(url=REMOTE, expected_source=CARRIER, profile_raw=profile,
+                                          profile_sha256=PROFILE_SHA, destination=scratch / "delivery",
+                                          executable_root=code, policy=policy)
+                require(proof["status"] == "PASS_EXACT_RETAINED_GIT_DATA_ONLY" and proof["tree"] == TREE
+                        and proof["blob_joins"] == 1154, "native248-carrier-proof")
+                controls.check()
+                project(scratch / "delivery/data", packages, pins, raw_inputs, deadline, controls.check)
+                retire_directory(directory, scratch.name, scratch_fd, scratch_id, deadline)
+                controls.check()
+                live(deadline)
+                # Code installs its own handlers while it runs and restores this
+                # bridge on return. Original handlers resume after stage retirement.
+                handed_off = True
+                yield controls
+            finally:
+                first = sys.exception()
+                try:
+                    require(not controls.child_uncertain, "native248-child-retirement-unproven")
+                    require(owned_directory(temporary, private=False) == temp_id, "native248-retirement-custody")
+                    retire_directory(parent, destination.name, directory, identity,
+                                     cleanup_deadline if handed_off else deadline)
+                    require(owned_directory(temporary, private=False) == temp_id, "native248-retirement-custody")
+                    retired = True
+                except Exception:
+                    if first is None:
+                        raise
+                    first.add_note("native248-stage-cleanup-uncertain")
+        finally:
+            if retired:
+                # Any pending descriptor release failure invalidates this receipt.
+                receipt["cleanup"] = "PASS"
+            if controls.pending is not None:
+                receipt["signal"] = signal.Signals(controls.pending).name
+                if sys.exception() is None:
+                    controls.check()

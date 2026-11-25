@@ -1786,7 +1786,7 @@
     },
     "scripts/ci/development/controller.py": {
       "mode": 420,
-      "sha256": "29c086cb7cb5d11b77629ee5bdd8ad5a8eb8edb0d9495aae975ac025dabf7a47"
+      "sha256": "fe53e9eae762a78a5bd00ef2dff07b12bab628bdbf021b91c24eb6428850e1a9"
     },
     "scripts/ci/development/initial_artifacts.py": {
       "mode": 420,
@@ -1814,7 +1814,7 @@
     },
     "scripts/ci/development/test_controller.py": {
       "mode": 420,
-      "sha256": "f09b6357255c0012357367d9d8824647a50a0a053a1ef97679c68c0e901545ab"
+      "sha256": "95a75108ebfa3fc5be5379053e74ef5481fa696c9a22655375dd3d6307c0fd2f"
     },
     "scripts/ci/development/test_initial_artifacts.py": {
       "mode": 420,

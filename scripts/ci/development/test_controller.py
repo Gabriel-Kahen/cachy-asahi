@@ -52,8 +52,9 @@ class Native248CacheTests(unittest.TestCase):
         self.addCleanup(env.stop)
 
     def seed(self):
+        self.receipt = {}
         with patch.object(controller, 'native248_rows', return_value=self.rows):
-            controller.seed_native248_cache(self.root, self.cache, {}, time.monotonic() + 10)
+            controller.seed_native248_cache(self.root, self.cache, {}, time.monotonic() + 10, self.receipt)
 
     def test_exact_source_lock_selects_496_package_and_signature_rows(self):
         key = 'scripts/ci/inputs.lock.json'
@@ -68,6 +69,7 @@ class Native248CacheTests(unittest.TestCase):
 
     def test_exact_owned_cache_copy_leaves_stage_unchanged(self):
         self.seed()
+        self.assertEqual(self.receipt, {'status':'PIN_MATCH', 'objects':2, 'cleanup':'NOT_NEEDED'})
         self.assertEqual(set(self.cache.iterdir()), {self.cache / name for name in self.rows})
         self.assertEqual(self.cache.stat().st_mode & 0o777, 0o700)
         for name,raw in self.payload.items():
@@ -106,13 +108,47 @@ class Native248CacheTests(unittest.TestCase):
             self.seed()
         self.assertFalse(self.cache.exists())
 
-    def test_same_size_hash_drift_refuses_and_partial_cache_cannot_be_reused(self):
+    def test_same_size_hash_drift_rolls_back_the_fresh_cache(self):
         sample = self.origin / next(iter(self.rows))
         sample.write_bytes(b'x' * sample.stat().st_size)
         with self.assertRaisesRegex(ValueError, 'native248-input-pin-drift'):
             self.seed()
-        with self.assertRaises(FileExistsError):
+        self.assertEqual(self.receipt, {'status':'FAIL', 'cleanup':'ROLLED_BACK'})
+        self.assertFalse(self.cache.exists())
+        sample.write_bytes(self.payload[sample.name])
+        self.seed()
+
+    def test_mid_copy_failure_removes_the_completed_leaf_and_owned_partial(self):
+        from contextlib import contextmanager
+
+        real_fdopen = os.fdopen
+        writers = 0
+
+        @contextmanager
+        def partial(stream):
+            def fail_write(data):
+                self.assertEqual(stream.write(data[:3]), 3)
+                raise OSError('fixture mid-copy error')
+
+            with stream:
+                yield SimpleNamespace(write=fail_write)
+
+        def open_with_failure(fd, mode, *args, **kwargs):
+            nonlocal writers
+            stream = real_fdopen(fd, mode, *args, **kwargs)
+            if mode == 'wb':
+                writers += 1
+                if writers == 2:
+                    return partial(stream)
+            return stream
+
+        with patch.object(controller.os, 'fdopen', side_effect=open_with_failure), \
+             self.assertRaisesRegex(OSError, 'fixture mid-copy error'):
             self.seed()
+        self.assertEqual(writers, 2)
+        self.assertEqual(self.receipt, {'status':'FAIL', 'cleanup':'ROLLED_BACK'})
+        self.assertFalse(self.cache.exists())
+        self.assertEqual({n:(self.origin / n).read_bytes() for n in self.rows}, self.payload)
 
     def test_hardlinked_source_refused_and_external_bytes_preserved(self):
         sample = self.origin / next(iter(self.rows))
@@ -128,6 +164,7 @@ class Native248CacheTests(unittest.TestCase):
         self.cache.symlink_to(other, target_is_directory=True)
         with self.assertRaises(FileExistsError):
             self.seed()
+        self.assertEqual(self.receipt, {'status':'FAIL', 'cleanup':'NOT_NEEDED'})
         self.assertEqual(list(other.iterdir()), [])
 
     def test_replaced_cache_directory_refuses_and_never_writes_replacement(self):
@@ -144,7 +181,62 @@ class Native248CacheTests(unittest.TestCase):
         with patch.object(controller, 'native248_copy', side_effect=change), \
              self.assertRaisesRegex(ValueError, 'native248-directory-identity-drift'):
             self.seed()
+        self.assertEqual(self.receipt, {'status':'HOLD', 'cleanup':'UNCERTAIN'})
         self.assertEqual(list(self.cache.iterdir()), [])
+        name = next(iter(self.rows))
+        self.assertEqual({p.name:p.read_bytes() for p in displaced.iterdir()}, {name:self.payload[name]})
+
+    def test_replaced_cache_leaf_is_preserved_and_reports_hold(self):
+        copy = controller.native248_copy
+        name = next(iter(self.rows))
+        leaf = self.cache / name
+        displaced = self.root / 'original'
+
+        def replace(*args):
+            result = copy(*args)
+            if args[2] == name:
+                leaf.rename(displaced)
+                leaf.write_bytes(b'foreign bytes')
+                leaf.chmod(0o600)
+            return result
+
+        with patch.object(controller, 'native248_copy', side_effect=replace), \
+             self.assertRaisesRegex(ValueError, 'native248-cache-identity-drift'):
+            self.seed()
+        self.assertEqual(self.receipt, {'status':'HOLD', 'cleanup':'UNCERTAIN'})
+        self.assertEqual(leaf.read_bytes(), b'foreign bytes')
+        self.assertEqual(displaced.read_bytes(), self.payload[name])
+        self.assertEqual(list(self.cache.iterdir()), [leaf])
+
+    def test_unknown_rollback_keeps_hold_and_preserves_first_error(self):
+        name = next(iter(self.rows))
+        sample = self.origin / name
+        sample.write_bytes(b'x' * sample.stat().st_size)
+        with patch.object(controller.os, 'rmdir', side_effect=PermissionError('fixture cleanup refused')), \
+             self.assertRaisesRegex(ValueError, 'native248-input-pin-drift') as first:
+            self.seed()
+        self.assertEqual(self.receipt, {'status':'HOLD', 'cleanup':'UNCERTAIN'})
+        self.assertIn('native248-cache-cleanup-uncertain', first.exception.__notes__)
+        self.assertEqual(list(self.cache.iterdir()), [])
+
+    def test_directory_close_failure_invalidates_rollback_receipt(self):
+        name = next(iter(self.rows))
+        sample = self.origin / name
+        sample.write_bytes(b'x' * sample.stat().st_size)
+        real_close = os.close
+
+        def fail_deleted_cache_close(fd):
+            before = os.fstat(fd)
+            real_close(fd)
+            if controller.stat.S_ISDIR(before.st_mode) and before.st_nlink == 0:
+                raise OSError('fixture ambiguous directory retirement')
+
+        with patch.object(controller.os, 'close', side_effect=fail_deleted_cache_close), \
+             self.assertRaisesRegex(ValueError, 'native248-input-pin-drift') as first:
+            self.seed()
+        self.assertEqual(self.receipt, {'status':'HOLD', 'cleanup':'UNCERTAIN'})
+        self.assertIn('native248-cache-close-uncertain', first.exception.__notes__)
+        self.assertFalse(self.cache.exists())
 
     def test_invalid_and_mixed_selectors_are_erased_before_private_bootstrap(self):
         packet = controller.packet
@@ -1486,12 +1578,13 @@ class EarlyEntryModels(unittest.TestCase):
             def capture(path, pin, kind, limit):
                 return self.fixture.raw(self.value) if kind == 'DEVELOPMENT_CLOCK' else b'MODEL'
 
-            def seed(*parameters):
+            def seed(root, cache, source_packet, deadline, receipt):
                 sources.assert_called_once()
-                self.assertEqual(parameters, (checkout, args.cache, value, self.J))
-                self.assertTrue(args.output.is_dir())
+                self.assertEqual((root, cache, source_packet, deadline), (checkout, args.cache, value, self.J))
+                self.assertFalse(args.output.exists())
                 self.assertFalse(args.cache.exists())
                 self.assertNotIn(controller.NATIVE248_REQUIRED, os.environ)
+                receipt.update(status='HOLD', cleanup='UNCERTAIN')
                 raise ValueError('native248-input-membership-refused')
 
             stack.enter_context(patch.dict(os.environ, {controller.NATIVE248_REQUIRED:'1'}))
@@ -1508,11 +1601,17 @@ class EarlyEntryModels(unittest.TestCase):
             stack.enter_context(patch.object(controller.signal, 'signal'))
             stack.enter_context(patch.object(controller.signal, 'setitimer'))
             stack.enter_context(patch.object(controller, 'close_boundary', return_value=False))
-            stack.enter_context(patch('builtins.print'))
+            emit = stack.enter_context(patch('builtins.print'))
             with self.assertRaisesRegex(ValueError, 'native248-input-membership-refused'):
                 controller.composed_main(args, {}, entry=self.entry)
             construct.assert_not_called()
             old.assert_not_called()
+            self.assertFalse(args.output.exists())
+            self.assertEqual(json.loads(emit.call_args.args[0]), {
+                'purpose':'same-job-native-development', 'status':'FAIL', 'execution':'NOT RUN',
+                'error_code':'native248-seed-refused',
+                'native248_retained_inputs':{'status':'HOLD','cleanup':'UNCERTAIN'},
+            })
 
     def test_J_does_not_renew_across_repeated_clock_validation(self):
         expected=self.clock(self.early)

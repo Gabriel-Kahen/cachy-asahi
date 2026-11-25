@@ -38,6 +38,18 @@ GPG verification follows. The workflow retires its own staging paths after
 launcher return. The original actor's clock and process cleanup remain under
 the pinned launcher. The additional workflow time covers carrier preparation.
 
+On seed failure, the controller rolls back only journaled files whose identity
+still matches. It removes the cache directory only after checked emptiness
+and records `HOLD / UNCERTAIN` if removal, identity or descriptor retirement
+cannot be verified. Controller output creation follows a successful seed.
+SIGTERM and SIGINT during carrier preparation are latched and handled inside
+the retained transport's owned child wait. The guard stays active through
+launcher delivery, and the pinned launcher takes over its own signal handling
+during execution. The receiver restores the caller's handlers after retirement.
+Staging cleanup `PASS` requires verified
+child retirement, path absence and closed directory descriptors. A forced
+SIGKILL can prevent a terminal receipt and leaves cleanup uncertain.
+
 Source and Data require independent review and new Root registration before any
 hosted run. Local carrier and cache checks establish only DATA preparation.
 Hosted execution, signature verification, guest verification and hardware

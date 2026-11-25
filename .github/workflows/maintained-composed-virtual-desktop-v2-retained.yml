@@ -50,13 +50,13 @@ jobs:
           ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
           EXECUTION_REF = 'refs/heads/codex/maintained-desktop-v2-retained-inputs-20261125'
           COMPOSITION = 'repository-svg-maintained-v1'
-          PACKET_SHA = 'd709ef44950bb4bd9666396f57cb0c279188fc4e5369f2c2909636ae45ef1ac7'
+          PACKET_SHA = 'da07c4e5c7832f09be9b1e1e506387bca60ac154a05242c3f545fdd922b8ae11'
           PACKET_PATH = 'scripts/ci/development/packet.lock.json'
           PACKET_BYTES = 94736
           INPUTS_PATH = 'scripts/ci/inputs.lock.json'
           INPUTS_PIN = (328101, 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f')
           HELPER_PATH = 'scripts/ci/development/retained_native248.py'
-          HELPER_PIN = (11011, '6906e16c4c5bf9edeec073c16f729b3e570bc8a07abec046512ee52feddf7d83')
+          HELPER_PIN = (17245, '64e2a7f7cffea4fe70fd6ec01414d1795c2ec7afb01b34381fbaac503038c84c')
           WORKFLOW_PATH = '.github/workflows/maintained-composed-virtual-desktop-v2-retained.yml'
           PLAN_ENV = 'ROOT_REGISTERED_MAINTAINED_DESKTOP_V2_RETAINED_PLAN_B64'
           PIN_ENV = 'ROOT_REGISTERED_MAINTAINED_DESKTOP_V2_RETAINED_PLAN_SHA256'
@@ -137,20 +137,20 @@ jobs:
               def redirect_request(self,*args,**kwargs): raise ValueError('Root-launcher-redirect')
 
 
-          def fetch_launcher(commit,end):
-              live(end); full_pin(commit,40)
+          def fetch_launcher(commit,end,check):
+              check(); live(end); full_pin(commit,40)
               url = 'https://raw.githubusercontent.com/'+REPOSITORY+'/'+commit+'/'+LAUNCHER_PATH
               opener = urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect())
               request = urllib.request.Request(url,headers={'Accept-Encoding':'identity'})
-              with opener.open(request,timeout=max(0.001,end-time.monotonic())) as reply:
+              with opener.open(request,timeout=max(0.001,min(10,end-time.monotonic()))) as reply:
                   need(reply.status == 200 and reply.geturl() == url and
                       reply.headers.get('Content-Encoding') in (None,'identity'), 'Root-launcher-origin')
                   raw = bytearray()
                   while True:
-                      live(end); part = reply.read1(min(65536,LAUNCHER_BYTES+1-len(raw)))
+                      check(); live(end); part = reply.read1(min(65536,LAUNCHER_BYTES+1-len(raw)))
                       if not part: break
                       raw.extend(part); need(len(raw) <= LAUNCHER_BYTES,'Root-launcher-size')
-              live(end)
+              check(); live(end)
               need(len(raw) == LAUNCHER_BYTES and hashlib.sha256(raw).hexdigest() == LAUNCHER_SHA,'Root-launcher-pin')
               return bytes(raw)
 
@@ -165,14 +165,22 @@ jobs:
               return launcher
 
 
-          def invoke(environment,*,entry=PREPARATION_ENTRY):
+          def invoke(environment,*,entry,check):
               need(type(entry) is float and math.isfinite(entry) and 0 < entry <= time.monotonic(),'Root-preparation-entry')
               end = entry + 60.0
               with preparation(end):
                   plan = registered_plan(environment); live(end)
-                  launcher = load_launcher(fetch_launcher(plan['code_commit'],end)); live(end)
+                  launcher = load_launcher(fetch_launcher(plan['code_commit'],end,check)); live(end)
+              check()
+
+              def checked_delivery(*args):
+                  # A signal latched just before Code took custody must still refuse.
+                  check()
+                  return launcher.fetch(*args)
+
               # No renewed entry or clock. Source3 checks this same original entry+60.
-              result = launcher.launch_composed(plan,environment,preparation_entry=entry)
+              result = launcher.launch_composed(plan,environment,preparation_entry=entry,delivery=checked_delivery)
+              check()
               need(type(result) is dict and type(result.get('controller_exit_code')) is int and
                   0 <= result['controller_exit_code'] <= 255,'Root-controller-exit')
               return result
@@ -221,15 +229,22 @@ jobs:
               plan, lock, raw = authenticate_retained(environment,retained_end)
               helper = types.ModuleType('Root_pinned_native248_receiver')
               exec(compile(raw,'<Root-pinned-native248-receiver>','exec'),helper.__dict__)
-              with helper.stage(environment,plan['git_sha256'],lock,fetch_material,retained_end):
-                  print('MAINTAINED_NATIVE248_RETAINED='+json.dumps({
-                      'status':'STAGED_DATA_ONLY','objects':496,'carrier_commit':helper.CARRIER,
-                      'carrier_ref':helper.REF,'carrier_tree':helper.TREE,
-                  },sort_keys=True),flush=True)
-                  selected = dict(environment,CACHY_MAINTAINED_NATIVE248_REQUIRED='1')
-                  # Keep Source3's original 60-second allowance, starting at launcher entry.
-                  result = invoke(selected,entry=time.monotonic())
-              print('MAINTAINED_NATIVE248_STAGING_CLEANUP=PASS',flush=True)
+              staging = {}
+              try:
+                  with helper.stage(environment,plan['git_sha256'],lock,fetch_material,retained_end,
+                                    cleanup_deadline=PREPARATION_ENTRY+194*60,receipt=staging) as stage_controls:
+                      print('MAINTAINED_NATIVE248_RETAINED='+json.dumps({
+                          'status':'STAGED_DATA_ONLY','objects':496,'carrier_commit':helper.CARRIER,
+                          'carrier_ref':helper.REF,'carrier_tree':helper.TREE,
+                      },sort_keys=True),flush=True)
+                      selected = dict(environment,CACHY_MAINTAINED_NATIVE248_REQUIRED='1')
+                      # Keep Source3's original 60-second allowance, starting at launcher entry.
+                      result = invoke(selected,entry=time.monotonic(),check=stage_controls.check)
+              finally:
+                  if 'cleanup' in staging:
+                      print('MAINTAINED_NATIVE248_STAGING_CLEANUP='+staging['cleanup'],flush=True)
+                  if 'signal' in staging:
+                      print('MAINTAINED_NATIVE248_STAGING_SIGNAL='+staging['signal'],flush=True)
               # Controller streaming already carries its bounded status/publication evidence.
               # This summary is process outcome, not whole-port or hardware admission.
               keys = ('controller_exit_code','retained_cutoff','workflow_end','code_commit','source_commit',
