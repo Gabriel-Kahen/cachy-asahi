@@ -81,18 +81,24 @@ class DraftTests(unittest.TestCase):
         return status, out.getvalue(), err.getvalue()
 
     def test_both_model_evidence_refs_resolve_and_raw_private_data_stays_local(self):
-        for board, size, session in (("apple,j413", "13-inch", False), ("apple,j415", "15-inch", True)):
+        drafts = []
+        models = (("apple,j413", "13-inch", False, "1"), ("apple,j415", "15-inch", True, "2"))
+        for board, size, session, identity in models:
             with self.subTest(board=board):
                 self.output = self.root / size
-                self.review["model_id"] = board
+                machine_id = "m2-" + identity * 32
+                self.review.update(model_id=board, machine_id=machine_id)
                 status, out, err = self.cli(board, size, session)
                 self.assertEqual((status, err), (0, ""))
                 output = client.decode(out.encode())
+                drafts.append(output)
                 self.assertEqual(output["hardware_validation"], "NOT RUN")
                 self.assertEqual(len(output["evidence"]), 4 if session else 3)
                 evidence = {row["id"]: release.file_ref(self.root, row) for row in output["evidence"]}
                 machine = release.load(evidence[output["machine_record"]])
                 self.assertEqual(machine["model"], "m2-air-" + size.split("-")[0])
+                self.assertEqual(machine["machine_id"], machine_id)
+                self.assertEqual(machine["pre_evidence_spec_sha256"], self.spec["sha256"])
                 self.assertEqual(machine["base_sha256"], self.base["sha256"])
                 self.assertEqual(machine["package_sha256"], {"fixture": self.artifact["sha256"]})
                 self.assertEqual(machine["platform_versions"]["kernel"]["baseline_version"], "1.0-1")
@@ -100,6 +106,26 @@ class DraftTests(unittest.TestCase):
                 self.assertEqual("session" in machine, session)
                 self.assertTrue(all("PRIVATE-TAG" not in path.read_text() for path in self.output.iterdir()))
                 self.assertNotIn("result", machine)
+
+        # Both reviews pin the original spec. Appending only the first draft
+        # before preparing the second would invalidate the second review.
+        spec_path = self.root / self.spec["path"]
+        combined = release.load(spec_path)
+        self.assertEqual(len(drafts), len(models))
+        combined["evidence"] = list(drafts[0]["evidence"])
+        self.put(spec_path.name, combined)
+        self.output = self.root / "out-of-order"
+        status, _, err = self.cli("apple,j415", "15-inch", session=True)
+        self.assertEqual(status, 1)
+        self.assertIn("release specification pin", err)
+        self.assertFalse(self.output.exists())
+
+        combined["evidence"] += drafts[1]["evidence"]
+        self.put(spec_path.name, combined)
+        joined = release.load(spec_path)["evidence"]
+        self.assertEqual(len({row["id"] for row in joined}), len(joined))
+        for row in joined:
+            self.assertTrue(release.file_ref(self.root, row).is_file())
 
     def test_off_target_ambiguous_and_private_id_refuse_without_output(self):
         self.baseline["architecture"] = "x86_64"
