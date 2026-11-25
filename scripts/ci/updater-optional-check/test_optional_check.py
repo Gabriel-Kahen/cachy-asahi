@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Source controls only. No Docker, signature transaction or host Check."""
+import ast
 import importlib.util
 import io
 import json
@@ -59,6 +60,22 @@ class SourceTests(unittest.TestCase):
         self.assertEqual(output.getvalue().count('\n'), 1)
         self.assertEqual(json.loads(output.getvalue()), value)
 
+    def test_frozen_real_check_records_expected_case_names(self):
+        files, _ = prepare.preflight()
+        tree = ast.parse(files['real-check/real-check.py'])
+        recorded = {
+            node.args[0].value for node in ast.walk(tree)
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+            and node.func.id == 'check' and isinstance(node.args[0], ast.Constant)
+        }
+        for node in ast.walk(tree):
+            if (isinstance(node, ast.Subscript) and isinstance(node.ctx, ast.Store)
+                    and ast.unparse(node.value) == "result['cases']"
+                    and isinstance(node.slice, ast.Constant)):
+                recorded.add(node.slice.value)
+        expected = {name for name in prepare.EXPECTED_CASE_EXITS if not name.startswith('optional-')}
+        self.assertEqual(recorded, expected)
+
     def test_capsule_success_requires_exact_case_exits(self):
         files, _ = prepare.preflight()
         scope = {'__name__': 'installed_fixture'}
@@ -112,8 +129,11 @@ class SourceTests(unittest.TestCase):
             result = {'cases': {}}
             optional['exercise'](home, config, result, run, historical['user_command'],
                                  historical['snapshot'], historical['need'])
-            self.assertEqual(len(result['cases']), 8)
-            self.assertEqual(result['cases']['optional-system-discovery-failure']['exit'], 20)
+            optional_exits = {name: row['exit'] for name, row in result['cases'].items()}
+            self.assertEqual(optional_exits, {
+                name: code for name, code in prepare.EXPECTED_CASE_EXITS.items()
+                if name.startswith('optional-')
+            })
             self.assertEqual((home / 'state/arch-update/last_updates_check_flatpak').read_bytes(), b'')
 
 

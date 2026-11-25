@@ -47,7 +47,7 @@ INSTALLED_MEMBERS = {
     'real-check': {'real-check.py', 'optional_cases.py'},
 }
 INSTALLED_SCRIPT_PINS = {
-    'inside.py': '2c01c7b566420084d2ec2300b06bf6492c73354187faa744af7ffc6f87a86a01',
+    'inside.py': '33777bd7a36acddf47da94699a76ef11c4354681dde1619e63f3da92484f20f1',
     'real-check/real-check.py': '9d6fd88405134d2d89baf029c6d185214ba1b029657690717dc4e8f9d340d205',
     'real-check/optional_cases.py': 'b8a13e0689389ef3adeaad32abd787fc7cb5a651335652604674e04f5d46048b',
 }

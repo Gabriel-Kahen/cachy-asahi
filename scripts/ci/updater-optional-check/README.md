@@ -30,7 +30,7 @@ python3 -I -B -Werror::ResourceWarning scripts/ci/updater-optional-check/test_op
 
 Supply `UPDATER_OPTIONAL_PATCHED_SOURCE` pointing to the canonical private tree
 extracted from the pinned sanitized archive with both package patches applied
-at zero fuzz to run the fourth test. It verifies the patched-source ledger and
+at zero fuzz to run the Check entry test. It verifies the patched-source ledger and
 executes the full source Check entry in a scratch profile, with an inert
 checkupdates command in addition to the optional command fixtures.
 

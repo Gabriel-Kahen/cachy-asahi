@@ -36,7 +36,7 @@ EXPECTED_CASE_EXITS = {
     'optional-mask-failure': 20,
     'optional-remote-failure': 20,
     'optional-empty': 0,
-    'unconfigured-full-update-refusal': 21,
+    'unconfigured-full-update': 21,
 }
 PINS = {
     'inside.py': '64a969ea0dc79ae3488d9ede3ced4195676aaf5bde314c55bcbc439cb7ef0591',
