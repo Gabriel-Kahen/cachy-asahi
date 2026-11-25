@@ -21,8 +21,12 @@ G=C.module(HERE/'guest.py','onboarding_guest_test')
 
 class PortableSourceChecks(unittest.TestCase):
     def test_deterministic_bundle_and_real_documented_host_cli(self):
+        fixture_root = os.environ.get('CACHY_ONBOARDING_EXAMPLE_SOURCE')
+
         def read_source(name):
-            return (C.ROOT/name).read_bytes()
+            if fixture_root:
+                return (Path(fixture_root) / name).read_bytes()
+            return C.invoke(C.ROOT, 'show', C.EXAMPLE_SOURCE + ':' + name)
 
         with tempfile.TemporaryDirectory(dir='/var/tmp',prefix='onboarding-host-smoke-') as path:
             root=Path(path)

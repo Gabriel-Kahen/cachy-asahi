@@ -85,6 +85,20 @@ jobs:
             /packages/tools/cachy-asahi-dns/
             /packages/tools/cachy-asahi-sysctl/
             /packages/tools/cachy-asahi-topmem/
+      - name: Check out the exact Overlay583 onboarding example
+        if: matrix.lane == 'developer'
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 868f7f4aca866605c69ae911508c4767d2b18280
+          path: .ci-inputs/overlay583-onboarding-example
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /LICENSE
+            /examples/development/README.md
+            /examples/development/hello.c
+            /examples/development/onboarding.py
       - name: Select Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -116,7 +130,8 @@ jobs:
             developer)
               python -I -B tests/workflows/test_developer_workflow.py -v
               python -I -B examples/development/test_onboarding.py -v
-              python -I -B -Werror::ResourceWarning scripts/integration/development_onboarding_overlay583/test_capsule.py PortableSourceChecks -v
+              CACHY_ONBOARDING_EXAMPLE_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/overlay583-onboarding-example" \
+                python -I -B -Werror::ResourceWarning scripts/integration/development_onboarding_overlay583/test_capsule.py PortableSourceChecks -v
               python -I -B scripts/workflows/developer_workflow_diagnostics_v2.py --output "$RUNNER_TEMP/developer-workflow" --tool-path "$(dirname "$(command -v python)"):/usr/bin:/bin" --command-timeout 30 --total-timeout 300
               python -I -B -c 'import json,sys; from pathlib import Path; r=json.loads(Path(sys.argv[1]).read_text()); assert r["status"] == "PASS_LOCAL_DEVELOPER_COMPONENT"; assert all(r["project_workflows"][b]["status"] == "PASS_REAL_PROJECT_WORKFLOW" for b in ("make", "ninja")); assert len(r["commands"]) == 63 + sum(r["tools"][b]["status"] == "PRESENT" for b in ("cmake", "meson")); assert all(c["success"] for c in r["commands"])' "$RUNNER_TEMP/developer-workflow/result.json"
               ;;
