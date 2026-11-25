@@ -19,11 +19,13 @@ writable. Sensors were mocked; RSS/proc reads concerned fresh tiny owned
 children inside that namespace. These results are software controls, not
 hardware measurements or performance evidence.
 
-The `benchmark-owned-v2-source` CI workflow checks exact finite file/mode pins,
-Python syntax, adapter/owner connections, twelve declared controls and held
-comparison source. It imports no benchmark code and runs no workload, sensor,
-process census or lifecycle test. A source-check PASS grants no fresh twelve-test
-execution credit. The pinned source profile lives beside the CI checker.
+The `benchmark-owned-v2-source` workflow authenticates finite file and mode
+pins, syntax, adapter and owner connections, declared controls and comparison
+source at the original qualification commit. The pinned source profile lives
+beside that checker. A separate step loads the active runner against synthetic
+capture files to check geometry, package inventories, evidence pins and plan
+loading. The workflow's execution scope ends at plan validation and grants no
+fresh lifecycle, native, workload or performance credit.
 
 Fresh execution of the twelve controls requires a separately owned private
 guest/namespace runner with the same PID/proc/dev/empty-sys/no-network boundary,
