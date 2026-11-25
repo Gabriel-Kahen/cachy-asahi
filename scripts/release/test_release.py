@@ -64,6 +64,78 @@ class RepoAddCapabilityTests(unittest.TestCase):
                 self.assertEqual(run.call_count, len(preceding) + 1)
 
 
+@unittest.skipUnless(shutil.which("bsdtar"), "bsdtar is required")
+class DatabaseDescriptorTests(unittest.TestCase):
+    def setUp(self):
+        work = tempfile.TemporaryDirectory()
+        self.addCleanup(work.cleanup)
+        self.database = Path(work.name) / "fixture.db.tar.gz"
+
+    def archive(self, entries, mode="w:"):
+        with tarfile.open(self.database, mode) as archive:
+            for name, kind, data in entries:
+                member = tarfile.TarInfo(name)
+                member.type = kind
+                if kind in (tarfile.LNKTYPE, tarfile.SYMTYPE):
+                    member.linkname = "fixture-1-1/files"
+                member.size = len(data)
+                archive.addfile(member, io.BytesIO(data))
+
+    def test_tar_compressions_keep_exact_descriptor_bytes_and_order(self):
+        long_name = "a" * 120 + "-2:1-1/desc"
+        rows = [(long_name, tarfile.REGTYPE, b"first\r\n" * 180),
+                ("./fixture-1-1/", tarfile.DIRTYPE, b""),
+                ("./fixture-1-1/files", tarfile.REGTYPE, b"ignored"),
+                ("./fixture-1-1/desc", tarfile.REGTYPE, b"second\n")]
+        expected = [(long_name, rows[0][2]), ("fixture-1-1/desc", rows[-1][2])]
+        for mode, option in (("w:", None), ("w:gz", None), ("w:bz2", None), ("w:xz", None),
+                             ("w:", "--zstd"), ("w:", "-Z")):
+            with self.subTest(mode=mode, option=option):
+                self.archive(rows, mode)
+                if option:
+                    original = self.database.with_suffix(".tar")
+                    self.database.replace(original)
+                    r.run(["bsdtar", "-cf", self.database, option, f"@{original}"])
+                original_reads = [(name, r.run(["bsdtar", "-xOf", self.database, member]))
+                                  for name, member in r.archive_members(self.database).items()
+                                  if name.endswith("/desc")]
+                self.assertEqual(original_reads, expected)
+                self.assertEqual(list(r.database_descriptors(self.database)), expected)
+
+    def test_rejects_unsafe_duplicate_and_out_of_order_members(self):
+        first = ("fixture-1-1/desc", tarfile.REGTYPE, b"fixture")
+        for name, error in (("../outside/files", "unsafe archive entry"),
+                            ("fixture-1-1//desc", "unsafe archive entry"),
+                            ("./fixture-1-1/desc", "duplicate archive entries")):
+            with self.subTest(name=name):
+                self.archive([first, (name, tarfile.REGTYPE, b"other")])
+                with self.assertRaisesRegex(r.Error, error):
+                    list(r.database_descriptors(self.database))
+        self.archive([first, ("other-1-1/desc", tarfile.REGTYPE, b"other")])
+        listed = r.archive_members(self.database)
+        with mock.patch.object(r, "archive_members", return_value=dict(reversed(listed.items()))):
+            with self.assertRaisesRegex(r.Error, "descriptor members changed or out of order"):
+                list(r.database_descriptors(self.database))
+        with mock.patch.object(r, "archive_members", return_value={**listed, "absent/desc": "absent/desc"}):
+            with self.assertRaisesRegex(r.Error, "descriptor members missing"):
+                list(r.database_descriptors(self.database))
+        with self.assertRaisesRegex(r.Error, "repository database package count mismatch"):
+            r.database_check(self.database.parent, "fixture", [])
+
+    def test_rejects_non_regular_and_truncated_descriptors(self):
+        name = "fixture-1-1/desc"
+        for kind in (tarfile.DIRTYPE, tarfile.LNKTYPE, tarfile.SYMTYPE, tarfile.FIFOTYPE):
+            with self.subTest(kind=kind):
+                self.archive([("fixture-1-1/files", tarfile.REGTYPE, b"fixture"), (name, kind, b"")])
+                with self.assertRaisesRegex(r.Error, "descriptor is not a regular file"):
+                    list(r.database_descriptors(self.database))
+        member = tarfile.TarInfo(name)
+        member.size = 4096
+        self.database.write_bytes(member.tobuf() + b"short")
+        with self.assertRaises(r.Error):
+            list(r.database_descriptors(self.database))
+
+
 class ReleaseTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

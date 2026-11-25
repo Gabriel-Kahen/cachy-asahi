@@ -15,6 +15,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 from datetime import datetime, timezone
 
@@ -252,23 +253,58 @@ def add_database(database, packages, key, env):
     run(["repo-add", *options, "--sign", "--key", key, database, *packages], env=env)
 
 
+def database_descriptors(db):
+    members = [name for name in archive_members(db) if name.endswith("/desc")]
+    if not members:
+        return
+    expected = iter(members)
+    # Let bsdtar handle the input compression and preserve member boundaries in
+    # an uncompressed tar stream. No archive member is extracted to disk.
+    command = ["bsdtar", "-cPf", "-", "--format=pax", "--include", "*/desc", f"@{db}"]
+    with tempfile.TemporaryFile() as diagnostic, subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=diagnostic) as process:
+        try:
+            with tarfile.open(fileobj=process.stdout, mode="r|", encoding="utf-8", errors="strict") as archive:
+                for member in archive:
+                    name = member.name.removeprefix("./").rstrip("/")
+                    if not name.endswith("/desc"):
+                        continue
+                    require(name == next(expected, None), "repository database descriptor members changed or out of order")
+                    require(member.type in (tarfile.REGTYPE, tarfile.AREGTYPE) and member.sparse is None,
+                            "repository database descriptor is not a regular file")
+                    with archive.extractfile(member) as source:
+                        data = source.read()
+                    require(len(data) == member.size, "repository database descriptor size mismatch")
+                    yield name, data
+            # Clear tar padding so the writer can exit even when its pipe is full.
+            while process.stdout.read(65536):
+                pass
+            if process.wait() != 0:
+                diagnostic.seek(max(0, diagnostic.tell() - 3000))
+                raise Error("command failed: bsdtar: " + diagnostic.read().decode(errors="replace"))
+            require(next(expected, None) is None, "repository database descriptor members missing")
+        except (tarfile.TarError, UnicodeError) as error:
+            raise Error(f"invalid repository database descriptor archive: {error}") from error
+        finally:
+            if process.returncode is None:
+                process.kill()
+
+
 def database_check(directory, repo_name, packages):
     db = directory / f"{repo_name}.db.tar.gz"
-    members = archive_members(db)
     records = []
-    for name, member in members.items():
-        if not name.endswith("/desc"):
-            continue
-        info, key = {}, None
-        for line in run(["bsdtar", "-xOf", db, member]).decode().splitlines():
-            if line.startswith("%") and line.endswith("%"):
-                require(re.fullmatch(r"%[A-Z0-9_]+%", line), "malformed repository database field header")
-                key = line[1:-1]
-                require(key not in info, "duplicate repository database field")
-                info[key] = []
-            elif line and key:
-                info[key].append(line)
-        records.append(info)
+    with contextlib.closing(database_descriptors(db)) as descriptors:
+        for _, data in descriptors:
+            info, key = {}, None
+            for line in data.decode().splitlines():
+                if line.startswith("%") and line.endswith("%"):
+                    require(re.fullmatch(r"%[A-Z0-9_]+%", line), "malformed repository database field header")
+                    key = line[1:-1]
+                    require(key not in info, "duplicate repository database field")
+                    info[key] = []
+                elif line and key:
+                    info[key].append(line)
+            records.append(info)
     require(len(records) == len(packages), "repository database package count mismatch")
     for package in packages:
         matches = [r for r in records if r.get("NAME") == [package["name"]]]
