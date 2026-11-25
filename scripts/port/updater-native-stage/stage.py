@@ -19,7 +19,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 PACKAGE = 'packages/tools/cachy-asahi-update/'
-READY_SHA = '6dc5515b411bcaa9cff7caa844fcc623a7a0dba39cb0c28e1c6859db457438e2'
+READY_SHA = '2c959c872196aeaedaced788a7bf11788733362f7d90c81237c5adb8714fc638'
 BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_seconds':910,
           'freeze_seconds':120, 'native_seconds':5400, 'projection_seconds':60,
           'export_seconds':60, 'cleanup_seconds':180, 'private_bytes':8*1024**3,
@@ -122,16 +122,25 @@ def stage_files(root):
                   if p.is_file() and '__pycache__' not in p.parts and p.name not in ('stage.lock.json','source.lock.json'))
 
 
+def preflight(root, commit, ready, bootstrap_source_sha, bootstrap_stage_sha):
+    """Verify the exact committed source without native host or daemon access."""
+    need(ready == READY_SHA, 'reviewed-checkpoint-required')
+    need(re.fullmatch('[0-9a-f]{64}', bootstrap_stage_sha or '') and
+         digest(regular(HERE / 'stage.py')) == bootstrap_stage_sha, 'bootstrap-stage-pin')
+    need(re.fullmatch('[0-9a-f]{64}', bootstrap_source_sha or ''), 'bootstrap-source-pin')
+    source = module(HERE / 'source.py', bootstrap_source_sha)
+    contract = source.collect(root, commit, stage_files(root), ready)
+    rows = contract['files']
+    need(rows[source.STAGE + 'stage.py']['sha256'] == bootstrap_stage_sha and
+         rows[source.STAGE + 'source.py']['sha256'] == bootstrap_source_sha, 'bootstrap-closure-pin')
+    return contract
+
+
 def freeze(root,commit,ready,output,bootstrap_source_sha=None,bootstrap_stage_sha=None):
     """Data-only freeze on the selected native host after the sources are committed."""
-    need(ready==READY_SHA,'reviewed-checkpoint-required')
-    need(re.fullmatch('[0-9a-f]{64}',bootstrap_stage_sha or '') and
-         digest(regular(HERE/'stage.py'))==bootstrap_stage_sha,'bootstrap-stage-pin')
-    need(re.fullmatch('[0-9a-f]{64}',bootstrap_source_sha or ''),'bootstrap-source-pin')
-    source=module(HERE/'source.py',bootstrap_source_sha)
+    source = preflight(root, commit, ready, bootstrap_source_sha, bootstrap_stage_sha)
     contract={'schema_version':1,'scope':'finite private native updater trial','budget':BUDGET,
-              'host':host(),'docker_endpoint':ENDPOINT,'tools':tools(),
-              'source':source.collect(root,commit,stage_files(root),ready)}
+              'host':host(),'docker_endpoint':ENDPOINT,'tools':tools(),'source':source}
     need(output.is_absolute() and output.is_relative_to('/tmp') and not output.exists()
          and output.parent.resolve(strict=True)==output.parent,'fresh-controller-path')
     save(output,contract)
@@ -1088,16 +1097,24 @@ def recover(root,controller,controller_sha,output,owner_sha):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode',choices=('freeze','run','cleanup'))
+    parser.add_argument('mode',choices=('preflight','freeze','run','cleanup'))
     parser.add_argument('--root',type=Path,default=ROOT)
     parser.add_argument('--source-commit');parser.add_argument('--ready-sha256',default=READY_SHA)
     parser.add_argument('--bootstrap-source-sha256');parser.add_argument('--bootstrap-stage-sha256')
     parser.add_argument('--controller',type=Path);parser.add_argument('--controller-sha256')
     parser.add_argument('--ownership-sha256')
-    parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--output',type=Path)
     args=parser.parse_args()
+    if args.mode != 'preflight' and args.output is None:
+        parser.error('--output is required')
     try:
-        if args.mode=='freeze':
+        if args.mode == 'preflight':
+            source = preflight(args.root, args.source_commit, args.ready_sha256,
+                               args.bootstrap_source_sha256, args.bootstrap_stage_sha256)
+            print(json.dumps({'source_preflight': 'PASS', 'source_commit': source['source_commit'],
+                              'ready_sha256': source['ready_sha256'], 'source_files': len(source['files']),
+                              'source_bytes': source['total_bytes'], 'native_compilation': 'NOT RUN'}))
+        elif args.mode=='freeze':
             checksum=freeze(args.root,args.source_commit,args.ready_sha256,args.output,
                             args.bootstrap_source_sha256,args.bootstrap_stage_sha256)
             print(json.dumps({'source_freeze':'PASS','controller_sha256':checksum,'native_compilation':'NOT RUN'}))

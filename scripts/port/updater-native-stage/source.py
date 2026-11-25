@@ -17,11 +17,12 @@ import time
 
 PACKAGE = 'packages/tools/cachy-asahi-update/'
 STAGE = 'scripts/port/updater-native-stage/'
-READY = PACKAGE + 'runner-ready-pins.json'
+READY = STAGE + 'reviewed-source.json'
+PACKAGE_CHECKPOINT = 'runner-ready-pins.json'
 HELPERS = frozenset({'scripts/build/compare.py', 'scripts/build/container-entry.sh',
                      'scripts/ci/log_evidence.py'})
 CONTROLLERS = frozenset(STAGE + n for n in ('stage.py', 'source.py', 'runtime.py',
-                                          'broker.py', 'test_source.py'))
+                                          'broker.py', 'test_source.py')) | {READY}
 EXTERNAL_FREEZES = frozenset(STAGE + n for n in ('stage.lock.json', 'source.lock.json'))
 MAX_FILES = 128
 MAX_BYTES = 32 * 1024**2
@@ -325,15 +326,15 @@ def closure(root, stage_files, ready_sha):
     data, _ = read(root, READY)
     need(digest(data) == ready_sha, 'source-ready-pin')
     ready = json.loads(data, object_pairs_hook=pairs)
-    need(type(ready) is dict and type(ready.get('schema_version')) is int and
-         ready['schema_version'] == 1, 'source-ready-schema')
-    package, roots = ready.get('files_sha256'), ready.get('root_files_sha256')
-    need(type(package) is dict and len(package) == 64 and type(roots) is dict and len(roots) == 8,
+    need(type(ready) is dict and set(ready) == {'schema_version', 'files_sha256', 'root_files_sha256'} and
+         type(ready['schema_version']) is int and ready['schema_version'] == 1, 'source-ready-schema')
+    package, roots = ready['files_sha256'], ready['root_files_sha256']
+    need(type(package) is dict and len(package) == 65 and PACKAGE_CHECKPOINT in package and
+         type(roots) is dict and len(roots) == 8,
          'source-ready-file-count')
-    expected = {READY: ready_sha}
-    for name, value in package.items():
-        expected[PACKAGE + relative(name)] = hash_value(value)
+    expected = {PACKAGE + relative(name): hash_value(value) for name, value in package.items()}
     need(set(expected) == tree_files(root, PACKAGE), 'source-package-closure')
+    expected[READY] = ready_sha
     for name, value in roots.items():
         name = relative(name)
         need(name.startswith('scripts/') and name not in expected, 'source-ready-root-path')
