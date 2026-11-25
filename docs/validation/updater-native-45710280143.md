@@ -17,3 +17,18 @@ capsule preparation. The corrected capsule and broker use the existing 4 MiB
 worker evidence limit and still require the exact archive digest. The local
 regressions exercise oversized historical reads and digest mismatch refusal.
 The installed Check cases and full-update qualification remain open.
+
+## Subsequent scanner interruption
+
+[Run 45713473375](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45713473375)
+stopped in the first native worker before capsule preparation. Its bounded
+diagnostic reported `OPEN_FD_IDENTITY`, `DESCENDANT`, and `MODE` during the
+private scan. The exact path and mode change were unavailable. Input
+retirement and recovery passed.
+
+The scanner now allows mode changes on the same descendant directory inode
+when all observed modes satisfy the existing permission policy. It still
+checks the root mode, path and descriptor identity, owner, type, mount,
+permissions and storage limits. Local tests cover both stat windows and
+refusal of unsafe permission changes. A hosted retry is needed to exercise
+the installed capsule after both fixes.
