@@ -792,6 +792,37 @@ class ReleaseTests(unittest.TestCase):
             else:
                 return r.promote(args, self.root, self.key, self.env)
 
+    def test_verify_refuses_requested_id_different_from_signed_bundle(self):
+        self.promote_model(self.modeled_promotion())
+        rid, alias = "fixture-1", "fixture-alias"
+        command = [sys.executable, Path(__file__).with_name("release.py"), "--root", self.root,
+                   "--gpg-home", self.home, "--key", self.key, "verify"]
+        staged = json.loads(r.run([*command, "--release-id", rid, "--channel", "staging"]))
+        self.assertEqual(staged["release_id"], rid)
+        with self.assertRaisesRegex(r.Error, "synthetic fixtures cannot enter stable"):
+            r.run([*command, "--release-id", rid, "--channel", "stable"])
+        for channel in ("staging", "stable"):
+            shutil.copytree(self.root / channel / rid, self.root / channel / alias, symlinks=True)
+        history = self.root / "promotions"
+        for suffix in (".json", ".json.sig"):
+            shutil.copyfile(history / (rid + suffix), history / (alias + suffix))
+        for channel in ("staging", "stable"):
+            with self.subTest(channel=channel), self.assertRaisesRegex(r.Error, "path/release identity mismatch"):
+                r.run([*command, "--release-id", alias, "--channel", channel])
+
+    def test_verify_stable_refuses_signed_promotion_for_another_id(self):
+        self.promote_model(self.modeled_promotion())
+        record = self.root / "promotions/fixture-1.json"
+        saved = r.load(record)
+        r.write(record, dict(saved, release_id="different-release"))
+        record.with_suffix(".json.sig").unlink()
+        r.sign(record, self.key, self.env)
+        command = [sys.executable, Path(__file__).with_name("release.py"), "--root", self.root,
+                   "--gpg-home", self.home, "--key", self.key, "verify",
+                   "--release-id", "fixture-1", "--channel", "stable"]
+        with self.assertRaisesRegex(r.Error, "promotion record is not bound to this release"):
+            r.run(command)
+
     def test_promotion_retry_authenticates_exact_inputs_and_preserves_history(self):
         self.promote_model(self.modeled_promotion("previous"))
         args = self.modeled_promotion()

@@ -922,17 +922,16 @@ def main():
             withdrawal = root / "withdrawals" / f"{rid}.json"
             require(not present(withdrawal), "release withdrawn; retained files are recovery evidence only")
             require(not present(record_signature(withdrawal)), "release withdrawal incomplete; verification refused")
-            manifest, _ = verify_release(root / args.channel / rid, key, env)
+            directory = root / args.channel / rid
+            manifest, spec = verify_release(directory, key, env)
+            require(manifest["release_id"] == rid, f"{args.channel} path/release identity mismatch")
             if args.channel == "stable":
-                promotion = root / "promotions" / f"{rid}.json"
-                verify_signature(promotion, key, env)
-                saved = load(promotion)
-                require(saved["release_sha256"] == sha(root / args.channel / rid / "release.json"), "promotion record checksum mismatch")
+                saved, _ = retained_promotion(root / "promotions", directory, key, env, datetime.now(timezone.utc))
                 # Recheck all gate evidence, including explicit exclusions.
                 with tempfile.TemporaryDirectory(prefix=".verify-", dir=root) as tmp:
                     gate_file = Path(tmp) / "gates.json"
                     write(gate_file, saved["gates"])
-                    gates_check(root / args.channel / rid, manifest, load(root / args.channel / rid / "spec.json"), gate_file)
+                    gates_check(directory, manifest, spec, gate_file)
             result = {"status": "verified-locally", "channel": args.channel, "release_id": manifest["release_id"]}
     print(json.dumps(result, sort_keys=True))
 
