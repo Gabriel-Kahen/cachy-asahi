@@ -18,11 +18,12 @@
  fi
 --- a/src/lib/check.sh
 +++ b/src/lib/check.sh
-@@ -3,27 +3,43 @@
+@@ -3,79 +3,118 @@
  # check.sh: Check for available updates
  # https://github.com/Antiz96/arch-update
  # SPDX-License-Identifier: GPL-3.0-or-later
 +# Modified 2026-10-11 by cachy-asahi contributors: propagate automated-check timer and repository-check failures.
++# Modified 2026-11-25 by cachy-asahi contributors: preserve check state when an optional query fails.
  
  # shellcheck disable=SC2154
  if [ "${2}" == "--enable" ]; then
@@ -33,18 +34,29 @@
 +	fi
  	info_msg "$(eval_gettext "Automated update checks have been enabled")"
  	exit 0
-+fi
-+
+ fi
+ 
 +# Capture the repository result before changing any previous check state.
 +# checkupdates returns 2 for a successful check with no available updates.
-+# shellcheck disable=SC2154
+ # shellcheck disable=SC2154
+-touch "${statedir}"/last_updates_check_{packages,aur,flatpak}
+-
+-# shellcheck disable=SC2154
+-checkupdates_db_tmpdir=$(mktemp -d "${checkupdates_db_tmpdir_prefix}XXXXX")
+-
+-# shellcheck disable=SC2154
+-if [ -z "${no_version}" ]; then
+-	# shellcheck disable=SC2154
+-	CHECKUPDATES_DB="${checkupdates_db_tmpdir}" checkupdates > "${statedir}/last_updates_check_packages"
 +if ! checkupdates_db_tmpdir=$(mktemp -d "${checkupdates_db_tmpdir_prefix}XXXXX"); then
 +	error_msg "$(eval_gettext "Unable to create a private repository check database; previous check state has been preserved")"
 +	exit 20
 +fi
 +if repository_updates=$(CHECKUPDATES_DB="${checkupdates_db_tmpdir}" checkupdates); then
 +	repository_check_status=0
-+else
+ else
+-	# shellcheck disable=SC2154
+-	CHECKUPDATES_DB="${checkupdates_db_tmpdir}" checkupdates | awk '{print $1}' > "${statedir}/last_updates_check_packages"
 +	repository_check_status=$?
 +fi
 +if [[ "${repository_check_status}" != 0 && "${repository_check_status}" != 2 ]]; then
@@ -52,24 +64,145 @@
 +	exit 20
  fi
  
- # shellcheck disable=SC2154
- touch "${statedir}"/last_updates_check_{packages,aur,flatpak}
- 
- # shellcheck disable=SC2154
--checkupdates_db_tmpdir=$(mktemp -d "${checkupdates_db_tmpdir_prefix}XXXXX")
--
--# shellcheck disable=SC2154
- if [ -z "${no_version}" ]; then
--	# shellcheck disable=SC2154
--	CHECKUPDATES_DB="${checkupdates_db_tmpdir}" checkupdates > "${statedir}/last_updates_check_packages"
-+	printf '%s\n' "${repository_updates}" > "${statedir}/last_updates_check_packages"
- else
--	# shellcheck disable=SC2154
--	CHECKUPDATES_DB="${checkupdates_db_tmpdir}" checkupdates | awk '{print $1}' > "${statedir}/last_updates_check_packages"
-+	printf '%s\n' "${repository_updates}" | awk '{print $1}' > "${statedir}/last_updates_check_packages"
+-if [ -n "${aur_helper}" ]; then
+-	if [ -z "${no_version}" ]; then
+-		# shellcheck disable=SC2154
+-		LC_ALL=C "${aur_helper}" -Qua 2> /dev/null | sed 's/^ *//' | sed 's/ \+/ /g' | grep -vw "\[ignored\]$" > "${statedir}/last_updates_check_aur"
+-	else
+-		# shellcheck disable=SC2154
+-		LC_ALL=C "${aur_helper}" -Qua 2> /dev/null | sed 's/^ *//' | sed 's/ \+/ /g' | grep -vw "\[ignored\]$" | awk '{print $1}' > "${statedir}/last_updates_check_aur"
++optional_check_failed() {
++	error_msg "$(eval_gettext "Unable to check optional updates; previous check state has been preserved") ($1)"
++	exit 20
++}
++
++# Query every enabled source before publishing any check state.
++if [[ -n "${aur_helper}" && -z "${no_aur}" ]]; then
++	aur_check_stderr="${checkupdates_db_tmpdir}/aur-check.stderr"
++	aur_check_status=0
++	aur_updates=$(LC_ALL=C "${aur_helper}" -Qua 2> "${aur_check_stderr}") || aur_check_status=$?
++	# Paru and Yay use a silent status 1 for an empty upgrade list.
++	if [[ "${aur_check_status}" != 0 ]] &&
++		[[ "${aur_check_status}" != 1 || ( "${aur_helper}" != paru && "${aur_helper}" != yay ) ||
++		   -n "${aur_updates}" || ! -f "${aur_check_stderr}" || -s "${aur_check_stderr}" ]]; then
++		optional_check_failed AUR
++	fi
++	aur_updates=$(sed -E 's/^ *//; s/ +/ /g; /(^|[^[:alnum:]_])\[ignored\]$/d' <<< "${aur_updates}") || optional_check_failed AUR
++	if [ -n "${no_version}" ]; then
++		aur_updates=$(awk '{print $1}' <<< "${aur_updates}") || optional_check_failed AUR
+ 	fi
  fi
  
- if [ -n "${aur_helper}" ]; then
+-if [ -n "${flatpak_support}" ]; then
+-	flatpak update --appstream > /dev/null
++if [[ -n "${flatpak_support}" && -z "${no_flatpak}" ]]; then
++	flatpak_user_apps=$(flatpak list --user) || optional_check_failed Flatpak
++	flatpak_system_apps=$(flatpak list --system) || optional_check_failed Flatpak
++	if [[ -z "${flatpak_user_apps}${flatpak_system_apps}" ]]; then
++		unset flatpak_support
++	fi
++fi
+ 
+-	mapfile -t flatpak_mask < <(flatpak mask | tr -d ' ')
++if [[ -n "${flatpak_support}" && -z "${no_flatpak}" ]]; then
++	flatpak update --appstream > /dev/null || optional_check_failed Flatpak
++	flatpak_masks=$(flatpak mask) || optional_check_failed Flatpak
++	flatpak_masks=${flatpak_masks// /}
+ 
+-	if [ "${#flatpak_mask[@]}" -gt 0 ]; then
+-		mapfile -t flatpak_packages < <(flatpak remote-ls --updates --columns=application,version | tr -s '\t' ' ')
++	if [ -n "${flatpak_masks}" ]; then
++		mapfile -t flatpak_mask <<< "${flatpak_masks}"
++		flatpak_updates=$(flatpak remote-ls --updates --columns=application,version) || optional_check_failed Flatpak
++		flatpak_names=$(flatpak list --columns=application,name) || optional_check_failed Flatpak
+ 
+ 		declare -A app_names
+ 		while read -r flatpak_id flatpak_name; do
++			[[ -n "${flatpak_id}" ]] || continue
+ 			app_names["${flatpak_id}"]="${flatpak_name}"
+-		done < <(flatpak list --columns=application,name)
++		done <<< "${flatpak_names}"
+ 
+-	        mapfile -t flatpak_packages < <(
+-			for packages in "${flatpak_packages[@]}"; do
+-				read -r app_id app_version <<< "${packages}"
+-
++		flatpak_updates=$(
++			while read -r app_id app_version; do
++				[[ -n "${app_id}" ]] || continue
+ 				for pattern in "${flatpak_mask[@]}"; do
+ 					# shellcheck disable=SC2053
+ 					[[ "${app_id}" == ${pattern} ]] && continue 2
+ 				done
+ 
+ 				app_name="${app_names[${app_id}]:-${app_id}}"
++				if [ -z "${no_version}" ]; then
++					printf '%s %s\n' "${app_name}" "${app_version}"
++				else
++					printf '%s\n' "${app_name}"
++				fi
++			done <<< "${flatpak_updates}"
++		) || optional_check_failed Flatpak
++	elif [ -z "${no_version}" ]; then
++		flatpak_updates=$(flatpak remote-ls --updates --columns=name,version) || optional_check_failed Flatpak
++		flatpak_updates=$(tr -s '\t' ' ' <<< "${flatpak_updates}") || optional_check_failed Flatpak
++	else
++		flatpak_updates=$(flatpak remote-ls --updates --columns=name) || optional_check_failed Flatpak
++	fi
++fi
+ 
+-				if [ -z "${no_version}" ]; then
+-					echo "${app_name} ${app_version}"
+-				else
+-					echo "${app_name}"
+-				fi
+-			done
+-		)
+-	else
+-		if [ -z "${no_version}" ]; then
+-			mapfile -t flatpak_packages < <(flatpak remote-ls --updates --columns=name,version | tr -s '\t' ' ')
+-		else
+-			mapfile -t flatpak_packages < <(flatpak remote-ls --updates --columns=name)
+-		fi
+-	fi
+-
+-	printf "%s\n" "${flatpak_packages[@]}" > "${statedir}/last_updates_check_flatpak"
++# shellcheck disable=SC2154
++touch "${statedir}"/last_updates_check_{packages,aur,flatpak}
++if [ -z "${no_version}" ]; then
++	printf '%s\n' "${repository_updates}" > "${statedir}/last_updates_check_packages"
++else
++	printf '%s\n' "${repository_updates}" | awk '{print $1}' > "${statedir}/last_updates_check_packages"
++fi
++if [[ -n "${aur_helper}" && -z "${no_aur}" ]]; then
++	printf '%s\n' "${aur_updates}" > "${statedir}/last_updates_check_aur"
++fi
++if [[ -n "${flatpak_support}" && -z "${no_flatpak}" ]]; then
++	printf '%s\n' "${flatpak_updates}" > "${statedir}/last_updates_check_flatpak"
+ fi
+ 
+ sed -i '/^\s*$/d' "${statedir}"/last_updates_check_{packages,aur,flatpak}
+--- a/src/lib/common.sh
++++ b/src/lib/common.sh
+@@ -3,6 +3,7 @@
+ # common.sh: Set variables, functions and parameters commonly used across the various Arch-Update stages
+ # https://github.com/Antiz96/arch-update
+ # SPDX-License-Identifier: GPL-3.0-or-later
++# Modified 2026-11-25 by cachy-asahi contributors: defer Flatpak discovery to the state-preserving Check path.
+ 
+ # Display debug traces if the -D / --debug argument is passed
+ for arg in "${@}"; do
+@@ -143,7 +144,9 @@
+ 	# shellcheck disable=SC2034
+ 	flatpak_support=$(command -v flatpak)
+ 	# Disable flatpak support if flatpak is available but no Flatpak package is installed
+-	if [ -n "${flatpak_support}" ] && [ -z "$(flatpak list --user ; flatpak list --system)" ]; then
++	# Check verifies both discovery results itself before publishing state.
++	if [[ -n "${flatpak_support}" && "${option}" != -c && "${option}" != --check ]] &&
++		[ -z "$(flatpak list --user ; flatpak list --system)" ]; then
+ 		unset flatpak_support
+ 	fi
+ fi
 --- a/src/lib/flatpak_unused_packages.sh
 +++ b/src/lib/flatpak_unused_packages.sh
 @@ -1,40 +1,27 @@

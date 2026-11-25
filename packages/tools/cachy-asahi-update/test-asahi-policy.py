@@ -27,9 +27,10 @@ def module(name, filename):
 
 policy_module = module("asahi_policy", "asahi-policy.py")
 upstream = module("upstream", "test-upstream.py")
-BEHAVIOR_SHA = "29fb848c84049f62d07cbf96cbe01f55e473ed6d790b045fda5ece539e57e29e"
+BEHAVIOR_SHA = "a002527c1ca4643d75815c6ddd002e314b2939a644f91740edaed3701eb4b819"
 APPLE_SHA = "8201ed41b9790cbb004f3ce62d80ce1e9f25d314e7ef685ffea44d2f1594b783"
 FULL_SHA = "103c965d6d7b86b558b3fc686975a3a649de3cc2e0b94f7dee608c7bdaeaef0a"
+COMMON_SHA = "3d3de36e22e509c2be638eb128c98ee90328dc2c93fe881e6a2a72093be347d9"
 
 
 def digest(data):
@@ -216,9 +217,10 @@ class ShellIntegration(unittest.TestCase):
     def setUp(self):
         self.h = upstream.UpstreamBehavior(methodName="runTest")
         self.h.setUp(); self.addCleanup(self.h.doCleanups)
-        full = (upstream.SOURCE / "src/lib/full_upgrade.sh").read_bytes()
-        self.assertEqual(digest(full), FULL_SHA)
-        (self.h.lib / "full_upgrade.sh").write_bytes(full)
+        for name, expected in (("full_upgrade.sh", FULL_SHA), ("common.sh", COMMON_SHA)):
+            data = (upstream.SOURCE / "src/lib" / name).read_bytes()
+            self.assertEqual(digest(data), expected)
+            (self.h.lib / name).write_bytes(data)
         for filename, expected in (("behavior.patch", BEHAVIOR_SHA), ("apple-policy.patch", APPLE_SHA)):
             patch = HERE / filename
             self.assertEqual(digest(patch.read_bytes()), expected)
