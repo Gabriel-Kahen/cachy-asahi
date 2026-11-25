@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from runpy import run_path
 import subprocess
+import sys
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
@@ -12,7 +13,8 @@ from unittest.mock import Mock, patch
 
 
 HERE = Path(__file__).resolve().parent
-S = SimpleNamespace(**run_path(str(HERE / "package_site.py")))
+with patch.object(sys, "path", [str(HERE), *sys.path]):
+    S = SimpleNamespace(**run_path(str(HERE / "package_site.py"), run_name="_qtbase_package_site_fixture"))
 E, C, W = S.E, S.C, S.W
 PLAN, SELECTION, MEDIA = "a" * 64, "b" * 64, "c" * 64
 CID, NONCE = "e" * 64, "f" * 32
@@ -21,6 +23,9 @@ GROUP = "/user.slice/app.slice/" + W.SCOPE
 
 class PackageSiteTests(unittest.TestCase):
     def setUp(self):
+        # The historical actor imports a sibling helper by its local name.
+        # Keep that search path private to each fixture.
+        self.enterContext(patch.object(sys, "path", [str(HERE), *sys.path]))
         self.scratch = Path(self.enterContext(TemporaryDirectory())).resolve()
         self.root = self.scratch / "capsule"
         self.stage = self.scratch / "staged"
@@ -51,7 +56,7 @@ class PackageSiteTests(unittest.TestCase):
         self.assertEqual({value for flag, value in zip(args, args[1:]) if flag == "--env"}, set(S.ROLE_FLAGS))
 
     def test_borrowed_owner_has_separate_scope_and_namespace(self):
-        historical = run_path(str(HERE / "full_site.py"))
+        historical = run_path(str(HERE / "full_site.py"), run_name="_qtbase_full_site_fixture")
         other = S.package_owner(self.stage, "7" * 64)
         self.assertNotEqual(self.owner.SCOPE, historical["SCOPE"])
         self.assertNotEqual(self.owner.NONCE_LABEL, historical["NONCE_LABEL"])
