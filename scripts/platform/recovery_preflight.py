@@ -44,6 +44,7 @@ PLATFORM = set(audit.BOOT + audit.AUDIO + ("mesa", "vulkan-asahi", "linux-firmwa
                                          "pipewire", "wireplumber", "bankstown", "triforce-lv2"))
 BOOT_ROLES = {"boot-chain", "kernel", "kernel-release", "firmware"}
 CONFIG_ROLES = {"user-configuration", "system-configuration"}
+MAX_KERNEL_ASSET_BYTES = 64 * recovery.MIB
 MAX_ROWS = 4096
 MAX_RECOVERY = 32
 MAX_SECONDS = 120
@@ -165,8 +166,11 @@ def run(contract):
     def blocked(code, action, **details):
         conditions.append({"code": code, "next_action": action, **details})
 
-    if (MODELS.get(model["compatible"]) != model["air_size_inches"] or compatible.count(model["compatible"]) != 1
-            or set(compatible) & set(MODELS) != {model["compatible"]}):
+    identifiers = set(compatible)
+    if (MODELS.get(model["compatible"]) != model["air_size_inches"]
+            or identifiers & set(MODELS) != {model["compatible"]}
+            or "apple,t8112" not in identifiers or len(identifiers) != len(compatible)
+            or not all(identifier and identifier.isprintable() for identifier in compatible)):
         blocked("target-model-mismatch", "Capture the exact M2 Air size and matching raw device-tree compatible property.")
     if runtime["architecture"] != "aarch64" or runtime["page_size"] != 16384:
         blocked("target-runtime-mismatch", "Capture the running target architecture and page size; generic ARM evidence cannot stand in for M2.")
@@ -203,7 +207,8 @@ def run(contract):
             need(set(row) == {"role", "artifact"} and row["role"] in required and row["role"] not in roles,
                  "duplicate/unknown retained asset role")
             roles.add(row["role"])
-            data = recovery.auth.bound_bytes(row["artifact"], 32 * recovery.MIB)
+            maximum = MAX_KERNEL_ASSET_BYTES if row["role"] == "kernel" else 32 * recovery.MIB
+            data = recovery.auth.bound_bytes(row["artifact"], maximum)
             if row["role"] == "kernel-release" and data.decode("ascii").strip() != runtime["kernel_release"]:
                 blocked("running-kernel-release-mismatch", "Capture the running kernel release and matching retained kernel release artifact together.")
         retained[field] = rows

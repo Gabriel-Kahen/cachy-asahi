@@ -108,18 +108,20 @@ class Comparison:
     def finding(self, status, code, **details):
         self.findings.append({"status": status, "code": code, **details})
 
-    def retained_inputs(self, bundle, receipt):
+    def retained_inputs(self, bundle, receipt, selected):
         document = self.document(bundle["inputs"])
         fields(document, {"schema_version", "kind", "collection", "files"}, "retention map fields refused")
         version(document["schema_version"])
         need(document["kind"] == "collector-retained-input-map" and document["collection"] == bundle["collection"],
              "retention map/collection pairing refused")
+        kernel_source = selected.get("kernel", {}).get("path")
         retained = {}
         for row in rows(document["files"]):
             fields(row, {"source_path", "retained"}, "retention row fields refused")
             name = str(snapshot.absolute(row["source_path"]))
             need(name not in retained, "duplicate retained source")
-            retained[name] = (row["retained"], self.reader.bound(row["retained"], 32 * MIB))
+            maximum = snapshot.MAX_KERNEL_ASSET_BYTES if name == kernel_source else snapshot.MAX_OTHER_ASSET_BYTES
+            retained[name] = (row["retained"], self.reader.bound(row["retained"], maximum))
         sources = {}
         for source in rows(receipt["sources"]):
             fields(source, {"path", "size", "sha256", "node"}, "collector source fields refused")
@@ -134,11 +136,13 @@ class Comparison:
              and receipt["source_bytes"] == sum(row["size"] for row in sources.values()),
              "whole collector input map/byte count required")
 
-        def original(ref):
+        def original(ref, maximum=snapshot.MAX_OTHER_ASSET_BYTES):
             fields(ref, {"path", "size", "sha256"}, "original reference fields refused")
             need(ref["path"] in retained and content(ref) == content(retained[ref["path"]][0]),
                  "original reference not bound by retained input map")
-            return retained[ref["path"]][1]
+            data = retained[ref["path"]][1]
+            need(len(data) <= maximum, "retained original byte bound exceeded")
+            return data
 
         contract = audit.load_json(original(receipt["contract_reference"]))
         version(contract.get("schema_version"))
@@ -217,7 +221,7 @@ class Comparison:
             fields(row, {"role", "artifact"}, "recovery asset fields refused")
             role = row["role"]
             need(role in ASSETS and role not in saved, "duplicate/unknown recovery asset")
-            self.reader.bound(row["artifact"], 32 * MIB)
+            self.reader.bound(row["artifact"], snapshot.selected_asset_limit(role))
             saved.add(role)
             if role not in assets or row["artifact"] != assets[role]:
                 self.finding("MISSING_EVIDENCE", "stale-recovery-asset", side=side, role=role)
@@ -248,7 +252,14 @@ class Comparison:
                  and provenance.get("source_code_sha256") == code
                  and provenance.get("status") == "RETAINED_METADATA_ONLY", "retained bundle producer binding refused")
             self.producer_roots.add(root)
-        retained, original, root, fixture_runtime = self.retained_inputs(bundle, receipt)
+        selected = {}
+        for row in rows(receipt["selected_files"], len(ASSETS)):
+            fields(row, {"role", "source"}, "selected file fields refused")
+            fields(row["source"], {"path", "size", "sha256"}, "selected source fields refused")
+            role = row["role"]
+            need(role in ASSETS and role not in selected, "duplicate/unknown selected role")
+            selected[role] = row["source"]
+        retained, original, root, fixture_runtime = self.retained_inputs(bundle, receipt, selected)
         fields(target, {"schema_version", "kind", "model", "device_tree_compatible", "packages", "captured_at",
                         "runtime", "boot_assets", "configuration_backups"}, "snapshot fields refused")
         version(target["schema_version"])
@@ -286,19 +297,14 @@ class Comparison:
         need(module_path in audit.parse_desc(kernel_files.decode())["FILES"], "retained kernel ownership mismatch")
         for name in sorted(preflight.PLATFORM - set(packages)):
             self.finding("MISSING_EVIDENCE", "required-platform-package-missing", side=side, package=name)
-        selections = {}
-        for row in rows(receipt["selected_files"], len(ASSETS)):
-            fields(row, {"role", "source"}, "selected file fields refused")
-            role = row["role"]
-            need(role in ASSETS and role not in selections, "duplicate/unknown selected role")
-            selections[role] = original(row["source"])
+        selections = {role: original(ref, snapshot.selected_asset_limit(role)) for role, ref in selected.items()}
         assets = {}
         for field, allowed in (("boot_assets", preflight.BOOT_ROLES), ("configuration_backups", preflight.CONFIG_ROLES)):
             for row in rows(target[field], len(allowed)):
                 fields(row, {"role", "artifact"}, "snapshot asset fields refused")
                 role = row["role"]
                 need(role in allowed and role not in assets and role in selections, "unknown/duplicate snapshot asset role")
-                data = self.reader.bound(row["artifact"], 32 * MIB)
+                data = self.reader.bound(row["artifact"], snapshot.selected_asset_limit(role))
                 need(data == selections[role], "selected asset/source map mismatch")
                 if role == "kernel-release":
                     need(data.decode("ascii").strip() == runtime["kernel_release"], "kernel-release asset mismatch")

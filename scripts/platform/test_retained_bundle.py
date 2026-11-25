@@ -120,6 +120,20 @@ class BundleTests(unittest.TestCase):
         for key in ("hardware_accepted", "recovery_accepted", "fresh_signature_verification", "configuration_ownership_verified"):
             self.assertIs(report[key], False)
 
+    def test_known_asahi_kernel_size_round_trips(self):
+        kernel = next(row for row in self.fixture.contract["selected_files"] if row["role"] == "kernel")
+        kernel["source"] = self.save("fixture-vmlinuz", b"\0" * 35_834_368)
+        self.request["capture_contract"] = self.save("capture-request.json", self.fixture.contract)
+        self.complete_assertions()
+        first, second = self.pair()
+        selected = next(row["artifact"] for row in self.load(first["bundle"]["snapshot"])["boot_assets"]
+                        if row["role"] == "kernel")
+        self.assertEqual(selected["size"], kernel["source"]["size"])
+        self.assertEqual(selected["sha256"], kernel["source"]["sha256"])
+        report = self.compare(first, second)
+        self.assertEqual(report["status"], "UNCHANGED", report["findings"])
+        self.assertFalse(report["recovery_accepted"])
+
     def test_all_original_input_paths_can_disappear(self):
         self.complete_assertions()
         first, second = self.pair()
@@ -275,6 +289,24 @@ class BundleTests(unittest.TestCase):
             self.run_bundle()
         self.assertTrue((self.output / "INCOMPLETE").exists())
         self.assertFalse((self.output / "bundle.json").exists())
+
+    def test_publication_directory_sync_failure_stays_incomplete(self):
+        marker = self.output / "INCOMPLETE"
+        manifest = self.output / "bundle.json"
+        sync = os.fsync
+
+        def fail_publication_sync(fd):
+            if manifest.is_file() and os.path.samestat(os.fstat(fd), self.output.stat()):
+                self.assertTrue(marker.is_file())
+                raise OSError("bundle directory sync failed")
+            sync(fd)
+
+        with patch.object(b.s.os, "fsync", fail_publication_sync):
+            with self.assertRaisesRegex(OSError, "bundle directory sync failed"):
+                self.run_bundle()
+        self.assertTrue(marker.is_file())
+        with self.assertRaisesRegex(ValueError, "publication is incomplete"):
+            c.Comparison().bundle(json.loads(manifest.read_bytes()), "before")
 
     def test_marker_removal_failure_is_not_admissible(self):
         original = b.s.os.unlink
