@@ -84,6 +84,10 @@ its signed promotion, all latest withdrawals, and the exact signed recovery
 authorization. It retains all earlier generations and source bundles. The plan
 contains no output generation digest, avoiding a circular hash/signature binding.
 
+Verify the resulting concrete generation with the [v2 endpoint recipient](endpoint-client.md#retained-recovery-recipient-v2)
+using the new generation digest and the externally authenticated signer and
+public keyring.
+
 The expected-current pin rejects use after the endpoint changes. It is not a
 permanently consumed nonce or a public anti-replay protocol: restoring precisely
 the same expected source/endpoint state can make the same authorization usable
