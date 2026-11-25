@@ -45,6 +45,17 @@ def sha(data):
 
 
 class GuestInitControls(unittest.TestCase):
+    def test_boot_elapsed_and_helper_slack_are_reserved(self):
+        code = 'guest_deadline=51120 build_cap=50400; worker_timeout "$1"'
+        for uptime, expected in (("0.00", b"51119\n"), ("159.99", b"50960\n")):
+            with self.subTest(uptime=uptime):
+                result = model(code, uptime)
+                self.assertEqual((result.returncode, result.stdout), (0, expected))
+        for uptime in ("160.00", "51120.01", "1111111111.00", "bad"):
+            with self.subTest(uptime=uptime):
+                result = model(code, uptime)
+                self.assertEqual((result.returncode, result.stdout), (1, b""))
+
     def test_cmdline_refuses_unknown_fields_wrong_media_or_geometry(self):
         code = 'parse_cmdline "$@"; printf "%s %s %s\\n" "$nonce" "$result_bytes" "$guest_deadline"'
         valid = model(code, "quiet", *command_line())

@@ -16,13 +16,8 @@ sys.path.insert(0, str(HERE))
 import full_readback as R
 
 
-def no_actor(event, _args):
-    if event.startswith(("subprocess.", "socket.", "os.exec", "os.posix_spawn", "os.system")):
-        raise AssertionError("Passive reader fixture attempted an actor operation: " + event)
-
-
-sys.addaudithook(no_actor)
-FIXTURE = run_path(str(HERE.parent / "qt612_base_16k_link_preflight/test_readback.py"))
+with patch.object(sys, "addaudithook"):
+    FIXTURE = run_path(str(HERE.parent / "qt612_base_16k_link_preflight/test_readback.py"))
 C = R.C
 NONCE, HANDOFF, PLAN, AUTHORITY = "b" * 32, "d" * 64, "e" * 64, "f" * 64
 UUID = FIXTURE["RESULT_UUID"]
@@ -148,6 +143,21 @@ def evidence_disk(disk, name, body):
 
 
 class FullReadbackTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        enabled = True
+
+        def fence(event, _args):
+            if enabled and event.startswith(("subprocess.", "socket.", "os.exec", "os.posix_spawn", "os.system")):
+                raise AssertionError("Passive reader fixture attempted an actor operation: " + event)
+
+        def release():
+            nonlocal enabled
+            enabled = False
+
+        sys.addaudithook(fence)
+        cls.addClassCleanup(release)
+
     def review(self, output, plan, report):
         digest = put(output, "actor-result.json", C.wire(report))["sha256"]
         return R.review_actor(output, plan, digest, HANDOFF, AUTHORITY, PLAN)

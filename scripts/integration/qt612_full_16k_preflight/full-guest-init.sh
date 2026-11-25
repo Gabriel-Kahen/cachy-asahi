@@ -8,6 +8,7 @@ export PATH=/usr/bin:/bin LC_ALL=C TZ=UTC
 readonly ROOT=/qtwork/root VOLUME=/qtbase-full EXPORT=/qtexport
 readonly EVIDENCE=/qtbase-full-evidence PLAN=/qtmedia/FULL-GUEST-PLAN.json
 readonly SCRATCH_UUID=ed56022f-4e82-f6e3-fbde-502489347154 EXPORT_RESERVE=8388608
+readonly WORKER_HELPER_SECONDS=560
 declare -A caps=()
 
 parse_cmdline() {
@@ -160,7 +161,17 @@ parse_caps() {
             caps[$leaf]=$limit
         done
     } <<<"$lines"
-    [[ -v caps[result.json] && -v caps[build.log] && ${caps[build.log]} == "$log_cap" ]]
+    [[ -v caps[result.json] && -v caps[build.log] && ${caps[build.log]} == "$log_cap" ]] || return 1
+    build_cap=$build_seconds
+}
+
+worker_timeout() {
+    local uptime=$1 elapsed remaining
+    [[ $uptime =~ ^([0-9]{1,8})\.[0-9]{2}$ ]] || return 1
+    elapsed=$(( 10#${BASH_REMATCH[1]} + 1 ))
+    remaining=$(( guest_deadline - elapsed ))
+    (( remaining >= build_cap + WORKER_HELPER_SECONDS )) || return 1
+    printf '%d\n' "$remaining"
 }
 
 builder_absent() {
@@ -271,7 +282,7 @@ main() {
     phase=storage
     select_storage
     mount -n -t ext4 -o rw,nosuid,nodev "$work" /qtwork
-    local path device leaf major minor lines
+    local path device leaf major minor lines uptime ignored worker_seconds
     for path in "$ROOT" "$ROOT/dev" "$ROOT/proc" "$ROOT/sys" "$ROOT/qtmedia" "$EXPORT"; do
         [[ -d $path && ! -L $path ]]
     done
@@ -294,8 +305,11 @@ main() {
     install -d -o 1000 -g 1000 -m 700 "$ROOT$EVIDENCE"
 
     phase=build
-    guest "$guest_deadline" /usr/bin/python -I -B -Werror /qtmedia/full_guest.py \
-        --plan "$PLAN" --plan-sha256 "$guest_plan" --evidence "$EVIDENCE" </dev/null >/dev/null 2>&1
+    read -r uptime ignored < /proc/uptime
+    worker_seconds=$(worker_timeout "$uptime")
+    guest "$worker_seconds" /usr/bin/python -I -B -Werror /qtmedia/full_guest.py \
+        --plan "$PLAN" --plan-sha256 "$guest_plan" --evidence "$EVIDENCE" \
+        --worker-deadline-uptime "$guest_deadline" </dev/null >/dev/null 2>&1
     builder_absent
     worker_contract pass
     phase=complete

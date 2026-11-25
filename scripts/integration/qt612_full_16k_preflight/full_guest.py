@@ -13,6 +13,7 @@ import stat
 import struct
 import subprocess
 import sys
+import time
 from types import SimpleNamespace
 
 
@@ -35,9 +36,17 @@ ROLE_NAMES = {role.lower(): "libQt6" + role + VERSION for role in ("Core", "DBus
 NINJA_IDLE = b"ninja: no work to do.\n"
 REMAINDER_COUNT = 1216
 MAX_LIBRARY = 128 * MIB
+NINJA_LOG_CAP = 2 * MIB
+POST_BUILD_RESERVE_SECONDS = 240
 SHA = re.compile("[0-9a-f]{64}")
 NONCE = re.compile("[0-9a-f]{32}")
 PHDR = struct.Struct("<II6Q")
+DYNAMIC = struct.Struct("<qQ")
+CORE_INTERPRETER = b"/lib/ld-linux-aarch64.so.1\0"
+NINJA_LOG_HEADER = b"# ninja log v7\n"
+NINJA_LOG_ROW = re.compile(
+    rb"([0-9]{1,10})\t([0-9]{1,10})\t[0-9]{1,19}\t([^\x00-\x1f\x7f]{1,4096})\t([0-9a-f]{1,16})"
+)
 FAILURE_CODES = {
     "inputs": "INPUT_CHECK_FAILED",
     "graph": "GRAPH_CHECK_FAILED",
@@ -135,7 +144,7 @@ def evidence_caps(plan):
     return {
         "inventory.before": INVENTORY["bytes"], "inventory.after": INVENTORY["bytes"],
         "gui-dry-run.log": DRY_RUN["gui"]["bytes"], "all-dry-run.log": DRY_RUN["all"]["bytes"],
-        "all-dry-run.after.log": len(NINJA_IDLE), "all.commands": ALL_COMMANDS["bytes"],
+        "all-dry-run.after.log": len(NINJA_IDLE), "all.commands": ALL_COMMANDS["bytes"], "ninja-log.after": NINJA_LOG_CAP,
         "build.log": sizes["build_log_bytes"], "metrics.json": 4096, "outputs.json": 16384,
         "result.json": 4096,
     } | {name: min(MAX_LIBRARY, sizes["artifact_bytes"]) for name in LIBRARIES}
@@ -146,32 +155,97 @@ def alias_metadata(name):
     return {stem + ".so": stem + ".so.6", stem + ".so.6": name}
 
 
-def verify_library(body):
-    """Check AArch64 shared ELF load geometry without loading the object."""
-    need(len(body) >= 64 and body[:7] == b"\x7fELF\x02\x01\x01"
+def verify_library(name, body):
+    """Check the named shared object's file-backed loader metadata and 16 KiB geometry."""
+    need(name in LIBRARIES and 64 <= len(body) <= MAX_LIBRARY and body[:7] == b"\x7fELF\x02\x01\x01"
          and struct.unpack_from("<HHI", body, 16) == (3, 183, 1),
-         "Expected AArch64 ELF shared object")
+         "Expected named AArch64 ELF shared object")
     start = struct.unpack_from("<Q", body, 32)[0]
     header, entry, count = struct.unpack_from("<HHH", body, 52)
     need(header == 64 and entry == PHDR.size and 0 < count <= 1024
          and 64 <= start <= len(body) - count * entry, "Unbounded ELF program header table")
-    load = executable = False
-    for kind, flags, offset, address, _, file_size, mem_size, align in PHDR.iter_unpack(
-            memoryview(body)[start:start + count * entry]):
-        if kind != 1:
-            continue
-        load = True
-        executable |= bool(flags & 1 and file_size)
-        need(file_size <= mem_size and offset + file_size <= len(body) and address + mem_size < 2**64
+    segments = list(PHDR.iter_unpack(memoryview(body)[start:start + count * entry]))
+    loads = [row for row in segments if row[0] == 1]
+    need(all(offset + size <= len(body) for _, _, offset, _, _, size, _, _ in segments),
+         "ELF program segment outside file")
+    for _, _, offset, address, _, file_size, mem_size, align in loads:
+        need(file_size <= mem_size and address + mem_size < 2**64
              and align >= 16384 and align & (align - 1) == 0 and offset % align == address % align,
              "Expected 16 KiB ELF load geometry")
-    need(load and executable, "Expected executable ELF load segment")
+    need(any(row[1] & 1 and row[5] for row in loads), "Expected executable file-backed ELF load segment")
+
+    # Follow virtual addresses through unique file-backed PT_LOAD ranges, as in the
+    # reviewed Qt family ELF checker. Section headers are not loader authority.
+    def load_offset(address, size, flags):
+        matches = [(permissions, offset + address - virtual)
+                   for _, permissions, offset, virtual, _, file_size, _, _ in loads
+                   if size > 0 and virtual <= address and address + size <= virtual + file_size]
+        need(len(matches) == 1 and matches[0][0] & flags == flags,
+             "ELF metadata must be in one file-backed load with the required permissions")
+        return matches[0][1]
+
+    dynamic = [row for row in segments if row[0] == 2]
+    need(len(dynamic) == 1, "Expected exactly one ELF PT_DYNAMIC segment")
+    _, flags, offset, address, _, size, memory, _ = dynamic[0]
+    need(flags & 4 and 0 < size <= MIB and size == memory and size % DYNAMIC.size == 0
+         and load_offset(address, size, 4) == offset, "Malformed ELF PT_DYNAMIC segment")
+    tags = {}
+    for tag, value in DYNAMIC.iter_unpack(memoryview(body)[offset:offset + size]):
+        if tag == 0:
+            break
+        if tag in (5, 10, 14, 0x6ffffffb):  # DT_STRTAB, DT_STRSZ, DT_SONAME, DT_FLAGS_1
+            need(tag not in tags, "Duplicate ELF dynamic metadata tag")
+            tags[tag] = value
+    else:
+        raise ValueError("Unterminated ELF PT_DYNAMIC segment")
+    need({5, 10, 14} <= tags.keys() and not tags.get(0x6ffffffb, 0) & 0x08000000,
+         "Expected ELF dynamic string table and DT_SONAME for a shared library")
+    table = load_offset(tags[5], tags[10], 4)
+    soname = name.removesuffix(VERSION).encode("ascii") + b".so.6\0"
+    index = tags[14]
+    need(body[table] == 0 and 0 < index <= tags[10] - len(soname)
+         and body[table + index:table + index + len(soname)] == soname,
+         "ELF DT_SONAME differs from the selected library name")
+
+    interpreters = [row for row in segments if row[0] == 3]
+    if interpreters:
+        need(name == ROLE_NAMES["core"] and pin(body) == INHERITED["core"] and len(interpreters) == 1,
+             "Only the exact inherited QtCore may contain PT_INTERP")
+        _, flags, offset, address, _, size, memory, _ = interpreters[0]
+        need(flags == 4 and size == memory == len(CORE_INTERPRETER)
+             and load_offset(address, size, 4) == offset and body[offset:offset + size] == CORE_INTERPRETER,
+             "Inherited QtCore interpreter must be exact and file-backed")
+        entry = struct.unpack_from("<Q", body, 24)[0]
+        need(entry > 0 and entry % 4 == 0, "Expected aligned inherited QtCore entry point")
+        load_offset(entry, 4, 1)
 
 
 def evidence_json(body):
     data = json.loads(body)
     need(type(data) is dict and wire_evidence(data) == body, "Expected canonical Qtbase guest evidence JSON")
     return data
+
+
+def ninja_log_delta(body, elapsed_ms):
+    """Verify Ninja's appended completion rows against the exact inherited v7 log."""
+    start, expected = INITIAL_NINJA_LOG
+    need(start < len(body) <= NINJA_LOG_CAP and body.startswith(NINJA_LOG_HEADER)
+         and body[start - 1:start] == body[-1:] == b"\n" and pin(body[:start])["sha256"] == expected,
+         "Complete Ninja log with the exact inherited prefix required")
+    rows = body[start:-1].split(b"\n")
+    outputs, timings = set(), set()
+    for row in rows:
+        fields = NINJA_LOG_ROW.fullmatch(row)
+        need(fields, "Malformed appended Ninja completion row")
+        began, finished, output, command = fields.groups()
+        began, finished = int(began), int(finished)
+        need(0 <= began <= finished <= elapsed_ms + 1, "Appended Ninja timings exceed the observed build")
+        outputs.add(output)
+        timings.add((began, finished, command))
+    new_libraries = set(LIBRARIES) - set(ROLE_NAMES.values())
+    need({("lib/" + name).encode("ascii") for name in new_libraries} <= outputs,
+         "Appended Ninja log must record every newly linked Qtbase library")
+    return dict(after=pin(body), appended_output_rows=len(rows), distinct_timing_command_tuples=len(timings))
 
 
 def verify_evidence(files, plan, sha):
@@ -190,17 +264,20 @@ def verify_evidence(files, plan, sha):
         ("all.commands", ALL_COMMANDS))) and files["all-dry-run.after.log"] == NINJA_IDLE,
         "Original inventory or full Qtbase graph observation differs")
     metrics = evidence_json(files["metrics.json"])
-    need(metrics.keys() == {"exit_code", "elapsed_ms", "peak_child_rss_kib", "log_complete", "natural",
-                            "group_empty", "timeout", "overflow", "dry_run_steps"}
+    need(metrics.keys() == {"exit_code", "elapsed_ms", "rusage_children_maxrss_kib", "log_complete", "natural",
+                            "group_empty", "timeout", "overflow", "dry_run_scheduled_steps"}
          and type(metrics["exit_code"]) is int and metrics["exit_code"] == 0
-         and type(metrics["dry_run_steps"]) is int and metrics["dry_run_steps"] == REMAINDER_COUNT
+         and type(metrics["dry_run_scheduled_steps"]) is int and metrics["dry_run_scheduled_steps"] == REMAINDER_COUNT
          and type(metrics["elapsed_ms"]) is int
          and 0 < metrics["elapsed_ms"] <= plan["limits"]["guest_build_seconds"] * 1000
-         and type(metrics["peak_child_rss_kib"]) is int and metrics["peak_child_rss_kib"] > 0
+         and type(metrics["rusage_children_maxrss_kib"]) is int and metrics["rusage_children_maxrss_kib"] > 0
          and metrics["log_complete"] is metrics["natural"] is metrics["group_empty"] is True
          and metrics["timeout"] is metrics["overflow"] is False, "Expected bounded natural Qtbase build")
     outputs = evidence_json(files["outputs.json"])
-    need(outputs.keys() == {"libraries", "guest_free_bytes"}, "Exact Qtbase output record required")
+    need(outputs.keys() == {"libraries", "guest_free_bytes", "ninja_log"}, "Exact Qtbase output record required")
+    observed_delta = ninja_log_delta(files["ninja-log.after"], metrics["elapsed_ms"])
+    need(wire_evidence(outputs["ninja_log"]) == wire_evidence(observed_delta),
+         "Qtbase Ninja log summary differs from the retained bytes")
     free = outputs["guest_free_bytes"]
     need(type(free) is dict and free.keys() == {"before", "after"}
          and all(type(value) is int and plan["limits"]["guest_min_free_bytes"] <= value <= 16 * GIB
@@ -212,7 +289,7 @@ def verify_evidence(files, plan, sha):
          and outputs["libraries"] == {name: dict(library_pins[name], aliases=alias_metadata(name)) for name in LIBRARIES},
          "Qtbase library bodies or alias record differ")
     for name in LIBRARIES:
-        verify_library(files[name])
+        verify_library(name, files[name])
     return dict(status="VERIFIED_QTBASE_BUILD_ONLY", result=pin(files["result.json"]), metrics=metrics,
                 outputs=outputs, evidence={name: pin(body) for name, body in files.items()})
 
@@ -267,7 +344,7 @@ def retain_outputs(g, evidence, limit):
         aliases = g.alias_chain(name.removesuffix(VERSION))
         cap = min(limit, MAX_LIBRARY)
         body = g.file_data(lib / name, cap, collect=True)[2]
-        verify_library(body)
+        verify_library(name, body)
         metadata = {alias: target for alias, target, _identity in aliases}
         need(metadata == alias_metadata(name), "Wrong Qtbase output alias chain")
         g.put(evidence / name, body)
@@ -276,7 +353,13 @@ def retain_outputs(g, evidence, limit):
     return rows
 
 
-def build(g, plan, sha, evidence):
+def require_build_window(worker_deadline_uptime, seconds):
+    now = time.clock_gettime(time.CLOCK_BOOTTIME)
+    need(type(worker_deadline_uptime) is int and now + seconds + POST_BUILD_RESERVE_SECONDS < worker_deadline_uptime,
+         "Insufficient guest time for the selected build and verification reserve")
+
+
+def build(g, plan, sha, evidence, worker_deadline_uptime):
     result = dict(kind=RESULT_KIND, nonce=plan["nonce"], plan_sha256=sha, target=TARGET)
     phase = "inputs"
     limits = plan["limits"]
@@ -298,19 +381,29 @@ def build(g, plan, sha, evidence):
         before = free_space(g.BUILD, limits["guest_min_free_bytes"])
 
         phase = "build"
+        require_build_window(worker_deadline_uptime, limits["guest_build_seconds"])
         metrics = g.capture(BUILD_ARGV, evidence / "build.log", limits["guest_build_seconds"],
                             limits["build_log_bytes"], cwd=g.RECIPE)
-        g.put_json(evidence / "metrics.json", metrics | {"dry_run_steps": REMAINDER_COUNT})
+        # getrusage(RUSAGE_CHILDREN) covers all children already waited for by
+        # this worker, including the earlier inventory and Ninja subprocesses.
+        captured = dict(metrics)
+        captured["rusage_children_maxrss_kib"] = captured.pop("peak_child_rss_kib")
+        captured["dry_run_scheduled_steps"] = REMAINDER_COUNT
+        g.put_json(evidence / "metrics.json", captured)
         g.require_success(metrics, "full Qtbase build")
 
         phase = "verify"
+        _, _, ninja_log = g.file_data(log, NINJA_LOG_CAP, collect=True)
+        delta = ninja_log_delta(ninja_log, metrics["elapsed_ms"])
+        g.put(evidence / "ninja-log.after", ninja_log)
         dry_run(g, evidence, "all-dry-run.after.log", TARGET, pin(NINJA_IDLE))
         g.check_inputs()
         need(inherited_state(g) == inherited, "Accepted Qtbase checkpoint objects or aliases changed")
         inventory(g, evidence, "inventory.after")
         rows = retain_outputs(g, evidence, limits["artifact_bytes"])
         after = free_space(g.BUILD, limits["guest_min_free_bytes"])
-        g.put_json(evidence / "outputs.json", dict(libraries=rows, guest_free_bytes=dict(before=before, after=after)))
+        g.put_json(evidence / "outputs.json", dict(libraries=rows, guest_free_bytes=dict(before=before, after=after),
+                                                  ninja_log=delta))
     except (OSError, ValueError, subprocess.SubprocessError):
         result.update(status="HOLD", phase=phase, failure_code=FAILURE_CODES[phase])
     else:
@@ -324,6 +417,7 @@ def main():
     parser.add_argument("--plan", type=Path, required=True)
     parser.add_argument("--plan-sha256", required=True)
     parser.add_argument("--evidence", type=Path, required=True)
+    parser.add_argument("--worker-deadline-uptime", type=int, required=True)
     args = parser.parse_args()
     need(sys.flags.isolated and sys.dont_write_bytecode and __debug__, "Expected isolated Python")
     need(os.getuid() == os.geteuid() == os.getgid() == os.getegid() == 1000
@@ -340,7 +434,7 @@ def main():
     g = guest_runtime()
     for signum in g.INTERRUPTS:
         signal.signal(signum, g.interrupt)
-    return 0 if build(g, plan, args.plan_sha256, EVIDENCE) == "PASS" else 2
+    return 0 if build(g, plan, args.plan_sha256, EVIDENCE, args.worker_deadline_uptime) == "PASS" else 2
 
 
 if __name__ == "__main__":

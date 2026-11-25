@@ -202,18 +202,67 @@ and the pinned offline runner. It uses the existing owned command and
 allocation guards and rechecks the read-only backing chain after QEMU exits.
 The [guest worker](full_guest.py) requires both dry-run transcripts to
 match before running the serial build. Completion requires a retired
-build process group, an idle `all` target and all 18 expected AArch64
-shared libraries with 16 KiB load alignment. The
-[independent reader](full_readback.py) reopens the process receipts,
-serial terminal and bounded ext4 result against the same plan.
+build process group, an idle `all` target and all 18 named AArch64 shared
+libraries with matching ELF SONAMEs and 16 KiB load alignment. Only the
+exact inherited QtCore may carry its pinned interpreter. The worker
+retains the bounded Ninja log and reports appended output rows and
+distinct timing and command tuples separately from the 1,216 scheduled
+dry-run actions. Its RSS field is the cumulative child high-water mark.
+Guest uptime reduces the worker window and preserves time for post-build
+checks, result export and poweroff. The host's full allocation samples
+run once per second, while the owned runtime checks disk limits twice per
+second. The [independent reader](full_readback.py) reopens the process
+receipts, serial terminal and bounded ext4 result against the same plan.
 
-The successor has source fixtures for admission, payload and input drift,
-completion, private diagnostics, and output and cleanup limits. A real
-successor capsule has yet to be sealed or booted. The outer runner still
-needs a full-target entry point that claims the attempt and records both
-container and scope retirement. The independent reader leaves these
-outer observations open. A fresh Root selection and live compilation
-remain pending.
+The [outer launcher](full_site.py) uses a separately pinned local site
+descriptor. The descriptor selects the capsule path and directory
+identity, launcher bytes, and the exact historical QtGui handoff and
+retirement record. Passive admission verifies the retained Q3, R4, Core
+and Gui closure copies and the local CLI and socket pins. The CLI
+produces the descriptor and reads it back without launching a container.
+
+```sh
+python3 -I -B scripts/integration/qt612_full_16k_preflight/full_site.py \
+  --capsule "$NEW_CAPSULE" describe --handoff-sha256 "$HANDOFF_SHA256" \
+  --qtgui-handoff "$QTGUI_HANDOFF" --qtgui-retirement "$QTGUI_RETIREMENT" \
+  > "$SITE_DATA"
+
+python3 -I -B scripts/integration/qt612_full_16k_preflight/full_site.py \
+  --capsule "$NEW_CAPSULE" preflight --site "$SITE_DATA" --site-sha256 "$SITE_SHA256"
+```
+
+The launcher requires the separately reviewed Root selection and its
+independent digest for `run` inside the selected full-target user scope.
+It checks the pinned rootless daemon and image and takes the permanent
+`full-build.claim` atomically. It prepares a private result clone and
+verifies the original container's isolation, memory, CPU, no-swap and PID
+bounds before attaching. It retains the original exit and inspect
+records, keeps stdout and stderr private, and removes only the owned
+container. After the scope exits, `observe` reopens the original
+receipts and checks twice for both the original CID and the scope.
+The guest reader covers guest and actor evidence. The outer observation
+separately establishes host retirement.
+
+The first real unissued capsule, sealed at `8001859c`, passed passive
+admission from the byte-exact Q3, Core and Gui files. Its handoff
+SHA-256 was `326ac4d4e770c0e94e704ff50b65d90161df3d78eb14b94ac0d04c53058585be`
+and its preflight receipt SHA-256 was
+`ecce9f0278c96de8d7d0f1b9b241d80f3b9bb4ccb4bc16ec802023ad677f56c9`.
+The revised capsule returned `PASS_FULL_TARGET_HOST_PREFLIGHT_ONLY`
+on November 25. The launcher refused to use that site descriptor
+with the earlier capsule, and both capsules remained unclaimed.
+
+| Revised unissued record | SHA-256 |
+| --- | --- |
+| Handoff | `00781ee8dada031334e93d0f1263f7f697775b580a8429b56493c36ee42bf0f4` |
+| Plan | `b70e038081212bf8fcc29f451c669d89cbdebfc259ac0646af5efe1086e760e4` |
+| Host site descriptor | `997d7b8aa76dee2ed8f24080019d1cf36ed1a381dd559dce924859766f794162` |
+| Host preflight receipt | `651a373620e61d94025069725f27852b1fcf43c59d0e0f0a1b21f8e72c5c99e5` |
+
+The launcher and revised worker have offline tests for root and
+authority binding, retirement, completion, library identity, deadlines
+and output limits. A fresh Root selection, live launch and compilation,
+and independent retirement of a live attempt remain pending.
 
 After the build, run the GUI-server reference recipe's package checks
 and staging in a separately bounded phase. The supported install must

@@ -64,7 +64,7 @@ class CapsuleTests(unittest.TestCase):
         self.assertEqual(F.load_capsule(self.root, self.digest), (self.handoff, self.plan))
         guest = G.read_plan(self.root / F.GUEST, self.plan["guest_plan"]["sha256"])
         self.assertEqual(guest["dry_run"], {"gui": F.DRY_GUI, "all": F.DRY_ALL})
-        self.assertEqual(len(G.evidence_caps(guest)), 28)
+        self.assertEqual(len(G.evidence_caps(guest)), 29)
         self.assertFalse(F.unsupplied_selection(self.handoff, self.plan, self.digest)["approved"])
         cmdline = self.plan["qemu_argv"][self.plan["qemu_argv"].index("-append") + 1]
         self.assertIn("root=PARTUUID=" + NONCE[:8], cmdline)
@@ -80,6 +80,11 @@ class CapsuleTests(unittest.TestCase):
                     F.verify_documents(changed, plan, self.source)
         with self.assertRaisesRegex(ValueError, "resource limit"):
             F.limit_shape(self.limits | {"overlay_file_bytes": 8 * F.GIB})
+        with self.assertRaisesRegex(ValueError, "headroom|reserve"):
+            F.limit_shape(self.limits | {"artifact_bytes": sum(F.INHERITED[role]["bytes"]
+                                                               for role in ("core", "dbus", "gui"))})
+        with self.assertRaisesRegex(ValueError, "headroom|reserve"):
+            F.limit_shape(self.limits | {"qemu_seconds": self.limits["guest_build_seconds"] + F.MIN_QEMU_SLACK_SECONDS - 1})
 
     def test_resealed_source_mutation_and_extra_symlink_refused(self):
         for name, error in ((F.DRY_RUN_SOURCE, "observed dry run"), (sorted(F.Q.SOURCE_FILES)[0], "historical runtime")):

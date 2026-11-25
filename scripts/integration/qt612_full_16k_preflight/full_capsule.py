@@ -52,6 +52,8 @@ LOWER = {
     "gui.qcow2": C.file_pin(750845952, "26afc11e8581afe2556be6ae0171c88cd64e755dcff6f9253cdd3cbb26d25ef4"),
 }
 GUEST_LIMITS = ("guest_build_seconds", "build_log_bytes", "artifact_bytes", "guest_min_free_bytes")
+GUEST_RETIRE_SECONDS = 180
+MIN_QEMU_SLACK_SECONDS = 800
 # The unchanged owned runtime enforces a 4 GiB RLIMIT_FSIZE ceiling.
 LIMITS = K.LIMITS | {"guest_min_free_bytes": (2 * GIB, 8 * GIB)}
 DEFAULT_LIMITS = dict(guest_build_seconds=50400, qemu_seconds=51300, build_log_bytes=64 * MIB,
@@ -68,7 +70,9 @@ def limit_shape(limits):
     C.need(type(limits) is dict and limits.keys() == LIMITS.keys()
            and all(type(limits[name]) is int and low <= limits[name] <= high
                    for name, (low, high) in LIMITS.items()), "Unreviewed full-build resource limit")
-    C.need(limits["qemu_seconds"] >= limits["guest_build_seconds"] + 300
+    inherited_bytes = sum(INHERITED[role]["bytes"] for role in ("core", "dbus", "gui"))
+    C.need(limits["qemu_seconds"] >= limits["guest_build_seconds"] + MIN_QEMU_SLACK_SECONDS
+           and limits["artifact_bytes"] > inherited_bytes
            and limits["actor_memory_bytes"] >= limits["guest_memory_bytes"] + 2 * GIB
            and limits["guest_memory_bytes"] % MIB == 0
            and limits["result_disk_bytes"] % 4096 == 0
@@ -113,7 +117,7 @@ def canonical_plan(nonce, inputs, limits, runner, guest_payload):
     pins = {name: C.pin(body) for name, body in guest_payload.items()}
     extra = dict(nonce=nonce, manifest=pins["MANIFEST.sha256"]["sha256"], guest_plan=pins[GUEST]["sha256"],
                  scratch_uuid=K.F.SCRATCH_UUID, result_uuid=result_uuid,
-                 result_bytes=limits["result_disk_bytes"], guest_deadline=seconds - 40)
+                 result_bytes=limits["result_disk_bytes"], guest_deadline=seconds - GUEST_RETIRE_SECONDS)
     argv = P.vm_argv("/inputs/Image", P.boot_cmdline(nonce, PAYLOAD + "/guest-init.sh") +
                     "".join(f" cachy_qt_full_{key}={value}" for key, value in extra.items()),
                     "qtbase-full-" + nonce, (

@@ -53,6 +53,13 @@ def verify_runtime(plan):
            "Exact no-swap memory and CPU limits required")
 
 
+def poll_allocation(watch):
+    # Keep reported samples below the frozen reader's 100,000 limit across
+    # the full actor envelope. The owned runtime checks disk bounds every 0.5 s.
+    if time.monotonic() - watch.last >= 1:
+        watch.record()
+
+
 def run(handoff, runner):
     plan, policy = runner.plan, runner.actor
     nonce = plan["nonce"]
@@ -71,7 +78,7 @@ def run(handoff, runner):
     before = runner.watch.record()
     C.need(before["free"] >= policy["admission_disk_bytes"] and runner.runtime.GUARD is None,
            "Unused owned runtime and current disk admission required")
-    runner.runtime.GUARD = runner.watch
+    runner.runtime.GUARD = lambda: poll_allocation(runner.watch)
     try:
         create = runner.phase("overlay-create", policy["overlay_create"], 10)
         initial = B.clean_file(overlay).st_size
