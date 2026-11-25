@@ -1,8 +1,8 @@
 # Qtbase packaging and installed 16 KiB handoff
 
 This handoff starts after independent full-build readback and host retirement.
-The source preflight can stage an unissued packaging plan. Packaging,
-signing, installation and rollback remain `NOT_RUN`.
+The source preflight can stage an unissued packaging plan and its guest
+worker. Packaging, signing, installation and rollback remain `NOT_RUN`.
 
 ## Assemble from the completed build
 
@@ -74,6 +74,42 @@ signing, installation and rollback remain `NOT_RUN`.
    install-time ELF transformations and makepkg cleanup. Reopen the immutable
    build evidence after packaging.
    [GUI-server recipe](../../../packages/port/qt612-gui-server-source-reference/PKGBUILD)
+
+## Select and own the package guest
+
+The [guest worker](package_guest.py) requires isolated Python, ordinary
+UID/GID 1000, 16,384-byte pages, offline networking, read-only packaging
+media and an empty private output directory. The package-only selection
+must contain the following fields. Its SHA-256 and the plan SHA-256
+remain independent runner inputs.
+
+| Selection field | Required value |
+| --- | --- |
+| `kind`, `issuer`, `approved` | `ROOT_QTBASE16K_PACKAGING_WORKER_V1`, `Root`, `true` |
+| `scope`, `nonce`, `plan_sha256` | `cachy-asahi-qtbase16k-package.scope`, the fresh plan nonce and the exact plan SHA-256 |
+| `created_utc`, `expires_utc` | Current entry window, with a maximum length of one hour |
+| `makepkg_configuration` | Original Q3 `/etc/makepkg.conf` whole pin in `main`, exact private map of `*.conf` drop-in pins in `dropins` |
+
+A package launcher can reuse the [full-target site owner](full_site.py)
+for exact CID creation, scoped attachment, emergency cleanup and
+post-scope observation. Give it a distinct role, attempt directory,
+staging and storage mounts, scope, actor and cancellation budget.
+Its guest init must bind the boot and selected child, install the exact
+stage and selection at `/qtmedia/packaging`, and provide a bounded uptime
+deadline. Keep the package output in a separate owned result carrier
+with bounds for one unsigned archive, the stage contract and complete
+private command streams. A package actor and its independent host and
+guest result readback are still required for a live trial.
+
+The worker checks the exact completed build's 18 library bodies and
+aliases, final Ninja log, configuration and local recipe inputs before
+and after the sequence. It reuses the original Q3 signature and build
+evidence by pin, checks the complete installed dependency inventory,
+and performs the normal source checksum verification. The result binds
+the new archive hash, exact 6.12.0-2 provider and recipe metadata,
+BUILDINFO dependency inventory, stage receipt, and final aliases and
+server feature files. It retains a HOLD phase on failure. Signing and
+package database changes have no place in this worker.
 
 ## Sign and run the installed trial
 

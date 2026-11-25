@@ -14,25 +14,18 @@ HERE = Path(__file__).resolve().parent
 S = SimpleNamespace(**run_path(str(HERE / "full_site.py")))
 R = SimpleNamespace(**run_path(str(HERE / "full_readback.py")))
 M = SimpleNamespace(**run_path(str(HERE / "package_metadata.py")))
+W = SimpleNamespace(**run_path(str(HERE / "package_guest.py")))
 F, C, T = S.F, S.C, S.T
 ROOT = F.Q.ROOT
 Q3_PLAN_NAME = "plan.json"
 Q3_PLAN_PIN = C.file_pin(94704, "76dde3261964f2809798cb3a64571086738ddd9fa191f0f73859f1e33a5256a7")
 Q3_SOURCE_ARCHIVE = "qtbase-everywhere-src-6.12.0.tar.xz"
 PACKAGE_CHECKER = ROOT / "scripts/checks/package_checks.py"
-PACKAGE_CHECKER_PIN = C.file_pin(19289, "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a")
+PACKAGE_CHECKER_PIN = F.K.F.file_record(W.PACKAGE_CHECKER_PIN)
 INDEPENDENT_KIND = "QTBASE_FULL16K_INDEPENDENT_READBACK_V1"
 INDEPENDENT_PASS = "PASS_EXACT_EMULATED_QTBASE_ALL_BUILD"
-PLAN_NAME = "PACKAGING-PLAN.UNISSUED.json"
-SCOPE = "cachy-asahi-qtbase16k-package.scope"
-MEDIA = "/qtmedia/packaging"
-RECIPE = "/qt-recipe"
-SRC = RECIPE + "/src"
-BUILD = SRC + "/build"
-OUTPUT = "/qtbase-packaging-output"
-RECIPE_NAME = "PKGBUILD.package"
-ARCHIVE = M.PACKAGE + "-" + M.VERSION + "-aarch64.pkg.tar.xz"
-SMOKE = "PASS_QT612_GUI_SERVER_OFFSCREEN_AND_LOCAL_DISPLAY_API_ONLY"
+PLAN_NAME = W.PLAN_NAME
+PACKAGE_WORKER = ("package_guest.py", "full_guest.py", "guest_link.py")
 
 
 def ref(path, pin):
@@ -78,8 +71,13 @@ def q3_inputs(q3):
     recipe["PKGBUILD"], recipe[".SRCINFO"] = projection["PKGBUILD"], projection[".SRCINFO"]
     checker = C.read(PACKAGE_CHECKER, 64 * 1024, PACKAGE_CHECKER_PIN)[0]
     payload = {"recipe/" + name: body for name, body in recipe.items()}
+    full, _ = C.read(HERE / "full_guest.py", 128 * 1024, F.K.F.file_record(W.FULL_GUEST_PIN))
+    sidecar, _ = C.read(F.Q.ROOT / F.Q.LANE / "guest_link.py", 128 * 1024,
+                        F.K.F.file_record(R.G.SIDECAR_PIN))
     payload |= {"expected356.lock": lock, "configure-dependencies.list": dep_bytes,
-                "metadata-projection.json": projection["receipt"], "package_checks.py": checker}
+                "metadata-projection.json": projection["receipt"], "package_checks.py": checker,
+                "package_guest.py": C.read(HERE / "package_guest.py", 128 * 1024)[0],
+                "full_guest.py": full, "guest_link.py": sidecar}
     return q3refs, original, deps, payload
 
 
@@ -119,64 +117,27 @@ def completed_build(root, site_path, site_sha, retrospective, retrospective_sha,
                     actor=ref(output / "actor-result.json", host["actor_result"]),
                     result=ref(output / "result.raw", current["actor"]["result_disk"]),
                     boot_template=ref(root / "inputs" / "boot.raw", plan["inputs"]["boot.raw"]))
-    return meta["nonce"], readonly, evidence
-
-
-def packaging_sequence(deps):
-    shell = 'set -euo pipefail; source "$1"; srcdir=/qt-recipe/src; check'
-    steps = [
-        ("inventory", ["/usr/bin/pacman", "-Q"], 90, {"sorted_stdout": MEDIA + "/expected356.lock"}),
-        ("dependencies", ["/usr/bin/pacman", "-T", *deps], 90, {"stdout": ""}),
-        ("recipe-source", ["/usr/bin/makepkg", "-p", RECIPE_NAME, "--verifysource", "--noconfirm"], 180, {}),
-        ("patched-source", ["/usr/bin/python", "-I", "-B", MEDIA + "/recipe/source.py", "verify",
-                           "--root", SRC + "/qtbase-everywhere-src-6.12.0",
-                           "--policy", MEDIA + "/recipe/source-notices.json"], 240, {}),
-        ("configuration", ["/usr/bin/python", "-I", "-B", MEDIA + "/recipe/source.py", "configuration",
-                          "--build", BUILD, "--profile", MEDIA + "/recipe/configure.cmake"], 90, {}),
-        ("idle-built-tree", ["/usr/bin/ninja", "-C", BUILD, "-n", "all"], 90,
-         {"stdout_last_line": "ninja: no work to do."}),
-        ("recipe-check", ["/usr/bin/bash", "--noprofile", "--norc", "-c", shell, "qtbase-check",
-                          RECIPE + "/" + RECIPE_NAME], 600, {"stdout_line": SMOKE}),
-        ("repackage", ["/usr/bin/makepkg", "-p", RECIPE_NAME, "--repackage", "--nosign", "--noconfirm"], 900, {}),
-        ("archive-validation", ["/usr/bin/python", "-I", "-B", MEDIA + "/package_checks.py", "artifacts",
-                                OUTPUT + "/" + ARCHIVE], 240, {}),
-        ("inventory-after", ["/usr/bin/pacman", "-Q"], 90, {"sorted_stdout": MEDIA + "/expected356.lock"}),
-    ]
-    return [dict(role=role, argv=argv, seconds=seconds, expected=expected, combined_stream_cap=8 * 1024**2)
-            for role, argv, seconds, expected in steps]
+    completed = dict(libraries=current["guest"]["outputs"]["libraries"],
+                     ninja_log=current["guest"]["outputs"]["ninja_log"]["after"])
+    return meta["nonce"], readonly, evidence, completed
 
 
 def prepare(args):
     C.need(type(args.nonce) is str and F.Q.NONCE.fullmatch(args.nonce), "Fresh 32-hex packaging nonce required")
     q3refs, original, deps, files = q3_inputs(args.q3_media)
-    old_nonce, readonly, evidence = completed_build(args.capsule, args.site, args.site_sha256,
+    old_nonce, readonly, evidence, completed = completed_build(args.capsule, args.site, args.site_sha256,
                                                      args.retirement, args.retirement_sha256,
                                                      args.readback, args.readback_sha256)
     C.need(args.nonce[:8] not in {"00000000", old_nonce[:8]}, "Packaging requires a distinct boot identity")
     sidecar = guest_sidecar()
     checks = {name: F.K.F.file_record(pin) for name, pin in sidecar.Q3_PINS.items()}
     C.need(checks["PKGBUILD"] == original, "Packaged recipe must derive from the exact Q3 build recipe")
-    plan = dict(kind="QTBASE16K_PACKAGING_PLAN_UNISSUED_V1", authority=None, scope=SCOPE, nonce=args.nonce,
+    plan = dict(kind=W.PLAN_KIND, authority=None, scope=W.SCOPE, nonce=args.nonce,
                 source_build_nonce=old_nonce, source_evidence=evidence, readonly_media=readonly, q3=q3refs,
                 fresh_child=dict(path="/out/package-overlay.qcow2", backing="/inputs/complete.qcow2",
                                  backing_format="qcow2", storage="fresh-writable-child-only"),
-                worker=dict(uid=1000, gid=1000, architecture="aarch64", runtime_page_bytes=16384,
-                            networking="offline", cwd=RECIPE, stage_mount=MEDIA, output=OUTPUT,
-                            exact_build_inputs=checks, original_libraries=F.INHERITED,
-                            environment=sidecar.ENV | dict(SRCDEST=RECIPE + "/srcdest", BUILDDIR=RECIPE,
-                                                           PKGDEST=OUTPUT, BASH_ENV="/dev/null"),
-                            fresh_paths=[RECIPE + "/" + RECIPE_NAME, SRC + "/smoke-source", SRC + "/smoke-build",
-                                         SRC + "/smoke-home", SRC + "/stage-contract.json", OUTPUT + "/" + ARCHIVE],
-                            makepkg_configuration=dict(path="/etc/makepkg.conf", preserve_q3_bytes=True,
-                                                       require_no_user_override=True),
-                            stage_recipe=dict(source=MEDIA + "/recipe/PKGBUILD", destination=RECIPE + "/" + RECIPE_NAME,
-                                              must_be_absent=True),
-                            check_source_files={name.removeprefix("recipe/"): C.pin(body) for name, body in files.items()
-                                                if name.startswith("recipe/") and Path(name).name not in {"PKGBUILD", ".SRCINFO"}},
-                            actions=packaging_sequence(deps)),
-                expected_archive=dict(filename=ARCHIVE, package=M.PACKAGE, version=M.VERSION, signed=False,
-                                      provided_qtbase=M.VERSION, buildinfo_recipe=C.pin(files["recipe/PKGBUILD"]),
-                                      stage_receipt=SRC + "/stage-contract.json"),
+                worker=W.worker_contract(sidecar, R.G, deps, files, completed),
+                expected_archive=W.archive_contract(files["recipe/PKGBUILD"]),
                 staging_files={name: C.pin(body) for name, body in sorted(files.items())},
                 packaging="NOT_RUN", signing="NOT_RUN", installation="NOT_RUN", hardware="NOT_RUN")
     return plan, files
@@ -188,7 +149,8 @@ def guest_sidecar():
 
 
 def stage(output, plan, files, protected):
-    fixed = {"expected356.lock", "configure-dependencies.list", "metadata-projection.json", "package_checks.py"}
+    fixed = {"expected356.lock", "configure-dependencies.list", "metadata-projection.json",
+             "package_checks.py", *PACKAGE_WORKER}
     C.need(all(name in fixed or (Path(name).parent == Path("recipe") and Path(name).name != "..")
                for name in files) and {name: C.pin(body) for name, body in files.items()} == plan["staging_files"],
            "Exact bounded staging leaves required")

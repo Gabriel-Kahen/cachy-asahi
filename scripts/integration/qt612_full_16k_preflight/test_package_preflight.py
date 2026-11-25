@@ -35,7 +35,8 @@ class PackagingPreflight(unittest.TestCase):
         self.full = dict(kind=P.INDEPENDENT_KIND, status=P.INDEPENDENT_PASS, nonce=OLD_NONCE,
                          handoff_sha256=HANDOFF, plan_sha256=PIN["sha256"], authority={"sha256": AUTHORITY},
                          actor=dict(actor_result=PIN, overlay=PIN, result_disk=PIN),
-                         guest=dict(status="VERIFIED_QTBASE_BUILD_ONLY"))
+                         guest=dict(status="VERIFIED_QTBASE_BUILD_ONLY",
+                                    outputs=dict(libraries={}, ninja_log={"after": PIN})))
 
     def record(self, path, data):
         raw = C.wire(data)
@@ -73,8 +74,9 @@ class PackagingPreflight(unittest.TestCase):
             replay.assert_not_called()
             with self.assertRaisesRegex(ValueError, "differs from original"):
                 self.complete(full=self.full | {"actor": self.full["actor"] | {"overlay": C.pin(b"other")}})
-            nonce, media, evidence = self.complete()
+            nonce, media, evidence, completed = self.complete()
             self.assertEqual(nonce, OLD_NONCE)
+            self.assertEqual(completed, {"libraries": {}, "ninja_log": PIN})
             self.assertEqual(media["complete.qcow2"]["path"],
                              str(self.capsule / S.CLAIM / "output" / "overlay.qcow2"))
             self.assertEqual(evidence["result"]["sha256"], PIN["sha256"])
@@ -89,7 +91,7 @@ class PackagingPreflight(unittest.TestCase):
         files = {"recipe/PKGBUILD": b"successor", "recipe/.SRCINFO": b"metadata", "recipe/source.py": b"helper"}
         original = P.F.K.F.file_record(sidecar.Q3_PINS["PKGBUILD"])
         with patch.dict(P.prepare.__globals__, q3_inputs=lambda _: ({}, original, ["md4c<0.6"], files),
-                        completed_build=lambda *_: (OLD_NONCE, {"complete.qcow2": PIN}, {})):
+                        completed_build=lambda *_: (OLD_NONCE, {"complete.qcow2": PIN}, {}, {})):
             plan, staged = P.prepare(args)
             with self.assertRaisesRegex(ValueError, "distinct boot identity"):
                 P.prepare(SimpleNamespace(**(vars(args) | {"nonce": OLD_NONCE})))
@@ -102,13 +104,12 @@ class PackagingPreflight(unittest.TestCase):
         worker = plan["worker"]
         self.assertEqual(worker["exact_build_inputs"]["PKGBUILD"], original)
         self.assertEqual(worker["environment"]["BUILDDIR"], "/qt-recipe")
-        self.assertTrue(worker["makepkg_configuration"]["require_no_user_override"])
         self.assertTrue(worker["stage_recipe"]["must_be_absent"])
         roles = [row["role"] for row in worker["actions"]]
         self.assertLess(roles.index("patched-source"), roles.index("recipe-check"))
         self.assertLess(roles.index("recipe-check"), roles.index("repackage"))
         steps = {step["role"]: step for step in worker["actions"]}
-        self.assertEqual(steps["recipe-check"]["expected"], {"stdout_line": P.SMOKE})
+        self.assertEqual(steps["recipe-check"]["expected"], {"line": P.W.SMOKE})
         self.assertIn("--repackage", steps["repackage"]["argv"])
         self.assertNotIn("--nodeps", steps["repackage"]["argv"])
         self.assertNotIn("--install", steps["repackage"]["argv"])
