@@ -1,0 +1,109 @@
+--- a/setup.py
++++ b/setup.py
+@@ -236,10 +236,14 @@
+             f'# <<< cachy-asahi setup {component} v1 <<<')
+
+
+-def block(component, source):
++def block(component, source, *, legacy_fish=False):
+     begin, end = markers(component)
+-    quoted = shlex.quote(str(source))
++    source = str(source)
++    quoted = shlex.quote(source)
+     if component == 'fish' or component.startswith('fish-'):
++        if not legacy_fish and '\\' in source:
++            # Fish interprets backslash pairs and escaped apostrophes inside single quotes.
++            quoted = "'" + source.replace('\\', '\\\\').replace("'", "\\'") + "'"
+         body = f'if status is-interactive; and test -r {quoted}\n    source {quoted}\nend'
+     else:
+         body = f'if [[ -o interactive && -r {quoted} ]]; then\n    source {quoted}\nfi'
+@@ -328,8 +332,9 @@
+             if record.get('kind') != 'block' or not isinstance(record.get('block'), str) or not isinstance(record.get('created_file'), bool):
+                 raise Error('Invalid managed block record')
+             parts(record.get('source_root', ''), absolute=True)
+-            expected = block(component, Path(record['source_root']) / TEMPLATES[component])
+-            if record['block'] not in (expected, '\n' + expected):
++            source = Path(record['source_root']) / TEMPLATES[component]
++            if record['block'].removeprefix('\n') not in (
++                    block(component, source), block(component, source, legacy_fish=True)):
+                 raise Error('Managed block is not the canonical guarded setup block')
+
+     def check_order(self, data, records, path):
+--- a/config_migrate.py
++++ b/config_migrate.py
+@@ -145,7 +145,7 @@
+                 result[name][side] = data
+         return result
+
+-    def desired_record(self, entry, old_record):
++    def desired_record(self, entry, old_record, *, legacy_fish):
+         name = entry['component']
+         self.setup.validate_record(name, old_record)
+         if name == 'hyprland':
+@@ -155,7 +155,8 @@
+         if old_record['source_root'] != entry['old']['root']:
+             raise Error('Old source root differs from owned block')
+         prefix = '\n' if old_record['block'].startswith('\n') else ''
+-        block = prefix + contract.block(name, Path(entry['new']['root']) / contract.TEMPLATES[name])
++        block = prefix + contract.block(name, Path(entry['new']['root']) / contract.TEMPLATES[name],
++                                        legacy_fish=legacy_fish)
+         return dict(old_record, block=block, source_root=entry['new']['root'])
+
+     def transform(self, path, data, old_state, new_state, sources, reverse=False):
+@@ -178,7 +179,7 @@
+         self.setup.check_order(data, old_state['components'] if reverse else new_state['components'], path)
+         return data
+
+-    def derive(self, old_state, old_ledger):
++    def derive(self, old_state, old_ledger, *, legacy_fish=False):
+         self.state_valid(old_state); self.ledger_valid(old_ledger)
+         new_state, new_ledger = copy.deepcopy(old_state), copy.deepcopy(old_ledger)
+         for entry in self.manifest['entries']:
+@@ -188,7 +189,8 @@
+             prior = old_ledger['components'].get(name)
+             if prior is not None and prior != self.version(entry, 'old'):
+                 raise Error('Recorded version differs from the exact old version: ' + name)
+-            new_state['components'][name] = self.desired_record(entry, old_state['components'][name])
++            new_state['components'][name] = self.desired_record(
++                entry, old_state['components'][name], legacy_fish=legacy_fish)
+             new_ledger['components'][name] = self.version(entry, 'new')
+         return new_state, new_ledger
+
+@@ -204,8 +206,8 @@
+                 if record['sha256'] != entry['new']['sha256'] or checksum(self.fs.read(record['path'])['data']) != record['sha256']:
+                     raise Error('Migrated file changed; preserved: ' + name)
+             else:
+-                expected = contract.block(name, Path(entry['new']['root']) / contract.TEMPLATES[name])
+-                if record['source_root'] != entry['new']['root'] or record['block'] not in (expected, '\n' + expected):
++                # plan() already validated the recorded block against its exact root.
++                if record['source_root'] != entry['new']['root']:
+                     raise Error('Migrated block ownership changed: ' + name)
+                 data = self.fs.read(record['path'])['data']
+                 if data is None or data.count(record['block'].encode()) != 1 or any(data.decode().count(m) != 1 for m in contract.markers(name)):
+@@ -231,18 +233,23 @@
+                 # Legacy setup rejects this identity and cannot remove mid-transaction.
+                 'id': 'migration-' + uuid.uuid4().hex, 'kind': 'config-migration-v1',
+                 'manifest_sha256': self.manifest_sha256, 'old_state': old_state,
+-                'old_ledger': ledger, 'state_before': checksum(state_raw),
++                'old_ledger': ledger, 'fish_quoting': 'literal-v1', 'state_before': checksum(state_raw),
+                 'ledger_before': checksum(ledger_raw), 'files': files}
+
+     def prepare(self, journal, sources):
+-        keys(journal, 'schema_version roots id kind manifest_sha256 old_state old_ledger state_before ledger_before files')
++        fields = 'schema_version roots id kind manifest_sha256 old_state old_ledger state_before ledger_before files'
++        legacy_fish = 'fish_quoting' not in journal
++        keys(journal, fields if legacy_fish else fields + ' fish_quoting')
++        if not legacy_fish and journal['fish_quoting'] != 'literal-v1':
++            raise Error('Unsupported pending Fish quoting rule')
+         if type(journal['schema_version']) is not int or journal['schema_version'] != 1 or journal['roots'] != self.setup.roots or journal['kind'] != 'config-migration-v1' or not re.fullmatch(r'migration-[0-9a-f]{32}', journal['id']) or journal['manifest_sha256'] != self.manifest_sha256:
+             raise Error('Pending migration needs its exact manifest, hash and roots')
+         for key in ('state_before', 'ledger_before'):
+             if journal[key] is not None:
+                 digest(journal[key])
+         old_state, old_ledger = journal['old_state'], journal['old_ledger']
+-        new_state, new_ledger = self.derive(old_state, old_ledger)
++        # Earlier journals bind legacy output hashes and must replay the original bytes.
++        new_state, new_ledger = self.derive(old_state, old_ledger, legacy_fish=legacy_fish)
+         metadata = ((self.setup.state_path, journal['state_before'], new_state, old_state),
+                     (self.ledger_path, journal['ledger_before'], new_ledger, old_ledger))
+         ready_metadata = []
