@@ -22,7 +22,7 @@ REASONS = {
                   'HOST_DISK_RESERVE', 'HOST_TOOL_UNAVAILABLE', 'CANCELLED'},
     'source': {'SOURCE_REJECTED', 'DOCKER_REJECTED', 'DAEMON_OCCUPIED',
                'PRODUCER_TIME_RESERVE', 'CANCELLED', 'DAEMON_CONTAINERS_PRESENT',
-               'DAEMON_BASELINE_UNVERIFIED'},
+               'DAEMON_BASELINE_UNVERIFIED', 'RETAINED_INPUTS_REJECTED'},
     'parallel': {'PRODUCER_EXIT', 'ACQUISITION_EXIT', 'BOTH_CHILDREN_EXIT', 'PARALLEL_TIMEOUT',
                  'PARALLEL_OUTPUT_BOUND', 'PARALLEL_RUN_FAILED', 'CANCELLED'},
     'producer': {'PRODUCER_RECEIPT_REJECTED', 'CANCELLED', 'PRODUCER_BASELINE_ID_COLLISION',
@@ -194,6 +194,9 @@ def daemon_baseline(value):
     if row['producer_mutation'] == 'UNCERTAIN':
         need(value['producer'] != 'PASS')
     if value['first_failed_phase'] == 'source':
+        if value['failure_reason'] == 'RETAINED_INPUTS_REJECTED':
+            need(value['schema_version'] == 4 and row['producer_mutation'] == 'NOT_STARTED' and
+                 value['acquisition_exit'] == {'kind': 'NOT_RUN', 'code': None})
         if value['failure_reason'] == 'DAEMON_CONTAINERS_PRESENT':
             need(type(row['initial_container_count']) is int and row['initial_container_count'] > 0 and
                  row['producer_mutation'] == 'NOT_STARTED')

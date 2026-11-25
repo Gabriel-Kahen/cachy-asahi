@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Finite disposable hosted job using the original producer and held kernel stage."""
 import argparse
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -17,6 +18,7 @@ import time
 from time import monotonic as snapshot_clock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import intake
 import packet
 import public
 import runtime
@@ -420,6 +422,31 @@ def producer_command(snapshot, private):
         '--cache', str(private / 'alarm-cache'), '--output', str(private / 'producer')]
 
 
+@contextmanager
+def retained_input_cache(snapshot, private, start):
+    selected = os.environ.pop(intake.OPT_IN, '')
+    url = os.environ.pop(intake.URL_ENV, '')
+    intake.require(selected in ('', '1'))
+    if not selected:
+        yield None
+        return
+
+    intake.endpoint(url)
+    seconds = min(intake.MAX_SECONDS, SETUP - (time.monotonic() - start))
+    intake.require(seconds > 0)
+    with tempfile.TemporaryDirectory(prefix='retained-inputs-', dir=private) as name:
+        staged = Path(name)
+        worker = runtime.Runner(seconds, {intake.URL_ENV: url}, private / 'setup-logs')
+        del url
+        result = worker.run(['/usr/bin/python3', '-I', '-B', str(snapshot / packet.INTAKE_SOURCE), name],
+            timeout=seconds, limit=1024)
+        intake.require(result.returncode == 0 and result.stdout == b'')
+        cache = private / 'alarm-cache'
+        intake.require(not cache.exists() and not cache.is_symlink())
+        (staged / 'alarm-cache').rename(cache)
+        yield staged / 'extension'
+
+
 def accepted_producer(private, commit):
     producer = private / 'producer'
     result = packet.load(producer / 'result.json')
@@ -663,23 +690,27 @@ def work(args, terminal, start):
         context = ('source', 'DAEMON_BASELINE_UNVERIFIED')
         baseline = Baseline(args, docker, private, status['daemon_baseline'])
         baseline.start(setup)
-        context = ('source', 'PRODUCER_TIME_RESERVE')
-        packet.need(DEADLINE - (time.monotonic() - start) >= PARALLEL + KERNEL_ENVELOPE + CLEANUP + GUARD, 'producer-time-reserve')
-        status['phase'] = 'producer'
-        context = ('parallel', 'PARALLEL_RUN_FAILED')
-        acquisition_nonce=secrets.token_hex(16)
-        commands = [producer_command(snapshot, private), ['/usr/bin/python3', '-I', '-B',
-            str(snapshot / (packet.KERNEL + 'acquisition.py')), '--root', str(snapshot),
-            '--diagnostic-nonce', acquisition_nonce, '--output', str(private / 'kernel-inputs')]]
-        # Acquisition requires owned artifact placement relative to its snapshot.
-        commands[1][-1] = str(snapshot / 'artifacts/kernel-native-stage/acquisition')
-        phase = runtime.Runner(PARALLEL, env, private / 'phase-logs')
-        evidence['commands'] = commands
-        save(private / 'producer-started.json', {'commands': commands, 'daemon': docker.daemon, 'producer_finished': False})
-        status['daemon_baseline']['producer_mutation'] = 'UNCERTAIN'
-        status.update(producer_exit={'kind': 'UNOBSERVED', 'code': None},
-            acquisition_exit={'kind': 'UNOBSERVED', 'code': None})
-        results = phase.run_many(commands, timeout=PARALLEL, lognames=('original-producer.log', 'kernel-acquisition.log'))
+        context = ('source', 'RETAINED_INPUTS_REJECTED')
+        with retained_input_cache(snapshot, private, start) as reuse:
+            context = ('source', 'PRODUCER_TIME_RESERVE')
+            packet.need(DEADLINE - (time.monotonic() - start) >= PARALLEL + KERNEL_ENVELOPE + CLEANUP + GUARD, 'producer-time-reserve')
+            status['phase'] = 'producer'
+            context = ('parallel', 'PARALLEL_RUN_FAILED')
+            acquisition_nonce=secrets.token_hex(16)
+            # Acquisition requires owned artifact placement relative to its snapshot.
+            commands = [producer_command(snapshot, private), ['/usr/bin/python3', '-I', '-B',
+                str(snapshot / (packet.KERNEL + 'acquisition.py')), '--root', str(snapshot),
+                '--diagnostic-nonce', acquisition_nonce, '--output',
+                str(snapshot / 'artifacts/kernel-native-stage/acquisition')]]
+            if reuse is not None:
+                commands[1].extend(('--reuse-cache', str(reuse)))
+            phase = runtime.Runner(PARALLEL, env, private / 'phase-logs')
+            evidence['commands'] = commands
+            save(private / 'producer-started.json', {'commands': commands, 'daemon': docker.daemon, 'producer_finished': False})
+            status['daemon_baseline']['producer_mutation'] = 'UNCERTAIN'
+            status.update(producer_exit={'kind': 'UNOBSERVED', 'code': None},
+                acquisition_exit={'kind': 'UNOBSERVED', 'code': None})
+            results = phase.run_many(commands, timeout=PARALLEL, lognames=('original-producer.log', 'kernel-acquisition.log'))
         packet.need(type(results) in (list, tuple) and len(results) == 2, 'parallel-results')
         exits = [public.exit_record(result.returncode) for result in results]
         status.update(producer_exit=exits[0], acquisition_exit=exits[1])

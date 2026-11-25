@@ -46,6 +46,7 @@ class PacketTests(unittest.TestCase):
                            'scripts/ci/native_arm.py': b'fixture native helper\n',
                            packet.PREFIX + 'packet.py': b'fixture packet helper\n',
                            packet.PREFIX + 'runtime.py': b'fixture runtime\n',
+                           packet.INTAKE_SOURCE: b'fixture intake\n',
                            packet.WORKFLOW: b'fixture workflow\n',
                            packet.DOCUMENT: b'fixture doc\n'}.items():
             write(name, data, 0o755 if name.endswith('.sh') else 0o644)

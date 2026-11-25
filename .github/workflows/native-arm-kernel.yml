@@ -6,6 +6,10 @@ on:
         description: Externally reviewed SHA-256 of the complete kernel native job packet.lock.json
         required: true
         type: string
+      retained_inputs:
+        description: Use the configured private HTTPS handoff for the 22 pinned inputs
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -41,6 +45,7 @@ jobs:
           JOB = 'scripts/port/kernel-native-job/job.py'
           PUBLIC = 'scripts/port/kernel-native-job/public.py'
           REQUIRED = {WORKFLOW, JOB, PUBLIC, 'scripts/ci/native_arm.py',
+                      'scripts/port/kernel-native-job/intake.py',
                       'scripts/port/kernel-native-job/packet.py',
                       'scripts/port/kernel-native-job/runtime.py',
                       'scripts/ci/inputs.lock.json',
@@ -220,9 +225,12 @@ jobs:
       - name: Execute finite producer, signed extension and kernel build pair
         id: native
         timeout-minutes: 346
+        env:
+          KERNEL_RETAINED_INPUTS: ${{ inputs.retained_inputs && '1' || '' }}
+          KERNEL_NATIVE_RETAINED_INPUTS_URL: ${{ inputs.retained_inputs && secrets.KERNEL_NATIVE_RETAINED_INPUTS_URL || '' }}
         shell: bash
         run: |
-          /usr/bin/python3 -I -B "$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/job.py" --execute-native \
+          exec /usr/bin/python3 -I -B "$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/job.py" --execute-native \
             --source-root "$GITHUB_WORKSPACE" --source-commit "$GITHUB_SHA" \
             --packet "$GITHUB_WORKSPACE/scripts/port/kernel-native-job/packet.lock.json" \
             --packet-sha256 "$KERNEL_JOB_PACKET_SHA256" \

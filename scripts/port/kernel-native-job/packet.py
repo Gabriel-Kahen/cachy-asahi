@@ -14,6 +14,7 @@ KERNEL = 'scripts/port/kernel-native-stage/'
 WORKFLOW = '.github/workflows/native-arm-kernel.yml'
 DOCUMENT = 'docs/workstreams/kernel-native-job.md'
 RECIPES_LOCK = PREFIX + 'recipes.lock.json'
+INTAKE_SOURCE = PREFIX + 'intake.py'
 KERNEL_SHA = 'd3ef280c4ad270ae87ed581692a140f52cb86ac3f4c1d6f28acca1d60d9415f7'
 INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 RECIPES_SHA = '56c53699b1c9a493798a071a537ae17d5b892ffa9618ca99a3465985a51fcef8'
@@ -149,7 +150,7 @@ def closure(root):
          set(recipes) == RECIPE_BASES and sum(len(v) for v in recipes.values()) == RECIPE_COUNT,
          'producer-scope')
     files = set(kernel['files']) | set(HELPERS) | {KERNEL + 'stage.lock.json',
-            'scripts/ci/inputs.lock.json', RECIPES_LOCK, WORKFLOW, DOCUMENT}
+            'scripts/ci/inputs.lock.json', RECIPES_LOCK, INTAKE_SOURCE, WORKFLOW, DOCUMENT}
     for base, rows in recipes.items():
         relative(base)
         need(type(rows) is dict and walk(root / base) == set(rows), 'producer-recipe-set')

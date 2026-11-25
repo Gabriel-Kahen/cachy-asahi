@@ -176,6 +176,12 @@ class DiagnosticTests(unittest.TestCase):
                                      producer_exit={'kind': 'NOT_RUN', 'code': None}, daemon_baseline=initial_baseline())
                         value['daemon_baseline']['preservation'] = 'UNVERIFIED'
                         if reason == 'DAEMON_CONTAINERS_PRESENT': value['daemon_baseline']['initial_container_count'] = 1
+                    if reason == 'RETAINED_INPUTS_REJECTED':
+                        not_run = {'kind': 'NOT_RUN', 'code': None}
+                        value.update(schema_version=4, phase='cleanup', cleanup='FAIL', producer='NOT RUN',
+                            kernel_probe='NOT RUN', baseline='NOT RUN', candidate='NOT RUN', native_compilation='NOT RUN',
+                            producer_exit=not_run, acquisition_exit=not_run, daemon_baseline=initial_baseline(),
+                            kernel_child={'availability': 'NOT_RUN', 'exit': not_run, 'diagnostics': None})
                     if phase == 'producer' and reason == 'PRODUCER_BASELINE_ID_COLLISION':
                         value.update(cleanup='FAIL', producer='FAIL')
                         value['daemon_baseline']['producer_mutation'] = 'COMPLETE_REJECTED'
@@ -599,7 +605,7 @@ class BootstrapTests(unittest.TestCase):
             path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes((ROOT / name).read_bytes() if name in
                             {self.ns['PUBLIC'], self.ns['JOB'], 'scripts/port/kernel-native-job/packet.py',
-                             'scripts/port/kernel-native-job/runtime.py'} else
+                             'scripts/port/kernel-native-job/runtime.py', 'scripts/port/kernel-native-job/intake.py'} else
                              (name + '\n').encode())
             path.chmod(0o755 if name == self.ns['JOB'] else 0o644)
         self.rows = {name: {'bytes': len((self.root / name).read_bytes()),
@@ -709,7 +715,7 @@ class BootstrapTests(unittest.TestCase):
     def test_timestamp_valid_root_caches_cannot_execute_in_clean_bootstrap(self):
         marker = self.root / 'malicious-cache-executed'
         cache_bytes = {}
-        for name in ('packet', 'runtime', 'public'):
+        for name in ('intake', 'packet', 'runtime', 'public'):
             source = self.root / f'scripts/port/kernel-native-job/{name}.py'
             info = source.stat()
             code = compile(f'from pathlib import Path\nPath({str(marker)!r}).write_text("EXECUTED")\nraise SystemExit(97)\n', str(source), 'exec')
@@ -773,7 +779,13 @@ class BootstrapTests(unittest.TestCase):
         for forbidden in ('upload-artifact', 'actions/cache', 'sudo', 'apt-get', 'docker system prune', 'schedule:', 'pull_request:', 'push:'):
             self.assertNotIn(forbidden, text)
         self.assertEqual(5 + 5 + 346 + 3 + 1, 360)
-        self.assertNotIn('default:', text)
+        self.assertNotIn('default:', text.split('      retained_inputs:')[0])
+        self.assertIn('type: boolean\n        default: false', text)
+        _, native = text.split('        id: native\n', 1)
+        native, _ = native.split('      - name: Publish', 1)
+        secret = 'secrets.KERNEL_NATIVE_RETAINED_INPUTS_URL'
+        self.assertEqual(text.count(secret), 1)
+        self.assertIn("inputs.retained_inputs && " + secret + " || ''", native)
         self.assertIn("exec(compile(captured[PUBLIC]", text)
         self.assertIn('"$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/job.py"', text)
         self.assertIn("stream.write('KERNEL_JOB_BOOTSTRAP_SOURCE='", text)

@@ -24,6 +24,19 @@ llvm, rust and rust-src. The hosted job needs custody of the exact retained
 objects or a reviewed replacement baseline before execution can qualify the
 pair. [Kernel dependency pins](../../scripts/port/kernel-native-stage/dependencies.json)
 
+The manual `retained_inputs` option directs the job to a caller-authorized
+HTTPS GET URL supplied through the `KERNEL_NATIVE_RETAINED_INPUTS_URL` Actions
+secret. A presigned URL can provide read authorization. The job accepts one
+direct response within the existing setup reserve, verifies the 152391680-byte
+USTAR archive and its 22 exact regular files, and refuses invalid input before
+starting either child. The archive SHA-256 is
+`0a3e3661754e2c194895e5ada5e075866c99b3702b9361bb3b3395ae665c81fa`.
+The six base files preseed the private producer `alarm-cache`. The sixteen
+extension files go to the acquisition child's `--reuse-cache` directory,
+which the job removes after the parallel children stop. Both children still
+check their original byte pins and GPG signatures. The hosted path needs an
+authorized endpoint serving this exact archive to the ARM runner.
+
 The manual [workflow](../../.github/workflows/native-arm-kernel.yml) runs only
 in the public `Gabriel-Kahen/cachy-asahi` repository on `ubuntu-24.04-arm`.
 It grants `contents: read`, uses the `native-arm-kernel` concurrency
