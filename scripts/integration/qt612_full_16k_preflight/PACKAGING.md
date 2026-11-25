@@ -1,8 +1,8 @@
 # Qtbase packaging and installed 16 KiB handoff
 
 This handoff starts after independent full-build readback and host retirement.
-Metadata preparation is implemented. Packaging, signing, installation and
-rollback remain `NOT_RUN`.
+The source preflight can stage an unissued packaging plan. Packaging,
+signing, installation and rollback remain `NOT_RUN`.
 
 ## Assemble from the completed build
 
@@ -24,23 +24,36 @@ rollback remain `NOT_RUN`.
    (`libwayland-server.so=0-64`) and libglvnd 1.7.0-3 (`libgl`).
    Use the retained Q3 archive and signature inventory for exact byte pins.
    [Q3 qualification](../../../docs/validation/qtbase612-emulated-arm16k-configure-20261118.md)
-4. Use the pinned [metadata projection](package_metadata.py) to stage the
-   packaging-only recipe and its matching SRCINFO in the new guest. It advances
-   the package release to `6.12.0-2` and advertises `qt6-base=6.12.0-2`.
-   The original `qt6-base=6.12.0` provide omits the release number. libalpm
-   can match it against an exact official `qt6-base=6.12.0-3` dependency. The revised provide still
-   resolves generic consumers at the matching upstream version. It leaves
-   the original recipe, frozen Q3 metadata and live successor source unchanged.
-   Keep the input and output receipt with the selected package producer. Set
-   `PRIVATE_STAGE` to a fresh directory separate from `ORIGINAL_RECIPE`.
+4. Supply the independently retained full-build readback and post-scope
+   observation, with their externally recorded digests. The
+   [source preflight](package_preflight.py) joins them to the original
+   site, claim, actor and result disk, and replays the independent reader.
+   It checks the Q3 input plan, source archive, recipe and inventory before
+   preparing any output. Without `--output` it verifies inputs read-only and
+   returns the proposed plan pin. With `--output`, pass a fresh absolute
+   directory outside the capsule, Q3 media and repository. The output
+   holds only the small recipe and plan files. The referenced carriers
+   stay in their original locations.
 
    ```sh
    project=scripts/integration/qt612_full_16k_preflight
-   python3 -I -B "$project/package_metadata.py" --recipe-dir "$ORIGINAL_RECIPE"
-   python3 -I -B "$project/package_metadata.py" --recipe-dir "$ORIGINAL_RECIPE" --emit PKGBUILD > "$PRIVATE_STAGE/PKGBUILD"
-   python3 -I -B "$project/package_metadata.py" --recipe-dir "$ORIGINAL_RECIPE" --emit .SRCINFO > "$PRIVATE_STAGE/.SRCINFO"
+   python3 -I -B "$project/package_preflight.py" \
+     --capsule "$CAPSULE" --site "$SITE" --site-sha256 "$SITE_SHA256" \
+     --retirement "$RETIREMENT" --retirement-sha256 "$RETIREMENT_SHA256" \
+     --readback "$READBACK" --readback-sha256 "$READBACK_SHA256" \
+     --q3-media "$Q3_MEDIA" --nonce "$FRESH_NONCE" --output "$PRIVATE_STAGE"
    ```
 
+   Use the same source bindings as the completed attempt to replay its site
+   receipts. The new plan retains the original source evidence and has no
+   execution authority. It specifies a separate packaging scope and a new
+   writable child. A separately selected runner must prepare that child
+   and its boot media, bind the staged inputs read-only and execute the
+   recorded steps. The [metadata projection](package_metadata.py) changes
+   the staged package release to `6.12.0-2` and makes it provide
+   `qt6-base=6.12.0-2`. Omitting the release number allows libalpm to
+   match an exact official `qt6-base=6.12.0-3` dependency. The revised
+   provide still resolves generic consumers at Qt 6.12.0.
 5. Verify the pinned 51,220,268-byte upstream archive, the four forward
    patches in order and the recipe source pins. Run the existing source and
    configuration validators against the completed Q3 build. Require normal
@@ -51,7 +64,10 @@ rollback remain `NOT_RUN`.
 6. Assemble the archive through the normal recipe `package()` under makepkg
    and fakeroot. A controlled `makepkg --repackage --nosign` invocation can
    consume the preserved build after the separate dependency, source and smoke
-   checks. This makepkg mode skips source preparation, build and check.
+   checks. This makepkg mode skips source preparation, build and check. In the
+   fresh child, place the successor at `/qt-recipe/PKGBUILD.package` and use
+   `makepkg -p PKGBUILD.package` from `/qt-recipe`. The original recipe and
+   build paths then remain available for verification.
    Capture the exact configure and check outputs, staged ELF and notices
    receipt, normal archive validation, `.PKGINFO`, `.BUILDINFO`, `.MTREE`
    and whole archive pin. Inspect the finalized payload after normal
