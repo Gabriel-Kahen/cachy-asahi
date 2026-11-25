@@ -270,11 +270,11 @@
     },
     "src/lib/check.sh": {
       "mode": 493,
-      "sha256": "c0218852ad874d45223404ac7de944c6afff4b9adae2f47e42a47e1c1f2a9a85"
+      "sha256": "e6f8151c18bb0e554dafb64bbc35a3eba7e6d3f1dc09d9a29d28ddc363cf4955"
     },
     "src/lib/common.sh": {
       "mode": 493,
-      "sha256": "3d3de36e22e509c2be638eb128c98ee90328dc2c93fe881e6a2a72093be347d9"
+      "sha256": "e5e1071b0c02453ed6ad809c2f12996610d7f9172bbd132a0697d849acea6c5a"
     },
     "src/lib/config.sh": {
       "mode": 493,
@@ -396,7 +396,7 @@
   "native_compilation": "NOT RUN",
   "patch_sha256": {
     "apple-policy.patch": "8201ed41b9790cbb004f3ce62d80ce1e9f25d314e7ef685ffea44d2f1594b783",
-    "behavior.patch": "29fb848c84049f62d07cbf96cbe01f55e473ed6d790b045fda5ece539e57e29e"
+    "behavior.patch": "a002527c1ca4643d75815c6ddd002e314b2939a644f91740edaed3701eb4b819"
   },
   "sanitized_source_sha256": "86196b4d7be8336c321e3a033984a17e602a5e70ec5ea11126d1a249ddda8eab",
   "schema_version": 1,
