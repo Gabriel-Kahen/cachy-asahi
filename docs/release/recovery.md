@@ -4,6 +4,8 @@ Status: **source-audited policy, October 11, 2026**. Operator procedures, public
 
 This is the operational contract for the local release workstream. The implemented local repository CLI and exact evidence schema are documented in [the release interface](interface.md). Research and repository tools must not install packages, alter the host pacman configuration/keyring, repair a running machine, distribute trust, or publish/upload artifacts. Only an explicit caller-supplied signing identity may sign local artifacts; private key custody stays outside the checkout and build execution.
 
+Use the [production handoff](production-handoff.md) to prepare the signing and hosting inputs and rehearse verification.
+
 ## Evidence required before stable use
 
 Release approval requires linked records bound to the exact release ID, package hashes, base repository snapshot, and machine/version set. A signature proves the authorized key signed particular bytes; it does not establish package safety, dependency compatibility, reproducibility, or M2 functionality.

@@ -31,9 +31,10 @@ python3 -B scripts/release/export_repository.py \
   --gpg-home /secure/release-verification --key FULL_AUTHENTICATED_FINGERPRINT
 ```
 
-For a stable export that checks the package archive digests against their signed
-build provenance, use `scripts/release/export_repository_v2.py` with the same
-arguments. Both commands produce the same endpoint layout.
+For a stable export that binds the inventory to the verified release and
+promotion record bytes, use `scripts/release/export_repository_v2.py` with the
+same arguments. Both commands produce the same endpoint layout and use the
+shared archive-to-provenance checks.
 
 Add `--apply` to materialize and select that local generation. Preview creates no
 repository or endpoint files. Signature checks use the supplied existing GPG
@@ -56,12 +57,11 @@ repository-endpoint/
 Package/database signatures, normal repo-add aliases and opted-in source-delivery
 sidecars/materials retain their exact bytes. The complete signed bundle includes
 its evidence; the deployment owner selects a release whose payload is intended
-for the endpoint. The normal live repository path is
-`current/release/repo/REPOSITORY.db`. A server and its document root, transport,
-public trust bootstrap, freshness/key lifecycle and recipient update policy
-remain separate integration work. The unsigned export inventory supplies local
-integrity and generation identity, not network authentication or newest-release
-discovery.
+for the endpoint. Inspect the selected repository locally at
+`current/release/repo/REPOSITORY.db`. Hosted enrollment uses a concrete immutable
+generation URL. The unsigned export inventory supplies local integrity and
+generation identity. See the [production handoff](release/production-handoff.md)
+for hosting, trust bootstrap and client update checks.
 
 Every available withdrawal must have a valid signed pair bound to its filename
 and signer. Selecting a withdrawn release refuses export. After the release CLI
