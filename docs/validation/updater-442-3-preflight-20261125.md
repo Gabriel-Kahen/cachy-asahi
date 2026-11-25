@@ -69,7 +69,9 @@ The pair workflow cleans up the private image and package as it exits. An
 installed Check dispatch requires a reviewed same-job hook before that cleanup
 and runner-readable authenticated inputs. All five runtime archive/signature
 pairs and the ALARM keyring have local byte copies matching the historical
-input lock. The [4.4.2-2 native results](updater-real-check-native-20261015.md)
-apply to the historical package. The 4.4.2-3 native pair, signed disposable
-installation, emulated and physical 16 KiB execution, full updater
-transaction and release acceptance are pending.
+input lock. The [4.4.2-3 build-only run](updater-native-45699777848.md)
+produced byte-identical native packages and verified cleanup. Signed
+disposable installation, emulated and physical 16 KiB execution, the full
+updater transaction and release acceptance are pending. The
+[4.4.2-2 native results](updater-real-check-native-20261015.md) document the
+historical package and its signed installation.

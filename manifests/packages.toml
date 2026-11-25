@@ -217,14 +217,18 @@ selected_for_release = false
 candidate_version = "4.4.2-3"
 source_validation = "PASS patched-source, optional Check failures and native adapter preflight on the pinned 354-package inventory"
 source_validation_evidence = "docs/validation/updater-442-3-preflight-20261125.md"
-native_build = "NOT RUN"
+native_build = "PASS two byte-identical native AArch64 packages with verified cleanup. GitHub reported failure due to the stage CLI exit-code bug."
+native_build_commit = "dbeb777d0176f464858e8f7b6e74d7f188ea4b32"
+native_evidence = "docs/validation/updater-native-45699777848.md"
+native_run = 45699777848
+native_package_sha256 = "44b89959b768c80e82d1e32b29348bdd4b58bfb1fabfba393b14794178d086dc"
 historical_native_build_version = "4.4.2-2"
 historical_native_build = "PASS native build pair, signed disposable installation and seven Check/refusal cases"
 historical_native_build_commit = "480053c0866a922138d85af2b9880fb0e10d7b2c"
 historical_native_evidence = "docs/validation/updater-real-check-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Build and compare 4.4.2-3 on native ARM, then exercise the optional query failures in an installed disposable transaction. Bound full-update behavior, coordinated Apple updates, target lifecycle and release notices remain open."
+next_step = "Verify the corrected exit codes and all 15 installed Check cases in the same disposable job. Bound full-update behavior, coordinated Apple updates, target lifecycle and release notices remain open."
 
 [[packages]]
 name = "cachy-asahi-fdk-aac"

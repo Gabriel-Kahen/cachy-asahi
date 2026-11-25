@@ -15,17 +15,20 @@ only the Fish package and exercised staging, comparison and withdrawal.
 
 - JBIG/TIFF [#622](https://github.com/Gabriel-Kahen/cachy-asahi/issues/622)
   authenticated all 417 Minimal206 objects and 207 detached signatures on
-  hosted ARM. Native build and lifecycle qualification is tracked in a
-  separate run. [Input qualification](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698460500)
-  · [Build and lifecycle](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698731561)
+  hosted ARM. The build stopped in recursive make. An emulated AArch64 replay
+  reproduced the missing JBIG header, and the recipe now passes the include path
+  explicitly. Native build and lifecycle qualification remain open.
+  [Input qualification](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698460500)
+  · [Build diagnostic](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45701214835)
 - Kernel [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) verified
   the 226 recovered objects locally, then passed the hosted private intake
   step. The native comparison result is tracked in the same hosted run.
   [Kernel qualification](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698226968)
-- Updater 4.4.2-3 passed committed-source authentication. The first hosted
-  build attempt stopped at 224 missing inputs before compilation. All 224
-  exact objects were recovered and verified locally.
-  [Acquisition and retry evidence](validation/updater-native-45697080431.md)
+- Updater 4.4.2-3 produced two byte-identical native AArch64 packages with
+  verified cleanup. GitHub marked the run as failed because the stage CLI caught
+  its own success exit. The corrected workflow and installed Check still need
+  hosted verification. [Build evidence](validation/updater-native-45699777848.md)
+  · [Input recovery](validation/updater-native-45697080431.md)
 - The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
   identifies the exact historical build inputs still needed for Perl and Python.
 - The virtual desktop runner can stop reading UART at `guest_pass` and miss
