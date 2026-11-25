@@ -1,6 +1,7 @@
 name: core7-serial-line-framing-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/core7-serial-line-framing-source/**
       - .github/workflows/core7-serial-line-framing-source.yml

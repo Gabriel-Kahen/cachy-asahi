@@ -5,6 +5,7 @@ on:
       - 'scripts/ci/repair16k-inner-diagnostics-source/**'
       - '.github/workflows/apps13-repair-source.yml'
   push:
+    branches: ['**']
     paths:
       - 'scripts/ci/repair16k-inner-diagnostics-source/**'
       - '.github/workflows/apps13-repair-source.yml'

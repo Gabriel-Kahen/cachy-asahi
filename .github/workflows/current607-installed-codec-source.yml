@@ -5,6 +5,7 @@ on:
       - 'scripts/ci/current607-native-graph-profile/**'
       - '.github/workflows/current607-installed-codec-source.yml'
   push:
+    branches: ['**']
     paths:
       - 'scripts/ci/current607-native-graph-profile/**'
       - '.github/workflows/current607-installed-codec-source.yml'

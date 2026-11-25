@@ -2,6 +2,7 @@
   "name": "fresh607-tooling-inputs-source",
   "on": {
     "push": {
+      "branches": ["**"],
       "paths": [
         "scripts/ci/fresh607-tooling-inputs-source/**",
         ".github/workflows/fresh607-tooling-inputs-source.yml"

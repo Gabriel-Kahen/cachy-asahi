@@ -3,6 +3,7 @@ on:
   pull_request:
     paths: ['scripts/ci/setup6-real-modules-source/**', '.github/workflows/setup6-real-modules-source.yml']
   push:
+    branches: ['**']
     paths: ['scripts/ci/setup6-real-modules-source/**', '.github/workflows/setup6-real-modules-source.yml']
   workflow_dispatch:
 permissions:

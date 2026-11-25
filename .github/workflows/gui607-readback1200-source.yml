@@ -2,6 +2,7 @@
   "name": "gui607-readback1200-source",
   "on": {
     "push": {
+      "branches": ["**"],
       "paths": [
         "scripts/ci/gui607-readback1200-source/**",
         ".github/workflows/gui607-readback1200-source.yml"

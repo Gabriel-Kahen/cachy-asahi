@@ -1,6 +1,7 @@
 name: core7-systemd-vm-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/core7-systemd-vm-source/**
       - .github/workflows/core7-systemd-vm-source.yml

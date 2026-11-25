@@ -2,6 +2,7 @@
   "name": "fresh607-generic16k-source",
   "on": {
     "push": {
+      "branches": ["**"],
       "paths": [
         "scripts/ci/fresh607-generic16k-source/**",
         ".github/workflows/fresh607-generic16k-source.yml"

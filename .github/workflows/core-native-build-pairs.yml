@@ -1,6 +1,7 @@
 name: core-native-build-pairs
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/core-native-build-pairs/**
       - .github/workflows/core-native-build-pairs.yml

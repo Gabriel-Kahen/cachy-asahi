@@ -2,6 +2,7 @@
   "name": "core41-observer-efficient-source",
   "on": {
     "push": {
+      "branches": ["**"],
       "paths": [
         "scripts/ci/core7-systemd-vm-source/**",
         ".github/workflows/core41-observer-efficient-source.yml"

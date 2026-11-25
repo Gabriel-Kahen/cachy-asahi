@@ -2,6 +2,7 @@
   "name": "Core41 typed TPM ACL source factory",
   "on": {
     "push": {
+      "branches": ["**"],
       "paths": [
         "scripts/ci/core7-systemd-vm-source/**",
         ".github/workflows/core41-tpm-acl-source.yml"

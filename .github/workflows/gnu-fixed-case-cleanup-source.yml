@@ -5,6 +5,7 @@ on:
       - 'scripts/ci/gnu-fixed-case-cleanup-source/**'
       - '.github/workflows/gnu-fixed-case-cleanup-source.yml'
   push:
+    branches: ['**']
     paths:
       - 'scripts/ci/gnu-fixed-case-cleanup-source/**'
       - '.github/workflows/gnu-fixed-case-cleanup-source.yml'

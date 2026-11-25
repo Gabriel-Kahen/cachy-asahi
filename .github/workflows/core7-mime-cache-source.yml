@@ -1,6 +1,7 @@
 name: core7-mime-cache-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/core7-mime-cache-source/**
       - .github/workflows/core7-mime-cache-source.yml

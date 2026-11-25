@@ -78,6 +78,7 @@
       ]
     },
     "push": {
+      "branches": ["**"],
       "paths": [
         "scripts/ci/fresh607-apps6-baseline-tooling-source/**",
         ".github/workflows/fresh607-apps6-baseline-tooling-source.yml"

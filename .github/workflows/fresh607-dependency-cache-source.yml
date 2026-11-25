@@ -1,6 +1,7 @@
 name: fresh607-dependency-cache-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/fresh607-dependency-cache-source/**
       - .github/workflows/fresh607-dependency-cache-source.yml

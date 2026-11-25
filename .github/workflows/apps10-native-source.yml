@@ -5,6 +5,7 @@ on:
       - 'scripts/ci/apps10-native-source/**'
       - '.github/workflows/apps10-native-source.yml'
   push:
+    branches: ['**']
     paths:
       - 'scripts/ci/apps10-native-source/**'
       - '.github/workflows/apps10-native-source.yml'

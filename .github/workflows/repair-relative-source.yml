@@ -1,6 +1,7 @@
 name: repair-relative-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/repair-relative-source/**
       - .github/workflows/repair-relative-source.yml

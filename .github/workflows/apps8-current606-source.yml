@@ -1,6 +1,7 @@
 name: apps8-current606-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/apps8-current606-source/**
       - .github/workflows/apps8-current606-source.yml

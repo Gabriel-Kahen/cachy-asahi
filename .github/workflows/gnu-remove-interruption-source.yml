@@ -1,6 +1,7 @@
 name: GNU remove-interruption source factory
 on:
   push:
+    branches: ['**']
     paths: ['scripts/ci/gnu-remove-interruption-source/**', '.github/workflows/gnu-remove-interruption-source.yml']
   pull_request:
     paths: ['scripts/ci/gnu-remove-interruption-source/**', '.github/workflows/gnu-remove-interruption-source.yml']

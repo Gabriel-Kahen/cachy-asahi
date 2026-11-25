@@ -1,6 +1,7 @@
 name: latest607-updater-dependency-cache-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/latest607-updater-dependency-cache-source/**
       - .github/workflows/latest607-updater-dependency-cache-source.yml

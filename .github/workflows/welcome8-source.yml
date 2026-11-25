@@ -1,6 +1,7 @@
 name: welcome8-source
 on:
   push:
+    branches: ['**']
     paths:
       - packages/tools/cachy-asahi-welcome8/**
       - .github/workflows/welcome8-source.yml

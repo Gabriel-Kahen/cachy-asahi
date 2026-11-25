@@ -1,6 +1,7 @@
 name: fresh607-runtime-context-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/fresh607-runtime-context-source/**
       - .github/workflows/fresh607-runtime-context-source.yml

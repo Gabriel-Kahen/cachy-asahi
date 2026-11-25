@@ -2,6 +2,7 @@
   "name": "core44-journal-acl1200-source",
   "on": {
     "push": {
+      "branches": ["**"],
       "paths": [
         "scripts/ci/core7-systemd-vm-source/**",
         ".github/workflows/core44-journal-acl1200-source.yml"

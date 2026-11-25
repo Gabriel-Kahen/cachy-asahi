@@ -1,6 +1,7 @@
 name: fresh607-page-adapter-binding-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/fresh607-page-adapter-binding-source/**
       - .github/workflows/fresh607-page-adapter-binding-source.yml

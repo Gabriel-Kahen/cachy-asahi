@@ -2,6 +2,7 @@
   "name": "current607-apps16-vmtest3600-source",
   "on": {
     "push": {
+      "branches": ["**"],
       "paths": [
         "scripts/ci/current607-native-graph-profile/**",
         ".github/workflows/current607-apps16-vmtest3600-source.yml"

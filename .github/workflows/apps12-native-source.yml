@@ -5,6 +5,7 @@ on:
       - 'scripts/ci/apps12-native-source/**'
       - '.github/workflows/apps12-native-source.yml'
   push:
+    branches: ['**']
     paths:
       - 'scripts/ci/apps12-native-source/**'
       - '.github/workflows/apps12-native-source.yml'

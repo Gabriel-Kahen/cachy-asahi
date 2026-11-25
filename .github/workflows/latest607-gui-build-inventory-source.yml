@@ -2,6 +2,7 @@
   "name": "latest607-gui-build-inventory-source",
   "on": {
     "push": {
+      "branches": ["**"],
       "paths": [
         "scripts/ci/latest607-gui-build-inventory-source/**",
         ".github/workflows/latest607-gui-build-inventory-source.yml"

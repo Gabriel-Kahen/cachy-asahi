@@ -1,6 +1,7 @@
 name: GNU candidate-extraction source factory
 on:
   push:
+    branches: ['**']
     paths: ['scripts/ci/gnu-candidate-extraction-source/**', '.github/workflows/gnu-candidate-extraction-source.yml']
   pull_request:
     paths: ['scripts/ci/gnu-candidate-extraction-source/**', '.github/workflows/gnu-candidate-extraction-source.yml']

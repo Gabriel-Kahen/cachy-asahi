@@ -1,6 +1,7 @@
 name: repair16k-correctness9000-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/repair16k-inner-diagnostics-source/**
       - .github/workflows/repair16k-correctness9000-source.yml

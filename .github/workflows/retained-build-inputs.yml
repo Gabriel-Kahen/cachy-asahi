@@ -1,6 +1,7 @@
 name: retained-build-inputs
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/retained-build-inputs/**
       - .github/workflows/retained-build-inputs.yml

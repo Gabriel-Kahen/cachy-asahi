@@ -1,6 +1,7 @@
 name: core7-ordinary-output-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/core7-ordinary-output-source/**
       - .github/workflows/core7-ordinary-output-source.yml
