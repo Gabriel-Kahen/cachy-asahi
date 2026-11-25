@@ -356,11 +356,28 @@ jobs:
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock011/test_idle.py -v
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock011/test_package.py --recipe-root packages/tools/cachy-asahi-session-lock011 -v
           python3 -I -B -Werror::ResourceWarning packages/desktop/cachy-asahi-hyprland-settings011/test_package.py --recipe-root packages/desktop/cachy-asahi-hyprland-settings011 -v
+      - name: Check out the frozen SessionLock 0.1.0 qualification sources
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 565e10bfe7ef00b0528881dfba08e0f0fe50721c
+          path: .ci-inputs/session-lock010
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /packages/desktop/cachy-asahi-hyprland-settings011/
+            /packages/tools/cachy-asahi-session-lock/
+            /scripts/ci/hyprland03-native-source-v1/payload/native/build_tools_alpm_v2.py
+            /scripts/ci/hyprland03-native-source-v1/payload/native/build_tools_reader_v2.py
+            /scripts/ci/session-lock-settings-native-source/
+            /scripts/integration/desktop_session_lock.py
       - name: Check new native source families without native actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
-          python3 -I -B -Werror::ResourceWarning scripts/ci/session-lock-settings-native-source/test_data.py -v
-          python3 -I -B -Werror::ResourceWarning scripts/ci/session-lock-settings-native-source/test_image_lifecycle_data.py -v
+          historical="$GITHUB_WORKSPACE/.ci-inputs/session-lock010/scripts/ci/session-lock-settings-native-source"
+          python3 -I -B -Werror::ResourceWarning "$historical/test_data.py" -v
+          python3 -I -B -Werror::ResourceWarning "$historical/test_image_lifecycle_data.py" -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_image_lifecycle_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_preflight_data.py -v
