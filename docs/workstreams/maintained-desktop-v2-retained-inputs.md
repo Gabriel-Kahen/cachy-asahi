@@ -48,9 +48,11 @@ launcher delivery, and the pinned launcher takes over its own signal handling
 during execution. The receiver restores the caller's handlers after retirement.
 The receiver retires transport scratch against its held identity on every
 exit path. If scratch custody changes, parent retirement stops, both names
-are preserved, and the workflow reports `HOLD / UNCERTAIN`. After retiring
-the checked package directory, the receiver removes the stage nonrecursively
-so any late entry blocks removal. Staging cleanup
+are preserved, and the workflow reports `HOLD / UNCERTAIN`. The scratch and
+package contents are retired through their original directory descriptors
+under the existing deadline, with at most 8,192 entries and 16 nested levels
+per tree. Only a nonrecursive removal follows the final named-identity check.
+A late entry blocks stage removal. Staging cleanup
 `PASS` requires verified child retirement, path absence and closed directory
 descriptors. A forced SIGKILL can prevent a terminal receipt and leaves cleanup
 uncertain.

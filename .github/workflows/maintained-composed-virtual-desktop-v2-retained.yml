@@ -56,7 +56,7 @@ jobs:
           INPUTS_PATH = 'scripts/ci/inputs.lock.json'
           INPUTS_PIN = (328101, 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f')
           HELPER_PATH = 'scripts/ci/development/retained_native248.py'
-          HELPER_PIN = (19336, '22cad14d2c71e2258066ffe153c28740a78f1c777679c75c115c038db88b8a9c')
+          HELPER_PIN = (21665, '588d3be4353ca930d106fda1e95fea4dd0c74c6f2abee7eeb8725e74b886f542')
           WORKFLOW_PATH = '.github/workflows/maintained-composed-virtual-desktop-v2-retained.yml'
           PLAN_ENV = 'ROOT_REGISTERED_MAINTAINED_DESKTOP_V2_RETAINED_PLAN_B64'
           PIN_ENV = 'ROOT_REGISTERED_MAINTAINED_DESKTOP_V2_RETAINED_PLAN_SHA256'

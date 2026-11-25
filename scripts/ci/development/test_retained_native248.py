@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import selectors
+import shutil
 import signal
 import subprocess
 import sys
@@ -70,6 +71,27 @@ def fixture(run_mode, runner_temp):
         if run_mode == "replace-scratch-success":
             replace_scratch(data.parents[1])
 
+    real_rmtree, real_scandir = shutil.rmtree, os.scandir
+
+    def swap_at_retirement(path):
+        if replacement is not None or path.parent != staged:
+            return
+        if (run_mode == "swap-open-scratch" and path.name.startswith("transport-")
+                or run_mode == "swap-open-packages" and path.name == "packages"):
+            replace_scratch(path)
+
+    def raced_rmtree(name, *args, dir_fd=None, **kwargs):
+        if dir_fd is not None:
+            swap_at_retirement(Path(os.readlink(f"/proc/self/fd/{dir_fd}")) / name)
+        return real_rmtree(name, *args, dir_fd=dir_fd, **kwargs)
+
+    raced_rmtree.avoids_symlink_attacks = real_rmtree.avoids_symlink_attacks
+
+    def raced_scandir(path):
+        if isinstance(path, int):
+            swap_at_retirement(Path(os.readlink(f"/proc/self/fd/{path}")))
+        return real_scandir(path)
+
     retire = receiver.retire_directory
 
     def retire_with_late_replacement(parent, name, *args, **kwargs):
@@ -85,7 +107,8 @@ def fixture(run_mode, runner_temp):
     refused = None
     with patch.multiple(receiver, package_pins=lambda _: {}, carrier_profile=lambda _: b"",
                         verify_git=lambda *_: None, load_transport=lambda *_: transport,
-                        verify_ref=verify_ref, project=project, retire_directory=retire_with_late_replacement):
+                        verify_ref=verify_ref, project=project, retire_directory=retire_with_late_replacement), \
+         patch.object(shutil, "rmtree", raced_rmtree), patch.object(os, "scandir", raced_scandir):
         try:
             with receiver.stage(environment, "", b"", lambda *_: b"", time.monotonic() + 9,
                                 receipt=receipt) as controls:
@@ -206,6 +229,36 @@ class StageSignalTests(unittest.TestCase):
         self.assertEqual(result["cleanup"], {"status": "HOLD", "cleanup": "UNCERTAIN"})
         self.assertFalse(result["absent"])
         self.assertTrue(result["handlers_restored"])
+
+    def test_swaps_after_the_identity_check_preserve_both_replacement_sentinels(self):
+        for mode, entered in (("swap-open-scratch", False), ("swap-open-packages", True)):
+            with self.subTest(mode=mode):
+                result = self.worker(mode)
+                self.assertEqual(result["entered"], entered)
+                self.assertTrue(result["replacement_preserved"])
+                self.assertEqual(result["refused"], "native248-retirement-custody")
+                self.assertEqual(result["cleanup"], {"status": "HOLD", "cleanup": "UNCERTAIN"})
+                self.assertFalse(result["absent"])
+                self.assertTrue(result["handlers_restored"])
+
+    def test_descriptor_walk_refuses_an_over_budget_directory_without_unlinking(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            scratch = root / "scratch"
+            scratch.mkdir(mode=0o700)
+            for name in ("first", "second"):
+                (scratch / name).touch(mode=0o600)
+            parent = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            directory = os.open(scratch, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            try:
+                identity = receiver.owned_directory(scratch, private=True)
+                with patch.object(receiver, "RETIRE_ENTRY_LIMIT", 1), \
+                     self.assertRaisesRegex(ValueError, "native248-retirement-entry-limit"):
+                    receiver.retire_directory(parent, scratch.name, directory, identity, time.monotonic() + 5)
+                self.assertEqual({leaf.name for leaf in scratch.iterdir()}, {"first", "second"})
+            finally:
+                os.close(directory)
+                os.close(parent)
 
 
 if __name__ == "__main__":

@@ -8,7 +8,6 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
 import signal
 import stat
 import subprocess
@@ -33,6 +32,8 @@ PROFILE_SHA = "47ea6a3f358922ad1d643bc2cbd517fe0335f5dbe1313a87af3d24396d5a39ea"
 INPUTS_SHA = "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
 INDEX_SHA = "51a53c9e0d9eab1728f350f9ab8d3d7b8932891ab0ed68c7876a1440166ff486"
 GIT = Path("/usr/bin/git")
+RETIRE_ENTRY_LIMIT = 8192
+RETIRE_DEPTH_LIMIT = 16
 
 
 def require(condition, code):
@@ -265,13 +266,8 @@ def verify_directory(parent, name, directory, identity):
             and named.st_uid == os.geteuid(), "native248-retirement-custody")
 
 
-def retire_directory(parent, name, directory, identity, deadline, *, empty=False):
-    live(deadline)
-    verify_directory(parent, name, directory, identity)
-    if empty:
-        os.rmdir(name, dir_fd=parent)
-    else:
-        shutil.rmtree(name, dir_fd=parent)
+def remove_empty_directory(parent, name, directory, deadline):
+    os.rmdir(name, dir_fd=parent)
     try:
         os.stat(name, dir_fd=parent, follow_symlinks=False)
     except FileNotFoundError:
@@ -279,6 +275,57 @@ def retire_directory(parent, name, directory, identity, deadline, *, empty=False
     else:
         raise ValueError("native248-retirement-absence")
     live(deadline)
+
+
+def retire_contents(directory, device, deadline, remaining, depth=0):
+    """Walk only held directory descriptors, with a shared entry and depth budget."""
+    require(depth <= RETIRE_DEPTH_LIMIT, "native248-retirement-depth")
+    live(deadline)
+    os.lseek(directory, 0, os.SEEK_SET)
+    children = []
+    with os.scandir(directory) as entries:
+        for entry in entries:
+            live(deadline)
+            require(remaining > 0, "native248-retirement-entry-limit")
+            remaining -= 1
+            node = entry.stat(follow_symlinks=False)
+            require(node.st_dev == device and node.st_uid == os.geteuid() and not node.st_mode & 0o022
+                    and (stat.S_ISDIR(node.st_mode) or stat.S_ISREG(node.st_mode) and node.st_nlink == 1),
+                    "native248-retirement-child-custody")
+            children.append((entry.name, node))
+    for name, node in children:
+        live(deadline)
+        named = os.stat(name, dir_fd=directory, follow_symlinks=False)
+        require(file_state(named) == file_state(node), "native248-retirement-child-drift")
+        if stat.S_ISREG(node.st_mode):
+            os.unlink(name, dir_fd=directory)
+            continue
+        fd = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=directory)
+        try:
+            require(file_state(os.fstat(fd)) == file_state(node), "native248-retirement-child-drift")
+            remaining = retire_contents(fd, device, deadline, remaining, depth + 1)
+            held = os.fstat(fd)
+            named = os.stat(name, dir_fd=directory, follow_symlinks=False)
+            # Our child removals changed timestamps and the directory link count.
+            require(file_state(named) == file_state(held) and file_state(held)[:4] == file_state(node)[:4],
+                    "native248-retirement-child-drift")
+            live(deadline)
+            remove_empty_directory(directory, name, fd, deadline)
+        finally:
+            os.close(fd)
+    return remaining
+
+
+def retire_directory(parent, name, directory, identity, deadline, *, empty=False):
+    live(deadline)
+    verify_directory(parent, name, directory, identity)
+    if not empty:
+        retire_contents(directory, identity[0], deadline, RETIRE_ENTRY_LIMIT)
+    # Never recurse by the root name. If it changed while its held contents
+    # were retired, leave the newly named directory alone.
+    live(deadline)
+    verify_directory(parent, name, directory, identity)
+    remove_empty_directory(parent, name, directory, deadline)
 
 
 @contextmanager
@@ -294,7 +341,6 @@ def stage(environment, git_sha, raw_inputs, fetch, deadline, *, cleanup_deadline
             "native248-attempt")
     temporary = Path(environment["RUNNER_TEMP"])
     temp_id = owned_directory(temporary, private=False)
-    require(shutil.rmtree.avoids_symlink_attacks, "native248-safe-retirement")
     controls = StageSignals()
     destination = temporary / f"maintained-desktop-v2-native248-{run}-{attempt}"
     handed_off = retired = False
