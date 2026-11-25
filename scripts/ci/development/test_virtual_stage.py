@@ -194,8 +194,7 @@ class VirtualStage(unittest.TestCase):
             events.extend([{'event': 'frame_ready', 'stage': stage, 'monitors': [{'width': 8, 'height': 1}],
                             'clients': [{'pid': 100, 'mapped': True, 'size': [8, 1]}]},
                            {'event': 'phase_pass', 'stage': stage}])
-        events.append({'event': 'guest_pass', 'nonce': 'e' * 32, 'software_session': 'PASS',
-                       'hardware_validation': 'NOT RUN', 'graphics_acceleration': 'NOT RUN'})
+        events.append(self.desktop_terminal())
         self.put_json(out / 'guest-events.json', events)
         frames = {}
         ppm = b'P6\n8 1\n255\n' + b''.join(bytes((n, n * 3, n * 5)) for n in range(8))
@@ -218,7 +217,9 @@ class VirtualStage(unittest.TestCase):
                       'contract_sha256': 'f' * 64, 'prepare_receipt_sha256': 'e' * 64, 'image_id': 'sha256:' + 'd' * 64,
                       'nonce': 'e' * 32, 'software_session_ipc': 'PASS', 'software_compositor': 'REVIEW REQUIRED',
                       'frame_proof': 'REVIEW REQUIRED', 'hardware_validation': 'NOT RUN', 'graphics_acceleration': 'NOT RUN',
-                      'm2_16k_pages': 'NOT RUN', 'performance': 'NOT RUN'},
+                      'm2_16k_pages': 'NOT RUN', 'performance': 'NOT RUN',
+                      'desktop_completion': {'schema_version': 2, 'terminal_event': events[-1], 'uart_eof': True},
+                      'owned_group_retirement': 'PASS', 'cleanup_uncertain': False},
             'frames': frames, 'guest_events_sha256': v.digest(out / 'guest-events.json'),
             'stages': {'tooling': {'status': 'READY', 'package_count': 366, 'image_id': 'sha256:' + 'd' * 64,
                                   'package_inventory_sha256': '9' * 64}, 'preparation': {'status': 'PREPARED'}}}
@@ -245,6 +246,10 @@ class VirtualStage(unittest.TestCase):
         self.put(out / 'key-init.log', b'never export this either\n')
         self.put(log, b'controlled launcher output\n')
         return 0
+
+    @staticmethod
+    def desktop_terminal():
+        return {'event': 'desktop_session_exit', 'nonce': 'e' * 32, 'session_returncode': 0, 'seatd_returncode': 0}
 
     @staticmethod
     def monitor_command():
@@ -473,6 +478,36 @@ class VirtualStage(unittest.TestCase):
         acquisition = v.read_json(self.output / 'adapter-status/acquisition.json')
         self.assertEqual(len(acquisition['inputs']), 45); self.assertEqual(acquisition['status'], 'PIN_MATCH')
 
+    def test_capture_refused_without_exact_terminal_and_eof_join(self):
+        for variant in ('legacy-event', 'late-event', 'wrong-receipt', 'missing-eof', 'uncertain-retirement'):
+            with self.subTest(variant=variant):
+                def mutate(out):
+                    path = out / 'guest-events.json'
+                    events = json.loads(path.read_bytes())
+                    if variant == 'legacy-event':
+                        events[-1] = {'event': 'guest_pass', 'nonce': 'e' * 32, 'software_session': 'PASS',
+                                      'hardware_validation': 'NOT RUN', 'graphics_acceleration': 'NOT RUN'}
+                    if variant == 'late-event':
+                        events.append(self.monitor_command())
+                    self.put_json(path, events)
+
+                    def claim(receipt):
+                        receipt['guest_events_sha256'] = v.digest(path)
+                        guest = receipt['guest']
+                        if variant == 'wrong-receipt':
+                            guest['desktop_completion']['terminal_event']['seatd_returncode'] = -15
+                        if variant == 'missing-eof':
+                            guest['desktop_completion']['uart_eof'] = 1
+                        if variant == 'uncertain-retirement':
+                            guest['cleanup_uncertain'] = True
+
+                    self.mutate(out / 'result.json', claim)
+
+                self.owner_mutation(mutate)
+                self.assertEqual(self.run_adapter()['status'], 'FAIL')
+                self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+                shutil.rmtree(self.output)
+
     def failed_capability_owner(self, out, rows=None, fields=True):
         def failed(receipt):
             receipt.update(status='FAIL', frames={}, guest={'status': 'FAILED', 'hardware_validation': 'NOT RUN'})
@@ -554,7 +589,7 @@ class VirtualStage(unittest.TestCase):
         self.owner_mutation(missing)
         self.assertEqual(self.run_adapter()['error_code'], 'qemu-capability-success-required')
 
-    def test_guest_pass_events_cannot_hide_behind_failed_partial_capabilities(self):
+    def test_desktop_terminal_events_cannot_hide_behind_failed_partial_capabilities(self):
         def change(out):
             events = json.loads(v.read_regular(out / 'guest-events.json'))
             rows = self.capabilities()[:1]; rows[0].update(status='FAIL', reason='capability-missing')
@@ -1536,8 +1571,7 @@ finally:
             ('frame-after-pre', lambda events: events.insert(pre(events) + 1, {'event': 'frame_ready', 'stage': 'minimal',
                          'monitors': [{'width': 1, 'height': 1}], 'clients': [{'pid': 1, 'mapped': True, 'size': [1, 1]}]})),
             ('phase-after-pre', lambda events: events.insert(pre(events) + 1, {'event': 'phase_pass', 'stage': 'minimal'})),
-            ('pass-after-pre', lambda events: events.append({'event': 'guest_pass', 'nonce': 'e' * 32,
-                         'software_session': 'PASS', 'hardware_validation': 'NOT RUN', 'graphics_acceleration': 'NOT RUN'})),
+            ('pass-after-pre', lambda events: events.append(self.desktop_terminal())),
         ]
         for label, data in (('private-client-log', b'password=PROCESS_PRIVATE_SENTINEL\n'),
                             ('ansi-private-client-log', b'pass\x1b[32mword=PROCESS_PRIVATE_SENTINEL\n'),
@@ -1569,8 +1603,7 @@ finally:
                 def claim(out):
                     events = json.loads((out / 'guest-events.json').read_bytes())
                     self.process_failure_fixture(events, before=self.process_snapshot(client=client))
-                    events[:] = events[:-1] + [{'event': 'guest_pass', 'nonce': 'e' * 32, 'software_session': 'PASS',
-                               'hardware_validation': 'NOT RUN', 'graphics_acceleration': 'NOT RUN'}]
+                    events[:] = events[:-1] + [self.desktop_terminal()]
                     self.put_json(out / 'guest-events.json', events)
                     self.mutate(out / 'result.json', lambda receipt: receipt.update(guest_events_sha256=v.digest(out / 'guest-events.json')))
                 self.ipc_case(claim)

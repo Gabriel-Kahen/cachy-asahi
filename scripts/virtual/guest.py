@@ -9,11 +9,14 @@ from pathlib import Path
 import platform
 import re
 import signal
+import socket
 import stat
 import subprocess
 import sys
 import time
-from common import bounded, inventory, LoggedProcess
+from common import (await_terminal, bounded, inventory, LoggedProcess, reap, registered_spawn, terminal, BARRIER_PURPOSE, BARRIER_TEST,
+                    BARRIER_FILES, BARRIER_SOURCE, BARRIER_FRAME_LINES, barrier_contract, barrier_event, json_load, TRANSACTION_PURPOSE, TRANSACTION_FILES, TRANSACTION_TESTS,
+                    TRANSACTION_SELECTORS, TRANSACTION_FRAME_LINES, transaction_contract, transaction_launcher, transaction_event, transaction_method, transaction_call, TRANSACTION_CASES)
 from image_decode_report import (ASSET_PATH, ASSET_SHA256, MAX_REPORT,
                                  decode, inventory_sha256, parse_report, validate_guest_contract, validate_event)
 
@@ -151,13 +154,15 @@ def image_decode_preflight(env, root, nonce):
         row['elapsed_ms'] = int(elapsed * 1000)
         validate_event(row, nonce)
         require(time.monotonic() < deadline, 'probe acceptance deadline')
-    except BaseException:
+    except BaseException as failure:
         row.update(error=error, elapsed_ms=None, report_sha256=None, report_base64=None)
         try:
             emit('image_decode_probe', **{key: value for key, value in row.items() if key != 'event'})
         except BaseException:
             # A closed diagnostic channel cannot replace the first probe refusal.
             pass
+        if not isinstance(failure, Exception):
+            raise  # Preserve cancellation/exit identity after bounded diagnostics.
         raise ValueError('image decode preflight failed: ' + error) from None
     emit('image_decode_probe', **{key: value for key, value in row.items() if key != 'event'})
     return observation
@@ -221,6 +226,92 @@ def wait_for_ipc(stage, compositor, env, log, check_logs):
                     'compositor IPC probe failed/overflowed')
         time.sleep(min(.5, max(0, deadline - time.monotonic())))
     raise ValueError('compositor IPC deadline')
+
+
+def mapped_client(row, pid):
+    size = row.get('size')
+    return (row.get('pid') == pid and row.get('mapped') is True and
+            row.get('visible') is True and row.get('hidden') is False and
+            type(size) is list and len(size) == 2 and
+            all(type(value) is int and value > 0 for value in size))
+
+
+def private_ipc(env, request, deadline, check, deadline_message):
+    """Only the two fixed proof requests, within their caller's existing budget."""
+    require(request in (b'j/clients', b'/dispatch hl.dsp.exit()'), 'unsupported private IPC request')
+    runtime = Path(env['XDG_RUNTIME_DIR'])
+    instance = env['HYPRLAND_INSTANCE_SIGNATURE']
+    require(type(instance) is str and re.fullmatch(r'[A-Za-z0-9_.-]+', instance),
+            'invalid private compositor instance')
+    path = runtime / 'hypr' / instance / '.socket.sock'
+    require(list(runtime.glob('hypr/*/.socket.sock')) == [path] and path.is_socket() and
+            all(not p.is_symlink() for p in (path, *path.parents)), 'private compositor socket required')
+    reply = bytearray()
+    def remaining():
+        check()
+        value = deadline - time.monotonic()
+        require(value > 0, deadline_message)
+        return value
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
+        connection.settimeout(min(.25, remaining()))
+        connection.connect(str(path))
+        connection.settimeout(min(.25, remaining()))
+        connection.sendall(request)
+        while True:
+            connection.settimeout(min(.25, remaining()))
+            try:
+                block = connection.recv(min(65536, MAX_LOG + 1 - len(reply)))
+            except TimeoutError:
+                continue
+            require(len(reply) + len(block) <= MAX_LOG, 'private IPC reply overflow')
+            if not block:
+                break
+            reply.extend(block)
+        remaining()
+    return bytes(reply)
+
+
+def query_clients(env, deadline, check, *, deadline_message='Wayland client mapping deadline'):
+    start = time.monotonic()
+    reply = private_ipc(env, b'j/clients', deadline, check, deadline_message)
+    clients = json.loads(reply.decode('utf-8'))
+    require(type(clients) is list and all(type(row) is dict for row in clients), 'invalid clients IPC reply')
+    check()
+    require(time.monotonic() < deadline, deadline_message)
+    emit('client_ipc', transport='private-unix-socket', request='j/clients',
+         elapsed_ms=int((time.monotonic() - start) * 1000), stdout=reply.decode('utf-8'))
+    return clients
+
+
+def capture_window(stage, monitors, pid, env, check):
+    # Spend the first 5s of the existing 15s live window before QMP capture.
+    # Mapping alone does not mean a queued output update is already visible.
+    start = time.monotonic()
+    until, emitted = start + 15, False
+    while time.monotonic() < until:
+        check()
+        now = time.monotonic()
+        require(now < until, 'capture window expired before snapshot')
+        if not emitted and now >= start + 5:
+            clients = query_clients(env, until, check,
+                                    deadline_message='capture window expired before snapshot')
+            require(time.monotonic() < until, 'capture window expired before snapshot')
+            require(any(mapped_client(row, pid) for row in clients),
+                    'own client not mapped/visible at capture')
+            emit('frame_ready', stage=stage, monitors=monitors, clients=clients)
+            emitted = True
+        time.sleep(min(.25, max(0, until - time.monotonic())))
+    require(emitted, 'capture window expired before snapshot')
+
+
+def shutdown_compositor(env, compositor, check):
+    deadline = time.monotonic() + 15
+    reply = private_ipc(env, b'/dispatch hl.dsp.exit()', deadline, check, 'compositor shutdown deadline')
+    require(reply == b'ok', 'compositor exit acknowledgement differs')
+    remaining = deadline - time.monotonic()
+    require(remaining > 0, 'compositor shutdown deadline')
+    compositor.wait(timeout=remaining)
+    require(compositor.returncode == 0 and time.monotonic() < deadline, 'unclean compositor shutdown')
 
 
 def terminate(process):
@@ -307,42 +398,43 @@ def phase(stage, config, env, root, *, nonce=None):
         if stage == 'minimal':
             image_decode_preflight(env, root, nonce)
         client_log = root / (stage + '-client.log')
+        # Isolate the failed AT-SPI startup dependency in this disposable client.
+        # Protocol diagnostics share the existing bounded, reaped client log.
         collector = LoggedProcess(['/usr/bin/wofi', '--normal-window', '--show', 'dmenu', '--prompt', 'Generic ARM software proof', '--width', '420', '--height', '220'],
-                                  client_log, env=env, stdin=subprocess.PIPE)
+                                  client_log, env=dict(env, NO_AT_BRIDGE='1', WAYLAND_DEBUG='client'), stdin=subprocess.PIPE)
         collectors.append(collector)
         client_collector = collector
         client = collector.process
         client.stdin.write(b'cachy-asahi software proof\nNo Apple hardware claim\n')
         client.stdin.close()
         deadline = time.monotonic() + 45
-        while time.monotonic() < deadline:
+        def check_client():
             check_logs()
             require(alive(), 'client/compositor exited before frame')
             require(log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG, 'session/client log overflow')
-            clients = json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env))
-            if any(c.get('pid') == client.pid and c.get('mapped') is True and
-                   all(x > 0 for x in c.get('size', [0, 0])) for c in clients):
+        while time.monotonic() < deadline:
+            clients = query_clients(env, deadline, check_client)
+            require(time.monotonic() < deadline, 'Wayland client mapping deadline')
+            if any(mapped_client(row, client.pid) for row in clients):
                 break
             time.sleep(.5)
         else:
             raise ValueError('Wayland client mapping deadline')
-        emit('frame_ready', stage=stage, monitors=monitors, clients=clients)
-        # Fixed window for outer QMP capture; no network or host IPC.
-        until = time.monotonic() + 15
-        while time.monotonic() < until:
+        def check_capture():
             check_logs()
             require(alive() and
                     log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG,
                     'session failed/overflowed during capture window')
-            time.sleep(.25)
+        capture_window(stage, monitors, client.pid, env, check_capture)
         terminate(client)
         client = None
         collectors[-1].finish()
         retained(client_log, stage)
         client_retained = True
-        command(['/usr/bin/hyprctl', 'dispatch', 'exit'], env)
-        compositor.wait(timeout=15)
-        require(compositor.returncode == 0, 'unclean compositor shutdown')
+        def check_shutdown():
+            check_logs()
+            require(log.stat().st_size <= MAX_LOG, 'compositor log overflow during shutdown')
+        shutdown_compositor(env, compositor, check_shutdown)
         emit('phase_pass', stage=stage)
     finally:
         failure = sys.exc_info()[1]
@@ -437,7 +529,7 @@ def run_user():
            'XDG_CACHE_HOME': '/home/virtual-proof/cache', 'XDG_SESSION_TYPE': 'wayland',
            'SEATD_SOCK': '/run/seatd.sock', 'LIBSEAT_BACKEND': 'seatd',
            'GBM_ALWAYS_SOFTWARE': '1', 'LIBGL_ALWAYS_SOFTWARE': '1', 'GALLIUM_DRIVER': 'llvmpipe',
-           'LP_NUM_THREADS': '2', 'CACHY_ASAHI_VIRTUAL_GUEST': '1',
+           'LP_NUM_THREADS': '0', 'GALLIVM_PERF': 'nopt', 'CACHY_ASAHI_VIRTUAL_GUEST': '1',
            'DBUS_SESSION_BUS_ADDRESS': os.environ['DBUS_SESSION_BUS_ADDRESS']}
     for name in ('config', 'cache'):
         (Path(env['HOME']) / name).mkdir(mode=0o700)
@@ -451,7 +543,339 @@ def run_user():
         runtime = Path(env['XDG_RUNTIME_DIR'])
         require(not any(runtime.glob('wayland-*')), 'stale Wayland output from earlier phase')
         phase(stage, Path(config), env, root, nonce=nonce)
-    emit('guest_pass', nonce=nonce, software_session='PASS', hardware_validation='NOT RUN', graphics_acceleration='NOT RUN')
+
+
+def run_desktop_session(nonce, env):
+    seatd = None
+    try:
+        with registered_spawn():
+            seatd = subprocess.Popen(['/usr/bin/seatd', '-u', 'virtual-proof', '-g', 'virtual-proof', '-l', 'debug'], env=env, start_new_session=True)
+        until = time.monotonic() + 15
+        while not Path('/run/seatd.sock').is_socket():
+            require(time.monotonic() < until and terminal(seatd) is None, 'guest seatd readiness failed')
+            time.sleep(.1)
+        require(terminal(seatd) is None, 'guest seatd exited before session start')
+        result = subprocess.run(['/usr/bin/runuser', '-u', 'virtual-proof', '--', '/usr/bin/dbus-run-session', '--', '/usr/bin/python', __file__, 'user'], env=env, timeout=600)
+        require(result.returncode == 0, 'guest software proof failed')
+        require(terminal(seatd) is None, 'guest seatd exited before session completion')
+    finally:
+        if seatd is not None:
+            retire_desktop_seatd(seatd)
+    require(type(seatd.returncode) is int and seatd.returncode in (0, -signal.SIGTERM), 'unclean guest seatd retirement')
+    emit('desktop_session_exit', nonce=nonce, session_returncode=result.returncode,
+         seatd_returncode=seatd.returncode)
+
+
+def retire_desktop_seatd(seatd):
+    try:
+        if terminal(seatd) is None:
+            try:
+                os.killpg(seatd.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            await_terminal(seatd, time.monotonic() + 5)
+    finally:
+        reap(seatd, verify_absence=True)
+
+
+def barrier_failure(error, source_paths, frame_lines=BARRIER_FRAME_LINES):
+    """Closed fixture diagnostics: no traceback, text, private path or hash output."""
+    kind, value, trace = error
+    known = (AssertionError, OSError, PermissionError, FileNotFoundError,
+             subprocess.TimeoutExpired, ValueError, RuntimeError, KeyboardInterrupt, SystemExit)
+    name = next((item.__name__ for item in known if kind is item), 'OTHER')
+    number = value.errno if any(kind is item for item in (OSError, PermissionError, FileNotFoundError)) else None
+    if type(number) is not int or not 1 <= number <= 4095:
+        number = None
+    frames = []
+    while trace is not None:
+        label = source_paths.get(trace.tb_frame.f_code.co_filename)
+        if label in frame_lines and len(frames) < 8 and 1 <= trace.tb_lineno <= frame_lines[label]:
+            frames.append({'source': label, 'line': trace.tb_lineno})
+        trace = trace.tb_next
+    tool = {'stage': 'UNRECOGNIZED_OR_ABSENT', 'errno': 'UNAVAILABLE'}
+    # Exact existing P0 util-linux suffix vocabulary; never emit the input string.
+    if kind is AssertionError and type(value.args) is tuple and value.args and type(value.args[0]) is str:
+        lines = value.args[0].splitlines()
+        message = lines[0] if len(lines) == 1 else ''
+        child = re.match(r'(-?[0-9]{1,3}) != 0 :(?: |$)', message)
+        if child and -64 <= int(child[1]) <= 255 and int(child[1]) != 0:
+            stages = {'unshare failed': 'UNSHARE_CALL',
+                      'cannot change root filesystem propagation': 'ROOT_PROPAGATION',
+                      'mount /proc failed': 'PROC_MOUNT'}
+            errors = {'Operation not permitted': 1, 'Permission denied': 13, 'Invalid argument': 22,
+                      'Function not implemented': 38, 'Cannot allocate memory': 12,
+                      'Resource temporarily unavailable': 11, 'No such file or directory': 2}
+            # unittest's selected assertEqual strips the subprocess stderr newline.
+            suffix = message[child.end():]
+            for text, stage in stages.items():
+                for text_error, code in errors.items():
+                    if suffix == 'unshare: ' + text + ': ' + text_error:
+                        tool = {'stage': stage, 'errno': code}
+    return {'exception': name, 'errno': number, 'frames': frames, 'unshare_tool_error': tool}
+
+
+def barrier_test(module, source_paths, nonce, selection):
+    import unittest
+    class Result(unittest.TestResult):
+        first_failure = None
+        def failed(self, error):
+            if self.first_failure is None:
+                self.first_failure = barrier_failure(error, source_paths)
+        def addFailure(self, test, error):
+            self.failed(error)
+            self.failures.append((test, 'closed failure'))
+        def addError(self, test, error):
+            self.failed(error)
+            if error[0] is KeyboardInterrupt or error[0] is SystemExit:
+                raise error[1]
+            self.errors.append((test, 'closed error'))
+    result = Result()
+    # Exactly one selected method; no discovery, TextTestRunner or signing class.
+    case = module.BarrierTests(BARRIER_TEST)
+    try:
+        case.run(result)
+    except BaseException:
+        result.failed(sys.exc_info())
+        raise
+    finally:
+        row = {'event': 'barrier_result', 'nonce': nonce, 'selection_sha256': selection,
+               'fixture_source': BARRIER_SOURCE, 'uid': os.geteuid(), 'gid': os.getegid(),
+               'tests': result.testsRun, 'failures': len(result.failures), 'errors': len(result.errors),
+               'skips': len(result.skipped), 'status': 'FAIL', 'report': None,
+               'first_failure': result.first_failure}
+        if result.testsRun == 1 and result.wasSuccessful() and not result.skipped and result.first_failure is None:
+            row.update(status='PASS_BARRIER_ONLY', report=getattr(module.BarrierTests, 'last_report', None))
+        barrier_event(row, nonce, selection)
+        emit('barrier_result', **{k: v for k, v in row.items() if k != 'event'})
+    require(row['status'] == 'PASS_BARRIER_ONLY', 'selected barrier fixture failed')
+    return row
+
+
+def barrier_user():
+    import types
+    guest_guard()
+    require(os.geteuid() == os.getegid() == 23001, 'ordinary fixture account required')
+    root = DECODE_ROOT
+    small = json_load(root / 'contract.json')
+    raw = identity_bytes(root / 'virtual-contract.json', MAX_LOG)
+    selection = hashlib.sha256(raw).hexdigest()
+    require(selection == small['proof_contract_sha256'], 'barrier selection differs')
+    c = json_load(root / 'virtual-contract.json')
+    require(barrier_contract(c, root / 'barrier-source') and c['nonce'] == small['nonce'], 'barrier purpose differs')
+    sources = root / 'barrier-source'
+    test = sources / 'scripts/install/test_local_transaction.py'
+    module = types.ModuleType('_selected_barrier_test')
+    module.__file__ = str(test)
+    exec(compile(test.read_bytes(), str(test), 'exec'), module.__dict__)
+    module.REVIEWED_WORKER_SHA256 = BARRIER_FILES['scripts/install/local_transaction.py']['sha256']
+    module.FIXTURE_SELECTION_SHA256 = selection  # Generic guest architecture routing only.
+    labels = {str(sources / name): label for name, label in zip(BARRIER_FILES,
+              ('SELECTED_WORKER', 'SELECTED_TEST', 'SELECTED_RUNTIME'))}
+    labels[str(Path(__file__))] = 'GUEST'
+    return barrier_test(module, labels, c['nonce'], selection)
+
+
+def boot_barrier(contract):
+    require(contract.get('purpose') == BARRIER_PURPOSE, 'barrier purpose required')
+    env = {'PATH': '/usr/bin', 'HOME': '/home/virtual-proof', 'LANG': 'C.UTF-8',
+           'CACHY_ASAHI_VIRTUAL_GUEST': '1', 'PYTHONDONTWRITEBYTECODE': '1'}
+    for path in (Path('/home/virtual-proof'), Path('/run/virtual-proof')):
+        path.mkdir(mode=0o700, exist_ok=True)
+        os.chown(path, 23001, 23001)
+    result = bounded(['/usr/bin/runuser', '-u', 'virtual-proof', '--', '/usr/bin/python', '-B',
+                      __file__, 'barrier-user'], env=env, timeout=600, limit=16384)
+    # Forward only one parsed/validated event; never raw command stderr/stdout.
+    lines = result['stdout'].splitlines()
+    require(len(lines) == 1 and lines[0].startswith(PREFIX), 'one closed barrier event required')
+    event = json.loads(lines[0][len(PREFIX):])
+    barrier_event(event, contract['nonce'], contract['proof_contract_sha256'])
+    emit('barrier_result', **{k: v for k, v in event.items() if k != 'event'})
+    require(result['error'] is None and result['returncode'] == 0 and result['stderr'] == '' and
+            event['status'] == 'PASS_BARRIER_ONLY', 'barrier child did not naturally succeed')
+    emit('barrier_child_exit', nonce=contract['nonce'], selection_sha256=contract['proof_contract_sha256'],
+         returncode=0, error=None)
+
+
+def transaction_execution(record, index, hop=0):
+    """Project only fixed facts from the selected test's already retained worker result."""
+    require(type(record) is dict and record.get('test') == TRANSACTION_TESTS[index] and
+            record.get('worker_sha256') == record.get('worker_after_sha256') ==
+            TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256'], 'selected worker record differs')
+    body = record.get('report')
+    require(type(body) is dict, 'worker report absent')
+    pattern=TRANSACTION_CASES[index][2][hop]
+    row = dict(returncode=record.get('returncode'), worker_status=body.get('status'),
+               phase=body.get('phase','NOT_REPORTED'),commit_started=body.get('commit_started'),committed=body.get('committed'))
+    transaction_call(row,pattern)
+    if pattern in ('PAIR','ADD','REMOVE','UPGRADE','PROTECTED_ADD'):
+        a,b='caa-install-fixture-a','caa-install-fixture-b'
+        before,after = ({},{a:'1.0-1',b:'1.0-1'}) if pattern=='PAIR' else ({},{a:'1.0-1'}) if pattern=='ADD' else (
+            {a:'1.0-1'}, {}) if pattern=='REMOVE' else ({a:'1.0-1'},{a:'2.0-1'}) if pattern=='UPGRADE' else (
+            {a:'1.0-1'},{a:'1.0-1',b:'1.0-1'})
+        require(body.get('installed_payload_verified') is True and body.get('parent_export_verified') is True and
+                body.get('before')==before and body.get('after')==after, 'positive transaction export differs')
+    elif pattern in ('INVALID','SIGNER','ESCAPE'):
+        path=Path(record['retained_evidence'])/'evidence/authentication-command.json'
+        auth=json.loads(identity_bytes(path,MAX_LOG));argv=auth.get('argv');code=auth.get('returncode')
+        require(type(argv) is list and len(argv)<=32 and argv[:2]==['/usr/bin/gpg','--batch'] and
+                argv[-3:-2]==['--verify'] and type(code) is int and
+                (1<=code<=255 if pattern=='INVALID' else code==0), 'original signature verification boundary differs')
+        if pattern!='INVALID':
+            require(body.get('error')==('signature signer/status refused' if pattern=='SIGNER' else 'noncanonical payload path'),
+                    'fixed signer/archive refusal differs')
+
+    return row
+
+
+def transaction_test(module, source_paths, nonce, selection, source):
+    import unittest
+    class Result(unittest.TestResult):
+        def __init__(self):
+            super().__init__(); self.first_failure = None; self.methods = []; self.cancellation = None; self.cursor = 0; self.active = None; self.collected = False
+        def history(self):
+            value=getattr(cls,'execution_history',[])
+            require(type(value) is list and len(value)<=22, 'finite exact worker history required')
+            return value
+        def startTest(self,test):
+            require(test._testMethodName==TRANSACTION_TESTS[len(self.methods)] and
+                    len(self.history())==sum(len(row['calls']) for row in self.methods), 'method/history cursor differs')
+            self.cursor=len(self.history());self.active=test;self.collected=False;super().startTest(test)
+        def collect(self,test,complete):
+            if test is not self.active or self.collected:return
+            index=len(self.methods);entries=self.history()[self.cursor:]
+            require(index<17 and test._testMethodName==TRANSACTION_TESTS[index] and
+                    len(entries)<=len(TRANSACTION_CASES[index][2]), 'selected method/history scope differs')
+            calls=[]
+            for hop,record in enumerate(entries):
+                try:calls.append(transaction_execution(record,index,hop))
+                except BaseException as error:
+                    if type(error) in (KeyboardInterrupt,SystemExit) and self.cancellation is None:self.cancellation=error
+                    if complete:raise
+                    break
+            if calls:
+                row=dict(method=TRANSACTION_SELECTORS[index],calls=calls)
+                transaction_method(row,index,complete=complete);self.methods.append(row);self.collected=True
+            elif complete:require(False,'selected method has no worker history')
+        def failed(self, error):
+            if self.first_failure is None: self.first_failure = barrier_failure(error, source_paths, TRANSACTION_FRAME_LINES)
+            if (error[0] is KeyboardInterrupt or error[0] is SystemExit) and self.cancellation is None: self.cancellation = error[1]
+            self.stop()
+        def addFailure(self, test, error):
+            self.failed(error); self.failures.append((test,'closed failure'))
+            try:self.collect(test,False)
+            except BaseException as error:
+                if type(error) in (KeyboardInterrupt,SystemExit) and self.cancellation is None:self.cancellation=error
+        def addError(self, test, error):
+            self.failed(error); self.errors.append((test,'closed error'))
+            try:self.collect(test,False)
+            except BaseException as error:
+                if type(error) in (KeyboardInterrupt,SystemExit) and self.cancellation is None:self.cancellation=error
+        def addSkip(self, test, reason):
+            self.skipped.append((test,'closed skip')); self.stop()
+        def addSuccess(self, test):
+            try:self.collect(test,True)
+            except BaseException:self.addError(test,sys.exc_info())
+    result = Result(); cls = module.ActualTransactionTests
+    cases = [cls(name) for name in TRANSACTION_TESTS]
+    suite = unittest.TestSuite(cases)
+    try:
+        require(not result.history(), 'stale worker history refused')
+        suite.run(result)  # Real class setup/registered class cleanups, no direct method invocation.
+    except BaseException:
+        result.addError(None, sys.exc_info())
+    finally:
+        # KeyboardInterrupt can bypass unittest's remaining instance/class cleanup stacks.
+        # Retain the seventeen cases; finish each pending pinned duty once, independently.
+        stacks = [(case, getattr(case, '_cleanups', [])) for case in cases]
+        stacks.append((None, getattr(cls, '_class_cleanups', [])))
+        for case, pending in stacks:
+            if len(pending) > 4:
+                try: require(False, 'unexpected fixture cleanup count')
+                except ValueError: result.addError(case, sys.exc_info())
+                continue
+            while pending:
+                function, args, kwargs = pending.pop()
+                try: function(*args, **kwargs)
+                except BaseException: result.addError(case, sys.exc_info())
+        row = {'event':'transaction_result','nonce':nonce,'selection_sha256':selection,'fixture_source':source,
+               'uid':os.geteuid(),'gid':os.getegid(),'tests':result.testsRun,'failures':len(result.failures),
+               'errors':len(result.errors),'skips':len(result.skipped),'status':'FAIL','methods':result.methods,
+               'first_failure':result.first_failure,'class_cleanups_returned':not any(stack for case,stack in stacks) and not result.errors,
+               'cancelled':result.cancellation is not None}
+        if result.testsRun == 17 and result.wasSuccessful() and not result.skipped and result.first_failure is None and len(result.history()) == 22:
+            row['status'] = 'PASS_TRANSACTION_ONLY'
+        transaction_event(row, nonce, selection, source)
+        emit('transaction_result', **{k:v for k,v in row.items() if k!='event'})
+    if result.cancellation is not None: raise result.cancellation
+    require(row['status'] == 'PASS_TRANSACTION_ONLY', 'selected transaction fixture failed')
+    return row
+
+
+def transaction_user():
+    import types
+    guest_guard()
+    root = DECODE_ROOT; sources = root / 'transaction-source'
+    labels = {str(sources/name):label for name,label in zip(TRANSACTION_FILES,
+              ('SELECTED_WORKER','SELECTED_TEST','SELECTED_RUNTIME'))}; labels[str(Path(__file__))] = 'GUEST'
+    small = json_load(root / 'contract.json'); raw = identity_bytes(root / 'virtual-contract.json', MAX_LOG)
+    selection = hashlib.sha256(raw).hexdigest(); c = json.loads(raw)
+    require(selection == small['proof_contract_sha256'] and c['nonce'] == small['nonce'] and
+            transaction_contract(c, sources), 'transaction selection differs')
+    entered = False
+    try:
+        worker = sources / 'scripts/install/local_transaction.py'; code = identity_bytes(worker, 128*1024)
+        require(hashlib.sha256(code).hexdigest() == TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256'], 'worker capture differs')
+        module = types.ModuleType('_selected_generic_worker'); module.__file__ = str(worker)
+        exec(compile(code, str(worker), 'exec'), module.__dict__)
+        # Genuine status/NNP/capabilities and all Root-protected Source/profile/tool bytes before any signing.
+        module.generic_preflight(root/'virtual-contract.json', selection, TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256'])
+        test = sources / 'scripts/install/test_local_transaction.py'; code = identity_bytes(test,128*1024)
+        require(hashlib.sha256(code).hexdigest() == TRANSACTION_FILES['scripts/install/test_local_transaction.py']['sha256'], 'test capture differs')
+        tests = types.ModuleType('_selected_transaction_tests'); tests.__file__ = str(test)
+        exec(compile(code, str(test), 'exec'), tests.__dict__)
+        tests.REVIEWED_WORKER_SHA256 = TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256']
+        tests.GENERIC_VM_CONTRACT = root/'virtual-contract.json'; tests.GENERIC_VM_CONTRACT_SHA256 = selection
+        require(tests.FIXTURE_SELECTION_SHA256 is None, 'native selection must remain absent')
+        evidence = Path('/run/virtual-proof/transaction-evidence'); info = evidence.stat()
+        require(not evidence.is_symlink() and stat.S_ISDIR(info.st_mode) and info.st_uid == info.st_gid == 23001 and
+                stat.S_IMODE(info.st_mode) == 0o700 and not any(evidence.iterdir()), 'fresh private fixture evidence required')
+        tests.ARTIFACTS = evidence
+        entered = True
+        return transaction_test(tests, labels, c['nonce'], selection, c['source_commit'])
+    except BaseException:
+        if not entered:
+            failure = barrier_failure(sys.exc_info(), labels, TRANSACTION_FRAME_LINES)
+            row = dict(event='transaction_result',nonce=c['nonce'],selection_sha256=selection,fixture_source=c['source_commit'],
+                       uid=os.geteuid(),gid=os.getegid(),tests=0,failures=0,errors=1,skips=0,status='FAIL',methods=[],
+                       first_failure=failure,class_cleanups_returned=True,cancelled=sys.exc_info()[0] is KeyboardInterrupt or sys.exc_info()[0] is SystemExit)
+            transaction_event(row,c['nonce'],selection,c['source_commit'])
+            emit('transaction_result', **{k:v for k,v in row.items() if k!='event'})
+        raise
+
+
+def boot_transaction(contract):
+    require(contract.get('purpose') == TRANSACTION_PURPOSE, 'transaction purpose required')
+    transaction_launcher(Path('/'))  # Fixed signed-archive-derived launcher bytes, not learned boot hashes.
+    env = {'PATH':'/usr/bin','HOME':'/home/virtual-proof','LANG':'C.UTF-8',
+           'CACHY_ASAHI_VIRTUAL_GUEST':'1','PYTHONDONTWRITEBYTECODE':'1'}
+    for path in (Path('/home/virtual-proof'),Path('/run/virtual-proof')):
+        path.mkdir(mode=0o700,exist_ok=True); os.chown(path,23001,23001); path.chmod(0o700)
+    evidence=Path('/run/virtual-proof/transaction-evidence'); evidence.mkdir(mode=0o700)
+    os.chown(evidence,23001,23001)
+    argv=['/usr/lib/ld-linux-aarch64.so.1','--inhibit-cache','--glibc-hwcaps-mask','','--library-path','/usr/lib',
+          '/usr/bin/setpriv','--reuid=23001','--regid=23001','--clear-groups',
+          '--inh-caps=-all','--ambient-caps=-all','--bounding-set=-all','--no-new-privs','--',
+          '/usr/bin/python3','-B',__file__,'transaction-user']
+    result=bounded(argv,env=env,timeout=900,limit=16384)
+    lines=result['stdout'].splitlines()
+    require(len(lines)==1 and lines[0].startswith(PREFIX), 'one closed transaction event required')
+    event=json.loads(lines[0][len(PREFIX):]); source=contract['fixture_source']
+    transaction_event(event,contract['nonce'],contract['proof_contract_sha256'],source)
+    emit('transaction_result', **{k:v for k,v in event.items() if k!='event'})
+    require(result['error'] is None and result['returncode']==0 and result['stderr']=='' and
+            event['status']=='PASS_TRANSACTION_ONLY', 'transaction child did not naturally succeed')
+    emit('transaction_child_exit',nonce=contract['nonce'],selection_sha256=contract['proof_contract_sha256'],returncode=0,error=None)
 
 
 def boot():
@@ -460,16 +884,24 @@ def boot():
     emit('boot', nonce=contract['nonce'], arch=platform.machine(), page_size=os.sysconf('SC_PAGE_SIZE'),
          kernel=platform.release(), execution='qemu-tcg-generic-aarch64', hardware_validation='NOT RUN')
     require(platform.release() == '7.2.10-1-aarch64-ARCH' and os.sysconf('SC_PAGE_SIZE') == 4096, 'wrong guest kernel/page size')
-    command(['/usr/bin/modprobe', 'virtio_gpu'])
+    if contract.get('purpose', 'desktop') not in (BARRIER_PURPOSE, TRANSACTION_PURPOSE):
+        command(['/usr/bin/modprobe', 'virtio_gpu'])
     command(['/usr/bin/udevadm', 'settle', '--timeout=30'])
     command(['/usr/bin/dmesg'])
     actual = command(['/usr/bin/pacman', '-Q'])
     expected = Path('/usr/local/share/virtual-proof/runtime.lock').read_text()
     require(actual.strip() == expected.strip(), 'guest installed inventory differs from prepared full image')
-    image_decode_identity(contract['nonce'], actual_inventory=inventory(actual))
+    if contract.get('purpose', 'desktop') not in (BARRIER_PURPOSE, TRANSACTION_PURPOSE):
+        image_decode_identity(contract['nonce'], actual_inventory=inventory(actual))
     for row in contract['baseline']:
         for name, value in row['payload_sha256'].items():
             require(hashlib.sha256((Path('/') / name).read_bytes()).hexdigest() == value, 'guest original overlay payload differs')
+    if contract.get('purpose') == TRANSACTION_PURPOSE:
+        boot_transaction(contract)
+        return
+    if contract.get('purpose') == BARRIER_PURPOSE:
+        boot_barrier(contract)
+        return
     uid = 23001
     for p in [Path('/run/virtual-proof'), Path('/home/virtual-proof')]:
         p.mkdir(mode=0o700, exist_ok=True)
@@ -480,22 +912,20 @@ def boot():
     cards[0].chmod(0o600)
     emit('guest_runtime_changes', paths=['/run/virtual-proof', '/home/virtual-proof', str(cards[0])], owner=uid)
     env = dict(os.environ, SEATD_VTBOUND='0', LIBSEAT_BACKEND='seatd', CACHY_ASAHI_VIRTUAL_GUEST='1')
-    seatd = subprocess.Popen(['/usr/bin/seatd', '-u', 'virtual-proof', '-g', 'virtual-proof', '-l', 'debug'], env=env, start_new_session=True)
-    try:
-        until = time.monotonic() + 15
-        while not Path('/run/seatd.sock').is_socket():
-            require(time.monotonic() < until and seatd.poll() is None, 'guest seatd readiness failed')
-            time.sleep(.1)
-        result = subprocess.run(['/usr/bin/runuser', '-u', 'virtual-proof', '--', '/usr/bin/dbus-run-session', '--', '/usr/bin/python', __file__, 'user'], env=env, timeout=600)
-        require(result.returncode == 0, 'guest software proof failed')
-    finally:
-        terminate(seatd)
+    run_desktop_session(contract['nonce'], env)
 
 
 if __name__ == '__main__':
     try:
-        require(len(sys.argv) == 2 and sys.argv[1] in ('boot', 'user'), 'explicit guest stage required')
-        boot() if sys.argv[1] == 'boot' else run_user()
+        require(len(sys.argv) == 2 and sys.argv[1] in ('boot', 'user', 'barrier-user', 'transaction-user'), 'explicit guest stage required')
+        {'boot': boot, 'user': run_user, 'barrier-user': barrier_user, 'transaction-user': transaction_user}[sys.argv[1]]()
     except Exception as exc:
-        emit('guest_failed', error=str(exc), hardware_validation='NOT RUN')
+        if sys.argv[1:] not in (['barrier-user'], ['transaction-user']):
+            try:
+                purpose = json_load(DECODE_ROOT / 'contract.json').get('purpose')
+                barrier = purpose == BARRIER_PURPOSE
+            except Exception:
+                barrier = True
+                purpose = BARRIER_PURPOSE
+            emit('guest_failed', error='BARRIER_ENTRY_FAILED' if barrier else 'TRANSACTION_ENTRY_FAILED' if purpose == TRANSACTION_PURPOSE else str(exc), hardware_validation='NOT RUN')
         sys.exit(1)

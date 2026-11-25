@@ -11,12 +11,13 @@ import signal
 import socket
 import subprocess
 import time
-from common import GIB, MAX_LOG, IMAGE_SHA, bounded, check_runtime, contract, digest, free_bytes, guard, json_load, pinned, require, save, LoggedProcess
+from common import GIB, MAX_LOG, IMAGE_SHA, KERNEL, bounded, check_runtime, contract, digest, free_bytes, guard, json_load, pinned, require, save, LoggedProcess, terminal, await_terminal, reap, registered_spawn, barrier_contract, barrier_event, BARRIER_PURPOSE, transaction_contract, transaction_event, TRANSACTION_PURPOSE
 from image_decode_report import (parse_bound_report, validate_build, validate_context,
                                  validate_event)
 
 
 CAPABILITY_LIMIT = 128 * 1024
+UART_MARKER = b'CACHY_ASAHI_EVENT'
 CAPABILITIES = (
     ('version', ('--version',), 'version 11.1.2'),
     ('tcg', ('-accel', 'help'), 'tcg'),
@@ -72,7 +73,7 @@ def image_decode_observation(events, context, nonce, *, allow_failed=False):
             type(row.get('height')) is int and row['height'] > 0 for row in monitor_rows),
             'image decode attempt lacks positive monitor')
     require(any(row.get('event') == 'gbm_pass' and row.get('nonce') == nonce for row in before) and
-            not any(row.get('event') in ('frame_ready', 'phase_pass', 'guest_pass', 'process_state') or
+            not any(row.get('event') in ('frame_ready', 'phase_pass', 'guest_pass', 'desktop_session_exit', 'process_state') or
                     row.get('event') == 'command' and row.get('argv') == ['/usr/bin/hyprctl', '-j', 'clients']
                     for row in before), 'image decode attempt ordering differs')
     raw = validate_event(event, nonce)
@@ -88,8 +89,58 @@ def image_decode_observation(events, context, nonce, *, allow_failed=False):
 def validate_guest_completion(event, nonce, gbm, passed, report):
     require(gbm and 'image_decode_observation' in report and
             set(report['frames']) == {'minimal', 'overlay'} and
-            passed == {'minimal', 'overlay'} and event.get('nonce') == nonce,
+            passed == {'minimal', 'overlay'},
             'incomplete guest proof')
+    require(desktop_terminal([event], nonce) == event, 'guest terminal event required')
+
+
+def desktop_terminal(events, nonce):
+    require(not any(row.get('event') == 'guest_pass' for row in events), 'legacy desktop completion refused')
+    rows = [row for row in events if row.get('event') == 'desktop_session_exit']
+    if not rows:
+        return None
+    require(len(rows) == 1 and rows[0] is events[-1], 'late or duplicate desktop UART event')
+    row = rows[0]
+    require(set(row) == {'event', 'nonce', 'session_returncode', 'seatd_returncode'} and row['nonce'] == nonce and
+            type(row['session_returncode']) is int and row['session_returncode'] == 0 and
+            type(row['seatd_returncode']) is int and row['seatd_returncode'] in (0, -signal.SIGTERM),
+            'invalid desktop terminal event')
+    return row
+
+
+def validate_barrier_completion(events, nonce, selection):
+    rows = [row for row in events if row.get('event') == 'barrier_result']
+    require(len(rows) == 1, 'exactly one barrier result required')
+    row = barrier_event(rows[0], nonce, selection)
+    boots = [event for event in events if event.get('event') == 'boot']
+    require(len(boots) == 1 and boots[0].get('nonce') == nonce and
+            boots[0].get('arch') == 'aarch64' and type(boots[0].get('page_size')) is int and
+            boots[0]['page_size'] == 4096 and boots[0].get('kernel') == KERNEL and
+            events.index(boots[0]) < events.index(rows[0]), 'barrier boot identity/order differs')
+    require(row['status'] == 'PASS_BARRIER_ONLY', 'barrier fixture failed')
+    exits = [event for event in events if event.get('event') == 'barrier_child_exit']
+    require(exits == [{'event': 'barrier_child_exit', 'nonce': nonce, 'selection_sha256': selection,
+                       'returncode': 0, 'error': None}] and
+            events.index(rows[0]) < events.index(exits[0]) and
+            not any(event.get('event') in ('guest_failed', 'guest_pass', 'desktop_session_exit', 'gbm_pass', 'frame_ready',
+                'phase_pass', 'image_decode_probe') for event in events), 'barrier child completion differs')
+    return row
+
+
+def validate_transaction_completion(events, nonce, selection, source):
+    rows=[e for e in events if e.get('event')=='transaction_result']
+    require(len(rows)==1, 'one transaction result required')
+    row=transaction_event(rows[0],nonce,selection,source)
+    boots=[e for e in events if e.get('event')=='boot']
+    exits=[e for e in events if e.get('event')=='transaction_child_exit']
+    require(len(boots)==1 and boots[0].get('nonce')==nonce and boots[0].get('arch')=='aarch64' and
+            type(boots[0].get('page_size')) is int and boots[0]['page_size']==4096 and boots[0].get('kernel')==KERNEL and
+            events.index(boots[0])<events.index(rows[0]) and row['status']=='PASS_TRANSACTION_ONLY', 'transaction boot/order/result differs')
+    require(exits==[dict(event='transaction_child_exit',nonce=nonce,selection_sha256=selection,returncode=0,error=None)] and
+            events.index(rows[0])<events.index(exits[0]) and not any(e.get('event') in
+            ('barrier_result','barrier_child_exit','guest_failed','guest_pass','desktop_session_exit','gbm_pass','frame_ready','phase_pass','image_decode_probe') for e in events),
+            'transaction child completion differs')
+    return row
 
 
 def parse_guest_event(raw):
@@ -102,6 +153,47 @@ def parse_guest_event(raw):
     event = json.loads(raw, object_pairs_hook=unique)
     require(type(event) is dict, 'guest event object required')
     return event
+
+
+def uart_events(lines):
+    prefix = UART_MARKER + b' '
+    return (parse_guest_event(line[len(prefix):].rstrip(b'\r')) for line in lines if line.startswith(prefix))
+
+
+def desktop_uart_batch(lines, nonce):
+    events = list(uart_events(lines))
+    done = desktop_terminal(events, nonce) is not None
+    if done:
+        end = max(index for index, line in enumerate(lines) if line.startswith(UART_MARKER + b' '))
+        require(not any(desktop_protocol_line(line) for line in lines[end + 1:]), 'late or partial desktop UART event')
+    return events, done
+
+
+def desktop_protocol_line(line):
+    return line.startswith(b'CACHY_') and UART_MARKER.startswith(line[:len(UART_MARKER)].split(None, 1)[0])
+
+
+class DesktopUARTTail:
+    """Track only the start of each post-terminal line across recv boundaries."""
+
+    def __init__(self, pending):
+        self.prefix = b''
+        self.has_record = False
+        self.feed(pending)
+
+    def feed(self, block):
+        width = len(UART_MARKER)
+        parts = block.split(b'\n')
+        parts[0] = (self.prefix + parts[0][:width])[:width]
+        self.has_record = self.has_record or any(desktop_protocol_line(line) for line in parts[:-1])
+        self.prefix = parts[-1][:width]
+
+    def quiet(self):
+        return not self.has_record and not desktop_protocol_line(self.prefix)
+
+
+def partial_uart_marker(data):
+    return any(data.endswith(UART_MARKER[:n]) for n in range(1, len(UART_MARKER)))
 
 
 def capability_projection(rows):
@@ -231,13 +323,55 @@ def inspect_ppm(path):
             'distinct_rgb_values': colors, 'visual_review': 'NOT RUN'}
 
 
-def kill(process):
-    if process:
+def drain_uart(uart, serial_output, received, deadline, *, pending=b'', scope):
+    """Preserve raw diagnostics and require bounded EOF with no further events."""
+    marker_size = len(UART_MARKER) - 1
+    desktop_tail = DesktopUARTTail(pending) if scope == 'desktop' else None
+    late = UART_MARKER in pending
+    suffix = pending[-marker_size:]
+    while True:
+        require(time.monotonic() < deadline, scope + ' UART EOF deadline')
         try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
-        process.wait(timeout=10)
+            block = uart.recv(min(65536, MAX_LOG + 1 - received))
+        except BlockingIOError:
+            time.sleep(min(.01, max(0, deadline - time.monotonic())))
+            continue
+        if not block:
+            break
+        received += len(block)
+        require(received <= MAX_LOG, 'guest UART output overflow')
+        serial_output.write(block)
+        if desktop_tail is not None:
+            desktop_tail.feed(block)
+        else:
+            window = suffix + block
+            late = late or UART_MARKER in window
+            suffix = window[-marker_size:]
+    serial_output.flush()
+    quiet = desktop_tail.quiet() if desktop_tail is not None else not late and not partial_uart_marker(suffix)
+    require(quiet, 'late/duplicate/partial ' + scope + ' UART event')
+
+
+def finish_barrier_uart(uart, serial_output, received, deadline):
+    drain_uart(uart, serial_output, received, deadline, scope='barrier')
+
+
+def finish_desktop_uart(report, uart, serial_output, received, deadline, pending, nonce):
+    event = desktop_terminal(report['events'], nonce)
+    require(event is not None, 'guest terminal event required for completion')
+    drain_uart(uart, serial_output, received, deadline, pending=pending, scope='desktop')
+    report.update(desktop_completion=desktop_receipt(event),
+                  software_session_ipc='PASS', software_compositor='REVIEW REQUIRED',
+                  frame_proof='REVIEW REQUIRED', status='CAPTURED_REQUIRES_VISUAL_REVIEW')
+
+
+def desktop_receipt(event):
+    return {'schema_version': 2, 'terminal_event': event, 'uart_eof': True}
+
+
+def kill(process):
+    if process is not None:
+        reap(process, timeout=10, verify_absence=True)
 
 
 def main():
@@ -249,6 +383,9 @@ def main():
     args = ap.parse_args()
     f = guard()
     c = contract(args.contract, args.contract_sha256, f)
+    barrier = barrier_contract(c)
+    transaction = transaction_contract(c)
+    fixture = barrier or transaction
     require(os.geteuid() == c['output_uid'], 'runner must use controller UID')
     memory = Path('/sys/fs/cgroup/memory.max').read_text().strip()
     require(memory.isdecimal() and int(memory) <= 6 * GIB, 'outer memory ceiling <=6 GiB required')
@@ -301,14 +438,19 @@ def main():
         report['qemu_argv'] = argv
         env = {'PATH': '/usr/bin', 'HOME': '/tmp', 'TMPDIR': '/out/proof', 'LANG': 'C.UTF-8'}
         with serial.open('xb') as serial_output:
-            collector = LoggedProcess(argv, output / 'qemu.log', env=env, limit=1024 ** 2)
-            process = collector.process
+            with registered_spawn():
+                collector = LoggedProcess(argv, output / 'qemu.log', env=env, limit=1024 ** 2, owner_signals_only=True)
+                process = collector.process
             boot_deadline = min(start + 1200, time.monotonic() + 600)
+            transaction_deadline = min(start + 1200, time.monotonic() + 900) if transaction else None
             boot, gbm, passed = False, False, set()
+            desktop_done = False
             offset, partial = 0, b''
             while True:
                 require(time.monotonic() < start + 1200, '20-minute proof deadline')
-                require(process.poll() is None, 'QEMU exited before proof completion')
+                require(not transaction or time.monotonic() < transaction_deadline, 'transaction completion deadline')
+                require(terminal(process) is None, 'QEMU exited before proof completion')
+                require(collector.error is None, 'QEMU logging failed')
                 require(free_bytes(output) >= 128 * 1024 ** 2, 'snapshot/evidence disk margin exhausted')
                 require(sum(p.stat().st_size for p in output.glob('*.log')) <= MAX_LOG, 'diagnostic log limit exceeded')
                 if uart is None and uart_path.is_socket():
@@ -323,6 +465,8 @@ def main():
                         block = uart.recv(65536)
                     except BlockingIOError:
                         block = b''
+                    else:
+                        require(fixture or block, 'desktop UART EOF before terminal event')
                     offset += len(block)
                     require(offset <= MAX_LOG, 'guest UART output overflow')
                     serial_output.write(block)
@@ -331,20 +475,37 @@ def main():
                     require(len(partial) <= 2 * 1024 ** 2, 'guest serial event limit exceeded')
                     lines = partial.split(b'\n')
                     partial = lines.pop()
-                    for line in lines:
-                        line = line.rstrip(b'\r')
-                        prefix = b'CACHY_ASAHI_EVENT '
-                        if not line.startswith(prefix):
-                            continue
-                        event = parse_guest_event(line[len(prefix):])
+                    if fixture:
+                        events = uart_events(lines)
+                    else:
+                        events, desktop_done = desktop_uart_batch(lines, c['nonce'])
+                    for event in events:
                         report['events'].append(event)
                         kind = event.get('event')
                         require(kind != 'guest_failed', 'guest failed: ' + str(event.get('error')))
                         if kind == 'boot':
+                            require(not fixture or event.get('kernel') == KERNEL, 'barrier kernel differs')
                             require(not boot and event.get('nonce') == c['nonce'] and event.get('arch') == 'aarch64' and
                                     event.get('page_size') == 4096, 'guest boot identity differs')
                             boot = True
+                        elif kind == 'barrier_result':
+                            require(barrier and boot and 'barrier_result' not in report, 'unexpected/duplicate barrier result')
+                            report['barrier_result'] = barrier_event(event, c['nonce'], args.contract_sha256)
+                            require(event['status'] == 'PASS_BARRIER_ONLY', 'selected barrier failed')
+                        elif kind == 'barrier_child_exit':
+                            require(barrier and boot, 'unexpected barrier completion')
+                            validate_barrier_completion(report['events'], c['nonce'], args.contract_sha256)
+                            report['status'] = 'PASS_BARRIER_ONLY'
+                        elif kind == 'transaction_result':
+                            require(transaction and boot and 'transaction_result' not in report, 'unexpected/duplicate transaction result')
+                            report['transaction_result'] = transaction_event(event,c['nonce'],args.contract_sha256,c['source_commit'])
+                            require(event['status']=='PASS_TRANSACTION_ONLY', 'selected transaction failed')
+                        elif kind == 'transaction_child_exit':
+                            require(transaction and boot, 'unexpected transaction completion')
+                            validate_transaction_completion(report['events'],c['nonce'],args.contract_sha256,c['source_commit'])
+                            report['status']='PASS_TRANSACTION_ONLY'
                         elif kind == 'gbm_pass':
+                            require(not fixture, 'desktop event in fixture mode')
                             require(boot and event.get('nonce') == c['nonce'] and event.get('probe', {}).get('status') == 'PASS', 'software GBM event invalid')
                             gbm = True
                         elif kind == 'image_decode_probe':
@@ -360,44 +521,67 @@ def main():
                         elif kind == 'phase_pass':
                             require(event.get('stage') in report['frames'], 'phase passed without captured frame')
                             passed.add(event['stage'])
-                        elif kind == 'guest_pass':
+                        elif kind == 'desktop_session_exit':
+                            require(not fixture and boot and qmp, 'unexpected desktop terminal event')
                             validate_guest_completion(event, c['nonce'], gbm, passed, report)
-                            report['software_session_ipc'] = 'PASS'
-                            report['software_compositor'] = 'REVIEW REQUIRED'
-                            report['frame_proof'] = 'REVIEW REQUIRED'
-                            report['status'] = 'CAPTURED_REQUIRES_VISUAL_REVIEW'
-                            break
-                    if report['status'] == 'CAPTURED_REQUIRES_VISUAL_REVIEW':
+                        elif kind == 'guest_pass':
+                            raise ValueError('legacy desktop completion refused')
+                    if desktop_done or report['status'] in ('PASS_BARRIER_ONLY', 'PASS_TRANSACTION_ONLY'):
+                        if barrier:
+                            require(not partial, 'partial trailing barrier UART record')
+                        if transaction:
+                            require(not partial, 'partial trailing transaction UART record')
                         break
                 require(boot or time.monotonic() < boot_deadline, 'guest boot 10-minute deadline')
                 time.sleep(.1)
+            shutdown_end = min(start + 1200, time.monotonic() + 15)
             qmp.execute('quit')
-            process.wait(timeout=15)
-            require(process.returncode == 0, 'unclean QEMU shutdown')
-        collector.finish()
+            observed = await_terminal(process, shutdown_end)
+            require(observed.si_code == os.CLD_EXITED and observed.si_status == 0, 'unclean QEMU shutdown')
+            if fixture:
+                finish_barrier_uart(uart, serial_output, offset, shutdown_end)
+            else:
+                finish_desktop_uart(report, uart, serial_output, offset, shutdown_end, partial, c['nonce'])
         report['free_after_bytes'] = free_bytes(output)
     except Exception as exc:
         report['status'] = 'FAILED'
         report['error'] = str(exc)
         raise
     finally:
-        signal.setitimer(signal.ITIMER_REAL, 0)
-        kill(process)
+        import sys
+        primary, faults = sys.exc_info()[1], []
+        # Each duty is independent. Retain the leader until the sole final signal.
+        duties = [lambda: signal.setitimer(signal.ITIMER_REAL, 0)]
+        if process is not None:
+            duties.append(lambda: kill(process))
         if uart:
-            uart.close()
+            duties.append(uart.close)
         if qmp:
-            qmp.close()
+            duties.append(qmp.close)
         if collector:
+            duties.append(collector.finish)
+        duties.extend((lambda: signal.signal(signal.SIGTERM, previous),
+                       lambda: signal.signal(signal.SIGALRM, old_alarm)))
+        for duty in duties:
             try:
-                collector.finish()
-            except Exception as exc:
-                report['status'] = 'FAILED'
-                report['logging_error'] = str(exc)
-        signal.signal(signal.SIGTERM, previous)
-        signal.signal(signal.SIGALRM, old_alarm)
+                duty()
+            except BaseException as exc:
+                faults.append(exc)
+        report['owned_group_retirement'] = 'PASS' if not faults else 'UNCERTAIN'
+        if faults or primary is not None:
+            report['status'] = 'FAILED'
+        report['cleanup_uncertain'] = bool(faults)
         report['elapsed_seconds'] = round(time.monotonic() - start, 3)
-        report['logs'] = {p.name: {'size': p.stat().st_size, 'sha256': digest(p)} for p in output.glob('*.log')}
-        save(output / 'result.json', report)
+        try:
+            report['logs'] = {p.name: {'size': p.stat().st_size, 'sha256': digest(p)} for p in output.glob('*.log')}
+            save(output / 'result.json', report)
+        except BaseException as exc:
+            faults.append(exc)
+        if faults:
+            if primary is not None:
+                primary.add_note('QEMU finalization uncertain: ' + type(faults[0]).__name__)
+            else:
+                raise faults[0]
 
 
 if __name__ == '__main__':

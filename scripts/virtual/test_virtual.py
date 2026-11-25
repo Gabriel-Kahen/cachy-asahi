@@ -14,6 +14,7 @@ import sys
 import tempfile
 import threading
 import time
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 from unittest.mock import Mock
@@ -178,6 +179,44 @@ class GuestImageDecode(unittest.TestCase):
                 process.assert_called_once(); events.assert_called_once()
                 self.assertEqual(events.call_args.kwargs['error'], 'timeout')
 
+    def test_cancelled_probe_keeps_identity_across_diagnostic_failure(self):
+        for site in ('identity', 'bounded', 'parse', 'validate'):
+            for kind in (KeyboardInterrupt, SystemExit):
+                for sink_kind in (BrokenPipeError, KeyboardInterrupt):
+                    with self.subTest(site=site, kind=kind, sink=sink_kind), tempfile.TemporaryDirectory() as temporary:
+                        root = Path(temporary)
+                        first = kind('PRIVATE_PRIMARY_CANCELLATION')
+                        with self.capture(root) as (identity, process, events, _):
+                            events.side_effect = sink_kind('PRIVATE_SECONDARY_SINK')
+                            parse = guest.parse_report; validate = guest.validate_event
+                            if site == 'identity': identity.side_effect = first
+                            if site == 'bounded': process.side_effect = first
+                            with patch('guest.parse_report', side_effect=first if site == 'parse' else parse), \
+                                    patch('guest.validate_event', side_effect=first if site == 'validate' else validate):
+                                with self.assertRaises(kind) as caught:
+                                    guest.image_decode_preflight({}, root, self.nonce)
+                            self.assertIs(caught.exception, first)
+                        self.assertEqual(process.call_count, 0 if site == 'identity' else 1)
+                        events.assert_called_once()
+                        event = {'event': events.call_args.args[0], **events.call_args.kwargs}
+                        self.assertIsNone(image_decode_report.validate_event(event, self.nonce))
+                        self.assertNotIn('PRIVATE_', json.dumps(event))
+                        with self.capture(root) as (_, retry, _, _), self.assertRaises(FileExistsError):
+                            guest.image_decode_preflight({}, root, self.nonce)
+                        retry.assert_not_called()
+
+    def test_ordinary_probe_refusal_stays_closed_after_cancelled_diagnostic(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with self.capture(root) as (identity, process, events, _):
+                identity.side_effect = ValueError('PRIVATE_IDENTITY_OPERAND')
+                events.side_effect = KeyboardInterrupt('PRIVATE_SECONDARY_SINK')
+                with self.assertRaisesRegex(ValueError, 'failed: identity') as caught:
+                    guest.image_decode_preflight({}, root, self.nonce)
+            process.assert_not_called()
+            self.assertNotIn('PRIVATE_', str(caught.exception))
+            self.assertNotIn('PRIVATE_', str(events.call_args))
+
     @contextmanager
     def installed(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -292,7 +331,7 @@ class GuestImageDecode(unittest.TestCase):
             identity.assert_called_once_with(self.nonce, actual_inventory={'fixture-package': '1-1'})
             seatd.assert_not_called(); user.assert_not_called()
 
-    def test_valid_observation_precedes_same_env_client_and_survives_original_phase_failure(self):
+    def test_valid_observation_precedes_isolated_client_and_survives_original_phase_failure(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); runtime = root / 'runtime'; runtime.mkdir()
             wayland = socket.socket(socket.AF_UNIX); wayland.bind(str(runtime / 'wayland-0'))
@@ -312,7 +351,10 @@ class GuestImageDecode(unittest.TestCase):
                     self.assertRaises(ValueError) as caught:
                 guest.phase('minimal', root / 'config', env, root, nonce=self.nonce)
             self.assertIs(caught.exception, original)
-            self.assertEqual(client_env, [env]); self.assertIs(client_env[0], process.call_args.kwargs['env'])
+            self.assertIs(env, process.call_args.kwargs['env'])
+            self.assertIsNot(client_env[0], env)
+            self.assertEqual(client_env[0], dict(env, NO_AT_BRIDGE='1', WAYLAND_DEBUG='client'))
+            self.assertNotIn('NO_AT_BRIDGE', env); self.assertNotIn('WAYLAND_DEBUG', env)
             self.assertEqual(client_env[0]['WAYLAND_DISPLAY'], 'wayland-0')
             delivered = [{'event': call.args[0], **call.kwargs} for call in events.call_args_list]
             self.assertEqual(delivered[0]['event'], 'image_decode_probe')
@@ -702,9 +744,14 @@ class GuestDiagnostics(unittest.TestCase):
             compositor.wait.side_effect = lambda **_options: reap(compositor)
             def command(argv, _env):
                 if argv[-1] == 'monitors': return '[{"width":1,"height":1}]'
-                if argv[-1] == 'clients': return '[{"pid":42,"mapped":true,"size":[1,1]}]'
+                if argv[-1] == 'clients': return '[{"pid":42,"mapped":true,"visible":true,"hidden":false,"size":[1,1]}]'
                 if dispatch_failure is not None: raise dispatch_failure
                 return ''
+            def capture(stage, monitors, pid, env, check):
+                check()
+                clients = json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env))
+                self.assertTrue(any(guest.mapped_client(row, pid) for row in clients))
+                guest.emit('frame_ready', stage=stage, monitors=monitors, clients=clients)
             delivered, refused = [], []
             channel_failure = BrokenPipeError('log channel closed')
             summary_failure = BrokenPipeError('summary channel closed')
@@ -715,12 +762,22 @@ class GuestDiagnostics(unittest.TestCase):
                     raise channel_failure if len(refused) == 1 else BrokenPipeError('fallback channel closed')
                 delivered.append({'event': event, **row})
             env = {'XDG_RUNTIME_DIR': str(runtime)}
+            clock = [0.0]
+            def monotonic():
+                clock[0] += .25
+                return clock[0]
+            # Advance bounded phase time without exhausting a call-count script or
+            # changing stdlib clocks used by real owned-child lifecycle helpers.
+            fixture_time = SimpleNamespace(monotonic=monotonic, sleep=lambda _seconds: None)
             try:
                 with patch('guest.LoggedProcess', side_effect=launch), \
                         patch('guest.wait_for_ipc', side_effect=phase_failure, return_value=env), \
                         patch('guest.image_decode_preflight'), \
+                        patch('guest.capture_window', side_effect=capture), \
+                        patch('guest.shutdown_compositor', side_effect=lambda env, compositor, check: (check(), command(['/usr/bin/hyprctl', 'dispatch', 'exit'], env), compositor.wait(timeout=15))), \
+                        patch('guest.query_clients', side_effect=lambda env, deadline, check: (check(), json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env)))[1]), \
                         patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=reap), \
-                        patch('guest.time.monotonic', side_effect=[0, 0, 0, 16]), \
+                        patch('guest.time', fixture_time), \
                         patch('guest.emit', side_effect=emit), \
                         patch('guest.print', side_effect=summary_failure if closed_summary else None) as summary:
                     try: guest.phase('minimal', root / 'config', env, root)
@@ -728,6 +785,7 @@ class GuestDiagnostics(unittest.TestCase):
                     else: failure = None
             finally:
                 wayland.close()
+            self.assertLess(clock[0], 45, 'diagnostic fixture did not reach its intended phase before mapping deadline')
             return failure, delivered, refused, summary, channel_failure, compositor, collectors
 
     def test_closed_fallback_and_secondary_summary_preserve_original_phase_failure(self):
@@ -847,6 +905,9 @@ class GuestProcessDiagnostics(unittest.TestCase):
                 with patch('guest.LoggedProcess', side_effect=launch), \
                         patch('guest.wait_for_ipc', return_value={'XDG_RUNTIME_DIR': str(runtime)}), \
                         patch('guest.image_decode_preflight'), \
+                        patch('guest.capture_window', side_effect=lambda stage, monitors, clients, check: (check(), guest.emit('frame_ready', stage=stage, monitors=monitors, clients=clients))), \
+                        patch('guest.shutdown_compositor', side_effect=lambda env, compositor, check: (check(), command(['/usr/bin/hyprctl', 'dispatch', 'exit'], env), compositor.wait(timeout=15))), \
+                        patch('guest.query_clients', side_effect=lambda env, deadline, check: (check(), json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env)))[1]), \
                         patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=terminate), \
                         patch('guest.time.monotonic', return_value=0), patch('guest.time.sleep'), \
                         patch('guest.emit', side_effect=emit), patch('guest.print'):

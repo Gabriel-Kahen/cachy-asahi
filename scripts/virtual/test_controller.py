@@ -422,7 +422,7 @@ class ProjectionTests(unittest.TestCase):
                        'image_id': 'sha256:' + 'c' * 64, 'nonce': 'd' * 32}
             _, context, prefix, observation = decode_capture()
             events = prefix + events
-            common.save(raw / 'result.json', {'status': 'CAPTURED_REQUIRES_VISUAL_REVIEW', **binding,
+            common.save(raw / 'result.json', {'status': 'FAILED', **binding,
                         'image_decode_observation': observation,
                         'events': [*events, {'event': 'unknown_private_event', 'stdout': 'PRIVATE KEY'}],
                         'private_path': '/private/keyring', 'frames': {}})
@@ -512,18 +512,26 @@ class ProjectionTests(unittest.TestCase):
                 with self.assertRaises(common.Refused): c.project(raw, out, {})
 
     def test_only_receipt_bound_frames_project_and_visual_acceptance_stays_pending(self):
+        import run
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); raw = root / 'raw'; raw.mkdir(); out = root / 'out'; out.mkdir()
             frame = raw / 'minimal.ppm'; frame.write_bytes(b'P6\n1 1\n255\n\x00\x00\x00')
             nonce, context, events, observation = decode_capture()
+            terminal = {'event': 'desktop_session_exit', 'nonce': nonce, 'session_returncode': 0, 'seatd_returncode': 0}
+            events += [{'event': 'phase_pass', 'stage': 'minimal'}, terminal]
+            serial = raw / 'serial.log'
+            serial.write_bytes(b''.join(run.UART_MARKER + b' ' + json.dumps(row).encode() + b'\n' for row in events))
             common.save(raw / 'result.json', {'status': 'CAPTURED_REQUIRES_VISUAL_REVIEW', 'frame_proof': 'REVIEW REQUIRED',
                                              'nonce': nonce, 'image_decode_observation': observation,
-                                             'events': [*events, {'event': 'phase_pass', 'stage': 'minimal'}],
+                                             'events': events, 'desktop_completion': run.desktop_receipt(terminal),
+                                             'owned_group_retirement': 'PASS', 'cleanup_uncertain': False,
+                                             'logs': {'serial.log': {'size': serial.stat().st_size, 'sha256': common.digest(serial)}},
                                              'frames': {'minimal': {'filename': frame.name, 'sha256': common.digest(frame), 'visual_review': 'NOT RUN'}}})
             (raw / 'private-keys-v1.d').mkdir(); (raw / 'guest.raw').write_bytes(b'private')
             with patch.object(c, 'CORE', decode_core()):
                 report = {}; c.project(raw, out, report, image_decode_context=context)
             self.assertEqual(report['guest']['frame_proof'], 'REVIEW REQUIRED')
+            self.assertEqual(report['guest']['desktop_completion'], run.desktop_receipt(terminal))
             self.assertEqual(set(p.name for p in out.iterdir()), {'guest-events.json', 'minimal.ppm'})
             frame.write_bytes(b'tamper')
             with patch.object(c, 'CORE', decode_core()), self.assertRaises(common.Refused):
@@ -651,7 +659,7 @@ class ImageDecodeOuterTests(unittest.TestCase):
         import run
         nonce, _, _, observation = decode_capture()
         report = {'frames': {'minimal': {}, 'overlay': {}}, 'image_decode_observation': observation}
-        event = {'event': 'guest_pass', 'nonce': nonce}
+        event = {'event': 'desktop_session_exit', 'nonce': nonce, 'session_returncode': 0, 'seatd_returncode': 0}
         run.validate_guest_completion(event, nonce, True, {'minimal', 'overlay'}, report)
         cases = [(False, {'minimal', 'overlay'}, report, event),
                  (True, {'minimal'}, report, event),
