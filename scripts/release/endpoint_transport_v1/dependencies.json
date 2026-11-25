@@ -26,8 +26,8 @@
       "sha256": "8f9cdb4ad26525fb1c4c906a752f56e8115a3c39b8aa758dd86dca7d032f54b3"
     },
     "scripts/release/release.py": {
-      "bytes": 48499,
-      "sha256": "c45ae1042a5a9de9d34686d3cd74bff852f7dcc11dcd49896ccef99d508404fe"
+      "bytes": 51570,
+      "sha256": "c4c93e65963801da94c533623c2a05685d07a35346acd63a67b447945d5d26d6"
     },
     "scripts/release/source_delivery.py": {
       "bytes": 16456,
@@ -35,6 +35,6 @@
     }
   },
   "license": "MIT; existing project LICENSE",
-  "revision": "4aa79ce95e9ffd146dd90d635e57dfdee80c8a2a",
+  "revision": "2d23e89ddea37cdfa5f510450a52453963a2dea7",
   "schema_version": 1
 }
