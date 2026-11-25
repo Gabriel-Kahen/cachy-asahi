@@ -22,7 +22,7 @@ HERE = Path(__file__).resolve().parent
 HARNESS = HERE / "test-upstream.py"
 HARNESS_SHA = "8e499516cbf77f8c8d5f272e20865acf5f1e979f3890af04d4705ba153c464f3"
 PATCH = HERE / "behavior.patch"
-PATCH_SHA = "a002527c1ca4643d75815c6ddd002e314b2939a644f91740edaed3701eb4b819"
+PATCH_SHA = "352b797f6529bd3afc9fd70db31694ee439b4fe3ed4555d4cc441bfd9e8a46bb"
 FULL_UPGRADE_SHA = "103c965d6d7b86b558b3fc686975a3a649de3cc2e0b94f7dee608c7bdaeaef0a"
 COMMON_SHA = "3d3de36e22e509c2be638eb128c98ee90328dc2c93fe881e6a2a72093be347d9"
 ENTRY_SHA = "b8857c72cf720c97361537dd13a5ae76bf2177e31eeef08f30aa4f6ff1eef010"
@@ -292,12 +292,24 @@ flatpak() {
         self.assertEqual(self.logs(), ["checkupdates"])
         self.assertEqual((self.state / "last_updates_check").read_text(), "aur pending\nflatpak pending\n")
 
-    def test_flatpak_without_installed_apps_skips_update_query(self):
+    def test_flatpak_without_installed_apps_clears_stale_updates(self):
+        (self.state / "last_updates_check_aur").write_bytes(b"")
         result = self.run_optional_check(flatpak_support="flatpak", FLATPAK_USER_APPS="")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.logs(), ["checkupdates", "flatpak\tlist\t--user", "flatpak\tlist\t--system"])
+        self.assertEqual((self.state / "last_updates_check_flatpak").read_bytes(), b"")
+        self.assertEqual((self.state / "last_updates_check").read_text().strip(), "")
+        self.assertEqual((self.state / "tray_icon").read_text(), "up-to-date\n")
 
-    def test_check_entry_preserves_state_when_flatpak_discovery_fails(self):
+    def test_system_only_flatpaks_still_query_for_updates(self):
+        result = self.run_optional_check(flatpak_support="flatpak", FLATPAK_USER_APPS="",
+                                         FLATPAK_SYSTEM_APPS="fixture system app",
+                                         FLATPAK_OUTPUT="System App\t2\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("flatpak\tremote-ls\t--updates\t--columns=name,version", self.logs())
+        self.assertEqual((self.state / "last_updates_check_flatpak").read_text(), "System App 2\n")
+
+    def prepare_flatpak_check_entry(self):
         data = (upstream.SOURCE / "src/arch-update.sh").read_bytes()
         self.assertEqual(hashlib.sha256(data).hexdigest(), ENTRY_SHA)
         (self.lib / "arch-update.sh").write_bytes(data)
@@ -311,6 +323,9 @@ flatpak() {
         for path in self.state.glob("last_updates_check_*"):
             path.rename(state / path.name)
         self.state = state
+
+    def test_check_entry_preserves_state_when_flatpak_discovery_fails(self):
+        self.prepare_flatpak_check_entry()
         before = self.check_state()
         result = self.run_optional_check(entry="arch-update", FAIL_FLATPAK="list --system",
                                          FLATPAK_USER_APPS="", ARCH_UPDATE_LIBDIR=str(self.lib))
@@ -318,6 +333,17 @@ flatpak() {
         self.assertIn("previous check state has been preserved", result.stderr)
         self.assertEqual(self.logs(), ["checkupdates", "flatpak\tlist\t--user", "flatpak\tlist\t--system"])
         self.assertEqual(self.check_state(), before)
+
+    def test_check_entry_clears_stale_updates_when_flatpak_discovery_succeeds_empty(self):
+        self.prepare_flatpak_check_entry()
+        (self.state / "last_updates_check_aur").write_bytes(b"")
+        result = self.run_optional_check(entry="arch-update", FLATPAK_USER_APPS="",
+                                         ARCH_UPDATE_LIBDIR=str(self.lib))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.logs(), ["checkupdates", "flatpak\tlist\t--user", "flatpak\tlist\t--system"])
+        self.assertEqual((self.state / "last_updates_check_flatpak").read_bytes(), b"")
+        self.assertEqual((self.state / "last_updates_check").read_text().strip(), "")
+        self.assertEqual((self.state / "tray_icon").read_text(), "cachy-update-blue\n")
 
     def test_empty_optional_success_clears_previous_pending_state(self):
         for helper, status, output, error in (

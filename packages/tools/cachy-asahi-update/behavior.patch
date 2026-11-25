@@ -18,7 +18,7 @@
  fi
 --- a/src/lib/check.sh
 +++ b/src/lib/check.sh
-@@ -3,79 +3,118 @@
+@@ -3,79 +3,116 @@
  # check.sh: Check for available updates
  # https://github.com/Antiz96/arch-update
  # SPDX-License-Identifier: GPL-3.0-or-later
@@ -96,15 +96,13 @@
 -if [ -n "${flatpak_support}" ]; then
 -	flatpak update --appstream > /dev/null
 +if [[ -n "${flatpak_support}" && -z "${no_flatpak}" ]]; then
++	flatpak_updates=''
 +	flatpak_user_apps=$(flatpak list --user) || optional_check_failed Flatpak
 +	flatpak_system_apps=$(flatpak list --system) || optional_check_failed Flatpak
-+	if [[ -z "${flatpak_user_apps}${flatpak_system_apps}" ]]; then
-+		unset flatpak_support
-+	fi
 +fi
  
 -	mapfile -t flatpak_mask < <(flatpak mask | tr -d ' ')
-+if [[ -n "${flatpak_support}" && -z "${no_flatpak}" ]]; then
++if [[ -n "${flatpak_support}" && -z "${no_flatpak}" && -n "${flatpak_user_apps}${flatpak_system_apps}" ]]; then
 +	flatpak update --appstream > /dev/null || optional_check_failed Flatpak
 +	flatpak_masks=$(flatpak mask) || optional_check_failed Flatpak
 +	flatpak_masks=${flatpak_masks// /}

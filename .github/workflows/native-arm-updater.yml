@@ -19,9 +19,9 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       REVIEWED_SOURCE_COMMIT: ${{ inputs.source_commit }}
-      READY_SHA256: 18f6043dfde42aba1dbd9e7a33c7093e38a887b367d38d007ffdfcc055c1c7fc
+      READY_SHA256: e745cd8bfc44df327be5523718b53b33668b3497583fcba995cd31cb41ab34ef
       # Bootstrap pins for the committed source and native controller checks.
-      STAGE_SHA256: 22e2259d55003564d7477a255f204795461053e4942967a175e54a1d305b02c9
+      STAGE_SHA256: 7da6bff04cbd5406272cb0bbeee95d50021c2fa1dfe7f255cb422f5038aeb16f
       SOURCE_SHA256: 285983ec44ba40e130ba08d7238e4642cf98b4bfcfd2926ec32a4656ad76f7a2
     steps:
       - name: Start the shared deadline before checkout

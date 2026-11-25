@@ -13,7 +13,7 @@ import time
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-LEDGER_SHA256 = '07d0a365c7b66cb5097b5b5f1c79a211b19b20483c215984f598d2b5ffb2b846'
+LEDGER_SHA256 = 'a105c268537a6f62e9c6f47a0df5863299fd255f78064011bf3e07badc4792f2'
 
 
 def verify(root):
