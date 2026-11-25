@@ -143,7 +143,7 @@ def validate_compiler_fact(value):
     need(value['scan_status'] == 'COMPLETE' or value['output_bytes'] > 0)
     return value
 
-OUTPUT_PREDICATES = frozenset((*(f'CHECK_{n:03d}' for n in range(1, 114)),
+OUTPUT_PREDICATES = frozenset((*(f'CHECK_{n:03d}' for n in range(1, 116)),
     'ELF_FILE_SECTION', 'ELF_SYMBOL_MISSING', 'IMAGE_SECTION_CONTENT',
     'GENERATED_CONFIG_DIFFERENCE', 'OTHER',
     'CHECK_001_ALIGN_MIN', 'CHECK_001_ALIGN_POWER_TWO', 'CHECK_001_VA_ALIGN', 'CHECK_001_PA_ALIGN', 'CHECK_001_VA_16K', 'CHECK_001_PA_16K', 'CHECK_001_PERMISSIONS', 'CHECK_001_MEMORY_SIZE',
@@ -211,14 +211,48 @@ def validate_relocation_fact(value):
     return value
 
 
+def validate_rela_table_fact(value):
+    need(type(value) is dict and set(value) == {'entries', 'types', 'overflow'})
+    total, rows = value['entries'], value['types']
+    need(type(total) is int and 0 <= total <= (4 * 1024**3) // 24 and
+         type(rows) is list and len(rows) <= 8)
+
+    def count(row):
+        need(type(row) is list and len(row) == 3 and all(type(n) is int for n in row))
+        entries, mapped, aligned = row
+        need(0 <= aligned <= mapped <= entries <= total)
+        return entries
+
+    overflow = count(value['overflow'])
+    need(not overflow or len(rows) == 8)
+    previous, entries = -1, overflow
+    for row in rows:
+        need(type(row) is list and len(row) == 4)
+        kind, counts = row[0], row[1:]
+        need(type(kind) is int and previous < kind <= 0xffffffff and count(counts) > 0)
+        previous = kind
+        entries += counts[0]
+    need(entries == total)
+    return value
+
+
 def validate_output_fact(value, version=4):
-    need(type(version) is int and version in (4, 5) and type(value) is dict and
-         set(value) == ({'call_boundary', 'predicate', 'relocation'} if version == 5 else {'call_boundary', 'predicate'}))
-    need(type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS')
+    need(type(version) is int and version in (4, 5, 6) and type(value) is dict)
+    keys = {'call_boundary', 'predicate'}
+    if version >= 5:
+        keys.add('relocation')
+    if version == 6:
+        keys.add('rela_table')
+    need(set(value) == keys and type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS')
     need(type(value['predicate']) is str and value['predicate'] in OUTPUT_PREDICATES)
-    if version == 5:
+    if version == 6:
+        validate_rela_table_fact(value['rela_table'])
+    if version >= 5 and (version == 5 or value['relocation'] is not None):
         need(value['predicate'] == 'CHECK_010')
         validate_relocation_fact(value['relocation'])
+        if version == 6 and value['relocation']['elf_type'] == 3 and value['relocation']['branch'] == 'NULL_LINK_RELATIVE':
+            need(value['relocation']['info'] & 0xffffffff == 1027 and
+                 value['relocation']['section']['entry_index'] < value['rela_table']['entries'])
     return value
 
 
@@ -234,8 +268,8 @@ def validate_inner_group(group):
         return group
     need(pin is not None)
     row = group['diagnostic']
-    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5))
-    need(set(row) == INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5) else set()))
+    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6))
+    need(set(row) == INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5, 6) else set()))
     need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
     need(type(row['phase']) is str and row['phase'] in INNER_PHASES and type(row['command']) is str and row['command'] in INNER_COMMANDS)
     need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -261,7 +295,7 @@ def validate_inner_group(group):
     if row['schema_version'] == 3:
         validate_compiler_fact(row['compiler_failure'])
         need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and row['command'] == 'KERNEL' and (row['attempt'] == 'ISSUED') and (row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']}))
-    if row['schema_version'] in (4, 5):
+    if row['schema_version'] in (4, 5, 6):
         validate_output_fact(row['output_failure'], row['schema_version'])
         need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
              row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and

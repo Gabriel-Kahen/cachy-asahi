@@ -15,7 +15,6 @@ import zlib
 
 import harness
 
-R_AARCH64_GLOB_DAT = 1025
 R_AARCH64_RELATIVE = 1027
 
 
@@ -180,17 +179,20 @@ class ELF:
     def __init__(self, path, kind, cap, *, artifact_role='elf'):
         harness.regular(path, cap)
         self.path, self.size = path, path.stat().st_size
+        self.rela_table = None
         self.stream = path.open('rb')
         try:
             self.parse(kind, artifact_role=artifact_role)
-        except BaseException:
-            self.stream.close()
+        except BaseException as error:
+            self.__exit__(type(error), error, error.__traceback__)
             raise
 
     def __enter__(self):
         return self
 
-    def __exit__(self, *unused):
+    def __exit__(self, error_type, error, _):
+        if error_type is ValueError and self.rela_table is not None:
+            error.rela_table = self.rela_table
         self.stream.close()
 
     def read(self, offset, size, cap=128 * 1024**2):
@@ -297,24 +299,49 @@ class ELF:
                 if not relative:
                     harness.need(linked['entsize'] == 24 and linked['size'] % 24 == 0, 'relocation symbol table invalid')
                 target = self.sections[row['info']]
+                if relative and kind == 3:
+                    self.verify_image_rela(row, linked, target)
+                    continue
                 for pos in range(0, row['size'], 24 * 4096):
                     raw = self.read(row['offset'] + pos, min(24 * 4096, row['size'] - pos))
                     for entry_index, (offset, info, _) in enumerate(struct.iter_unpack('<QQq', raw), pos // 24):
                         if relative:
-                            # The pinned ARM64 relocator only applies RELATIVE.
-                            # Retain the known NONE marker and the observed
-                            # ET_DYN GLOB_DAT form with a bounded aligned slot.
                             if offset == info == 0:
                                 continue
-                            glob_dat = (kind == 3 and info & 0xffffffff == R_AARCH64_GLOB_DAT and
-                                        info >> 32 != 0 and offset % 8 == 0)
-                            valid = (info == R_AARCH64_RELATIVE or glob_dat) and self.relative_destination(offset)
+                            valid = info == R_AARCH64_RELATIVE and self.relative_destination(offset)
                         else:
                             valid = info >> 32 < linked['size'] // 24 and (kind != 1 or offset < target['size'])
                         if not valid:
                             self.relocation_refusal(artifact_role, kind, row, entry_index, offset, info, linked, target)
         if kernel_image and (relr := self.by_name.get('.relr.dyn')) is not None:
             self.verify_relr(relr)
+
+    def verify_image_rela(self, section, linked, target):
+        """Check the writes made by the pinned ET_DYN Image relocator."""
+        types, overflow, first_failure = {}, [0, 0, 0], None
+        for pos in range(0, section['size'], 24 * 4096):
+            raw = self.read(section['offset'] + pos, min(24 * 4096, section['size'] - pos))
+            for index, (offset, info, _) in enumerate(struct.iter_unpack('<QQq', raw), pos // 24):
+                relocation_type = info & 0xffffffff
+                mapped = self.relative_destination(offset)
+                if relocation_type not in types and len(types) < 8:
+                    types[relocation_type] = [0, 0, 0]
+                counts = types.get(relocation_type, overflow)
+                counts[0] += 1
+                counts[1] += mapped
+                counts[2] += mapped and offset % 8 == 0
+                # relocate_kernel() skips every other low-32-bit type before
+                # it reads the slot. A writing RELATIVE still requires the
+                # canonical zero symbol index and eight mapped bytes.
+                if relocation_type == R_AARCH64_RELATIVE and (info != relocation_type or not mapped):
+                    if first_failure is None:
+                        first_failure = index, offset, info
+        self.rela_table = {'entries': section['size'] // 24,
+                           'types': [[kind, *types[kind]] for kind in sorted(types)],
+                           'overflow': overflow}
+        if first_failure is not None:
+            index, offset, info = first_failure
+            self.relocation_refusal('arm64-image-reference', 3, section, index, offset, info, linked, target)
 
     def relative_destination(self, offset):
         return any(s['flags'] & 2 and s['addr'] <= offset and offset + 8 <= s['addr'] + s['size']
@@ -648,42 +675,42 @@ def verify_outputs(build, source, expected_config=None):
         harness.need(reader.read(head_load['offset'] + text - head_load['addr'], 64) == header, 'Image header differs from vmlinux bytes')
         relation = image_relation(reader, image, text)
         loads = reader.loads
-    elf_config = embedded_config(elf, cfg)
-    modules, expected_magic = {}, vermagic(release, settings)
-    modnames = {Path(name).stem.replace('-', '_') for name in order}
-    harness.need(len(modnames) == len(order), 'ambiguous module names')
-    for name in order:
-        path = build / (name[:-2] + '.ko')
-        with ELF(path, 1, 1024**3) as reader:
-            definitions = reader.definitions(by_owner[name[:-2]] | {'__this_module'})
-            harness.need(reader.by_name.get('.text', {}).get('flags', 0) & 4 and
-                         reader.by_name.get('.gnu.linkonce.this_module', {}).get('flags', 0) & 3 == 3 and
-                         definitions['__this_module']['section'] == reader.by_name['.gnu.linkonce.this_module']['index'], 'actual module code/descriptor required')
-            raw = reader.section_bytes('.modinfo', LIMIT_CONFIG)
-            harness.need(raw and raw[-1] == 0, 'terminated module metadata required')
-            info = {}
-            for row in raw.split(b'\0'):
-                if not row:
-                    continue
-                harness.need(b'=' in row, 'module metadata key/value required')
-                key, value = row.decode('ascii').split('=', 1)
-                harness.need(re.fullmatch(r'[A-Za-z0-9_]+', key) and all(32 <= ord(c) < 127 for c in value), 'module metadata text invalid')
-                info.setdefault(key, []).append(value)
-            expected_name = Path(name).stem.replace('-', '_')
-            harness.need(info.get('vermagic') == [expected_magic] and info.get('name') == [expected_name] and
-                         info.get('license') and len(info.get('depends', [])) == 1, 'module vermagic/name/license/dependency metadata invalid')
-            depends = info['depends'][0].split(',') if info['depends'][0] else []
-            harness.need(len(set(depends)) == len(depends) and set(depends) <= modnames - {expected_name}, 'module dependencies outside actual inventory')
-        modules[name[:-2] + '.ko'] = {'sha256': harness.digest(path), 'bytes': path.stat().st_size, 'name': expected_name, 'vermagic': expected_magic}
-    dtbs = {name: verify_dtb(build / 'arch/arm64/boot/dts/apple' / name, identity) for name, identity in identities.items()}
-    return {'status': 'BUILD_OUTPUT_STRUCTURE_VERIFIED', 'source_commit': SOURCE_COMMIT, 'source_evidence_sha256': SOURCE_PINS, 'source_links': source_link_check,
-            'image_sha256': relation['sha256'], 'image_effective_bytes': size, 'image_flags': flags, 'image_elf_relation': relation,
-            'vmlinux_sha256': harness.digest(elf), 'elf_loads': loads, 'apple_dtbs': dtbs,
-            'generated_config_sha256': hashlib.sha256(cfg).hexdigest(), 'config_comparison': comparison,
-            'embedded_config_sha256': {'Image': image_config, 'vmlinux': elf_config}, 'kernelrelease': release,
-            'module_symvers_sha256': harness.digest(build / 'Module.symvers'), 'export_count': len(exports),
-            'modules_order_sha256': harness.digest(build / 'modules.order'), 'modules': modules, 'module_bytes': module_bytes,
-            'hardware_validation': 'NOT RUN', 'performance': 'NOT MEASURED', 'runtime_correctness': 'NOT RUN'}
+        elf_config = embedded_config(elf, cfg)
+        modules, expected_magic = {}, vermagic(release, settings)
+        modnames = {Path(name).stem.replace('-', '_') for name in order}
+        harness.need(len(modnames) == len(order), 'ambiguous module names')
+        for name in order:
+            path = build / (name[:-2] + '.ko')
+            with ELF(path, 1, 1024**3) as reader:
+                definitions = reader.definitions(by_owner[name[:-2]] | {'__this_module'})
+                harness.need(reader.by_name.get('.text', {}).get('flags', 0) & 4 and
+                             reader.by_name.get('.gnu.linkonce.this_module', {}).get('flags', 0) & 3 == 3 and
+                             definitions['__this_module']['section'] == reader.by_name['.gnu.linkonce.this_module']['index'], 'actual module code/descriptor required')
+                raw = reader.section_bytes('.modinfo', LIMIT_CONFIG)
+                harness.need(raw and raw[-1] == 0, 'terminated module metadata required')
+                info = {}
+                for row in raw.split(b'\0'):
+                    if not row:
+                        continue
+                    harness.need(b'=' in row, 'module metadata key/value required')
+                    key, value = row.decode('ascii').split('=', 1)
+                    harness.need(re.fullmatch(r'[A-Za-z0-9_]+', key) and all(32 <= ord(c) < 127 for c in value), 'module metadata text invalid')
+                    info.setdefault(key, []).append(value)
+                expected_name = Path(name).stem.replace('-', '_')
+                harness.need(info.get('vermagic') == [expected_magic] and info.get('name') == [expected_name] and
+                             info.get('license') and len(info.get('depends', [])) == 1, 'module vermagic/name/license/dependency metadata invalid')
+                depends = info['depends'][0].split(',') if info['depends'][0] else []
+                harness.need(len(set(depends)) == len(depends) and set(depends) <= modnames - {expected_name}, 'module dependencies outside actual inventory')
+            modules[name[:-2] + '.ko'] = {'sha256': harness.digest(path), 'bytes': path.stat().st_size, 'name': expected_name, 'vermagic': expected_magic}
+        dtbs = {name: verify_dtb(build / 'arch/arm64/boot/dts/apple' / name, identity) for name, identity in identities.items()}
+        return {'status': 'BUILD_OUTPUT_STRUCTURE_VERIFIED', 'source_commit': SOURCE_COMMIT, 'source_evidence_sha256': SOURCE_PINS, 'source_links': source_link_check,
+                'image_sha256': relation['sha256'], 'image_effective_bytes': size, 'image_flags': flags, 'image_elf_relation': relation,
+                'vmlinux_sha256': harness.digest(elf), 'elf_loads': loads, 'apple_dtbs': dtbs,
+                'generated_config_sha256': hashlib.sha256(cfg).hexdigest(), 'config_comparison': comparison,
+                'embedded_config_sha256': {'Image': image_config, 'vmlinux': elf_config}, 'kernelrelease': release,
+                'module_symvers_sha256': harness.digest(build / 'Module.symvers'), 'export_count': len(exports),
+                'modules_order_sha256': harness.digest(build / 'modules.order'), 'modules': modules, 'module_bytes': module_bytes,
+                'hardware_validation': 'NOT RUN', 'performance': 'NOT MEASURED', 'runtime_correctness': 'NOT RUN'}
 
 
 def pinned_bytes(path, pin):

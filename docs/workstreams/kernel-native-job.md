@@ -26,10 +26,18 @@ The runtime scan is bounded by `__pi_rela_start` and `__pi_rela_end`.
 The bounded receipt omits those symbol values, so this entry's membership
 in the runtime range is unknown. If the scan reaches it, the pinned ARM64
 relocator skips it because the scan applies only `R_AARCH64_RELATIVE`.
-The verifier now admits the observed ET_DYN GLOB_DAT form with a nonzero
-symbol index and a fully mapped, aligned eight-byte slot. The whole Image
-byte comparison still includes the relocation table. The candidate remains
-pending a fresh hosted pair.
+That verifier revision admitted the observed GLOB_DAT form.
+
+Run [45707773620](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45707773620)
+passed the same intake, provisioning, probe and cleanup gates. Its baseline
+build command returned zero. The verifier passed the prior entry and refused
+the adjacent entry 28854 with `r_info = 0x1b00000101` (symbol index 27,
+`R_AARCH64_ABS64`). The corrected verifier uses the pinned relocator's
+low-32-bit type test for the allocated, null-linked ET_DYN Image table.
+Only `R_AARCH64_RELATIVE` requires a canonical zero symbol index and a fully
+mapped eight-byte destination. Other records remain in the full ELF-to-Image
+byte comparison. The earlier receipts establish compilation command success
+and verifier refusal. The clean native pair and boot remain pending.
 
 On November 25, the pinned public mirror returned HTTP 404 for 210 of 501
 producer input files. This included the bubblewrap, jbigkit and libtiff
@@ -290,6 +298,13 @@ diagnostics and an actual zero child return for PASS. Versions 1/2 and
 missing/extra fields are refused. Historical evidence is retained unchanged. The
 16 KiB public-record bound, source/packet binding and actual native-step outcome
 gate are unchanged. Diagnostics grant no execution or hardware acceptance.
+
+When the ET_DYN Image RELA table has been scanned and output verification
+fails, worker diagnostic version 6 adds a numeric census. It reports the
+whole table's entry count, up to eight distinct low-32-bit types and a
+combined count for the other types. Each type and the combined count report
+entries, fully mapped eight-byte slots and the aligned subset. The first
+failure remains authoritative, and the census contains no raw table bytes.
 
 `phase` remains the current lifecycle phase, including cleanup. The separate
 `first_failed_phase` and `failure_reason` describe the first failure observed by

@@ -767,12 +767,12 @@ class ImageRelativeRelocationTests(unittest.TestCase):
                         self.assertEqual(elf.by_name['.rela.dyn']['link'],0)
                         self.assertEqual(elf.symbols['type'],2)
 
-    def test_symbol_free_rejects_symbolic_unknown_and_irelative(self):
+    def test_nonrelocatable_image_retains_existing_type_checks(self):
         for info in (0,257,1025,1026,1028,1032,0xffffffff,(1<<32)|1027,(0xffffffff<<32)|1027):
             with self.subTest(info=info):
-                raw,_ = self.fixture(info=info)
+                raw,_ = self.fixture(info=info, kind=2)
                 with self.assertRaisesRegex(ValueError,'ELF relocation index/offset invalid'):
-                    self.read(raw)
+                    self.read(raw, kind=2)
 
     def test_null_linked_image_rela_skips_zero_offset_none_and_verifies_next_entry(self):
         entries = [(TEXT_ADDR + 1, 1027, 0), (0, 0, 55), (TEXT_ADDR + 0x9011, 1027, 0)]
@@ -788,22 +788,49 @@ class ImageRelativeRelocationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'ELF relocation index/offset invalid'):
             self.read(raw)
 
-    def test_hosted_glob_dat_form_has_a_full_aligned_slot_and_projects_unchanged(self):
-        info = (28 << 32) | 1025  # Observed r_info in native run 45698226968.
-        raw, image = self.fixture(offset=TEXT_ADDR + 0x8008, info=info)
+    def test_hosted_nonrelative_types_are_projected_and_only_relative_writes_are_checked(self):
+        entries = [(0, 0, 0), (TEXT_ADDR + 0x8008, 0x1c00000401, 0),  # Hosted GLOB_DAT
+                   (TEXT_ADDR + 0x8010, 0x1b00000101, 0),  # Hosted ABS64
+                   (TEXT_ADDR + 0x9001, 1027, 0)]
+        raw, image = flat_kernel_bytes(b'owned_instruction_fixture' * 4, readonly_kind=4, relocations=entries)
+        raw = bytearray(raw)
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        struct.pack_into('<I', raw, shoff + 3 * 64 + 40, 0)
         output = Path(self.tmp.name) / 'Image'
         output.write_bytes(image)
         with self.read(raw) as elf:
             projection = verifier.image_relation(elf, output, TEXT_ADDR)
         self.assertIn('.rela.dyn', [row['name'] for row in projection['copied_sections']])
-        image[0x4028] ^= 1
-        output.write_bytes(image)
-        with self.read(raw) as elf, self.assertRaisesRegex(ValueError, 'Image body differs'):
-            verifier.image_relation(elf, output, TEXT_ADDR)
-        for kind, offset in ((2, TEXT_ADDR + 0x8008), (3, TEXT_ADDR + 0x8001), (3, TEXT_ADDR + 0x10000)):
-            with self.subTest(kind=kind, offset=offset), self.assertRaisesRegex(ValueError, 'ELF relocation index/offset invalid'):
-                altered, _ = self.fixture(offset=offset, info=info, kind=kind)
-                self.read(altered, kind=kind)
+        summary = {'entries': 4, 'types': [[0, 1, 0, 0], [257, 1, 1, 1],
+                    [1025, 1, 1, 1], [1027, 1, 1, 0]], 'overflow': [0, 0, 0]}
+        for index in (1, 2):
+            altered = bytearray(image)
+            altered[0x4028 + index * 24] ^= 1
+            output.write_bytes(altered)
+            with self.assertRaisesRegex(ValueError, 'Image body differs') as caught:
+                with self.read(raw) as elf:
+                    verifier.image_relation(elf, output, TEXT_ADDR)
+            self.assertEqual(caught.exception.rela_table, summary)
+        struct.pack_into('<Q', raw, 0x8020 + 3 * 24, TEXT_ADDR + 0xfffc)
+        with self.assertRaisesRegex(ValueError, 'ELF relocation index/offset invalid') as caught:
+            self.read(raw)
+        self.assertEqual(caught.exception.relocation_failure['section']['entry_index'], 3)
+        self.assertEqual(caught.exception.rela_table['types'][-1], [1027, 1, 0, 0])
+
+    def test_summary_includes_entries_after_first_failure_and_bounds_distinct_types(self):
+        entries = [(TEXT_ADDR + 0x8000, (1 << 32) | 1027, 0)]
+        entries += [(2**64 - 1, number, 0) for number in range(1, 11)]
+        raw, _ = flat_kernel_bytes(b'owned_instruction_fixture' * 4, readonly_kind=4, relocations=entries)
+        raw = bytearray(raw)
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        struct.pack_into('<I', raw, shoff + 3 * 64 + 40, 0)
+        with self.assertRaisesRegex(ValueError, 'ELF relocation index/offset invalid') as caught:
+            self.read(raw)
+        self.assertEqual(caught.exception.relocation_failure['section']['entry_index'], 0)
+        table = caught.exception.rela_table
+        self.assertEqual(table['entries'], 11)
+        self.assertEqual(table['types'], [[number, 1, 0, 0] for number in range(1, 8)] + [[1027, 1, 1, 1]])
+        self.assertEqual(table['overflow'], [3, 0, 0])
 
     def test_relr_direct_and_chained_bitmaps_and_projection(self):
         # The second bitmap starts 63 words after the first, in mapped NOBITS.
@@ -904,12 +931,12 @@ class RelocationDiagnosticTests(unittest.TestCase):
     fixture = ImageRelativeRelocationTests.fixture
     read = ImageRelativeRelocationTests.read
     def test_null_link_failure_operands_are_original_and_closed(self):
-        for info, offset, failed in ((1028, TEXT_ADDR+0x8001, 'INFO_RELATIVE'),
-                                    ((1<<32)|1027, TEXT_ADDR+0x8001, 'INFO_RELATIVE'),
-                                    (1027, TEXT_ADDR+0xfff9, 'ALLOCATED_RANGE')):
-            raw,_ = self.fixture(offset=offset, info=info)
+        for kind, info, offset, failed in ((2, 1028, TEXT_ADDR+0x8001, 'INFO_RELATIVE'),
+                                          (3, (1<<32)|1027, TEXT_ADDR+0x8001, 'INFO_RELATIVE'),
+                                          (3, 1027, TEXT_ADDR+0xfff9, 'ALLOCATED_RANGE')):
+            raw,_ = self.fixture(offset=offset, info=info, kind=kind)
             with self.assertRaises(ValueError) as caught:
-                self.read(raw)
+                self.read(raw, kind=kind)
             error=caught.exception; self.assertIs(type(error), ValueError)
             self.assertEqual(str(error), 'ELF relocation index/offset invalid')
             fact=error.relocation_failure

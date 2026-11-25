@@ -369,5 +369,35 @@ class RelocationValidatorParity(unittest.TestCase):
             self.assertEqual(validate(fact,5),fact)
             with self.assertRaises(ValueError):validate(dict(fact,predicate='OTHER'),5)
 
+    def test_summary_is_bounded_and_joined_in_all_three_readers(self):
+        import inner_result
+        validators = (inner_result._output_fact, evidence.validate_output_fact, self.receiver().validate_output_fact)
+        relocation = dict(relocation_fixture(), info=(1 << 32) | 1027)
+        table = {'entries': 4, 'types': [[0, 1, 0, 0], [257, 1, 1, 1],
+                 [1025, 1, 1, 1], [1027, 1, 1, 0]], 'overflow': [0, 0, 0]}
+        fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_010',
+                'relocation': relocation, 'rela_table': table}
+        mutations = (
+            lambda row: row['rela_table'].update(entries=3),
+            lambda row: row['rela_table'].update(types=[[1027, 1, 1, 1]] * 4),
+            lambda row: row['rela_table'].update(types=[[1027, 4, 1, 2]]),
+            lambda row: row['rela_table'].update(types=[[1027, 3, 1, True]]),
+            lambda row: row['rela_table'].update(types=[[1027, 3, 1, 1]], overflow=[1, 1, 1]),
+            lambda row: row['rela_table'].update(raw='private'),
+            lambda row: row['relocation'].update(info=0x1b00000101),
+            lambda row: row['relocation']['section'].update(entry_index=4),
+        )
+        for validate in validators:
+            self.assertEqual(validate(copy.deepcopy(fact), 6), fact)
+            downstream = dict(fact, predicate='CHECK_115', relocation=None)
+            self.assertEqual(validate(downstream, 6), downstream)
+            with self.assertRaises(ValueError):
+                validate(fact, 5)
+            for mutate in mutations:
+                altered = copy.deepcopy(fact)
+                mutate(altered)
+                with self.assertRaises(ValueError):
+                    validate(altered, 6)
+
 
 if __name__ == '__main__': unittest.main()

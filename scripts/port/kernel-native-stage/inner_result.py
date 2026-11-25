@@ -400,14 +400,48 @@ def _relocation_fact(value):
     return value
 
 
+def _rela_table_fact(value):
+    _need(type(value) is dict and set(value) == {'entries', 'types', 'overflow'})
+    total, rows = value['entries'], value['types']
+    _need(type(total) is int and 0 <= total <= (4 * 1024**3) // 24 and
+         type(rows) is list and len(rows) <= 8)
+
+    def count(row):
+        _need(type(row) is list and len(row) == 3 and all(type(n) is int for n in row))
+        entries, mapped, aligned = row
+        _need(0 <= aligned <= mapped <= entries <= total)
+        return entries
+
+    overflow = count(value['overflow'])
+    _need(not overflow or len(rows) == 8)
+    previous, entries = -1, overflow
+    for row in rows:
+        _need(type(row) is list and len(row) == 4)
+        kind, counts = row[0], row[1:]
+        _need(type(kind) is int and previous < kind <= 0xffffffff and count(counts) > 0)
+        previous = kind
+        entries += counts[0]
+    _need(entries == total)
+    return value
+
+
 def _output_fact(value, version=4):
-    _need(type(version) is int and version in (4, 5) and type(value) is dict and
-         set(value) == ({'call_boundary', 'predicate', 'relocation'} if version == 5 else {'call_boundary', 'predicate'}))
-    _need(type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS')
+    _need(type(version) is int and version in (4, 5, 6) and type(value) is dict)
+    keys = {'call_boundary', 'predicate'}
+    if version >= 5:
+        keys.add('relocation')
+    if version == 6:
+        keys.add('rela_table')
+    _need(set(value) == keys and type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS')
     _need(type(value['predicate']) is str and value['predicate'] in OUTPUT_PREDICATES)
-    if version == 5:
+    if version == 6:
+        _rela_table_fact(value['rela_table'])
+    if version >= 5 and (version == 5 or value['relocation'] is not None):
         _need(value['predicate'] == 'CHECK_010')
         _relocation_fact(value['relocation'])
+        if version == 6 and value['relocation']['elf_type'] == 3 and value['relocation']['branch'] == 'NULL_LINK_RELATIVE':
+            _need(value['relocation']['info'] & 0xffffffff == 1027 and
+                 value['relocation']['section']['entry_index'] < value['rela_table']['entries'])
     return value
 
 
@@ -429,6 +463,11 @@ def output_failure(row, error):
         _relocation_fact(relocation)
         detail['relocation'] = json.loads(_encoded(relocation))
         version = 5
+    if 'rela_table' in error.__dict__:
+        summary = _rela_table_fact(error.__dict__['rela_table'])
+        detail.setdefault('relocation', None)
+        detail['rela_table'] = json.loads(_encoded(summary))
+        version = 6
     candidate = dict(row, schema_version=version, output_failure=detail)
     validate(candidate)
     row.update(schema_version=version, output_failure=detail)
@@ -436,8 +475,8 @@ def output_failure(row, error):
 
 
 def _keys(row, public=False):
-    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5))
-    extra = {2: {'config_failure'}, 3: {'compiler_failure'}, 4: {'output_failure'}, 5: {'output_failure'}}.get(row['schema_version'], set())
+    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6))
+    extra = {2: {'config_failure'}, 3: {'compiler_failure'}, 4: {'output_failure'}, 5: {'output_failure'}, 6: {'output_failure'}}.get(row['schema_version'], set())
     return (PUBLIC_KEYS if public else KEYS) | extra
 
 
@@ -492,7 +531,7 @@ def invalidate(row):
 
 
 def _body(row):
-    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4, 5))
+    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6))
     _need(type(row['phase']) is str and row['phase'] in PHASES)
     _need(type(row['command']) is str and row['command'] in COMMANDS)
     _need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -522,7 +561,7 @@ def _body(row):
         _need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
               row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']})
-    if row['schema_version'] in (4, 5):
+    if row['schema_version'] in (4, 5, 6):
         _output_fact(row['output_failure'], row['schema_version'])
         _need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and

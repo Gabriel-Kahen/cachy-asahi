@@ -998,7 +998,7 @@ def relocation_fixture():
 
 class RelocationPublicTests(unittest.TestCase):
     value = InnerFailurePublicTests.value
-    def test_schema5_survives_full_public_projection_without_outcome_upgrade(self):
+    def test_relocation_diagnostics_survive_public_projection_without_outcome_upgrade(self):
         import importlib.util
         path=HERE.parent/'kernel-native-stage/inner_result.py'
         spec=importlib.util.spec_from_file_location('relocation_inner_fixture',path)
@@ -1013,18 +1013,31 @@ class RelocationPublicTests(unittest.TestCase):
             if saved is None:sys.modules.pop('runtime',None)
             else:sys.modules['runtime']=saved
         binding={'nonce':'a'*32,'action':'baseline','contract_sha256':'b'*64,'worker_sha256':'c'*64}
-        row=diag.initial(binding);diag.phase(row,'KERNEL');diag.issued(row,'KERNEL');diag.returned(row,0)
-        diag.phase(row,'OUTPUTS');error=ValueError('ELF relocation index/offset invalid')
-        error.relocation_failure=relocation_fixture();diag.failure(row,error);diag.output_failure(row,error)
-        report={'action':'baseline','nonce':binding['nonce'],'status':'FAIL','cancelled':False,'inner_diagnostic':row}
-        group=diag.capture(json.dumps(report).encode(),binding);value=self.value()
-        value['kernel_child']['diagnostics']['inner']['baseline']=group
-        for outcome in ('success','failure','cancelled'):
-            result=public.project(encoded(value),COMMIT,PIN,outcome)
-            self.assertEqual(result['kernel_child']['diagnostics']['inner']['baseline'],group)
-            self.assertEqual((result['status'],result['baseline'],result['candidate']),('FAIL','FAIL','NOT RUN'))
-        bad=copy.deepcopy(value);bad['kernel_child']['diagnostics']['inner']['baseline']['diagnostic']['schema_version']=4
-        with self.assertRaises(ValueError):public.project(encoded(bad),COMMIT,PIN,'failure')
+        for version in (5, 6):
+            row = diag.initial(binding)
+            diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL'); diag.returned(row, 0)
+            diag.phase(row, 'OUTPUTS')
+            error = ValueError('ELF relocation index/offset invalid')
+            error.relocation_failure = relocation_fixture()
+            if version == 6:
+                error.relocation_failure['info'] = (1 << 32) | 1027
+                error.rela_table = {'entries': 1, 'types': [[1027, 1, 1, 0]], 'overflow': [0, 0, 0]}
+            diag.failure(row, error)
+            diag.output_failure(row, error)
+            self.assertEqual(row['schema_version'], version)
+            report = {'action': 'baseline', 'nonce': binding['nonce'], 'status': 'FAIL',
+                      'cancelled': False, 'inner_diagnostic': row}
+            group = diag.capture(json.dumps(report).encode(), binding)
+            value = self.value()
+            value['kernel_child']['diagnostics']['inner']['baseline'] = group
+            for outcome in ('success', 'failure', 'cancelled'):
+                result = public.project(encoded(value), COMMIT, PIN, outcome)
+                self.assertEqual(result['kernel_child']['diagnostics']['inner']['baseline'], group)
+                self.assertEqual((result['status'], result['baseline'], result['candidate']), ('FAIL', 'FAIL', 'NOT RUN'))
+            bad = copy.deepcopy(value)
+            bad['kernel_child']['diagnostics']['inner']['baseline']['diagnostic']['schema_version'] = 4
+            with self.assertRaises(ValueError):
+                public.project(encoded(bad), COMMIT, PIN, 'failure')
 
 
 class AcquisitionFailurePublicTests(unittest.TestCase):
