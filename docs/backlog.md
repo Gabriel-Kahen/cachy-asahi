@@ -28,6 +28,11 @@ only the Fish package and exercised staging, comparison and withdrawal.
   [Acquisition and retry evidence](validation/updater-native-45697080431.md)
 - The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
   identifies the exact historical build inputs still needed for Perl and Python.
+- The virtual desktop runner can stop reading UART at `guest_pass` and miss
+  a subsequent `guest_failed` during guest cleanup. The pinned route needs a
+  successor packet with a terminal event after guest cleanup, bounded UART
+  drain, and matching outer-reader validation. [Runner](../scripts/virtual/run.py)
+  · [Guest](../scripts/virtual/guest.py) · [Outer reader](../scripts/virtual/controller.py)
 - Stable overlay promotion requires a supported Asahi composition, production
   signing custody and repository hosting, and installation and recovery records
   for both [13-inch](validation/m2-air-13.md) and [15-inch](validation/m2-air-15.md)
