@@ -5,6 +5,23 @@ Track active engineering follow-ups in
 The [implementation status](implementation-status.md) records current evidence
 and [acceptance.md](acceptance.md) defines the milestone gates.
 
+## Current release gates
+
+[Overlay Preview 1](release/overlay-preview-1.md) is published with five
+architecture-independent packages and matching source. The preview guide
+records the tested shell lifecycle and the limits of that release.
+
+- The current native library and kernel work is tracked in
+  [#622](https://github.com/Gabriel-Kahen/cachy-asahi/issues/622) and
+  [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623).
+- The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
+  identifies the exact historical build inputs still needed for Perl and Python.
+- Stable overlay promotion requires a supported Asahi composition, production
+  signing custody and repository hosting, and installation and recovery records
+  for both [13-inch](validation/m2-air-13.md) and [15-inch](validation/m2-air-15.md)
+  M2 Air systems. Both sizes also need baseline and final-system measurements
+  for the performance milestone.
+
 ## Historical execution log
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.

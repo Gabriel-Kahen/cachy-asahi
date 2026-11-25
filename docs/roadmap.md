@@ -2,9 +2,13 @@
 
 The destination is a maintained, independent CachyOS-derived ARM port for Apple Silicon covering all five requirements below. The initial overlay is an intermediate release, not full-goal completion. See [goal.md](../goal.md) for the ambition and [implementation sequence](../outline.md) for dependencies and parallel work.
 
-Milestone acceptance remains open. Hosted AArch64 builds with 4 KiB pages
-produced reproducible packages for Fish config 0.1.0-2, md4c 0.5.3 and the
-Minimal206 llhttp 9.3.1 reference. Offline emulated AArch64 with 16 KiB pages
+[Overlay Preview 1](release/overlay-preview-1.md) publishes five opt-in packages
+for existing installations, with matching source and tagged checksums. Stable
+overlay acceptance still requires a supported Asahi composition, production
+repository trust, and physical installation and recovery evidence.
+
+Hosted AArch64 builds with 4 KiB pages produced reproducible packages for
+Fish config 0.1.0-2, md4c 0.5.3 and the Minimal206 llhttp 9.3.1 reference. Offline emulated AArch64 with 16 KiB pages
 now has a TEST-signed Overlay583 lifecycle and a signed 626-package Asahi
 maintenance rehearsal. The Asahi proposal remains unapproved.
 [Native Fish and md4c](validation/native-fish-md4c-reproducibility-20261118.md)

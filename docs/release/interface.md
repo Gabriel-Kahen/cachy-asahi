@@ -182,7 +182,10 @@ Each package’s provenance `build.snapshot_id` identifies its actual build inve
 
 ## Scope boundaries and remaining work
 
-Original project licensing is resolved by root `LICENSE`; upstream license resolution, native build inputs/builds and exact-machine results remain separate gates. A stable bundle can be prepared only after all required evidence exists. Publishing endpoint configuration, public trust bootstrap/distribution, capacity enforcement, signing-custody establishment, authenticated key rotation/revocation deployment, stale-metadata client protection, freshness/security review of upstream pins, and actual machine recovery remain operator/integration tasks. No public release exists.
+Original project licensing is resolved by root `LICENSE`; upstream license resolution, native build inputs/builds and exact-machine results remain separate gates. A stable bundle can be prepared only after all required evidence exists. Publishing endpoint configuration, public trust bootstrap/distribution, capacity enforcement, signing-custody establishment, authenticated key rotation/revocation deployment, stale-metadata client protection, freshness/security review of upstream pins, and actual machine recovery remain operator/integration tasks.
+
+[Overlay Preview 1](overlay-preview-1.md) is publicly available as unsigned local
+archives. Production repository publication and stable promotion remain open.
 
 The build comparison tool currently supports content equality as well as byte equality. Use its `--require-bytes` mode for this release contract. Content-only results must remain explicitly blocked rather than being silently promoted. Shared-manifest proposals: record selected package names, immutable base inventory hash/snapshot, protected package names, coordinated exact versions, supported exact models, release/provenance/evidence hashes and promotion state. The coordinator alone edits shared manifests.
 
