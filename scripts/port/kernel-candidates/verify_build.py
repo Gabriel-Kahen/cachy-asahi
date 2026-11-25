@@ -15,6 +15,9 @@ import zlib
 
 import harness
 
+R_AARCH64_GLOB_DAT = 1025
+R_AARCH64_RELATIVE = 1027
+
 
 def config_bytes(raw):
     harness.need(len(raw) <= LIMIT_CONFIG, 'bounded config bytes required')
@@ -298,11 +301,14 @@ class ELF:
                     raw = self.read(row['offset'] + pos, min(24 * 4096, row['size'] - pos))
                     for entry_index, (offset, info, _) in enumerate(struct.iter_unpack('<QQq', raw), pos // 24):
                         if relative:
-                            # The pinned ARM64 relocator skips the zero-offset
-                            # R_AARCH64_NONE entry without reading its addend.
+                            # The pinned ARM64 relocator only applies RELATIVE.
+                            # Retain the known NONE marker and the observed
+                            # ET_DYN GLOB_DAT form with a bounded aligned slot.
                             if offset == info == 0:
                                 continue
-                            valid = info == 1027 and self.relative_destination(offset)
+                            glob_dat = (kind == 3 and info & 0xffffffff == R_AARCH64_GLOB_DAT and
+                                        info >> 32 != 0 and offset % 8 == 0)
+                            valid = (info == R_AARCH64_RELATIVE or glob_dat) and self.relative_destination(offset)
                         else:
                             valid = info >> 32 < linked['size'] // 24 and (kind != 1 or offset < target['size'])
                         if not valid:
@@ -359,7 +365,7 @@ class ELF:
         relative = row['link'] == 0
         allocated = ranges(self.sections, True) if relative else None
         load = ranges(self.loads, False) if relative else None
-        failed = ('INFO_RELATIVE' if info != 1027 else 'ALLOCATED_RANGE' if not allocated['full_count']
+        failed = ('INFO_RELATIVE' if info != R_AARCH64_RELATIVE else 'ALLOCATED_RANGE' if not allocated['full_count']
                   else 'LOAD_RANGE') if relative else ('SYMBOL_INDEX' if info >> 32 >= linked['size'] // 24 else 'MODULE_OFFSET')
         error = ValueError('ELF relocation index/offset invalid')
         error.relocation_failure = {'role': role, 'elf_type': kind,

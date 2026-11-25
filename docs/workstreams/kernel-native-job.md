@@ -17,6 +17,20 @@ verifier now accepts that Image RELA no-op, checks all eight bytes of each
 writing RELA or RELR destination, and includes both relocation tables in
 the full ELF-to-Image byte comparison.
 
+Run [45698226968](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698226968)
+passed hosted SSH intake, producer, dependency acquisition, toolchain probe and
+scoped Docker cleanup. The baseline build command exited zero. Output checking
+stopped at `CHECK_010`, entry 28853 in the null-linked Image `.rela.dyn`.
+Its `r_info` is `0x1c00000401` (symbol index 28, `R_AARCH64_GLOB_DAT`).
+The runtime scan is bounded by `__pi_rela_start` and `__pi_rela_end`.
+The bounded receipt omits those symbol values, so this entry's membership
+in the runtime range is unknown. If the scan reaches it, the pinned ARM64
+relocator skips it because the scan applies only `R_AARCH64_RELATIVE`.
+The verifier now admits the observed ET_DYN GLOB_DAT form with a nonzero
+symbol index and a fully mapped, aligned eight-byte slot. The whole Image
+byte comparison still includes the relocation table. The candidate remains
+pending a fresh hosted pair.
+
 On November 25, the pinned public mirror returned HTTP 404 for 210 of 501
 producer input files. This included the bubblewrap, jbigkit and libtiff
 archive/signature pairs. Eight extension archive/signature pairs were

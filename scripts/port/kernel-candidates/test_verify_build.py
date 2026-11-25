@@ -768,7 +768,7 @@ class ImageRelativeRelocationTests(unittest.TestCase):
                         self.assertEqual(elf.symbols['type'],2)
 
     def test_symbol_free_rejects_symbolic_unknown_and_irelative(self):
-        for info in (0,257,1026,1028,1032,0xffffffff,(1<<32)|1027,(0xffffffff<<32)|1027):
+        for info in (0,257,1025,1026,1028,1032,0xffffffff,(1<<32)|1027,(0xffffffff<<32)|1027):
             with self.subTest(info=info):
                 raw,_ = self.fixture(info=info)
                 with self.assertRaisesRegex(ValueError,'ELF relocation index/offset invalid'):
@@ -787,6 +787,23 @@ class ImageRelativeRelocationTests(unittest.TestCase):
         struct.pack_into('<Q', raw, 0x8020 + 2 * 24, 0)
         with self.assertRaisesRegex(ValueError, 'ELF relocation index/offset invalid'):
             self.read(raw)
+
+    def test_hosted_glob_dat_form_has_a_full_aligned_slot_and_projects_unchanged(self):
+        info = (28 << 32) | 1025  # Observed r_info in native run 45698226968.
+        raw, image = self.fixture(offset=TEXT_ADDR + 0x8008, info=info)
+        output = Path(self.tmp.name) / 'Image'
+        output.write_bytes(image)
+        with self.read(raw) as elf:
+            projection = verifier.image_relation(elf, output, TEXT_ADDR)
+        self.assertIn('.rela.dyn', [row['name'] for row in projection['copied_sections']])
+        image[0x4028] ^= 1
+        output.write_bytes(image)
+        with self.read(raw) as elf, self.assertRaisesRegex(ValueError, 'Image body differs'):
+            verifier.image_relation(elf, output, TEXT_ADDR)
+        for kind, offset in ((2, TEXT_ADDR + 0x8008), (3, TEXT_ADDR + 0x8001), (3, TEXT_ADDR + 0x10000)):
+            with self.subTest(kind=kind, offset=offset), self.assertRaisesRegex(ValueError, 'ELF relocation index/offset invalid'):
+                altered, _ = self.fixture(offset=offset, info=info, kind=kind)
+                self.read(altered, kind=kind)
 
     def test_relr_direct_and_chained_bitmaps_and_projection(self):
         # The second bitmap starts 63 words after the first, in mapped NOBITS.

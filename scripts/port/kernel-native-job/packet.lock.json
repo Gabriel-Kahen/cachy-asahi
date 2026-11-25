@@ -21,9 +21,9 @@
       "sha256": "67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4"
     },
     "docs/workstreams/kernel-native-job.md": {
-      "bytes": 23430,
+      "bytes": 24365,
       "mode": 420,
-      "sha256": "71b806a961eff966bc6f6f094ce676dbd103e792b20075c90b3b4f3415fd42b9"
+      "sha256": "f44521666f8d377ebc3bd1ad27b3362490fab582a911bc06988c1f82689f6b05"
     },
     "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "bytes": 1811,
@@ -456,9 +456,9 @@
       "sha256": "f2d6fc62d28b0c189469ca7cf8293f10c574ecd0459c33c013bf1a271b8a5ebf"
     },
     "scripts/port/kernel-candidates/verify_build.py": {
-      "bytes": 49204,
+      "bytes": 49552,
       "mode": 493,
-      "sha256": "7b4af9e38e3fe8f6275c74328dc5b09736847c40e0fed92d83af2412448377f6"
+      "sha256": "b046248ff6a408c2ca7a5a5d582ef1afe5e636cf62c730fcba827b89a65065fa"
     },
     "scripts/port/kernel-native-job/intake.py": {
       "bytes": 16875,
@@ -473,7 +473,7 @@
     "scripts/port/kernel-native-job/packet.py": {
       "bytes": 12800,
       "mode": 420,
-      "sha256": "81ccb6ff0293b068bf6e0bef50026fc22d3a2ea6129c45836c2a7f917880d637"
+      "sha256": "1822ba5a788dbc7f01ff4b1c14bf3b4c4119319dd534fc4e99cfb85a9d057b8c"
     },
     "scripts/port/kernel-native-job/public.py": {
       "bytes": 47458,
@@ -573,7 +573,7 @@
     "scripts/port/kernel-native-stage/stage.lock.json": {
       "bytes": 5596,
       "mode": 420,
-      "sha256": "d3ef280c4ad270ae87ed581692a140f52cb86ac3f4c1d6f28acca1d60d9415f7"
+      "sha256": "cbdd46371bda27c82e0e473a9eaab59e55592479eba931350cd1cf322eb1f78a"
     },
     "scripts/port/kernel-native-stage/stage.py": {
       "bytes": 26791,
