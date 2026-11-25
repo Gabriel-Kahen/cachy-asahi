@@ -101,14 +101,30 @@ virtio media, reuses the full-build storage helpers, and exposes the
 package plan at `/qtmedia/packaging` read-only. It caps each retained
 command stream, the stage contract, and the single unsigned archive.
 
-The remaining host adapter needs role-aware create, inspect, attach,
-recovery and retirement callbacks in the [existing site owner](full_site.py).
-Provision the new nested boot payload from the pinned template, using a
-fresh PARTUUID and separately formatted ext4 result. Reuse the runner's
-tool pins, allocation watcher and bounded process capture. Verify the
-five-node backing chain, container mount modes, actor exit, result fsck,
-and exact CID retirement. The adapter emits no host authority. The
-historic full-build source and its launch scope keep their original pins.
+The [media provisioner](package_media.py) seals the pinned actor source,
+the boot payload with its fresh PARTUUID and the clean 1 GiB result
+template. Its output retains an unissued media record. The
+[package actor](package_actor.py) verifies the five-node backing chain,
+allocations, original QEMU exit and result filesystem. The
+[package site](package_site.py) reuses the full-build owner's container
+inspection, attach, CID recovery and retirement logic in a separate
+scope. The original source and full-build scope keep their pins.
+
+```sh
+python3 -I -B "$lane/package_media.py" --output "$MEDIA" --stage "$STAGE" \
+  --plan-sha256 "$PLAN_SHA" --selection "$SELECTION" --selection-sha256 "$SELECTION_SHA" \
+  --format-tools "$TOOLS" --format-tools-sha256 "$TOOLS_SHA"
+python3 -I -B -Werror "$lane/package_site.py" preflight \
+  --stage "$STAGE" --plan-sha256 "$PLAN_SHA" --media "$MEDIA" --media-sha256 "$MEDIA_SHA" \
+  --selection "$SELECTION" --selection-sha256 "$SELECTION_SHA"
+```
+
+Run mode requires the selected package scope, control-group stop signals,
+and effective 360-second systemd stop grace. After that scope exits, use
+observe mode with the same inputs to verify the original container and
+scope retirement. The package runtime has fixture coverage. Its first
+live invocation depends on completed full-build evidence and separate
+packaging admission.
 
 The [offline reader](package_result.py) takes the staged plan and exact
 external SHA-256s for the original selection, QEMU serial and result image.
