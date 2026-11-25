@@ -5,7 +5,7 @@ on:
       - 'scripts/ci/current607-native-graph-profile/**'
       - '.github/workflows/current607-native-graph-profile.yml'
   push:
-    branches: ['**']
+    branches: [main]
     paths:
       - 'scripts/ci/current607-native-graph-profile/**'
       - '.github/workflows/current607-native-graph-profile.yml'

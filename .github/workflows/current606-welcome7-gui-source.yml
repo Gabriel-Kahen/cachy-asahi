@@ -1,7 +1,7 @@
 name: current606-welcome7-gui-source
 on:
   push:
-    branches: ['**']
+    branches: [main]
     paths:
       - scripts/ci/current606-welcome7-gui-source/**
       - .github/workflows/current606-welcome7-gui-source.yml

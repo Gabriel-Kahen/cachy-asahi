@@ -2,7 +2,7 @@
   "name": "latest607-gui-observer-source",
   "on": {
     "push": {
-      "branches": ["**"],
+      "branches": ["main"],
       "paths": [
         "scripts/ci/latest607-gui-observer-source/**",
         ".github/workflows/latest607-gui-observer-source.yml"
