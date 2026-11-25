@@ -35,11 +35,15 @@ LOCAL_STORAGE/
   stable/current -> ID      # local selection only
   promotions/ID.json{,.sig}  # signed frozen gates and release checksum
   withdrawals/ID.json{,.sig} # signed incident/recovery text; artifacts retained
+  .promotion-pending/ID/     # private signed record pair during publication
+  .withdrawal-pending/ID/    # private signed record pair during publication
 ```
 
 Names use letters/digits then letters/digits, `.`, `_`, `+`, or `-`; `current` is reserved. Existing release IDs are never overwritten. All releases are retained: no prune/delete command is supplied. Package `.pkg.tar.gz`, `.pkg.tar.xz` and `.pkg.tar.zst` inputs are supported. Parent managed directories and input files may not be symlinks. Only the normal repo-add basename symlinks are retained inside a bundle.
 
-Atomic selection is a local visibility property. There is no power-loss durability claim, multi-host transaction, public anti-replay protocol, or storage-capacity automation. A failure after retaining a stable copy but before selection leaves an inactive retained copy; inspect signed records and repair the local selection under operator control, or use a new release ID. Never infer that this state is a tested machine recovery.
+Atomic selection is a local visibility property. After an interrupted promotion or withdrawal, rerun the same command with the original release ID and gate evidence or incident reason. The tool verifies the private signed record, checks it against the requested inputs and reuses only byte-identical published record members. It completes missing publication steps before switching or removing the local selection. A legacy partial record without its signed pair still refuses and requires operator inspection. An interrupted withdrawal with only its published signature also blocks normal release verification.
+
+This recovery covers abrupt process termination on controlled local storage. Power-loss durability, multi-host publication, public replay protection and installed-machine recovery require separate evidence.
 
 ## Staging specification, version 1
 

@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import shutil
 import re
+import signal
 import subprocess
 import sys
 import tarfile
@@ -897,7 +898,38 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual({path: path.read_bytes() for path in originals}, originals)
         self.assertIsNone(json.loads(r.run(export))["selected_release"])
 
-    def test_publication_never_replaces_colliding_or_partial_history(self):
+    def kill_record_publication(self, operation, flag, args, destination):
+        code = """
+import argparse
+import os
+from pathlib import Path
+import signal
+import sys
+from unittest import mock
+from test_release import r
+
+root, home, key, operation, flag, rid, input_path, destination = sys.argv[1:]
+root = Path(root)
+rename = r.rename_noreplace
+
+def interrupt(source, target):
+    if target == Path(destination) or (destination == "completed" and target.name == destination):
+        os.kill(os.getpid(), signal.SIGKILL)
+    rename(source, target)
+
+args = argparse.Namespace(release_id=rid, **{flag: input_path})
+with r.locked(root), mock.patch.object(r, "gates_check", side_effect=lambda *args: r.load(args[-1])):
+    r.rename_noreplace = interrupt
+    getattr(r, operation)(args, root, key, r.gpg_env(home, root))
+"""
+        result = subprocess.run(
+            [sys.executable, "-B", "-c", code, str(self.root), str(self.home), self.key,
+             operation, flag, args.release_id, getattr(args, flag), str(destination)],
+            cwd=Path(__file__).resolve().parent, capture_output=True, timeout=30,
+        )
+        self.assertEqual(result.returncode, -signal.SIGKILL, result.stderr.decode())
+
+    def test_promotion_resumes_partial_journal_without_replacing_colliding_history(self):
         args = self.modeled_promotion()
         destination = self.root / "stable/fixture-1"
         promotion = self.root / "promotions/fixture-1.json"
@@ -914,45 +946,92 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(list(destination.iterdir()), [])
         destination.rmdir()
 
-        def interrupt(source, target):
-            if target == promotion:
-                raise OSError("record publication interrupted")
-            rename(source, target)
-
-        with mock.patch.object(r, "rename_noreplace", interrupt), self.assertRaisesRegex(OSError, "publication interrupted"):
-            self.promote_model(args)
+        self.kill_record_publication("promote", "gates", args, promotion)
         signature = promotion.with_suffix(".json.sig")
         original = signature.read_bytes()
+        pending = self.root / ".promotion-pending/fixture-1"
+        journal = pending / "record.json"
+        self.assertEqual(journal.with_suffix(".json.sig").read_bytes(), original)
+        self.assertTrue(destination.is_dir())
+        self.assertFalse((destination.parent / "current").is_symlink())
+        signature.write_bytes(b"foreign record")
+        with self.assertRaisesRegex(r.Error, "retained signed record differs"):
+            self.promote_model(args)
+        self.assertEqual(signature.read_bytes(), b"foreign record")
+        signature.write_bytes(original)
+        journal.chmod(0o666)
+        with self.assertRaisesRegex(r.Error, "unsafe pending signed record member"):
+            self.promote_model(args)
+        journal.chmod(0o600)
+        gate_path = Path(args.gates)
+        original_gates = r.load(gate_path)
+        r.write(gate_path, dict(original_gates, foreign=True))
+        with self.assertRaisesRegex(r.Error, "gates differ"):
+            self.promote_model(args)
+        r.write(gate_path, original_gates)
+        retained = pending.with_name("preserved-test-journal")
+        pending.rename(retained)
         with self.assertRaisesRegex(r.Error, "incomplete or unsafe signed record"):
             self.promote_model(args)
-        self.assertEqual(signature.read_bytes(), original)
+        retained.rename(pending)
         self.assertFalse(promotion.exists())
+        raw = journal.read_bytes()
+        self.kill_record_publication("promote", "gates", args, "completed")
+        self.assertEqual(promotion.read_bytes(), raw)
         self.assertFalse((destination.parent / "current").is_symlink())
+        with mock.patch.object(r, "sign", side_effect=AssertionError("retry must not sign")):
+            self.assertEqual(self.promote_model(args)["status"], "local-stable")
+        self.assertEqual(promotion.read_bytes(), raw)
+        self.assertEqual(signature.read_bytes(), original)
+        self.assertEqual(os.readlink(destination.parent / "current"), "fixture-1")
+        self.assertFalse(pending.exists())
 
-    def test_partial_withdrawal_signature_cannot_be_replaced_or_activate_release(self):
+    def test_withdrawal_resumes_partial_journal_with_exact_reason_and_signature(self):
         promotion = self.modeled_promotion()
+        self.promote_model(promotion)
         reason = self.inputs / "incident.txt"
-        reason.write_text("Synthetic partial withdrawal.\n")
+        reason.write_bytes(b"Synthetic partial withdrawal.\r\n")
         args = argparse.Namespace(release_id="fixture-1", reason=str(reason))
         record = self.root / "withdrawals/fixture-1.json"
-        rename = r.rename_noreplace
-
-        def interrupt(source, target):
-            if target == record:
-                raise OSError("withdrawal publication interrupted")
-            rename(source, target)
-
-        with r.locked(self.root), mock.patch.object(r, "rename_noreplace", interrupt):
-            with self.assertRaisesRegex(OSError, "publication interrupted"):
-                r.withdraw(args, self.root, self.key, self.env)
+        self.kill_record_publication("withdraw", "reason", args, record)
         signature = record.with_suffix(".json.sig")
         original = signature.read_bytes()
-        with r.locked(self.root), self.assertRaisesRegex(r.Error, "incomplete or unsafe signed record"):
-            r.withdraw(args, self.root, self.key, self.env)
+        pending = self.root / ".withdrawal-pending/fixture-1"
+        journal = pending / "record.json"
+        self.assertEqual(journal.with_suffix(".json.sig").read_bytes(), original)
+        raw = journal.read_bytes()
+        current = self.root / "stable/current"
+        self.assertEqual(os.readlink(current), "fixture-1")
+        verify = [sys.executable, Path(__file__).with_name("release.py"), "--root", self.root,
+                  "--gpg-home", self.home, "--key", self.key, "verify", "--release-id", "fixture-1"]
+        with self.assertRaisesRegex(r.Error, "withdrawal incomplete"):
+            r.run(verify)
         with self.assertRaisesRegex(r.Error, "withdrawal incomplete"):
             self.promote_model(promotion)
+        reason.write_bytes(b"Synthetic partial withdrawal.\n")
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "withdrawal differs"):
+            r.withdraw(args, self.root, self.key, self.env)
+        reason.write_bytes(b"Synthetic partial withdrawal.\r\n")
+        journal.write_bytes(raw + b"\n")
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "command failed: gpg"):
+            r.withdraw(args, self.root, self.key, self.env)
+        journal.write_bytes(raw)
+        retained = pending.with_name("preserved-test-journal")
+        pending.rename(retained)
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "incomplete or unsafe signed record"):
+            r.withdraw(args, self.root, self.key, self.env)
+        retained.rename(pending)
         self.assertEqual(signature.read_bytes(), original)
         self.assertFalse(record.exists())
+        self.kill_record_publication("withdraw", "reason", args, "completed")
+        self.assertEqual(record.read_bytes(), raw)
+        self.assertEqual(os.readlink(current), "fixture-1")
+        with r.locked(self.root), mock.patch.object(r, "sign", side_effect=AssertionError("retry must not sign")):
+            self.assertEqual(r.withdraw(args, self.root, self.key, self.env)["status"], "withdrawn-locally")
+        self.assertFalse(current.is_symlink())
+        self.assertFalse(pending.exists())
+        self.assertEqual(record.read_bytes(), raw)
+        self.assertEqual(signature.read_bytes(), original)
 
 
 if __name__ == "__main__":
