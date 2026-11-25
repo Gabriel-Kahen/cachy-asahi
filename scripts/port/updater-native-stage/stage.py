@@ -654,7 +654,9 @@ def storage_projection(value):
 
 
 PREPARE_PHASES = frozenset({'source-closure','directories','pair-comparison','builder-receipt',
-                            'archive-selection','archive-metadata','runtime-inputs','capsule-write'})
+                            'archive-selection','archive-inspection','archive-controller',
+                            'archive-metadata','archive-provenance','archive-copy',
+                            'runtime-inputs','capsule-write'})
 PREPARE_PROBLEMS = frozenset({'missing-input','permission','io-error','invalid-input','unexpected'})
 PREPARE_UNAVAILABLE = {'phase':'unavailable','problem':'unavailable'}
 

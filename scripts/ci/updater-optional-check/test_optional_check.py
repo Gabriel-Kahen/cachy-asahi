@@ -139,7 +139,7 @@ class SourceTests(unittest.TestCase):
 
 
 class StageTests(unittest.TestCase):
-    def stage_capsule(self, suffix):
+    def stage_capsule(self, suffix, retained_files=0):
         files, _ = prepare.preflight()
         checks = prepare.load('stage_test_checks', prepare.ROOT / prepare.CHECKER, prepare.CHECKER_SHA)
         recipe = (prepare.ROOT / prepare.PACKAGE / 'PKGBUILD').read_bytes()
@@ -183,16 +183,26 @@ class StageTests(unittest.TestCase):
                 artifacts = build / 'artifacts'; artifacts.mkdir(parents=True)
                 recipe_dir = build / 'inputs/recipe'; recipe_dir.mkdir(parents=True)
                 (artifacts / name).write_bytes(body)
+                retained = artifacts / 'linux-source-closure/vendor/fixture-1.0.0'
+                if retained_files:
+                    retained.mkdir(parents=True)
+                    for index_file in range(retained_files):
+                        (retained / f'module-{index_file}.rs').write_text('// Inert retained source\n')
                 (recipe_dir / 'PKGBUILD').write_bytes(recipe)
                 controller = {'image_id': image, 'builder_inventory_sha256': prepare.BUILDER_SHA,
                               'tool_pins': {}, 'entry_script_sha256': 'a' * 64, 'nonce': str(index) * 32,
                               'recipe_input_sha256': {'PKGBUILD': prepare.PKGBUILD_SHA}}
                 controller_raw = json.dumps(controller).encode()
                 (recipe_dir.parent / 'controller-input.json').write_bytes(controller_raw)
-                (build / 'provenance.json').write_text(json.dumps({
+                outputs = {path.relative_to(artifacts).as_posix(): prepare.digest(path.read_bytes())
+                           for path in artifacts.rglob('*') if path.is_file()}
+                provenance = build / 'provenance.json'
+                provenance.write_text(json.dumps({
                     'native_compilation': 'PASS-private-native-package-static-checks',
-                    'outputs_sha256': {name: package_sha}, 'package_sha256': package_sha,
+                    'outputs_sha256': outputs, 'package_sha256': package_sha,
                     'controller_sha256': prepare.digest(controller_raw)}))
+                if retained_files:
+                    self.assertGreater(provenance.stat().st_size, 64 * 1024)
             output = work / 'inputs'
             with patch.object(prepare, 'preflight', return_value=(files, dependencies)):
                 result = prepare.stage(native, cache, output)
@@ -202,6 +212,9 @@ class StageTests(unittest.TestCase):
 
     def test_real_stage_path_with_xz_pair(self):
         self.stage_capsule('.xz')
+
+    def test_real_stage_path_with_retained_source_provenance(self):
+        self.stage_capsule('.xz', retained_files=700)
 
     @unittest.skipUnless(shutil.which('zstd'), 'zstd is required for the zstd case')
     def test_real_stage_path_with_zstd_pair(self):

@@ -21,6 +21,8 @@ PKGBUILD_SHA = '6e8b65f396510d59a1196949b062bad924ea0af4e38b58b4dfe0e47f74e16d60
 ADAPTER_SHA = '0b65eb3ce5eea5e537dbcf4bfe9da41a662f5ce5690cbac5c3f7a8b03d2d285b'
 CHECKER = 'scripts/checks/package_checks.py'
 CHECKER_SHA = '314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a'
+# Worker provenance indexes the retained source closure. Match the public evidence reader.
+PROVENANCE_LIMIT = 4 * 1024**2
 RESULT_LIMIT = 16 * 1024
 EXPECTED_CASE_EXITS = {
     'pending-versioned': 0,
@@ -195,18 +197,24 @@ def stage(native, cache, output, progress=lambda _phase: None):
          'native build result or image differs')
     progress('archive-selection')
     archive = select_archive(first / 'artifacts')
-    progress('archive-metadata')
+    progress('archive-inspection')
     report = checker.package(archive)
-    metadata = report['metadata']['.PKGINFO']
+    need(not report['errors'], 'native archive inspection failed')
+    progress('archive-controller')
     controller = json.loads(read(first / 'inputs/controller-input.json', 1024**2))
-    need(not report['errors']
-         and report['metadata']['.BUILDINFO']['pkgbuild_sha256sum'] == [PKGBUILD_SHA]
-         and controller['recipe_input_sha256']['PKGBUILD'] == PKGBUILD_SHA
-         and controller['image_id'] == image and controller['builder_inventory_sha256'] == BUILDER_SHA
+    need(controller['recipe_input_sha256']['PKGBUILD'] == PKGBUILD_SHA
+         and controller['image_id'] == image and controller['builder_inventory_sha256'] == BUILDER_SHA,
+         'wrong recipe, build image or builder inventory')
+    progress('archive-metadata')
+    metadata = report['metadata']['.PKGINFO']
+    need(report['metadata']['.BUILDINFO']['pkgbuild_sha256sum'] == [PKGBUILD_SHA]
          and metadata['pkgname'] == ['cachy-asahi-update'] and metadata['pkgver'] == ['4.4.2-3']
          and metadata['arch'] == ['aarch64'] and len(metadata['depend']) == 18,
-         'wrong recipe, build image, archive or dependencies')
-    recorded = json.loads(read(first / 'provenance.json', 64 * 1024))['package_sha256']
+         'wrong archive metadata')
+    progress('archive-provenance')
+    recorded = json.loads(read(first / 'provenance.json', PROVENANCE_LIMIT))['package_sha256']
+    need(report['sha256'] == recorded, 'archive inspection digest differs from native provenance')
+    progress('archive-copy')
     files['updater.pkg.tar.xz'] = read(archive, 64 * 1024**2, recorded)
     progress('runtime-inputs')
     for row in dependencies['packages']:

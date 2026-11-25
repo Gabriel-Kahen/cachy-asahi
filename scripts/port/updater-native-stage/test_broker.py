@@ -209,6 +209,24 @@ class BrokerTests(unittest.TestCase):
                 b.invoke(self.c, [*args[:3], extra, *args[3:]])
         self.assertEqual(len(self.docker.calls), count)
 
+    def test_installed_capsule_accepts_bounded_retained_source_provenance(self):
+        self.build()
+        args = self.installed()
+        outputs = {f'linux-source-closure/vendor/fixture-1.0.0/src/module-{i}.rs': 'c' * 64
+                   for i in range(9000)}
+        for attempt in (1, 2):
+            path = self.root / f'native/build-{attempt}/provenance.json'
+            receipt = b.load(path.read_bytes())
+            receipt['outputs_sha256'] = outputs
+            b.save(path, receipt)
+            self.assertGreater(path.stat().st_size, b.QUERY_BYTES)
+        original = path.read_bytes()
+        path.write_bytes(original + b' ' * (4 * 1024**2))
+        with self.assertRaisesRegex(b.BrokerError, 'bounded-regular-file'):
+            b.invoke(self.c, args)
+        path.write_bytes(original)
+        self.assertEqual(b.invoke(self.c, args), 0)
+
     def test_installed_requires_exact_manifest_pair_and_member_bytes(self):
         self.build()
         args = self.installed()

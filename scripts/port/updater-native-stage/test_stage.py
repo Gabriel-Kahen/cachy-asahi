@@ -403,10 +403,13 @@ class StageTests(unittest.TestCase):
 
     def test_prepare_failure_projects_only_a_known_subphase_and_problem(self):
         out = self.base / 'prepare.stdout'
-        record = {'status':'FAIL','phase':'archive-selection','problem':'invalid-input'}
-        out.write_text(json.dumps(record))
-        diagnostic = stage.prepare_failure(out)
-        self.assertEqual(diagnostic, {'phase':'archive-selection','problem':'invalid-input'})
+        for phase in ('archive-selection','archive-inspection','archive-controller',
+                      'archive-metadata','archive-provenance','archive-copy'):
+            with self.subTest(phase=phase):
+                record = {'status':'FAIL','phase':phase,'problem':'invalid-input'}
+                out.write_text(json.dumps(record))
+                diagnostic = stage.prepare_failure(out)
+                self.assertEqual(diagnostic, {'phase':phase,'problem':'invalid-input'})
         result = {'installed_check':'FAIL','failed_phase':'installed-prepare',
                   'runtime_reason':'process-failed','runtime_returncode':1,
                   'installed_prepare_failure':diagnostic}

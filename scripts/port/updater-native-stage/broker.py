@@ -29,6 +29,8 @@ CONTROLLER_HASH_ENV = 'CACHY_ASAHI_BROKER_CONTROLLER_SHA256'
 IMAGE = re.compile(r'sha256:[0-9a-f]{64}')
 WORKER = re.compile(r'cachy-asahi-updater-([0-9a-f]{32})')
 QUERY_BYTES = 1024 * 1024
+# Worker provenance indexes the retained source closure. Match the public evidence reader.
+PROVENANCE_BYTES = 4 * 1024**2
 COMMAND_SECONDS = 1800
 INSTALLED_SECONDS = 360
 INSTALLED_PIN = '--env=CACHY_ASAHI_UPDATER_CAPSULE_SHA256='
@@ -695,7 +697,8 @@ def installed_capsule(c, nonce, image, digest):
     need(type(pair) is dict and pair.get('native_pair') == 'PASS'
          and pair.get('image_id') == image, 'installed-pair-binding')
     for attempt in (1, 2):
-        provenance = load(regular(under(c, str(native / f'build-{attempt}/provenance.json'))))
+        path = under(c, str(native / f'build-{attempt}/provenance.json'))
+        provenance = load(regular(path, PROVENANCE_BYTES))
         need(type(provenance) is dict
              and provenance.get('native_compilation') == 'PASS-private-native-package-static-checks'
              and provenance.get('image_id') == image
