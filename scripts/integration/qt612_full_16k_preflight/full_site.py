@@ -28,6 +28,11 @@ RETIREMENT_KIND = "QTBASE_FULL16K_HOST_RETIREMENT_V1"
 OBSERVATION_KIND = "QTBASE_FULL16K_POST_SCOPE_V1"
 GUI_CLOSE = C.file_pin(887, "c6f0b9e8bb5cd029df1785aaef38390c4479777779f2c9b6b389879b8db29aaa")
 ORIGINAL_CODES = (0, 1, 2)
+RECOVERY_CALL_SECONDS = 5
+RECOVERY_PROBES = 3
+SCOPE_STOP_GRACE_SECONDS = 360
+SYSTEMD_BUS = "org.freedesktop.systemd1"
+SYSTEMD_OBJECT = "/org/freedesktop/systemd1"
 
 
 def capsule_identity(root):
@@ -76,6 +81,7 @@ def site_descriptor(root, handoff_sha, historical, retirement):
     predecessors(historical, retirement)
     return dict(kind=SITE_KIND, scope=SCOPE, nonce=plan["nonce"], plan_sha256=handoff["plan"]["sha256"],
                 capsule=identity | {"handoff_sha256": handoff_sha}, launcher=launcher_pin(handoff),
+                scope_stop_grace_seconds=SCOPE_STOP_GRACE_SECONDS,
                 qtgui_handoff=str(historical), qtgui_retirement=str(retirement))
 
 
@@ -96,8 +102,15 @@ def matches_root(site, root):
            "Selected site and capsule root differ")
 
 
+class Client(OLD.Client):
+    def docker(self, *args, seconds=45):
+        raw = OLD.run_bounded(self.argv(args), seconds)
+        self.check()
+        return raw
+
+
 def client_for(handoff, plan):
-    return OLD.Client(handoff | {"docker": handoff["runner"]["docker"]}, plan)
+    return Client(handoff | {"docker": handoff["runner"]["docker"]}, plan)
 
 
 def preflight(site, handoff, plan, site_sha):
@@ -107,14 +120,28 @@ def preflight(site, handoff, plan, site_sha):
     checked = F.preflight(root, site["capsule"]["handoff_sha256"])
     client_for(handoff, plan).check()  # No daemon process under the passive fence.
     return checked | dict(status="HOLD_PREVIOUS_CLAIM" if claimed else "PASS_FULL_TARGET_HOST_PREFLIGHT_ONLY",
-                          previous_claim_present=claimed, scope=SCOPE, site_sha256=site_sha, actor_entered=False)
+                          previous_claim_present=claimed, scope=SCOPE, site_sha256=site_sha, actor_entered=False,
+                          scope_stop_grace_seconds=SCOPE_STOP_GRACE_SECONDS)
 
 
 def owning_group():
-    group = OLD.run_bounded(["/usr/bin/systemctl", "--user", "show", "--property=ControlGroup", "--value", SCOPE],
-                           15).decode("ascii").removesuffix("\n")
+    raw = OLD.run_bounded(["/usr/bin/systemctl", "--user", "show", "--property=ControlGroup",
+                           "--property=KillMode", "--property=KillSignal", "--property=SendSIGKILL", SCOPE], 15)
+    properties = dict(line.split("=", 1) for line in raw.decode("ascii").splitlines())
+    group = properties.pop("ControlGroup")
     C.need(OLD.GROUP.fullmatch(group) and group.endswith("/" + SCOPE)
-           and Path("/proc/self/cgroup").read_text() == f"0::{group}\n", "Exact owning full-target scope required")
+           and Path("/proc/self/cgroup").read_text() == f"0::{group}\n"
+           and properties == dict(KillMode="control-group", KillSignal=str(signal.SIGTERM.value), SendSIGKILL="yes"),
+           "Exact owning full-target scope and stop signals required")
+    bus = ["/usr/bin/busctl", "--user"]
+    unit = OLD.run_bounded([*bus, "call", SYSTEMD_BUS, SYSTEMD_OBJECT, SYSTEMD_BUS + ".Manager",
+                            "GetUnit", "s", SCOPE], 15)
+    path = re.fullmatch(rb'o "(/org/freedesktop/systemd1/unit/[A-Za-z0-9_]+)"\n', unit)
+    C.need(path, "Exact full-target systemd scope object required")
+    grace = OLD.run_bounded([*bus, "get-property", SYSTEMD_BUS, path[1].decode("ascii"),
+                             SYSTEMD_BUS + ".Scope", "TimeoutStopUSec"], 15)
+    C.need(grace == f"t {SCOPE_STOP_GRACE_SECONDS * 1_000_000}\n".encode(),
+           "Exact full-target scope stop grace required")
     return group
 
 
@@ -146,7 +173,8 @@ def attempt_meta(site, handoff, plan, group, attempt, authority_sha, site_sha):
                 nonce=plan["nonce"], authority_sha256=authority_sha, site_sha256=site_sha,
                 handoff_sha256=site["capsule"]["handoff_sha256"], plan_sha256=handoff["plan"]["sha256"],
                 output=str(attempt / "output"), memory_bytes=plan["limits"]["actor_memory_bytes"],
-                vcpus=handoff["runner"]["vcpus"], attach_seconds=plan["attach_seconds"])
+                vcpus=handoff["runner"]["vcpus"], attach_seconds=plan["attach_seconds"],
+                scope_stop_grace_seconds=SCOPE_STOP_GRACE_SECONDS)
 
 
 def create_args(attempt, meta):
@@ -228,13 +256,47 @@ def host_result(attempt, meta, cid, code):
     return dict(kind=RETIREMENT_KIND, cid=cid, exit_code=code, natural=True,
                 container_removed=True, absent_twice=True, receipts=retained_receipts(attempt), actor_result=actor_pin,
                 **{key: meta[key] for key in ("nonce", "scope", "scope_group", "site_sha256", "authority_sha256",
-                                              "handoff_sha256", "plan_sha256")})
+                                              "handoff_sha256", "plan_sha256", "scope_stop_grace_seconds")})
+
+
+def recover_lost_create(client, meta):
+    """Retire a positively identified, never-attached actor with a lost CID receipt."""
+    options = ("--filter", "name=^/" + meta["name"] + "$",
+               "--filter", "label=" + NONCE_LABEL + "=" + meta["nonce"])
+    for _ in range(RECOVERY_PROBES):
+        listed = client.docker("container", "ls", "-a", "--no-trunc", *options,
+                               "--format", "{{.ID}}", seconds=RECOVERY_CALL_SECONDS)
+        if listed:
+            break
+        time.sleep(0.2)
+    else:
+        return None
+    cid = OLD.scoped_identity(listed)
+    original = client.docker("container", "inspect", cid, seconds=RECOVERY_CALL_SECONDS)
+    C.need(OLD.genuine_state(owned_row(original, meta, cid), "created"), "Lost create did not remain unstarted")
+    removed = client.docker("container", "rm", cid, seconds=RECOVERY_CALL_SECONDS)
+    C.need(OLD.scoped_identity(removed) == cid, "Recovery removal receipt differs")
+    for _ in range(2):
+        C.need(client.docker("container", "ls", "-a", "--no-trunc", "--filter", "id=" + cid,
+                             "--format", "{{.ID}}", seconds=RECOVERY_CALL_SECONDS) == b"",
+               "Recovered original CID still present")
+        time.sleep(0.1)
+    return cid
+
+
+def cleanup_cid(path):
+    if not os.path.lexists(path):
+        return None
+    raw = T.read(path, cap=70)
+    if re.fullmatch(rb"[a-f0-9]{0,63}\n?", raw):
+        return None
+    return OLD.scoped_identity(raw)
 
 
 def execute_owned(client, attempt, meta, check_entry):
     cid_file = attempt / "run.cid"
     cid = code = None
-    removed = complete = False
+    dispatched = removed = complete = False
 
     def inspect():
         return owned_row(client.docker("container", "inspect", cid), meta, cid)
@@ -245,7 +307,9 @@ def execute_owned(client, attempt, meta, check_entry):
     previous = {number: signal.signal(number, cancel) for number in OLD.ATTACH_SIGNAL_SET}
     try:
         check_entry()
-        created = client.docker(*create_args(attempt, meta))
+        argv = create_args(attempt, meta)
+        dispatched = True
+        created = client.docker(*argv)
         OLD.save(attempt / "run.create.stdout", created)
         cid = OLD.scoped_identity(T.read(cid_file, cap=70))
         C.need(OLD.scoped_identity(created) == cid, "Create stdout and claimed CID differ")
@@ -271,16 +335,27 @@ def execute_owned(client, attempt, meta, check_entry):
         try:
             if not complete:
                 try:
-                    if not removed and cid_file.is_file():
-                        cid = OLD.scoped_identity(T.read(cid_file, cap=70))
-                        listing = client.absent(cid)
-                        C.need(listing in (b"", (cid + "\n").encode()), "Ambiguous emergency CID census")
-                        if listing:
-                            OLD.remove_owned(client, cid, inspect, emergency=True)
-                            removed = True
+                    if dispatched and not removed:
+                        selected = cleanup_cid(cid_file)
+                        C.need(cid is None or selected == cid, "Original CID file changed before cleanup")
+                        if selected is None:
+                            cid = recover_lost_create(client, meta)
+                            removed = cid is not None
+                        else:
+                            cid = selected
+                            listing = client.absent(cid)
+                            C.need(listing in (b"", (cid + "\n").encode()), "Ambiguous emergency CID census")
+                            if listing:
+                                OLD.remove_owned(client, cid, inspect, emergency=True)
+                                removed = True
+                except (OSError, ValueError, KeyError, TypeError, AttributeError, subprocess.SubprocessError):
+                    # A failed recovery census or ambiguous identity cannot establish retirement.
+                    pass
                 finally:
+                    disposition = "REMOVED" if removed else "UNKNOWN" if dispatched else "NOT_STARTED"
                     hold = dict(kind=RETIREMENT_KIND, cid=cid, exit_code=code, natural=False,
-                                container_removed=removed, nonce=meta["nonce"], site_sha256=meta["site_sha256"])
+                                container_removed=removed, disposition=disposition,
+                                nonce=meta["nonce"], site_sha256=meta["site_sha256"])
                     OLD.save(attempt / "host-HOLD.json", C.wire(hold))
         finally:
             for number, handler in previous.items():
@@ -373,7 +448,7 @@ def observe(site, handoff, plan, site_sha):
                 actor_result=host["actor_result"],
                 observations=[dict(scope_absent=True, container_absent=True)] * 2, authority=None,
                 **{key: meta[key] for key in ("nonce", "scope", "scope_group", "site_sha256", "authority_sha256",
-                                              "handoff_sha256", "plan_sha256")})
+                                              "handoff_sha256", "plan_sha256", "scope_stop_grace_seconds")})
 
 
 def main():

@@ -233,12 +233,21 @@ python3 -I -B scripts/integration/qt612_full_16k_preflight/full_site.py \
 
 The launcher requires the separately reviewed Root selection and its
 independent digest for `run` inside the selected full-target user scope.
+The scope must send SIGTERM to its control group, retain a 360-second
+stop grace, and allow final SIGKILL. The launcher checks the effective
+scope configuration before it can claim or launch. The grace lets the
+launcher retire a container owned by the rootless daemon after scope
+cancellation.
 It checks the pinned rootless daemon and image and takes the permanent
 `full-build.claim` atomically. It prepares a private result clone and
 verifies the original container's isolation, memory, CPU, no-swap and PID
 bounds before attaching. It retains the original exit and inspect
 records, keeps stdout and stderr private, and removes only the owned
-container. After the scope exits, `observe` reopens the original
+container. If Docker create is interrupted before the CID file is
+complete, cleanup searches by the exact name and nonce label and
+verifies the full owned identity before removing a still-unstarted
+container. A pending create or ambiguous census yields an `UNKNOWN`
+HOLD disposition. After the scope exits, `observe` reopens the original
 receipts and checks twice for both the original CID and the scope.
 The guest reader covers guest and actor evidence. The outer observation
 separately establishes host retirement.
@@ -256,8 +265,8 @@ with the earlier capsule, and both capsules remained unclaimed.
 | --- | --- |
 | Handoff | `00781ee8dada031334e93d0f1263f7f697775b580a8429b56493c36ee42bf0f4` |
 | Plan | `b70e038081212bf8fcc29f451c669d89cbdebfc259ac0646af5efe1086e760e4` |
-| Host site descriptor | `997d7b8aa76dee2ed8f24080019d1cf36ed1a381dd559dce924859766f794162` |
-| Host preflight receipt | `651a373620e61d94025069725f27852b1fcf43c59d0e0f0a1b21f8e72c5c99e5` |
+| Host site descriptor with explicit stop grace | `383353a39b6a46afb37bb4399a25bf6252aeb81aea5f9c83a891e6dc37f9bb0f` |
+| Host preflight receipt with explicit stop grace | `451f88c7c292f4854de30471388d94b7ded3160b0fd3d6c875e9c4bcbd902820` |
 
 The launcher and revised worker have offline tests for root and
 authority binding, retirement, completion, library identity, deadlines

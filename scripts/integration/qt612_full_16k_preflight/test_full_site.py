@@ -46,14 +46,27 @@ class Daemon:
         self.claimed_cid, self.create_stdout = CID, CID
         self.timeout = self.oom = self.running = False
         self.foreign_present = False
+        self.interrupted_create = False
+        self.partial_cid = None
+        self.recovery_listing = (CID + "\n").encode()
         self.calls = []
 
-    def docker(self, operation, action, *args):
+    def docker(self, operation, action, *args, seconds=45):
         self.calls.append((operation, action, *args))
         if (operation, action) == ("container", "ls"):
+            if "label=" + S.NONCE_LABEL + "=" + NONCE in args:
+                if seconds != S.RECOVERY_CALL_SECONDS or "name=^/" + self.row["Name"][1:] + "$" not in args:
+                    raise AssertionError("Unbounded or unscoped recovery census")
+                return self.recovery_listing
+            if "id=" + CID in args:
+                return (CID + "\n").encode() if self.created and not self.removed else b""
             return b""
         if (operation, action) == ("container", "create"):
             self.created = True
+            if self.interrupted_create:
+                if self.partial_cid is not None:
+                    self.save("run.cid", self.partial_cid)
+                raise InterruptedError("fixture lost create response")
             self.save("run.cid", (self.claimed_cid + "\n").encode())
             return (self.create_stdout + "\n").encode()
         if (operation, action) == ("container", "inspect"):
@@ -230,6 +243,50 @@ class FullSiteTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "entry window closed"):
             S.execute_owned(client, self.attempt, self.meta, expired)
         self.assertFalse(client.created or client.attached)
+        self.assertEqual(self.cleanup_report()["disposition"], "NOT_STARTED")
+
+    def cleanup_report(self):
+        return S.C.json_body((self.attempt / "host-HOLD.json").read_bytes(), canonical=True)
+
+    def test_interrupted_create_recovers_missing_empty_and_partial_cid_files(self):
+        for partial in (None, b"", CID[:17].encode()):
+            with self.subTest(partial=partial), tempfile.TemporaryDirectory() as tmp:
+                attempt = Path(tmp).resolve()
+                client = Daemon(attempt, self.inspect())
+                client.interrupted_create, client.partial_cid = True, partial
+                with self.assertRaisesRegex(InterruptedError, "lost create response"):
+                    S.execute_owned(client, attempt, self.meta, lambda: None)
+                hold = S.C.json_body((attempt / "host-HOLD.json").read_bytes(), canonical=True)
+                self.assertEqual((hold["disposition"], hold["cid"], hold["natural"]), ("REMOVED", CID, False))
+                self.assertTrue(client.created and client.removed)
+                self.assertFalse(client.attached or (attempt / "host-result.json").exists())
+                self.assertLess(client.calls.index(("container", "inspect", CID)),
+                                client.calls.index(("container", "rm", CID)))
+
+    def test_lost_create_in_flight_or_ambiguous_identity_stays_unknown(self):
+        for problem in ("not visible", "two CIDs", "other image", "other argv", "other nonce"):
+            with self.subTest(problem=problem), tempfile.TemporaryDirectory() as tmp:
+                attempt = Path(tmp).resolve()
+                client = Daemon(attempt, self.inspect())
+                client.interrupted_create = True
+                if problem == "not visible":
+                    client.recovery_listing = b""
+                elif problem == "two CIDs":
+                    client.recovery_listing = f"{CID}\n{FOREIGN_CID}\n".encode()
+                elif problem == "other image":
+                    client.row["Image"] = "sha256:" + "a" * 64
+                elif problem == "other argv":
+                    client.row["Args"] = ["/bin/false"]
+                else:
+                    client.row["Config"]["Labels"][S.NONCE_LABEL] = "a" * 32
+                with self.assertRaisesRegex(InterruptedError, "lost create response"):
+                    S.execute_owned(client, attempt, self.meta, lambda: None)
+                hold = S.C.json_body((attempt / "host-HOLD.json").read_bytes(), canonical=True)
+                self.assertEqual((hold["disposition"], hold["cid"], hold["container_removed"]), ("UNKNOWN", None, False))
+                self.assertFalse(client.attached or client.removed)
+                self.assertFalse(any(call[:2] in (("container", "rm"), ("container", "stop")) for call in client.calls))
+                if problem == "not visible":
+                    self.assertEqual(sum(call[:2] == ("container", "ls") for call in client.calls), S.RECOVERY_PROBES)
 
     def test_oom_exit_cannot_be_natural(self):
         client = self.fake_daemon(exit_code=137)
@@ -299,6 +356,18 @@ class FullSiteTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "scope"):
             S.attempt_meta(self.site, self.handoff, self.plan, "/user.slice/other.scope", self.attempt,
                            AUTHORITY_SHA, SITE_SHA)
+
+    def test_current_owning_scope_requires_exact_cancellation_grace(self):
+        properties = f"ControlGroup={GROUP}\nKillMode=control-group\nKillSignal=15\nSendSIGKILL=yes\n".encode()
+        unit = b'o "/org/freedesktop/systemd1/unit/full_2escope"\n'
+        grace = f"t {S.SCOPE_STOP_GRACE_SECONDS * 1_000_000}\n".encode()
+        with patch.object(Path, "read_text", return_value=f"0::{GROUP}\n"):
+            with patch.object(S.OLD, "run_bounded", side_effect=(properties, unit, grace)) as read:
+                self.assertEqual(S.owning_group(), GROUP)
+                self.assertIn("TimeoutStopUSec", read.call_args.args[0])
+            with patch.object(S.OLD, "run_bounded", side_effect=(properties, unit, b"t 10000000\n")):
+                with self.assertRaisesRegex(ValueError, "stop grace"):
+                    S.owning_group()
 
     def test_result_clone_is_private_distinct_and_reverified(self):
         (self.root / "templates").mkdir(mode=0o700)
