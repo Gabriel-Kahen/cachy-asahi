@@ -43,11 +43,33 @@ test "$(git ls-remote https://github.com/Gabriel-Kahen/cachy-asahi.git \
     --repo Gabriel-Kahen/cachy-asahi --ref "$ref" -f "source_commit=$commit"
 ```
 
-The pair workflow's scope ends with build and comparison. Its cleanup removes
-the private archives. Installed Check needs a same-job disposable runtime
-that consumes the verified package before cleanup and installs all runtime
-dependencies without waivers. The historical 4.4.2-2 result, documented in
-[the October 15 validation record](updater-real-check-native-20261015.md), is
-version-specific. The 4.4.2-3 build pair, signed disposable installation,
-emulated and physical 16 KiB execution, full updater transaction and release
-acceptance are pending.
+## Source and host results
+
+On the x86_64 development host, the pinned materializer reproduced the
+original, sanitized and vendor archive hashes from 167 locked registry
+sources and the upstream source archive. Private recipe verification with
+`makepkg --verifysource --ignorearch --nodeps` passed all 23 checksums.
+`makepkg --nobuild --ignorearch --nodeps` extracted the inputs, ran both
+zero-fuzz patches through `prepare()`, and produced a tree that matched
+all 98 patched-source entries. The generated `.SRCINFO` matched the
+committed file. The host ran 54 patched-behavior cases, 47 Apple-policy
+cases and 216 native controller source controls. This evidence covers the
+recipe inputs and preparation. Native `makepkg check()` is pending.
+
+## Installed Check
+
+The [installed Check harness](../../scripts/ci/updater-optional-check/README.md)
+documents its source preflight and exact invocation within a future native job.
+Its four source controls passed, including all eight optional-backend cases
+against the patched upstream Check entry with inert command fixtures.
+A future installed trial combines those cases with the seven historical signed
+repository and refusal cases.
+
+The pair workflow cleans up the private image and package as it exits. An
+installed Check dispatch requires a reviewed same-job hook before that cleanup
+and runner-readable authenticated inputs. All five runtime archive/signature
+pairs and the ALARM keyring have local byte copies matching the historical
+input lock. The [4.4.2-2 native results](updater-real-check-native-20261015.md)
+apply to the historical package. The 4.4.2-3 native pair, signed disposable
+installation, emulated and physical 16 KiB execution, full updater
+transaction and release acceptance are pending.
