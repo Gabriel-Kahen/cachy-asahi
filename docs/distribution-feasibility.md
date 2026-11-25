@@ -12,6 +12,17 @@ Current implementation route: start with the existing-Asahi overlay, then delive
 
 This evidence supports the overlay as the first delivery stage and a foundation for expanded ARM builds. It does not establish a sustainable full port or official upstream affiliation. Any resource shortfall remains an owned blocker to the long-term goal.
 
+## November 25 package coverage replay
+
+The retained generic ARM metadata resolves 45 desktop roots across 574
+packages. The retained Asahi metadata replay resolved 60 proposed roots and
+four provider bindings across 629 packages after the three proposed maintenance
+updates and addition of the five Preview 1 archives. This composition remains
+unapproved. The proposed inventory still needs a decision on the applicable
+management and shell candidates, the FDK provider for `pipewire-audio`, and the
+exact protected audio and graphics versions. Archive authentication and
+corresponding-source review must follow selection. [Composition tooling](../scripts/port/supported-composition/README.md)
+
 ## Required feasibility audit
 
 | Area | Evidence to collect | Owner / next action |
