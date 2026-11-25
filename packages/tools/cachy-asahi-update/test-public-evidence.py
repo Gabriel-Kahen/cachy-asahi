@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """Receipt projection tests; temp data only, no build/container operations."""
-import ast
-import re
 import importlib.util
 import copy
 import hashlib
@@ -836,19 +834,15 @@ class MakepkgObservationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         DiagnosticTests.setUpClass.__func__(cls)
-        path=BASE.parents[2]/'scripts/port/updater-native-stage/stage.py'
-        tree=ast.parse(path.read_bytes())
-        names={'native_diagnostic_need','native_diagnostic_encoded','native_diagnostic_nullable_hash',
-               'native_diagnostic_command','native_diagnostic_makepkg','native_diagnostic'}
-        nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in names or
-               isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id.startswith('NATIVE_DIAGNOSTIC_') for t in n.targets)]
-        scope=dict(json=json,re=re,need=lambda value, _reason: public.need(value))
-        exec(compile(ast.Module(nodes,type_ignores=[]),'finite-stage-diagnostic-projector','exec'),scope)
-        cls.stage=staticmethod(scope['native_diagnostic'])
 
     record=DiagnosticTests.record
 
-    def validators(self):return (self.helper.validate,public.diagnostic,self.stage)
+    def validators(self):
+        # The stage and workflow consume the authenticated projector's selectors.
+        selectors = {name: validate for _, name, validate in public.selectors()}
+        self.assertIs(selectors['build-1-diagnostic.json'], public.diagnostic)
+        self.assertIs(selectors['build-2-diagnostic.json'], public.diagnostic)
+        return self.helper.validate, selectors['build-1-diagnostic.json']
 
     def test_old17_new18_and_all_closed_phase_event_code_combinations(self):
         original=self.record(); old=copy.deepcopy(original);old.pop('makepkg')

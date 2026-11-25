@@ -688,27 +688,21 @@ class UnitDiagnosticTests(unittest.TestCase):
     def test_no_diagnostic_keeps_original_parse_error(self):
         with self.assertRaises(json.JSONDecodeError): worker_build.unit_evidence(b'{', b'', Path('/tmp/target/tray'))
 
-    def test_six_new_codes_survive_real_closed_projectors_without_private_content(self):
-        import re
+    def test_six_new_codes_survive_registered_projector_without_private_content(self):
         base = Path(__file__).parent
         helper = worker_build.module('unit_phase_recorder', base/'worker-diagnostic.py')
         public = worker_build.module('unit_phase_public', base/'public-evidence.py')
-        stage = base.parents[2]/'scripts/port/updater-native-stage/stage.py'
-        tree = ast.parse(stage.read_bytes())
-        names = {'need', 'native_diagnostic_need', 'native_diagnostic_encoded', 'native_diagnostic_nullable_hash', 'native_diagnostic_command', 'native_diagnostic_makepkg', 'native_diagnostic'}
-        nodes = [n for n in tree.body if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name) and n.targets[0].id.startswith('NATIVE_DIAGNOSTIC_') or isinstance(n, ast.FunctionDef) and n.name in names]
-        env = dict(json=json,re=re); exec(compile(ast.Module(body=nodes,type_ignores=[]),'pure-stage-diagnostic-validator','exec'),env)
+        project = {name: validate for _, name, validate in public.selectors()}['build-1-diagnostic.json']
         predicates = ('unit-metadata-json','unit-metadata-fields','unit-compiler-json','unit-event-fields','unit-log-read','unit-receipt-write')
         for predicate in predicates:
             with tempfile.TemporaryDirectory() as folder:
                 rec = helper.Recorder(Path(folder)); rec.operation = 'compile-units'
                 rec.fail(predicate, ValueError('raw/private/source never exported'))
-                row = rec.snapshot(); self.assertEqual(public.diagnostic(row), row); self.assertEqual(env['native_diagnostic'](row), row)
+                row = rec.snapshot(); self.assertEqual(project(row), row)
                 raw = helper.encoded(row); self.assertLessEqual(len(raw),4096); self.assertNotIn(b'raw/private/source',raw)
                 self.assertFalse(row['compilation_accepted']); rec.fail('UNKNOWN', OSError('later')); self.assertEqual(rec.snapshot()['first_failure'],row['first_failure'])
                 bad = copy.deepcopy(row); bad['first_failure']['predicate'] = 'raw/private/source'
-                with self.assertRaises(ValueError): public.diagnostic(bad)
-                with self.assertRaises(ValueError): env['native_diagnostic'](bad)
+                with self.assertRaises(ValueError): project(bad)
 
 
 if __name__ == '__main__':
