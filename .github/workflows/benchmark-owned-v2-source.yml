@@ -37,7 +37,7 @@ jobs:
       - name: Authenticate original finite source without benchmark imports
         run: |
           original="$GITHUB_WORKSPACE/.ci-inputs/original-benchmark-v2"
-          python -I -B "$original/scripts/ci/benchmark-owned-v2/check_source.py" --root "$original"
+          python -I -B "$GITHUB_WORKSPACE/scripts/ci/benchmark-owned-v2/check_source.py" --root "$original"
       - name: Test active plan validation with synthetic captures
         run: python -I -B -Werror::ResourceWarning -m unittest discover -s scripts/benchmarks -p test_benchmark_v2_plan.py
       - name: Record exact source-only scope
