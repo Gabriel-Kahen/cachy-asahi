@@ -157,9 +157,10 @@ class Recovery(unittest.TestCase):
         record['gates']['release_sha256'] = record['release_sha256']
         H.R.write(promotion, record)
         self.resign(promotion)
-        # The unchanged verifier validates actual package/index signatures and
-        # signed metadata, but only the file map carries the actual archive hash.
-        H.R.verify_release(directory, self.key, self.env)
+        # The file map still matches the observed archive, but the claimed
+        # build digest differs. Refuse it in the shared verifier as well.
+        with self.assertRaisesRegex(H.R.Error, 'artifact digest differs from signed file map'):
+            H.R.verify_release(directory, self.key, self.env)
         self.assertEqual(H.R.sha(archive), manifest['files']['repo/' + package['filename']])
         return H.R.sha(release), H.R.sha(promotion)
 
@@ -200,15 +201,10 @@ class Recovery(unittest.TestCase):
         self.failure_preserves_endpoint(lambda: self.recover(False), reason)
         self.failure_preserves_endpoint(self.recover, reason)
 
-    def test_signed_current_lineage_mismatch_refuses_legacy_generation(self):
+    def test_signed_current_lineage_mismatch_refuses_export(self):
         self.pair()
-        plan = self.proposal()
-        plan['current_release_sha256'], _ = self.mismatched_lineage('successor')
-        plan['expected_current'] = self.export()['selection']
-        self.sign(plan)
-        reason = 'artifact digest differs from signed file map'
-        self.failure_preserves_endpoint(self.proposal, reason)
-        self.failure_preserves_endpoint(self.recover, reason)
+        self.mismatched_lineage('successor')
+        self.failure_preserves_endpoint(self.export, 'artifact digest differs from signed file map')
 
     def test_recovery_retains_signed_authorization_and_ordinary_export_is_explicitly_independent(self):
         self.pair()

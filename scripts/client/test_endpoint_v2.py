@@ -176,8 +176,8 @@ class RecoveryEndpointTests(unittest.TestCase):
                 p.verify(self.generation, self.ident, self.keyring, self.producer.key)
 
     def test_lineage_must_reach_the_actual_archive_bytes(self):
-        # The producer fixture can make a signed, old-verifier-valid release whose
-        # archive bytes differ from the digest in the package record and index.
+        # Model a retained output from an older producer. Its observed archive
+        # digest differs from the digest in the package record and index.
         root = self.generation.parent / "lineage-fixture"
         release = root / "stable/previous"
         shutil.copytree(self.generation / "release", release, symlinks=True)

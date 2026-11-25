@@ -444,6 +444,23 @@ class ReleaseTests(unittest.TestCase):
             with self.subTest(field=field), self.assertRaisesRegex(r.Error, error):
                 r.gates_check(self.directory, manifest, specification, gate_path)
 
+    def test_signed_package_digest_must_match_the_observed_archive_digest(self):
+        self.stage()
+        document = self.directory / "release.json"
+        manifest = r.load(document)
+        package = manifest["packages"][0]
+        name = f"repo/{package['filename']}"
+        self.assertEqual(manifest["files"][name], package["sha256"])
+        # Model an observed archive with a different digest while keeping the
+        # test package, its signature and its build provenance intact.
+        manifest["files"][name] = "0" * 64
+        r.write(document, manifest)
+        document.with_suffix(".json.sig").unlink()
+        r.sign(document, self.key, self.env)
+        with mock.patch.object(r, "payload_files", return_value=manifest["files"]):
+            with self.assertRaisesRegex(r.Error, "artifact digest differs from signed file map"):
+                self.verify()
+
     def test_resigned_database_requires_exact_detached_package_signature(self):
         self.stage()
         db = self.directory / "repo/fixture.db.tar.gz"

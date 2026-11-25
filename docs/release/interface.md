@@ -22,7 +22,7 @@ These are examples, not a configured endpoint or an instruction to modify a runn
 
 `promote` verifies and freezes the staged bytes and validated gate object, checks every required gate, signs a separate promotion record, retains a copy under `stable/ID`, and switches `stable/current` by local atomic symlink replacement. It never uploads or publishes. Downgrades of a package present in the preceding selection are rejected.
 
-`verify` requires the signed bundle's release ID to match the requested ID in either channel. In the stable channel, it also verifies that the signed promotion record names that ID and matches the signed release manifest, then rechecks the gates. There is no boolean approval override.
+`verify` requires the signed bundle's release ID to match the requested ID in either channel. Each observed package archive digest must match the signed file map and the digest recorded for its build provenance. In the stable channel, verification also binds the signed promotion record to that release ID and manifest, then rechecks the gates. There is no boolean approval override.
 
 `withdraw` creates a signed local incident record, removes `stable/current` if it names the affected release, and prevents normal verification or subsequent promotion of that ID. It retains every archive and record. It does not regenerate a public endpoint, contact clients, revoke a key, repair installed packages, or automatically select an older base/overlay combination. See [recovery policy](recovery.md).
 

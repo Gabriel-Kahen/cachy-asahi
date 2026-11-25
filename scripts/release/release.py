@@ -386,7 +386,10 @@ def verify_release(directory, key, env):
                 "copied evidence differs from input checksum")
     packages = []
     for recorded in manifest["packages"]:
-        archive = directory / "repo" / recorded["filename"]
+        name = f"repo/{recorded['filename']}"
+        require(name in manifest["files"] and manifest["files"][name] == recorded["sha256"],
+                "artifact digest differs from signed file map")
+        archive = directory / name
         verify_signature(archive, key, env)
         p = pkginfo(archive)
         require(p == {k: recorded[k] for k in p}, "artifact metadata changed")
