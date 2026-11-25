@@ -1,0 +1,60 @@
+name: Native ARM JBIG and TIFF build pairs (#622)
+on:
+  workflow_dispatch:
+    inputs:
+      reviewed_head:
+        description: Full reviewed workflow checkout SHA
+        required: true
+        type: string
+      lane:
+        description: Authenticate inputs only or run both build pairs and the fresh signed lifecycle
+        type: choice
+        required: true
+        default: inputs
+        options:
+          - inputs
+          - native
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-project-libraries-622
+  cancel-in-progress: false
+jobs:
+  pairs:
+    if: >-
+      github.repository == 'Gabriel-Kahen/cachy-asahi' &&
+      github.sha == inputs.reviewed_head && github.workflow_sha == inputs.reviewed_head
+    runs-on: ubuntu-24.04-arm
+    environment: native-622-inputs
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        timeout-minutes: 5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Resolve exact r12 Minimal206 producer
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags --no-recurse-submodules --depth=1 origin refs/heads/codex/llhttp-minimal206-authenticated-source-20261118-r12
+          test "$(git rev-parse FETCH_HEAD)" = 1604862d09fb04e471da03df2e2a98a5c05a77bf
+      - name: Authenticate inputs and execute the selected lane
+        shell: bash
+        timeout-minutes: 79
+        env:
+          PROJECT_LIBRARIES_LANE: ${{ inputs.lane }}
+          PROJECT_LIBRARIES_INPUT_BASE_URL: ${{ secrets.PROJECT_LIBRARIES_INPUT_BASE_URL }}
+          PROJECT_LIBRARIES_INPUT_BEARER_TOKEN: ${{ secrets.PROJECT_LIBRARIES_INPUT_BEARER_TOKEN }}
+          TMPDIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          umask 077
+          case "$PROJECT_LIBRARIES_LANE" in
+            inputs) set -- --inputs-only ;;
+            native) set -- ;;
+            *) exit 2 ;;
+          esac
+          exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/build622.py "$@"
