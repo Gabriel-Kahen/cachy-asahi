@@ -14,7 +14,7 @@ import tempfile
 import types
 
 HERE = Path(__file__).resolve().parent
-LOCK_SHA256 = '83ee503f04e0e13311c38a3b3a8f7fd1742ac1cbf29ecc6a9fca6057bd6afb7e'
+LOCK_SHA256 = '9e5cd1b084373207788019e4644fdc63c9ce758534d3bbd154dbe30311b56643'
 PINS_SHA256 = 'd7a926b22338ab56ed246fbf17a0023b973ba741887d4ebe9dd956d0672d4afe'
 PYTHONS = ((3, 12, 13), (3, 14, 6))
 
@@ -126,7 +126,7 @@ def run(workspace):
     need(before == verify(workspace, selected, pins) and baseline_before == baseline.verify(workspace, baseline_lock),
          'frozen source changed during successor controls')
     totals = {name: sum(s['tests'] for s in suites if s['family'] == name) for name in ('gui-adapter', 'producer')}
-    need(totals == {'gui-adapter': 117, 'producer': 86}, 'exact new frozen suite coverage required')
+    need(totals == {'gui-adapter': 118, 'producer': 86}, 'exact selected suite coverage required')
     return {'status': 'PASS_QT612_SOURCE_CONTROLS_V2_ONLY', 'python': '.'.join(map(str, sys.version_info[:3])),
             'baseline': baseline_result, 'families': before, 'alias': alias, 'suites': suites,
             'tests': 140 + sum(row['tests'] for row in suites), 'skips': 0,

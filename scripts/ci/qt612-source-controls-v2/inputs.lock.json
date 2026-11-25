@@ -1,5 +1,5 @@
 {
-  "catalog_sha256": "0d293f2638a7df667e1c9f9deb981c890eac4c4025a1476b7e7f284d39bc5ced",
+  "catalog_sha256": "8610c93a8260d37785057fcaaad597cf63881fc760acb81ec82b3eede2fadfd8",
   "families": {
     "baseline-ci": {
       "commit": "3305881fdba011be1d0cc28a9d4d4e834b074f85",
@@ -44,7 +44,7 @@
       "path": "scripts/ci/qt612-source-controls"
     },
     "gui-adapter": {
-      "commit": "85626d96a95abc0a29d7239c63b8d522150bcb50",
+      "base_commit": "85626d96a95abc0a29d7239c63b8d522150bcb50",
       "files": {
         "CONTRACTS.DATA.json": {
           "bytes": 7253,
@@ -53,10 +53,10 @@
           "sha256": "96c2c5144037d5a62a5265b68387e5ce1fd95600e439cd92bcfae979a10bc4de"
         },
         "README.md": {
-          "bytes": 8890,
+          "bytes": 9092,
           "kind": "file",
           "mode": 420,
-          "sha256": "7b0f65d68658243f5f67c83763c6f37923259af002a657fc340f77a7e4d98979"
+          "sha256": "5a3e60e361182e47c28544094b49bbf74c7b53491f051813a7ebdaca7a7787b4"
         },
         "UNBOUND.DATA.json": {
           "bytes": 1102,
@@ -92,7 +92,7 @@
           "bytes": 3254,
           "kind": "file",
           "mode": 420,
-          "sha256": "90d5bd017d1994060bd54a2868a255f3ab3f177d1dad92d4bf9ea8702568ba43"
+          "sha256": "218e4d3802380780fdef852ba3532b3d12a904102a37f0fa58ecbbccbea5c864"
         },
         "lifecycle.py": {
           "bytes": 22360,
@@ -107,10 +107,10 @@
           "sha256": "a462ad8e80369cd2488feb2657f81e2647587200218f4e47d27b34ab232f1205"
         },
         "runtime.py": {
-          "bytes": 29033,
+          "bytes": 29265,
           "kind": "file",
           "mode": 420,
-          "sha256": "06c2f48ed2006960d2d3f83ea24ce0c45e52086cbf5ac735e0f07f4a04d1bee7"
+          "sha256": "ac108c6358c1bac816e5ea972cd08778ba54cc689589d79a11037fbba65e7c62"
         },
         "signature-controls.py.DATA": {
           "bytes": 17800,
@@ -149,10 +149,10 @@
           "sha256": "623e651437faf6a4dbc2cf3da65543317efcd29dc65c10823ab20441a874f686"
         },
         "test_runtime.py": {
-          "bytes": 18914,
+          "bytes": 19769,
           "kind": "file",
           "mode": 420,
-          "sha256": "fd780166c27814a47a47ee6ab2ae28018d4783e546fab50a2ec876db87832d2b"
+          "sha256": "a9e76eea98e5397b58212f7432f9eee84c697aa5bc7279fab0e61c4e6dce7aac"
         },
         "test_trust.py": {
           "bytes": 1726,

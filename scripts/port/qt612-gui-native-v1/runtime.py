@@ -116,6 +116,9 @@ def elf(raw):
     need(all(s[2] + s[5] <= len(raw) for s in segments), 'ELF_SEGMENT_BOUNDS')
     loads = [s for s in segments if s[0] == 1]
     need(loads and all(s[5] <= s[6] and s[7] > 0 for s in loads), 'ELF_LOAD_REQUIRED')
+    for _, _, file_offset, address, _, _, _, alignment in loads:
+        need(alignment >= 16384 and alignment & (alignment - 1) == 0
+             and file_offset % alignment == address % alignment, 'AARCH64_ELF_16K_LOAD_GEOMETRY')
     def offset(address, length):
         matches = [s[2] + address - s[3] for s in loads if s[3] <= address and address + length <= s[3] + s[5]]
         need(len(matches) == 1 and length >= 0, 'UNIQUE_FILE_BACKED_ELF_ADDRESS')

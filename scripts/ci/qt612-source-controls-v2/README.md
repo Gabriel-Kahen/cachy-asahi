@@ -7,7 +7,7 @@ frozen DATA adversarials from:
 
 | Family | Original commit | Logical coverage | Additional executions |
 | --- | --- | ---: | ---: |
-| GUI evidence/lifecycle adapter | `85626d96a95abc0a29d7239c63b8d522150bcb50` | 117 | 117 |
+| GUI evidence/lifecycle adapter with external-provider geometry regression | `85626d96a95abc0a29d7239c63b8d522150bcb50` | 118 | 118 |
 | Producer/transport/GUI projection | `663927a694fcfddda56f32c1eff00701a6395a93` | 114 | 86 |
 | Successor I/O boundary | authored here | 1 test / 10 subcases | 1 |
 
@@ -16,7 +16,7 @@ executed by the baseline. The successor verifies **all six copied files**, their
 whole bodies, sizes, modes and complete namespace against that frozen baseline
 before reusing its coverage. Different bytes/modes or a missing alias refuses;
 no changed suite can silently inherit that result. This is explicit duplicate
-coverage reuse, not skipped unittest cases. The route executes **344 tests with
+coverage reuse, not skipped unittest cases. The route executes **345 tests with
 zero skips** on each of Python **3.12.13** and **3.14.6**.
 
 `inputs.lock.json` pins the complete authored families (baseline CI: 6 entries;
