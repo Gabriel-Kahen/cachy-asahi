@@ -332,4 +332,42 @@ class InnerFailureProjectionTests(unittest.TestCase):
                 with self.assertRaises(ValueError): validate(group)
 
 
+
+def relocation_fixture():
+    return {'role': 'arm64-image-reference', 'elf_type': 3, 'branch': 'NULL_LINK_RELATIVE',
+        'failed_check': 'INFO_RELATIVE', 'section': {'index': 3, 'type': 4, 'flags': 2,
+        'link': 0, 'info': 0, 'entry_index': 0}, 'offset': 4097, 'info': 1028,
+        'symbol_count': None, 'target_size': None,
+        'allocated': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 1, 'address': 4096, 'size': 32}},
+        'load': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 0, 'address': 4096, 'size': 32}}}
+
+
+class RelocationValidatorParity(unittest.TestCase):
+    receiver = ChildEvidenceTests.receiver
+    def test_three_independent_validators_refuse_typed_range_and_branch_forgery(self):
+        import inner_result
+        validators=(inner_result._relocation_fact,evidence.validate_relocation_fact,self.receiver().validate_relocation_fact)
+        original=relocation_fixture()
+        for validate in validators:self.assertEqual(validate(copy.deepcopy(original)),original)
+        mutations=[lambda r:r.update(role='secret'),lambda r:r.update(offset=True),
+            lambda r:r.update(info=2**64),lambda r:r.update(elf_type=1),
+            lambda r:r.update(failed_check='ALLOCATED_RANGE'),lambda r:r.update(raw_stderr='secret'),
+            lambda r:r['section'].update(flags=False),lambda r:r['section'].update(type=9),
+            lambda r:r['allocated'].update(full_count=2),lambda r:r['allocated'].update(start_count=0),
+            lambda r:r['load']['first_start'].update(address=8192),
+            lambda r:r['load']['first_start'].update(size=2**64),
+            lambda r:r['load'].update(start_count=2,full_count=2),
+            lambda r:r['allocated'].update(start_count=2,full_count=2,first_start={'index':8191,'address':4096,'size':32}),
+            lambda r:r['section'].update(flags=7),lambda r:r['section'].update(entry_index=2**40)]
+        for mutate in mutations:
+            row=copy.deepcopy(original);mutate(row)
+            for validate in validators:
+                with self.assertRaises(ValueError):validate(row)
+        for validate in (evidence.validate_output_fact,self.receiver().validate_output_fact):
+            fact={'call_boundary':'VERIFY_OUTPUTS','predicate':'CHECK_010','relocation':original}
+            with self.assertRaises(ValueError):validate(fact)
+            self.assertEqual(validate(fact,5),fact)
+            with self.assertRaises(ValueError):validate(dict(fact,predicate='OTHER'),5)
+
+
 if __name__ == '__main__': unittest.main()

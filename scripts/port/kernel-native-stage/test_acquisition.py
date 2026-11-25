@@ -1,6 +1,7 @@
 """Bounded acquisition refusal fixtures; no network/install/compiler invocation."""
 import hashlib
 import io
+import json
 import http.server
 import multiprocessing
 import os
@@ -13,6 +14,78 @@ import tempfile
 import unittest
 from unittest.mock import patch, Mock
 import acquisition as acq
+
+
+class FailureDiagnosticTests(unittest.TestCase):
+    def state(self):
+        return {'binding_sha256': hashlib.sha256(b'a'*32).hexdigest(), 'phase':'ROOT_PREFLIGHT', 'input_ordinal':None, 'failure':None}
+
+    def fixture(self, root):
+        source=Path(acq.__file__).resolve().parents[3]
+        for name in list(acq.PINS)+[acq.PREFIX+'embedded-config.txt']:
+            target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((source/name).read_bytes())
+
+    def test_all35_exact_fetch_ordinals_are_observed_without_network(self):
+        for wanted in range(35):
+            with self.subTest(ordinal=wanted),tempfile.TemporaryDirectory() as directory:
+                root=Path(directory);self.fixture(root);state=self.state();calls=[]
+                first=ValueError('HTTP acquisition failed: private=/home/secret token=NEVER_EXPORT')
+                def fetch(item,*args):
+                    ordinal=len(calls);calls.append(item['filename'])
+                    if ordinal==wanted:raise first
+                    return {'filename':item['filename']}
+                with patch.object(acq,'fetch',side_effect=fetch),patch.object(acq,'http_download',side_effect=AssertionError('network forbidden')):
+                    with self.assertRaises(ValueError) as caught:acq.acquire(root,root/'artifacts/kernel-native-stage/test',diagnostic=state)
+                self.assertIs(caught.exception,first);record=state['failure']
+                expected='PACKAGE_FETCH' if wanted<30 else 'ARCHIVE_FETCH' if wanted==30 else 'PATCH_FETCH' if wanted==31 else 'KEY_FETCH'
+                self.assertEqual((record['phase'],record['input_ordinal'],record['refusal']),(expected,wanted,'HTTP_CHILD'))
+                self.assertEqual(len(calls),wanted+1);self.assertNotIn('secret',str(record));self.assertLess(len(json.dumps(record)),512)
+
+    def test_preflight_and_source_pins_are_not_relaxed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);self.fixture(root);name=next(iter(acq.PINS));(root/name).write_bytes(b'changed')
+            state=self.state()
+            with patch.object(acq,'fetch',side_effect=AssertionError('fetch after source refusal')):
+                with self.assertRaisesRegex(ValueError,'frozen acquisition source differs') as caught:
+                    acq.acquire(root,root/'artifacts/kernel-native-stage/test',diagnostic=state)
+            acq.diagnostic_failure(state,caught.exception)
+            self.assertEqual(state['failure']['phase'],'SOURCE_PINS');self.assertEqual(state['failure']['refusal'],'SOURCE_PIN')
+
+    def test_dispatcher_failure_footer_is_closed_and_original_exception_is_held(self):
+        import contextlib
+        first=ValueError('input size/hash differs');stdout=io.StringIO()
+        argv=['acquisition','--root','/owned','--output','/owned/new','--diagnostic-nonce','a'*32]
+        with patch.object(sys,'argv',argv),patch.object(acq,'acquire',side_effect=first),contextlib.redirect_stdout(stdout):
+            with self.assertRaises(ValueError) as caught:acq.main()
+        self.assertIs(caught.exception,first);lines=stdout.getvalue().splitlines();self.assertEqual(len(lines),1)
+        self.assertTrue(lines[0].startswith(acq.DIAGNOSTIC_PREFIX));record=json.loads(lines[0][len(acq.DIAGNOSTIC_PREFIX):])
+        self.assertEqual(record['refusal'],'SIZE_HASH');self.assertEqual(record['binding_sha256'],hashlib.sha256(b'a'*32).hexdigest())
+        self.assertNotIn('/owned',lines[0]);self.assertNotIn('a'*32,lines[0])
+
+    def test_footer_write_failure_preserves_primary_and_secondary_control(self):
+        first=ValueError('input size/hash differs');control=KeyboardInterrupt();prior=RuntimeError('prior');first.__cause__=prior
+        argv=['acquisition','--root','/owned','--output','/owned/new','--diagnostic-nonce','a'*32]
+        with patch.object(sys,'argv',argv),patch.object(acq,'acquire',side_effect=first),patch('builtins.print',side_effect=control):
+            with self.assertRaises(ValueError) as caught:acq.main()
+        self.assertIs(caught.exception,first);self.assertEqual(first.__cause__.exceptions,(prior,control))
+
+    def test_success_and_direct_control_emit_no_diagnostic(self):
+        import contextlib
+        argv=['acquisition','--root','/owned','--output','/owned/new','--diagnostic-nonce','a'*32]
+        for result in ({'owned':'success'},KeyboardInterrupt(),SystemExit(9)):
+            stdout=io.StringIO()
+            with patch.object(sys,'argv',argv),patch.object(acq,'acquire',side_effect=result if isinstance(result,BaseException) else None,return_value=result),contextlib.redirect_stdout(stdout):
+                if isinstance(result,BaseException):
+                    with self.assertRaises(type(result)) as caught:acq.main()
+                    self.assertIs(caught.exception,result);self.assertEqual(stdout.getvalue(),'')
+                else:self.assertEqual(acq.main(),0);self.assertNotIn(acq.DIAGNOSTIC_PREFIX,stdout.getvalue())
+
+    def test_failure_context_is_first_and_refusal_strings_stay_private(self):
+        state=self.state();acq.diagnostic_phase(state,'PACKAGE_FETCH',7)
+        for error in (OSError('private /home/key'),ValueError('HTTP acquisition failed: password=secret')):
+            acq.diagnostic_failure(state,error)
+        self.assertEqual(state['failure']['error_kind'],'IO');self.assertEqual(state['failure']['refusal'],'UNKNOWN')
+        self.assertEqual(state['failure']['input_ordinal'],7);self.assertNotIn('private',str(state['failure']))
 
 
 class DelayedResponse(io.BytesIO):

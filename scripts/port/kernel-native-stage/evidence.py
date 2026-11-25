@@ -49,6 +49,179 @@ INNER_PUBLIC_KEYS = frozenset(('schema_version', 'binding_sha256', 'phase', 'com
     'natural_return', 'first_failure', 'cleanup_failure', 'cancelled', 'write_failed'))
 
 
+
+
+CONFIG_STAGES = frozenset(('BEFORE_CONFIG_PARSE', 'AFTER_CONFIG_PARSE', 'DELTA_COMPARE'))
+
+
+def config_sha(value):
+    return type(value) is str and re.fullmatch('[0-9a-f]{64}', value) is not None
+
+
+def validate_config_fact(value):
+    keys = {'stage', 'before_parsed_sha256', 'after_parsed_sha256', 'difference_count',
+            'unexpected_count', 'difference_keys_sha256', 'first_unexpected', 'rust_capability_mismatch'}
+    need(type(value) is dict and set(value) == keys and type(value['stage']) is str and value['stage'] in CONFIG_STAGES)
+    for name in ('before_parsed_sha256', 'after_parsed_sha256', 'difference_keys_sha256'):
+        need(value[name] is None or config_sha(value[name]))
+    if value['stage'] != 'DELTA_COMPARE':
+        need(value['after_parsed_sha256'] is None and value['difference_keys_sha256'] is None and
+              value['difference_count'] is value['unexpected_count'] is value['first_unexpected'] is
+              value['rust_capability_mismatch'] is None)
+        need(value['before_parsed_sha256'] is None if value['stage'] == 'BEFORE_CONFIG_PARSE'
+              else config_sha(value['before_parsed_sha256']))
+        return value
+    need(config_sha(value['before_parsed_sha256']) and config_sha(value['after_parsed_sha256']) and
+          config_sha(value['difference_keys_sha256']) and type(value['difference_count']) is int and
+          type(value['unexpected_count']) is int and 0 <= value['unexpected_count'] <= value['difference_count'] <= 131072 and
+          type(value['rust_capability_mismatch']) is bool)
+    first = value['first_unexpected']
+    if value['unexpected_count'] == 0:
+        need(first is None)
+        return value
+    need(type(first) is dict and set(first) == {'key', 'key_sha256', 'before', 'after',
+          'before_present', 'after_present', 'truncated'} and config_sha(first['key_sha256']))
+    need(all(type(first[name]) is bool for name in ('before_present', 'after_present', 'truncated')))
+    key = first['key']
+    need(key is None and first['truncated'] or type(key) is str and len(key) <= 128 and
+          re.fullmatch('CONFIG_[A-Za-z0-9_]+', key) and hashlib.sha256(key.encode()).hexdigest() == first['key_sha256'])
+    for name in ('before', 'after'):
+        item = first[name]
+        need(item is None or type(item) is str and len(item) <= 96 and all(32 <= ord(c) < 127 for c in item))
+        need(item is None if not first[name + '_present'] else item is not None or first['truncated'])
+    return value
+
+
+def compiler_sha(value):
+    return type(value) is str and re.fullmatch("[0-9a-f]{64}", value) is not None
+
+COMPILER_OUTPUT_LIMIT = 8 * 1024 ** 2
+COMPILER_LINE_LIMIT = 131072
+COMPILER_LINE_BYTES = 4096
+COMPILER_TEXT_BYTES = 192
+COMPILER_PRIVATE_WORDS = ('password', 'passwd', 'secret', 'token', 'authorization', 'bearer', 'api_key', 'api-key', 'privatekey', 'private_key', 'private-key', 'private key', 'access_key', 'access-key', 'access key', 'cookie', 'credential')
+COMPILER_SOURCE_PREFIX = '/tmp/artifacts/kernel-candidates/trial/source-tree/linux-asahi-7.1.13-3/'
+COMPILER_SCAN = frozenset(('COMPLETE', 'LINE_CAP', 'LINE_LENGTH_CAP'))
+COMPILER_SOURCE_ROOTS = frozenset(('arch', 'drivers', 'include', 'kernel', 'mm', 'fs', 'net', 'lib', 'block', 'security', 'crypto', 'sound', 'virt', 'init', 'rust', 'scripts'))
+RUST_CODES = {'E0425': 'RUST_UNRESOLVED_NAME', 'E0432': 'RUST_UNRESOLVED_IMPORT', 'E0433': 'RUST_UNRESOLVED_PATH', 'E0308': 'RUST_TYPE_MISMATCH', 'E0277': 'RUST_TRAIT_BOUND', 'E0609': 'RUST_UNKNOWN_FIELD', 'E0599': 'RUST_MISSING_METHOD', 'E0658': 'RUST_UNSTABLE_FEATURE', 'E0635': 'RUST_UNKNOWN_FEATURE', 'E0463': 'RUST_MISSING_CRATE', 'E0583': 'RUST_MISSING_MODULE'}
+COMPILER_C_CATEGORIES = frozenset(('MISSING_HEADER', 'UNDECLARED_IDENTIFIER', 'IMPLICIT_DECLARATION', 'INCOMPATIBLE_POINTER', 'TYPE_MISMATCH', 'UNSUPPORTED_OPTION', 'INTERNAL_COMPILER_ERROR', 'LINK_UNDEFINED_REFERENCE', 'DTC_ERROR', 'RESOURCE_MARKER', 'MAKE_ERROR', 'OTHER_ERROR'))
+COMPILER_CATEGORIES = COMPILER_C_CATEGORIES | frozenset(RUST_CODES.values()) | {'RUST_OTHER_CODE'}
+
+def validate_compiler_location(value):
+    need(type(value) is dict and set(value) == {'path', 'line', 'column'})
+    path = value['path']
+    need(type(path) is str and 0 < len(path) <= 128 and (re.fullmatch('[A-Za-z0-9_./+-]+', path) is not None) and (path.split('/')[0] in COMPILER_SOURCE_ROOTS) and (len(path.split('/')) >= 2) and all((part not in ('', '.', '..') for part in path.split('/'))) and (not any((word in path.lower() for word in COMPILER_PRIVATE_WORDS))))
+    need(type(value['line']) is int and 1 <= value['line'] <= 10000000 and (value['column'] is None or (type(value['column']) is int and 1 <= value['column'] <= 1000000)))
+    return value
+
+def validate_compiler_span(value, total):
+    need(type(value) is dict and set(value) == {'category', 'error_code', 'location', 'offset', 'bytes', 'sha256', 'text', 'text_truncated'})
+    need(type(value['category']) is str and value['category'] in COMPILER_CATEGORIES)
+    code = value['error_code']
+    if code is None:
+        need(value['category'] in COMPILER_C_CATEGORIES)
+    else:
+        need(type(code) is str and re.fullmatch('E[0-9]{4}', code) is not None and (value['category'] == RUST_CODES.get(code, 'RUST_OTHER_CODE')))
+    if value['location'] is not None:
+        validate_compiler_location(value['location'])
+    need(type(value['text_truncated']) is bool)
+    text = value['text']
+    need(text is None and (not value['text_truncated']) or (type(text) is str and 0 < len(text) <= COMPILER_TEXT_BYTES and all((32 <= ord(c) < 127 for c in text)) and (not any((word in text.lower() for word in COMPILER_PRIVATE_WORDS))) and ('://' not in text) and ('/home/' not in text.lower()) and ('/root/' not in text.lower()) and (not value['text_truncated'] or len(text) == COMPILER_TEXT_BYTES)))
+    need(type(value['offset']) is int and 0 <= value['offset'] < total and (type(value['bytes']) is int) and (1 <= value['bytes'] <= COMPILER_LINE_BYTES) and (value['offset'] + value['bytes'] <= total) and compiler_sha(value['sha256']))
+    return value
+
+def validate_compiler_fact(value):
+    need(type(value) is dict and set(value) == {'return_code', 'output_bytes', 'output_sha256', 'log_sha256', 'scan_status', 'matched_lines', 'first', 'last'})
+    need(type(value['return_code']) is int and -64 <= value['return_code'] <= 255 and (value['return_code'] != 0))
+    need(type(value['output_bytes']) is int and 0 <= value['output_bytes'] <= COMPILER_OUTPUT_LIMIT and compiler_sha(value['output_sha256']) and compiler_sha(value['log_sha256']) and (value['output_sha256'] == value['log_sha256']))
+    need(type(value['scan_status']) is str and value['scan_status'] in COMPILER_SCAN and (type(value['matched_lines']) is int) and (0 <= value['matched_lines'] <= COMPILER_LINE_LIMIT) and (value['matched_lines'] <= value['output_bytes']))
+    if value['matched_lines'] == 0:
+        need(value['first'] is value['last'] is None)
+    else:
+        first, last = (validate_compiler_span(value[name], value['output_bytes']) for name in ('first', 'last'))
+        need(first == last if value['matched_lines'] == 1 else first['offset'] + first['bytes'] <= last['offset'])
+    need(value['scan_status'] == 'COMPLETE' or value['output_bytes'] > 0)
+    return value
+
+OUTPUT_PREDICATES = frozenset((*(f'CHECK_{n:03d}' for n in range(1, 114)),
+    'ELF_FILE_SECTION', 'ELF_SYMBOL_MISSING', 'IMAGE_SECTION_CONTENT',
+    'GENERATED_CONFIG_DIFFERENCE', 'OTHER',
+    'CHECK_001_ALIGN_MIN', 'CHECK_001_ALIGN_POWER_TWO', 'CHECK_001_VA_ALIGN', 'CHECK_001_PA_ALIGN', 'CHECK_001_VA_16K', 'CHECK_001_PA_16K', 'CHECK_001_PERMISSIONS', 'CHECK_001_MEMORY_SIZE',
+    'CHECK_001_PERMISSIONS_RWX', 'CHECK_001_PERMISSIONS_OTHER',
+    'CHECK_002_IMAGE_REFERENCE_TYPE_RELA', 'CHECK_002_IMAGE_REFERENCE_ENTRY_SIZE', 'CHECK_002_IMAGE_REFERENCE_SIZE_MULTIPLE', 'CHECK_002_IMAGE_REFERENCE_SYMBOL_TABLE_TYPE', 'CHECK_002_IMAGE_REFERENCE_TARGET_INDEX', 'CHECK_002_RELOCATABLE_TYPE_RELA', 'CHECK_002_RELOCATABLE_ENTRY_SIZE', 'CHECK_002_RELOCATABLE_SIZE_MULTIPLE', 'CHECK_002_RELOCATABLE_SYMBOL_TABLE_TYPE', 'CHECK_002_RELOCATABLE_TARGET_INDEX', 'CHECK_002_RELOCATABLE_MODULE_TARGET', 'CHECK_002_ELF_TYPE_RELA', 'CHECK_002_ELF_ENTRY_SIZE', 'CHECK_002_ELF_SIZE_MULTIPLE', 'CHECK_002_ELF_SYMBOL_TABLE_TYPE', 'CHECK_002_ELF_TARGET_INDEX'))
+
+
+
+def validate_relocation_fact(value):
+    """Closed numeric CHECK_010 operands; schema5 only, never text or raw ELF."""
+    need(type(value) is dict and set(value) == {'role', 'elf_type', 'branch', 'failed_check',
+         'section', 'offset', 'info', 'symbol_count', 'target_size', 'allocated', 'load'})
+    def uint(item, maximum=2**64 - 1):
+        need(type(item) is int and 0 <= item <= maximum)
+    need(type(value['role']) is str and value['role'] in ('elf', 'arm64-image-reference'))
+    need(type(value['elf_type']) is int and value['elf_type'] in (1, 2, 3))
+    need(value['role'] != 'arm64-image-reference' or value['elf_type'] in (2, 3))
+    need(type(value['branch']) is str and value['branch'] in ('NULL_LINK_RELATIVE', 'LINKED_SYMBOL'))
+    need(type(value['failed_check']) is str)
+    section = value['section']
+    need(type(section) is dict and set(section) == {'index', 'type', 'flags', 'link', 'info', 'entry_index'})
+    for key in ('index', 'link', 'info'): uint(section[key], 8191)
+    need(section['index'] > 0 and type(section['type']) is int and section['type'] == 4)
+    uint(section['flags']); need(not (section['flags'] & 1 and section['flags'] & 4))
+    file_cap = (1 if value['elf_type'] == 1 else 4) * 1024**3
+    uint(section['entry_index'], file_cap // 24 - 1)
+    uint(value['offset']); uint(value['info'])
+    def ranges(item, cap, section_range=False):
+        need(type(item) is dict and set(item) == {'start_count', 'full_count', 'first_start'})
+        uint(item['start_count'], cap); uint(item['full_count'], cap)
+        need(item['full_count'] <= item['start_count'])
+        first = item['first_start']
+        if item['start_count'] == 0:
+            need(first is None)
+        else:
+            need(type(first) is dict and set(first) == {'index', 'address', 'size'})
+            uint(first['index'], cap - 1); uint(first['address']); uint(first['size'])
+            need(item['start_count'] <= cap - first['index'])
+            need(not section_range or first['index'] > 0)
+            need(first['address'] <= value['offset'] < first['address'] + first['size'] <= 2**64)
+            fits = value['offset'] + 8 <= first['address'] + first['size']
+            need(not fits or item['full_count'] > 0)
+            need(item['full_count'] != item['start_count'] or fits)
+        return item['full_count']
+    if value['branch'] == 'NULL_LINK_RELATIVE':
+        need(value['role'] == 'arm64-image-reference' and value['elf_type'] in (2, 3) and
+             section['link'] == section['info'] == 0 and section['flags'] & 2 and
+             value['symbol_count'] is value['target_size'] is None)
+        allocated = ranges(value['allocated'], 8192, True)
+        load = ranges(value['load'], 64)
+        need(value['load']['start_count'] <= 1)
+        expected = 'INFO_RELATIVE' if value['info'] != 1027 else 'ALLOCATED_RANGE' if not allocated else 'LOAD_RANGE'
+        need(value['info'] != 1027 or not allocated or not load)
+    else:
+        need(section['link'] > 0 and value['allocated'] is value['load'] is None)
+        uint(value['symbol_count'], file_cap // 24)
+        if value['elf_type'] == 1:
+            need(section['info'] > 0); uint(value['target_size'])
+        else:
+            need(value['target_size'] is None)
+        symbol_invalid = value['info'] >> 32 >= value['symbol_count']
+        expected = 'SYMBOL_INDEX' if symbol_invalid else 'MODULE_OFFSET'
+        need(symbol_invalid or value['elf_type'] == 1 and value['offset'] >= value['target_size'])
+    need(value['failed_check'] == expected)
+    return value
+
+
+def validate_output_fact(value, version=4):
+    need(type(version) is int and version in (4, 5) and type(value) is dict and
+         set(value) == ({'call_boundary', 'predicate', 'relocation'} if version == 5 else {'call_boundary', 'predicate'}))
+    need(type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS')
+    need(type(value['predicate']) is str and value['predicate'] in OUTPUT_PREDICATES)
+    if version == 5:
+        need(value['predicate'] == 'CHECK_010')
+        validate_relocation_fact(value['relocation'])
+    return value
+
+
 def validate_inner_group(group):
     need(type(group) is dict and set(group) == {'availability', 'reason', 'raw_sha256', 'diagnostic'})
     availability = group['availability']
@@ -61,7 +234,8 @@ def validate_inner_group(group):
         return group
     need(pin is not None)
     row = group['diagnostic']
-    need(type(row) is dict and set(row) == INNER_PUBLIC_KEYS and type(row['schema_version']) is int and row['schema_version'] == 1)
+    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5))
+    need(set(row) == INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5) else set()))
     need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
     need(type(row['phase']) is str and row['phase'] in INNER_PHASES and type(row['command']) is str and row['command'] in INNER_COMMANDS)
     need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -79,6 +253,19 @@ def validate_inner_group(group):
                 type(failure['command']) is str and failure['command'] in INNER_COMMANDS and
                 type(failure['error_kind']) is str and failure['error_kind'] in INNER_ERRORS)
             need(failure['error_kind'] != 'CANCELLED' or row['cancelled'])
+    if row['schema_version'] == 2:
+        validate_config_fact(row['config_failure'])
+        need(row['first_failure'] is not None and row['first_failure']['phase'] == 'CONFIG_DELTA' and
+             row['first_failure']['command'] == row['command'] == 'CONFIG' and row['attempt'] == 'ISSUED' and
+             row['natural_return'] == {'kind': 'RETURNED', 'code': 0})
+    if row['schema_version'] == 3:
+        validate_compiler_fact(row['compiler_failure'])
+        need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and row['command'] == 'KERNEL' and (row['attempt'] == 'ISSUED') and (row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']}))
+    if row['schema_version'] in (4, 5):
+        validate_output_fact(row['output_failure'], row['schema_version'])
+        need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
+             row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
+             row['natural_return'] == {'kind': 'RETURNED', 'code': 0})
     need(len(json.dumps(row, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()) <= 2048)
     return group
 

@@ -82,6 +82,33 @@ class StageDataTests(unittest.TestCase):
         with patch.object(stage.platform, 'machine', return_value='x86_64'):
             with self.assertRaises(ValueError): stage.ordinary()
 
+    def test_base_receiver_uses_current_input_inventory_and_recipe_pins(self):
+        root = Path(stage.__file__).resolve().parents[3]
+        lock = common.load(root / stage.PREFIX / 'stage.lock.json')
+        inputs_path = root / 'scripts/ci/inputs.lock.json'
+        inputs = common.load(inputs_path, stage.INPUTS_SHA)
+        expected = {row['name'][0]: row['version'][0] for row in inputs['rootfs_packages']}
+        expected.update({row['name']: row['version'] for row in inputs['packages']})
+        packages = self.root / 'packages.lock'
+        packages.write_text(''.join(f'{name} {version}\n' for name, version in sorted(expected.items())))
+        image = 'sha256:' + 'a' * 64
+        bootstrap = self.root / 'bootstrap.json'; result = self.root / 'result.json'
+        common.save(bootstrap, {'status': 'image-provisioned', 'image_id': image,
+                                'packages_lock_sha256': stage.BASE_SHA, 'inputs_sha256': stage.INPUTS_SHA})
+        receipt = {'mode': 'build', 'status': 'native-builds-and-byte-comparison-pass', 'native_build': 'PASS',
+                   'hardware_validation': 'NOT RUN', 'verified_signed_packages': 248,
+                   'reviewed_inputs_sha256': stage.INPUTS_SHA, 'reviewed_recipes_sha256': stage.RECIPES_SHA,
+                   'bootstrap_script_sha256': lock['files']['scripts/ci/native_arm.py']['sha256']}
+        common.save(result, receipt)
+        args = SimpleNamespace(bootstrap=bootstrap, bootstrap_sha256=common.digest(bootstrap),
+                               accepted_result=result, accepted_result_sha256=common.digest(result),
+                               base_packages=packages, inputs=inputs_path, source_commit='b' * 40, image=image)
+        self.assertEqual(stage.accepted_base(args, lock)['package_count'], 341)
+        common.save(result, dict(receipt, reviewed_recipes_sha256='0' * 64))
+        args.accepted_result_sha256 = common.digest(result)
+        with self.assertRaisesRegex(ValueError, 'accepted kernel builder result differs'):
+            stage.accepted_base(args, lock)
+
     def test_isolated_cli_can_load_owned_helpers(self):
         result = subprocess.run([sys.executable, '-I', '-B', stage.__file__, '--help'], capture_output=True, timeout=5)
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -92,7 +119,9 @@ class StageDataTests(unittest.TestCase):
         args = SimpleNamespace(root=self.root, output=base / 'failed-new', source_commit='a' * 40,
                                lock=self.root / 'lock', lock_sha256='b' * 64,
                                accepted_result_sha256='c' * 64, bootstrap_sha256='d' * 64)
-        lock = {'purpose': 'KERNEL-NATIVE-C01', 'base_inventory_sha256': stage.BASE_SHA}
+        lock = {'schema_version': 2, 'purpose': 'KERNEL-NATIVE-C01', 'development_only': True,
+                'base_inventory_sha256': stage.BASE_SHA, 'base_inputs_sha256': stage.INPUTS_SHA,
+                'recipes_sha256': stage.RECIPES_SHA}
         with (patch.object(stage, 'ordinary'), patch.object(stage, 'load', return_value=lock),
               patch.object(stage.shutil, 'disk_usage', return_value=SimpleNamespace(free=8 * 1024**3)),
               patch.dict(stage.os.environ, {'GITHUB_SHA': args.source_commit}),
@@ -120,7 +149,9 @@ class ChildCheckpointTests(unittest.TestCase):
             inputs=root / 'inputs', base_packages=root / 'base', image='fixture-image',
             docker=root / 'docker', docker_sha256='e' * 64, endpoint='fixture-endpoint')
         args.inputs.write_bytes(b'inputs'); args.base_packages.write_bytes(b'base')
-        lock = {'purpose': 'KERNEL-NATIVE-C01', 'base_inventory_sha256': stage.BASE_SHA,
+        lock = {'schema_version': 2, 'purpose': 'KERNEL-NATIVE-C01', 'development_only': True,
+            'base_inventory_sha256': stage.BASE_SHA, 'base_inputs_sha256': stage.INPUTS_SHA,
+            'recipes_sha256': stage.RECIPES_SHA,
             'files': {'scripts/ci/native_arm.py': {'sha256': 'f' * 64},
                       stage.PREFIX + 'worker.py': {'sha256': '3' * 64}}}
         checkpoints, calls = [], []
@@ -176,7 +207,7 @@ class ChildCheckpointTests(unittest.TestCase):
         with ExitStack() as stack:
             for name, value in (('ordinary', lambda: None), ('load', load),
                 ('snapshot', lambda *a: root), ('packet', packet), ('Broker', Broker), ('finish', finish),
-                ('module', lambda *a: SimpleNamespace(accepted_base=lambda *a: {}))):
+                ('accepted_base', lambda *a: {})):
                 stack.enter_context(patch.object(stage, name, value))
             stack.enter_context(patch.object(stage.shutil, 'disk_usage', return_value=SimpleNamespace(free=8 * 1024**3)))
             stack.enter_context(patch.object(stage.image, 'commit', commit))

@@ -1,35 +1,32 @@
 # Standalone hosted native kernel job
 
-The current child-diagnostics correction is source implementation pending
-independent review and coordinator rebind; see
-[the exact diagnostic contract](kernel-child-diagnostics-correction.md).
-Actual run 38270726379 accepted the original producer and acquisition, then
-failed at `kernel/KERNEL_EXIT`. Its schema-3 record retains cleanup FAIL,
-baseline preservation/owned absence UNVERIFIED, and no established child
-compiler invocation. The first child predicate is unknown. This correction
-does not reinterpret that trial or change cleanup timers.
+The kernel trial selects the 341-package inventory derived from the current
+signed input lock and the four recipes in this checkout. Its fifteen signed
+kernel dependency additions produce an exact 356-package inventory. This is a
+development build configuration. Native build-pair acceptance, boot,
+installation, M2 hardware and performance remain open.
 
-The earlier baseline-preservation correction was source implementation pending
-independent review and coordinator rebind. Historical run 38253531983 executed
-commit `dcc170af543f3238f33efc0c623811d6620affaa` with the 115-file packet
-`afdb5a4947acf71e511fe1266921d68149561aedb4ec5b030e841112e827d9e2` and
-failed at `source/DAEMON_OCCUPIED`, before either child ran. The old guard
-short-circuited image inventory and used the same fallback for query failures;
-that evidence does not establish image/container counts or preservation.
-Its resource readings passed the initial guards. Original producer execution
-did not run in that first trial. Both full kernel compilations remain unaccepted;
-kernel execution, installation and M2 validation remain NOT RUN; performance
-remains NOT MEASURED.
-The old 130-test/schema 2/kernel24 e47/job115 afdb evidence remains historical.
-The new six source/test candidates and two guides are not authenticated by those
-old locks. Original producer, platform tuple, recipes, workflow, packet.py,
-locks and Git are unchanged by this correction. See the selected
-[baseline contract](kernel-daemon-baseline-proposal.md) and historical
-[API/start compatibility record](kernel-docker-compatibility.md).
+Run [38690790542](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38690790542)
+recorded baseline build command exit 0 and output verification failure at
+`CHECK_010`. The candidate did not run. Run
+[38712796442](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38712796442)
+later recorded the precise failed check: `INFO_RELATIVE` at entry index 3 in
+a null-linked, allocated Image RELA section, with `r_info = 0` and
+`r_offset = 0`. The pinned ARM64 relocator skips type-zero entries. The
+verifier now accepts that Image RELA no-op, checks all eight bytes of each
+writing RELA or RELR destination, and includes both relocation tables in
+the full ELF-to-Image byte comparison.
+
+Pinned public mirror URLs return HTTP 404 for the bubblewrap, jbigkit and
+libtiff archive/signature pairs in the 341-package input lock and for eight
+pairs in the kernel extension: clang, compiler-rt, libgit2, libxslt, lld,
+llvm, rust and rust-src. The hosted job needs custody of the exact retained
+objects or a reviewed replacement baseline before execution can qualify the
+pair. [Kernel dependency pins](../../scripts/port/kernel-native-stage/dependencies.json)
 
 The manual [workflow](../../.github/workflows/native-arm-kernel.yml) runs only
 in the public `Gabriel-Kahen/cachy-asahi` repository on `ubuntu-24.04-arm`.
-It grants `contents: read`, uses the existing `native-arm-build` concurrency
+It grants `contents: read`, uses the `native-arm-kernel` concurrency
 group without cancelling prior jobs, pins checkout to
 `3d3c42e5aac5ba805825da76410c181273ba90b1`, and disables persisted credentials.
 There are no artifact/cache upload actions, host package installs, global Docker
@@ -37,30 +34,28 @@ prunes, scheduled runs or hardware acceptance claims.
 
 ## Source and input closure
 
-[packet.py](../../scripts/port/kernel-native-job/packet.py) binds the exact
-71 original recipe files, eight producer/source helpers, the frozen 24-file
-kernel stage and its source lock, original input/recipe locks, and this job's
-Python sources, workflow and guide. Overlap gives 105 fixed existing files;
-new source files are added to the finite closure. The complete map is limited
-to 256 files, 8 MiB per file and 32 MiB total. Directory walks stop at 1,024
-entries/depth 16. Files must be single-link regular files with ordinary directory
-ancestors and mode 0644/0755. Private captured receipts may use mode 0600.
-
-The immutable pins are:
+[packet.py](../../scripts/port/kernel-native-job/packet.py) binds 76 recipe
+files, the producer and its helpers, the 28-file kernel stage, the workflow
+and the job sources. Each source row binds the SHA-256, byte length and
+executable mode. The complete map is limited to 256 files, 8 MiB per file
+and 32 MiB total. Directory walks stop at 1,024 entries and depth 16. Source
+files must be single-link regular files with ordinary directory ancestors
+and mode 0644 or 0755. Private receipts may use mode 0600.
 
 | Input | SHA256 |
 | --- | --- |
-| Original signed inputs | `3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650` |
-| Original four recipes | `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63` |
-| Accepted 341-package inventory | `89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f` |
-| Coordinator-held kernel24 source lock after API/start correction | `e47d873cd1f8ff542ec1ffd3a5de4b51db4d890f28bc6f1dddbc27d989db0d5a` |
-| Separate signed fifteen-package extension | `cf4d6eaa80ab15f1b1359d161b7b07e187f37df6071e5f628e235cb9689a93d6` |
+| Signed builder inputs | `beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f` |
+| Kernel job's four recipes | `56c53699b1c9a493798a071a537ae17d5b892ffa9618ca99a3465985a51fcef8` |
+| 341-package inventory | `fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25` |
+| Fifteen-package extension | `aa5f5580f10256f5749bbc86ec0abc0420981d935f37e84672298fa38d72cfe4` |
 
-The coordinator must rebind and independently review
-`scripts/port/kernel-native-job/packet.lock.json`, commit every included source
-file and register the workflow. The workflow requires the external packet hash
-with no default. The existing `packet.preview(root)` and source fixtures support that proof;
-this correction does not register a new packet, mutate Git or dispatch a job.
+The [kernel recipe lock](../../scripts/port/kernel-native-job/recipes.lock.json)
+tracks the current Hyprland, Setup, Fish and Zsh source. The
+[stage lock](../../scripts/port/kernel-native-stage/stage.lock.json) binds
+the same inputs, recipe lock and inventory. Run `packet.preview(root)` to
+reproduce the [job packet](../../scripts/port/kernel-native-job/packet.lock.json)
+before review. The workflow requires its independently reviewed SHA-256 at
+dispatch.
 
 Before executing repository code, an inline standard-library bootstrap captures
 and authenticates the packet and every source row, compares actual Git blobs and
@@ -89,7 +84,7 @@ a maximum below 1.48, a minimum above 1.48 or a malformed range. It does not
 negotiate a different request version.
 Initial container and image queries run independently with typed bounds.
 Containers must be empty. Existing images are captured as protected borrowed
-baseline B before the unchanged producer starts; failure to observe them is
+baseline B before the producer starts; failure to observe them is
 UNVERIFIED, never an empty population. This is observed preservation on a
 cooperative disposable VM, not enforced isolation against outside writers.
 Require at least 15 GiB reported physical memory, 14 GiB available memory and
@@ -97,21 +92,21 @@ Require at least 15 GiB reported physical memory, 14 GiB available memory and
 Existing Git, GPG, lscpu, zstd, Docker and Python executables are required.
 Missing tools/resources are a visible refusal; no installation fallback runs.
 
-The original producer is executed directly from the verified snapshot:
+The job executes the producer directly from the verified snapshot.
 
 ```text
 /usr/bin/python3 -I -B <snapshot>/scripts/ci/native_arm.py build
   --inputs <snapshot>/scripts/ci/inputs.lock.json
-  --inputs-sha256 <original fixed input hash>
-  --recipes <snapshot>/scripts/ci/recipes.lock.json
-  --recipes-sha256 <original fixed recipe hash>
+  --inputs-sha256 <reviewed input hash>
+  --recipes <snapshot>/scripts/port/kernel-native-job/recipes.lock.json
+  --recipes-sha256 <reviewed recipe hash>
   --cache <private>/alarm-cache --output <private>/producer
 ```
 
 There is no FDK producer override or integration mode. The child has an explicit
 environment, private empty Docker configuration/home, the local endpoint and
-`DOCKER_BUILDKIT=0`. It authenticates the original 501 inputs and builds the
-four original packages twice with byte comparison. The job requires child exit
+`DOCKER_BUILDKIT=0`. It authenticates the 501 pinned inputs and builds the
+four recipes twice with byte comparison. The job requires child exit
 zero and captures the actual bound result/bootstrap/runner/image/inventory/input
 receipts before accepting the base. The original producer's PASS establishes
 those native builds; it does not establish original ARM-C01 experiment lifecycle

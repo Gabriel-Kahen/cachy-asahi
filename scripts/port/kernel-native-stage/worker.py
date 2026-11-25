@@ -67,6 +67,12 @@ def observe(report, operation, *args, deferred=None, **kwargs):
     except Exception:
         # Ordinary diagnostic faults cannot change the original business path.
         row['write_failed'] = True
+    except BaseException as error:
+        # Non-Exception controls are delivered or retained, never swallowed.
+        row.update(write_failed=True, cancelled=True)
+        report.update(status='FAIL', cancelled=True)
+        if deferred is None: raise
+        deferred.append(error)
 
 
 
@@ -103,7 +109,21 @@ def command(runner, report, label, argv, timeout=60):
             observe(report, inner_result.invalidate)
     report['commands'].append({'label': label, 'argv': argv, 'exit': result.returncode,
                               'log_sha256': digest(runner.log_dir / (label + '.log'))})
-    need(result.returncode == 0, 'command failed: ' + label)
+    try:
+        need(result.returncode == 0, 'command failed: ' + label)
+    except BaseException as first:
+        if type(label) is str and label == 'kernel':
+            if type(result) is subprocess.CompletedProcess and type(result.returncode) is int:
+                if result.returncode != 0:
+                    controls = []
+                    observe_failure(report, first, False, controls)
+                    observe(report, inner_result.compiler_failure, result.stdout,
+                            report['commands'][-1]['log_sha256'], deferred=controls)
+                    if controls:
+                        prior_cause = first.__cause__
+                        causes = ([prior_cause] if prior_cause is not None else []) + controls
+                        first.__cause__ = BaseExceptionGroup('compiler diagnostic controls', causes)
+        raise
     return result.stdout
 
 
@@ -166,6 +186,49 @@ def tools(runner, report):
     return result
 
 
+def configuration_delta(verifier, before_path, after_path, policy, report):
+    """Preserve the original two reads, allowlist and failure; add no actor or clock."""
+    before = after = None
+    stage = 'BEFORE_CONFIG_PARSE'
+    try:
+        before = verifier.config(before_path)
+        stage = 'AFTER_CONFIG_PARSE'
+        after = verifier.config(after_path)
+        stage = 'DELTA_COMPARE'
+        return delta_config(before, after, policy)
+    except BaseException as first:
+        controls = []
+        try:
+            observe_failure(report, first, False, controls)
+            observe(report, inner_result.config_failure, stage, before, after, policy, deferred=controls)
+        except BaseException as secondary:
+            row = report.get('inner_diagnostic')
+            if row is not None:
+                row['write_failed'] = True
+                if isinstance(secondary, (Cancelled, KeyboardInterrupt, SystemExit)):
+                    row['cancelled'] = True
+                    report.update(cancelled=True)
+            controls.append(secondary)
+        raise
+
+
+def verify_output_structure(verifier, build, source, config_path, report):
+    """Same verifier call; record only an exact ValueError on the failure path."""
+    try:
+        return verifier.verify_outputs(build, source, config_path)
+    except ValueError as first:
+        if type(first) is not ValueError:
+            raise
+        controls = []
+        observe_failure(report, first, False, controls)
+        observe(report, inner_result.output_failure, first, deferred=controls)
+        if controls:
+            prior = first.__cause__
+            first.__cause__ = BaseExceptionGroup('output diagnostic controls',
+                ([prior] if prior is not None else []) + controls)
+        raise
+
+
 def compile_variant(runner, report, contract, dependencies, action):
     observe(report, inner_result.phase, 'SOURCE')
     held = CODE / SOURCE
@@ -184,12 +247,12 @@ def compile_variant(runner, report, contract, dependencies, action):
     make = ['/usr/bin/make', '-C', str(source), 'O=' + str(build), 'ARCH=arm64',
             'LOCALVERSION=-cachy-asahi-kernel-c01', 'CC=/usr/bin/gcc', 'HOSTCC=/usr/bin/gcc',
             'LD=/usr/bin/ld', 'AS=/usr/bin/as', 'RUSTC=/usr/bin/rustc', 'BINDGEN=/usr/bin/bindgen',
-            'PAHOLE=/usr/bin/pahole', 'CLANG=/usr/bin/clang', 'DTC=/usr/bin/dtc']
+            'PAHOLE=/usr/bin/pahole', 'CLANG=/usr/bin/clang']
     report['source'] = source_result
     observe(report, inner_result.phase, 'CONFIG')
     command(runner, report, 'config', make + ['olddefconfig'], timeout=300)
     observe(report, inner_result.phase, 'CONFIG_DELTA')
-    report['generated_config_delta'] = delta_config(verifier.config(INPUTS / 'embedded-config'), verifier.config(build / '.config'), dependencies['allowed_generated_config_delta'])
+    report['generated_config_delta'] = configuration_delta(verifier, INPUTS / 'embedded-config', build / '.config', dependencies['allowed_generated_config_delta'], report)
     if action == 'candidate':
         observe(report, inner_result.phase, 'PAIRED_CONFIG')
         regular(INPUTS / 'baseline-config', 1024**2)
@@ -199,7 +262,7 @@ def compile_variant(runner, report, contract, dependencies, action):
     observe(report, inner_result.phase, 'KERNEL')
     command(runner, report, 'kernel', make + ['-j2', 'Image', 'modules', 'dtbs'], timeout=7200)
     observe(report, inner_result.phase, 'OUTPUTS')
-    report['structure'] = verifier.verify_outputs(build, source, build / '.config')
+    report['structure'] = verify_output_structure(verifier, build, source, build / '.config', report)
     report['native_kernel_compilation'] = 'PASS'
     report['kernel_execution'] = 'NOT RUN'
 
@@ -259,7 +322,7 @@ def execute(action, nonce=None, contract_sha=None):
                 compile_variant(runner, report, contract, dependencies, action)
         report['status'] = 'PASS'
     except BaseException as error:
-        report.update(status='FAIL', cancelled=isinstance(error, (Cancelled, KeyboardInterrupt)), error_type=type(error).__name__)
+        report.update(status='FAIL', cancelled=report.get('cancelled') is True or isinstance(error, (Cancelled, KeyboardInterrupt, SystemExit)), error_type=type(error).__name__)
         try:
             observe_failure(report, error, False, observation_controls)
         except (Cancelled, KeyboardInterrupt, SystemExit) as error:

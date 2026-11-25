@@ -59,18 +59,21 @@ class PacketTests(unittest.TestCase):
             write(base + '/PKGBUILD', data)
             self.recipes[base] = {'PKGBUILD': packet.sha(data)}
         native = 'scripts/ci/native_arm.py'
-        self.kernel = {'schema_version': 1, 'files': {
-                native: {'sha256': packet.sha(self.contents[native]), 'mode': 0o644}}}
-        write(packet.KERNEL + 'stage.lock.json', self.json_bytes(self.kernel))
-        write('scripts/ci/recipes.lock.json', self.json_bytes(self.recipes))
+        write(packet.RECIPES_LOCK, self.json_bytes(self.recipes))
         write('scripts/ci/inputs.lock.json', self.json_bytes({
                 'source_date_epoch': packet.EPOCH, 'packages': [{} for _ in range(248)]}))
+        self.kernel = {'schema_version': 2, 'purpose': 'KERNEL-NATIVE-C01', 'development_only': True,
+                'base_inputs_sha256': packet.sha(self.contents['scripts/ci/inputs.lock.json']),
+                'base_inventory_sha256': packet.BASE_SHA,
+                'recipes_sha256': packet.sha(self.contents[packet.RECIPES_LOCK]),
+                'files': {native: packet.row(self.contents[native], 0o644)}}
+        write(packet.KERNEL + 'stage.lock.json', self.json_bytes(self.kernel))
         # The self-referential lock is excluded from the packet file set.
         write(packet.PREFIX + 'packet.lock.json', b'{}\n')
         self.helper_pins = {name: (packet.sha(self.contents[name]), (self.root / name).stat().st_mode & 0o777)
                             for name in ('LICENSE', 'AGENTS.md', 'scripts/setup/setup.py', 'scripts/ci/native_arm.py')}
         self.pins = {'HELPERS': self.helper_pins, 'RECIPE_COUNT': 4, 'KERNEL_COUNT': 1, 'KERNEL_SHA': packet.sha(self.contents[packet.KERNEL + 'stage.lock.json']),
-                     'RECIPES_SHA': packet.sha(self.contents['scripts/ci/recipes.lock.json']),
+                     'RECIPES_SHA': packet.sha(self.contents[packet.RECIPES_LOCK]),
                      'INPUTS_SHA': packet.sha(self.contents['scripts/ci/inputs.lock.json'])}
         patcher = mock.patch.multiple(packet, **self.pins)
         patcher.start()
@@ -147,7 +150,7 @@ class PacketTests(unittest.TestCase):
             self.assertFalse(output.exists())
 
     def test_original_locks_must_keep_exact_pins(self):
-        for index, name in enumerate(('scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
+        for index, name in enumerate(('scripts/ci/inputs.lock.json', packet.RECIPES_LOCK,
                                      packet.KERNEL + 'stage.lock.json')):
             path = self.root / name
             path.write_bytes(self.contents[name] + b' ')
@@ -156,6 +159,21 @@ class PacketTests(unittest.TestCase):
                 self.verify(output)
             self.assertFalse(output.exists())
             path.write_bytes(self.contents[name])
+
+    def test_stage_must_bind_same_inputs_and_exact_source_length(self):
+        name = 'scripts/ci/native_arm.py'
+        lock = self.root / packet.KERNEL / 'stage.lock.json'
+        for field, error in (('base_inputs_sha256', 'producer-scope'), ('bytes', 'frozen-kernel-drift')):
+            malformed = copy.deepcopy(self.kernel)
+            if field == 'bytes':
+                malformed['files'][name]['bytes'] += 1
+            else:
+                malformed[field] = 'a' * 64
+            data = self.json_bytes(malformed)
+            lock.write_bytes(data)
+            with self.subTest(field=field), mock.patch.object(packet, 'KERNEL_SHA', packet.sha(data)):
+                with self.assertRaisesRegex(ValueError, error):
+                    packet.preview(self.root)
 
     def test_manifest_pin_duplicate_keys_and_nonfinite_numbers_are_refused(self):
         for data in (self.json_bytes(self.manifest) + b' ',

@@ -18,6 +18,51 @@ class InnerResult(unittest.TestCase):
         value.update(extra)
         return json.dumps(value).encode()
 
+    def test_refused_elf_permission_class_is_closed_and_business_failure_held(self):
+        import evidence
+        prefix = '16K ELF load geometry/permissions required; WX refused'
+        for label in ('PERMISSIONS_RWX', 'PERMISSIONS_OTHER'):
+            row = self.row(); diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL'); diag.returned(row, 0)
+            diag.phase(row, 'OUTPUTS'); error = ValueError(prefix + ' [' + label + ']')
+            diag.failure(row, error); first = copy.deepcopy(row['first_failure']); diag.output_failure(row, error)
+            fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_' + label}
+            self.assertEqual(row['output_failure'], fact); evidence.validate_output_fact(fact)
+            group = diag.capture(self.report(row), BINDING)
+            self.assertEqual(group['availability'], 'VERIFIED')
+            self.assertEqual(group['diagnostic']['output_failure'], fact)
+            diag.failure(row, OSError('/private'), cleanup=True)
+            self.assertEqual(row['first_failure'], first)
+            self.assertNotIn('/private', json.dumps(diag.capture(self.report(row), BINDING)))
+        for label in ('PERMISSIONS_7', 'PERMISSIONS_OTHER /private'):
+            with self.assertRaises(ValueError):
+                evidence.validate_output_fact({'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_' + label})
+
+    def test_check001_closed_conjuncts_preserve_capture_and_privacy(self):
+        import evidence
+        labels = ('ALIGN_MIN', 'ALIGN_POWER_TWO', 'VA_ALIGN', 'PA_ALIGN', 'VA_16K', 'PA_16K', 'PERMISSIONS', 'MEMORY_SIZE')
+        prefix = '16K ELF load geometry/permissions required; WX refused'
+        for label in labels:
+            row = self.row(); diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL'); diag.returned(row, 0)
+            diag.phase(row, 'OUTPUTS'); error = ValueError(prefix + ' [' + label + ']')
+            diag.failure(row, error); first = copy.deepcopy(row['first_failure'])
+            diag.output_failure(row, error)
+            fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_' + label}
+            self.assertEqual(row['output_failure'], fact); evidence.validate_output_fact(fact)
+            group = diag.capture(self.report(row), BINDING); diag.validate_group(group)
+            self.assertEqual(group['availability'], 'VERIFIED')
+            self.assertEqual(group['diagnostic']['output_failure'], fact)
+            diag.failure(row, OSError('/private'), cleanup=True)
+            self.assertEqual(row['first_failure'], first)
+            self.assertEqual(row['natural_return'], {'kind': 'RETURNED', 'code': 0})
+            self.assertNotIn('/private', json.dumps(diag.capture(self.report(row), BINDING)))
+        for code in ('CHECK_001_PRIVATE', 'CHECK_001_VA_16K /private', '/private', True):
+            with self.assertRaises(ValueError):
+                evidence.validate_output_fact({'call_boundary': 'VERIFY_OUTPUTS', 'predicate': code})
+        for text, code in ((prefix, 'CHECK_001'), (prefix + ' [PRIVATE]', 'OTHER')):
+            row = self.row(); diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL'); diag.returned(row, 0)
+            diag.phase(row, 'OUTPUTS'); error = ValueError(text); diag.failure(row, error); diag.output_failure(row, error)
+            self.assertEqual(row['output_failure']['predicate'], code)
+
     def test_frozen_business_and_independent_cleanup(self):
         row = self.row(); diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL')
         diag.returned(row, -15); diag.failure(row, ValueError('command failed: kernel'))
@@ -142,6 +187,52 @@ class InnerResult(unittest.TestCase):
                 diag.failure(row, Cancelled()); diag.failure(row, OSError('private'), cleanup=True)
                 diag.invalidate(row); diag.validate(row)
                 self.assertLessEqual(len(json.dumps(row).encode()), diag.LIMIT)
+
+
+
+def relocation_fixture():
+    return {'role': 'arm64-image-reference', 'elf_type': 3, 'branch': 'NULL_LINK_RELATIVE',
+        'failed_check': 'INFO_RELATIVE', 'section': {'index': 3, 'type': 4, 'flags': 2,
+        'link': 0, 'info': 0, 'entry_index': 0}, 'offset': 4097, 'info': 1028,
+        'symbol_count': None, 'target_size': None,
+        'allocated': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 1, 'address': 4096, 'size': 32}},
+        'load': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 0, 'address': 4096, 'size': 32}}}
+
+
+class RelocationInnerTests(unittest.TestCase):
+    def row(self):
+        row=diag.initial(BINDING);diag.phase(row,'KERNEL');diag.issued(row,'KERNEL');diag.returned(row,0)
+        diag.phase(row,'OUTPUTS');return row
+
+    def test_schema5_roundtrip_is_bounded_owned_and_first_error_is_held(self):
+        import evidence
+        error=ValueError('ELF relocation index/offset invalid');error.relocation_failure=relocation_fixture()
+        row=self.row();diag.failure(row,error);first=copy.deepcopy(row['first_failure'])
+        diag.output_failure(row,error)
+        self.assertEqual(row['schema_version'],5)
+        self.assertEqual(row['output_failure']['predicate'],'CHECK_010')
+        error.relocation_failure['info']=0
+        self.assertEqual(row['output_failure']['relocation']['info'],1028)
+        report={'action':'baseline','nonce':BINDING['nonce'],'status':'FAIL','cancelled':False,'inner_diagnostic':row}
+        group=diag.capture(json.dumps(report).encode(),BINDING)
+        self.assertEqual(group['availability'],'VERIFIED')
+        evidence.validate_inner_group(group)
+        self.assertLessEqual(len(json.dumps(row,separators=(',',':')).encode()),2048)
+        diag.phase(row,'FINALIZATION');diag.failure(row,OSError('private'),cleanup=True)
+        self.assertEqual(row['first_failure'],first);diag.validate(row)
+
+    def test_invalid_attribute_is_atomic_and_legacy_shape_stays_schema4(self):
+        for detail in (None, {'raw':'private'}, dict(relocation_fixture(),offset=True),
+                       dict(relocation_fixture(),info=-1), dict(relocation_fixture(),info=1.0)):
+            row=self.row();error=ValueError('ELF relocation index/offset invalid')
+            diag.failure(row,error);before=copy.deepcopy(row);error.relocation_failure=detail
+            with self.assertRaises(ValueError):diag.output_failure(row,error)
+            self.assertEqual(row,before)
+        row=self.row();error=ValueError('ELF relocation index/offset invalid');diag.failure(row,error)
+        diag.output_failure(row,error);self.assertEqual(row['schema_version'],4)
+        self.assertEqual(set(row['output_failure']),{'call_boundary','predicate'})
+        row=self.row();error=ValueError('private');error.relocation_failure=relocation_fixture();diag.failure(row,error)
+        diag.output_failure(row,error);self.assertEqual(row['output_failure']['predicate'],'OTHER')
 
 
 if __name__ == '__main__': unittest.main()

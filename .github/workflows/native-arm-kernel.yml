@@ -43,7 +43,8 @@ jobs:
           REQUIRED = {WORKFLOW, JOB, PUBLIC, 'scripts/ci/native_arm.py',
                       'scripts/port/kernel-native-job/packet.py',
                       'scripts/port/kernel-native-job/runtime.py',
-                      'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
+                      'scripts/ci/inputs.lock.json',
+                      'scripts/port/kernel-native-job/recipes.lock.json',
                       'scripts/port/kernel-native-stage/stage.py',
                       'scripts/port/kernel-native-stage/stage.lock.json'}
 
@@ -216,7 +217,7 @@ jobs:
                   print('KERNEL_BOOTSTRAP_REFUSED')
                   sys.exit(1)
           PY
-      - name: Execute finite original producer, signed extension and kernel build pair
+      - name: Execute finite producer, signed extension and kernel build pair
         id: native
         timeout-minutes: 346
         shell: bash
