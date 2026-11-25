@@ -3,11 +3,15 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Probe, audit, original builds, or frozen development-only integration
+        description: Probe, audit, original builds, frozen integration, or Project Libraries qualification
         required: true
         default: probe
         type: choice
-        options: [probe, audit, build, integration]
+        options: [probe, audit, build, integration, project-libraries-inputs, project-libraries-native]
+      project_libraries_head:
+        description: Full reviewed SHA for Project Libraries dispatch
+        type: string
+        default: ''
       inputs_sha256:
         description: Reviewed SHA-256 of selected input lock (build uses maintained successor)
         type: string
@@ -28,7 +32,10 @@ concurrency:
   queue: max
 jobs:
   native:
-    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    if: >-
+      github.repository == 'Gabriel-Kahen/cachy-asahi' &&
+      github.event.repository.private == false &&
+      inputs.mode != 'project-libraries-inputs' && inputs.mode != 'project-libraries-native'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 50
     env:
@@ -153,3 +160,16 @@ jobs:
             fi
           fi
           exit "$evidence_status"
+
+  project-libraries:
+    if: >-
+      github.repository == 'Gabriel-Kahen/cachy-asahi' &&
+      github.event.repository.private == false &&
+      github.sha == inputs.project_libraries_head &&
+      (inputs.mode == 'project-libraries-inputs' || inputs.mode == 'project-libraries-native')
+    uses: ./.github/workflows/native-arm-project-libraries-622.yml
+    with:
+      reviewed_head: ${{ inputs.project_libraries_head }}
+      lane: ${{ inputs.mode == 'project-libraries-native' && 'native' || 'inputs' }}
+    secrets:
+      CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
