@@ -23,6 +23,7 @@ def fixture(run_mode, runner_temp):
     owner = receiver.module(exact, "pinned-owned-process.py", "native248_fixture_owner")
     prior = {number: signal.getsignal(number) for number in (signal.SIGINT, signal.SIGTERM)}
     staged = Path(runner_temp) / "maintained-desktop-v2-native248-17-1"
+    displaced = Path(runner_temp) / "displaced-scratch"
     probe, receipt = {}, {}
     environment = {"GITHUB_RUN_ID": "17", "GITHUB_RUN_ATTEMPT": "1", "RUNNER_TEMP": runner_temp}
     transport = SimpleNamespace(
@@ -36,7 +37,20 @@ def fixture(run_mode, runner_temp):
             "reaped": False, "ownership": "UNKNOWN", "group_census": "UNKNOWN", "passed": False,
         }
 
-    def verify_ref(*_):
+    replacement = None
+
+    def replace_scratch(scratch):
+        nonlocal replacement
+        (scratch / "original").write_bytes(b"original")
+        scratch.rename(displaced)
+        scratch.mkdir(mode=0o700)
+        replacement = scratch / "foreign"
+        replacement.write_bytes(b"replacement")
+
+    def verify_ref(_transport, scratch, _deadline):
+        if run_mode == "replace-scratch-failure":
+            replace_scratch(scratch)
+            raise ValueError("fixture-after-scratch-replacement")
         if run_mode == "unknown":
             probe.update(owner.supervise(None))
             receiver.require(probe["passed"], "fixture-child-refused")
@@ -52,11 +66,26 @@ def fixture(run_mode, runner_temp):
         probe.update({key: result[key] for key in ("reaped", "ownership", "group_census", "passed")})
         receiver.require(result["passed"], "fixture-child-refused")
 
+    def project(data, *_):
+        if run_mode == "replace-scratch-success":
+            replace_scratch(data.parents[1])
+
+    retire = receiver.retire_directory
+
+    def retire_with_late_replacement(parent, name, *args, **kwargs):
+        nonlocal replacement
+        if run_mode == "late-scratch" and name == staged.name:
+            scratch = staged / "late-scratch"
+            scratch.mkdir(mode=0o700)
+            replacement = scratch / "foreign"
+            replacement.write_bytes(b"replacement")
+        return retire(parent, name, *args, **kwargs)
+
     entered = False
     refused = None
     with patch.multiple(receiver, package_pins=lambda _: {}, carrier_profile=lambda _: b"",
                         verify_git=lambda *_: None, load_transport=lambda *_: transport,
-                        verify_ref=verify_ref, project=lambda *_: None):
+                        verify_ref=verify_ref, project=project, retire_directory=retire_with_late_replacement):
         try:
             with receiver.stage(environment, "", b"", lambda *_: b"", time.monotonic() + 9,
                                 receipt=receipt) as controls:
@@ -89,11 +118,15 @@ def fixture(run_mode, runner_temp):
                     assert all(signal.getsignal(number).__qualname__ == "controls.<locals>.interrupt"
                                for number in prior)
                 assert all(signal.getsignal(number) == controls.remember for number in prior)
-        except (ValueError, InterruptedError) as error:
+        except (ValueError, OSError) as error:
             refused = str(error)
     print(json.dumps({
         "cleanup": receipt, "entered": entered, "refused": refused, "child": probe,
         "absent": not os.path.lexists(staged),
+        "replacement_preserved": replacement is not None and replacement.is_file()
+                                 and replacement.read_bytes() == b"replacement",
+        "original_preserved": (displaced / "original").is_file()
+                              and (displaced / "original").read_bytes() == b"original",
         "handlers_restored": {number: signal.getsignal(number) for number in prior} == prior,
     }), flush=True)
 
@@ -147,7 +180,30 @@ class StageSignalTests(unittest.TestCase):
         result = self.worker("unknown")
         self.assertFalse(result["entered"])
         self.assertEqual(result["child"]["ownership"], "UNKNOWN")
-        self.assertEqual(result["cleanup"], {"cleanup": "UNCERTAIN"})
+        self.assertEqual(result["cleanup"], {"status": "HOLD", "cleanup": "UNCERTAIN"})
+        self.assertFalse(result["absent"])
+        self.assertTrue(result["handlers_restored"])
+
+    def test_replaced_scratch_is_preserved_on_success_and_failure_paths(self):
+        for mode, reason in (
+            ("replace-scratch-success", "native248-retirement-custody"),
+            ("replace-scratch-failure", "fixture-after-scratch-replacement"),
+        ):
+            with self.subTest(mode=mode):
+                result = self.worker(mode)
+                self.assertFalse(result["entered"])
+                self.assertEqual(result["refused"], reason)
+                self.assertTrue(result["replacement_preserved"])
+                self.assertTrue(result["original_preserved"])
+                self.assertEqual(result["cleanup"], {"status": "HOLD", "cleanup": "UNCERTAIN"})
+                self.assertFalse(result["absent"])
+                self.assertTrue(result["handlers_restored"])
+
+    def test_late_scratch_blocks_nonrecursive_parent_removal(self):
+        result = self.worker("late-scratch")
+        self.assertTrue(result["entered"])
+        self.assertTrue(result["replacement_preserved"])
+        self.assertEqual(result["cleanup"], {"status": "HOLD", "cleanup": "UNCERTAIN"})
         self.assertFalse(result["absent"])
         self.assertTrue(result["handlers_restored"])
 

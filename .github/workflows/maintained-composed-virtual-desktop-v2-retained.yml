@@ -56,7 +56,7 @@ jobs:
           INPUTS_PATH = 'scripts/ci/inputs.lock.json'
           INPUTS_PIN = (328101, 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f')
           HELPER_PATH = 'scripts/ci/development/retained_native248.py'
-          HELPER_PIN = (17245, '64e2a7f7cffea4fe70fd6ec01414d1795c2ec7afb01b34381fbaac503038c84c')
+          HELPER_PIN = (19336, '22cad14d2c71e2258066ffe153c28740a78f1c777679c75c115c038db88b8a9c')
           WORKFLOW_PATH = '.github/workflows/maintained-composed-virtual-desktop-v2-retained.yml'
           PLAN_ENV = 'ROOT_REGISTERED_MAINTAINED_DESKTOP_V2_RETAINED_PLAN_B64'
           PIN_ENV = 'ROOT_REGISTERED_MAINTAINED_DESKTOP_V2_RETAINED_PLAN_SHA256'
@@ -243,6 +243,8 @@ jobs:
               finally:
                   if 'cleanup' in staging:
                       print('MAINTAINED_NATIVE248_STAGING_CLEANUP='+staging['cleanup'],flush=True)
+                  if staging.get('status') == 'HOLD':
+                      print('MAINTAINED_NATIVE248_STAGING_STATUS=HOLD',flush=True)
                   if 'signal' in staging:
                       print('MAINTAINED_NATIVE248_STAGING_SIGNAL='+staging['signal'],flush=True)
               # Controller streaming already carries its bounded status/publication evidence.

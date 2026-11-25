@@ -46,9 +46,14 @@ SIGTERM and SIGINT during carrier preparation are latched and handled inside
 the retained transport's owned child wait. The guard stays active through
 launcher delivery, and the pinned launcher takes over its own signal handling
 during execution. The receiver restores the caller's handlers after retirement.
-Staging cleanup `PASS` requires verified
-child retirement, path absence and closed directory descriptors. A forced
-SIGKILL can prevent a terminal receipt and leaves cleanup uncertain.
+The receiver retires transport scratch against its held identity on every
+exit path. If scratch custody changes, parent retirement stops, both names
+are preserved, and the workflow reports `HOLD / UNCERTAIN`. After retiring
+the checked package directory, the receiver removes the stage nonrecursively
+so any late entry blocks removal. Staging cleanup
+`PASS` requires verified child retirement, path absence and closed directory
+descriptors. A forced SIGKILL can prevent a terminal receipt and leaves cleanup
+uncertain.
 
 Source and Data require independent review and new Root registration before any
 hosted run. Local carrier and cache checks establish only DATA preparation.

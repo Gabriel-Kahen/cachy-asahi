@@ -257,14 +257,21 @@ def project(data, packages, pins, raw_inputs, deadline, check):
             "native248-stage-membership")
 
 
-def retire_directory(parent, name, directory, identity, deadline):
-    live(deadline)
+def verify_directory(parent, name, directory, identity):
     named = os.stat(name, dir_fd=parent, follow_symlinks=False)
     held = os.fstat(directory)
     require((named.st_dev, named.st_ino) == (held.st_dev, held.st_ino) == identity
             and stat.S_ISDIR(named.st_mode) and stat.S_IMODE(named.st_mode) == 0o700
             and named.st_uid == os.geteuid(), "native248-retirement-custody")
-    shutil.rmtree(name, dir_fd=parent)
+
+
+def retire_directory(parent, name, directory, identity, deadline, *, empty=False):
+    live(deadline)
+    verify_directory(parent, name, directory, identity)
+    if empty:
+        os.rmdir(name, dir_fd=parent)
+    else:
+        shutil.rmtree(name, dir_fd=parent)
     try:
         os.stat(name, dir_fd=parent, follow_symlinks=False)
     except FileNotFoundError:
@@ -307,7 +314,7 @@ def stage(environment, git_sha, raw_inputs, fetch, deadline, *, cleanup_deadline
                 try:
                     os.close(fd)
                 except OSError:
-                    receipt["cleanup"] = "UNCERTAIN"
+                    receipt.update(status="HOLD", cleanup="UNCERTAIN")
                     if first is None:
                         raise
                     first.add_note("native248-stage-close-uncertain")
@@ -323,37 +330,63 @@ def stage(environment, git_sha, raw_inputs, fetch, deadline, *, cleanup_deadline
             verify_git(git_sha, deadline)
             controls.check()
             parent = hold(temporary, temp_id)
-            receipt["cleanup"] = "UNCERTAIN"
+            receipt.update(status="HOLD", cleanup="UNCERTAIN")
             try:
                 os.mkdir(destination.name, 0o700, dir_fd=parent)
             except FileExistsError:
+                receipt.pop("status")
                 receipt["cleanup"] = "NOT_NEEDED"
                 raise
             identity = owned_directory(destination, private=True)
             directory = hold(destination, identity)
-            try:
-                packages = destination / "packages"
-                packages.mkdir(mode=0o700)
+            scratch_pending = False
+            package_custody = None
+
+            @contextmanager
+            def transport_scratch():
+                nonlocal scratch_pending
+                scratch_pending = True
                 scratch = Path(tempfile.mkdtemp(prefix="transport-", dir=destination))
                 scratch_id = owned_directory(scratch, private=True)
                 scratch_fd = hold(scratch, scratch_id)
-                code = scratch / "code"
-                code.mkdir(mode=0o700)
-                transport = load_transport(guarded_fetch, code, deadline)
-                controls.bind(transport)
-                verify_ref(transport, scratch, deadline)
-                controls.check()
-                verify_git(git_sha, deadline)
-                policy = transport.reference_policy()
-                require(deadline - time.monotonic() >= policy["outer_seconds"], "native248-delivery-budget")
-                proof = transport.deliver(url=REMOTE, expected_source=CARRIER, profile_raw=profile,
-                                          profile_sha256=PROFILE_SHA, destination=scratch / "delivery",
-                                          executable_root=code, policy=policy)
-                require(proof["status"] == "PASS_EXACT_RETAINED_GIT_DATA_ONLY" and proof["tree"] == TREE
-                        and proof["blob_joins"] == 1154, "native248-carrier-proof")
-                controls.check()
-                project(scratch / "delivery/data", packages, pins, raw_inputs, deadline, controls.check)
-                retire_directory(directory, scratch.name, scratch_fd, scratch_id, deadline)
+                try:
+                    yield scratch
+                finally:
+                    first = sys.exception()
+                    try:
+                        require(not controls.child_uncertain, "native248-child-retirement-unproven")
+                        require(owned_directory(temporary, private=False) == temp_id,
+                                "native248-retirement-custody")
+                        verify_directory(parent, destination.name, directory, identity)
+                        retire_directory(directory, scratch.name, scratch_fd, scratch_id, deadline)
+                        scratch_pending = False
+                    except Exception:
+                        if first is None:
+                            raise
+                        first.add_note("native248-scratch-cleanup-uncertain")
+
+            try:
+                packages = destination / "packages"
+                packages.mkdir(mode=0o700)
+                package_id = owned_directory(packages, private=True)
+                package_custody = (hold(packages, package_id), package_id)
+                with transport_scratch() as scratch:
+                    code = scratch / "code"
+                    code.mkdir(mode=0o700)
+                    transport = load_transport(guarded_fetch, code, deadline)
+                    controls.bind(transport)
+                    verify_ref(transport, scratch, deadline)
+                    controls.check()
+                    verify_git(git_sha, deadline)
+                    policy = transport.reference_policy()
+                    require(deadline - time.monotonic() >= policy["outer_seconds"], "native248-delivery-budget")
+                    proof = transport.deliver(url=REMOTE, expected_source=CARRIER, profile_raw=profile,
+                                              profile_sha256=PROFILE_SHA, destination=scratch / "delivery",
+                                              executable_root=code, policy=policy)
+                    require(proof["status"] == "PASS_EXACT_RETAINED_GIT_DATA_ONLY" and proof["tree"] == TREE
+                            and proof["blob_joins"] == 1154, "native248-carrier-proof")
+                    controls.check()
+                    project(scratch / "delivery/data", packages, pins, raw_inputs, deadline, controls.check)
                 controls.check()
                 live(deadline)
                 # Code installs its own handlers while it runs and restores this
@@ -364,9 +397,16 @@ def stage(environment, git_sha, raw_inputs, fetch, deadline, *, cleanup_deadline
                 first = sys.exception()
                 try:
                     require(not controls.child_uncertain, "native248-child-retirement-unproven")
+                    # Parent retirement must never recursively delete a scratch replacement.
+                    require(not scratch_pending, "native248-scratch-retirement-unproven")
                     require(owned_directory(temporary, private=False) == temp_id, "native248-retirement-custody")
+                    verify_directory(parent, destination.name, directory, identity)
+                    retirement_end = cleanup_deadline if handed_off else deadline
+                    if package_custody is not None:
+                        retire_directory(directory, "packages", *package_custody, retirement_end)
+                    # A late entry blocks rmdir instead of being removed recursively.
                     retire_directory(parent, destination.name, directory, identity,
-                                     cleanup_deadline if handed_off else deadline)
+                                     retirement_end, empty=True)
                     require(owned_directory(temporary, private=False) == temp_id, "native248-retirement-custody")
                     retired = True
                 except Exception:
@@ -376,6 +416,7 @@ def stage(environment, git_sha, raw_inputs, fetch, deadline, *, cleanup_deadline
         finally:
             if retired:
                 # Any pending descriptor release failure invalidates this receipt.
+                receipt.pop("status")
                 receipt["cleanup"] = "PASS"
             if controls.pending is not None:
                 receipt["signal"] = signal.Signals(controls.pending).name
