@@ -130,6 +130,27 @@ def clean_metadata(row):
     return row
 
 
+def check_roots(targets, final, image, catalogs):
+    results = {}
+    for target in targets:
+        name, version, repo = (target[key] for key in ('name', 'version', 'repo'))
+        expected = image.get(name) if repo == 'observed-Asahi-base' else catalogs.get(repo, {}).get(name)
+        actual = final.get(name, {})
+        result = {**target, 'final_version': actual.get('VERSION', [None])[0], 'satisfied': False}
+        if expected and actual.get('VERSION') == expected['VERSION'] == [version]:
+            # libalpm can retain an installed package with the same version as
+            # the pinned catalog row. Check the graph and license declarations
+            # before counting that retention as coverage for the proposed pin.
+            differences = [key for key in SEMANTIC
+                           if sorted(actual.get(key, [])) != sorted(expected.get(key, []))]
+            if differences:
+                result['differing_metadata_fields'] = differences
+            else:
+                result['satisfied'] = True
+        results[name] = result
+    return results
+
+
 def base_policy(reader, contract):
     image_doc = reader.document(contract['image_inventory'])
     tuple_doc = reader.document(contract['protected_tuple'])
@@ -353,8 +374,8 @@ def compose(contract, output, reader=None, maintenance_ref=None, contract_ref=No
         for row in prepared['questions']:
             if row.get('type') == 32 and row.get('policy') != 'explicit-root-provider':
                 block('unapproved-provider-choice', question=row)
-        report['roots'] = [{**row, 'final_version': final.get(row['name'], {}).get('VERSION', [None])[0],
-                            'satisfied': final.get(row['name'], {}).get('VERSION') == [row['version']]} for row in targets]
+        root_checks = check_roots(targets, final, image, catalogs)
+        report['roots'] = list(root_checks.values())
         for row in report['roots']:
             if not row['satisfied']:
                 block('explicit-root-unsatisfied', root=row)
@@ -379,7 +400,7 @@ def compose(contract, output, reader=None, maintenance_ref=None, contract_ref=No
             block('final-declared-conflict', conflict=row)
         for row in provider_checks:
             present = final.get(row['name'])
-            row['final_witness_matches'] = bool(present and present['VERSION'] == [row['version']]
+            row['final_witness_matches'] = bool(root_checks[row['name']]['satisfied']
                 and t.tuple_audit.witnesses(row['requirement'], {row['name']: present}, versions))
             if not row['final_witness_matches']:
                 block('final-explicit-provider-unsatisfied', provider=row)
@@ -408,7 +429,7 @@ def compose(contract, output, reader=None, maintenance_ref=None, contract_ref=No
                 ('status', 'metadata_prepare_status', 'blockers', 'base_changes', 'protected_package_count', 'final_package_count')}
             report['proposed_maintenance'] = maintenance.evaluate(maintenance_ref, contract_ref, contract, reader, output,
                 image=image, protected=protected, catalogs=pristine_catalogs, targets=targets, provenance=provenance,
-                tx=t, prepare=prepare_isolated, platform=PLATFORM)
+                tx=t, prepare=prepare_isolated, check_roots=check_roots, platform=PLATFORM)
             report.update(status='HOLD', approval_status='UNAPPROVED', original_policy_failure_retained=bool(report['blockers']))
         reader.recheck()
     except BaseException as error:

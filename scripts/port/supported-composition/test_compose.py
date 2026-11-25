@@ -155,6 +155,21 @@ class CompositionTests(unittest.TestCase):
         self.assertEqual(result['metadata_prepare_status'], 'FAIL')
         self.assertTrue(any(row['code'] == 'explicit-root-unsatisfied' for row in result['blockers']))
 
+    def test_same_version_catalog_pin_requires_matching_installed_metadata(self):
+        for depends in ((), ('missing-catalog-dependency',)):
+            with self.subTest(depends=depends):
+                self.catalogs['extra'] = [package('shared-lib', depends=depends)]
+                contract = self.contract()
+                contract['roots'].append({'name': 'shared-lib', 'version': '1-1', 'repo': 'extra'})
+                result = self.execute(contract)
+                root = next(row for row in result['roots'] if row['name'] == 'shared-lib')
+                self.assertEqual(root['satisfied'], not depends)
+                self.assertEqual(result['metadata_prepare_status'], 'FAIL' if depends else 'PASS')
+                if depends:
+                    self.assertEqual(root['differing_metadata_fields'], ['DEPENDS'])
+                self.assertEqual(next(row['repo'] for row in result['proposed_final_inventory']
+                                      if row['name'] == 'shared-lib'), 'observed-Asahi-base')
+
     def test_srcinfo_source_strings_are_inert_and_split_or_wrong_arch_refuse(self):
         contract = self.contract()
         data = Path(contract['candidate_srcinfo'][0]['srcinfo']['path']).read_bytes()

@@ -76,6 +76,19 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(report['status'], 'FAIL'); self.assertNotIn('proposed_maintenance', report)
         self.assertTrue(any(row['expected'] == '3.14.7-1' and row['preserved'] for row in report['protected'] if row['name'] == 'python'))
 
+    def test_same_version_provider_pin_rejects_different_catalog_metadata(self):
+        self.before.append(T.package('backend', provides=('audio-backend',)))
+        self.catalogs['extra'].append(T.package('backend', provides=('audio-backend', 'other-backend')))
+        contract = self.full(('audio-backend',))
+        contract['providers'].append({'name': 'backend', 'version': '1-1', 'repo': 'extra',
+                                      'requirement': 'audio-backend'})
+        proposed = self.proposed(contract)['proposed_maintenance']
+        self.assertEqual(proposed['metadata_prepare_status'], 'FAIL')
+        root = next(row for row in proposed['roots'] if row['name'] == 'backend')
+        self.assertFalse(root['satisfied'])
+        self.assertEqual(root['differing_metadata_fields'], ['PROVIDES'])
+        self.assertFalse(proposed['provider_bindings'][0]['final_witness_matches'])
+
     def test_wrong_after_missing_before_extra_package_and_reason_are_refused(self):
         alterations = [lambda p: p['changes'][0].update(after='3.14.9-1'),
                        lambda p: p['changes'][0].update(before='3.14.6-1'),

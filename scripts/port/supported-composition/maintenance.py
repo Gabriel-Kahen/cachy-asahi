@@ -14,7 +14,7 @@ EXACT = {
 
 
 def evaluate(proposal_ref, contract_ref, contract, reader, output, *, image, protected,
-             catalogs, targets, provenance, tx, prepare, platform):
+             catalogs, targets, provenance, tx, prepare, check_roots, platform):
     need = tx.preview.need
     proposal = reader.document(proposal_ref)
     need(contract_ref is not None and reader.document(contract_ref) == contract, 'exact original composition reference required')
@@ -85,7 +85,8 @@ def evaluate(proposal_ref, contract_ref, contract, reader, output, *, image, pro
     for name, row in approved_shape.items():
         if final.get(name, {}).get('VERSION') != [row['after']] or origins.get(name) != row['repo']:
             block('proposed-after-not-realized', change=row)
-    result['roots'] = [{**row, 'satisfied': final.get(row['name'], {}).get('VERSION') == [row['version']]} for row in targets]
+    root_checks = check_roots(targets, final, image, selected_catalogs)
+    result['roots'] = list(root_checks.values())
     for row in result['roots']:
         if not row['satisfied']: block('explicit-root-unsatisfied', root=row)
     result['protected'] = [{'name': name, 'before': protected[name], 'proposed': version,
@@ -103,7 +104,7 @@ def evaluate(proposal_ref, contract_ref, contract, reader, output, *, image, pro
     result['provider_bindings'] = []
     for row in contract['providers']:
         metadata = final.get(row['name'])
-        matches = bool(metadata and metadata['VERSION'] == [row['version']]
+        matches = bool(root_checks[row['name']]['satisfied']
                        and tx.tuple_audit.witnesses(row['requirement'], {row['name']: metadata}, versions))
         result['provider_bindings'].append({**row, 'final_witness_matches': matches})
         if not matches: block('final-explicit-provider-unsatisfied', provider=row)
