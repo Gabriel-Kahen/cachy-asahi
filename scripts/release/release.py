@@ -5,9 +5,11 @@
 import argparse
 import base64
 import contextlib
+import ctypes
 import fcntl
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -644,20 +646,98 @@ def gates_check(directory, manifest, spec, gates_path):
     return gates
 
 
+def present(path):
+    return path.is_symlink() or path.exists()
+
+
+def rename_noreplace(source, destination):
+    # A plain rename can overwrite a file, symlink or empty retained directory.
+    rename = getattr(ctypes.CDLL(None, use_errno=True), "renameat2", None)
+    require(rename is not None, "Linux renameat2 required for no-replace publication")
+    at_fdcwd, no_replace = -100, 1
+    if rename(at_fdcwd, os.fsencode(source), at_fdcwd, os.fsencode(destination), no_replace):
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error), str(destination))
+
+
+def record_signature(path):
+    return path.with_name(path.name + ".sig")
+
+
+def read_signed_record(path, key, env):
+    for member in (path, record_signature(path)):
+        require(member.is_file() and not member.is_symlink() and member.stat().st_nlink == 1,
+                f"incomplete or unsafe signed record: {path.name}")
+    verify_signature(path, key, env)
+    record = load(path)
+    require(isinstance(record, dict) and type(record.get("schema_version")) is int and
+            record["schema_version"] == 1, f"invalid signed record schema: {path.name}")
+    return record
+
+
+def publish_record(source, destination):
+    # Publish the document last. An interrupted lone signature cannot authorize a selection change.
+    rename_noreplace(record_signature(source), record_signature(destination))
+    rename_noreplace(source, destination)
+
+
+def record_time(record, field, now):
+    try:
+        timestamp = datetime.fromisoformat(text_field(record, field))
+    except ValueError as error:
+        raise Error(f"invalid {field} timestamp") from error
+    require(timestamp.utcoffset() is not None and timestamp <= now, f"invalid {field} timestamp")
+    return timestamp
+
+
+def retained_promotion(history, directory, key, env, now):
+    rid = valid_name(directory.name)
+    manifest = directory / "release.json"
+    require(directory.is_dir() and not directory.is_symlink() and
+            manifest.is_file() and not manifest.is_symlink(), f"retained release missing or unsafe: {rid}")
+    saved = read_signed_record(history / f"{rid}.json", key, env)
+    require(set(saved) == {"schema_version", "release_id", "release_sha256", "gates", "promoted_utc"} and
+            saved["release_id"] == rid and saved["release_sha256"] == sha(manifest),
+            "promotion record is not bound to this release")
+    return saved, record_time(saved, "promoted_utc", now)
+
+
+def check_promotion_order(stable, history, rid, promoted, key, env, now):
+    # Current can be absent after withdrawal. Retained history still rules out replay.
+    names = {entry.name for entry in stable.iterdir()} - {"current", ".current-next"}
+    require({entry.name for entry in history.iterdir()} ==
+            {f"{name}{suffix}" for name in names for suffix in (".json", ".json.sig")},
+            "incomplete stable promotion history")
+    for name in sorted(names - {rid}):
+        _, earlier = retained_promotion(history, stable / name, key, env, now)
+        require(earlier < promoted, "retained promotion is not newer than stable history")
+
+
 def promote(args, root, key, env):
     storage_check(root)
-    source = root / "staging" / valid_name(args.release_id)
-    require(not (root / "withdrawals" / f"{args.release_id}.json").exists(), "release withdrawn")
+    rid = valid_name(args.release_id)
+    source = root / "staging" / rid
+    withdrawal = root / "withdrawals" / f"{rid}.json"
+    require(not present(withdrawal) and not present(record_signature(withdrawal)), "release withdrawn or withdrawal incomplete")
     manifest, spec = verify_release(source, key, env)
+    require(manifest["release_id"] == rid, "staging path/release identity mismatch")
+    release_digest = sha(source / "release.json")
+    release_signature = sha(source / "release.json.sig")
     gate_path = Path(args.gates).resolve()
     gates = gates_check(source, manifest, spec, gate_path)
     stable = root / "stable"
-    stable.mkdir(exist_ok=True)
-    destination = stable / args.release_id
-    require(not destination.exists(), "stable release ID already retained")
+    destination = stable / rid
+    history = root / "promotions"
+    promotion = history / f"{rid}.json"
+    retained = present(destination)
+    require(retained or (not present(promotion) and not present(record_signature(promotion))),
+            "promotion record exists without the retained release")
     current = stable / "current"
     if current.is_symlink():
-        previous, _ = verify_release(stable / valid_name(os.readlink(current)), key, env)
+        previous_id = valid_name(os.readlink(current))
+        require(previous_id != rid, "stable release ID already retained and selected")
+        previous, _ = verify_release(stable / previous_id, key, env)
+        require(previous["release_id"] == previous_id, "stable path/release identity mismatch")
         versions = {p["name"]: p["version"] for p in previous["packages"]}
         for p in manifest["packages"]:
             require(p["name"] not in versions or int(run(["vercmp", p["version"], versions[p["name"]]])) >= 0,
@@ -666,24 +746,36 @@ def promote(args, root, key, env):
         raise Error("stable/current must be a managed symlink")
     with tempfile.TemporaryDirectory(prefix=".promotion-", dir=root) as temp:
         out = Path(temp)
-        shutil.copytree(source, out / "release", symlinks=True)
-        copied_manifest, copied_spec = verify_release(out / "release", key, env)
+        candidate = destination if retained else out / "release"
+        if not retained:
+            shutil.copytree(source, candidate, symlinks=True)
+        copied_manifest, copied_spec = verify_release(candidate, key, env)
+        require(sha(candidate / "release.json") == release_digest and
+                sha(candidate / "release.json.sig") == release_signature,
+                "retained or copied release differs from staging")
+        now = datetime.now(timezone.utc)
+        created = record_time(copied_manifest, "created_utc", now)
+        if retained:
+            saved, promoted = retained_promotion(history, destination, key, env, now)
+            require(created <= promoted, "promotion timestamp precedes release creation")
+            require(json.dumps(saved["gates"], sort_keys=True) == json.dumps(gates, sort_keys=True),
+                    "requested gates differ from signed promotion")
+            check_promotion_order(stable, history, rid, promoted, key, env, now)
+            gates = saved["gates"]
         write(out / "gates.json", gates)
-        gates_check(out / "release", copied_manifest, copied_spec, out / "gates.json")
-        # Promotion evidence is kept outside the immutable signed release payload.
-        write(out / "promotion.json", {"schema_version": 1, "release_id": args.release_id,
-              "release_sha256": sha(out / "release/release.json"), "gates": gates,
-              "promoted_utc": datetime.now(timezone.utc).isoformat()})
-        sign(out / "promotion.json", key, env)
-        verify_release(out / "release", key, env)
-        os.rename(out / "release", destination)
-        history = root / "promotions"
-        history.mkdir(exist_ok=True)
-        os.rename(out / "promotion.json", history / f"{args.release_id}.json")
-        os.rename(out / "promotion.json.sig", history / f"{args.release_id}.json.sig")
-        link = stable / ".current-next"
-        require(not link.exists() and not link.is_symlink(), "stale activation temporary file")
-        link.symlink_to(args.release_id)
+        gates_check(candidate, copied_manifest, copied_spec, out / "gates.json")
+        if not retained:
+            # Promotion evidence stays outside the immutable signed release payload.
+            write(out / "promotion.json", {"schema_version": 1, "release_id": rid,
+                  "release_sha256": release_digest, "gates": gates, "promoted_utc": now.isoformat()})
+            sign(out / "promotion.json", key, env)
+            verify_release(candidate, key, env)
+            stable.mkdir(exist_ok=True)
+            history.mkdir(exist_ok=True)
+            rename_noreplace(candidate, destination)
+            publish_record(out / "promotion.json", promotion)
+        link = out / "current"
+        link.symlink_to(rid)
         os.replace(link, current)
     return {"status": "local-stable", "path": str(destination), "published": False}
 
@@ -693,21 +785,37 @@ def withdraw(args, root, key, env):
     rid = valid_name(args.release_id)
     require((root / "staging" / rid).is_dir() or (root / "stable" / rid).is_dir(), "unknown release")
     reason = Path(args.reason).resolve()
-    require(reason.is_file() and reason.stat().st_size, "nonempty incident/recovery record required")
+    require(reason.is_file(), "nonempty incident/recovery record required")
+    raw = reason.read_bytes()
+    require(raw, "nonempty incident/recovery record required")
+    # Preserve read_text() semantics while hashing the same byte snapshot.
+    with io.TextIOWrapper(io.BytesIO(raw)) as text:
+        incident = text.read()
+    incident_digest = hashlib.sha256(raw).hexdigest()
     target = root / "withdrawals"
-    target.mkdir(exist_ok=True)
-    require(not (target / f"{rid}.json").exists(), "release already withdrawn")
-    with tempfile.TemporaryDirectory(prefix=".withdrawal-", dir=root) as temp:
-        out = Path(temp)
-        write(out / "record.json", {"schema_version": 1, "release_id": rid, "signer": key,
-              "withdrawn_utc": datetime.now(timezone.utc).isoformat(), "reason": reason.read_text(),
-              "reason_sha256": sha(reason), "packages_retained": True})
-        sign(out / "record.json", key, env)
-        os.rename(out / "record.json.sig", target / f"{rid}.json.sig")
-        os.rename(out / "record.json", target / f"{rid}.json")
+    record = target / f"{rid}.json"
     current = root / "stable" / "current"
+    fields = {"schema_version": 1, "release_id": rid, "signer": key,
+              "reason": incident, "reason_sha256": incident_digest, "packages_retained": True}
+    now = datetime.now(timezone.utc)
+    retained = present(record) or present(record_signature(record))
+    if retained:
+        saved = read_signed_record(record, key, env)
+        record_time(saved, "withdrawn_utc", now)
+        del saved["withdrawn_utc"]
+        require(saved == fields and saved["packages_retained"] is True,
+                "requested withdrawal differs from signed record")
+    else:
+        target.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix=".withdrawal-", dir=root) as temp:
+            pending = Path(temp) / "record.json"
+            write(pending, dict(fields, withdrawn_utc=now.isoformat()))
+            sign(pending, key, env)
+            publish_record(pending, record)
     if current.is_symlink() and os.readlink(current) == rid:
         current.unlink()
+    else:
+        require(not retained, "release already withdrawn")
     return {"status": "withdrawn-locally", "release_id": rid, "clients_contacted": False}
 
 

@@ -5,6 +5,7 @@
 import argparse
 import base64
 import copy
+import errno
 import hashlib
 import importlib.util
 import io
@@ -770,6 +771,188 @@ class ReleaseTests(unittest.TestCase):
         r.withdraw(argparse.Namespace(release_id="fixture-1", reason=str(self.inputs / "incident.txt")), self.root, self.key, self.env)
         self.assertFalse((self.root / "stable/current").exists())
         self.assertTrue((self.root / "stable/fixture-1/release.json").exists())
+
+    def modeled_promotion(self, rid="fixture-1"):
+        self.release_spec["release_id"] = rid
+        self.stage()
+        self.put(f"{rid}-gates.json", {"schema_version": 1, "synthetic": True, "release_id": rid,
+                                      "release_sha256": r.sha(self.directory / "release.json")})
+        return argparse.Namespace(release_id=rid, gates=str(self.inputs / f"{rid}-gates.json"))
+
+    def promote_model(self, args, *, activation_fails=False):
+        with r.locked(self.root), mock.patch.object(r, "gates_check", side_effect=lambda *a: r.load(a[-1])):
+            if activation_fails:
+                with mock.patch.object(r.os, "replace", side_effect=OSError("activation interrupted")) as replace:
+                    with self.assertRaisesRegex(OSError, "activation interrupted"):
+                        r.promote(args, self.root, self.key, self.env)
+                link = replace.call_args.args[0]
+                self.assertNotEqual(link.parent, self.root / "stable")
+                self.assertFalse(link.parent.exists())
+            else:
+                return r.promote(args, self.root, self.key, self.env)
+
+    def test_promotion_retry_authenticates_exact_inputs_and_preserves_history(self):
+        self.promote_model(self.modeled_promotion("previous"))
+        args = self.modeled_promotion()
+        self.promote_model(args, activation_fails=True)
+        current = self.root / "stable/current"
+        self.assertEqual(os.readlink(current), "previous")
+        legacy = current.with_name(".current-next")
+        legacy.symlink_to("fixture-1")
+        promotion = self.root / "promotions/fixture-1.json"
+        signature = promotion.with_suffix(".json.sig")
+        originals = {path: path.read_bytes() for path in (promotion, signature)}
+        gate_path = Path(args.gates)
+        original_gates = r.load(gate_path)
+        r.write(gate_path, dict(original_gates, synthetic=1))
+        with self.assertRaisesRegex(r.Error, "gates differ"):
+            self.promote_model(args)
+        r.write(gate_path, original_gates)
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "synthetic fixtures"):
+            r.promote(args, self.root, self.key, self.env)
+        staging = self.directory / "release.json"
+        staged_sig = staging.with_suffix(".json.sig")
+        staged_original, staged_signature = staging.read_bytes(), staged_sig.read_bytes()
+        r.write(staging, dict(json.loads(staged_original), created_utc="2026-01-01T00:00:00+00:00"))
+        staged_sig.unlink()
+        r.sign(staging, self.key, self.env)
+        with self.assertRaisesRegex(r.Error, "release differs from staging"):
+            self.promote_model(args)
+        staging.write_bytes(staged_original)
+        staged_sig.write_bytes(staged_signature)
+        signature.write_bytes(b"corrupt signature")
+        with self.assertRaisesRegex(r.Error, "command failed: gpg"):
+            self.promote_model(args)
+        signature.write_bytes(originals[signature])
+        self.assertEqual(os.readlink(current), "previous")
+        with mock.patch.object(r, "sign", side_effect=AssertionError("retry must not sign")):
+            self.assertEqual(self.promote_model(args)["status"], "local-stable")
+        self.assertEqual(os.readlink(current), "fixture-1")
+        self.assertEqual(os.readlink(legacy), "fixture-1")
+        self.assertEqual({path: path.read_bytes() for path in originals}, originals)
+
+    def test_promotion_retry_rejects_future_time_and_superseded_promotion(self):
+        args = self.modeled_promotion()
+        self.promote_model(args, activation_fails=True)
+        current = self.root / "stable/current"
+        promotion = self.root / "promotions/fixture-1.json"
+        signature = promotion.with_suffix(".json.sig")
+        original, original_signature = promotion.read_bytes(), signature.read_bytes()
+        for timestamp in ("9999-01-01T00:00:00+00:00", "2026-01-01T12:00:00"):
+            with self.subTest(timestamp=timestamp):
+                r.write(promotion, dict(json.loads(original), promoted_utc=timestamp))
+                signature.unlink()
+                r.sign(promotion, self.key, self.env)
+                with self.assertRaisesRegex(r.Error, "invalid promoted_utc timestamp"):
+                    self.promote_model(args)
+                self.assertFalse(current.is_symlink())
+        promotion.write_bytes(original)
+        signature.write_bytes(original_signature)
+        self.promote_model(self.modeled_promotion("successor"))
+        reason = self.inputs / "incident.txt"
+        reason.write_text("Synthetic successor withdrawal.\n")
+        with r.locked(self.root):
+            r.withdraw(argparse.Namespace(release_id="successor", reason=str(reason)), self.root, self.key, self.env)
+        with self.assertRaisesRegex(r.Error, "not newer than stable history"):
+            self.promote_model(args)
+        self.assertFalse(current.is_symlink())
+
+    def test_withdrawal_retry_authenticates_exact_reason_and_unblocks_export(self):
+        self.promote_model(self.modeled_promotion())
+        reason = self.inputs / "incident.txt"
+        reason.write_bytes(b"Synthetic withdrawal.\r\n")
+        args = argparse.Namespace(release_id="fixture-1", reason=str(reason))
+        current = self.root / "stable/current"
+        unlink = Path.unlink
+
+        def interrupt(path, *a, **kw):
+            if path == current:
+                raise OSError("withdrawal interrupted")
+            return unlink(path, *a, **kw)
+
+        with r.locked(self.root), mock.patch.object(Path, "unlink", interrupt):
+            with self.assertRaisesRegex(OSError, "withdrawal interrupted"):
+                r.withdraw(args, self.root, self.key, self.env)
+        record = self.root / "withdrawals/fixture-1.json"
+        signature = record.with_suffix(".json.sig")
+        originals = {path: path.read_bytes() for path in (record, signature)}
+        endpoint = self.base / "endpoint"
+        endpoint.mkdir()
+        export = [sys.executable, Path(__file__).with_name("export_repository.py"), "--root", self.root,
+                  "--endpoint", endpoint, "--gpg-home", self.home, "--key", self.key]
+        with self.assertRaisesRegex(r.Error, "selected release is withdrawn"):
+            r.run(export)
+        reason.write_bytes(b"Synthetic withdrawal.\n")
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "withdrawal differs"):
+            r.withdraw(args, self.root, self.key, self.env)
+        reason.write_bytes(b"Synthetic withdrawal.\r\n")
+        signature.write_bytes(b"corrupt signature")
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "command failed: gpg"):
+            r.withdraw(args, self.root, self.key, self.env)
+        signature.write_bytes(originals[signature])
+        self.assertEqual(os.readlink(current), "fixture-1")
+        with r.locked(self.root), mock.patch.object(r, "sign", side_effect=AssertionError("retry must not sign")):
+            self.assertEqual(r.withdraw(args, self.root, self.key, self.env)["status"], "withdrawn-locally")
+        self.assertFalse(current.is_symlink())
+        self.assertEqual({path: path.read_bytes() for path in originals}, originals)
+        self.assertIsNone(json.loads(r.run(export))["selected_release"])
+
+    def test_publication_never_replaces_colliding_or_partial_history(self):
+        args = self.modeled_promotion()
+        destination = self.root / "stable/fixture-1"
+        promotion = self.root / "promotions/fixture-1.json"
+        rename = r.rename_noreplace
+
+        def collision(source, target):
+            if target == destination:
+                destination.mkdir()
+            rename(source, target)
+
+        with mock.patch.object(r, "rename_noreplace", collision), self.assertRaises(FileExistsError) as caught:
+            self.promote_model(args)
+        self.assertEqual(caught.exception.errno, errno.EEXIST)
+        self.assertEqual(list(destination.iterdir()), [])
+        destination.rmdir()
+
+        def interrupt(source, target):
+            if target == promotion:
+                raise OSError("record publication interrupted")
+            rename(source, target)
+
+        with mock.patch.object(r, "rename_noreplace", interrupt), self.assertRaisesRegex(OSError, "publication interrupted"):
+            self.promote_model(args)
+        signature = promotion.with_suffix(".json.sig")
+        original = signature.read_bytes()
+        with self.assertRaisesRegex(r.Error, "incomplete or unsafe signed record"):
+            self.promote_model(args)
+        self.assertEqual(signature.read_bytes(), original)
+        self.assertFalse(promotion.exists())
+        self.assertFalse((destination.parent / "current").is_symlink())
+
+    def test_partial_withdrawal_signature_cannot_be_replaced_or_activate_release(self):
+        promotion = self.modeled_promotion()
+        reason = self.inputs / "incident.txt"
+        reason.write_text("Synthetic partial withdrawal.\n")
+        args = argparse.Namespace(release_id="fixture-1", reason=str(reason))
+        record = self.root / "withdrawals/fixture-1.json"
+        rename = r.rename_noreplace
+
+        def interrupt(source, target):
+            if target == record:
+                raise OSError("withdrawal publication interrupted")
+            rename(source, target)
+
+        with r.locked(self.root), mock.patch.object(r, "rename_noreplace", interrupt):
+            with self.assertRaisesRegex(OSError, "publication interrupted"):
+                r.withdraw(args, self.root, self.key, self.env)
+        signature = record.with_suffix(".json.sig")
+        original = signature.read_bytes()
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "incomplete or unsafe signed record"):
+            r.withdraw(args, self.root, self.key, self.env)
+        with self.assertRaisesRegex(r.Error, "withdrawal incomplete"):
+            self.promote_model(promotion)
+        self.assertEqual(signature.read_bytes(), original)
+        self.assertFalse(record.exists())
 
 
 if __name__ == "__main__":
