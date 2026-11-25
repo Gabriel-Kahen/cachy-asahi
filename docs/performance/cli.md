@@ -27,7 +27,8 @@ python3 scripts/benchmarks/benchmark_v2.py prepare-plan \
 
 These paths are caller-created examples, not existing target measurements. Keep
 the frozen plan and both states at their retained paths; loading a plan rechecks
-both state hashes, as well as all pinned inputs. Modifications invalidate bindings.
+both state hashes, rebuilds the variant identities from the checked capture bytes,
+and checks all declared input pins. Modifications invalidate bindings.
 Pins retain the declared access path, resolved target and content hash. Retargeting
 a symlink is refused even if its new target has identical bytes. Keep inputs and
 aliases stable throughout the run; validation is not a filesystem sandbox against
@@ -78,7 +79,10 @@ ranges are illustrations, not calibrated M2 budgets or observations. It cannot
 be frozen unchanged because its placeholder files do not exist. No fabricated
 physical gate record is supplied.
 
-Physical plans also require the exact M2 record and package inventory. The
+Physical plans require two `capture-baseline.py --require-m2-air` records for
+the same target. Both must record AArch64, 16 KiB pages, `apple,t8112`, exactly
+the intended Air ID (`apple,j413` or `apple,j415`), and successful, nonempty
+`pacman -Q` inventories with one row per package. The
 `hardware_gate_evidence` JSON must contain matching `machine_id` and `base_id`,
 `baseline_functional` and `recovery` both equal to `PASS`, and nonempty `evidence`
 and `reviewer`. Populate these from executed checks with linked raw records;

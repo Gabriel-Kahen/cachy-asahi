@@ -5,6 +5,7 @@ on:
       - '.github/workflows/benchmark-owned-v2-source.yml'
       - 'scripts/ci/benchmark-owned-v2/**'
       - 'scripts/benchmarks/**'
+      - 'scripts/hardware/capture-baseline.py'
       - 'scripts/virtual/owned_process.py'
       - 'docs/performance/**'
       - 'LICENSE'
@@ -27,8 +28,18 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
-      - name: Authenticate finite source and syntax without benchmark imports
-        run: python -I -B scripts/ci/benchmark-owned-v2/check_source.py --root "$GITHUB_WORKSPACE"
+      - name: Check out the original qualified source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: b2bfd4eb0c2776389d22f663dc4fa6df29181dbf
+          path: .ci-inputs/original-benchmark-v2
+          persist-credentials: false
+      - name: Authenticate original finite source without benchmark imports
+        run: |
+          original="$GITHUB_WORKSPACE/.ci-inputs/original-benchmark-v2"
+          python -I -B "$original/scripts/ci/benchmark-owned-v2/check_source.py" --root "$original"
+      - name: Test active plan validation with synthetic captures
+        run: python -I -B -Werror::ResourceWarning -m unittest discover -s scripts/benchmarks -p test_benchmark_v2_plan.py
       - name: Record exact source-only scope
         run: |
-          echo 'Source pins, syntax, adapter/owner wiring and twelve declared controls only. Zero workload/lifecycle actors, sensor sampling or process census. Retained private12 controls are not reexecuted here. Fresh execution needs a separately qualified owned guest/namespace route; hosted availability is unknown. No native, paired-artifact or performance acceptance.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Original source pins, syntax, adapter/owner wiring and twelve declared controls were checked at the historical revision. Active plan validation used synthetic files. Zero workload/lifecycle actors, sensor sampling or process census. Retained private12 controls are not reexecuted here. No native, paired-artifact or performance acceptance.' >> "$GITHUB_STEP_SUMMARY"

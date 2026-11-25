@@ -7,6 +7,7 @@ operator code; no shell execution is used by the harness, but this is not a sand
 import argparse
 from contextlib import contextmanager
 from datetime import datetime, timezone
+from functools import cache
 import hashlib
 import importlib.util
 import json
@@ -21,6 +22,7 @@ import subprocess
 import sys
 import threading
 import time
+from types import ModuleType
 
 _memory_spec = importlib.util.spec_from_file_location('process_group_memory', Path(__file__).with_name('process_group_memory.py'))
 process_group_memory = importlib.util.module_from_spec(_memory_spec)
@@ -32,6 +34,7 @@ _platform_adapter = None
 _retirement_adapter = None
 OWNED_RETIREMENT_ADAPTER_SHA256 = '0d682260c424abf4207b90cc92607528ae1b17656ebd3093d4e9d3919463748c'
 EXECUTION_LAYER = "benchmark-owned-retirement-v2"
+CAPTURE_SOURCE = Path(__file__).resolve().parents[1] / "hardware/capture-baseline.py"
 
 
 class Invalid(ValueError):
@@ -73,9 +76,21 @@ def pin_file(path):
 
 
 def check_pin(pin, label):
-    if (str(Path(pin["path"]).resolve(strict=True)) != pin["resolved_path"]
-            or digest(pin["path"]) != pin["sha256"]):
+    path = Path(pin["path"])
+    resolved = path.resolve(strict=True)
+    raw = resolved.read_bytes()
+    if (str(resolved) != pin["resolved_path"] or path.resolve(strict=True) != resolved
+            or hashlib.sha256(raw).hexdigest() != pin["sha256"]):
         raise Invalid(f"{label} changed after declaration: {pin['path']}")
+    return raw
+
+
+@cache
+def capture_source():
+    module = ModuleType("benchmark_baseline_capture")
+    module.__file__ = str(CAPTURE_SOURCE)
+    exec(compile(CAPTURE_SOURCE.read_bytes(), str(CAPTURE_SOURCE), "exec"), vars(module))
+    return module
 
 
 @contextmanager
@@ -97,6 +112,8 @@ def text_file(path):
 
 def state_identity(record):
     """Ignore collection time/operator/desktop status; retain base versions and DB hashes."""
+    if not isinstance(record, dict) or not isinstance(record.get("packages", {}), dict):
+        raise Invalid("expected a capture record and package inventory query")
     packages = record.get("packages", {})
     return {key: record.get(key) for key in (
         "architecture", "machine_model", "device_tree_compatible", "page_size_bytes",
@@ -108,16 +125,14 @@ def state_identity(record):
 
 def live_identity(context):
     try:
-        result = subprocess.run(["pacman", "-Q"], capture_output=True, text=True, timeout=20)
+        result = subprocess.run(["/usr/bin/pacman", "-Q"], capture_output=True, text=True, timeout=20)
         packages = result.stdout.strip() if result.returncode == 0 else None
     except (OSError, subprocess.TimeoutExpired):
         packages = None
     compatible = text_file("/proc/device-tree/compatible")
-    size = None
-    if platform.machine() == "aarch64":
-        ids = (compatible or "").splitlines()
-        size = "13-inch" if "apple,j413" in ids else "15-inch" if "apple,j415" in ids else None
-    return {"architecture": platform.machine(), "machine_model": text_file("/proc/device-tree/model"),
+    architecture = platform.machine()
+    size = capture_source().target_size(architecture, compatible)
+    return {"architecture": architecture, "machine_model": text_file("/proc/device-tree/model"),
             "device_tree_compatible": compatible, "page_size_bytes": os.sysconf("SC_PAGE_SIZE"),
             "kernel": platform.release(), "os_release": text_file("/etc/os-release"),
             "execution_context": context, "m2_air_size": size, "packages": packages,
@@ -265,62 +280,93 @@ def execution_binding():
             'owner': pin_file(adapter.owner_path())}
 
 
-def freeze(config_path, baseline_path, candidate_path, output):
-    config = read_json(config_path)
-    validate_config(config)
-    if "platform_metrics" in config:
-        platform_adapter().validate_config(config["platform_metrics"], config["timeout_seconds"])
-    states = {"baseline": read_json(baseline_path), "candidate": read_json(candidate_path)}
+def package_inventory(value):
+    if not isinstance(value, str) or not value.strip():
+        raise Invalid("package inventories must contain pacman name/version lines")
+    inventory = {}
+    for line in value.splitlines():
+        pair = line.split()
+        if len(pair) != 2 or pair[0] in inventory:
+            raise Invalid("package inventory has malformed or duplicate pacman rows")
+        name, version = pair
+        inventory[name] = version
+    return inventory
+
+
+def plan_states(config, bindings):
+    states = {v: json.loads(check_pin(pin, f"{v} state file")) for v, pin in bindings.items()}
     identities = {v: state_identity(s) for v, s in states.items()}
+    inventories = {}
+    for variant, identity in identities.items():
+        if identity["execution_context"] != config["execution_context"]:
+            raise Invalid("state execution context differs from plan")
+        if config["execution_context"] == "physical":
+            record = states[variant]
+            capture = capture_source()
+            compatible = identity["device_tree_compatible"]
+            size = (capture.exact_target_size(identity["architecture"], compatible)
+                    if isinstance(compatible, str) else None)
+            if (size is None or size != identity["m2_air_size"]
+                    or type(identity["page_size_bytes"]) is not int
+                    or identity["page_size_bytes"] != capture.TARGET_PAGE_SIZE
+                    or type(record.get("schema_version")) is not int or record["schema_version"] != 1
+                    or record.get("record_type") != "environment-baseline"
+                    or record.get("validation_result") != "NOT RUN"):
+                raise Invalid("physical plan needs an exact M2 Air baseline capture with 16 KiB pages")
+            query = record.get("packages", {})
+            if (query.get("command") != ["pacman", "-Q"] or type(query.get("returncode")) is not int
+                    or query["returncode"] != 0):
+                raise Invalid("physical plan needs a successful captured pacman -Q package inventory")
+        if config["execution_context"] == "physical" or identity["packages"] is not None:
+            inventories[variant] = package_inventory(identity["packages"])
     differences = [key for key in identities["baseline"]
                    if identities["baseline"][key] != identities["candidate"][key]]
     if set(differences) != set(config.get("allowed_state_changes", [])):
         raise Invalid(f"state differences {differences} disagree with predeclared allowed_state_changes")
     if "packages" in differences:
-        inventories = {}
-        for variant, identity in identities.items():
-            lines = (identity["packages"] or "").splitlines()
-            if not lines or any(len(line.split()) != 2 for line in lines):
-                raise Invalid("package inventories must contain pacman name/version lines")
-            inventories[variant] = dict(line.split() for line in lines)
+        if inventories.keys() != identities.keys():
+            raise Invalid("package changes need complete baseline and candidate inventories")
         names = set(inventories["baseline"]) | set(inventories["candidate"])
         changed = {name for name in names if inventories["baseline"].get(name) != inventories["candidate"].get(name)}
         if changed != set(config["changed_packages"]):
             raise Invalid(f"unrelated/missing package changes: observed {sorted(changed)}")
-    for identity in identities.values():
-        if identity["execution_context"] != config["execution_context"]:
-            raise Invalid("state execution context differs from plan")
-        if config["execution_context"] == "physical":
-            expected = {"13-inch": "apple,j413", "15-inch": "apple,j415"}.get(identity["m2_air_size"])
-            ids = (identity["device_tree_compatible"] or "").splitlines()
-            if (identity["architecture"] != "aarch64" or expected is None or expected not in ids
-                    or identity["packages"] is None):
-                raise Invalid("physical acceptance plan needs an exact M2 Air record and package inventory")
-    paths = list(config["inputs"])
-    for source in (str(Path(__file__).resolve()), str(Path(process_group_memory.__file__).resolve())):
-        if source not in paths:
-            paths.append(source)
+    return identities
+
+
+def input_paths(config, binding):
+    paths = list(config["inputs"]) + [str(CAPTURE_SOURCE), str(Path(process_group_memory.__file__).resolve())]
     for values in config.get("variant_inputs", {}).values():
         paths.extend(values)
     if "platform_metrics" in config:
         paths.extend(str(p) for p in platform_adapter().source_paths())
-    pins = [pin_file(p) for p in paths]
-    for key in ("state_change_evidence", "hardware_gate_evidence"):
-        if config.get(key):
-            evidence = Path(config[key]).absolute()
-            if key == "hardware_gate_evidence":
-                gates = read_json(evidence)
-                if (gates.get("machine_id") != config["machine_id"] or gates.get("base_id") != config["base_id"]
-                        or gates.get("baseline_functional") != "PASS" or gates.get("recovery") != "PASS"
-                        or not gates.get("evidence") or not gates.get("reviewer")):
-                    raise Invalid("hardware gates are not reviewed PASS evidence for this machine/base")
-            pins.append(pin_file(evidence))
-    for entry in execution_binding().values():
-        if isinstance(entry, dict) and entry['path'] not in {p['path'] for p in pins}:
-            pins.append(entry)
-    plan = {"schema_version": 2, "execution_layer": execution_binding(), "record_type": "frozen-experiment-plan-v2", "frozen_at": now(),
-            "config": config, "inputs": pins, "states": identities,
-            "baseline_binding": pin_file(baseline_path), "candidate_binding": pin_file(candidate_path),
+    paths.extend(config[key] for key in ("state_change_evidence", "hardware_gate_evidence") if config.get(key))
+    paths.extend(binding[key]["path"] for key in ("runner", "adapter", "owner"))
+    return list(dict.fromkeys(str(Path(path).absolute()) for path in paths))
+
+
+def validate_hardware_gates(config, pins):
+    if config.get("hardware_gate_evidence"):
+        path = str(Path(config["hardware_gate_evidence"]).absolute())
+        gates = json.loads(check_pin(pins[path], "hardware gate evidence"))
+        if (gates.get("machine_id") != config["machine_id"] or gates.get("base_id") != config["base_id"]
+                or gates.get("baseline_functional") != "PASS" or gates.get("recovery") != "PASS"
+                or not gates.get("evidence") or not gates.get("reviewer")):
+            raise Invalid("hardware gates are not reviewed PASS evidence for this machine/base")
+
+
+def freeze(config_path, baseline_path, candidate_path, output):
+    config = read_json(config_path)
+    validate_config(config)
+    if "platform_metrics" in config:
+        platform_adapter().validate_config(config["platform_metrics"], config["timeout_seconds"])
+    states = {"baseline": pin_file(baseline_path), "candidate": pin_file(candidate_path)}
+    identities = plan_states(config, states)
+    binding = execution_binding()
+    pins = {path: pin_file(path) for path in input_paths(config, binding)}
+    validate_hardware_gates(config, pins)
+    plan = {"schema_version": 2, "execution_layer": binding, "record_type": "frozen-experiment-plan-v2", "frozen_at": now(),
+            "config": config, "inputs": list(pins.values()), "states": identities,
+            "baseline_binding": states["baseline"], "candidate_binding": states["candidate"],
             "optimization_acceptance": "NOT RUN"}
     write_json(output, plan)
 
@@ -329,16 +375,23 @@ def load_plan(path):
     plan = read_json(path)
     if plan.get("schema_version") != 2 or plan.get("record_type") != "frozen-experiment-plan-v2":
         raise Invalid("not a supported v2 frozen plan; historical plans must be redeclared")
-    if plan.get('execution_layer') != execution_binding():
+    binding = execution_binding()
+    if plan.get('execution_layer') != binding:
         raise Invalid('v2 execution binding missing/changed; historical plans must be redeclared')
-    validate_config(plan["config"])
-    if "platform_metrics" in plan["config"]:
-        platform_adapter().validate_config(plan["config"]["platform_metrics"], plan["config"]["timeout_seconds"])
+    config = plan["config"]
+    validate_config(config)
+    if "platform_metrics" in config:
+        platform_adapter().validate_config(config["platform_metrics"], config["timeout_seconds"])
     utc_timestamp(plan["frozen_at"])
-    for variant in ("baseline", "candidate"):
-        check_pin(plan[f"{variant}_binding"], f"{variant} state file")
-    for pin in plan["inputs"]:
+    pins = {pin["path"]: pin for pin in plan["inputs"]}
+    if pins.keys() != set(input_paths(config, binding)) or len(pins) != len(plan["inputs"]):
+        raise Invalid("declared input lacks an exact pin or has an extra or duplicate pin")
+    for pin in pins.values():
         check_pin(pin, "input")
+    validate_hardware_gates(config, pins)
+    states = {variant: plan[f"{variant}_binding"] for variant in ("baseline", "candidate")}
+    if canonical(plan.get("states")) != canonical(plan_states(config, states)):
+        raise Invalid("plan states differ from pinned captures")
     return plan
 
 
