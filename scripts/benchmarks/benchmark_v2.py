@@ -333,7 +333,7 @@ def plan_states(config, bindings):
     return identities
 
 
-def input_paths(config, binding):
+def input_paths(config, binding, declared_from):
     paths = list(config["inputs"]) + [str(CAPTURE_SOURCE), str(Path(process_group_memory.__file__).resolve())]
     for values in config.get("variant_inputs", {}).values():
         paths.extend(values)
@@ -341,12 +341,12 @@ def input_paths(config, binding):
         paths.extend(str(p) for p in platform_adapter().source_paths())
     paths.extend(config[key] for key in ("state_change_evidence", "hardware_gate_evidence") if config.get(key))
     paths.extend(binding[key]["path"] for key in ("runner", "adapter", "owner"))
-    return list(dict.fromkeys(str(Path(path).absolute()) for path in paths))
+    return list(dict.fromkeys(str(declared_from / path) for path in paths))
 
 
-def validate_hardware_gates(config, pins):
+def validate_hardware_gates(config, pins, declared_from):
     if config.get("hardware_gate_evidence"):
-        path = str(Path(config["hardware_gate_evidence"]).absolute())
+        path = str(declared_from / config["hardware_gate_evidence"])
         gates = json.loads(check_pin(pins[path], "hardware gate evidence"))
         if (gates.get("machine_id") != config["machine_id"] or gates.get("base_id") != config["base_id"]
                 or gates.get("baseline_functional") != "PASS" or gates.get("recovery") != "PASS"
@@ -362,10 +362,11 @@ def freeze(config_path, baseline_path, candidate_path, output):
     states = {"baseline": pin_file(baseline_path), "candidate": pin_file(candidate_path)}
     identities = plan_states(config, states)
     binding = execution_binding()
-    pins = {path: pin_file(path) for path in input_paths(config, binding)}
-    validate_hardware_gates(config, pins)
+    declared_from = Path.cwd()
+    pins = {path: pin_file(path) for path in input_paths(config, binding, declared_from)}
+    validate_hardware_gates(config, pins, declared_from)
     plan = {"schema_version": 2, "execution_layer": binding, "record_type": "frozen-experiment-plan-v2", "frozen_at": now(),
-            "config": config, "inputs": list(pins.values()), "states": identities,
+            "config": config, "declared_from": str(declared_from), "inputs": list(pins.values()), "states": identities,
             "baseline_binding": states["baseline"], "candidate_binding": states["candidate"],
             "optimization_acceptance": "NOT RUN"}
     write_json(output, plan)
@@ -383,12 +384,15 @@ def load_plan(path):
     if "platform_metrics" in config:
         platform_adapter().validate_config(config["platform_metrics"], config["timeout_seconds"])
     utc_timestamp(plan["frozen_at"])
+    declared_from = Path(plan["declared_from"])
+    if not declared_from.is_absolute():
+        raise Invalid("plan declaration directory must be absolute")
     pins = {pin["path"]: pin for pin in plan["inputs"]}
-    if pins.keys() != set(input_paths(config, binding)) or len(pins) != len(plan["inputs"]):
+    if pins.keys() != set(input_paths(config, binding, declared_from)) or len(pins) != len(plan["inputs"]):
         raise Invalid("declared input lacks an exact pin or has an extra or duplicate pin")
     for pin in pins.values():
         check_pin(pin, "input")
-    validate_hardware_gates(config, pins)
+    validate_hardware_gates(config, pins, declared_from)
     states = {variant: plan[f"{variant}_binding"] for variant in ("baseline", "candidate")}
     if canonical(plan.get("states")) != canonical(plan_states(config, states)):
         raise Invalid("plan states differ from pinned captures")

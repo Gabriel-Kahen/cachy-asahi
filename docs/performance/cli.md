@@ -32,7 +32,8 @@ and checks all declared input pins. Modifications invalidate bindings.
 Pins retain the declared access path, resolved target and content hash. Retargeting
 a symlink is refused even if its new target has identical bytes. Keep inputs and
 aliases stable throughout the run; validation is not a filesystem sandbox against
-concurrent writers.
+concurrent writers. Relative input and evidence paths are bound to the directory
+where the plan was prepared.
 
 The config has these fields:
 

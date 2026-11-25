@@ -1,6 +1,7 @@
 """Exercise v2 plan validation with synthetic files and no workload execution."""
 import importlib.util
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -121,6 +122,19 @@ class PlanTests(unittest.TestCase):
         self.write(self.plan_path, plan)
         with self.assertRaisesRegex(runner.Invalid, "gate.*reviewed PASS"):
             runner.load_plan(self.plan_path)
+
+    def test_relative_inputs_are_bound_to_the_declaration_directory(self):
+        self.config["hardware_gate_evidence"] = self.gates_path.name
+        self.config["inputs"].append("fixture.txt")
+        (self.root / "fixture.txt").write_text("pinned input")
+        original = Path.cwd()
+        try:
+            os.chdir(self.root)
+            self.freeze()
+        finally:
+            os.chdir(original)
+        plan = runner.load_plan(self.plan_path)
+        self.assertEqual(plan["declared_from"], str(self.root))
 
 
 if __name__ == "__main__":
