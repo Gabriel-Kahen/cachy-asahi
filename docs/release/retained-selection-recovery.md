@@ -40,6 +40,11 @@ corrupt metadata store. Corrupt/incomplete target bundles or promotion records,
 expired/revoked/unavailable signer state in the supplied verification home,
 stale selection pins and unsafe storage/input ownership are also refused.
 
+A withdrawal-only generation has no selected release. Once it is the current
+generation, this command refuses retained recovery and leaves the withdrawal
+selected. Keep the withdrawal in effect until the release operator approves a
+compatible replacement through the normal release path.
+
 ## Review, sign and execute
 
 All paths must be canonical absolute paths without symlink components. Source

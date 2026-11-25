@@ -191,6 +191,15 @@ class Recovery(unittest.TestCase):
         self.assertEqual(result['status'], 'planned-local-endpoint')
         self.assertEqual((self.snapshot(self.root), self.snapshot(self.endpoint)), before)
 
+    def test_withdrawal_only_selection_refuses_retained_recovery_without_changes(self):
+        self.pair()
+        self.withdraw('successor')
+        withdrawal = self.export()
+        self.assertIsNone(withdrawal['selected_release'])
+        before = self.snapshot(self.root)
+        self.failure_preserves_endpoint(self.proposal, 'current endpoint has no selected release')
+        self.assertEqual(self.snapshot(self.root), before)
+
     def test_signed_target_lineage_mismatch_refuses_plan_preview_and_apply(self):
         self.pair()
         plan = self.proposal()
