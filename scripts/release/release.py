@@ -682,7 +682,7 @@ def read_signed_record(path, key, env):
 
 def private_directory(path):
     info = path.lstat()
-    require(stat.S_ISDIR(info.st_mode) and info.st_uid == os.geteuid() and stat.S_IMODE(info.st_mode) == 0o700,
+    require(stat.S_ISDIR(info.st_mode) and info.st_uid == os.geteuid() and info.st_mode & 0o777 == 0o700,
             f"unsafe pending record directory: {path.name}")
 
 

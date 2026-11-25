@@ -14,7 +14,7 @@ from unittest.mock import patch
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[2]
 EXPORTER = 'scripts/release/export_repository.py'
-EXPORTER_SHA = 'af6818e07d302ba8422fe73746491c6a1c06e3e97c3bff4b3e4ac3ad606a64f8'
+EXPORTER_SHA = 'f895d751e1ce1077da02cb5086ecec97d27a3eb92a5606b5c292fb9d8e0efce9'
 CONFIGS = ('scripts/ci/full-root-upgrade-caller/upgrade-config.json',
            'scripts/ci/full-root-failed-update/lane-config.json',
            'scripts/ci/full-root-postcommit-failure/lane-config.json')

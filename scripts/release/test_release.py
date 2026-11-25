@@ -961,6 +961,7 @@ with r.locked(root), mock.patch.object(r, "gates_check", side_effect=lambda *arg
         self.assertEqual(result.returncode, -signal.SIGKILL, result.stderr.decode())
 
     def test_promotion_resumes_partial_journal_without_replacing_colliding_history(self):
+        self.root.chmod(0o2700)
         args = self.modeled_promotion()
         destination = self.root / "stable/fixture-1"
         promotion = self.root / "promotions/fixture-1.json"
@@ -1018,6 +1019,7 @@ with r.locked(root), mock.patch.object(r, "gates_check", side_effect=lambda *arg
         self.assertFalse(pending.exists())
 
     def test_withdrawal_resumes_partial_journal_with_exact_reason_and_signature(self):
+        self.root.chmod(0o2700)
         promotion = self.modeled_promotion()
         self.promote_model(promotion)
         reason = self.inputs / "incident.txt"

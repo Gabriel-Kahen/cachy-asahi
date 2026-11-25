@@ -129,6 +129,7 @@ with mock.patch.object(e.r, "gates_check", side_effect=lambda *args: e.r.load(ar
         self.assertEqual(result.returncode, -signal.SIGKILL, result.stderr.decode())
 
     def test_apply_retries_after_kill_during_copy_and_around_pointer_switch(self):
+        self.endpoint.chmod(0o2700)
         self.promote()
         first = self.export()
         self.promote("fixture-2")

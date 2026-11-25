@@ -190,7 +190,7 @@ def interrupted_workspace(path):
     if not match:
         return False
     info = path.lstat()
-    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) != 0o700:
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o777 != 0o700:
         return False
     staging = match[1] == "export"
     expected = path / ("generation" if staging else "current")

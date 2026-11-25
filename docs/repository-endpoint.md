@@ -93,10 +93,10 @@ pointer replacement reports materialized state with
 `durability_uncertain: true`. Exit 1 reports a refusal/error. After abrupt process
 termination, rerun preview to inspect `current` and its hash-bound generation.
 Preview and apply can proceed past abandoned private workspaces with the
-exporter's exact name, owner, mode and layout. An interrupted copy is staged
-again from the source, and a retained complete generation is verified before
-reuse. Abandoned workspaces are preserved for inspection and may be removed by
-the maintainer while no endpoint writer is active. The tool uses Linux
+exporter's exact name, owner, access permissions and layout. An interrupted copy
+is staged again from the source, and a retained complete generation is verified
+before reuse. Abandoned workspaces are preserved for inspection. The maintainer
+may remove them while no endpoint writer is active. The tool uses Linux
 directory flock/fsync and atomic symlink replacement; cooperating writers and
 operator-controlled storage are assumed. Bounds are 16,384 members and 8 GiB per
 examined tree, with complete exported file/byte checks; rejected input is never
