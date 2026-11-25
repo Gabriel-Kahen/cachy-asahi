@@ -4,9 +4,14 @@ on:
     paths:
       - scripts/release/endpoint_copy_v1/**
       - scripts/client/endpoint.py
+      - scripts/client/endpoint_v2.py
       - scripts/client/client.py
       - scripts/client/test_endpoint.py
+      - scripts/client/test_endpoint_v2.py
       - scripts/release/export_repository.py
+      - scripts/release/export_repository_v2.py
+      - scripts/release/recover_repository.py
+      - scripts/release/test_recover_repository.py
       - scripts/release/offline_kit.py
       - scripts/release/release.py
       - scripts/release/source_delivery.py
@@ -18,9 +23,14 @@ on:
     paths:
       - scripts/release/endpoint_copy_v1/**
       - scripts/client/endpoint.py
+      - scripts/client/endpoint_v2.py
       - scripts/client/client.py
       - scripts/client/test_endpoint.py
+      - scripts/client/test_endpoint_v2.py
       - scripts/release/export_repository.py
+      - scripts/release/export_repository_v2.py
+      - scripts/release/recover_repository.py
+      - scripts/release/test_recover_repository.py
       - scripts/release/offline_kit.py
       - scripts/release/release.py
       - scripts/release/source_delivery.py
@@ -47,6 +57,10 @@ jobs:
             directory: scripts/client
             pattern: test_endpoint.py
             minimum: 20
+          - suite: recovery-recipient
+            directory: scripts/client
+            pattern: test_endpoint_v2.py
+            minimum: 10
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
