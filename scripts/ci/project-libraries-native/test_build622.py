@@ -237,8 +237,14 @@ class BuilderTests(unittest.TestCase):
                       patch.object(scope, "owned_containers", side_effect=owned),
                       patch.object(scope, "remove_container") as remove,
                       patch("build622.subprocess.run", side_effect=run) as executed):
+                    result = {}
                     with self.assertRaisesRegex(ValueError, "jbigkit isolated build 1"):
-                        build622.build_pair(scope, "jbigkit", image, lock, root)
+                        build622.build_pair(scope, "jbigkit", image, lock, root, result)
+                    self.assertEqual(result["build_failure"], {
+                        "attempt": 1, "category": "container-timeout" if timeout else "container-command-failed",
+                        "makepkg_phases_observed": [], "known_markers": [],
+                        **({} if timeout else {"container_exit_code": 2}),
+                    })
                     self.assertEqual(executed.call_count, 1)
                     if timeout:
                         remove.assert_called_once_with({"Name": "/" + next(iter(scope.names))})
@@ -249,6 +255,21 @@ class BuilderTests(unittest.TestCase):
                 self.assertEqual(report["status"], "failed")
                 expected = "builder timeout" if timeout else "container build exited 2"
                 self.assertIn(expected, report["error"])
+
+    def test_build_failure_projects_only_known_markers(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            artifacts = output / "artifacts"
+            artifacts.mkdir()
+            (artifacts / "private-recipe-name-build.log").touch()
+            (output / "provenance.json").write_text(json.dumps({
+                "error": "PRIVATE_PATH: PT_LOAD fails structural 16K alignment check", "exit_code": 0,
+            }))
+            (output / "build.log").write_bytes(b"PRIVATE_SOURCE_FILENAME\n==> ERROR: A failure occurred in build().\n")
+            self.assertEqual(build622.build_failure(output, 2), {
+                "attempt": 2, "category": "driver-validation", "container_exit_code": 0,
+                "makepkg_phases_observed": ["build"], "known_markers": ["build", "elf-16k-alignment"],
+            })
 
     def test_existing_build_runner_receives_nonce_label_and_swap_limit(self):
         with tempfile.TemporaryDirectory() as temporary:

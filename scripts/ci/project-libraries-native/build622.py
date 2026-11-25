@@ -275,7 +275,70 @@ def bootstrap(docker, native, entry, core, inputs, scratch, lock):
     return image
 
 
-def build_pair(docker, name, image, lock, scratch):
+def build_failure(output, attempt):
+    """Project known failures and progress without exposing any raw driver output."""
+    result = {"attempt": attempt, "category": "driver-no-provenance", "makepkg_phases_observed": []}
+    private = output / "provenance.json"
+    record = {}
+    if private.is_file() and private.stat().st_size <= 256 * 1024:
+        try:
+            record = json.loads(private.read_bytes())
+        except (OSError, ValueError):
+            result["category"] = "driver-provenance-unreadable"
+    error = record.get("error", "")
+    exit_code = record.get("exit_code")
+    if type(exit_code) is int and 0 <= exit_code <= 255:
+        result["container_exit_code"] = exit_code
+    categories = (
+        ("builder timeout", "container-timeout"),
+        ("container build exited", "container-command-failed"),
+        ("isolated generated metadata differs", "generated-metadata"),
+        ("artifact metadata differs", "artifact-metadata"),
+        ("artifact .BUILDINFO differs", "artifact-metadata"),
+        ("missing required builder environment", "missing-container-evidence"),
+        ("builder package inventory differs", "container-inventory"),
+        ("builder produced no packages", "missing-package"),
+    )
+    if error:
+        result["category"] = next((category for prefix, category in categories if error.startswith(prefix)),
+                                  "driver-validation")
+    artifacts = output / "artifacts"
+    result["makepkg_phases_observed"] = [
+        phase for phase in ("prepare", "build", "check", "package")
+        if any(artifacts.glob(f"*-{phase}.log"))
+    ]
+    observed = error.lower().encode()
+    for log in (output / "build.log", output.with_name(output.name + "-driver.log")):
+        if log.is_file():
+            with log.open("rb") as stream:
+                stream.seek(max(0, log.stat().st_size - 64 * 1024))
+                observed += stream.read(64 * 1024).lower()
+    messages = (
+        (b"error response from daemon", "docker-daemon"),
+        (b"permission denied", "permission-denied"),
+        (b"read-only file system", "read-only-filesystem"),
+        (b"expected aarch64 runtime", "container-architecture"),
+        (b"missing isolated-builder contract", "container-entry-contract"),
+        (b"makepkg must run as a non-root account", "container-user"),
+        (b"unable to read file", "pacman-config"),
+        (b"cannot be built for", "makepkg-architecture"),
+        (b"missing dependencies", "missing-dependencies"),
+        (b"one or more files did not pass the validity check", "source-validation"),
+        (b"failure occurred in prepare()", "prepare"),
+        (b"failure occurred in build()", "build"),
+        (b"failure occurred in check()", "check"),
+        (b"failure occurred in package()", "package"),
+        (b"pt_load fails structural 16k alignment check", "elf-16k-alignment"),
+        (b"expected aarch64 (183)", "elf-architecture"),
+        (b"non-root package ownership", "package-ownership"),
+        (b"artifact metadata differs from reviewed", "artifact-metadata"),
+        (b"artifact .buildinfo differs", "buildinfo-recipe-hash"),
+    )
+    result["known_markers"] = [marker for message, marker in messages if message in observed]
+    return result
+
+
+def build_pair(docker, name, image, lock, scratch, report):
     recipe = scratch / "recipes" / name
     builder = load(BUILD / "build_v2.py", "_native622_build_v2")
     builder.subprocess = SimpleNamespace(check_output=docker.build_v2_capture, run=docker.build_v2_run,
@@ -297,7 +360,10 @@ def build_pair(docker, name, image, lock, scratch):
                     status = builder.main()
         finally:
             sys.argv = previous
-        require(status == 0 and not list(docker.owned_containers()), f"{name} isolated build {attempt}")
+        if status != 0:
+            report["build_failure"] = build_failure(out, attempt)
+            raise GuardFailure(f"{name} isolated build {attempt}")
+        require(not list(docker.owned_containers()), f"{name} build container retired {attempt}")
         require(list((out / "artifacts").glob("*-check.log")), f"{name} actual makepkg check phase")
         paths.append(out)
     result = command([sys.executable, "-I", "-B", str(BUILD / "compare_v2.py"),
@@ -483,14 +549,14 @@ def actor(scratch, args, report):
             base = bootstrap(docker, native, entry, core, inputs, scratch, lock)
         report["minimal206"].update(image=base, inventory_sha256=sha(lock))
         report["phase"] = "jbigkit-pair"
-        jbig, jbig_attempts = build_pair(docker, "jbigkit", base, lock, scratch)
+        jbig, jbig_attempts = build_pair(docker, "jbigkit", base, lock, scratch, report)
         report["jbigkit"] = {"archive_sha256": sha(jbig), "archive_bytes": jbig.stat().st_size,
                              "pair": "BYTE_IDENTICAL", "runs": jbig_attempts}
         report["phase"] = "signed-tiff-builder"
         tiff_image, signed = extend(docker, base, jbig, lock, scratch, native)
         report["tiff210"] = dict(signed, image=tiff_image, signature_policy="Required")
         report["phase"] = "libtiff-pair"
-        tiff, tiff_attempts = build_pair(docker, "libtiff", tiff_image, scratch / "expected210.lock", scratch)
+        tiff, tiff_attempts = build_pair(docker, "libtiff", tiff_image, scratch / "expected210.lock", scratch, report)
         report["libtiff"] = {"archive_sha256": sha(tiff), "archive_bytes": tiff.stat().st_size,
                              "pair": "BYTE_IDENTICAL", "runs": tiff_attempts}
         report["phase"] = "passive-package-inspection"

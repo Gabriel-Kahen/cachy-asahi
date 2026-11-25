@@ -154,8 +154,10 @@ runs the installed TIFF/JBIG consumer and `tiffinfo`. It then removes,
 reinstalls and removes the five packages, checks both roundtrips and restores
 the 206-package inventory with package-owned files absent. Only bounded
 metadata and hashes reach the hosted log. Private inputs, raw build logs,
-archives and TEST key material are confined to the disposable job. The
-cleanup report covers the job's named and labelled containers and images.
+archives and TEST key material are confined to the disposable job. A
+failed build reports its attempt, bounded failure category, container exit
+code when available, observed makepkg phases and recognized diagnostic
+markers. The cleanup report covers the job's named and labelled containers and images.
 Daemon build-cache retirement is unverified.
 
 Native AArch64 build pairs and the fresh signed lifecycle await dispatch.
