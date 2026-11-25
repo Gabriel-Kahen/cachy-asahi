@@ -64,6 +64,19 @@ class AdoptionControls(unittest.TestCase):
             with self.assertRaises(ValueError): P.export(self.output, self.root)
             self.assertFalse(self.output.exists()); path.write_bytes(raw)
 
+    def test_export_uses_frozen_package_checker(self):
+        name = 'scripts/checks/package_checks.py'
+        retained = self.root / self.profile['files'][name]['source']
+        active = self.root / name
+        active.write_text('# active checker revision\n')
+        expected = 'e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8'
+        P.export(self.output, self.root)
+        self.assertEqual(P.digest((self.output / name).read_bytes()), expected)
+
+        retained.write_text('# changed retained checker\n')
+        with self.assertRaisesRegex(ValueError, 'pinned canonical source differs'):
+            P.checked(self.root)
+
     def test_alias_hardlink_fifo_and_mode_changes_refuse(self):
         target = self.root/P.RECIPE/'pipeline.py'; original = target.read_bytes()
         target.chmod(0o600)

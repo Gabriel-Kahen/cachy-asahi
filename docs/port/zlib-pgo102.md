@@ -88,6 +88,9 @@ No held-out training, profile fallback or performance rule changes occur.
 existing byte-identical support files and thirteen other original assets kept in
 `scripts/experiments/zlib_pgo102-view/`. The original map, recipe, pipeline and
 recipe-policy are copied verbatim; the adoption profile is a separate mapping.
+The profile locates `scripts/checks/package_checks.py` in the retained v1
+checker at `scripts/checks/measurement_tools_package_checks_original_v1.py`.
+Its Source102 path, byte count, digest and mode are preserved in the export.
 The Root qualification record is pinned separately and is not injected into the
 original closed 39-file view.
 

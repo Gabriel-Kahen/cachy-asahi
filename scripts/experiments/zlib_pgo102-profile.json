@@ -208,7 +208,7 @@
       "bytes": 17706,
       "mode": 420,
       "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
-      "source": "scripts/checks/package_checks.py"
+      "source": "scripts/checks/measurement_tools_package_checks_original_v1.py"
     },
     "scripts/experiments/test_zlib_pgo_guest.py": {
       "bytes": 9336,
