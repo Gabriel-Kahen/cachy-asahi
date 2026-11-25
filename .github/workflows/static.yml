@@ -137,11 +137,18 @@ jobs:
           PY
           bash -n scripts/build/container-entry.sh
           bash -n scripts/build/container-entry-v2.sh
+      - uses: ./.github/actions/apps-package-source
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        id: apps7-source
+        with:
+          revision: '7'
       - name: Check explicit Apps7 inventory parser candidate
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        env:
+          APPS_PACKAGE_SOURCE: ${{ steps.apps7-source.outputs.path }}
         run: |
-          python3 -I -B packages/tools/cachy-asahi-apps7/check_source.py --repository-source "$PWD" --recipe-root packages/tools/cachy-asahi-apps7
-          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-apps7/test_apps.py --repository-source "$PWD" --app-recipe-root packages/tools/cachy-asahi-apps7 --runtime-recipe-root packages/tools/cachy-asahi-repository-runtime -v
+          python3 -I -B packages/tools/cachy-asahi-apps7/check_source.py --repository-source "$APPS_PACKAGE_SOURCE" --recipe-root packages/tools/cachy-asahi-apps7
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-apps7/test_apps.py --repository-source "$APPS_PACKAGE_SOURCE" --app-recipe-root packages/tools/cachy-asahi-apps7 --runtime-recipe-root packages/tools/cachy-asahi-repository-runtime -v
       - name: Check opt-in installed repository client v2
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
