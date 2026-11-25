@@ -57,3 +57,32 @@ signature or VM operations. Package assembly, signed installation, loader
 checks and restoration remain unrun. An official Qt provider replacement needs
 a separate admitted image, current trusted rollback archive and its own
 consumer requirements.
+
+## Guest supervisor callbacks
+
+`worker.py` rederives the selected preflight plan before invoking any
+callback. It checks the closed independently pinned selection, the public-only
+certificate packets, original detached signature, exact signature-required
+configuration, and the proposed guest boundary. It then uses the existing
+TEST status parser and normal ALPM commands for the five mutations. It joins
+each installed stage to the signed payload and pinned normal-loader provider
+closure. It builds the independent consumer once, then reruns that same
+consumer after both reinstalls. After each removal it compares the stopped
+database and protected observations with the recorded baseline.
+
+The worker has no CLI or default executor. The future guest supervisor supplies
+all command, mount-identity, signature-input, installed-state and loader
+observations. It must use the existing stopped database reader, capture the
+normal loader's actual maps and approved path owners, and retain the raw command
+streams. The separate sibling validator takes original ALPM diagnostic and
+stopped-database observations from independently retired sibling clones.
+
+```sh
+python3 -I -B -Werror::ResourceWarning "$lane/test_worker.py"
+```
+
+These controls feed inert fixtures through the actual worker. They exercise
+command ordering, protected-configuration preservation, failed or unretired
+commands, bad trust and guest boundaries, distinct signature-refusal clones,
+and exact inventory, loader and database restoration. Live signatures and
+installation remain unrun.
