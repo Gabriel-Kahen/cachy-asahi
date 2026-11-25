@@ -15,10 +15,10 @@ only the Fish package and exercised staging, comparison and withdrawal.
 
 - JBIG/TIFF [#622](https://github.com/Gabriel-Kahen/cachy-asahi/issues/622)
   passed two byte-identical native AArch64 builds per package and a fresh
-  TEST-signed install, removal, and reinstall on a 4 KiB runner. A reduced
-  QEMU fixture replaced and restored the signed original providers while
-  preserving `tificc`. The exact native TIFF archive and the intended
-  maintenance composition still need replacement and restoration testing.
+  TEST-signed install, removal, and reinstall on a 4 KiB runner. The same-job
+  native archives passed signed replacement and restoration of the original
+  providers in Minimal206 with `tificc` installed throughout. Migration on
+  the intended maintenance composition and physical 16 KiB testing remain open.
   [Native build and lifecycle evidence](validation/project-libraries-native-20261125.md)
 - Kernel [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) passed
   hosted intake of all 226 recovered objects. The baseline build command
