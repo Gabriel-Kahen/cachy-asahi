@@ -86,8 +86,10 @@ following original serial build timings.
 
 The largest Gui action was CMake autogen at 218.839 seconds. These action
 timings come from the completed builds, while the 1,216-command count
-above comes from the static `all` graph. A fresh guest dry run and a measured
-full build remain open. The local readback is under
+above comes from the static `all` graph. A later disposable guest dry run
+confirmed all 1,216 scheduled actions. Full-build timing remains open.
+[Dry-run and runner evidence](../../scripts/integration/qt612_full_16k_preflight/README.md#runner-and-budget-review-november-25)
+The local timing readback is under
 `~/.cache/qt612-ninja-timing-20261125.64pIENCe/`.
 
 | Retained evidence | SHA-256 |
