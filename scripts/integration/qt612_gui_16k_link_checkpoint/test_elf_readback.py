@@ -88,6 +88,13 @@ class ElfTests(unittest.TestCase):
         self.assertEqual(actual["md_parse"], dict(imported=True, provider_export=True,
                                                   relocation=[dict(type="R_AARCH64_JUMP_SLOT", address=0x14600)]))
 
+    def test_unversioned_undefined_import_accepts_gnu_ld_zero_index(self):
+        self.gui = fixture("gui", REQUIRED, version=0)
+        self.assertTrue(self.verify()["md_parse"]["imported"])
+        self.md4c = fixture("md4c", symbol_section=3, reloc=None, version=0)
+        with patch.object(E, "MD4C_PIN", E.pin(self.md4c)), self.assertRaisesRegex(ValueError, "must be unversioned"):
+            self.verify()
+
     def test_qtgui_requires_all_three_dynamic_dependency_edges(self):
         for omitted in REQUIRED:
             with self.subTest(omitted=omitted), self.assertRaisesRegex(ValueError, "directly need"):
@@ -104,7 +111,8 @@ class ElfTests(unittest.TestCase):
                               (dict(addend=4), "zero-addend call relocation"),
                               (dict(target=0x10360), "writable load"),
                               (dict(symbol_section=3), "undefined global"),
-                              (dict(version=2), "must be unversioned")):
+                              (dict(version=2), "must be unversioned"),
+                              (dict(version=0x8001), "must be unversioned")):
             with self.subTest(kwargs=kwargs), self.assertRaisesRegex(ValueError, error):
                 self.gui = fixture("gui", REQUIRED, **kwargs)
                 self.verify()
