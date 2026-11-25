@@ -284,61 +284,47 @@ class JobContracts(unittest.TestCase):
             self.args.packet_sha256, 'success'), public_record)
         return public_record, private_record
 
-    def test_retained_inputs_route_keeps_url_out_of_child_commands_env_and_receipts(self):
+    def test_retained_inputs_stage_is_rechecked_and_only_reaches_expected_child_caches(self):
         _, phases = self.controller_fixture()
         original = job.runtime.Runner
-        url = 'https://intake.invalid/archive?authorization=protected'
         private = self.args.output / 'private'
+        values = {job.intake.OPT_IN: '1', job.intake.OUTCOME_ENV: 'success', job.intake.TRANSPORT_ENV: 'https',
+                  'RUNNER_TEMP': str(self.root), 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1'}
+        lane_bodies = {'alarm-cache': b'producer', 'extension': b'extension'}
+        pins = {lane + '.sig': (lane, len(body), hashlib.sha256(body).hexdigest())
+                for lane, body in lane_bodies.items()}
+        source = job.intake.runner_output(values)
+        source.mkdir()
+        for name, (lane, _, _) in pins.items():
+            (source / lane).mkdir()
+            (source / lane / name).write_bytes(lane_bodies[lane])
 
         def runner(seconds, env, logs):
-            if job.intake.URL_ENV in env:
-                self.assertEqual(env, {job.intake.URL_ENV: url})
-                self.assertNotIn(job.intake.URL_ENV, os.environ)
-                self.assertGreater(seconds, 0)
-                self.assertLessEqual(seconds, job.intake.MAX_SECONDS)
-
-                def worker(command, **kwargs):
-                    self.assertEqual(command[:3], ['/usr/bin/python3', '-I', '-B'])
-                    self.assertEqual(command[3], str(private / 'source' / job.packet.INTAKE_SOURCE))
-                    self.assertNotIn(url, command)
-                    self.assertEqual(kwargs, {'timeout': seconds, 'limit': 1024})
-                    staged = Path(command[4]); self.assertEqual(staged.parent, private)
-                    for lane in ('alarm-cache', 'extension'):
-                        (staged / lane).mkdir()
-                    for name, (lane, _, _) in job.intake.MEMBERS.items():
-                        (staged / lane / name).touch()
-                    return SimpleNamespace(returncode=0, stdout=b'')
-
-                return Mock(run=worker)
             instance = original(seconds, env, logs)
-            self.assertNotIn(job.intake.OPT_IN, env)
-            self.assertNotIn(url, env.values())
+            for secret in (job.intake.URL_ENV, job.intake.SSH_ENV, job.intake.OPT_IN):
+                self.assertNotIn(secret, env)
             if seconds == job.PARALLEL:
                 def children(commands, **kwargs):
                     producer, acquisition = commands
                     self.assertEqual(producer[producer.index('--cache') + 1], str(private / 'alarm-cache'))
                     self.assertEqual(acquisition[-2], '--reuse-cache')
-                    for lane, path, count in (('alarm-cache', private / 'alarm-cache', 6),
-                                              ('extension', Path(acquisition[-1]), 16)):
-                        actual = {item.name for item in path.iterdir()}
-                        self.assertEqual(len(actual), count)
-                        self.assertEqual(actual, {name for name, pin in job.intake.MEMBERS.items() if pin[0] == lane})
+                    for lane, path in (('alarm-cache', private / 'alarm-cache'), ('extension', Path(acquisition[-1]))):
+                        self.assertEqual({p.name: p.read_bytes() for p in path.iterdir()}, {lane + '.sig': lane_bodies[lane]})
                     return [SimpleNamespace(returncode=0, stdout=b'')] * 2
                 instance.run_many.side_effect = children
             return instance
 
-        with patch.dict(os.environ, {job.intake.OPT_IN: '1', job.intake.URL_ENV: url}), \
+        with patch.dict(os.environ, values), patch.object(job.intake, 'MEMBERS', pins), \
                 patch.object(job.runtime, 'Runner', side_effect=runner):
             self.assertEqual(job.execute(self.args), 0)
         parallel = next(instance for seconds, instance in phases if seconds == job.PARALLEL)
         parallel.run_many.assert_called_once()
         self.assertEqual(list(private.glob('retained-inputs-*')), [])
-        for receipt in ('private/producer-started.json', 'private/result.json', 'public/status.json'):
-            self.assertNotIn(url, (self.args.output / receipt).read_text())
+        self.assertNotIn(str(source), (self.args.output / 'public/status.json').read_text())
 
-    def test_retained_inputs_explicit_opt_in_without_secret_stops_before_either_child(self):
+    def test_retained_fetch_failure_stops_before_either_child(self):
         _, phases = self.controller_fixture()
-        with patch.dict(os.environ, {job.intake.OPT_IN: '1', job.intake.URL_ENV: ''}):
+        with patch.dict(os.environ, {job.intake.OPT_IN: '1', job.intake.OUTCOME_ENV: 'failure'}):
             self.assertEqual(job.execute(self.args), 1)
         status, _ = self.failure_receipts('source', 'RETAINED_INPUTS_REJECTED')
         self.assertEqual(status['producer_exit']['kind'], 'NOT_RUN')
@@ -346,22 +332,23 @@ class JobContracts(unittest.TestCase):
         self.assertEqual([seconds for seconds, _ in phases], [job.SETUP, job.CLEANUP])
         self.assertFalse((self.args.output / 'private/alarm-cache').exists())
 
-    def test_retained_input_secret_alone_cannot_enable_network(self):
-        values = {job.intake.OPT_IN: '', job.intake.URL_ENV: 'https://intake.invalid/archive'}
-        with patch.dict(os.environ, values), patch.object(job.runtime, 'Runner') as worker:
-            with job.retained_input_cache(self.root, self.root, job.snapshot_clock()) as reuse:
+    def test_skipped_intake_does_not_consume_runner_stage(self):
+        with patch.dict(os.environ, {job.intake.OPT_IN: ''}), patch.object(job.intake, 'materialize') as stage:
+            with job.retained_input_cache(self.root) as reuse:
                 self.assertIsNone(reuse)
-                self.assertNotIn(job.intake.URL_ENV, os.environ)
-        worker.assert_not_called()
+        stage.assert_not_called()
 
-    def test_retained_input_worker_failure_removes_partial_staging_without_promoting(self):
+    def test_cancelled_stage_copy_discards_partial_inputs_without_promoting(self):
         private = self.root / 'private'; private.mkdir(mode=0o700)
-        def refuse(command, **kwargs):
-            (Path(command[-1]) / 'partial').touch()
+
+        def refuse(source, staged, files):
+            (staged / 'partial').touch()
             raise job.runtime.Cancelled(signal.SIGTERM)
-        values = {job.intake.OPT_IN: '1', job.intake.URL_ENV: 'https://intake.invalid/archive'}
-        with patch.dict(os.environ, values), patch.object(job.runtime, 'Runner', return_value=Mock(run=refuse)):
-            with self.assertRaises(job.runtime.Cancelled), job.retained_input_cache(self.root, private, job.snapshot_clock()):
+
+        values = {job.intake.OPT_IN: '1', job.intake.OUTCOME_ENV: 'success', job.intake.TRANSPORT_ENV: 'https',
+                  'RUNNER_TEMP': str(self.root), 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1'}
+        with patch.dict(os.environ, values), patch.object(job.intake, 'materialize', side_effect=refuse):
+            with self.assertRaises(job.runtime.Cancelled), job.retained_input_cache(private):
                 self.fail('cancelled intake must refuse both caches')
         self.assertEqual(list(private.iterdir()), [])
 

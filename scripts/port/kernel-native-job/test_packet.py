@@ -47,6 +47,7 @@ class PacketTests(unittest.TestCase):
                            packet.PREFIX + 'packet.py': b'fixture packet helper\n',
                            packet.PREFIX + 'runtime.py': b'fixture runtime\n',
                            packet.INTAKE_SOURCE: b'fixture intake\n',
+                           packet.NATIVE349_FILES: b'fixture carrier pins\n',
                            packet.WORKFLOW: b'fixture workflow\n',
                            packet.DOCUMENT: b'fixture doc\n'}.items():
             write(name, data, 0o755 if name.endswith('.sh') else 0o644)
@@ -72,7 +73,8 @@ class PacketTests(unittest.TestCase):
         # The self-referential lock is excluded from the packet file set.
         write(packet.PREFIX + 'packet.lock.json', b'{}\n')
         self.helper_pins = {name: (packet.sha(self.contents[name]), (self.root / name).stat().st_mode & 0o777)
-                            for name in ('LICENSE', 'AGENTS.md', 'scripts/setup/setup.py', 'scripts/ci/native_arm.py')}
+                            for name in ('LICENSE', 'AGENTS.md', 'scripts/setup/setup.py', 'scripts/ci/native_arm.py',
+                                         packet.NATIVE349_FILES)}
         self.pins = {'HELPERS': self.helper_pins, 'RECIPE_COUNT': 4, 'KERNEL_COUNT': 1, 'KERNEL_SHA': packet.sha(self.contents[packet.KERNEL + 'stage.lock.json']),
                      'RECIPES_SHA': packet.sha(self.contents[packet.RECIPES_LOCK]),
                      'INPUTS_SHA': packet.sha(self.contents['scripts/ci/inputs.lock.json'])}

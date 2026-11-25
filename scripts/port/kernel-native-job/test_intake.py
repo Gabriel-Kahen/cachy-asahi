@@ -7,7 +7,7 @@ import json
 import os
 from pathlib import Path
 import stat
-import sys
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -54,6 +54,15 @@ class IntakeTests(unittest.TestCase):
                     expected[name + '.sig'] = lane, row['signature_size'], row['signature_sha256']
         self.assertEqual(len(expected), 22)
         self.assertEqual(intake.MEMBERS, expected)
+
+    def test_ssh_closes_both_pinned_lanes_without_overwriting_base_files(self):
+        kernel, added, historical = intake.carrier_profiles()
+        self.assertEqual([len(profile[3]) for profile in (kernel, added, historical)], [22, 22, 183])
+        files = intake.retained_files('ssh')
+        self.assertEqual(sum(path.startswith('alarm-cache/') for path in files), 210)
+        self.assertEqual(sum(path.startswith('extension/') for path in files), 16)
+        self.assertEqual({key: files[key] for key in intake.retained_files('https')}, intake.kernel_files())
+        self.assertNotIn('manifest.json', files)
 
     def test_rejects_non_https_userinfo_fragments_and_controls(self):
         for value in ('', '//intake.invalid/packet', 'http://intake.invalid/packet',
@@ -141,14 +150,96 @@ class IntakeTests(unittest.TestCase):
 
     def test_worker_exit_does_not_print_endpoint_or_exception(self):
         output = io.StringIO()
-        with tempfile.TemporaryDirectory() as name, patch.dict(os.environ, {intake.URL_ENV: URL}), \
-                patch.object(sys, 'argv', ['intake.py', name]), redirect_stdout(output), redirect_stderr(output):
+        with tempfile.TemporaryDirectory() as name, patch.dict(os.environ, {
+                intake.URL_ENV: URL, intake.TRANSPORT_ENV: 'https', 'RUNNER_TEMP': name,
+                'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1'}), redirect_stdout(output), redirect_stderr(output):
             download = Mock(side_effect=ValueError(URL))
             with patch.object(intake, 'download', download):
-                self.assertEqual(intake.main(), 1)
+                with patch.object(intake.os, 'umask'):
+                    self.assertEqual(intake.main(), 1)
             self.assertNotIn(intake.URL_ENV, os.environ)
             self.assertEqual(list(Path(name).iterdir()), [])
         self.assertEqual(output.getvalue(), '')
+
+    def test_real_git_round_trip_and_pin_refusals(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository = root / 'repo'
+            repository.mkdir()
+
+            def git(*args):
+                return subprocess.check_output(['/usr/bin/git', '-C', str(repository), *args]).decode().strip()
+
+            git('init', '-q', '--template=', '--object-format=sha1', '-b', 'native623-r1')
+            bodies = {'alarm-cache/base.sig': b'base', 'extension/lib-1:2.pkg.tar.xz': b'extended'}
+            members = {}
+            for relative, body in bodies.items():
+                lane, name = relative.split('/')
+                members[relative] = len(body), hashlib.sha256(body).hexdigest()
+                (repository / lane).mkdir()
+                (repository / relative).write_bytes(body)
+            git('add', '--', 'alarm-cache', 'extension')
+            git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'parentless')
+            commit, tree = git('rev-parse', 'HEAD'), git('rev-parse', 'HEAD^{tree}')
+            identity = root / 'test-key'
+            subprocess.run(['/usr/bin/ssh-keygen', '-q', '-t', 'ed25519', '-N', '', '-f', str(identity)],
+                           check=True, capture_output=True)
+            fingerprint = subprocess.check_output(['/usr/bin/ssh-keygen', '-lf', str(identity), '-E', 'sha256'])
+            deploy_key = b' '.join(fingerprint.split()[:2])
+            def profiles():
+                return ((intake.SSH_REF, intake.SSH_COMMIT, intake.SSH_TREE, members),)
+
+            with patch.multiple(intake, SSH_COMMIT=commit, SSH_TREE=tree, carrier_profiles=profiles,
+                                SSH_REMOTE=repository.as_uri(), DEPLOY_KEY=deploy_key,
+                                GIT=intake.GIT + ['-c', 'protocol.file.allow=always']):
+                values = {intake.SSH_ENV: identity.read_text(), intake.TRANSPORT_ENV: 'ssh',
+                          'RUNNER_TEMP': directory, 'GITHUB_RUN_ID': '23', 'GITHUB_RUN_ATTEMPT': '1'}
+                with patch.dict(os.environ, values), patch.object(intake.os, 'umask'):
+                    self.assertEqual(intake.main(), 0)
+                    self.assertNotIn(intake.SSH_ENV, os.environ)
+                staged = intake.runner_output(values)
+                self.assertEqual({str(p.relative_to(staged)): p.read_bytes()
+                                  for p in staged.glob('*/*')}, bodies)
+                self.assertEqual(list(root.glob('kernel623-fetch-*')), [])
+                for index, change in enumerate(({'SSH_COMMIT': '0' * 40}, {'SSH_TREE': '0' * 40},
+                                                {'DEPLOY_KEY': b'256 SHA256:wrong'}), start=2):
+                    values['GITHUB_RUN_ATTEMPT'] = str(index)
+                    with patch.multiple(intake, **change), patch.dict(os.environ, values), patch.object(intake.os, 'umask'):
+                        self.assertEqual(intake.main(), 1)
+                        self.assertNotIn(intake.SSH_ENV, os.environ)
+                    self.assertFalse(intake.runner_output(values).exists())
+                    self.assertEqual(list(root.glob('kernel623-fetch-*')), [])
+
+    def test_runner_copy_refuses_tampering_and_symlinks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'staged'
+            source.mkdir()
+            for lane in ('alarm-cache', 'extension'):
+                (source / lane).mkdir()
+            output = root / 'copy'
+            output.mkdir()
+            content = b'expected'
+            files = {'alarm-cache/body': (len(content), hashlib.sha256(content).hexdigest())}
+            pinned = source / 'alarm-cache' / 'body'
+            for case in ('extra', 'changed', 'symlink'):
+                with self.subTest(case=case), self.assertRaises(ValueError if case != 'symlink' else OSError):
+                    if case == 'extra':
+                        (source / 'extra').touch()
+                    elif case == 'changed':
+                        pinned.write_bytes(b'tampered')
+                    else:
+                        pinned.symlink_to(root / 'unlisted')
+                    try:
+                        intake.materialize(source, output, files)
+                    finally:
+                        (source / 'extra').unlink(missing_ok=True)
+                        pinned.unlink(missing_ok=True)
+                        for path in output.glob('*/*'):
+                            path.unlink()
+                        for path in output.iterdir():
+                            path.rmdir()
 
 
 if __name__ == '__main__':

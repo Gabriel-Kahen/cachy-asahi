@@ -17,25 +17,48 @@ verifier now accepts that Image RELA no-op, checks all eight bytes of each
 writing RELA or RELR destination, and includes both relocation tables in
 the full ELF-to-Image byte comparison.
 
-Pinned public mirror URLs return HTTP 404 for the bubblewrap, jbigkit and
-libtiff archive/signature pairs in the 341-package input lock and for eight
-pairs in the kernel extension: clang, compiler-rt, libgit2, libxslt, lld,
-llvm, rust and rust-src. The hosted job needs custody of the exact retained
-objects or a reviewed replacement baseline before execution can qualify the
-pair. [Kernel dependency pins](../../scripts/port/kernel-native-stage/dependencies.json)
+On November 25, the pinned public mirror returned HTTP 404 for 210 of 501
+producer input files. This included the bubblewrap, jbigkit and libtiff
+archive/signature pairs. Eight extension archive/signature pairs were
+also unavailable: clang, compiler-rt, libgit2, libxslt, lld, llvm, rust and
+rust-src. The SSH route covers these 226 files. Remaining inputs still come
+from the original locked URLs and must pass the original byte and signature
+checks. [Kernel dependency pins](../../scripts/port/kernel-native-stage/dependencies.json)
 
-The manual `retained_inputs` option directs the job to a caller-authorized
-HTTPS GET URL supplied through the `KERNEL_NATIVE_RETAINED_INPUTS_URL` Actions
-secret. A presigned URL can provide read authorization. The job accepts one
-direct response within the existing setup reserve, verifies the 152391680-byte
-USTAR archive and its 22 exact regular files, and refuses invalid input before
-starting either child. The archive SHA-256 is
+For private SSH intake, dispatch with `retained_inputs=true` and
+`retained_transport=ssh`. The authenticated intake step shallow-fetches
+three exact refs from the private `Gabriel-Kahen/cachy-asahi-ci-inputs`
+repository. Each ref must resolve to the pinned parentless commit, tree and
+regular-blob inventory.
+
+| Branch | Commit | Tree | Files |
+| --- | --- | --- | --- |
+| `native623-r1` | `b429266444c82238783044301ceb0f8d08bbf3f6` | `a8f1cd41e3aadeee9a25bc3b96e14c823de870aa` | 6 base, 16 extension |
+| `native623-base-r1` | `3ac0b845b13b9a8f1da4fc9ec90ac627a6f0da0c` | `e3f619a2bb8a287cd0aaa7d1975d8d392cb8786e` | 22 additional base |
+| `native349-r1` | `9d9e1ab7ce694e33238ec1152bef72270d4bf91f` | `cc6298d8dbbb5b0dd522de76b7140306d83bfe7a` | 182 base, one manifest |
+
+The SSH step pins GitHub's Ed25519 host key and the fingerprint of the existing
+read-only repository deploy key. Only this step receives
+`CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY`. The step removes its key file before
+checking out payload bytes and removes its temporary Git store before returning.
+It leaves `native349-r1` intact and verifies that branch's manifest without
+passing it to either child. The Git/SSH commands share a 210-second deadline
+inside a four-minute workflow step. The native step retains its 346-minute
+budget and the full workflow retains its 360-minute ceiling.
+
+The same step supports `retained_transport=https` with the
+`KERNEL_NATIVE_RETAINED_INPUTS_URL` Actions secret for the original 22
+retained files. It accepts a single direct
+HTTPS response for the 152391680-byte USTAR archive with SHA-256
 `0a3e3661754e2c194895e5ada5e075866c99b3702b9361bb3b3395ae665c81fa`.
-The six base files preseed the private producer `alarm-cache`. The sixteen
-extension files go to the acquisition child's `--reuse-cache` directory,
-which the job removes after the parallel children stop. Both children still
-check their original byte pins and GPG signatures. The hosted path needs an
-authorized endpoint serving this exact archive to the ARM runner.
+The intake step writes a private directory for this run attempt and exposes
+only its GitHub Actions outcome to the next step. The native job independently
+copies and verifies each file against its original size and SHA-256. The base
+files seed the producer's private `alarm-cache`. Sixteen extension files seed
+the acquisition child's `--reuse-cache`, which is removed when the parallel
+children stop. Both children still enforce their original GPG signature
+verification. Failed intake refuses both children. The final workflow step
+removes the temporary runner handoff and publishes the bounded job status.
 
 The manual [workflow](../../.github/workflows/native-arm-kernel.yml) runs only
 in the public `Gabriel-Kahen/cachy-asahi` repository on `ubuntu-24.04-arm`.

@@ -15,6 +15,7 @@ WORKFLOW = '.github/workflows/native-arm-kernel.yml'
 DOCUMENT = 'docs/workstreams/kernel-native-job.md'
 RECIPES_LOCK = PREFIX + 'recipes.lock.json'
 INTAKE_SOURCE = PREFIX + 'intake.py'
+NATIVE349_FILES = 'scripts/ci/native349-pinned-input-carrier/expected-files.json'
 KERNEL_SHA = 'd3ef280c4ad270ae87ed581692a140f52cb86ac3f4c1d6f28acca1d60d9415f7'
 INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 RECIPES_SHA = '56c53699b1c9a493798a071a537ae17d5b892ffa9618ca99a3465985a51fcef8'
@@ -41,6 +42,7 @@ HELPERS = {
     'docs/repository-enrollment.md': ('67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4', 0o644),
     'LICENSE': ('51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 0o644),
     'AGENTS.md': ('a95eaf775ac935ebdfe6b9c89aad9382639671aecdaab91503e1453d4782a056', 0o644),
+    NATIVE349_FILES: ('1564360abf5695b19c132de971750311ab017189dd7b11b38b969d5445faf70b', 0o644),
 }
 
 
@@ -159,7 +161,8 @@ def closure(root):
     # The externally pinned packet excludes itself. The recipe lock was
     # admitted above, so the remaining job directory can only add Python.
     job_files.difference_update({'packet.lock.json', 'recipes.lock.json'})
-    need(job_files and all(name.endswith('.py') and '/' not in name for name in job_files), 'packet-own-file')
+    need(INTAKE_SOURCE.removeprefix(PREFIX) in job_files and
+         all(name.endswith('.py') and '/' not in name for name in job_files), 'packet-own-file')
     files.update(PREFIX + name for name in job_files)
     need(len(files) <= MAX_FILES, 'packet-file-count')
     for name in files:

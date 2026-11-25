@@ -7,9 +7,14 @@ on:
         required: true
         type: string
       retained_inputs:
-        description: Use the configured private HTTPS handoff for the 22 pinned inputs
+        description: Use the configured private handoff for pinned retained inputs
         type: boolean
         default: false
+      retained_transport:
+        description: Private handoff transport when retained_inputs is enabled
+        type: choice
+        options: [https, ssh]
+        default: https
 permissions:
   contents: read
 concurrency:
@@ -24,14 +29,15 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       KERNEL_JOB_PACKET_SHA256: ${{ inputs.packet_sha256 }}
     steps:
-      # 5 + 5 + 346 + 3 minutes, with one minute reserved for runner overhead.
+      # 4 + 2 + 4 + 346 + 3 minutes, with one minute reserved for runner overhead.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, reviewed native-arm-build pin
-        timeout-minutes: 5
+        timeout-minutes: 4
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
       - name: Authenticate committed packet and refuse unavailable native prerequisites
-        timeout-minutes: 5
+        id: preflight
+        timeout-minutes: 2
         env:
           KERNEL_BOOTSTRAP_MODE: preflight
         shell: bash
@@ -45,6 +51,7 @@ jobs:
           JOB = 'scripts/port/kernel-native-job/job.py'
           PUBLIC = 'scripts/port/kernel-native-job/public.py'
           REQUIRED = {WORKFLOW, JOB, PUBLIC, 'scripts/ci/native_arm.py',
+                      'scripts/ci/native349-pinned-input-carrier/expected-files.json',
                       'scripts/port/kernel-native-job/intake.py',
                       'scripts/port/kernel-native-job/packet.py',
                       'scripts/port/kernel-native-job/runtime.py',
@@ -187,6 +194,12 @@ jobs:
               need(re.fullmatch('[0-9]{1,20}', run) and re.fullmatch('[0-9]{1,10}', attempt))
               output = root / 'artifacts/kernel-native-job' / ('job-' + run + '-' + attempt)
               if mode == 'public':
+                  retained = temporary / ('kernel623-retained-' + run + '-' + attempt)
+                  if retained.exists() or retained.is_symlink():
+                      info = retained.lstat()
+                      need(stat.S_ISDIR(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o700 and
+                           info.st_uid == os.getuid() and shutil.rmtree.avoids_symlink_attacks)
+                      shutil.rmtree(retained)
                   sys.argv = [PUBLIC, '--status', str(output / 'public/status.json'),
                               '--source-commit', commit, '--packet-sha256', pin,
                               '--native-outcome', os.environ.get('KERNEL_NATIVE_OUTCOME', '')]
@@ -222,12 +235,25 @@ jobs:
                   print('KERNEL_BOOTSTRAP_REFUSED')
                   sys.exit(1)
           PY
+      - name: Stage exact retained inputs in a private runner directory
+        id: retained
+        if: inputs.retained_inputs
+        timeout-minutes: 4
+        env:
+          KERNEL_RETAINED_TRANSPORT: ${{ inputs.retained_transport }}
+          CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ inputs.retained_transport == 'ssh' && secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY || '' }}
+          KERNEL_NATIVE_RETAINED_INPUTS_URL: ${{ inputs.retained_transport == 'https' && secrets.KERNEL_NATIVE_RETAINED_INPUTS_URL || '' }}
+        shell: bash
+        run: |
+          exec /usr/bin/python3 -I -B "$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/intake.py" >/dev/null 2>&1
       - name: Execute finite producer, signed extension and kernel build pair
         id: native
+        if: ${{ !cancelled() && steps.preflight.outcome == 'success' }}
         timeout-minutes: 346
         env:
           KERNEL_RETAINED_INPUTS: ${{ inputs.retained_inputs && '1' || '' }}
-          KERNEL_NATIVE_RETAINED_INPUTS_URL: ${{ inputs.retained_inputs && secrets.KERNEL_NATIVE_RETAINED_INPUTS_URL || '' }}
+          KERNEL_RETAINED_INPUTS_OUTCOME: ${{ steps.retained.outcome }}
+          KERNEL_RETAINED_TRANSPORT: ${{ inputs.retained_transport }}
         shell: bash
         run: |
           exec /usr/bin/python3 -I -B "$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/job.py" --execute-native \

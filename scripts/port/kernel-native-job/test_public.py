@@ -11,6 +11,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import stat
 import subprocess
 import tempfile
@@ -698,6 +699,11 @@ class BootstrapTests(unittest.TestCase):
         target.parent.mkdir(parents=True)
         value = receipt(); value.update(source_commit=self.commit, packet_sha256=self.pin)
         target.write_bytes(encoded(value))
+        staged = Path(self.temp.name) / 'kernel623-retained-123-1'
+        staged.mkdir(mode=0o700)
+        unowned = Path(self.temp.name) / 'other-run-data'
+        unowned.write_bytes(b'unchanged')
+        (staged / 'input-link').symlink_to(unowned)
         environment = {'KERNEL_BOOTSTRAP_MODE': 'public', 'GITHUB_WORKSPACE': str(self.root),
                        'GITHUB_SHA': self.commit, 'KERNEL_JOB_PACKET_SHA256': self.pin,
                        'GITHUB_RUN_ID': '123', 'GITHUB_RUN_ATTEMPT': '1', 'KERNEL_NATIVE_OUTCOME': 'success'}
@@ -706,6 +712,8 @@ class BootstrapTests(unittest.TestCase):
             self.ns['main']()
         self.assertEqual(stop.exception.code, 0)
         self.assertEqual(json.loads(output.getvalue()), value)
+        self.assertFalse(staged.exists())
+        self.assertEqual(unowned.read_bytes(), b'unchanged')
 
     def snapshot(self):
         modes = {}
@@ -778,14 +786,19 @@ class BootstrapTests(unittest.TestCase):
             self.assertIn(expected, text)
         for forbidden in ('upload-artifact', 'actions/cache', 'sudo', 'apt-get', 'docker system prune', 'schedule:', 'pull_request:', 'push:'):
             self.assertNotIn(forbidden, text)
-        self.assertEqual(5 + 5 + 346 + 3 + 1, 360)
+        self.assertEqual(sum(map(int, re.findall(r'^        timeout-minutes: (\d+)$', text, re.M))) + 1, 360)
         self.assertNotIn('default:', text.split('      retained_inputs:')[0])
         self.assertIn('type: boolean\n        default: false', text)
-        _, native = text.split('        id: native\n', 1)
-        native, _ = native.split('      - name: Publish', 1)
-        secret = 'secrets.KERNEL_NATIVE_RETAINED_INPUTS_URL'
-        self.assertEqual(text.count(secret), 1)
-        self.assertIn("inputs.retained_inputs && " + secret + " || ''", native)
+        before, retained = text.split('        id: retained\n', 1)
+        retained, after = retained.split('      - name: Execute finite producer', 1)
+        self.assertIn('if: inputs.retained_inputs', retained)
+        for transport, secret in (('https', 'KERNEL_NATIVE_RETAINED_INPUTS_URL'),
+                                  ('ssh', 'CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY')):
+            self.assertNotIn(secret, before + after)
+            self.assertIn(f"inputs.retained_transport == '{transport}' && secrets.{secret} || ''", retained)
+        self.assertIn('!cancelled() && steps.preflight.outcome', after)
+        self.assertIn('steps.retained.outcome', after)
+        self.assertIn('"$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/intake.py"', retained)
         self.assertIn("exec(compile(captured[PUBLIC]", text)
         self.assertIn('"$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/job.py"', text)
         self.assertIn("stream.write('KERNEL_JOB_BOOTSTRAP_SOURCE='", text)

@@ -423,24 +423,18 @@ def producer_command(snapshot, private):
 
 
 @contextmanager
-def retained_input_cache(snapshot, private, start):
-    selected = os.environ.pop(intake.OPT_IN, '')
-    url = os.environ.pop(intake.URL_ENV, '')
+def retained_input_cache(private):
+    selected = os.environ.get(intake.OPT_IN, '')
     intake.require(selected in ('', '1'))
     if not selected:
         yield None
         return
 
-    intake.endpoint(url)
-    seconds = min(intake.MAX_SECONDS, SETUP - (time.monotonic() - start))
-    intake.require(seconds > 0)
+    intake.require(os.environ.get(intake.OUTCOME_ENV) == 'success')
+    files = intake.retained_files(os.environ.get(intake.TRANSPORT_ENV, ''))
     with tempfile.TemporaryDirectory(prefix='retained-inputs-', dir=private) as name:
         staged = Path(name)
-        worker = runtime.Runner(seconds, {intake.URL_ENV: url}, private / 'setup-logs')
-        del url
-        result = worker.run(['/usr/bin/python3', '-I', '-B', str(snapshot / packet.INTAKE_SOURCE), name],
-            timeout=seconds, limit=1024)
-        intake.require(result.returncode == 0 and result.stdout == b'')
+        intake.materialize(intake.runner_output(os.environ), staged, files)
         cache = private / 'alarm-cache'
         intake.require(not cache.exists() and not cache.is_symlink())
         (staged / 'alarm-cache').rename(cache)
@@ -691,7 +685,7 @@ def work(args, terminal, start):
         baseline = Baseline(args, docker, private, status['daemon_baseline'])
         baseline.start(setup)
         context = ('source', 'RETAINED_INPUTS_REJECTED')
-        with retained_input_cache(snapshot, private, start) as reuse:
+        with retained_input_cache(private) as reuse:
             context = ('source', 'PRODUCER_TIME_RESERVE')
             packet.need(DEADLINE - (time.monotonic() - start) >= PARALLEL + KERNEL_ENVELOPE + CLEANUP + GUARD, 'producer-time-reserve')
             status['phase'] = 'producer'
