@@ -17,9 +17,14 @@ import zipfile
 
 HERE = Path(__file__).resolve().parent
 SUPPORT = HERE.parent / 'python314-consumers/probe.py'
+SUPPORT_COMMIT = '0e41b50a20d089ca1c35b7a246c7fb7aa433fd1c'
+SUPPORT_SHA256 = 'b2bf0d64c60e63e6420533712765144223d80679e4814b4ebe3d1b13d0bfd739'
+support_raw = SUPPORT.read_bytes()
+if hashlib.sha256(support_raw).hexdigest() != SUPPORT_SHA256:
+    raise ValueError('reviewed consumer support pin differs')
 spec = importlib.util.spec_from_file_location('consumer_support', SUPPORT)
 support = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(support)
+exec(compile(support_raw, str(SUPPORT), 'exec'), support.__dict__)
 require, Refusal, sha = support.require, support.Refusal, support.sha
 
 
@@ -263,7 +268,7 @@ print(json.dumps({'import_and_metadata_absent':True}))
               'original_core': 'UNCHANGED HOLD missing Tk', 'original_full_archive': 'UNCHANGED',
               'base_seal_sha256': sha(output / 'base-seal.json'),
               'sources': {p.name: sha(p) for p in sorted(HERE.iterdir()) if p.is_file()},
-              'reused_support': {'path': str(SUPPORT), 'sha256': sha(SUPPORT), 'commit': '0e41b50a20d089ca1c35b7a246c7fb7aa433fd1c'},
+              'reused_support': {'path': str(SUPPORT), 'sha256': SUPPORT_SHA256, 'commit': SUPPORT_COMMIT},
               'limits': {'overall_seconds': 300, 'child_seconds': 60, 'child_cpu_seconds': 45,
                          'child_address_space_bytes': 1024**3, 'private_HOME_XDG_TMPDIR': True,
                          'network_commands': False, 'host_installs': False},

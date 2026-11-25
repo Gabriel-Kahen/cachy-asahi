@@ -4,7 +4,9 @@
 import importlib.util
 import os
 from pathlib import Path
+import shutil
 import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -86,6 +88,30 @@ class SafetyControls(unittest.TestCase):
         with self.assertRaisesRegex(probe.Refusal, 'unrecognized full-profile archive'):
             probe.extract_full(evidence, output)
         self.assertEqual(list(output.iterdir()), [])
+
+    def environment_cli(self, *, tamper):
+        runner = self.root / 'python314-environments/run.py'
+        helper = self.root / 'python314-consumers/probe.py'
+        runner.parent.mkdir()
+        helper.parent.mkdir()
+        shutil.copyfile(probe.HERE.parent / 'python314-environments/run.py', runner)
+        shutil.copyfile(probe.HERE / 'probe.py', helper)
+        if tamper:
+            with helper.open('ab') as stream:
+                stream.write(b'\nraise AssertionError("unreviewed helper ran")\n')
+        return subprocess.run([sys.executable, '-I', '-B', str(runner), '--help'],
+                              capture_output=True, text=True, timeout=10)
+
+    def test_environment_cli_loads_reviewed_helper(self):
+        result = self.environment_cli(tamper=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('--full-evidence', result.stdout)
+
+    def test_environment_cli_refuses_changed_helper_before_execution(self):
+        result = self.environment_cli(tamper=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('reviewed consumer support pin differs', result.stderr)
+        self.assertNotIn('AssertionError: unreviewed helper ran', result.stderr)
 
 
 if __name__ == '__main__':
