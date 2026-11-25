@@ -26,12 +26,11 @@ only the Fish package and exercised staging, comparison and withdrawal.
   the candidate started. The verifier now checks bounded `GLOB_DAT` entries
   against the linked Image. The native comparison remains open.
   [First hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698226968)
-- Updater 4.4.2-3 reproduced its native AArch64 package across three hosted
-  runs with verified cleanup. The installed lane stopped before launch because
-  the capsule's provenance limit was smaller than the builder's receipt. Both
-  installed readers now use the existing worker evidence limit. The 15 Check
-  cases still need hosted verification. [Build evidence](validation/updater-native-45699777848.md)
-  · [Provenance limit](validation/updater-native-45710280143.md)
+- Updater 4.4.2-3 passed its native AArch64 build pair and all 15 Check and
+  refusal cases after signed installation in a disposable container. Cleanup
+  and independent recovery passed. The full update transaction, 16 KiB
+  execution and target lifecycle remain open.
+  [Build and installed Check evidence](validation/updater-native-45715088356.md)
 - The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
   identifies the exact historical build inputs still needed for Perl and Python.
 - Qtbase `all` scheduled exactly the pinned 1,216 remaining actions in a
