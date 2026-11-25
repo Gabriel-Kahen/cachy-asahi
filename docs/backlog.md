@@ -13,12 +13,19 @@ records the tested shell lifecycle and the limits of that release. A
 [local TEST-signed pair](validation/b08-b09-signed-staging-20261125.md) changed
 only the Fish package and exercised staging, comparison and withdrawal.
 
-- The current native library and kernel work is tracked in
-  [#622](https://github.com/Gabriel-Kahen/cachy-asahi/issues/622) and
-  [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623).
-  All 417 Minimal206 objects and all 11 missing kernel-job package and
-  signature pairs were authenticated in retained local caches. Hosted native
-  builds still need access to the recovered inputs.
+- JBIG/TIFF [#622](https://github.com/Gabriel-Kahen/cachy-asahi/issues/622)
+  authenticated all 417 Minimal206 objects and 207 detached signatures on
+  hosted ARM. Native build and lifecycle qualification is tracked in a
+  separate run. [Input qualification](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698460500)
+  · [Build and lifecycle](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698731561)
+- Kernel [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) verified
+  the 226 recovered objects locally, then passed the hosted private intake
+  step. The native comparison result is tracked in the same hosted run.
+  [Kernel qualification](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698226968)
+- Updater 4.4.2-3 passed committed-source authentication. The first hosted
+  build attempt stopped at 224 missing inputs before compilation. All 224
+  exact objects were recovered and verified locally.
+  [Acquisition and retry evidence](validation/updater-native-45697080431.md)
 - The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
   identifies the exact historical build inputs still needed for Perl and Python.
 - Stable overlay promotion requires a supported Asahi composition, production
