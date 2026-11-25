@@ -14,16 +14,16 @@ records the tested shell lifecycle and the limits of that release. A
 only the Fish package and exercised staging, comparison and withdrawal.
 
 - JBIG/TIFF [#622](https://github.com/Gabriel-Kahen/cachy-asahi/issues/622)
-  authenticated all 417 Minimal206 objects and 207 detached signatures on
-  hosted ARM. The build stopped in recursive make. An emulated AArch64 replay
-  reproduced the missing JBIG header, and the recipe now passes the include path
-  explicitly. Native build and lifecycle qualification remain open.
-  [Input qualification](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698460500)
-  · [Build diagnostic](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45701214835)
-- Kernel [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) verified
-  the 226 recovered objects locally, then passed the hosted private intake
-  step. The native comparison result is tracked in the same hosted run.
-  [Kernel qualification](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698226968)
+  passed two byte-identical native AArch64 builds per package and a fresh
+  TEST-signed install, removal, and reinstall on a 4 KiB runner. Replacement
+  of the previous providers and physical 16 KiB qualification remain open.
+  [Native build and lifecycle evidence](validation/project-libraries-native-20261125.md)
+- Kernel [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) passed
+  hosted intake of all 226 recovered objects. The baseline build command
+  succeeded, then verification stopped on a `GLOB_DAT` relocation before
+  the candidate started. The verifier now checks bounded `GLOB_DAT` entries
+  against the linked Image. The native comparison remains open.
+  [First hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698226968)
 - Updater 4.4.2-3 produced two byte-identical native AArch64 packages with
   verified cleanup. GitHub marked the run as failed because the stage CLI caught
   its own success exit. The corrected workflow and installed Check still need
