@@ -46,5 +46,44 @@ tools were exact copies of the pinned binaries under namespace-local
 root ownership. The sealed capsule passed passive preflight, and the
 November 22 execution supplied the guest evidence for this record.
 
+## Full-build preflight evidence
+
+A local Ninja `-t commands` and `-t graph` readback of the exact flattened
+Q3 graph (SHA-256
+`2df5cefe432f58d19af7c9f7bd394990ef35b169d40a79a01b1223cceff23f55`)
+found 1,855 default target commands, 1,385 C/C++ compile edges and 18
+shared-library links. Subtracting the retained 639-command QtGui closure
+leaves 1,216 commands and 788 compile edges. The complete command stream
+hash is `e9bdd7b241d2c28d035e3a084ca7fbeefd7d90f64748e0c0c356e1ea9baff628`.
+The remaining command stream hash is
+`3147ef87084e1075d35abd18d27ed97f47ae0a9287df3c8a7ba4f3b9d2a71f97`.
+This is the default Qtbase graph. Package checks, staging, installation
+and the other Qt family repositories need separate coverage.
+
+The Q3 QtGui run reached its 6 GiB cgroup memory limit and grew the overlay
+to 750,845,952 bytes. The existing 14,400-second guest cap covers the
+bounded QtGui checkpoint. A full-Qtbase producer needs its own bound target
+graph, measured memory, scratch and deadlines, a pinned output package
+plan and a signed installed rehearsal. The native five-stage route also
+needs the selected md4c archive and current scoped signature, clean build
+pairs, and installed consumer and rollback cases. Its previous GUI-only
+native attempt stopped during base image assembly with
+`IMAGE_BUILD_NO_SPACE`. [Native family contract](../../scripts/ci/qt612-complete-family-native-source/README.md)
+
+The passive GUI dependency parser currently checks 16 KiB geometry for
+staged Qt entries only. A model external provider with 4 KiB-only load
+geometry passed the metadata join. The full installed qualification needs
+static geometry across every selected external provider and a 16 KiB
+loader run. [Runtime dependency reader](../../scripts/port/qt612-gui-native-v1/runtime.py)
+
+The R132 vendor Qt6 Base `6.12.0-3` archive and the source-built Q3 QtGui
+libraries have distinct provenance. In the R132 graphics archive sample,
+the Asahi Vulkan ICD names `libvulkan_asahi.so`, and the Apple and Asahi
+DRI aliases resolve to `libdril_dri.so`. The sampled Mesa, Asahi Vulkan,
+GLVND and Vulkan-loader DSOs passed static AArch64 16 KiB load checks.
+The Mesa DRI object also needs `libLLVM.so.23.1`. Installed closure,
+physical GPU acceleration and both M2 Air gates remain open.
+[R132 package selection](../workstreams/supported-composition-maintenance.md#november-25-offline-selection-and-custody)
+
 [QtCore checkpoint](qtbase612-emulated-arm16k-qtcore-link-20261118.md)
 · [QtGui checkpoint and controls](../../scripts/integration/qt612_gui_16k_link_checkpoint/README.md)

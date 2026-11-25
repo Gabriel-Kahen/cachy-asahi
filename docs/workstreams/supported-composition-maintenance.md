@@ -112,3 +112,89 @@ are supplied. ABI consumers, protected-platform update/recovery and actual
 supported-machine behavior still need their own evidence. Source DATA success
 cannot authorize a changed protected tuple, install/update, native acceptance,
 production signing or either M2 model.
+
+## November 25 offline selection and custody
+
+The R132 transport recheck hashed all 753 files (653,469,760 bytes) against
+manifest `08a1f949794b085158608c9577476574514fa963a8168554ca523c2242f35178`.
+All 368 forward archive names, versions and runtime package metadata match
+the pinned 626-package selection. Of those, 366 match vendor catalog archive
+pins and 359 also match the catalog's embedded signature bytes. The seven
+community archives use separately pinned detached signatures. The three
+rollback pairs match their original archive join, including the signed
+`.PKGINFO` hashes. All 371 pairs produce the expected cryptographic
+`VALIDSIG`. The two project TEST certificates have expired. The current strict
+signature check refuses them and a new rehearsal requires fresh scoped trust.
+The four key fingerprints and raw verifier status are in the
+[local readback receipt](#local-evidence-pins).
+
+All five [Overlay Preview 1](../release/overlay-preview-1.md) archives match
+the retained release checksums. Each archive's `.BUILDINFO` recipe hash
+matches the bundled PKGBUILD and release provenance. The source bundle
+contains all five license and notice pairs. The adapter joined each archive's
+package identity and runtime relations to its retained SRCINFO.
+
+| Profile | Libalpm metadata result | Final packages | Qt6 Base |
+| --- | --- | ---: | --- |
+| Preview 1 under original protection policy | FAIL with the same five blockers | 629 diagnostic | 6.12.0-3 in the private alternate catalog |
+| Preview 1 with three proposed updates on the frozen catalogs | PASS, unapproved | 629 | 6.12.0-2, historical archive unavailable |
+| Preview 1 with three proposed updates and the exact R132 Qt catalog alternative | PASS, unapproved | 629 | 6.12.0-3, archive SHA-256 `2777135b375ba82250896fa9a993926bf3c05b59dd22217f63d6a1391c1b4c31` |
+
+The last row has 371 proposed archive additions, zero removals and 3,213
+dependency edges. It preserves all 201 versions expected by the proposal.
+Compared with the installed R132 forward lock, First Login moves from
+`0.1.0-2` to `0.1.0-3` and the Fish, Zsh and Hyprland settings packages join.
+The other 625 shared package metadata rows match R132, including Setup8,
+the Asahi graphics and audio stack and the three maintenance versions.
+
+An explicit development variant swaps vendor `libfdk-aac 3.0.0-1` for
+`cachy-asahi-fdk-aac 3.0.0-1`, archive SHA-256
+`237b7812435bd78456d72c157f5703f258f5b6b7455cb99e5b075f642071c247`.
+The project archive's BUILDINFO matches the current recipe, and its regular
+license files include the complete classic and xHE notices. The variant
+preserves the other 628 package metadata rows and all three proposed
+maintenance changes. All three explicit provider pins resolve. PipeWire
+uses the project package for `libfdk-aac` and `libfdk-aac.so=2-64`.
+The variant remains unapproved. The exact project binary previously passed
+the generic native ARM replacement and AAC-LC callback trial. Its TEST
+certificate has since expired. A local pack and recipient reconstruction
+verified all 25 recipe inputs, including the 900-file codec source packet.
+The source bundle SHA-256 is
+`577305d7575e23dfcf3d55fb6da7fdc53f4257b5f44390acaa35a5d2850ec631`.
+[FDK provider trial](../validation/fdk-provider-native-20261015.md)
+
+Release decisions still needed for this composition:
+
+- Approve the exact three-version proposal and the reviewed Qt archive selection.
+  Bind the new project set to a signed installation, recovery and installed
+  Asahi kernel boot exercise.
+- Hold vendor FDK for redistribution. Its archive includes both codec
+  libraries with only the classic notice. If using the project FDK variant,
+  finish recipient source delivery and applicable rights review, bind a fresh
+  TEST signature, and exercise the provider on the selected Asahi system.
+- Finish source and license review across the selected inventory, including
+  the 258 unchanged inherited base packages and the two missing forward
+  build-time recipes. `asahi-desktop-meta 4-10` requires
+  `widevine 4.10.2891.0-1`, whose archive declares `custom` and includes a
+  Widevine EULA. Review delivery from the vendor or an explicit profile
+  change before including it in a project repository.
+  [R132 recipe custody](supported-composition-update-sources.md)
+- Preserve the Asahi audio and graphics owners and versions in the proposal.
+  Audio source review, Mesa source correspondence, installed loader closure,
+  production trust and physical boot, accelerated rendering, protected audio
+  and failed-update recovery on both Air sizes remain open.
+
+### Local evidence pins
+
+Selection reports are under
+`~/.cache/asahi-preview1-composition-20261125.cobdq0my/`. The archive readback
+is under `~/.cache/asahi-r132-selection-recheck-20261125.6pmy5WWJ/`.
+The FDK variant is under
+`~/.cache/cachy-asahi-preview1-qt-fdk-provider-alpm-ffr8ubsm/`.
+
+| Receipt | SHA-256 |
+| --- | --- |
+| `r132-transport.ACTUAL.json` | `020410486a6fddedec735c96229fc7b1fe530d684683a0c4ef0c8cde53653cae` |
+| `preview1-archive-source-joins.ACTUAL.json` | `4517e48eb55f2077cba2be53536d42550965626f2fb59d494123d56a67e42b40` |
+| `qt-alternative-preview1-selection.ACTUAL.json` | `aeb0536068e09140bbf577ee36beec960520ca4415f095c30d77379bc2302cfc` |
+| FDK variant `comparison.DATA.json` | `62bb1911fbcd1f1aef194d2b54c4b82d1ebeb863d672b000aa635e11bc1730ab` |

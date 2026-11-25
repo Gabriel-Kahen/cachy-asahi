@@ -1,13 +1,63 @@
-# Three-update candidate source materials: correspondence held
+# Maintenance recipe custody and source correspondence
 
-November 14, 2026. Exact-version candidate packaging/source materials are now
-retained for Python 3.14.8-1, NetworkManager 1.58.1-2 and Perl 5.42.3-1. **None of
-the retrieved PKGBUILDs matches the signed archive's BUILDINFO recipe hash.**
-The source-to-binary relationship remains **UNBOUND / HOLD**; the
-[626-package maintenance proposal](supported-composition-maintenance.md) remains
-UNAPPROVED. The newly pinned materials can support a future maintained rebuild;
-they cannot retroactively supply accepted corresponding source for the
-[three retained archives](supported-composition-update-inputs.md).
+## R132 custody recheck, November 25, 2026
+
+Four of the six signed maintenance archives have exact PKGBUILD bytes.
+The [offline recipe reader](../../scripts/port/supported-composition/index_maintenance_recipe_history.py)
+matched both NetworkManager builds and the Perl and Python rollback builds.
+The two forward builds still need original build-time inputs.
+
+| Direction | Package version | Signed BUILDINFO recipe SHA-256 | Custody |
+| --- | --- | --- | --- |
+| Forward | NetworkManager 1.58.1-2 | `74938989e5a6eeac41350e05068aaabf4e9d7411116dcfe189d6cfae1b1b72a4` | Exact |
+| Rollback | NetworkManager 1.58.1-1 | `10f0c0bd59e7598dfd34ad1658f90dd9537ce5fb41e5af916fa07214c68560af` | Exact |
+| Forward | Perl 5.42.3-1 | `c2baa2348228937f72de62581cca687039a976ac2cef93928ee3909b18fa6ed7` | Held |
+| Rollback | Perl 5.42.2-2 | `c8eb30f67445159807c70914c492a32326e65a92146c3d406e426bec8d15df41` | Exact |
+| Forward | Python 3.14.8-1 | `b694b720c69f90803d20da64413f0573f61ea8582f20a09865ff91e1350196c0` | Held |
+| Rollback | Python 3.14.7-1 | `24eb77be6752bdcb1a6459fb8177fa0d46becc18f54acf480441f4b6f3ca96b5` | Exact |
+
+Both eight-file custody seals verified. The original archive join still binds
+the six vendor archive and detached signature pairs. Its staged forward
+NetworkManager and Perl archives moved out of the original paths. The replay
+used the retained bytes in
+`~/.cache/cachy-asahi-maintenance-disposable-guest-20261118/transport-r1/forward/`
+after checking both sizes and SHA-256 values against the join. The temporary
+join and configuration copies recorded the two changed archive paths and the
+resulting enclosing reference and digest changes. The recipe reader rechecked
+all six archive and signature pins and reproduced both retained receipts
+byte-for-byte after reversing those path and digest changes. Signature evidence
+for this replay comes from the original pinned archive join.
+
+The fresh configuration copies and receipts are in
+`~/.cache/asahi-r132-relocated-replay-20261125.c88p14rj/`.
+
+| Replay receipt | SHA-256 |
+| --- | --- |
+| `buildtime.ACTUAL.json` | `f3e994a549b69ae9bdf3258aa71124dfaeedf7c94bc331258fc3e95445964356` |
+| `history.ACTUAL.json` | `212fe7712378db915144dfc15b09361452f317bd20b03816fc543d5701d73684` |
+
+The public workunit bodies held in
+`~/.cache/asahi626-buildtime-source-recovery-DATA.lngnrOhm/` contain Python
+3.14.10-1 and Perl 5.44.0-1. Their retained bytes, candidate recipes and checksum
+append projections leave both forward hashes unresolved. Use the original final
+PKGBUILD bytes for the two signed builds, or the original queued workunits with
+the verbatim `makepkg -g` output for replay against the pinned Plugbuild client.
+The unsent request draft and four exact recipe bodies are in
+`~/.cache/cachy-asahi-r132-plugbuild-custody-20261118/actual/`.
+
+Complete corresponding source, license review, production trust and support
+approval remain open for the [626-package proposal](supported-composition-maintenance.md).
+The [R132 guest record](../validation/asahi626-maintenance-emulated-arm16k-20261118.md)
+covers the signed lifecycle in the emulated 16 KiB AArch64 environment.
+
+## Candidate source intake, November 14, 2026
+
+The original intake retained exact-version candidate packaging and source
+materials for Python 3.14.8-1, NetworkManager 1.58.1-2 and Perl 5.42.3-1. Each
+retrieved raw PKGBUILD differed from the signed archive's BUILDINFO recipe hash.
+The pinned candidate materials can support a future maintained rebuild. The
+[three archive records](supported-composition-update-inputs.md) describe that
+intake.
 
 ## Recipe identification
 
