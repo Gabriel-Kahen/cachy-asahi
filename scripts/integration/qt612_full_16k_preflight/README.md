@@ -113,7 +113,7 @@ The passive `prepare.py` plan grants no full-build authority. Both routes
 still need reviewed limits for compilation and package staging, a
 qualified output package and an owned install, loader and rollback trial.
 
-## Proposed bounded build-only successor
+## Bounded build-only successor
 
 Continue the tested Q3 chain on the local Ryzen 7 3700X using the pinned
 rootless controller. Keep the original kernel, read-only configured scratch,
@@ -131,23 +131,24 @@ actions at roughly 6.54–8.86 hours and the child EOF at roughly 0.94–2.67 Gi
 These are illustrations for budget selection. Compilation mix, link peaks
 and filesystem growth for the remaining graph still need measurement.
 
-| Resource | Proposed first full-build limits |
+| Resource | Default unissued full-build limits |
 | --- | --- |
 | CPU and RAM | Four vCPUs, one build job, 6 GiB guest, 8 GiB container with no additional container swap |
 | Deadlines | 14 hours guest build, 14 hours 15 minutes QEMU, 14 hours 20 minutes outer attach |
-| Writable media | 8 GiB child file cap, 2 GiB clean result disk, 2 GiB live free-space floor inside the guest |
+| Writable media | 4 GiB child file cap, 2 GiB clean result disk, 2 GiB guest free-space floor at build boundaries |
 | Retained output | 1 GiB artifact cap, 64 MiB build log cap, 128 MiB host report allocation |
 | Host reserve | 2 GiB disk and 2 GiB available memory beyond the selected limits |
 
 At 4:56 p.m. Eastern on November 25 the host exposed 16 logical CPUs,
 14.75 GiB available RAM and 161.77 GiB free on the cache volume. This
-fits the proposed 10 GiB available-memory check and the 12.125 GiB
-post-restore disk admission check. Budgeting the full logical size of
-all known input images raises the pre-restore disk threshold to
-32,837,902,344 bytes. The prior disposable guest reported 11,558,694,912
-free bytes after the dry run. Repeat both admission checks at launch
-and monitor host reserve, child EOF and guest free space during execution.
-These observations carry no resource reservation.
+fits the implemented 10 GiB available-memory check and the 8.125 GiB
+disk admission check on the capsule volume. Preparation requires
+same-filesystem reflinks. The earlier 8 GiB child proposal would require
+changing the inherited 4 GiB QEMU file-size guard. The prior disposable
+guest reported 11,558,694,912 free bytes after the dry run. The successor
+samples guest free space before and after the build. The owned host runtime
+watches host reserve and output allocation during QEMU. Admission reads
+current resources and carries no reservation.
 
 The original QtGui authority passed historical readback, failed the live
 entry window and refused a changed scope under the frozen reader. The
@@ -173,14 +174,46 @@ resulting Qt package needs a separately selected current TEST certificate,
 its full signing fingerprint, exact archive and detached-signature pins,
 and an independently authorized install and rollback scope.
 
-The source-only next step is a dedicated successor actor and reader
-using the existing owned process and allocation guards. Seal its
-build-only worker into a new boot image. Require a freshly checked dry run,
-natural serial completion, zero pending `all` work after the build,
-preserved input pins and a bounded output inventory for the 18 shared
-library targets. The present QtGui actor accepts its three-node chain,
-original scope and 4 GiB child ceiling. The proposed route supplies
-inputs and limits for reviewing the successor.
+The [capsule sealer](seal_full.py) uses the exact retained unissued QtGui
+capsule, its archived source bytes, and the three independently pinned
+scratch, Core and Gui backing files. It prepares a fresh boot carrier
+and a clean ext4 result template inside a private output directory.
+The tool file is a canonical JSON mapping of `debugfs`, `e2fsck` and
+`mke2fs` to absolute `path`, `bytes` and `sha256` pins. Supply its digest
+independently and use a fresh 32-hex nonce. The sealer produces an unissued
+binding and reports the handoff digest.
+
+```sh
+python3 -I -B scripts/integration/qt612_full_16k_preflight/seal_full.py \
+  --qtgui-capsule "$QTGUI_CAPSULE" --scratch "$Q3_RAW" \
+  --core "$CORE_OVERLAY" --gui "$GUI_OVERLAY" \
+  --tools "$PREPARATION_TOOLS" --tools-sha256 "$TOOLS_SHA256" \
+  --nonce "$FRESH_NONCE" --output "$NEW_CAPSULE"
+
+python3 -I -B scripts/integration/qt612_full_16k_preflight/full_capsule.py \
+  --capsule "$NEW_CAPSULE" --handoff-sha256 "$HANDOFF_SHA256"
+```
+
+Passive admission reopens the exact source, plan, dry-run receipt,
+derivative media and ext4 boot payload and checks current disk, memory
+and CPU capacity. The [host actor](full_actor.py) additionally requires
+an independently supplied Root selection for the fresh full-build scope
+and the pinned offline runner. It uses the existing owned command and
+allocation guards and rechecks the read-only backing chain after QEMU exits.
+The [guest worker](full_guest.py) requires both dry-run transcripts to
+match before running the serial build. Completion requires a retired
+build process group, an idle `all` target and all 18 expected AArch64
+shared libraries with 16 KiB load alignment. The
+[independent reader](full_readback.py) reopens the process receipts,
+serial terminal and bounded ext4 result against the same plan.
+
+The successor has source fixtures for admission, payload and input drift,
+completion, private diagnostics, and output and cleanup limits. A real
+successor capsule has yet to be sealed or booted. The outer runner still
+needs a full-target entry point that claims the attempt and records both
+container and scope retirement. The independent reader leaves these
+outer observations open. A fresh Root selection and live compilation
+remain pending.
 
 After the build, run the GUI-server reference recipe's package checks
 and staging in a separately bounded phase. The supported install must
