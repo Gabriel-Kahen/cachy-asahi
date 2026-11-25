@@ -3,6 +3,7 @@
 import argparse
 import ast
 import base64
+from contextlib import ExitStack
 import hashlib
 import importlib.util
 import io
@@ -130,6 +131,8 @@ RETAINED_BUBBLEWRAP_PRIVATE_PREFIX = 'CACHY_RETAINED_BUBBLEWRAP_V1_'
 
 
 RETAINED_BUBBLEWRAP_INPUT_SHA256 = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+NATIVE248_REQUIRED = 'CACHY_MAINTAINED_NATIVE248_REQUIRED'
+NATIVE248_DIRECTORY = 'maintained-desktop-v2-native248-'
 
 
 RETAINED_BUBBLEWRAP_PRIVATE_ROWS = (
@@ -148,6 +151,131 @@ def capture_retained_private_environment():
 
 def retained_cache_identity(node):
     return (node.st_dev, node.st_ino, node.st_mode, node.st_uid, node.st_gid)
+
+
+def native248_file_identity(node):
+    return retained_cache_identity(node) + (node.st_nlink, node.st_size, node.st_mtime_ns, node.st_ctime_ns)
+
+
+def native248_rows(root, source_packet, deadline):
+    lock_path = 'scripts/ci/inputs.lock.json'
+    pin = source_packet['metadata_pins'].get(lock_path)
+    within(deadline)
+    require(pin == packet.BASELINE_INPUTS, 'native248-input-lock-refused')
+    packages = packet.pinned(root / lock_path, pin)['packages']
+    rows = {}
+    for item in packages:
+        name = item['filename']
+        require(re.fullmatch(r'[A-Za-z0-9._+@:~-]{1,240}\.pkg\.tar\.xz', name) and
+                name not in rows, 'native248-input-name-refused')
+        rows[name] = (item['size'], item['sha256'])
+        rows[name + '.sig'] = (item['signature_size'], item['signature_sha256'])
+    require(len(rows) == 496 and sum(size for size, _ in rows.values()) == 702251555 and
+            all(type(size) is int and 0 < size <= 128 * 1024**2 and re.fullmatch('[0-9a-f]{64}', pin)
+                for size, pin in rows.values()), 'native248-input-closure-refused')
+    within(deadline)
+    return rows
+
+
+def native248_copy(origin, target, name, size, pin, deadline):
+    def stat_at(parent):
+        return os.stat(name, dir_fd=parent, follow_symlinks=False)
+
+    def private_file(node):
+        return stat.S_ISREG(node.st_mode) and stat.S_IMODE(node.st_mode) == 0o600 and \
+               node.st_uid == os.geteuid() and node.st_nlink == 1
+
+    within(deadline)
+    before = stat_at(origin)
+    require(private_file(before) and before.st_size == size, 'native248-input-custody-refused')
+    flags = os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
+    with os.fdopen(os.open(name, os.O_RDONLY | flags, dir_fd=origin), 'rb') as source:
+        require(native248_file_identity(os.fstat(source.fileno())) == native248_file_identity(before),
+                'native248-input-identity-drift')
+        fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | flags, 0o600, dir_fd=target)
+        with os.fdopen(fd, 'wb', buffering=0) as output:
+            created = os.fstat(fd)
+            require(private_file(created) and created.st_size == 0, 'native248-cache-file-refused')
+            hasher, total = hashlib.sha256(), 0
+            while block := source.read(min(1024**2, size - total + 1)):
+                within(deadline)
+                total += len(block)
+                require(total <= size and output.write(block) == len(block), 'native248-copy-refused')
+                hasher.update(block)
+            require(total == size and hasher.hexdigest() == pin, 'native248-input-pin-drift')
+            require(native248_file_identity(os.fstat(source.fileno())) == native248_file_identity(stat_at(origin)) ==
+                    native248_file_identity(before), 'native248-input-identity-drift')
+            after = os.fstat(fd)
+            require(private_file(after) and after.st_size == size and
+                    retained_cache_identity(after) == retained_cache_identity(created) and
+                    native248_file_identity(after) == native248_file_identity(stat_at(target)),
+                    'native248-cache-identity-drift')
+    return native248_file_identity(before), native248_file_identity(after)
+
+
+def seed_native248_cache(root, cache, source_packet, deadline):
+    """Copy only the locked package pairs into a fresh cache, before any producer runs."""
+    rows = native248_rows(root, source_packet, deadline)
+    run = os.environ.get('GITHUB_RUN_ID', '')
+    attempt = os.environ.get('GITHUB_RUN_ATTEMPT', '')
+    temp_text = os.environ.get('RUNNER_TEMP', '')
+    temp = Path(temp_text)
+    require(re.fullmatch('[1-9][0-9]{0,19}', run) and re.fullmatch('[1-9][0-9]{0,9}', attempt) and
+            temp.is_absolute() and str(temp) == temp_text and temp != Path('/') and '..' not in temp.parts,
+            'native248-stage-context-refused')
+    token = run + '-' + attempt
+    require(cache == temp / ('development-cache-' + token), 'native248-cache-path-refused')
+
+    with ExitStack() as stack:
+        chain = []
+
+        def hold(name, parent=None, private=False):
+            within(deadline)
+            flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+            fd = os.open(name, flags, dir_fd=parent)
+            stack.callback(os.close, fd)
+            node = os.fstat(fd)
+            require(stat.S_ISDIR(node.st_mode) and (not private or
+                    (node.st_uid == os.geteuid() and stat.S_IMODE(node.st_mode) == 0o700)),
+                    'native248-directory-custody-refused')
+            chain.append((name, parent, fd, retained_cache_identity(node)))
+            return fd
+
+        def names(fd):
+            os.lseek(fd, 0, os.SEEK_SET)
+            return set(os.listdir(fd))
+
+        parent = hold('/')
+        for part in temp.parts[1:]:
+            parent = hold(part, parent)
+        info = os.fstat(parent)
+        require(info.st_uid == os.geteuid() and not info.st_mode & 0o022, 'native248-runner-temp-refused')
+        stage = hold(NATIVE248_DIRECTORY + token, parent, private=True)
+        origin = hold('packages', stage, private=True)
+        require(names(stage) == {'packages'} and names(origin) == rows.keys(),
+                'native248-input-membership-refused')
+        # A failed partial remains unusable because both bootstrap and this mkdir
+        # require a fresh path. No unverified cache names are removed here.
+        os.mkdir(cache.name, 0o700, dir_fd=parent)
+        created = os.stat(cache.name, dir_fd=parent, follow_symlinks=False)
+        target = hold(cache.name, parent, private=True)
+        require(retained_cache_identity(created) == retained_cache_identity(os.fstat(target)),
+                'native248-cache-identity-drift')
+        require(not names(target), 'native248-cache-not-empty')
+        copied = {name: native248_copy(origin, target, name, *pins, deadline) for name, pins in rows.items()}
+        for name, (before, after) in copied.items():
+            within(deadline)
+            require(before == native248_file_identity(os.stat(name, dir_fd=origin, follow_symlinks=False)) and
+                    after == native248_file_identity(os.stat(name, dir_fd=target, follow_symlinks=False)),
+                    'native248-cache-identity-drift')
+        for name, anchor, fd, identity in chain:
+            within(deadline)
+            require(retained_cache_identity(os.fstat(fd)) == identity ==
+                    retained_cache_identity(os.stat(name, dir_fd=anchor, follow_symlinks=False)),
+                    'native248-directory-identity-drift')
+        require(names(stage) == {'packages'} and names(origin) == names(target) == rows.keys(),
+                'native248-final-membership-refused')
+        within(deadline)
 
 
 def rollback_retained_private_cache(receipt, deadline, first):
@@ -1688,11 +1816,19 @@ def retire_zsh_modules(session):
 def composed_main(args, pins, *, entry):
     """Root bootstrap inputs are mandatory; construction/preflight never starts actors."""
     global CANCELLED
+    native248 = os.environ.pop(NATIVE248_REQUIRED, None)
     retained_chunks = capture_retained_private_environment()
     require(all(getattr(args,name,None) is not None for name in ('clock','clock_sha256','execution_grant',
             'execution_grant_sha256','runtime_contract','runtime_contract_sha256')), 'composed-bootstrap-required')
     composition = getattr(args,'composition',packet.COMPOSITION)
     require(type(composition) is str and composition in packet.COMPOSED_MODES, 'composed-packet-contract-refused')
+    if native248 is not None:
+        old = [name for name in os.environ if name.startswith(OLD_FOUR_PRIVATE_PREFIX) or
+               name == 'CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY']
+        for name in old:
+            os.environ.pop(name)
+        require(native248 == '1' and composition == packet.COMPOSITION and not retained_chunks and not old,
+                'native248-route-refused')
     clock_raw = private_input(args.clock,args.clock_sha256,'DEVELOPMENT_CLOCK',16*1024)
     deadline, workflow_end = workflow_clock(clock_raw,entry=entry,
         controller_entry=getattr(args,'controller_entry_monotonic',None))
@@ -1724,7 +1860,11 @@ def composed_main(args, pins, *, entry):
         session, callbacks, runtime, argv = composed_sources(ROOT,source_packet,grant_raw,args.execution_grant_sha256,
                                                             runtime_raw,output,cache,deadline,composition=composition)
         within(deadline)
-        output.mkdir(mode=0o700);cache.mkdir(mode=0o700,exist_ok=True)
+        output.mkdir(mode=0o700)
+        if native248:
+            seed_native248_cache(ROOT, cache, source_packet, deadline)
+        else:
+            cache.mkdir(mode=0o700, exist_ok=True)
         if composition == packet.INSTALLER_COMPOSITION:
             seed_receipt = {}
             try:
@@ -1738,11 +1878,14 @@ def composed_main(args, pins, *, entry):
                 rollback_retained_private_cache(seed_receipt,deadline,first)
                 raise
         else:
-            seed_old_four_private_cache(cache,source_packet,deadline)
+            if not native248:
+                seed_old_four_private_cache(cache,source_packet,deadline)
             development = Development(ROOT,output,cache,source_packet,deadline=deadline,composition=composition,
                 clock_nonce=packet.decode(clock_raw)['nonce'],runtime_contract=runtime)
             development.report.update(source_packet_sha256=args.development_sha256,composition=composition,
                                       execution_grant_sha256=args.execution_grant_sha256)
+            if native248:
+                development.report['native248_retained_inputs'] = {'status':'PIN_MATCH','objects':496}
         development.run_composed(session,callbacks,runtime,argv)
         publication_end = min(workflow_end,time.monotonic()+120)
         development.publication_deadline = publication_end

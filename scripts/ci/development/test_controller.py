@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
+import time
 from types import ModuleType, SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -25,6 +27,143 @@ def maintained_packet_model(composition, rows=None, **fields):
         raise AssertionError('model requires the exact current Source path set')
     return {'schema_version':3, 'composition':composition, 'baseline_id':packet.BASELINE_ID,
             'lineage':packet.LINEAGE, 'source_files':dict(rows), **fields}
+
+
+class Native248CacheTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.temp = self.root / 'runner'
+        self.temp.mkdir(mode=0o700)
+        self.origin = self.temp / (controller.NATIVE248_DIRECTORY + '45-2') / 'packages'
+        self.origin.parent.mkdir(mode=0o700)
+        self.origin.mkdir(mode=0o700)
+        self.cache = self.temp / 'development-cache-45-2'
+        self.payload = {'test-1-any.pkg.tar.xz':b'test bytes', 'test-1-any.pkg.tar.xz.sig':b'signature bytes'}
+        self.rows = {name:(len(raw),controller.hashlib.sha256(raw).hexdigest())
+                     for name,raw in self.payload.items()}
+        for name,raw in self.payload.items():
+            path = self.origin / name
+            path.write_bytes(raw)
+            path.chmod(0o600)
+        env = patch.dict(os.environ, RUNNER_TEMP=str(self.temp), GITHUB_RUN_ID='45', GITHUB_RUN_ATTEMPT='2')
+        env.start()
+        self.addCleanup(env.stop)
+
+    def seed(self):
+        with patch.object(controller, 'native248_rows', return_value=self.rows):
+            controller.seed_native248_cache(self.root, self.cache, {}, time.monotonic() + 10)
+
+    def test_exact_source_lock_selects_496_package_and_signature_rows(self):
+        key = 'scripts/ci/inputs.lock.json'
+        actual = {'metadata_pins':{key:controller.packet.BASELINE_INPUTS}}
+        rows = controller.native248_rows(controller.ROOT, actual, time.monotonic() + 10)
+        self.assertEqual(len(rows), 496)
+        self.assertEqual(sum(size for size, _ in rows.values()), 702251555)
+        self.assertEqual(len([name for name in rows if name.endswith('.sig')]), 248)
+        self.assertIn('bubblewrap-0.13.0-1-aarch64.pkg.tar.xz.sig', rows)
+        with self.assertRaisesRegex(ValueError, 'native248-input-lock-refused'):
+            controller.native248_rows(controller.ROOT, {'metadata_pins':{key:'0'*64}}, time.monotonic() + 10)
+
+    def test_exact_owned_cache_copy_leaves_stage_unchanged(self):
+        self.seed()
+        self.assertEqual(set(self.cache.iterdir()), {self.cache / name for name in self.rows})
+        self.assertEqual(self.cache.stat().st_mode & 0o777, 0o700)
+        for name,raw in self.payload.items():
+            clone = self.cache / name
+            self.assertEqual(clone.read_bytes(), raw)
+            self.assertEqual(clone.stat().st_mode & 0o777, 0o600)
+            self.assertNotEqual(clone.stat().st_ino, (self.origin / name).stat().st_ino)
+            self.assertEqual((self.origin / name).read_bytes(), raw)
+
+    def test_full_membership_is_rechecked_after_the_directory_expands(self):
+        size, pin = next(iter(self.rows.values()))
+        raw = next(iter(self.payload.values()))
+        for number in range(494):
+            name = f'test-package-number-{number:03d}-1-any.pkg.tar.xz'
+            leaf = self.origin / name
+            leaf.write_bytes(raw)
+            leaf.chmod(0o600)
+            self.rows[name] = (size, pin)
+        self.seed()
+        self.assertEqual(len(list(self.cache.iterdir())), 496)
+
+    def test_missing_extra_and_unsafe_stage_refuse_before_cache_creation(self):
+        sample = self.origin / next(iter(self.rows))
+        saved = self.root / 'saved'
+        sample.rename(saved)
+        with self.assertRaisesRegex(ValueError, 'native248-input-membership-refused'):
+            self.seed()
+        saved.rename(sample)
+        extra = self.origin / 'extra'
+        extra.touch()
+        with self.assertRaisesRegex(ValueError, 'native248-input-membership-refused'):
+            self.seed()
+        extra.unlink()
+        self.origin.chmod(0o755)
+        with self.assertRaisesRegex(ValueError, 'native248-directory-custody-refused'):
+            self.seed()
+        self.assertFalse(self.cache.exists())
+
+    def test_same_size_hash_drift_refuses_and_partial_cache_cannot_be_reused(self):
+        sample = self.origin / next(iter(self.rows))
+        sample.write_bytes(b'x' * sample.stat().st_size)
+        with self.assertRaisesRegex(ValueError, 'native248-input-pin-drift'):
+            self.seed()
+        with self.assertRaises(FileExistsError):
+            self.seed()
+
+    def test_hardlinked_source_refused_and_external_bytes_preserved(self):
+        sample = self.origin / next(iter(self.rows))
+        anchor = self.root / 'elsewhere'
+        os.link(sample, anchor)
+        with self.assertRaisesRegex(ValueError, 'native248-input-custody-refused'):
+            self.seed()
+        self.assertEqual(anchor.read_bytes(), self.payload[sample.name])
+
+    def test_preexisting_cache_symlink_refused_without_touching_target(self):
+        other = self.root / 'other'
+        other.mkdir(mode=0o700)
+        self.cache.symlink_to(other, target_is_directory=True)
+        with self.assertRaises(FileExistsError):
+            self.seed()
+        self.assertEqual(list(other.iterdir()), [])
+
+    def test_replaced_cache_directory_refuses_and_never_writes_replacement(self):
+        copy = controller.native248_copy
+        displaced = self.root / 'displaced'
+
+        def change(*args):
+            result = copy(*args)
+            if not displaced.exists():
+                self.cache.rename(displaced)
+                self.cache.mkdir(mode=0o700)
+            return result
+
+        with patch.object(controller, 'native248_copy', side_effect=change), \
+             self.assertRaisesRegex(ValueError, 'native248-directory-identity-drift'):
+            self.seed()
+        self.assertEqual(list(self.cache.iterdir()), [])
+
+    def test_invalid_and_mixed_selectors_are_erased_before_private_bootstrap(self):
+        packet = controller.packet
+        for selector, mode, additional in (
+            ('0', packet.COMPOSITION, {}),
+            ('1', packet.INSTALLER_COMPOSITION, {}),
+            ('1', packet.COMPOSITION, {controller.OLD_FOUR_PRIVATE_PREFIX + 'SCHEMA':'fixture'}),
+            ('1', packet.COMPOSITION, {controller.RETAINED_BUBBLEWRAP_PRIVATE_PREFIX + 'PACKAGE_01':'fixture'}),
+            ('1', packet.COMPOSITION, {'CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY':'fixture'}),
+        ):
+            environment = {controller.NATIVE248_REQUIRED:selector, **additional}
+            args = SimpleNamespace(composition=mode, clock='clock', clock_sha256='pin', execution_grant='grant',
+                                   execution_grant_sha256='pin', runtime_contract='runtime', runtime_contract_sha256='pin')
+            with self.subTest(mode=mode, selector=selector, mixed=tuple(additional)), \
+                 patch.dict(os.environ, environment), patch.object(controller, 'private_input') as capture:
+                with self.assertRaisesRegex(ValueError, 'native248-route-refused'):
+                    controller.composed_main(args, {}, entry=time.monotonic())
+                capture.assert_not_called()
+                self.assertTrue(set(environment).isdisjoint(os.environ))
 
 
 class ControllerTests(unittest.TestCase):
@@ -1332,6 +1471,48 @@ class EarlyEntryModels(unittest.TestCase):
             self.assertEqual(dev.publication_deadline,self.entry+120)
             self.assertEqual(timers.call_args_list[0].args,(controller.signal.ITIMER_REAL,self.J-self.entry))
             self.assertEqual(timers.call_args_list[-1].args,(controller.signal.ITIMER_REAL,120.0));publish.assert_called_once()
+
+    def test_native248_seed_refusal_precedes_development_and_actor(self):
+        from contextlib import ExitStack
+        with tempfile.TemporaryDirectory() as temporary, ExitStack() as stack:
+            root = Path(temporary)
+            checkout = root / 'checkout'
+            args = self.args(self.early)
+            args.composition = controller.packet.COMPOSITION
+            args.check_only = False
+            args.output, args.cache = root / 'output', root / 'cache'
+            value = maintained_packet_model(args.composition, metadata_pins={})
+
+            def capture(path, pin, kind, limit):
+                return self.fixture.raw(self.value) if kind == 'DEVELOPMENT_CLOCK' else b'MODEL'
+
+            def seed(*parameters):
+                sources.assert_called_once()
+                self.assertEqual(parameters, (checkout, args.cache, value, self.J))
+                self.assertTrue(args.output.is_dir())
+                self.assertFalse(args.cache.exists())
+                self.assertNotIn(controller.NATIVE248_REQUIRED, os.environ)
+                raise ValueError('native248-input-membership-refused')
+
+            stack.enter_context(patch.dict(os.environ, {controller.NATIVE248_REQUIRED:'1'}))
+            stack.enter_context(patch.object(controller, 'ROOT', checkout))
+            stack.enter_context(patch.object(controller.Path, 'cwd', return_value=checkout))
+            stack.enter_context(patch.object(controller, 'private_input', side_effect=capture))
+            stack.enter_context(patch.object(controller.packet, 'preflight_composed', return_value=value))
+            sources = stack.enter_context(patch.object(controller, 'composed_sources',
+                return_value=(SimpleNamespace(composition=args.composition), None, None, None)))
+            construct = stack.enter_context(patch.object(controller, 'Development'))
+            old = stack.enter_context(patch.object(controller, 'seed_old_four_private_cache'))
+            stack.enter_context(patch.object(controller, 'seed_native248_cache', side_effect=seed))
+            stack.enter_context(patch.object(controller.signal, 'getitimer', return_value=(0.0,0.0)))
+            stack.enter_context(patch.object(controller.signal, 'signal'))
+            stack.enter_context(patch.object(controller.signal, 'setitimer'))
+            stack.enter_context(patch.object(controller, 'close_boundary', return_value=False))
+            stack.enter_context(patch('builtins.print'))
+            with self.assertRaisesRegex(ValueError, 'native248-input-membership-refused'):
+                controller.composed_main(args, {}, entry=self.entry)
+            construct.assert_not_called()
+            old.assert_not_called()
 
     def test_J_does_not_renew_across_repeated_clock_validation(self):
         expected=self.clock(self.early)
