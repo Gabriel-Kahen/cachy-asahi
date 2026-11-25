@@ -31,11 +31,15 @@ only the Fish package and exercised staging, comparison and withdrawal.
   · [Input recovery](validation/updater-native-45697080431.md)
 - The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
   identifies the exact historical build inputs still needed for Perl and Python.
-- The virtual desktop runner can stop reading UART at `guest_pass` and miss
-  a subsequent `guest_failed` during guest cleanup. The pinned route needs a
-  successor packet with a terminal event after guest cleanup, bounded UART
-  drain, and matching outer-reader validation. [Runner](../scripts/virtual/run.py)
-  · [Guest](../scripts/virtual/guest.py) · [Outer reader](../scripts/virtual/controller.py)
+- Qtbase `all` scheduled exactly the pinned 1,216 remaining actions in a
+  disposable emulated 16 KiB guest. A full build needs a fresh scoped runner
+  grant. Installation needs separately qualified archives and a TEST-signed
+  lifecycle. [Dry run and build-only plan](../scripts/integration/qt612_full_16k_preflight/README.md)
+- The virtual desktop successor requires a terminal event after guest
+  cleanup, bounded UART EOF, and outer-reader verification before accepting
+  frames. Its exact source selection passed local checks. A fresh execution
+  grant and retained inputs are required for a QEMU desktop run.
+  [Successor admission](workstreams/virtual-desktop-completion-v2-admission.md)
 - Stable overlay promotion requires a supported Asahi composition, production
   signing custody and repository hosting, and installation and recovery records
   for both [13-inch](validation/m2-air-13.md) and [15-inch](validation/m2-air-15.md)
