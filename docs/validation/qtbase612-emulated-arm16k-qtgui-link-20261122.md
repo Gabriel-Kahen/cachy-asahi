@@ -59,6 +59,7 @@ The remaining command stream hash is
 `3147ef87084e1075d35abd18d27ed97f47ae0a9287df3c8a7ba4f3b9d2a71f97`.
 This is the default Qtbase graph. Package checks, staging, installation
 and the other Qt family repositories need separate coverage.
+[Reusable full Qtbase preflight](../../scripts/integration/qt612_full_16k_preflight/README.md)
 
 The Q3 QtGui run reached its 6 GiB cgroup memory limit and grew the overlay
 to 750,845,952 bytes. The existing 14,400-second guest cap covers the
@@ -70,11 +71,37 @@ pairs, and installed consumer and rollback cases. Its previous GUI-only
 native attempt stopped during base image assembly with
 `IMAGE_BUILD_NO_SPACE`. [Native family contract](../../scripts/ci/qt612-complete-family-native-source/README.md)
 
-The passive GUI dependency parser currently checks 16 KiB geometry for
-staged Qt entries only. A model external provider with 4 KiB-only load
-geometry passed the metadata join. The full installed qualification needs
-static geometry across every selected external provider and a 16 KiB
-loader run. [Runtime dependency reader](../../scripts/port/qt612-gui-native-v1/runtime.py)
+On November 25, the exact Q3 raw scratch and both retained QCOW2 layers were
+restored to private scratch and rehashed. The pinned `qemu-img` and `debugfs`
+from the local controller image opened the backing chain read-only. Each
+temporary merged image was discarded after extracting its original Ninja log.
+The QtGui log extends the QtCore log byte for byte. Grouping multiple output
+rows from the same action by start time, end time and command hash yields the
+following original serial build timings.
+
+| Completed build interval | Logged actions | Sum of action durations | Median action | 95th percentile |
+| --- | ---: | ---: | ---: | ---: |
+| Core | 321 | 6,211.811 s | 13.659 s | 56.450 s |
+| Gui increment | 318 | 8,342.003 s | 19.0115 s | 78.582 s |
+
+The largest Gui action was CMake autogen at 218.839 seconds. These action
+timings come from the completed builds, while the 1,216-command count
+above comes from the static `all` graph. A fresh guest dry run and a measured
+full build remain open. The local readback is under
+`~/.cache/qt612-ninja-timing-20261125.64pIENCe/`.
+
+| Retained evidence | SHA-256 |
+| --- | --- |
+| `rootless-output/core.ninja_log` | `075e3a4ae268ffa97c21d1f94cb934e5fb88e8e7cd465066786340db6ddcf2e3` |
+| `rootless-output/gui.ninja_log` | `8ff1dbfd5b753b464f64e240eeb13206f0f231ea1e7acb3fd0f446f8b0c73e58` |
+| `ninja-timing.ACTUAL.json` | `80acf5d43bdfb4dd747c75f91cb508752f4f771f96324972441885995dc1a9ea` |
+
+An earlier passive GUI dependency parser admitted a model external provider
+with 4 KiB-only load geometry. The corrected parser checks the retained ELF
+bytes for every selected provider, including the interpreter. It rejects
+sub-16 KiB, non-power-of-two and incongruent load alignments. Installed
+qualification still requires a 16 KiB loader run.
+[Runtime dependency reader](../../scripts/port/qt612-gui-native-v1/runtime.py)
 
 The R132 vendor Qt6 Base `6.12.0-3` archive and the source-built Q3 QtGui
 libraries have distinct provenance. In the R132 graphics archive sample,
