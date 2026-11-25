@@ -7,7 +7,7 @@ on:
         required: true
         default: probe
         type: choice
-        options: [probe, audit, build, integration, project-libraries-inputs, project-libraries-native]
+        options: [probe, audit, build, integration, project-libraries-inputs, project-libraries-native, project-libraries-migration]
       project_libraries_head:
         description: Full reviewed SHA for Project Libraries dispatch
         type: string
@@ -35,7 +35,8 @@ jobs:
     if: >-
       github.repository == 'Gabriel-Kahen/cachy-asahi' &&
       github.event.repository.private == false &&
-      inputs.mode != 'project-libraries-inputs' && inputs.mode != 'project-libraries-native'
+      inputs.mode != 'project-libraries-inputs' && inputs.mode != 'project-libraries-native' &&
+      inputs.mode != 'project-libraries-migration'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 50
     env:
@@ -166,10 +167,11 @@ jobs:
       github.repository == 'Gabriel-Kahen/cachy-asahi' &&
       github.event.repository.private == false &&
       github.sha == inputs.project_libraries_head &&
-      (inputs.mode == 'project-libraries-inputs' || inputs.mode == 'project-libraries-native')
+      (inputs.mode == 'project-libraries-inputs' || inputs.mode == 'project-libraries-native' ||
+       inputs.mode == 'project-libraries-migration')
     uses: ./.github/workflows/native-arm-project-libraries-622.yml
     with:
       reviewed_head: ${{ inputs.project_libraries_head }}
-      lane: ${{ inputs.mode == 'project-libraries-native' && 'native' || 'inputs' }}
+      lane: ${{ inputs.mode == 'project-libraries-migration' && 'native-migration' || inputs.mode == 'project-libraries-native' && 'native' || 'inputs' }}
     secrets:
       CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
