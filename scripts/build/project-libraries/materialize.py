@@ -18,7 +18,7 @@ import re
 import stat
 import tarfile
 
-PLAN_SHA256 = "0bc87cda6c02df5c643da1a3790ea9eab343f5f6f1c0647889e646ea98069799"
+PLAN_SHA256 = "892b271cd5dc8ff22f103b875adcca87b75ce8b98a2b35ca5b258225ca17923f"
 CHUNK = 65536
 
 

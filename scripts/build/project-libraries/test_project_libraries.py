@@ -2,6 +2,7 @@
 import gzip
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -53,6 +54,28 @@ class SourceTests(unittest.TestCase):
             (source.parent / "extra").touch()
             with self.assertRaisesRegex(ValueError, "recipe file set"):
                 prepare.verify_recipe(source.parent, "jbigkit", plan)
+
+
+class RecipeTests(unittest.TestCase):
+    def test_jbig_recursive_make_keeps_local_include_with_exported_cppflags(self):
+        pkgbuild = prepare.HERE / "recipes/jbigkit/PKGBUILD"
+        with tempfile.TemporaryDirectory() as directory:
+            tree = Path(directory) / "jbigkit-2.2"
+            pbm = tree / "pbmtools"
+            pbm.mkdir(parents=True)
+            (tree / "Makefile").write_text("all:\n\t@$(MAKE) -s -e -C pbmtools all\n")
+            (pbm / "Makefile").write_text(
+                "CPPFLAGS = -I../libjbig\nall:\n\t@printf '%s\\n' '$(CPPFLAGS)'\n"
+            )
+            for flags in ("", "-DREVIEWED_FLAG=1"):
+                with self.subTest(flags=flags):
+                    result = subprocess.run(
+                        ["bash", "-c", 'source "$1"; _checked_tree() { :; }; '
+                         'export CPPFLAGS="$2"; srcdir="$3"; CFLAGS=-O2; LDFLAGS=; build',
+                         "test-jbigkit", str(pkgbuild), flags, directory],
+                        check=True, capture_output=True, text=True, timeout=10,
+                    )
+                    self.assertEqual(result.stdout.strip().split(), ["-I../libjbig", *flags.split()])
 
 
 class BaselineTests(unittest.TestCase):

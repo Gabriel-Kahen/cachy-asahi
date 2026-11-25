@@ -15,7 +15,7 @@ import sys
 from preflight import INPUTS_PIN, PRODUCER, ROOT, producer_blob
 
 CANDIDATE = "a7c2a30fb37934cad320d982b7d2ab2413dab2a7"
-CANDIDATE_TREE = "7bb7581ea2e44c7a528514a9f8c30f902ffe430e"
+CANDIDATE_TREE = "8cf292a311f6abccbb6de51963fd4751b13bcd5c"
 PROJECT = ROOT / "scripts/build/project-libraries"
 # Exact bodies whose pinned primary routes returned 404 on 2026-11-25.
 # Every size and digest comes from the r12 lock, including the kernel body.

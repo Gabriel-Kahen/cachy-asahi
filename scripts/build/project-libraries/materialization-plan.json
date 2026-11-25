@@ -86,12 +86,12 @@
   },
   "outputs": [
     {
-      "bytes": 5669,
+      "bytes": 5790,
       "filename": "PKGBUILD",
       "kind": "project_asset",
       "mode": 420,
       "package": "jbigkit",
-      "sha256": "57be29e8614aaf9db74262c036d044cfe12e293b7702cc19a1481e0adaae2717"
+      "sha256": "9995fd42b3852ac096995db0eed8c0e866d9e1e14eb04227fcef712e425803ea"
     },
     {
       "bytes": 460858,

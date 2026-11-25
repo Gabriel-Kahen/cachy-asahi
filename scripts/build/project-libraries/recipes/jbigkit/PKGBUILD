@@ -88,7 +88,9 @@ prepare() {
 build() {
   _checked_tree || return
   cd "$srcdir/jbigkit-2.2" || return
-  make CC=gcc EXTRA_CFLAGS="$CFLAGS -fPIC" LDFLAGS="$LDFLAGS" all
+  # Recursive make -e gives makepkg's exported CPPFLAGS precedence.
+  make CC=gcc CPPFLAGS="-I../libjbig${CPPFLAGS:+ $CPPFLAGS}" \
+    EXTRA_CFLAGS="$CFLAGS -fPIC" LDFLAGS="$LDFLAGS" all
 }
 
 check() {
