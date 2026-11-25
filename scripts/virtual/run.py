@@ -165,8 +165,31 @@ def desktop_uart_batch(lines, nonce):
     done = desktop_terminal(events, nonce) is not None
     if done:
         end = max(index for index, line in enumerate(lines) if line.startswith(UART_MARKER + b' '))
-        require(not any(UART_MARKER in line for line in lines[end + 1:]), 'late desktop UART marker')
+        require(not any(desktop_protocol_line(line) for line in lines[end + 1:]), 'late or partial desktop UART event')
     return events, done
+
+
+def desktop_protocol_line(line):
+    return line.startswith(b'CACHY_') and UART_MARKER.startswith(line[:len(UART_MARKER)].split(None, 1)[0])
+
+
+class DesktopUARTTail:
+    """Track only the start of each post-terminal line across recv boundaries."""
+
+    def __init__(self, pending):
+        self.prefix = b''
+        self.has_record = False
+        self.feed(pending)
+
+    def feed(self, block):
+        width = len(UART_MARKER)
+        parts = block.split(b'\n')
+        parts[0] = (self.prefix + parts[0][:width])[:width]
+        self.has_record = self.has_record or any(desktop_protocol_line(line) for line in parts[:-1])
+        self.prefix = parts[-1][:width]
+
+    def quiet(self):
+        return not self.has_record and not desktop_protocol_line(self.prefix)
 
 
 def partial_uart_marker(data):
@@ -303,6 +326,7 @@ def inspect_ppm(path):
 def drain_uart(uart, serial_output, received, deadline, *, pending=b'', scope):
     """Preserve raw diagnostics and require bounded EOF with no further events."""
     marker_size = len(UART_MARKER) - 1
+    desktop_tail = DesktopUARTTail(pending) if scope == 'desktop' else None
     late = UART_MARKER in pending
     suffix = pending[-marker_size:]
     while True:
@@ -317,12 +341,15 @@ def drain_uart(uart, serial_output, received, deadline, *, pending=b'', scope):
         received += len(block)
         require(received <= MAX_LOG, 'guest UART output overflow')
         serial_output.write(block)
-        window = suffix + block
-        late = late or UART_MARKER in window
-        suffix = window[-marker_size:]
+        if desktop_tail is not None:
+            desktop_tail.feed(block)
+        else:
+            window = suffix + block
+            late = late or UART_MARKER in window
+            suffix = window[-marker_size:]
     serial_output.flush()
-    require(not late and not partial_uart_marker(suffix),
-            'late/duplicate/partial ' + scope + ' UART event')
+    quiet = desktop_tail.quiet() if desktop_tail is not None else not late and not partial_uart_marker(suffix)
+    require(quiet, 'late/duplicate/partial ' + scope + ' UART event')
 
 
 def finish_barrier_uart(uart, serial_output, received, deadline):

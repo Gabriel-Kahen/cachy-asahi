@@ -34,7 +34,7 @@ CORE = {
     'common.py': 'aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03',
     'guest.py': '9a328b149dc29c3579f9866de385bca277f77a08e6de5c98f2355bf71eaf9714',
     'prepare.py': '5a9fbfbbafb56244b6a6c960fa40bbfc574bfd6bb4c3d5338e17082714c69488',
-    'run.py': 'e2d51b1aa5f72c1699f09c6e5b6e33bae5bac5171dab7fa1383ecdabf6df1a7a',
+    'run.py': '707b3eae2ff4e83ec9c534346968bf05f5e7d1077484138f2aef27260f3b26ab',
     'gbm_probe.c': 'fe0bb7b15df0bc93c4b5115543619e182ba3dac2ed22d0d8b1ab541d77a72efd',
     'image_decode_probe.c': 'e5857f60f664ccfeb8a2275396c4a4f8ed6412f14bb5237e71bd34582479ba3a',
     'image_decode_report.py': '377efb140ec7b5e50a18ae3c3d312f31f25676818f45942bde1c3acb5dceaacd',
@@ -464,8 +464,7 @@ def verify_desktop_completion(raw, result):
             require(received <= MAX_LOG, 'desktop UART receipt exceeds bound')
             checksum.update(line)
             if terminal:
-                require(runner.UART_MARKER not in line and
-                        not runner.partial_uart_marker(line), 'late or partial desktop UART log event')
+                require(not runner.desktop_protocol_line(line), 'late or partial desktop UART log event')
             elif line.endswith(b'\n'):
                 events.extend(runner.uart_events([line[:-1]]))
                 terminal = bool(events and events[-1].get('event') == 'desktop_session_exit')

@@ -88,8 +88,11 @@ class UART(unittest.TestCase):
                 run.desktop_uart_batch((wire(TERMINAL) + wire(trailing)).split(b'\n'), NONCE)
         with self.assertRaisesRegex(ValueError, 'legacy desktop'):
             run.desktop_uart_batch(wire({'event': 'guest_pass', 'nonce': NONCE}).split(b'\n'), NONCE)
-        with self.assertRaisesRegex(ValueError, 'late desktop UART marker'):
-            run.desktop_uart_batch((wire(TERMINAL) + b'corrupt ' + wire(FAILED)).split(b'\n'), NONCE)
+        for trailing in (b'CACHY_ASAHI_EVE\n', b'CACHY_ASAHI_EVE\r\n', b'CACHY_ASAHI_EVE {}\n', b'CACHY_ASAHI_EVENT?\n'):
+            with self.subTest(trailing=trailing), self.assertRaisesRegex(ValueError, 'late or partial'):
+                run.desktop_uart_batch((wire(TERMINAL) + trailing).split(b'\n'), NONCE)
+        self.assertEqual(run.desktop_uart_batch((wire(TERMINAL) + b'kernel quoted CACHY_ASAHI_EVENT\n').split(b'\n'), NONCE),
+                         ([TERMINAL], True))
 
     def test_terminal_shape_types_and_nonce(self):
         for change in ({'nonce': 'b' * 32}, {'session_returncode': 2}, {'session_returncode': False},
@@ -122,12 +125,13 @@ class UART(unittest.TestCase):
 
     def test_clean_eof_and_kernel_diagnostics(self):
         self.assertEqual(run.desktop_uart_batch(wire(TERMINAL).split(b'\n'), NONCE), ([TERMINAL], True))
-        self.finish(pending=b'systemd', tail=b' stopped the service\n')
+        self.finish(pending=b'systemd', tail=b' stopped the service and logged CACHY_ASAHI_EVENT\n')
 
     def test_next_read_split_or_partial_tail_cannot_publish(self):
         failure = wire(FAILED)
         for pending, tail in ((b'', failure), (failure[:8], failure[8:]),
-                              (failure[:-1], b''), (b'', run.UART_MARKER[:8])):
+                              (failure[:-1], b''), (b'', run.UART_MARKER[:8]),
+                              (b'', b'CACHY_ASAHI_EVE\n'), (b'CACHY_AS', b'AHI_EVE\r\n')):
             with self.subTest(pending=pending, tail=tail):
                 self.finish(pending=pending, tail=tail, error='late/duplicate/partial desktop')
 
@@ -159,13 +163,14 @@ class ControllerReplay(unittest.TestCase):
                         'logs': {'serial.log': {'size': len(raw), 'sha256': controller.digest(serial)}}}
 
             raw = b'kernel diagnostic\n' + wire(TERMINAL)
-            result = make_result(raw + b'kernel diagnostic\n')
+            result = make_result(raw + b'kernel diagnostic mentions CACHY_ASAHI_EVENT\n')
             self.assertEqual(controller.verify_desktop_completion(root, result), run.desktop_receipt(TERMINAL))
             for bad in (result | {'logs': {}}, result | {'cleanup_uncertain': True},
                         result | {'desktop_completion': run.desktop_receipt(TERMINAL) | {'uart_eof': 1}}):
                 with self.subTest(bad=bad), self.assertRaises(ValueError):
                     controller.verify_desktop_completion(root, bad)
-            for tail in (wire(FAILED), wire(TERMINAL), run.UART_MARKER[:8]):
+            for tail in (wire(FAILED), wire(TERMINAL), run.UART_MARKER[:8],
+                         b'CACHY_ASAHI_EVE\n', b'CACHY_ASAHI_EVE\r\n'):
                 with self.subTest(tail=tail), self.assertRaisesRegex(ValueError, 'late or partial'):
                     controller.verify_desktop_completion(root, make_result(raw + tail))
 
