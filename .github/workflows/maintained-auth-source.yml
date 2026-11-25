@@ -1,0 +1,57 @@
+name: Historical maintained archive authentication controls
+on:
+  pull_request:
+    paths:
+      - 'scripts/port/maintained_authenticate.py'
+      - 'scripts/port/test_maintained_authenticate.py'
+      - '.github/workflows/maintained-auth-source.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/port/maintained_authenticate.py'
+      - 'scripts/port/test_maintained_authenticate.py'
+      - '.github/workflows/maintained-auth-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/port/maintained_authenticate.py
+            /scripts/port/test_maintained_authenticate.py
+      - name: Check out exact authentication fixture inputs
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 25f88410954ac5fa59e27b777de0dfa52ddb7d45
+          path: .ci-inputs/maintained-authentication
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /manifests/proposals/maintained-desktop-archives-v1.json
+            /manifests/proposals/maintained-desktop-v1.json
+            /scripts/ci/maintained-native/locks/builder-successor.lock
+            /scripts/ci/maintained-native/locks/inputs-successor.lock.json
+            /scripts/ci/native_arm.py
+            /scripts/port/authenticate.py
+            /scripts/port/preview.py
+            /scripts/port/refreshed-desktop/desktop-archives-proposal.json
+            /scripts/port/refreshed-desktop/receipt.json
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Exercise the current authenticator against the pinned source view
+        env:
+          MAINTAINED_AUTH_SOURCE_ROOT: ${{ github.workspace }}/.ci-inputs/maintained-authentication
+        run: python3 -I -B -Werror::ResourceWarning scripts/port/test_maintained_authenticate.py -v

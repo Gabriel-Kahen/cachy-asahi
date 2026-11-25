@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: MIT
-"""Portable Source/data/temp-FS controls; authentication actors remain mocked."""
+"""Historical source/data controls; authentication actors remain mocked."""
 import ast
 import copy
 import io
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -14,31 +15,66 @@ from unittest.mock import patch
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import maintained_authenticate as m
-ROOT = Path(os.environ.get('MAINTAINED_AUTH_SOURCE_ROOT', HERE.parents[1]))
+CHECKOUT = HERE.parents[1]
+FIXTURE_COMMIT = '25f88410954ac5fa59e27b777de0dfa52ddb7d45'
+PROFILE = 'manifests/proposals/maintained-desktop-archives-v1.json'
+MODEL_INPUTS = {
+    'proposal.json': 'manifests/proposals/maintained-desktop-v1.json',
+    'builder-input.json': 'scripts/ci/maintained-native/locks/inputs-successor.lock.json',
+    'archives233.json': 'scripts/port/refreshed-desktop/desktop-archives-proposal.json',
+    'seed341.lock': 'scripts/ci/maintained-native/locks/builder-successor.lock',
+    'worker.json': 'scripts/port/refreshed-desktop/receipt.json',
+}
 
 
 class MaintainedBindingTests(unittest.TestCase):
     @classmethod
-    def setUpClass(cls): cls.legacy = m.engine(ROOT)
+    def setUpClass(cls):
+        source_root = os.environ.get('MAINTAINED_AUTH_SOURCE_ROOT')
+        if source_root is not None:
+            cls.fixture = Path(source_root)
+        else:
+            snapshot = tempfile.TemporaryDirectory(prefix='maintained-auth-fixture-')
+            cls.addClassCleanup(snapshot.cleanup)
+            cls.fixture = Path(snapshot.name)
+            for path in (*m.HELPERS, PROFILE, *MODEL_INPUTS.values()):
+                try:
+                    raw = subprocess.check_output(
+                        ['git', '--no-replace-objects', '-C', str(CHECKOUT),
+                         'cat-file', 'blob', f'{FIXTURE_COMMIT}:{path}'],
+                        env={**os.environ, 'GIT_NO_LAZY_FETCH': '1'},
+                        stderr=subprocess.PIPE, timeout=10,
+                    )
+                except (OSError, subprocess.SubprocessError) as error:
+                    raise RuntimeError(
+                        f'Missing local fixture {FIXTURE_COMMIT}:{path}. '
+                        'Provide the reviewed tree through MAINTAINED_AUTH_SOURCE_ROOT.'
+                    ) from error
+                target = cls.fixture / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw)
+        cls.legacy = m.engine(cls.fixture)
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name); self.root.chmod(0o700)
-        self.profile = json.loads((ROOT/'manifests/proposals/maintained-desktop-archives-v1.json').read_bytes()) if (ROOT/'manifests/proposals/maintained-desktop-archives-v1.json').exists() else json.loads((HERE.parents[1]/'manifests/proposals/maintained-desktop-archives-v1.json').read_bytes())
-        proposal = json.loads((ROOT/'manifests/proposals/maintained-desktop-v1.json').read_bytes())
-        builder = json.loads((ROOT/'scripts/ci/maintained-native/locks/inputs-successor.lock.json').read_bytes())
-        archives = json.loads((ROOT/'scripts/port/refreshed-desktop/desktop-archives-proposal.json').read_bytes())
-        seedraw = (ROOT/'scripts/ci/maintained-native/locks/builder-successor.lock').read_bytes()
+        profile_path = self.fixture / PROFILE
+        self.profile = json.loads((profile_path if profile_path.exists() else CHECKOUT / PROFILE).read_bytes())
+        inputs = {name: (self.fixture / path).read_bytes() for name, path in MODEL_INPUTS.items()}
+        proposal = json.loads(inputs['proposal.json'])
+        builder = json.loads(inputs['builder-input.json'])
+        archives = json.loads(inputs['archives233.json'])
+        seedraw = inputs['seed341.lock']
         baseline = m.inventory(seedraw); final = baseline | {r['name']:r['version'] for r in archives['packages']}
         finalraw = ''.join(n+' '+v+'\n' for n,v in sorted(final.items())).encode()
         # Real canonical historical metadata, with only the maintained Vim pair
         # substituted. Terminal records below are explicit inert model facts.
-        worker = json.loads((ROOT/'scripts/port/refreshed-desktop/receipt.json').read_bytes())
-        inputs = {r['name']:r for r in builder['packages']}
+        worker = json.loads(inputs['worker.json'])
+        packages = {r['name']:r for r in builder['packages']}
         fields = {'name':'name','version':'version','arch':'arch','depends':'depends','provides':'provides','conflicts':'conflicts','replaces':'replaces','license':'license_metadata','source_url':'upstream_url','filename':'archive_filename','sha256':'archive_sha256'}
         for r in worker['full_candidate_inventory']:
             if r['name'][0] in ('vim','vim-runtime'):
-                original = inputs[r['name'][0]]
+                original = packages[r['name'][0]]
                 for key,target in fields.items(): r[target] = original[key] if type(original[key]) is list else [original[key]]
         for r in worker['dependency_relationships']:r['relation'] = r['relation'].replace('9.2.1164-2','9.2.1178-1')
         worker['changes'] = [dict(name=r['name'],version=r['version'],kind='add',download_bytes=r['size']) for r in sorted(archives['packages'],key=lambda r:r['name'])]
@@ -56,7 +92,8 @@ class MaintainedBindingTests(unittest.TestCase):
         completion=dict(status='PASS_ACTUAL_HOST_PRIVATE_MAINTAINED_METADATA_RESOLUTION',final_inventory_sha256=m.sha(finalraw),initial_count=341,final_count=574,additions=233,changes_to_baseline=0,natural_parent_and_worker=True,new_source_signature_archive_installation_native_ARM_Asahi_hardware_release_admission=False,indexed_files={'artifacts/maintained-desktop-resolution-run-unit/final574.lock':{'sha256':m.sha(finalraw)}})
         self.data=dict(zip(['proposal.json','builder-input.json','archives233.json','worker.json','parent.json','outer.json','completion.json'],[proposal,builder,archives,worker,parent,outer,completion]))
         self.blobs={n:m.encoded(v) for n,v in self.data.items()}|{'seed341.lock':seedraw,'expected574.lock':finalraw}
-        for name,path in [('proposal.json','manifests/proposals/maintained-desktop-v1.json'),('builder-input.json','scripts/ci/maintained-native/locks/inputs-successor.lock.json'),('archives233.json','scripts/port/refreshed-desktop/desktop-archives-proposal.json')]:self.blobs[name]=(ROOT/path).read_bytes()
+        for name in ('proposal.json', 'builder-input.json', 'archives233.json'):
+            self.blobs[name] = inputs[name]
         pins={n:m.sha(raw) for n,raw in self.blobs.items()};self.profile['files_sha256']=pins
         self.pins=patch.object(m,'CURRENT',pins);self.pins.start();self.addCleanup(self.pins.stop)
         self.seed,self.final=baseline,final
