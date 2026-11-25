@@ -19,9 +19,12 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 PACKAGE = 'packages/tools/cachy-asahi-update/'
+INSTALLED_HELPER = 'scripts/ci/updater-optional-check/prepare.py'
 READY_SHA = 'e745cd8bfc44df327be5523718b53b33668b3497583fcba995cd31cb41ab34ef'
 BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_seconds':910,
-          'freeze_seconds':120, 'retained_seed_seconds':90, 'native_seconds':5400, 'projection_seconds':60,
+          'freeze_seconds':120, 'retained_seed_seconds':90, 'native_seconds':5400,
+          'runtime_intake_seconds':60, 'installed_prepare_seconds':60, 'installed_check_seconds':380,
+          'projection_seconds':60,
           'export_seconds':60, 'cleanup_seconds':180, 'private_bytes':8*1024**3,
           'private_members':200000, 'source_bytes':32*1024**2,
           'minimum_output_free_bytes':10*1024**3, 'minimum_docker_free_bytes':10*1024**3,
@@ -514,6 +517,7 @@ def finish_signals(previous,cancelled,commit,mask):
 
 
 PROCESS_PHASES=frozenset({'native-daemon','seed-archives','materialize','freeze','native-pair','public-projection',
+                          'runtime-intake','installed-prepare','installed-check',
                           'public-guard','public-bundle','gpg-cleanup','recovery-gpg'})
 RUNTIME_REASONS=frozenset({'invalid-deadline','timeout','invalid-command','unsafe-log',
                            'nonprivate-log-parent','subreaper-unavailable','signal-state-restore',
@@ -658,6 +662,14 @@ def public_summary(receipt):
     result={k:receipt[k] for k in allowed if k in receipt}
     result.update(diagnostic_projection(receipt));result.update(cleanup_projection(receipt))
     if 'storage' in receipt:result['storage']=storage_projection(receipt['storage'])
+    if 'installed_check' in receipt:
+        status=receipt['installed_check']
+        need(type(status) is str and status in ('NOT RUN','FAIL','PASS'),'installed-check-status')
+        result['installed_check']=status
+        if status=='PASS':
+            need(type(receipt.get('installed_cases')) is int and receipt['installed_cases']==15,
+                 'installed-check-case-count')
+            result['installed_cases']=receipt['installed_cases']
     return result
 
 
@@ -789,7 +801,62 @@ def owned_cleanup(owner,output,private,contract,runtime,broker,runner,deadline,e
     return receipt['cleanup_status']=='PASS'
 
 
-def pipeline(root,controller,controller_sha,output,runner=None,*,retained_cache=None):
+def verify_installed_result(raw, prepared, case_exits):
+    need(type(raw) is dict and raw.get('status')=='PASS' and raw.get('phase')=='completed'
+         and raw.get('installation')=='PASS-disposable-container'
+         and raw.get('dependencies')=='PASS-no-waivers' and raw.get('pyalpm')=='PASS-native-import'
+         and raw.get('real_check')=='PASS-installed-Check-signed-local-repository'
+         and raw.get('test_signing_state_removed') is True
+         and raw.get('package_sha256')==prepared['package_sha256']
+         and raw.get('hardware')=='NOT RUN' and raw.get('target_update')=='NOT RUN'
+         and raw.get('publication')=='NOT ACCEPTED', 'installed-check-receipt')
+    nested=raw.get('check_cases')
+    need(type(nested) is dict and nested.get('status')=='PASS'
+         and type(nested.get('installed_packages')) is int and nested['installed_packages']==361
+         and nested.get('pacman_database_preserved')=='PASS'
+         and nested.get('updater_and_apple_policy_payload_preserved')=='PASS'
+         and nested.get('real_update_transaction')=='NOT RUN', 'installed-check-preservation')
+    cases=nested.get('cases')
+    need(type(cases) is dict and len(case_exits)==15 and cases.keys()==case_exits.keys()
+         and all(type(cases[name]) is dict and type(cases[name].get('exit')) is int
+                 and cases[name]['exit']==code for name,code in case_exits.items()),
+         'installed-check-case-results')
+    return len(cases)
+
+
+def installed_trial(private,copied,native,archives,python,command,broker,broker_contract,rows):
+    work=private/'installed';work.mkdir(mode=0o700)
+    cache=work/'runtime-cache';inputs=work/'inputs';logs=private/'logs'
+    helper=copied/INSTALLED_HELPER
+    command('runtime-intake',
+            [python,'-I','-B',str(copied/'scripts/port/updater-native-stage/runtime_intake.py'),
+             '--output',str(cache),'--alarm-keyring',str(archives/'archlinuxarm.gpg')],
+            BUDGET['runtime_intake_seconds'])
+    command('installed-prepare',
+            [python,'-I','-B',str(helper),'--native-output',str(native),'--cache',str(cache),
+             '--output',str(inputs)],BUDGET['installed_prepare_seconds'])
+    prepared=json.loads(regular(logs/'installed-prepare.stdout',4096),object_pairs_hook=unique)
+    need(type(prepared) is dict and set(prepared)=={'source_preflight','private_inputs','native_image',
+                                                  'package_sha256','installation'}
+         and prepared['source_preflight']==prepared['private_inputs']=='PASS'
+         and prepared['installation']=='NOT RUN'
+         and re.fullmatch(r'sha256:[0-9a-f]{64}',prepared['native_image'])
+         and re.fullmatch(r'[0-9a-f]{64}',prepared['package_sha256']), 'installed-prepare-receipt')
+    nonce=os.urandom(16).hex()
+    files={}
+    for path in sorted(inputs.rglob('*')):
+        if path.is_dir():continue
+        files[path.relative_to(inputs).as_posix()]=digest(regular(path,64*1024**2))
+    launch=work/'launch.json'
+    save(launch,{'schema_version':1,'nonce':nonce,'image_id':prepared['native_image'],'files':files})
+    argv=broker.installed_argv(broker_contract,nonce,prepared['native_image'],digest(regular(launch)))
+    command('installed-check',['docker',*argv],BUDGET['installed_check_seconds'])
+    fixture=module(helper,rows[INSTALLED_HELPER]['sha256'])
+    result=json.loads(regular(logs/'installed-check.stdout',fixture.RESULT_LIMIT),object_pairs_hook=unique)
+    return verify_installed_result(result,prepared,fixture.EXPECTED_CASE_EXITS)
+
+
+def pipeline(root,controller,controller_sha,output,runner=None,*,retained_cache=None,installed_check=False):
     contract,source=authenticate(root,controller,controller_sha)
     rows=contract['source']['files'];prefix='scripts/port/updater-native-stage/'
     runtime=module(HERE/'runtime.py',rows[prefix+'runtime.py']['sha256'])
@@ -807,6 +874,7 @@ def pipeline(root,controller,controller_sha,output,runner=None,*,retained_cache=
              'ready_sha256':READY_SHA,'source_commit':contract['source']['source_commit'],
              'native_compilation':'NOT RUN','publication':'NOT ACCEPTED','hardware':'NOT RUN',
              'private_data_removed':False,'cleanup_status':'NOT RUN','raw_retention_within_budget':False,'processes':{}}
+    if installed_check:receipt['installed_check']='NOT RUN'
     info=output.stat()
     owner={'schema_version':1,'controller_sha256':controller_sha,'source_commit':receipt['source_commit'],
            'host':contract['host'],'nonce':nonce,'uid':os.getuid(),
@@ -912,11 +980,20 @@ def pipeline(root,controller,controller_sha,output,runner=None,*,retained_cache=
             command('freeze',[python,'-I','-B',str(package/'updater-native.py'),'freeze','--source',str(source_archive),
                               '--vendor',str(vendor),'--output',str(candidate)],BUDGET['freeze_seconds'])
             candidate_sha=digest(regular(candidate/'candidate.json'));receipt['candidate_sha256']=candidate_sha
+            pair_seconds=BUDGET['native_seconds']
+            if installed_check:
+                pair_seconds-=sum(BUDGET[key] for key in ('runtime_intake_seconds','installed_prepare_seconds',
+                                                        'installed_check_seconds'))
             command('native-pair',[python,'-I','-B',str(package/'updater-native.py'),'build','--candidate',str(candidate/'candidate.json'),
-                                   '--candidate-sha256',candidate_sha,'--cache',str(archives),'--output',str(native)],BUDGET['native_seconds'])
+                                   '--candidate-sha256',candidate_sha,'--cache',str(archives),'--output',str(native)],pair_seconds)
             need(load(native/'result.json')['native_pair']=='PASS','native-pair-not-passed')
             source.verify(root,contract['source']);verify_snapshot(copied,contract['source'])
             receipt['native_compilation']='PASS PRIVATE NATIVE PAIR'
+            if installed_check:
+                receipt['installed_check']='FAIL'
+                receipt['installed_cases']=installed_trial(private,copied,native,archives,python,command,
+                                                           broker,broker_contract,rows)
+                receipt['installed_check']='PASS'
         except BaseException as error:
             failure=error;receipt['failure_class']=type(error).__name__
             if owner['private_record'] is None and getattr(error,'receipt',{}).get('registered'):
@@ -1111,10 +1188,11 @@ if __name__=='__main__':
     parser.add_argument('--controller',type=Path);parser.add_argument('--controller-sha256')
     parser.add_argument('--ownership-sha256')
     parser.add_argument('--retained-cache',type=Path)
+    parser.add_argument('--installed-check',action='store_true')
     parser.add_argument('--output',type=Path)
     args=parser.parse_args()
-    if args.retained_cache is not None and args.mode != 'run':
-        parser.error('--retained-cache requires run mode')
+    if (args.retained_cache is not None or args.installed_check) and args.mode != 'run':
+        parser.error('--retained-cache and --installed-check require run mode')
     if args.mode != 'preflight' and args.output is None:
         parser.error('--output is required')
     try:
@@ -1129,7 +1207,8 @@ if __name__=='__main__':
                             args.bootstrap_source_sha256,args.bootstrap_stage_sha256)
             print(json.dumps({'source_freeze':'PASS','controller_sha256':checksum,'native_compilation':'NOT RUN'}))
         elif args.mode=='run':
-            result=pipeline(args.root,args.controller,args.controller_sha256,args.output,retained_cache=args.retained_cache)
+            result=pipeline(args.root,args.controller,args.controller_sha256,args.output,
+                            retained_cache=args.retained_cache,installed_check=args.installed_check)
             print(json.dumps(public_summary(result),sort_keys=True));sys.exit(0 if result['status']=='PASS' else 1)
         else:
             result=recover(args.root,args.controller,args.controller_sha256,args.output,args.ownership_sha256)

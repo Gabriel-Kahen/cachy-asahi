@@ -20,10 +20,16 @@ STAGE = 'scripts/port/updater-native-stage/'
 READY = STAGE + 'reviewed-source.json'
 PACKAGE_CHECKPOINT = 'runner-ready-pins.json'
 HELPERS = frozenset({'scripts/build/compare.py', 'scripts/build/container-entry.sh',
-                     'scripts/ci/log_evidence.py'})
+                     'scripts/ci/log_evidence.py'}) | frozenset(
+    'scripts/ci/updater-optional-check/' + name for name in (
+        'prepare.py', 'optional_cases.py', 'historical/inside.py', 'historical/real-check/real-check.py',
+        'historical/dependencies/expected-installed-packages.lock',
+        'historical/dependencies/inputs.lock.json',
+    )
+)
 CONTROLLERS = frozenset(STAGE + n for n in ('stage.py', 'source.py', 'runtime.py',
                                           'broker.py', 'seed_archives.py', 'intake.py',
-                                          'retained-inputs.json', 'test_source.py')) | {READY}
+                                          'retained-inputs.json', 'runtime_intake.py', 'test_source.py')) | {READY}
 EXTERNAL_FREEZES = frozenset(STAGE + n for n in ('stage.lock.json', 'source.lock.json'))
 MAX_FILES = 128
 MAX_BYTES = 32 * 1024**2

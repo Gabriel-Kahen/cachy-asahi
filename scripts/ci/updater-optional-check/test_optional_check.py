@@ -1,12 +1,15 @@
 # SPDX-License-Identifier: MIT
 """Source controls only. No Docker, signature transaction or host Check."""
 import importlib.util
+import io
+import json
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
@@ -34,9 +37,41 @@ class SourceTests(unittest.TestCase):
                 prepare.replace(raw, b'old', b'new')
 
     def test_historical_blob_substitution_refuses(self):
-        with patch.object(prepare.subprocess, 'check_output', return_value=b'substitution'):
-            with self.assertRaisesRegex(ValueError, 'historical blob changed'):
-                prepare.historical('inside.py')
+        with tempfile.TemporaryDirectory(prefix='optional-historical-') as work:
+            historical = Path(work)
+            (historical / 'inside.py').write_bytes(b'substitution')
+            with patch.object(prepare, 'HISTORICAL', historical):
+                with self.assertRaisesRegex(ValueError, 'input digest differs'):
+                    prepare.historical('inside.py')
+
+    def test_capsule_emits_one_bounded_json_line(self):
+        files, _ = prepare.preflight()
+        inside = files['inside.py']
+        self.assertNotIn(b'/out/', inside)
+        scope = {'__name__': 'installed_fixture'}
+        exec(compile(inside, 'inside.py', 'exec'), scope)
+        output = io.StringIO()
+        value = {'status': 'PASS', 'type': 'fixture'}
+        with redirect_stdout(output):
+            scope['emit_result'](value)
+            with self.assertRaisesRegex(ValueError, 'receipt exceeds bound'):
+                scope['emit_result']({'overlong': 'x' * prepare.RESULT_LIMIT})
+        self.assertEqual(output.getvalue().count('\n'), 1)
+        self.assertEqual(json.loads(output.getvalue()), value)
+
+    def test_capsule_success_requires_exact_case_exits(self):
+        files, _ = prepare.preflight()
+        scope = {'__name__': 'installed_fixture'}
+        exec(compile(files['inside.py'], 'inside.py', 'exec'), scope)
+        check = {'status': 'PASS', 'cases': {
+            name: {'exit': code} for name, code in prepare.EXPECTED_CASE_EXITS.items()
+        }}
+        self.assertEqual(len(check['cases']), 15)
+        self.assertTrue(scope['complete_cases'](check))
+        check['cases']['optional-empty']['exit'] = False
+        self.assertFalse(scope['complete_cases'](check))
+        del check['cases']['optional-empty']
+        self.assertFalse(scope['complete_cases'](check))
 
     @unittest.skipUnless(os.environ.get('UPDATER_OPTIONAL_PATCHED_SOURCE'), 'requires exact local patched source')
     def test_optional_fixture_against_actual_patched_check_entry(self):

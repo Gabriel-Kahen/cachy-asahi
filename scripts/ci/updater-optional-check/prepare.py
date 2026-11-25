@@ -8,13 +8,11 @@ import os
 from pathlib import Path
 import re
 import stat
-import subprocess
 import types
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
-V2 = '480053c0866a922138d85af2b9880fb0e10d7b2c'
-HISTORICAL = 'scripts/ci/updater-real-check/'
+HISTORICAL = HERE / 'historical'  # Exact bytes from 480053c0866a922138d85af2b9880fb0e10d7b2c.
 PACKAGE = 'packages/tools/cachy-asahi-update/'
 BUILDER_LOCK = 'scripts/port/updater-extension/expected-packages.lock'
 BUILDER_SHA = '5c72ffef2fadecc631861ef12ab7f48e083694a402d0428a395da64fa592dcee'
@@ -22,6 +20,24 @@ PKGBUILD_SHA = '6e8b65f396510d59a1196949b062bad924ea0af4e38b58b4dfe0e47f74e16d60
 ADAPTER_SHA = '0b65eb3ce5eea5e537dbcf4bfe9da41a662f5ce5690cbac5c3f7a8b03d2d285b'
 CHECKER = 'scripts/checks/package_checks.py'
 CHECKER_SHA = '314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a'
+RESULT_LIMIT = 16 * 1024
+EXPECTED_CASE_EXITS = {
+    'pending-versioned': 0,
+    'invalid-signature-preserves-pending': 20,
+    'missing-signature-preserves-pending': 20,
+    'no-updates-clears-pending': 0,
+    'pending-no-version': 0,
+    'missing-signature-preserves-no-version': 20,
+    'optional-pending': 0,
+    'optional-aur-failure': 20,
+    'optional-user-discovery-failure': 20,
+    'optional-system-discovery-failure': 20,
+    'optional-appstream-failure': 20,
+    'optional-mask-failure': 20,
+    'optional-remote-failure': 20,
+    'optional-empty': 0,
+    'unconfigured-full-update-refusal': 21,
+}
 PINS = {
     'inside.py': '64a969ea0dc79ae3488d9ede3ced4195676aaf5bde314c55bcbc439cb7ef0591',
     'real-check/real-check.py': '1ac6cc2e9fab5ac3249f2ff4c6691ced389ea35e04be80b7a73b5aafb57a7b41',
@@ -55,12 +71,7 @@ def read(path, limit, expected=None):
 
 
 def historical(path):
-    data = subprocess.check_output(['/usr/bin/git', '--no-replace-objects', '-C', str(ROOT),
-                                    'show', f'{V2}:{HISTORICAL}{path}'], timeout=15,
-                                   env={'PATH': '/usr/bin:/bin', 'GIT_CONFIG_NOSYSTEM': '1',
-                                        'GIT_CONFIG_GLOBAL': '/dev/null', 'GIT_NO_LAZY_FETCH': '1'})
-    need(len(data) <= 64 * 1024 and digest(data) == PINS[path], 'historical blob changed: ' + path)
-    return data
+    return read(HISTORICAL / path, 64 * 1024, PINS[path])
 
 
 def replace(data, old, new):
@@ -95,6 +106,31 @@ def preflight():
         b"        optional = importlib.util.module_from_spec(optional_spec)\n"
         b"        optional_spec.loader.exec_module(optional)\n"
         b"        result['check_cases'] = checks.exercise(work, signing, fingerprints[0], optional.exercise)",
+    )
+    inside = replace(inside, b"    inputs, output = Path('/inputs'), Path('/out/result.json')",
+                     b"    inputs = Path('/inputs')")
+    inside = replace(
+        inside, b'def main():',
+        b"def complete_cases(check):\n"
+        b"    expected = " + repr(EXPECTED_CASE_EXITS).encode('ascii') + b"\n"
+        b"    cases = check['cases']\n"
+        b"    return (check['status'] == 'PASS' and cases.keys() == expected.keys()\n"
+        b"            and all(type(cases[name].get('exit')) is int and cases[name]['exit'] == code\n"
+        b"                    for name, code in expected.items()))\n\n\n"
+        b"def emit_result(result):\n"
+        b"    receipt = json.dumps(result, separators=(',', ':'), sort_keys=True, allow_nan=False)\n"
+        b"    need(len(receipt.encode('ascii')) + 1 <= " + str(RESULT_LIMIT).encode('ascii')
+        + b", 'installed receipt exceeds bound')\n"
+        b"    print(receipt, flush=True)\n\n\n"
+        b"def main():",
+    )
+    inside = replace(
+        inside, b"        need(result['check_cases']['status'] == 'PASS', 'installed real Check cases failed')",
+        b"        need(complete_cases(result['check_cases']), 'installed real Check cases failed')",
+    )
+    inside = replace(
+        inside, rb"        output.write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')",
+        b"        emit_result(result)",
     )
     real_check = replace(historical('real-check/real-check.py'), b'cachy-asahi-update 4.4.2-2',
                          b'cachy-asahi-update 4.4.2-3')
@@ -176,7 +212,7 @@ def stage(native, cache, output):
     output.mkdir(mode=0o700)
     for name, data in files.items():
         target = output / name
-        target.parent.mkdir(exist_ok=True)
+        target.parent.mkdir(mode=0o700, exist_ok=True)
         with target.open('xb') as stream:
             stream.write(data)
     return {'source_preflight': 'PASS', 'private_inputs': 'PASS', 'native_image': image,

@@ -20,7 +20,8 @@ payload, installed updater payload and exact installed package inventory.
 
 ## Source preflight
 
-From the reviewed worktree with the historical Git object available:
+From the reviewed worktree. The four original blobs are copied byte-for-byte
+under `historical/` and verified against their SHA-256 pins during preparation.
 
 ```sh
 python3 -I -B scripts/ci/updater-optional-check/prepare.py
@@ -35,55 +36,32 @@ checkupdates command in addition to the optional command fixtures.
 
 ## Native execution prerequisite and invocation
 
-The existing `native-arm-updater.yml` has a build-only broker and deletes the
-private image and archive after the pair. Installed execution requires a
-reviewed same-job integration before that cleanup and an authenticated cache
-route for the pinned builder inputs and all five runtime archive/signature
-pairs. The historical live runtime acquisition returned HTTP 404 in
+The same-job controller can prepare the capsule after both private native builds
+pass and before the owned image and package are retired. Its pinned runtime
+cache supplies the five archive/signature pairs plus the ALARM keyring. The
+historical live runtime acquisition returned HTTP 404 in
 [run 40242384425](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/40242384425).
-The exact four missing package/signature pairs are available from the
-[public incoming31 carrier](https://github.com/Gabriel-Kahen/cachy-asahi/tree/405761af52cdfa92b97bbf5b0519f32230d9a254).
-The fifth pair, xdg-utils, was already present in the prior retained cache.
-The capsule requires the actual five pairs and the pinned ALARM keyring file
-regardless of transport. A separate installed workflow dispatch is unavailable.
-
-Within the future reviewed, dedicated native job, after both clean builds pass
-and before product/image cleanup, set `native` to the private build output,
-`cache` to the populated private archive cache, and `trial` to a fresh owned
-0700 directory under `/tmp`. Register and supervise the exact named fixture
-container with the owning controller. Supply a clean Docker environment and
-give the run and cleanup independent deadlines.
+The first four exact archive/signature pairs are in
+[carrier 405761af](https://github.com/Gabriel-Kahen/cachy-asahi/tree/405761af52cdfa92b97bbf5b0519f32230d9a254).
+The fifth, xdg-utils, is in
+[carrier 4659076d](https://github.com/Gabriel-Kahen/cachy-asahi/tree/4659076d3a1d3e5cf87c185a3ff383fbc38e734d).
 
 ```sh
 python3 -I -B scripts/ci/updater-optional-check/prepare.py \
-  --native-output "$native" --cache "$cache" --output "$trial/inputs" \
-  > "$trial/input-receipt.json"
-image=$(python3 -I -B -c 'import json,sys; print(json.load(sys.stdin)["native_image"])' \
-  < "$trial/input-receipt.json")
-case "$(docker --host unix:///run/docker.sock info --format '{{.Architecture}}')" in
-  aarch64|arm64) ;;
-  *) exit 1 ;;
-esac
-test "$(docker --host unix:///run/docker.sock image inspect --format '{{.Os}}/{{.Architecture}}' "$image")" = linux/arm64
-nonce=$(python3 -I -B -c 'import secrets; print(secrets.token_hex(16))')
-name="cachy-asahi-updater-runtime-$nonce"
-mkdir -m 700 "$trial/out"
-# The owning controller records "$name" before this launch.
-timeout --signal=TERM --kill-after=15s 360s docker --host unix:///run/docker.sock run \
-  --rm --name "$name" --pull=never --platform=linux/arm64 --user=0:0 \
-  --network=none --ipc=private --cap-drop=ALL --security-opt=no-new-privileges \
-  --cap-add=CHOWN --cap-add=DAC_OVERRIDE --cap-add=FOWNER --cap-add=SETGID \
-  --cap-add=SETUID --cap-add=SYS_CHROOT --cap-add=SETFCAP \
-  --pids-limit=256 --memory=2g --cpus=2 --tmpfs=/tmp:rw,nosuid,nodev,exec,size=512m \
-  --mount "type=bind,src=$trial/inputs,dst=/inputs,readonly" \
-  --mount "type=bind,src=$trial/out,dst=/out" \
-  --env "CACHY_ASAHI_UPDATER_RUNTIME=$nonce" --entrypoint=/usr/bin/python3 \
-  "$image" -I -B /inputs/inside.py > "$trial/runtime.log" 2>&1
+  --native-output "$native" --cache "$cache" --output "$trial/inputs"
 ```
 
-The trial requires exit zero, `out/result.json` with runtime and all fifteen
-cases passing, signing-state cleanup, and verified absence of owned container
-and private data after the runner's ordinary cleanup. Retain only reviewed
-scalar/hash evidence. Neither the source preflight nor successful fixture
-projection establishes native execution, production signing, live optional
-backend operation, full-update behavior, target 16 KiB execution or M2 support.
+Preparation emits a JSON receipt naming the native image and package SHA-256.
+The controller registers the runtime container and bounds execution against the
+job deadline. The historical network-disabled ARM configuration runs
+`/usr/bin/python3 -I -B /inputs/inside.py` as UID 0 with a writable disposable
+container root and the seven exact capabilities from the tested prior lane:
+CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID, SYS_CHROOT, and SETFCAP. The capsule
+needs one read-only host bind at `/inputs`. It emits one bounded JSON line to
+supervised stdout after signing-state cleanup. Its success requires all fifteen
+named cases with their expected exit codes. Verify owned container absence and
+private-data cleanup before publishing the admitted scalar receipt fields.
+
+This fixture covers the native Check command in a disposable container. Live
+optional backends, a real update transaction, production signing, 16 KiB target
+execution, and M2 hardware remain outside its qualification.

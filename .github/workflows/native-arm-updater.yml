@@ -10,6 +10,10 @@ on:
         description: Fetch the reviewed pinned builder-input carriers over read-only SSH
         type: boolean
         default: false
+      installed_check:
+        description: Exercise signed disposable installed Check after the clean pair
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -25,8 +29,8 @@ jobs:
       REVIEWED_SOURCE_COMMIT: ${{ inputs.source_commit }}
       READY_SHA256: e745cd8bfc44df327be5523718b53b33668b3497583fcba995cd31cb41ab34ef
       # Bootstrap pins for the committed source and native controller checks.
-      STAGE_SHA256: 5fc9b470dd2a6799f90261621b7b325c50811504b48489e16c36bc274b9a2bb3
-      SOURCE_SHA256: 553b4b6e7087f8baa69cdfa3556cee07337a01887db87585506e4c2e19486320
+      STAGE_SHA256: e954433d15fb9b784c9e6249df0cf1fcd566b155e6344aa0ea80f60759952de1
+      SOURCE_SHA256: e27a9130cd00031d72141653769f79488b2c62ccda1da2753dde4c463f249d77
       INTAKE_SHA256: 55554990d5bf06cfe2d25779a01a78556120e958f0f9fb945f18b4dd53138fa2
     steps:
       - name: Start the shared deadline before checkout
@@ -80,6 +84,7 @@ jobs:
         env:
           RETAINED_INPUTS_OUTCOME: ${{ steps.retained.outcome }}
           RETAINED_INPUTS_REQUESTED: ${{ inputs.retained_inputs && '1' || '0' }}
+          INSTALLED_CHECK_REQUESTED: ${{ inputs.installed_check && '1' || '0' }}
         run: |
           set -euo pipefail
           stage="$GITHUB_WORKSPACE/scripts/port/updater-native-stage/stage.py"
@@ -91,6 +96,9 @@ jobs:
           if [[ "$RETAINED_INPUTS_REQUESTED" = 1 ]]; then
             [[ "$RETAINED_INPUTS_OUTCOME" = success && -d "$retained_cache" && ! -L "$retained_cache" ]]
             retained_args=(--retained-cache "$retained_cache")
+          fi
+          if [[ "$INSTALLED_CHECK_REQUESTED" = 1 ]]; then
+            retained_args+=(--installed-check)
           fi
           set +e
           timeout --signal=TERM --kill-after=190s "${seconds}s" python3 -I -B "$stage" run \
@@ -116,6 +124,7 @@ jobs:
           NATIVE_OUTCOME: ${{ steps.native.outcome }}
           RETAINED_INPUTS_REQUESTED: ${{ inputs.retained_inputs && '1' || '0' }}
           RETAINED_RETIRE_OUTCOME: ${{ steps.retire.outcome }}
+          INSTALLED_CHECK_REQUESTED: ${{ inputs.installed_check && '1' || '0' }}
         run: |
           set -euo pipefail
           stage="$GITHUB_WORKSPACE/scripts/port/updater-native-stage/stage.py"
@@ -425,6 +434,10 @@ jobs:
               if result['status'] == 'PASS':
                   need(bundle is not None)
                   need(decoded_json(files['native-result.json']).get('native_pair') == 'PASS')
+                  if os.environ['INSTALLED_CHECK_REQUESTED'] == '1':
+                      need(result.get('installed_check') == 'PASS' and result.get('installed_cases') == 15)
+                  else:
+                      need('installed_check' not in result and 'installed_cases' not in result)
               # Reuse the authenticated generic credential guard for captured JSON.
               phase = 'credential-verification'
               for name, files in payloads:

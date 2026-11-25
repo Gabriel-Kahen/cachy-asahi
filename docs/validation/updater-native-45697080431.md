@@ -78,7 +78,22 @@ gh workflow run native-arm-updater.yml --repo Gabriel-Kahen/cachy-asahi \
 
 The worker acquires other objects through the pinned original route and checks
 all 262 signatures, the exact 354-package inventory, and the native pair.
-Installed Check additionally requires a container rule in the Docker broker,
-an independent runtime dependency closure, and reserved time before private
-archive retirement. Native build, installed Check, and hardware gates remain
-pending.
+## Optional same-job installed Check
+
+After qualifying the build-only retry, the coordinator can pass
+`-F installed_check=true` on the reviewed workflow that contains the installed
+lane. It reserves 500 seconds from the native-pair phase budget, fetches the
+five runtime archive/signature pairs by immutable public Git IDs, and reuses
+the authenticated ALARM keyring. The capsule uses the exact package from the
+byte-identical pair before private data retirement. The broker admits one
+fixed network-disabled ARM invocation with an isolated writable container
+root, one read-only input mount, and the historical seven capabilities.
+No runtime host mount is writable.
+
+Success requires the signed ALPM transaction and all 15 named cases, including
+the eight optional-backend cases. The public terminal reports only the
+validated installed status and case count. A failure after the native pair
+preserves its separate evidence. Native installed Check and hardware
+qualification require execution. The source, cache, and command-admission
+controls run without launching Docker. See the
+[fixture and capsule record](../../scripts/ci/updater-optional-check/README.md).

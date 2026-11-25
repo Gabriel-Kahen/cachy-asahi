@@ -362,6 +362,56 @@ class StageTests(unittest.TestCase):
         self.assertEqual(self.terminal()[0]['failed_phase'], 'seed-archives')
         self.assertEqual(self.terminal()[0]['runtime_reason'], 'process-failed')
 
+    def test_installed_check_runs_after_pair_inside_the_owned_scope(self):
+        def installed(private, copied, native, archives, python, run, broker, contract, rows):
+            self.assertEqual(self.commands[-1], 'native-pair')
+            self.assertTrue(native.is_relative_to(private))
+            self.assertTrue(archives.is_relative_to(private))
+            self.assertTrue(copied.is_relative_to(private))
+            self.assertIs(broker, self.broker)
+            return 15
+
+        with mock.patch.object(stage, 'installed_trial', side_effect=installed) as check:
+            result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output,
+                                    runner=self.fake_run, installed_check=True)
+        check.assert_called_once()
+        self.assertEqual(result['status'], 'PASS')
+        self.assertTrue(result['private_data_removed'])
+        expected = self.terminal()[0]
+        self.assertEqual((expected['installed_check'], expected['installed_cases']), ('PASS', 15))
+
+    def test_installed_failure_preserves_independent_pair_evidence(self):
+        with mock.patch.object(stage, 'installed_trial', side_effect=ValueError('inert fixture failure')):
+            result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output,
+                                    runner=self.fake_run, installed_check=True)
+        self.assert_clean_failure(result)
+        self.assertEqual(result['native_compilation'], 'PASS PRIVATE NATIVE PAIR')
+        public = self.terminal()[0]
+        self.assertEqual(public['installed_check'], 'FAIL')
+        self.assertNotIn('installed_cases', public)
+
+    def test_installed_receipt_requires_all_exact_integer_cases_and_preservation(self):
+        exits = {f'inert-case-{i}':0 for i in range(15)}
+        prepared = {'package_sha256': H}
+        nested = {'status':'PASS', 'installed_packages':361, 'pacman_database_preserved':'PASS',
+                  'updater_and_apple_policy_payload_preserved':'PASS', 'real_update_transaction':'NOT RUN',
+                  'cases':{name:{'exit':code} for name,code in exits.items()}}
+        result = {'status':'PASS', 'phase':'completed', 'installation':'PASS-disposable-container',
+                  'dependencies':'PASS-no-waivers', 'pyalpm':'PASS-native-import',
+                  'real_check':'PASS-installed-Check-signed-local-repository', 'test_signing_state_removed':True,
+                  'package_sha256': H, 'hardware':'NOT RUN', 'target_update':'NOT RUN',
+                  'publication':'NOT ACCEPTED', 'check_cases':nested}
+        self.assertEqual(stage.verify_installed_result(result, prepared, exits),15)
+        for key, value in (('package_sha256','b'*64), ('test_signing_state_removed',1)):
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError,'installed-check-receipt'):
+                stage.verify_installed_result(dict(result, **{key:value}),prepared,exits)
+        nested['cases']['inert-case-0']['exit']=False
+        with self.assertRaisesRegex(ValueError,'installed-check-case-results'):
+            stage.verify_installed_result(result,prepared,exits)
+        del nested['cases']['inert-case-0']
+        with self.assertRaisesRegex(ValueError,'installed-check-case-results'):
+            stage.verify_installed_result(result,prepared,exits)
+
     def test_pipeline_tick_failure_has_guarded_finite_diagnostics_and_cleanup(self):
         self.mode = 'tick-scan-fail'; result = self.pipeline()
         self.assert_clean_failure(result)
