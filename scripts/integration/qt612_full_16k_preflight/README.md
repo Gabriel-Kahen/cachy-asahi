@@ -273,13 +273,11 @@ authority binding, retirement, completion, library identity, deadlines
 and output limits. A fresh Root selection, live launch and compilation,
 and independent retirement of a live attempt remain pending.
 
-After the build, run the GUI-server reference recipe's package checks
-and staging in a separately bounded phase. The supported install must
-resolve its exact dependencies and provider conflicts under private
-signature-required ALPM, then validate the 16 KiB loader, CMake consumer,
-plugins, GUI smoke and rollback. The other Qt family repositories and
-physical Asahi graphics remain separate qualifications.
-[GUI-server recipe](../../../packages/port/qt612-gui-server-source-reference/PKGBUILD)
+The [packaging and installed 16 KiB handoff](PACKAGING.md) selects the
+completed overlay and pinned dependencies, projects the corrected Qtbase
+provider metadata, and describes the separate signed installation and
+rollback criteria. Package assembly, installed Qt family compatibility,
+and physical Asahi graphics remain separate qualifications.
 
 The route review and host snapshot are in
 `~/.cache/qtbase-full-route-review-20261125.j5djy795/full-build-route.UNISSUED.json`,
