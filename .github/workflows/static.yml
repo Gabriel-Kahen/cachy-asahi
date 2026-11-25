@@ -348,7 +348,7 @@ jobs:
             python3 -I -B -Werror::ResourceWarning "$lane/$test"
           done
           lane=scripts/integration/qt612_full_16k_preflight
-          for worker in guest-dry-run.sh full-guest-init.sh; do bash -n "$lane/$worker"; done
+          for worker in guest-dry-run.sh full-guest-init.sh package-guest-init.sh; do bash -n "$lane/$worker"; done
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane"
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/integration/qt612_installed_16k_preflight
       - name: Check explicit lock and ordered suspend without a desktop session
