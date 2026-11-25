@@ -21,11 +21,12 @@ only the Fish package and exercised staging, comparison and withdrawal.
   the intended maintenance composition and physical 16 KiB testing remain open.
   [Native build and lifecycle evidence](validation/project-libraries-native-20261125.md)
 - Kernel [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) passed
-  hosted intake of all 226 recovered objects. The baseline build command
-  succeeded, then verification stopped on a `GLOB_DAT` relocation before
-  the candidate started. The verifier now checks bounded `GLOB_DAT` entries
-  against the linked Image. The native comparison remains open.
-  [First hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698226968)
+  hosted intake and both baseline build commands. Output verification stopped
+  on adjacent `GLOB_DAT` and `ABS64` records before either candidate started.
+  The verifier now follows the pinned relocator's dispatch, bounds every
+  relocation write, and compares the full table against the Image. The native
+  comparison remains open. [Second hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45707773620)
+  · [Verifier and diagnostics](workstreams/kernel-native-job.md)
 - Updater 4.4.2-3 passed its native AArch64 build pair and all 15 Check and
   refusal cases after signed installation in a disposable container. Cleanup
   and independent recovery passed. The full update transaction, 16 KiB
