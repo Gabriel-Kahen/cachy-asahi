@@ -209,12 +209,16 @@ license = "GPL-3.0-or-later"
 audit = "docs/workstreams/cachy-update.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "PASS"
-native_build_commit = "480053c0866a922138d85af2b9880fb0e10d7b2c"
-native_evidence = "docs/validation/updater-real-check-native-20261015.md"
+candidate_version = "4.4.2-3"
+source_validation = "PASS patched-source, optional Check failures and native adapter preflight on the pinned 354-package inventory"
+native_build = "NOT RUN"
+historical_native_build_version = "4.4.2-2"
+historical_native_build = "PASS native build pair, signed disposable installation and seven Check/refusal cases"
+historical_native_build_commit = "480053c0866a922138d85af2b9880fb0e10d7b2c"
+historical_native_evidence = "docs/validation/updater-real-check-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Version 4.4.2-2 native pair, signed disposable installation and seven actual Check/refusal cases pass; see docs/validation/updater-real-check-native-20261015.md. Earlier v1 tray behavior is separate. Implement bound full-update transaction, combined v2/target lifecycle and coordinated Apple updates; release notice closure remains required."
+next_step = "Build and compare 4.4.2-3 on native ARM, then exercise the optional query failures in an installed disposable transaction. Bound full-update behavior, coordinated Apple updates, target lifecycle and release notices remain open."
 
 [[packages]]
 name = "cachy-asahi-fdk-aac"
