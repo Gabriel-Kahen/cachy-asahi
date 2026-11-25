@@ -15,8 +15,9 @@ revision=$(git rev-parse HEAD)
 python3 examples/development/onboarding.py prepare "$work" --revision "$revision"
 ```
 
-The command takes a shallow, sparse local clone into `$work/checkout`, verifies
-the original `hello.c`, and runs the baseline. Expect `Hello from cachy-asahi`.
+The command fetches the selected commit into a shallow, sparse local checkout at
+`$work/checkout`, verifies the original `hello.c`, and runs the baseline. Expect
+`Hello from cachy-asahi`.
 
 Open the copy in your editor. In the `puts` call, change the greeting to
 `Hello from my installed terminal`, then save it and close the editor.

@@ -123,6 +123,20 @@ class OnboardingTest(unittest.TestCase):
         self.assertIn("pinned development example", result.stderr)
         self.assertFalse(self.workspace.exists())
 
+    def test_prepare_fetches_requested_commit_with_unborn_source_head(self):
+        tip = self.git("rev-parse", "HEAD").strip()
+        self.git("symbolic-ref", "HEAD", "refs/heads/unborn")
+        self.cli("prepare", self.workspace, "--source", self.source, "--revision", self.revision)
+
+        baseline, = self.reports()
+        self.assertEqual(baseline["checkout_head"], self.revision)
+        checkout = self.workspace / "checkout"
+        indexes = list((checkout / ".git/objects/pack").glob("*.idx"))
+        self.assertTrue(indexes)
+        packs = subprocess.check_output(["git", "verify-pack", "-v", *indexes], text=True)
+        self.assertIn(self.revision, packs)
+        self.assertNotIn(tip, packs)
+
 
 if __name__ == "__main__":
     unittest.main()
