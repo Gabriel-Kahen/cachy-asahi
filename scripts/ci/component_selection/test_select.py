@@ -227,6 +227,21 @@ class SelectionTests(unittest.TestCase):
         self.assertIn('  checks:\n    needs: cache-seed\n',static)
         self.assertNotIn('component-selection',static)
 
+    def test_sparse_selector_checkout_keeps_dependency_and_workflow_inputs(self):
+        workflows = HERE.parents[2] / '.github/workflows'
+        names = ('full-port-workflows', 'parallel-development-tools')
+        patterns = ['*.py', '/scripts/ci/component_selection/', '/.github/workflows/static.yml']
+        patterns.extend(f'/.github/workflows/{name}.yml' for name in names)
+        for name in names:
+            with self.subTest(name=name):
+                workflow = (workflows / f'{name}.yml').read_text()
+                selector = workflow.split('  component-selection:\n', 1)[1]
+                self.assertIn('          filter: blob:none\n', selector)
+                self.assertIn('          sparse-checkout-cone-mode: false\n', selector)
+                checkout = re.search(r'^          sparse-checkout: \|\n((?:            [^\n]+\n)+)', selector, re.M)
+                self.assertIsNotNone(checkout)
+                self.assertEqual(checkout[1].split(), patterns)
+
     def test_dispatch_inventory_cannot_drift_from_full_matrix(self):
         root=HERE.parents[2]
         for name,group,variable in (('static','static','COMPONENT'),('full-port-workflows','full-port','COMPONENT'),
