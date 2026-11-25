@@ -7,6 +7,7 @@ import copy
 import contextlib
 import errno
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -327,6 +328,16 @@ class StageTests(unittest.TestCase):
         self.assertTrue(self.cleanup_calls)
         self.assertEqual(result['cancelled'], cancelled)
         for row in self.terminal(): self.assertNotEqual(row['status'], 'PASS')
+
+    def test_cli_run_and_recovery_emit_one_result_and_propagate_its_status(self):
+        for mode, operation in (('run', 'pipeline'), ('cleanup', 'recover')):
+            for status, code in (('PASS', 0), ('FAIL', 1), ('CANCELLED', 1)):
+                with self.subTest(mode=mode, status=status):
+                    out = io.StringIO()
+                    with mock.patch.object(stage, operation, return_value={'status':status}), \
+                            contextlib.redirect_stdout(out):
+                        self.assertEqual(stage.main([mode, '--output', str(self.output)]), code)
+                    self.assertEqual(out.getvalue().splitlines(), [json.dumps({'status':status})])
 
     def test_success_is_fixture_only_with_real_cleanup_and_guarded_projection(self):
         result = self.pipeline()

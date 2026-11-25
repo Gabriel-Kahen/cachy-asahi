@@ -1179,7 +1179,7 @@ def recover(root,controller,controller_sha,output,owner_sha):
     return receipt
 
 
-if __name__=='__main__':
+def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode',choices=('preflight','freeze','run','cleanup'))
     parser.add_argument('--root',type=Path,default=ROOT)
@@ -1190,7 +1190,7 @@ if __name__=='__main__':
     parser.add_argument('--retained-cache',type=Path)
     parser.add_argument('--installed-check',action='store_true')
     parser.add_argument('--output',type=Path)
-    args=parser.parse_args()
+    args=parser.parse_args(argv)
     if (args.retained_cache is not None or args.installed_check) and args.mode != 'run':
         parser.error('--retained-cache and --installed-check require run mode')
     if args.mode != 'preflight' and args.output is None:
@@ -1209,9 +1209,17 @@ if __name__=='__main__':
         elif args.mode=='run':
             result=pipeline(args.root,args.controller,args.controller_sha256,args.output,
                             retained_cache=args.retained_cache,installed_check=args.installed_check)
-            print(json.dumps(public_summary(result),sort_keys=True));sys.exit(0 if result['status']=='PASS' else 1)
+            print(json.dumps(public_summary(result),sort_keys=True))
+            return 0 if result['status']=='PASS' else 1
         else:
             result=recover(args.root,args.controller,args.controller_sha256,args.output,args.ownership_sha256)
-            print(json.dumps(public_summary(result),sort_keys=True));sys.exit(0 if result['status']=='PASS' else 1)
+            print(json.dumps(public_summary(result),sort_keys=True))
+            return 0 if result['status']=='PASS' else 1
     except BaseException as error:
-        print(json.dumps({'status':'FAIL','failure_class':type(error).__name__}));sys.exit(1)
+        print(json.dumps({'status':'FAIL','failure_class':type(error).__name__}))
+        return 1
+    return 0
+
+
+if __name__=='__main__':
+    sys.exit(main())
