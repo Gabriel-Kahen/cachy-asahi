@@ -175,12 +175,28 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(report['applications'][0]['visibility'], 'DESKTOP_EXCLUDED')
         self.assertEqual(report['status'], 'FAIL_STAGED_CHECKS')
 
-    def test_not_show_in_multi_desktop_and_invalid_combination(self):
+    def test_excluded_name_can_match_later_in_desktop_list(self):
         self.env['XDG_CURRENT_DESKTOP'] = 'Hyprland:GNOME'
         self.desktop(extra='NotShowIn=GNOME;\n')
         self.assertFalse(self.run_audit()['applications'][0]['desktop_eligible'])
+
+    def test_first_matching_desktop_controls_disjoint_lists(self):
         self.desktop(extra='OnlyShowIn=Hyprland;\nNotShowIn=GNOME;\n')
-        self.assertIn('mutually exclusive', self.run_audit()['applications'][0]['error'])
+        for current, visible in (('Hyprland:GNOME', True), ('GNOME:Hyprland', False),
+                                 ('KDE:Hyprland:GNOME', True), ('KDE', False)):
+            with self.subTest(current=current):
+                self.env['XDG_CURRENT_DESKTOP'] = current
+                report = self.run_audit()
+                self.assertEqual(report['applications'][0]['desktop_eligible'], visible)
+                self.assertEqual(report['status'], 'PASS_STAGED_CHECKS' if visible else 'FAIL_STAGED_CHECKS')
+
+    def test_desktop_name_cannot_be_in_both_lists(self):
+        self.desktop(extra='OnlyShowIn=Hyprland;\nNotShowIn=GNOME;Hyprland;\n')
+        self.assertIn('appears in both', self.run_audit()['applications'][0]['error'])
+
+    def test_empty_only_show_in_excludes_all_desktops(self):
+        self.desktop(extra='OnlyShowIn=\n')
+        self.assertEqual(self.run_audit()['applications'][0]['visibility'], 'DESKTOP_EXCLUDED')
 
     def test_malformed_boolean_and_duplicate_key_fail(self):
         for extra in ('Terminal=yes\n', 'Hidden=1\n', 'NoDisplay=False\n', 'Name=second\n'):

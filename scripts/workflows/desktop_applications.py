@@ -541,11 +541,13 @@ class Audit:
             row['name'] = unescape(name)
             if not row['name']:
                 raise ValueError('missing Name')
-            only, exclude = values(entry.get('OnlyShowIn', '')), values(entry.get('NotShowIn', ''))
-            if only and exclude:
-                raise ValueError('OnlyShowIn and NotShowIn are mutually exclusive')
+            only = set(values(entry.get('OnlyShowIn', '')))
+            exclude = set(values(entry.get('NotShowIn', '')))
+            if only & exclude:
+                raise ValueError('A desktop name appears in both OnlyShowIn and NotShowIn')
             desktop = self.env['XDG_CURRENT_DESKTOP'].split(':')
-            row['desktop_eligible'] = (not only or any(x in only for x in desktop)) and not any(x in exclude for x in desktop)
+            row['desktop_eligible'] = next((name in only for name in desktop if name in only or name in exclude),
+                                           'OnlyShowIn' not in entry)
             row['no_display'] = boolean(entry, 'NoDisplay')
             row['visibility'] = ('DESKTOP_EXCLUDED' if not row['desktop_eligible'] else
                                  'NO_DISPLAY_HANDLER' if row['no_display'] else 'MENU_CANDIDATE')
