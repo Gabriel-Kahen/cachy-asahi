@@ -126,11 +126,42 @@ and benchmark results require separate observations and approval.
 
 ## Hand off the physical checks and benchmark preflight
 
-Reserve a window with an operator on each Air for the graphical login and
-install/remove smoke test, then for the full [exact-machine checks](release/interface.md#exact-machine-interface).
-Keep sleep, audio and package lifecycle runs serialized on each unit. Use the
-[installation guide](installation.md) and [contributor guide](contributing.md) for
-the independent onboarding exercise from clean prerequisites.
+| Unit | Capture and session identity | Release record |
+| --- | --- | --- |
+| M2 Air 13-inch (2022), `Mac14,2` / `J413AP` | AArch64, 16 KiB, `apple,t8112`, `MODEL_ID=apple,j413` | [`m2-air-13`](validation/m2-air-13.md) |
+| M2 Air 15-inch (2023), `Mac14,15` / `J415AP` | AArch64, 16 KiB, `apple,t8112`, `MODEL_ID=apple,j415` | [`m2-air-15`](validation/m2-air-15.md) |
+
+1. The coordinator assigns an operator and independent reviewer for each unit.
+   Record the macOS and recovery environment, disk/ESP layout, planned protected
+   Asahi versions and exact previous/candidate release hashes. Verify backup restore
+   and access to a known-good boot or console. Reserve one system-changing job
+   per unit and serialize sleep, audio and package lifecycle checks.
+2. Authenticate the held fresh-install handoff offline with the external pins
+   and retain the complete predecessor recovery set outside the target before
+   starting the macOS installer or changing an existing baseline. Proceed with
+   the fresh install once the maintained Asahi installer and image, signed
+   repository trust and complete native target transaction are selected and
+   reviewed. Follow the [fresh handoff](../scripts/install/fresh_handoff/README.md),
+   [installation guide](installation.md) and [contributor guide](contributing.md)
+   for independent onboarding.
+3. On the unchanged Asahi reference for that unit, run the baseline capture
+   above before adding the overlay and confirm a successful `pacman -Q`. Record
+   the installed protected versions and retain the known-good boot and package
+   inputs. On the exact candidate, exercise the
+   [functional and lifecycle contract](acceptance.md#fixed-functional-and-lifecycle-checks):
+   three cold boots and graphical logins, 20 lid resumes (10 battery and 10 AC)
+   with apps checked after every resume, 10 locks/unlocks, and five lifecycle
+   cycles each against fresh and existing user configurations. Exercise five
+   connections/reconnections for supported display modes. Record every failure
+   and keep the original desktop configuration available.
+4. Exercise the actual previous-to-candidate full upgrade, interrupted download
+   and transaction, failed session, retained rollback and boot recovery. Save
+   the exact commands, before/after package inventories, configuration hashes
+   and post-recovery functional observations for each scenario. Use the
+   [exact-machine recovery procedure](release/recovery.md#exact-machine-recovery-exercise)
+   and the [release evidence interface](release/interface.md#exact-machine-interface).
+   Use the selected Asahi boot and recovery path for that installation's ESP.
+   Both models' install and recovery records remain `NOT RUN` until exercised.
 
 For benchmark preflight, capture the baseline and candidate state with
 `--require-m2-air` and check the package inventory in each. Keep the raw
