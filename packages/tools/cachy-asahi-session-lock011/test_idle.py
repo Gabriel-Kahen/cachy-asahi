@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import runpy
 import signal
+import socket
 import subprocess
 import sys
 import threading
@@ -110,7 +111,7 @@ class Idle(unittest.TestCase):
         with self.assertRaises(OSError):
             S.run_idle(self.env, [], 300, idle_command=('/missing/swayidle',))
         self.assertEqual(self.events(), [])
-        with S.session_guard(self.env, 'idle:'):
+        with S.session_guard(self.env, idle=True):
             pass
 
     def test_failed_watcher_does_not_fall_back_to_a_locker(self):
@@ -141,9 +142,23 @@ class Idle(unittest.TestCase):
         self.assert_watcher_reaped()
 
     def test_second_idle_guard_refuses_before_watcher_start(self):
-        with S.session_guard(self.env, 'idle:'), self.assertRaises(S.AlreadyActive):
+        with S.session_guard(self.env, idle=True), self.assertRaises(S.AlreadyActive):
             self.run_idle()
         self.assertEqual(self.events(), [])
+
+    def test_idle_guard_cannot_alias_a_manual_guard_on_another_display(self):
+        other_display = {**self.env, 'WAYLAND_DISPLAY': 'idle:' + self.env['WAYLAND_DISPLAY']}
+        with S.session_guard(other_display), S.session_guard(self.env, idle=True):
+            with self.assertRaises(S.AlreadyActive), S.session_guard(other_display):
+                pass
+
+    def test_guards_accept_display_socket_names_with_non_utf8_bytes(self):
+        display = os.fsdecode(b'wayland-\xff')
+        with socket.socket(socket.AF_UNIX) as address:
+            address.bind(str(self.runtime / display))
+            env = S.session_environment({**self.env, 'WAYLAND_DISPLAY': display})
+            with S.session_guard(env), S.session_guard(env, idle=True):
+                pass
 
     def test_active_manual_guard_skips_event_without_stopping_owner(self):
         cancelled = []
