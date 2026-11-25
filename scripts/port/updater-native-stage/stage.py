@@ -653,6 +653,31 @@ def storage_projection(value):
     return value
 
 
+PREPARE_PHASES = frozenset({'source-closure','directories','pair-comparison','builder-receipt',
+                            'archive-selection','archive-metadata','runtime-inputs','capsule-write'})
+PREPARE_PROBLEMS = frozenset({'missing-input','permission','io-error','invalid-input','unexpected'})
+PREPARE_UNAVAILABLE = {'phase':'unavailable','problem':'unavailable'}
+
+
+def prepare_failure_projection(row):
+    need(type(row) is dict and set(row)=={'phase','problem'}
+         and type(row['phase']) is str and type(row['problem']) is str
+         and (row==PREPARE_UNAVAILABLE
+              or row['phase'] in PREPARE_PHASES and row['problem'] in PREPARE_PROBLEMS),
+         'installed-prepare-diagnostic')
+    return row
+
+
+def prepare_failure(path):
+    try:
+        raw=json.loads(regular(path,1024),object_pairs_hook=unique)
+        need(type(raw) is dict and set(raw)=={'status','phase','problem'} and raw['status']=='FAIL',
+             'installed-prepare-failure-receipt')
+        return prepare_failure_projection({key: raw[key] for key in ('phase','problem')})
+    except (OSError, ValueError):
+        return dict(PREPARE_UNAVAILABLE)
+
+
 def public_summary(receipt):
     """Fixed scalar/hash/typed lifecycle fields; no host paths, argv or raw logs."""
     allowed=('schema_version','status','phase','controller_sha256','ready_sha256','source_commit',
@@ -670,6 +695,10 @@ def public_summary(receipt):
             need(type(receipt.get('installed_cases')) is int and receipt['installed_cases']==15,
                  'installed-check-case-count')
             result['installed_cases']=receipt['installed_cases']
+    if 'installed_prepare_failure' in receipt:
+        need(receipt.get('installed_check')=='FAIL' and receipt.get('failed_phase')=='installed-prepare',
+             'installed-prepare-diagnostic-context')
+        result['installed_prepare_failure']=prepare_failure_projection(receipt['installed_prepare_failure'])
     return result
 
 
@@ -996,6 +1025,8 @@ def pipeline(root,controller,controller_sha,output,runner=None,*,retained_cache=
                 receipt['installed_check']='PASS'
         except BaseException as error:
             failure=error;receipt['failure_class']=type(error).__name__
+            if receipt.get('failed_phase')=='installed-prepare':
+                receipt['installed_prepare_failure']=prepare_failure(private/'logs/installed-prepare.stdout')
             if owner['private_record'] is None and getattr(error,'receipt',{}).get('registered'):
                 owner['private_record']=runtime.owned_record(output,'private',nonce);ownership_save(output,owner)
             if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled'):

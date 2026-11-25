@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import stat
+import sys
 import types
 
 HERE = Path(__file__).resolve().parent
@@ -160,8 +161,17 @@ def load(name, path, expected):
     return module
 
 
-def stage(native, cache, output):
+def select_archive(artifacts):
+    archives = sorted(artifacts.glob('*.pkg.tar.*'))
+    need(len(archives) == 1 and archives[0].suffix in {'.xz', '.zst'},
+         'one supported native package required')
+    return archives[0]
+
+
+def stage(native, cache, output, progress=lambda _phase: None):
+    progress('source-closure')
     files, dependencies = preflight()
+    progress('directories')
     native, cache, output = (path.absolute() for path in (native, cache, output))
     need(output.is_relative_to('/tmp') and output.parent.resolve(strict=True) == output.parent
          and not output.exists() and not output.is_symlink()
@@ -170,18 +180,22 @@ def stage(native, cache, output):
          and not any(c in str(output) for c in ',\n'), 'fresh private output required')
     need(all(path.resolve(strict=True) == path and path.is_dir() and path.stat().st_uid == os.getuid()
              for path in (native, cache)), 'canonical owned pair and cache directories required')
+    progress('pair-comparison')
     adapter = load('private_build_pair', ROOT / PACKAGE / 'updater-native.py', ADAPTER_SHA)
     checker = load('private_package_checks', ROOT / CHECKER, CHECKER_SHA)
     first, second = native / 'build-1', native / 'build-2'
     comparison = adapter.compare_pair(first, second, checker)
     need(not comparison['errors'], 'exact clean pair required')
+    progress('builder-receipt')
     raw_result = json.loads(read(native / 'result.json', 64 * 1024))
     image = read(native / 'image-id', 256).decode().strip()
     need(raw_result['native_pair'] == 'PASS' and raw_result['inventory_sha256'] == BUILDER_SHA
          and raw_result['image_id'] == image and re.fullmatch(r'sha256:[0-9a-f]{64}', image)
          and read(native / 'packages.lock', 64 * 1024, BUILDER_SHA) == files['compiler-packages.lock'],
          'native build result or image differs')
-    archive, = first.glob('artifacts/*.pkg.tar.xz')
+    progress('archive-selection')
+    archive = select_archive(first / 'artifacts')
+    progress('archive-metadata')
     report = checker.package(archive)
     metadata = report['metadata']['.PKGINFO']
     controller = json.loads(read(first / 'inputs/controller-input.json', 1024**2))
@@ -194,6 +208,7 @@ def stage(native, cache, output):
          'wrong recipe, build image, archive or dependencies')
     recorded = json.loads(read(first / 'provenance.json', 64 * 1024))['package_sha256']
     files['updater.pkg.tar.xz'] = read(archive, 64 * 1024**2, recorded)
+    progress('runtime-inputs')
     for row in dependencies['packages']:
         for name, size, checksum in (
             (row['filename'], row['size'], row['sha256']),
@@ -209,6 +224,7 @@ def stage(native, cache, output):
                                        'runtime_dependencies': metadata['depend'],
                                        'signer_fingerprint': dependencies['signer_fingerprint']},
                                       sort_keys=True) + '\n').encode()
+    progress('capsule-write')
     output.mkdir(mode=0o700)
     for name, data in files.items():
         target = output / name
@@ -219,24 +235,45 @@ def stage(native, cache, output):
             'package_sha256': recorded, 'installation': 'NOT RUN'}
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--native-output', type=Path)
     parser.add_argument('--cache', type=Path)
     parser.add_argument('--output', type=Path)
-    args = parser.parse_args()
-    if any((args.native_output, args.cache, args.output)):
-        if not all((args.native_output, args.cache, args.output)):
-            parser.error('provide all three native staging operands')
-        result = stage(args.native_output, args.cache, args.output)
-    else:
-        files, dependencies = preflight()
-        result = {'source_preflight': 'PASS', 'expected_package_count': 360,
-                  'staged_dependency_count': len(dependencies['packages']),
-                  'capsule_source_sha256': {name: digest(data) for name, data in files.items()},
-                  'installation': 'NOT RUN'}
+    args = parser.parse_args(argv)
+    phase = 'source-closure'
+
+    def progress(value):
+        nonlocal phase
+        phase = value
+
+    try:
+        if any((args.native_output, args.cache, args.output)):
+            if not all((args.native_output, args.cache, args.output)):
+                parser.error('provide all three native staging operands')
+            result = stage(args.native_output, args.cache, args.output, progress)
+        else:
+            files, dependencies = preflight()
+            result = {'source_preflight': 'PASS', 'expected_package_count': 360,
+                      'staged_dependency_count': len(dependencies['packages']),
+                      'capsule_source_sha256': {name: digest(data) for name, data in files.items()},
+                      'installation': 'NOT RUN'}
+    except Exception as error:
+        if isinstance(error, FileNotFoundError):
+            problem = 'missing-input'
+        elif isinstance(error, PermissionError):
+            problem = 'permission'
+        elif isinstance(error, OSError):
+            problem = 'io-error'
+        elif isinstance(error, (KeyError, TypeError, ValueError)):
+            problem = 'invalid-input'
+        else:
+            problem = 'unexpected'
+        print(json.dumps({'status': 'FAIL', 'phase': phase, 'problem': problem}, sort_keys=True))
+        return 1
     print(json.dumps(result, sort_keys=True))
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

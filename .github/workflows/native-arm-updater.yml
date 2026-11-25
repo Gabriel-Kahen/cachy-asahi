@@ -29,7 +29,7 @@ jobs:
       REVIEWED_SOURCE_COMMIT: ${{ inputs.source_commit }}
       READY_SHA256: e745cd8bfc44df327be5523718b53b33668b3497583fcba995cd31cb41ab34ef
       # Bootstrap pins for the committed source and native controller checks.
-      STAGE_SHA256: e5d810a4f938fc379bbfaebfba6900b5b732364358695007cdfb381565193c56
+      STAGE_SHA256: e07ddce5e8df104155c7e32840c289675228dedf026ee5724be4899f633b386c
       SOURCE_SHA256: e27a9130cd00031d72141653769f79488b2c62ccda1da2753dde4c463f249d77
       INTAKE_SHA256: 55554990d5bf06cfe2d25779a01a78556120e958f0f9fb945f18b4dd53138fa2
     steps:

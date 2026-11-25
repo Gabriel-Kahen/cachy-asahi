@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import tarfile
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -135,6 +136,88 @@ class SourceTests(unittest.TestCase):
                 if name.startswith('optional-')
             })
             self.assertEqual((home / 'state/arch-update/last_updates_check_flatpak').read_bytes(), b'')
+
+
+class StageTests(unittest.TestCase):
+    def stage_capsule(self, suffix):
+        files, _ = prepare.preflight()
+        checks = prepare.load('stage_test_checks', prepare.ROOT / prepare.CHECKER, prepare.CHECKER_SHA)
+        recipe = (prepare.ROOT / prepare.PACKAGE / 'PKGBUILD').read_bytes()
+        srcinfo = checks.metadata((prepare.ROOT / prepare.PACKAGE / '.SRCINFO').read_text())
+        with tempfile.TemporaryDirectory(prefix='updater-capsule-stage-') as work:
+            work = Path(work)
+            native = work / 'native'; native.mkdir()
+            cache = work / 'cache'; cache.mkdir()
+            image = 'sha256:' + 'd' * 64
+            (native / 'image-id').write_text(image + '\n')
+            (native / 'packages.lock').write_bytes(files['compiler-packages.lock'])
+            (native / 'result.json').write_text(json.dumps({
+                'native_pair': 'PASS', 'image_id': image, 'inventory_sha256': prepare.BUILDER_SHA}))
+
+            def pin(name, body):
+                (cache / name).write_bytes(body)
+                return {'filename': name, 'size': len(body), 'sha256': prepare.digest(body)}
+
+            dep = pin('fixture.pkg.tar.xz', b'inert runtime archive')
+            sig = pin('fixture.pkg.tar.xz.sig', b'inert runtime signature')
+            dep.update(signature_size=sig['size'], signature_sha256=sig['sha256'])
+            key = pin('archlinuxarm.gpg', b'inert keyring')
+            dependencies = {'packages': [dep], 'keyring_files': [key], 'signer_fingerprint': 'e' * 40}
+            archive = work / 'fixture.tar'
+            pkginfo = 'pkgname = cachy-asahi-update\npkgver = 4.4.2-3\narch = aarch64\nlicense = GPL-3.0-or-later\n'
+            pkginfo += ''.join('depend = ' + name + '\n' for name in srcinfo['depends'])
+            buildinfo = ('format = 2\npkgname = cachy-asahi-update\npkgver = 4.4.2-3\npkgarch = aarch64\n'
+                         f'pkgbuild_sha256sum = {prepare.PKGBUILD_SHA}\n')
+            with tarfile.open(archive, 'w:xz' if suffix == '.xz' else 'w') as tar:
+                for name, text in (('.PKGINFO', pkginfo), ('.BUILDINFO', buildinfo), ('.MTREE', 'inert')):
+                    data = text.encode()
+                    member = tarfile.TarInfo(name)
+                    member.size = len(data)
+                    tar.addfile(member, io.BytesIO(data))
+            body = (archive.read_bytes() if suffix == '.xz' else
+                    subprocess.check_output(['zstd', '-q', '-c', str(archive)], timeout=10))
+            name = 'cachy-asahi-update-4.4.2-3-aarch64.pkg.tar' + suffix
+            package_sha = prepare.digest(body)
+            for index in (1, 2):
+                build = native / f'build-{index}'
+                artifacts = build / 'artifacts'; artifacts.mkdir(parents=True)
+                recipe_dir = build / 'inputs/recipe'; recipe_dir.mkdir(parents=True)
+                (artifacts / name).write_bytes(body)
+                (recipe_dir / 'PKGBUILD').write_bytes(recipe)
+                controller = {'image_id': image, 'builder_inventory_sha256': prepare.BUILDER_SHA,
+                              'tool_pins': {}, 'entry_script_sha256': 'a' * 64, 'nonce': str(index) * 32,
+                              'recipe_input_sha256': {'PKGBUILD': prepare.PKGBUILD_SHA}}
+                controller_raw = json.dumps(controller).encode()
+                (recipe_dir.parent / 'controller-input.json').write_bytes(controller_raw)
+                (build / 'provenance.json').write_text(json.dumps({
+                    'native_compilation': 'PASS-private-native-package-static-checks',
+                    'outputs_sha256': {name: package_sha}, 'package_sha256': package_sha,
+                    'controller_sha256': prepare.digest(controller_raw)}))
+            output = work / 'inputs'
+            with patch.object(prepare, 'preflight', return_value=(files, dependencies)):
+                result = prepare.stage(native, cache, output)
+            self.assertEqual(result['package_sha256'], package_sha)
+            self.assertEqual((output / 'updater.pkg.tar.xz').read_bytes(), body)
+            self.assertEqual(result['installation'], 'NOT RUN')
+
+    def test_real_stage_path_with_xz_pair(self):
+        self.stage_capsule('.xz')
+
+    @unittest.skipUnless(shutil.which('zstd'), 'zstd is required for the zstd case')
+    def test_real_stage_path_with_zstd_pair(self):
+        self.stage_capsule('.zst')
+
+    def test_cli_emits_only_bounded_preparation_problem(self):
+        def fail(_native, _cache, _output, progress):
+            progress('runtime-inputs')
+            raise FileNotFoundError('/private/path/fixture')
+
+        stdout = io.StringIO()
+        args = ['--native-output','/unused','--cache','/unused','--output','/unused']
+        with patch.object(prepare,'stage',side_effect=fail), redirect_stdout(stdout):
+            self.assertEqual(prepare.main(args),1)
+        self.assertEqual(json.loads(stdout.getvalue()),
+                         {'status':'FAIL','phase':'runtime-inputs','problem':'missing-input'})
 
 
 if __name__ == '__main__':

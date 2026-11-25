@@ -401,6 +401,25 @@ class StageTests(unittest.TestCase):
         self.assertEqual(public['installed_check'], 'FAIL')
         self.assertNotIn('installed_cases', public)
 
+    def test_prepare_failure_projects_only_a_known_subphase_and_problem(self):
+        out = self.base / 'prepare.stdout'
+        record = {'status':'FAIL','phase':'archive-selection','problem':'invalid-input'}
+        out.write_text(json.dumps(record))
+        diagnostic = stage.prepare_failure(out)
+        self.assertEqual(diagnostic, {'phase':'archive-selection','problem':'invalid-input'})
+        result = {'installed_check':'FAIL','failed_phase':'installed-prepare',
+                  'runtime_reason':'process-failed','runtime_returncode':1,
+                  'installed_prepare_failure':diagnostic}
+        self.assertEqual(stage.public_summary(result)['installed_prepare_failure'], diagnostic)
+        with self.assertRaisesRegex(ValueError, 'installed-prepare-diagnostic-context'):
+            stage.public_summary(dict(result, failed_phase='runtime-intake'))
+        out.write_text(json.dumps(dict(record, error='/private/fixture/location')))
+        self.assertEqual(stage.prepare_failure(out), stage.PREPARE_UNAVAILABLE)
+        out.write_text(json.dumps(dict(record, phase='/private/fixture/location')))
+        self.assertEqual(stage.prepare_failure(out), stage.PREPARE_UNAVAILABLE)
+        out.unlink()
+        self.assertEqual(stage.prepare_failure(out), stage.PREPARE_UNAVAILABLE)
+
     def test_installed_receipt_requires_all_exact_integer_cases_and_preservation(self):
         exits = {f'inert-case-{i}':0 for i in range(15)}
         prepared = {'package_sha256': H}
