@@ -21,7 +21,7 @@ ROOT = HERE.parents[2]
 PACKAGE = 'packages/tools/cachy-asahi-update/'
 READY_SHA = 'e745cd8bfc44df327be5523718b53b33668b3497583fcba995cd31cb41ab34ef'
 BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_seconds':910,
-          'freeze_seconds':120, 'native_seconds':5400, 'projection_seconds':60,
+          'freeze_seconds':120, 'retained_seed_seconds':90, 'native_seconds':5400, 'projection_seconds':60,
           'export_seconds':60, 'cleanup_seconds':180, 'private_bytes':8*1024**3,
           'private_members':200000, 'source_bytes':32*1024**2,
           'minimum_output_free_bytes':10*1024**3, 'minimum_docker_free_bytes':10*1024**3,
@@ -513,7 +513,7 @@ def finish_signals(previous,cancelled,commit,mask):
         commit(True)
 
 
-PROCESS_PHASES=frozenset({'native-daemon','materialize','freeze','native-pair','public-projection',
+PROCESS_PHASES=frozenset({'native-daemon','seed-archives','materialize','freeze','native-pair','public-projection',
                           'public-guard','public-bundle','gpg-cleanup','recovery-gpg'})
 RUNTIME_REASONS=frozenset({'invalid-deadline','timeout','invalid-command','unsafe-log',
                            'nonprivate-log-parent','subreaper-unavailable','signal-state-restore',
@@ -789,7 +789,7 @@ def owned_cleanup(owner,output,private,contract,runtime,broker,runner,deadline,e
     return receipt['cleanup_status']=='PASS'
 
 
-def pipeline(root,controller,controller_sha,output,runner=None):
+def pipeline(root,controller,controller_sha,output,runner=None,*,retained_cache=None):
     contract,source=authenticate(root,controller,controller_sha)
     rows=contract['source']['files'];prefix='scripts/port/updater-native-stage/'
     runtime=module(HERE/'runtime.py',rows[prefix+'runtime.py']['sha256'])
@@ -797,6 +797,8 @@ def pipeline(root,controller,controller_sha,output,runner=None):
     run_process=runner or runtime.run_process
     need(output.is_absolute() and output.is_relative_to('/tmp') and output.parent.resolve(strict=True)==output.parent
          and not output.exists() and not output.is_symlink(),'fresh-stage-output')
+    if retained_cache is not None:
+        need(retained_cache==output.parent/'retained-cache','retained-cache-control-path')
     need(shutil.disk_usage(output.parent).free>=BUDGET['minimum_output_free_bytes'],'output-free-disk')
     output.mkdir(mode=0o700);start=time.monotonic();deadline=start+BUDGET['total_seconds']
     nonce=os.urandom(16).hex();private=None;env=None;failure=None;cancelled=[];broker_contract=None
@@ -891,6 +893,11 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                                    _sha256=digest(regular(private/'broker-controller.json')))
             broker.storage_initialize(broker_contract)
             env=environment(private,contract)
+            archives=private/'archives'
+            if retained_cache is not None:
+                command('seed-archives',[python,'-I','-B',str(copied/(prefix+'seed_archives.py')),
+                                         '--source',str(retained_cache),'--target',str(archives)],
+                        BUDGET['retained_seed_seconds'])
             lock_sha=digest(regular(package/'runner-inputs.lock.json'))
             # The unchanged built-in worker inherits our owned session. Its CLI
             # applies the original resource limits; no separate-session supervisor.
@@ -906,7 +913,7 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                               '--vendor',str(vendor),'--output',str(candidate)],BUDGET['freeze_seconds'])
             candidate_sha=digest(regular(candidate/'candidate.json'));receipt['candidate_sha256']=candidate_sha
             command('native-pair',[python,'-I','-B',str(package/'updater-native.py'),'build','--candidate',str(candidate/'candidate.json'),
-                                   '--candidate-sha256',candidate_sha,'--cache',str(private/'archives'),'--output',str(native)],BUDGET['native_seconds'])
+                                   '--candidate-sha256',candidate_sha,'--cache',str(archives),'--output',str(native)],BUDGET['native_seconds'])
             need(load(native/'result.json')['native_pair']=='PASS','native-pair-not-passed')
             source.verify(root,contract['source']);verify_snapshot(copied,contract['source'])
             receipt['native_compilation']='PASS PRIVATE NATIVE PAIR'
@@ -1103,8 +1110,11 @@ if __name__=='__main__':
     parser.add_argument('--bootstrap-source-sha256');parser.add_argument('--bootstrap-stage-sha256')
     parser.add_argument('--controller',type=Path);parser.add_argument('--controller-sha256')
     parser.add_argument('--ownership-sha256')
+    parser.add_argument('--retained-cache',type=Path)
     parser.add_argument('--output',type=Path)
     args=parser.parse_args()
+    if args.retained_cache is not None and args.mode != 'run':
+        parser.error('--retained-cache requires run mode')
     if args.mode != 'preflight' and args.output is None:
         parser.error('--output is required')
     try:
@@ -1119,7 +1129,7 @@ if __name__=='__main__':
                             args.bootstrap_source_sha256,args.bootstrap_stage_sha256)
             print(json.dumps({'source_freeze':'PASS','controller_sha256':checksum,'native_compilation':'NOT RUN'}))
         elif args.mode=='run':
-            result=pipeline(args.root,args.controller,args.controller_sha256,args.output)
+            result=pipeline(args.root,args.controller,args.controller_sha256,args.output,retained_cache=args.retained_cache)
             print(json.dumps(public_summary(result),sort_keys=True));sys.exit(0 if result['status']=='PASS' else 1)
         else:
             result=recover(args.root,args.controller,args.controller_sha256,args.output,args.ownership_sha256)

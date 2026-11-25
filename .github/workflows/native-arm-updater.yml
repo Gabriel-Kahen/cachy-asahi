@@ -21,8 +21,8 @@ jobs:
       REVIEWED_SOURCE_COMMIT: ${{ inputs.source_commit }}
       READY_SHA256: e745cd8bfc44df327be5523718b53b33668b3497583fcba995cd31cb41ab34ef
       # Bootstrap pins for the committed source and native controller checks.
-      STAGE_SHA256: 7da6bff04cbd5406272cb0bbeee95d50021c2fa1dfe7f255cb422f5038aeb16f
-      SOURCE_SHA256: 285983ec44ba40e130ba08d7238e4642cf98b4bfcfd2926ec32a4656ad76f7a2
+      STAGE_SHA256: 5fc9b470dd2a6799f90261621b7b325c50811504b48489e16c36bc274b9a2bb3
+      SOURCE_SHA256: f43b3d6047483010a3290888d378cabb1e4d8093ffaa7dff937ade64395e9006
     steps:
       - name: Start the shared deadline before checkout
         timeout-minutes: 1
@@ -65,15 +65,20 @@ jobs:
           [[ "$(sha256sum "$stage" | cut -d' ' -f1)" = "$STAGE_SHA256" ]]
           # The 110-minute ceiling includes 190 seconds for deferred TERM cleanup.
           seconds=$(python3 -I -B -c 'import os,time; n=min(6600,int(float(os.environ["UPDATER_DEADLINE"])-time.monotonic())-300)-190; assert n>=60; print(n)' 2> "$UPDATER_CONTROL/run-clock.stderr")
+          retained_args=()
+          retained_cache="$UPDATER_CONTROL/retained-cache"
+          if [[ -e "$retained_cache" || -L "$retained_cache" ]]; then
+            retained_args=(--retained-cache "$retained_cache")
+          fi
           set +e
           timeout --signal=TERM --kill-after=190s "${seconds}s" python3 -I -B "$stage" run \
             --root "$GITHUB_WORKSPACE" --controller "$UPDATER_CONTROL/controller.json" \
             --controller-sha256 "$UPDATER_CONTROLLER_SHA256" --output "$UPDATER_CONTROL/stage" \
-            > "$UPDATER_CONTROL/run.stdout" 2> "$UPDATER_CONTROL/run.stderr"
+            "${retained_args[@]}" > "$UPDATER_CONTROL/run.stdout" 2> "$UPDATER_CONTROL/run.stderr"
           code=$?
           echo "UPDATER_RUN_EXIT=$code" >> "$GITHUB_ENV"
           exit "$code"
-      - name: Recover owned resources and retain verified public evidence
+      - name: Recover resources, export evidence, and verify the trial outcome
         if: always()
         timeout-minutes: 5
         env:

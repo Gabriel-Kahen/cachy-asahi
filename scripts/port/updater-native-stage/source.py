@@ -22,7 +22,7 @@ PACKAGE_CHECKPOINT = 'runner-ready-pins.json'
 HELPERS = frozenset({'scripts/build/compare.py', 'scripts/build/container-entry.sh',
                      'scripts/ci/log_evidence.py'})
 CONTROLLERS = frozenset(STAGE + n for n in ('stage.py', 'source.py', 'runtime.py',
-                                          'broker.py', 'test_source.py')) | {READY}
+                                          'broker.py', 'seed_archives.py', 'test_source.py')) | {READY}
 EXTERNAL_FREEZES = frozenset(STAGE + n for n in ('stage.lock.json', 'source.lock.json'))
 MAX_FILES = 128
 MAX_BYTES = 32 * 1024**2

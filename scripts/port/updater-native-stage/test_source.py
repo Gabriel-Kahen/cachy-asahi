@@ -171,7 +171,7 @@ class SourceTests(unittest.TestCase):
 
     def test_full_required_closure_and_modes(self):
         contract = self.collect()
-        self.assertEqual(len(contract['files']), 82)
+        self.assertEqual(len(contract['files']), 83)
         self.assertTrue(source.HELPERS | source.CONTROLLERS <= set(contract['files']))
         self.assertIn(source.PACKAGE + source.PACKAGE_CHECKPOINT, contract['files'])
         self.assertEqual(contract['files'][source.STAGE + 'stage.py']['git_mode'], '100755')

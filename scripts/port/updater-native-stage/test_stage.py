@@ -93,7 +93,7 @@ class StageTests(unittest.TestCase):
         self.mode = 'pass'; self.source_drift = False; self.project_fail = False; self.guard_fail = False
         self.create_gpg = False; self.gpg_status = 'PASS'; self.docker_status = 'PASS'
         self.put(PREFIX + 'stage.py', STAGE_BYTES)
-        for name in ('runtime.py', 'source.py'):
+        for name in ('runtime.py', 'source.py', 'seed_archives.py'):
             self.put(PREFIX + name, (HERE / name).read_bytes())
         self.put(PREFIX + 'public_worker.py', (HERE / 'public_worker.py').read_bytes())
         self.put(PREFIX + 'broker.py', b'#!/usr/bin/env python3\n# never executed fixture\n')
@@ -238,6 +238,15 @@ class StageTests(unittest.TestCase):
                         raise self.runtime.RuntimeFailure(item)
                 self.fail('private scan tick must fail')
             stage.save(stdout, {'Architecture': 'aarch64', 'DockerRootDir': str(self.storage)})
+        elif phase == 'seed-archives':
+            source = Path(argv[argv.index('--source') + 1])
+            destination = Path(argv[argv.index('--target') + 1])
+            self.assertEqual(source, self.base / 'retained-cache')
+            self.assertEqual(destination, self.output / 'private/archives')
+            self.assertEqual(Path(argv[3]).read_bytes(), (HERE / 'seed_archives.py').read_bytes())
+            if self.mode == 'seed-fail':
+                raise self.runtime.RuntimeFailure(self.process_receipt('FAIL'))
+            shutil.copytree(source, destination)
         elif phase == 'materialize':
             self.assertIn('--child', argv)
             root = Path(argv[argv.index('--output') + 1])
@@ -266,6 +275,9 @@ class StageTests(unittest.TestCase):
             stage.save(root / 'candidate.json', {'schema_version': 1, 'fixture': True})
         elif phase == 'native-pair':
             root = Path(argv[argv.index('--output') + 1]); root.mkdir(mode=0o700)
+            if 'seed-archives' in self.commands:
+                cache = Path(argv[argv.index('--cache') + 1])
+                self.assertEqual((cache / 'fixture').read_bytes(), b'inert package bytes')
             failed = self.mode == 'native-fail'
             stage.save(root / 'result.json', {'schema_version': 1, 'native_pair': 'FAIL' if failed else 'PASS',
                                              'stage': 'finalized', 'argv': [POISON.decode()]})
@@ -326,6 +338,29 @@ class StageTests(unittest.TestCase):
         self.assertEqual(result['publication'], 'NOT ACCEPTED')
         self.assertEqual(result['hardware'], 'NOT RUN')
         self.assertTrue(self.guard_inputs)
+
+    def test_retained_cache_handoff_precedes_materialization_and_preserves_source(self):
+        source = self.base / 'retained-cache'
+        source.mkdir(mode=0o700)
+        member = source / 'fixture'
+        member.write_bytes(b'inert package bytes')
+        result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output,
+                                runner=self.fake_run, retained_cache=source)
+        self.assertEqual(result['status'], 'PASS')
+        self.assertEqual(self.commands[:3], ['native-daemon', 'seed-archives', 'materialize'])
+        self.assertTrue(result['private_data_removed'])
+        self.assertEqual(member.read_bytes(), b'inert package bytes')
+
+    def test_retained_seed_failure_prevents_acquisition_and_projects_diagnostic(self):
+        self.mode = 'seed-fail'
+        source = self.base / 'retained-cache'
+        source.mkdir(mode=0o700)
+        result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output,
+                                runner=self.fake_run, retained_cache=source)
+        self.assert_clean_failure(result)
+        self.assertNotIn('native-pair', self.commands)
+        self.assertEqual(self.terminal()[0]['failed_phase'], 'seed-archives')
+        self.assertEqual(self.terminal()[0]['runtime_reason'], 'process-failed')
 
     def test_pipeline_tick_failure_has_guarded_finite_diagnostics_and_cleanup(self):
         self.mode = 'tick-scan-fail'; result = self.pipeline()
