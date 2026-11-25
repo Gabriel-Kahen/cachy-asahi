@@ -44,32 +44,41 @@ The detached signature SHA-256 is
 Isolated `gpgv` verified ALARM signer
 `68B3537F39A313B3E574D06777193F152BDBE6A6` for that pair.
 
-## Retry handoff
+## Build-only retry
 
-Reuse the kernel job's read-only SSH deploy-key scope for the three existing
-private refs. Authenticate the exact host key, commit, tree and selected blobs
-and keep the credential in the bounded intake step. Prefer immutable raw
-fetches for the four native574 blobs. Only the Parallel pair needs a new private
-carrier if the ALAA snapshot cannot be used directly. Bind any new carrier to
-its exact commit and tree before using it.
+The updater workflow accepts `retained_inputs=true`. After authenticating the
+committed source and before the native stage, a bounded intake step reads the
+existing read-only deploy key from `CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY`.
+It pins the GitHub host and deploy-key fingerprints and fetches four exact
+parentless refs from `Gabriel-Kahen/cachy-asahi-ci-inputs`. Git objects and key
+scratch are private to intake. Only the selected archives and signatures reach
+the flat UID-owned 0700 cache. An independent, credential-free step retires
+the handoff even if the build fails. The native stage rechecks the supplied
+subset against the exact 527-object plan and retires its own copy.
 
-A reviewed intake step should merge those 224 objects into a flat UID-owned
-`$UPDATER_CONTROL/retained-cache` directory at mode 0700 with files at mode 0600.
-The coordinator owns provisioning and disposal of that input directory and
-any provider credential scratch. The updater accepts data files only, verifies
-the supplied subset against the exact 527-object plan, and copies it into the
-registered stage's private build cache. The local handoff copied and verified all
-224 actual objects, without contacting a provider or starting a build.
-The native worker still acquires any remaining input through the pinned original
-route and checks all 262 signatures, the exact 354-package inventory, and the
-native pair. Stage cleanup retires its own copy.
+The fourth ref is `native-updater-442-r1`, commit
+`dd3647c78ece17207f605b9275eddf3314e2d8b1`, tree
+`11048ce3fffdbab0037d9c5c3c4a8108763ce462`. It contains exactly six files
+and 9,042,806 bytes. This private supplemental branch includes the Git and Perl
+Error pairs from the retained native574 carrier and the verified Parallel pair.
+Host-side verification used authenticated local copies of all four Git trees.
+Hosted SSH access needs the coordinator to publish the fourth ref and grant the
+existing read-only key access. No new trust pin is introduced for package
+signatures.
 
-After integrating a reviewed intake and confirming the cache route, preflight
-the published tip using the literal `READY_SHA256`, `STAGE_SHA256`, and
-`SOURCE_SHA256` from the reviewed workflow. Run the commands in the
-[4.4.2-3 preflight record](updater-442-3-preflight-20261125.md) with those updated
-bootstrap literals, then dispatch `native-arm-updater.yml` on that branch with
-`source_commit` equal to the exact remote tip. The workflow should be retried
-with the verified cache handoff present. No recipe, dependency version,
-inventory, or upstream trust pin changed in this repair. Hosted retry,
-installed Check, and hardware qualification remain pending.
+Preflight the exact integrated and published tip with the literal
+`READY_SHA256`, `STAGE_SHA256`, and `SOURCE_SHA256` from the reviewed
+workflow as in the [4.4.2-3 preflight record](updater-442-3-preflight-20261125.md).
+After the four immutable refs match their pins, dispatch:
+
+```bash
+gh workflow run native-arm-updater.yml --repo Gabriel-Kahen/cachy-asahi \
+  --ref "$reviewed_ref" -f "source_commit=$reviewed_commit" -F retained_inputs=true
+```
+
+The worker acquires other objects through the pinned original route and checks
+all 262 signatures, the exact 354-package inventory, and the native pair.
+Installed Check additionally requires a container rule in the Docker broker,
+an independent runtime dependency closure, and reserved time before private
+archive retirement. Native build, installed Check, and hardware gates remain
+pending.

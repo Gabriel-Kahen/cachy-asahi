@@ -6,6 +6,10 @@ on:
         description: Reviewed complete commit matching this workflow checkout
         type: string
         required: true
+      retained_inputs:
+        description: Fetch the reviewed pinned builder-input carriers over read-only SSH
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -22,7 +26,8 @@ jobs:
       READY_SHA256: e745cd8bfc44df327be5523718b53b33668b3497583fcba995cd31cb41ab34ef
       # Bootstrap pins for the committed source and native controller checks.
       STAGE_SHA256: 5fc9b470dd2a6799f90261621b7b325c50811504b48489e16c36bc274b9a2bb3
-      SOURCE_SHA256: f43b3d6047483010a3290888d378cabb1e4d8093ffaa7dff937ade64395e9006
+      SOURCE_SHA256: 553b4b6e7087f8baa69cdfa3556cee07337a01887db87585506e4c2e19486320
+      INTAKE_SHA256: 55554990d5bf06cfe2d25779a01a78556120e958f0f9fb945f18b4dd53138fa2
     steps:
       - name: Start the shared deadline before checkout
         timeout-minutes: 1
@@ -56,9 +61,25 @@ jobs:
           controller_sha=$(sha256sum "$UPDATER_CONTROL/controller.json" | cut -d' ' -f1)
           [[ "$controller_sha" =~ ^[0-9a-f]{64}$ ]]
           echo "UPDATER_CONTROLLER_SHA256=$controller_sha" >> "$GITHUB_ENV"
+      - name: Fetch and verify the retained builder inputs
+        id: retained
+        if: inputs.retained_inputs
+        timeout-minutes: 4
+        env:
+          CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          ulimit -c 0
+          intake="$GITHUB_WORKSPACE/scripts/port/updater-native-stage/intake.py"
+          [[ "$INTAKE_SHA256" =~ ^[0-9a-f]{64}$ && "$(sha256sum "$intake" | cut -d' ' -f1)" = "$INTAKE_SHA256" ]]
+          seconds=$(python3 -I -B -c 'import os,time; n=min(222,int(float(os.environ["UPDATER_DEADLINE"])-time.monotonic())-550); assert n>0; print(n)')
+          exec timeout --signal=TERM --kill-after=13s "${seconds}s" python3 -I -B "$intake" fetch --control "$UPDATER_CONTROL"
       - name: Run the finite private native pair
         id: native
         timeout-minutes: 111
+        env:
+          RETAINED_INPUTS_OUTCOME: ${{ steps.retained.outcome }}
+          RETAINED_INPUTS_REQUESTED: ${{ inputs.retained_inputs && '1' || '0' }}
         run: |
           set -euo pipefail
           stage="$GITHUB_WORKSPACE/scripts/port/updater-native-stage/stage.py"
@@ -67,7 +88,8 @@ jobs:
           seconds=$(python3 -I -B -c 'import os,time; n=min(6600,int(float(os.environ["UPDATER_DEADLINE"])-time.monotonic())-300)-190; assert n>=60; print(n)' 2> "$UPDATER_CONTROL/run-clock.stderr")
           retained_args=()
           retained_cache="$UPDATER_CONTROL/retained-cache"
-          if [[ -e "$retained_cache" || -L "$retained_cache" ]]; then
+          if [[ "$RETAINED_INPUTS_REQUESTED" = 1 ]]; then
+            [[ "$RETAINED_INPUTS_OUTCOME" = success && -d "$retained_cache" && ! -L "$retained_cache" ]]
             retained_args=(--retained-cache "$retained_cache")
           fi
           set +e
@@ -78,11 +100,22 @@ jobs:
           code=$?
           echo "UPDATER_RUN_EXIT=$code" >> "$GITHUB_ENV"
           exit "$code"
+      - name: Retire the retained-input handoff
+        id: retire
+        if: always() && inputs.retained_inputs
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          intake="$GITHUB_WORKSPACE/scripts/port/updater-native-stage/intake.py"
+          [[ "$INTAKE_SHA256" =~ ^[0-9a-f]{64}$ && "$(sha256sum "$intake" | cut -d' ' -f1)" = "$INTAKE_SHA256" ]]
+          exec timeout --signal=TERM --kill-after=8s 35s python3 -I -B "$intake" retire --control "$UPDATER_CONTROL"
       - name: Recover resources, export evidence, and verify the trial outcome
         if: always()
         timeout-minutes: 5
         env:
           NATIVE_OUTCOME: ${{ steps.native.outcome }}
+          RETAINED_INPUTS_REQUESTED: ${{ inputs.retained_inputs && '1' || '0' }}
+          RETAINED_RETIRE_OUTCOME: ${{ steps.retire.outcome }}
         run: |
           set -euo pipefail
           stage="$GITHUB_WORKSPACE/scripts/port/updater-native-stage/stage.py"
@@ -403,6 +436,7 @@ jobs:
                       need(guard.export_evidence(source, target)['evidence_export'] == 'PASS')
                       emit(name, bundler.bundle(target))
               passed = result['status'] == recovery['status'] == 'PASS' and os.environ.get('UPDATER_RUN_EXIT') == os.environ.get('UPDATER_CLEANUP_EXIT') == '0' and os.environ['NATIVE_OUTCOME'] == 'success'
+              passed = passed and (os.environ['RETAINED_INPUTS_REQUESTED'] == '0' or os.environ['RETAINED_RETIRE_OUTCOME'] == 'success')
               print(json.dumps({'updater_workflow':'PASS' if passed else 'FAIL','native_stage':result['status'],'recovery':recovery['status'],'publication':'NOT ACCEPTED','hardware':'NOT RUN'}, sort_keys=True))
               sys.exit(0 if passed else 1)
           except Exception:
