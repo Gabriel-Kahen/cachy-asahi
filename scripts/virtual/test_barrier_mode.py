@@ -101,9 +101,9 @@ class BarrierMode(unittest.TestCase):
     def test_actual_uart_batch_ast_refuses_duplicate_malformed_and_partial(self):
         tree=ast.parse(Path(run.__file__).read_text())
         main=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='main')
-        loop=next(n for n in ast.walk(main) if isinstance(n,ast.For) and isinstance(n.target,ast.Name) and n.target.id=='line')
+        loop=next(n for n in ast.walk(main) if isinstance(n,ast.For) and isinstance(n.target,ast.Name) and n.target.id=='event')
         tail=next(n for n in ast.walk(main) if isinstance(n,ast.If) and
-                  isinstance(n.test,ast.Compare) and ast.unparse(n.test).startswith("report['status'] in"))
+                  ast.unparse(n.test).startswith("desktop_done or report['status'] in"))
         program=compile(ast.fix_missing_locations(ast.Module(body=[loop],type_ignores=[])),'selected-QEMU-UART-loop','exec')
         partial_check=compile(ast.fix_missing_locations(ast.Module(body=tail.body[:1],type_ignores=[])),'selected-QEMU-partial-check','exec')
         result=self.event();end={'event':'barrier_child_exit','nonce':self.nonce,'selection_sha256':self.selection,'returncode':0,'error':None}
@@ -111,11 +111,11 @@ class BarrierMode(unittest.TestCase):
         cases=([line(result),line(end),line(result)],[line(result),line(end),line(end)],
                [line(result),line(end),b'CACHY_ASAHI_EVENT malformed'])
         for lines in cases:
-            scope=vars(run).copy()|{'lines':lines,'report':{'events':[self.boot()],'status':'FAILED'},
+            scope=vars(run).copy()|{'events':run.uart_events(lines),'report':{'events':[self.boot()],'status':'FAILED'},
                 'c':{'nonce':self.nonce},'args':types.SimpleNamespace(contract_sha256=self.selection),
                 'barrier':True,'boot':True}
             with self.assertRaises((ValueError,KeyError)):exec(program,scope)
-        scope=vars(run).copy()|{'lines':[line(result),line(end)],'report':{'events':[self.boot()],'status':'FAILED'},
+        scope=vars(run).copy()|{'events':run.uart_events([line(result),line(end)]),'report':{'events':[self.boot()],'status':'FAILED'},
                 'c':{'nonce':self.nonce},'args':types.SimpleNamespace(contract_sha256=self.selection),
                 'barrier':True,'boot':True,'partial':b'CACHY_ASAHI_EV'}
         exec(program,scope)

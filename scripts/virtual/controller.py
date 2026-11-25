@@ -22,7 +22,7 @@ import time
 import types
 
 import audit_tooling
-from common import (GIB, IMAGE_SHA, OVERLAYS, SAFE_CAPS, allocated, bounded, digest,
+from common import (GIB, IMAGE_SHA, MAX_LOG, OVERLAYS, SAFE_CAPS, allocated, bounded, digest,
                     facts, free_bytes, inventory, json_load, pinned, relative,
                     require, save, barrier_contract, barrier_event, BARRIER_PURPOSE, transaction_contract, transaction_event, TRANSACTION_PURPOSE,
                     TRANSACTION_FILES, TRANSACTION_LAUNCHER, TRANSACTION_PROFILE)
@@ -32,9 +32,9 @@ AUDIT_PIN = 'd3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095'
 AUDITOR_PIN = '6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc'
 CORE = {
     'common.py': 'aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03',
-    'guest.py': '1a642f3e6102d76fc4d2885eb0554a73e5b0bf8c122c4fb5376321d2a1233a93',
+    'guest.py': '9a328b149dc29c3579f9866de385bca277f77a08e6de5c98f2355bf71eaf9714',
     'prepare.py': '5a9fbfbbafb56244b6a6c960fa40bbfc574bfd6bb4c3d5338e17082714c69488',
-    'run.py': 'e96ec9b61dc26fa622702ef871bcdf9f53f3fd08ee12b5df03991163460d5766',
+    'run.py': 'e2d51b1aa5f72c1699f09c6e5b6e33bae5bac5171dab7fa1383ecdabf6df1a7a',
     'gbm_probe.c': 'fe0bb7b15df0bc93c4b5115543619e182ba3dac2ed22d0d8b1ab541d77a72efd',
     'image_decode_probe.c': 'e5857f60f664ccfeb8a2275396c4a4f8ed6412f14bb5237e71bd34582479ba3a',
     'image_decode_report.py': '377efb140ec7b5e50a18ae3c3d312f31f25676818f45942bde1c3acb5dceaacd',
@@ -451,6 +451,35 @@ def prepared_decode_authority(proof, prepared, proof_sha256, prepare_sha256):
     return context, row
 
 
+def verify_desktop_completion(raw, result):
+    runner = reviewed_decode_run()
+    serial = raw / 'serial.log'
+    size = regular(serial).st_size
+    require(size <= MAX_LOG, 'desktop UART receipt exceeds bound')
+    events, terminal = [], False
+    checksum, received = hashlib.sha256(), 0
+    with serial.open('rb') as stream:
+        while line := stream.readline(MAX_LOG + 1 - received):
+            received += len(line)
+            require(received <= MAX_LOG, 'desktop UART receipt exceeds bound')
+            checksum.update(line)
+            if terminal:
+                require(runner.UART_MARKER not in line and
+                        not runner.partial_uart_marker(line), 'late or partial desktop UART log event')
+            elif line.endswith(b'\n'):
+                events.extend(runner.uart_events([line[:-1]]))
+                terminal = bool(events and events[-1].get('event') == 'desktop_session_exit')
+    require(received == size and result.get('logs', {}).get('serial.log') ==
+            {'size': size, 'sha256': checksum.hexdigest()}, 'desktop UART log binding differs')
+    event = runner.desktop_terminal(events, result['nonce'])
+    require(event is not None and json.dumps(events, sort_keys=True) == json.dumps(result.get('events'), sort_keys=True) and
+            not any(row.get('event') == 'guest_failed' for row in events) and
+            json.dumps(result.get('desktop_completion'), sort_keys=True) == json.dumps(runner.desktop_receipt(event), sort_keys=True) and
+            result.get('owned_group_retirement') == 'PASS' and result.get('cleanup_uncertain') is False,
+            'desktop terminal event, drain, or QEMU retirement differs')
+    return result['desktop_completion']
+
+
 def project(raw, target, report, *, image_decode_context=None):
     """Explicit guest records + matching public PPM; no generic private-tree exporter."""
     if not raw.exists():
@@ -474,7 +503,7 @@ def project(raw, target, report, *, image_decode_context=None):
                           'nonce', 'software_compositor', 'software_session_ipc', 'frame_proof', 'hardware_validation',
                           'graphics_acceleration', 'm2_16k_pages', 'performance', 'elapsed_seconds', 'error', 'logging_error', 'logs',
                           'owned_group_retirement', 'cleanup_uncertain')}
-        allowed = {'transaction_result', 'transaction_child_exit', 'barrier_result', 'barrier_child_exit', 'boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass', 'guest_failed', 'command', 'session_log', 'ipc_probe', 'process_state', 'image_decode_probe'}
+        allowed = {'transaction_result', 'transaction_child_exit', 'barrier_result', 'barrier_child_exit', 'boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'desktop_session_exit', 'guest_failed', 'command', 'session_log', 'ipc_probe', 'process_state', 'image_decode_probe'}
         events = [e for e in result.get('events', []) if e.get('event') in allowed]
         if report.get('purpose') == TRANSACTION_PURPOSE:
             require(result.get('contract_sha256') == report['proof_contract_sha256'] and
@@ -522,6 +551,8 @@ def project(raw, target, report, *, image_decode_context=None):
         else:
             require(result.get('image_decode_observation') is None and
                     result.get('status') != 'CAPTURED_REQUIRES_VISUAL_REVIEW', 'image decode observation required before capture')
+        if result.get('status') == 'CAPTURED_REQUIRES_VISUAL_REVIEW':
+            report['guest']['desktop_completion'] = verify_desktop_completion(raw, result)
         encoded = json.dumps(events).encode()
         require(len(encoded) <= 16 * 1024 ** 2 and b'PRIVATE KEY' not in encoded, 'guest public evidence rejected')
         save(target / 'guest-events.json', events)

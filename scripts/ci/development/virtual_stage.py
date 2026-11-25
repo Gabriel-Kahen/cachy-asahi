@@ -881,7 +881,7 @@ def read_events(path, policy, *, data=None, decoder=None, nonce=None, deadline=N
         'boot': {'event', 'nonce', 'arch', 'page_size', 'kernel', 'execution', 'hardware_validation'},
         'gbm_pass': {'event', 'nonce', 'probe'}, 'frame_ready': {'event', 'stage', 'monitors', 'clients'},
         'phase_pass': {'event', 'stage'},
-        'guest_pass': {'event', 'nonce', 'software_session', 'hardware_validation', 'graphics_acceleration'},
+        'desktop_session_exit': {'event', 'nonce', 'session_returncode', 'seatd_returncode'},
         'guest_failed': {'event', 'error', 'hardware_validation'},
         'command': {'event', 'argv', 'returncode', 'error', 'stdout', 'stderr'},
         'ipc_probe': {'event', 'stage', 'attempt', 'elapsed_ms', 'returncode', 'error', 'stdout', 'stderr'},
@@ -963,7 +963,7 @@ def event_protocol(path, expected_sha256, nonce, policy, *, data=None, decoder=N
         check_deadline(deadline)
         require(isinstance(event, dict), 'guest-event-object-required')
         kind = event.get('event')
-        require(kind in ('boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass', 'command', 'session_log', 'ipc_probe', 'image_decode_probe'),
+        require(kind in ('boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'desktop_session_exit', 'command', 'session_log', 'ipc_probe', 'image_decode_probe'),
                 'guest-event-kind-refused')
         require('nonce' not in event or event['nonce'] == nonce, 'guest-event-nonce-refused')
         correlated = awaiting is not None
@@ -1003,10 +1003,10 @@ def event_protocol(path, expected_sha256, nonce, policy, *, data=None, decoder=N
         elif kind == 'phase_pass':
             require(set(event) == {'event', 'stage'} and event['stage'] in ('minimal', 'overlay'), 'guest-phase-event-refused')
             require(ipc[event['stage']]['correlated'], 'guest-ipc-readiness-protocol-refused')
-        elif kind == 'guest_pass':
-            require(set(event) == {'event', 'nonce', 'software_session', 'hardware_validation', 'graphics_acceleration'} and
-                    event['nonce'] == nonce and event['software_session'] == 'PASS' and
-                    event['hardware_validation'] == event['graphics_acceleration'] == 'NOT RUN', 'guest-completion-event-refused')
+        elif kind == 'desktop_session_exit':
+            require(event['nonce'] == nonce and type(event['session_returncode']) is int and
+                    event['session_returncode'] == 0 and type(event['seatd_returncode']) is int and
+                    event['seatd_returncode'] in (0, -signal.SIGTERM), 'guest-completion-event-refused')
         elif kind == 'command':
             require(set(event) == {'event', 'argv', 'returncode', 'error', 'stdout', 'stderr'} and
                     isinstance(event['argv'], list) and event['argv'] and all(isinstance(a, str) for a in event['argv']) and
@@ -1043,7 +1043,8 @@ def event_protocol(path, expected_sha256, nonce, policy, *, data=None, decoder=N
     require(awaiting is None and all(row['correlated'] for row in ipc.values()),
             'guest-ipc-readiness-protocol-refused')
     require(essential == [('boot', None), ('gbm_pass', None), ('frame_ready', 'minimal'), ('phase_pass', 'minimal'),
-                          ('frame_ready', 'overlay'), ('phase_pass', 'overlay'), ('guest_pass', None)],
+                          ('frame_ready', 'overlay'), ('phase_pass', 'overlay'), ('desktop_session_exit', None)] and
+            events[-1]['event'] == 'desktop_session_exit',
             'guest-event-order-or-completeness-refused')
 
 
@@ -1271,7 +1272,7 @@ def receive(root, output, contract, code, result, *, deadline=None):
         event_bytes = read_regular(event_file, LIMIT, **deadline_options(deadline))
         events, event_sha256 = read_events(event_file, exporter, data=event_bytes, decoder=decoder,
                                          nonce=receipt.get('guest', {}).get('nonce'), **deadline_options(deadline))
-        require(not any(event['event'] in ('boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass') for event in events)
+        require(not any(event['event'] in ('boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'desktop_session_exit') for event in events)
                 or capabilities is not None and len(capabilities) == 4 and
                 all(row['status'] == 'PASS' for row in capabilities), 'qemu-capability-success-required')
     image_decode_binding(contract, receipt, events, decoder)
@@ -1330,6 +1331,10 @@ def receive(root, output, contract, code, result, *, deadline=None):
             len([r for r in cleanup if r.get('private_tag') == 'cachy-virtual-private-' + nonce + ':fixture'
                  and r.get('image_id') == guest['image_id']]) == 1, 'virtual-complete-owned-cleanup-required')
     event_protocol(owner / 'guest-events.json', receipt['guest_events_sha256'], nonce, exporter, data=event_bytes, decoder=decoder, **deadline_options(deadline))
+    completion = {'schema_version': 2, 'terminal_event': events[-1], 'uart_eof': True}
+    require(json.dumps(guest.get('desktop_completion'), sort_keys=True) == json.dumps(completion, sort_keys=True) and
+            guest.get('owned_group_retirement') == 'PASS' and guest.get('cleanup_uncertain') is False,
+            'guest-completion-event-refused')
     # Binary publication requires the complete accepted capture binding. Text
     # failure diagnostics remain independently subject to the generic filter.
     frames = {stage: frame(owner / (stage + '.ppm'), receipt['frames'][stage], stage, **deadline_options(deadline))

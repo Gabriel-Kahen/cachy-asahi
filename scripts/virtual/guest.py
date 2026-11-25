@@ -14,7 +14,7 @@ import stat
 import subprocess
 import sys
 import time
-from common import (bounded, inventory, LoggedProcess, BARRIER_PURPOSE, BARRIER_TEST,
+from common import (await_terminal, bounded, inventory, LoggedProcess, reap, registered_spawn, terminal, BARRIER_PURPOSE, BARRIER_TEST,
                     BARRIER_FILES, BARRIER_SOURCE, BARRIER_FRAME_LINES, barrier_contract, barrier_event, json_load, TRANSACTION_PURPOSE, TRANSACTION_FILES, TRANSACTION_TESTS,
                     TRANSACTION_SELECTORS, TRANSACTION_FRAME_LINES, transaction_contract, transaction_launcher, transaction_event, transaction_method, transaction_call, TRANSACTION_CASES)
 from image_decode_report import (ASSET_PATH, ASSET_SHA256, MAX_REPORT,
@@ -543,7 +543,39 @@ def run_user():
         runtime = Path(env['XDG_RUNTIME_DIR'])
         require(not any(runtime.glob('wayland-*')), 'stale Wayland output from earlier phase')
         phase(stage, Path(config), env, root, nonce=nonce)
-    emit('guest_pass', nonce=nonce, software_session='PASS', hardware_validation='NOT RUN', graphics_acceleration='NOT RUN')
+
+
+def run_desktop_session(nonce, env):
+    seatd = None
+    try:
+        with registered_spawn():
+            seatd = subprocess.Popen(['/usr/bin/seatd', '-u', 'virtual-proof', '-g', 'virtual-proof', '-l', 'debug'], env=env, start_new_session=True)
+        until = time.monotonic() + 15
+        while not Path('/run/seatd.sock').is_socket():
+            require(time.monotonic() < until and terminal(seatd) is None, 'guest seatd readiness failed')
+            time.sleep(.1)
+        require(terminal(seatd) is None, 'guest seatd exited before session start')
+        result = subprocess.run(['/usr/bin/runuser', '-u', 'virtual-proof', '--', '/usr/bin/dbus-run-session', '--', '/usr/bin/python', __file__, 'user'], env=env, timeout=600)
+        require(result.returncode == 0, 'guest software proof failed')
+        require(terminal(seatd) is None, 'guest seatd exited before session completion')
+    finally:
+        if seatd is not None:
+            retire_desktop_seatd(seatd)
+    require(type(seatd.returncode) is int and seatd.returncode in (0, -signal.SIGTERM), 'unclean guest seatd retirement')
+    emit('desktop_session_exit', nonce=nonce, session_returncode=result.returncode,
+         seatd_returncode=seatd.returncode)
+
+
+def retire_desktop_seatd(seatd):
+    try:
+        if terminal(seatd) is None:
+            try:
+                os.killpg(seatd.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            await_terminal(seatd, time.monotonic() + 5)
+    finally:
+        reap(seatd, verify_absence=True)
 
 
 def barrier_failure(error, source_paths, frame_lines=BARRIER_FRAME_LINES):
@@ -880,16 +912,7 @@ def boot():
     cards[0].chmod(0o600)
     emit('guest_runtime_changes', paths=['/run/virtual-proof', '/home/virtual-proof', str(cards[0])], owner=uid)
     env = dict(os.environ, SEATD_VTBOUND='0', LIBSEAT_BACKEND='seatd', CACHY_ASAHI_VIRTUAL_GUEST='1')
-    seatd = subprocess.Popen(['/usr/bin/seatd', '-u', 'virtual-proof', '-g', 'virtual-proof', '-l', 'debug'], env=env, start_new_session=True)
-    try:
-        until = time.monotonic() + 15
-        while not Path('/run/seatd.sock').is_socket():
-            require(time.monotonic() < until and seatd.poll() is None, 'guest seatd readiness failed')
-            time.sleep(.1)
-        result = subprocess.run(['/usr/bin/runuser', '-u', 'virtual-proof', '--', '/usr/bin/dbus-run-session', '--', '/usr/bin/python', __file__, 'user'], env=env, timeout=600)
-        require(result.returncode == 0, 'guest software proof failed')
-    finally:
-        terminate(seatd)
+    run_desktop_session(contract['nonce'], env)
 
 
 if __name__ == '__main__':
