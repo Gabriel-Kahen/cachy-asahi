@@ -1,11 +1,8 @@
 # SPDX-License-Identifier: MIT
 """Build the #622 JBIG/TIFF pairs on one disposable native Actions runner.
 
-Configure the native-622-inputs environment with an HTTPS directory prefix
-in PROJECT_LIBRARIES_INPUT_BASE_URL and, if needed, an Authorization bearer
-token in PROJECT_LIBRARIES_INPUT_BEARER_TOKEN. Serve the 14 retained r12
-bodies by their reviewed basenames. Remaining inputs use pinned public
-routes and the r12 profile supplies 206 signatures.
+The hosted workflow stages the 14 private r12 bodies in a separate SSH
+step. Remaining inputs use pinned public routes and the r12 signature seed.
 
 For local data validation, use --inputs-only with --minimal-cache and the
 optional --codec-cache and --upstream-dir. The hosted log records a bounded
@@ -28,7 +25,7 @@ from types import SimpleNamespace
 import uuid
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from inputs622 import Endpoint, GuardFailure, PROJECT, ROOT, command, load, prepare_inputs, require, sha
+from inputs622 import GuardFailure, PROJECT, ROOT, command, load, prepare_inputs, require, sha
 
 DOCKER = "/usr/bin/docker"
 LABEL = "org.cachy-asahi.project-libraries.scope"
@@ -538,7 +535,9 @@ def stop(signum, _frame):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--inputs-only", action="store_true", help="authenticate data without running Docker")
-    parser.add_argument("--minimal-cache", type=Path, help="flat r12 object cache")
+    cache = parser.add_mutually_exclusive_group(required=True)
+    cache.add_argument("--minimal-cache", type=Path, help="flat r12 object cache")
+    cache.add_argument("--retained-cache", type=Path, help="private directory staged by the SSH carrier step")
     parser.add_argument("--codec-cache", type=Path, help="flat official codec cache")
     parser.add_argument("--upstream-dir", type=Path, help="four upstream inputs named by materialization-plan keys")
     parser.add_argument("--export-retained", type=Path, help="new private directory for the 14 retained bodies")
@@ -555,11 +554,7 @@ def main():
     if not args.minimal_cache:
         signal.alarm(78 * 60)
     report = dict(status="HOLD", phase="intake", hardware="NOT RUN", release="NOT ADMITTED")
-    prefix = os.environ.pop("PROJECT_LIBRARIES_INPUT_BASE_URL", "")
-    token = os.environ.pop("PROJECT_LIBRARIES_INPUT_BEARER_TOKEN", "")
     try:
-        args.endpoint = Endpoint(prefix, token)
-        require(args.minimal_cache or args.endpoint.prefix, "explicit r12 cache or HTTPS endpoint is required")
         if not args.inputs_only:
             report["phase"] = "runner-admission"
             qualify_runner(Path(tempfile.gettempdir()))

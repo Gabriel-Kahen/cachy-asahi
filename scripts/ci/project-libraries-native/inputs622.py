@@ -11,7 +11,6 @@ import shutil
 import stat
 import subprocess
 import sys
-from urllib.parse import quote, urlsplit
 
 from preflight import INPUTS_PIN, PRODUCER, ROOT, producer_blob
 
@@ -98,48 +97,33 @@ def stage_producer(scratch):
     return root, inputs, native, entry, core
 
 
-class Endpoint:
-    """Supply missing pinned r12 objects from a flat HTTPS namespace."""
-
-    def __init__(self, prefix, token):
-        require(not token or prefix, "bearer token requires the operator HTTPS endpoint")
-        if prefix:
-            url = urlsplit(prefix)
-            require(url.scheme == "https" and url.hostname and url.username is None
-                    and (url.port is None or 1 <= url.port <= 65535)
-                    and len(prefix) <= 4096 and "?" not in prefix and "#" not in prefix and
-                    re.fullmatch(r'[^\x00-\x20\x7f-\uffff"\\]+', prefix),
-                    "invalid operator HTTPS endpoint")
-            require(not token or re.fullmatch(r"[A-Za-z0-9._~+/=-]{1,4096}", token),
-                    "invalid operator endpoint token")
-        self.prefix = prefix.rstrip("/")
-        self.token = token
-
-    def fetch(self, name, path, size):
-        require(self.prefix and name in RETAINED, "reviewed private input route required")
-        url = self.prefix + "/" + quote(name, safe="")
-        download(url, path, size, token=self.token, private=True)
+def retained_pins():
+    path = ROOT / "scripts/port/minimal-native-builder-inputs/native-inputs.lock.json"
+    lock = read_pin(path, INPUTS_PIN)
+    pins = {row["filename"]: {"bytes": row["size"], "sha256": row["sha256"]}
+            for row in lock["packages"] if row["filename"] in RETAINED}
+    require(pins.keys() == RETAINED, "exact r12 retained namespace")
+    return pins
 
 
-def download(url, path, size, *, token="", private=False):
-    # curl's config arrives on stdin. The URL and header never enter argv,
-    # diagnostic output, or the subprocess environment.
+def check_retained_directory(directory):
+    facts = directory.lstat()
+    require(stat.S_ISDIR(facts.st_mode) and stat.S_IMODE(facts.st_mode) == 0o700
+            and facts.st_uid == os.getuid(), "owned private retained cache")
+    require({item.name for item in directory.iterdir()} == RETAINED, "exact retained cache membership")
+
+
+def download(url, path, size):
     require(re.fullmatch(r'[^\x00-\x20\x7f-\uffff"\\]+', url), "invalid pinned HTTPS URL")
-    config = f'url = "{url}"\n'
-    if token:
-        config += f'header = "Authorization: Bearer {token}"\n'
-    args = ["curl", "-q", "--config", "-", "--silent", "--fail", "--globoff", "--proto", "=https",
+    args = ["curl", "-q", "--silent", "--fail", "--globoff", "--proto", "=https",
             "--connect-timeout", "15", "--max-time", "240", "--max-filesize", str(max(1, size)),
-            "--output", str(path), "--write-out", "%{http_code}"]
-    if private:
-        args += ["--noproxy", "*"]
-    else:
-        args += ["--location", "--proto-redir", "=https", "--max-redirs", "3"]
-    result = subprocess.run(args, input=config.encode(), capture_output=True, timeout=250)
+            "--output", str(path), "--write-out", "%{http_code}", "--location",
+            "--proto-redir", "=https", "--max-redirs", "3", "--", url]
+    result = subprocess.run(args, capture_output=True, timeout=250)
     require(result.returncode == 0 and result.stdout == b"200", f"input transport failed: {path.name}")
 
 
-def stage_object(directory, name, pin, local=None, endpoint=None):
+def stage_object(directory, name, pin, local=None):
     path = directory / name
     size, digest = pin["bytes"], pin["sha256"]
     source = local / name if local else None
@@ -156,8 +140,6 @@ def stage_object(directory, name, pin, local=None, endpoint=None):
                     output.write(chunk)
                     remaining -= len(chunk)
                 require(not stream.read(1), f"oversized cached input: {name}")
-    elif endpoint is not None and name in RETAINED:
-        endpoint.fetch(name, path, size)
     else:
         require("url" in pin, f"missing cached input: {name}")
         download(pin["url"], path, size)
@@ -165,10 +147,11 @@ def stage_object(directory, name, pin, local=None, endpoint=None):
     return path
 
 
-def stage_set(directory, pins, local=None, endpoint=None):
+def stage_set(directory, pins, local=None, retained=None):
     directory.mkdir(mode=0o700)
     with ThreadPoolExecutor(max_workers=6) as pool:
-        futures = [pool.submit(stage_object, directory, name, row, local, endpoint)
+        futures = [pool.submit(stage_object, directory, name, row,
+                               retained if name in RETAINED and retained is not None else local)
                    for name, row in pins.items()]
         try:
             for future in as_completed(futures):
@@ -205,14 +188,16 @@ def prepare_inputs(args, scratch, report):
     base_pins = {native.input_name(row["filename"]):
                  {"bytes": row["size"], "sha256": row["sha256"], "url": row["url"]} for row in objects}
     require(len(base_pins) == 211 and RETAINED <= base_pins.keys(), "r12 body/key namespace")
-    # Local reads are cache-only. Hosted reads send only the exact missing
-    # bodies to the private route and authenticate the complete r12 set.
+    # A full local cache supplies every byte. A hosted run selects only the
+    # 14 already staged private objects before authenticating the same lock.
     if args.minimal_cache:
         for item in inputs["packages"]:
             signature = native.signature_item(item)
             base_pins[signature["filename"]] = {"bytes": signature["size"], "sha256": signature["sha256"]}
     report["phase"] = "minimal206-acquisition"
-    stage_set(cache, base_pins, args.minimal_cache, args.endpoint)
+    if args.retained_cache is not None:
+        check_retained_directory(args.retained_cache)
+    stage_set(cache, base_pins, args.minimal_cache, args.retained_cache)
     if not args.minimal_cache:
         entry.C.seed_minimal_public_signatures(cache, inputs, json.loads((root / "profile.json").read_bytes()))
     shutil.copyfile(root / "runtime/scripts/ci/inputs.lock.json", boot / "inputs.lock.json")

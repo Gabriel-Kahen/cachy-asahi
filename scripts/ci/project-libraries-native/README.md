@@ -76,22 +76,36 @@ The largest member is 69,887,600 bytes. An uncompressed archive of the whole exp
 GitHub's 100 MiB Git limit, as does the 829,367,415-byte rootfs
 fetched from its public origin.
 
-## Dispatch the dedicated hosted lane
+## Publish the private carrier
 
-1. Register `.github/workflows/native-arm-project-libraries-622.yml` on the
-   repository's default branch. Review the chosen branch or tag and its full
-   SHA. The workflow and checked-out source must resolve to that SHA. The
-   public r12 ref must still resolve to the historical producer above.
-2. Make the 14 exported objects available under their original basenames
-   at a protected HTTPS directory prefix. Configure `native-622-inputs`
-   environment secrets `PROJECT_LIBRARIES_INPUT_BASE_URL` and, for bearer
-   authentication, `PROJECT_LIBRARIES_INPUT_BEARER_TOKEN`. Restrict secret
-   access to the reviewed dispatch ref. The runner uses direct TLS with no
-   redirects or proxy on the protected route. Other inputs come from their
-   pinned public routes or the r12 signature seed. A failed fetch or a pin
-   mismatch holds the lane.
-3. Dispatch `inputs` and verify `INPUTS_AUTHENTICATED`. Dispatch `native` at
-   the same reviewed SHA after the intake succeeds.
+The local carrier is a parentless SHA-1 Git commit with 14 regular
+`100644` blobs under `alarm-cache/`, each at its original basename.
+Its only intended destination is the private
+`Gabriel-Kahen/cachy-asahi-ci-inputs` repository.
+
+| Ref | Commit | Tree |
+| --- | --- | --- |
+| `refs/heads/native622-r1` | `c6ed50287db7e7d743111d76e9f0c35179c90b7f` | `203b14cc4d8afc806c97b10f53518b6b3b5c8659` |
+
+Use a publish credential to create that branch. The runner uses the existing
+read-only deploy key. It pins GitHub's Ed25519 host key, the deploy-key
+fingerprint, ref, commit, tree, file modes, sizes, and per-file SHA-256s.
+Only the dedicated SSH step receives `CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY`.
+The step removes its identity file before materialization and retires the
+temporary Git store before returning. The build step rechecks the 14 files as
+part of full r12 authentication and uses the original pinned public routes
+and r12 signature seed for the rest. A failed fetch or pin mismatch holds
+the lane.
+
+## Dispatch the hosted lane
+
+The standalone `.github/workflows/native-arm-project-libraries-622.yml` must
+be present on the default branch before it can receive manual dispatch.
+Review the selected branch or tag and its full SHA. The workflow and
+checked-out source must resolve to that SHA, and the historical public r12
+ref must resolve to the producer above. Use the `native-622-inputs`
+environment and restrict deployment to the reviewed ref. The carrier
+branch must already contain the exact retained commit.
 
 ```sh
 gh workflow run native-arm-project-libraries-622.yml \
@@ -100,6 +114,29 @@ gh workflow run native-arm-project-libraries-622.yml \
 gh workflow run native-arm-project-libraries-622.yml \
   -R Gabriel-Kahen/cachy-asahi --ref "$reviewed_ref" \
   -f reviewed_head="$reviewed_head" -f lane=native
+```
+
+Run the second command after the first reports `INPUTS_AUTHENTICATED`.
+
+The existing registered `native-arm-build.yml` can also dispatch this
+same-commit reusable workflow from a reviewed ref. Add two explicit
+Project Libraries modes to that caller, keep its existing job excluded
+for those two modes, and use a separate conditional job to call
+`./.github/workflows/native-arm-project-libraries-622.yml`. Pass the reviewed
+SHA, selected lane and only the named read-only deploy-key secret. The
+registered caller uses a different concurrency group from the callee.
+This route needs a reviewed caller update on the dispatch ref. The
+registered workflow's existing modes do not provide that routing. After
+adding the caller job, dispatch its input check and then the native lane as
+follows.
+
+```sh
+gh workflow run native-arm-build.yml \
+  -R Gabriel-Kahen/cachy-asahi --ref "$reviewed_ref" \
+  -f mode=project-libraries-inputs -f project_libraries_head="$reviewed_head"
+gh workflow run native-arm-build.yml \
+  -R Gabriel-Kahen/cachy-asahi --ref "$reviewed_ref" \
+  -f mode=project-libraries-native -f project_libraries_head="$reviewed_head"
 ```
 
 The native lane requires an unprivileged GitHub-hosted Linux ARM64 runner

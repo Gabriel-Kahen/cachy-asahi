@@ -14,6 +14,17 @@ on:
         options:
           - inputs
           - native
+  workflow_call:
+    inputs:
+      reviewed_head:
+        required: true
+        type: string
+      lane:
+        required: true
+        type: string
+    secrets:
+      CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY:
+        required: true
 permissions:
   contents: read
 concurrency:
@@ -23,10 +34,12 @@ jobs:
   pairs:
     if: >-
       github.repository == 'Gabriel-Kahen/cachy-asahi' &&
-      github.sha == inputs.reviewed_head && github.workflow_sha == inputs.reviewed_head
+      github.event_name == 'workflow_dispatch' &&
+      github.sha == inputs.reviewed_head && github.workflow_sha == inputs.reviewed_head &&
+      (inputs.lane == 'inputs' || inputs.lane == 'native')
     runs-on: ubuntu-24.04-arm
     environment: native-622-inputs
-    timeout-minutes: 90
+    timeout-minutes: 100
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         timeout-minutes: 5
@@ -41,13 +54,18 @@ jobs:
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           git fetch --no-tags --no-recurse-submodules --depth=1 origin refs/heads/codex/llhttp-minimal206-authenticated-source-20261118-r12
           test "$(git rev-parse FETCH_HEAD)" = 1604862d09fb04e471da03df2e2a98a5c05a77bf
+      - name: Stage the pinned private Git carrier
+        id: carrier
+        shell: bash
+        timeout-minutes: 4
+        env:
+          CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py stage
       - name: Authenticate inputs and execute the selected lane
         shell: bash
         timeout-minutes: 79
         env:
           PROJECT_LIBRARIES_LANE: ${{ inputs.lane }}
-          PROJECT_LIBRARIES_INPUT_BASE_URL: ${{ secrets.PROJECT_LIBRARIES_INPUT_BASE_URL }}
-          PROJECT_LIBRARIES_INPUT_BEARER_TOKEN: ${{ secrets.PROJECT_LIBRARIES_INPUT_BEARER_TOKEN }}
           TMPDIR: ${{ runner.temp }}
         run: |
           set -euo pipefail
@@ -57,4 +75,10 @@ jobs:
             native) set -- ;;
             *) exit 2 ;;
           esac
-          exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/build622.py "$@"
+          exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/build622.py "$@" \
+            --retained-cache "$RUNNER_TEMP/libraries622-retained-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Retire the private runner cache
+        if: always() && steps.carrier.outcome == 'success'
+        shell: bash
+        timeout-minutes: 1
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py retire

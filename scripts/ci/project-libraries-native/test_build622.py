@@ -11,38 +11,11 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import build622
+import carrier622
 import inputs622
 
 
 class IntakeTests(unittest.TestCase):
-    def test_endpoint_passes_credentials_only_through_stdin(self):
-        endpoint = inputs622.Endpoint("https://example.invalid/private-path", "test-token")
-        name = "linux-aarch64-7.3.4-3-aarch64.pkg.tar.xz"
-        result = subprocess.CompletedProcess([], 0, b"200", b"")
-        with tempfile.TemporaryDirectory() as temporary:
-            target = Path(temporary) / "cache"
-            with patch("inputs622.subprocess.run", return_value=result) as runner:
-                endpoint.fetch(name, target, 12)
-        args, options = runner.call_args
-        self.assertNotIn("--location", args[0])
-        self.assertNotIn("test-token", " ".join(args[0]))
-        self.assertNotIn("private-path", " ".join(args[0]))
-        self.assertIn(("--noproxy", "*"), list(zip(args[0], args[0][1:])))
-        self.assertIn(b"/private-path/" + name.encode(), options["input"])
-        self.assertIn(b"Authorization: Bearer test-token", options["input"])
-        self.assertTrue(options["capture_output"])
-
-    def test_invalid_endpoint_and_token(self):
-        for endpoint, token in (
-            ("http://example.invalid", ""),
-            ("https://user:password@example.invalid", ""),
-            ("https://example.invalid?secret=1", ""),
-            ("https://example.invalid", 'broken"\nurl = "evil'),
-            ("", "orphan-token"),
-        ):
-            with self.subTest(endpoint=endpoint), self.assertRaises(ValueError):
-                inputs622.Endpoint(endpoint, token)
-
     def test_wrong_cache_bytes_refuse_without_any_endpoint_or_public_fallback(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -59,32 +32,32 @@ class IntakeTests(unittest.TestCase):
                 download.assert_not_called()
 
 
-    def test_private_route_is_used_only_for_retained_bodies(self):
+    def test_retained_route_is_used_only_for_retained_bodies(self):
         name = "linux-aarch64-7.3.4-3-aarch64.pkg.tar.xz"
         pin = dict(bytes=4, sha256=hashlib.sha256(b"good").hexdigest(), url="https://public.invalid/object")
-        endpoint = inputs622.Endpoint("https://private.invalid", "secret")
+        with tempfile.TemporaryDirectory() as directory, patch.object(inputs622, "download") as fetch:
+            base = Path(directory)
+            retained = base / "retained"
+            retained.mkdir()
+            (retained / name).write_bytes(b"good")
 
-        def download(url, path, size, **options):
-            path.write_bytes(b"good")
+            def download(url, path, size):
+                path.write_bytes(b"good")
 
-        with tempfile.TemporaryDirectory() as directory, patch.object(inputs622, "download", side_effect=download) as fetch:
-            root = Path(directory)
-            inputs622.stage_object(root, name, pin, endpoint=endpoint)
-            inputs622.stage_object(root, "public", pin, endpoint=endpoint)
-        private, public = fetch.call_args_list
-        self.assertEqual(private.args[0], f"https://private.invalid/{name}")
-        self.assertEqual(private.kwargs, {"token": "secret", "private": True})
-        self.assertEqual(public.args[0], pin["url"])
-        self.assertEqual(public.kwargs, {})
+            fetch.side_effect = download
+            inputs622.stage_set(base / "output", {name: pin, "public": pin}, retained=retained)
+            self.assertEqual(fetch.call_count, 1)
+            self.assertEqual(fetch.call_args.args[0], pin["url"])
+            self.assertEqual(fetch.call_args.args[1].name, "public")
 
-    def test_private_404_holds_instead_of_downgrading(self):
+    def test_missing_private_blob_refuses_without_public_fallback(self):
         name = "linux-aarch64-7.3.4-3-aarch64.pkg.tar.xz"
-        result = subprocess.CompletedProcess([], 22, b"404", b"secret diagnostic")
-        endpoint = inputs622.Endpoint("https://private.invalid", "secret")
-        with tempfile.TemporaryDirectory() as directory, patch.object(inputs622.subprocess, "run", return_value=result) as run:
-            with self.assertRaisesRegex(ValueError, f"input transport failed: {name}"):
-                inputs622.stage_object(Path(directory), name, {"bytes": 4, "sha256": "0" * 64}, endpoint=endpoint)
-            self.assertEqual(run.call_count, 1)
+        pin = dict(bytes=4, sha256="0" * 64, url="https://public.invalid/object")
+        with tempfile.TemporaryDirectory() as directory, patch.object(inputs622, "download") as fetch:
+            base = Path(directory)
+            with self.assertRaises(FileNotFoundError):
+                inputs622.stage_set(base / "output", {name: pin}, retained=base)
+            fetch.assert_not_called()
 
     def test_incomplete_export_cannot_leave_a_partial_or_replace_existing(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -104,6 +77,54 @@ class IntakeTests(unittest.TestCase):
                 with self.assertRaises(FileExistsError):
                     inputs622.export_retained(cache, pins, output)
                 self.assertEqual((output / "prior").read_bytes(), b"keep")
+
+
+class CarrierTests(unittest.TestCase):
+    def test_tree_refuses_extra_missing_duplicate_or_symlink_blobs(self):
+        pin = {"unit": {"bytes": 4}}
+        row = b"100644 blob " + b"0" * 40 + b" 4\talarm-cache/unit\0"
+        carrier622.verify_tree(row, pin)
+        for invalid in (b"", row + row, row.replace(b"100644", b"120000"),
+                        row.replace(b" 4\t", b" 5\t"), row.replace(b"alarm-cache", b"extension")):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                carrier622.verify_tree(invalid, pin)
+
+    def test_ssh_fetch_uses_pinned_config_and_retires_key_before_return(self):
+        secret = "-----BEGIN OPENSSH PRIVATE KEY-----\nfixture\n-----END OPENSSH PRIVATE KEY-----"
+        observed = {}
+
+        def check(runner, argv, timeout=15):
+            if argv[0].endswith("ssh-keygen"):
+                path = Path(argv[2])
+                self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+                self.assertEqual(path.read_text(), secret + "\n")
+                observed["credential"] = path.parent
+                return b" ".join(carrier622.DEPLOY_KEY) + b" test (ED25519)\n"
+            self.assertNotIn(secret, " ".join(argv))
+            ssh = runner.env["GIT_SSH_COMMAND"]
+            self.assertIn("StrictHostKeyChecking=yes", ssh)
+            self.assertIn("IdentityAgent=none", ssh)
+            self.assertIn("HostKeyAlgorithms=ssh-ed25519", ssh)
+            self.assertNotIn(secret, ssh)
+            self.assertEqual(argv[-2:], [carrier622.REMOTE, f"{carrier622.REF}:{carrier622.REF}"])
+            return b""
+
+        with tempfile.TemporaryDirectory() as directory:
+            runner = carrier622.private_runner(Path(directory))
+            with patch.object(carrier622, "checked", side_effect=check):
+                carrier622.ssh_fetch(runner, ["git"], secret, Path(directory))
+            self.assertNotIn("GIT_SSH_COMMAND", runner.env)
+            self.assertFalse(observed["credential"].exists())
+
+    def test_nonmatching_deploy_key_is_refused_before_fetch(self):
+        secret = "-----BEGIN OPENSSH PRIVATE KEY-----\nfixture\n-----END OPENSSH PRIVATE KEY-----"
+        with tempfile.TemporaryDirectory() as directory:
+            runner = carrier622.private_runner(Path(directory))
+            with patch.object(carrier622, "checked", return_value=b"256 SHA256:wrong") as checked:
+                with self.assertRaisesRegex(ValueError, "pinned read-only deploy key"):
+                    carrier622.ssh_fetch(runner, ["git"], secret, Path(directory))
+            self.assertEqual(checked.call_count, 1)
+            self.assertEqual(list(Path(directory).iterdir()), [])
 
 
 class BuilderTests(unittest.TestCase):
