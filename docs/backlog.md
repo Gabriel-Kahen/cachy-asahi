@@ -24,11 +24,11 @@ only the Fish package and exercised staging, comparison and withdrawal.
   the candidate started. The verifier now checks bounded `GLOB_DAT` entries
   against the linked Image. The native comparison remains open.
   [First hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698226968)
-- Updater 4.4.2-3 produced two byte-identical native AArch64 packages with
-  verified cleanup. GitHub marked the run as failed because the stage CLI caught
-  its own success exit. The corrected workflow and installed Check still need
-  hosted verification. [Build evidence](validation/updater-native-45699777848.md)
-  · [Input recovery](validation/updater-native-45697080431.md)
+- Updater 4.4.2-3 produced byte-identical native AArch64 packages in two hosted
+  runs, both with verified cleanup. The installed retry stopped before its test
+  container launched. The next run will report the preparation subphase if it
+  fails. [Build evidence](validation/updater-native-45699777848.md)
+  · [Installed Check attempt](validation/updater-native-45706281204.md)
 - The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
   identifies the exact historical build inputs still needed for Perl and Python.
 - Qtbase `all` scheduled exactly the pinned 1,216 remaining actions in a
