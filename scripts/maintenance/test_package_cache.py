@@ -32,9 +32,10 @@ class CacheTests(unittest.TestCase):
             'protected':[{'filename':pin.name, 'name':'demo', 'version':'1.0-1', 'arch':'any',
                           'sha256':hashlib.sha256(pin.read_bytes()).hexdigest()}]}
 
-    def package(self, version, name='demo', suffix='gz', payload=b'package fixture\n', arch='any'):
+    def package(self, version, name='demo', suffix='gz', payload=b'package fixture\n', arch='any',
+                full_version=None):
         path = self.cache/f'{name}-{version}.0-1-{arch}.pkg.tar.{suffix}'
-        raw = f'pkgname = {name}\npkgver = {version}.0-1\narch = {arch}\nlicense = MIT\n'.encode()
+        raw = f'pkgname = {name}\npkgver = {full_version or f'{version}.0-1'}\narch = {arch}\nlicense = MIT\n'.encode()
         with tarfile.open(path,'w:'+suffix) as archive:
             for name,data in {'.PKGINFO':raw,'usr/share/fixture':payload}.items():
                 member = tarfile.TarInfo(name);member.size=len(data);archive.addfile(member,io.BytesIO(data))
@@ -96,6 +97,40 @@ class CacheTests(unittest.TestCase):
         actions={r['filename']:r['action'] for r in self.preview()['entries']}
         self.assertEqual(actions[old.name],'candidate')
         for path in retained:self.assertEqual(actions[path.name],'retained')
+
+    def test_incomplete_version_is_unknown_and_cannot_be_pinned(self):
+        incomplete = self.package(9, full_version='5.0')
+        next_release = self.package(10, full_version='5.0-2')
+        actions = {r['filename']: r['action'] for r in self.preview()['entries']}
+        self.assertEqual(actions[incomplete.name], 'unknown')
+        self.assertEqual(actions[next_release.name], 'retained')
+        self.assertEqual(actions[self.archives[5].name], 'retained')
+        self.assertEqual(actions[self.archives[4].name], 'retained')
+        self.assertEqual(actions[self.archives[3].name], 'candidate')
+        self.policy['protected'][0].update(filename=incomplete.name, version='5.0',
+                                           sha256=c.digest(incomplete.read_bytes()))
+        with self.assertRaisesRegex(c.Error, 'protected archive identity'):
+            self.preview()
+
+    def test_equivalent_labels_share_retention_and_protection(self):
+        protected = self.package(11, full_version='1.00-01')
+        newest = self.package(12, full_version='0:5.00-01')
+        actions = {r['filename']: r['action'] for r in self.preview()['entries']}
+        self.assertEqual(actions[protected.name], 'protected')
+        self.assertEqual(actions[newest.name], 'retained')
+        self.assertEqual(actions[self.archives[3].name], 'retained')
+        self.assertEqual(actions[self.archives[2].name], 'candidate')
+
+    def test_large_retention_and_protection_avoid_pairwise_vercmp(self):
+        for i in range(6, 41):
+            path = self.package(i)
+            self.policy['protected'].append({'filename': path.name, 'name': 'demo', 'arch': 'any',
+                                             'version': f'{i}.0-1', 'sha256': c.digest(path.read_bytes())})
+        self.policy['retain_versions'] = 40
+        with mock.patch.object(c, 'version_compare', wraps=c.version_compare) as compare:
+            plan = self.preview()
+        self.assertTrue(all(row['action'] in {'protected', 'retained'} for row in plan['entries']))
+        self.assertLess(compare.call_count, 40 * 7)
 
     def test_protected_missing_or_changed_refuses_before_deletion(self):
         plan=self.preview();self.archives[1].write_bytes(b'changed rollback archive')

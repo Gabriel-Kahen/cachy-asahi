@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Preview or explicitly prune an owned package cache; never install packages."""
 import argparse
+from collections import defaultdict
 from contextlib import contextmanager
 from functools import cmp_to_key
 import hashlib
@@ -27,6 +28,7 @@ COMPRESSION_ERRORS = (OSError, lzma.LZMAError, zlib.error) + ((zstd.ZstdError,) 
 
 NAME = re.compile(r"[A-Za-z0-9@._+-]+\Z")
 ARCHIVE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._+:-]*\.pkg\.tar\.(?:gz|xz|zst)\Z")
+FULL_VERSION = re.compile(r"(?:[0-9]+:)?[^:/\s\x00-\x1f\x7f-]+-[0-9]+(?:\.[0-9]+)?\Z")
 SHA = re.compile(r"[0-9a-f]{64}\Z")
 MAX_FILES, MAX_ARCHIVE = 4096, 2 * 1024**3
 
@@ -100,6 +102,12 @@ def exists(fd, name):
     except FileNotFoundError:return False
 
 
+def full_version(value):
+    # vercmp ignores pkgrel when either operand omits it. Such aliases cannot
+    # define distinct retention groups or prove a rollback archive's identity.
+    return type(value) is str and len(value) <= 256 and value.isascii() and FULL_VERSION.fullmatch(value)
+
+
 def policy_check(policy):
     need(type(policy) is dict and set(policy) == {'schema_version', 'retain_versions', 'known_packages', 'protected'}, 'policy schema')
     need(type(policy['schema_version']) is int and policy['schema_version'] == 1 and
@@ -115,7 +123,7 @@ def policy_check(policy):
     for row in protected:
         need(type(row) is dict and set(row) == {'filename', 'name', 'version', 'arch', 'sha256'} and
              ARCHIVE.fullmatch(row['filename']) and (row['name'], row['arch']) in known and SHA.fullmatch(row['sha256']) and
-             type(row['version']) is str and 0 < len(row['version']) <= 256 and not re.search(r'[\s\x00]', row['version']), 'protected archive identity')
+             full_version(row['version']), 'protected archive identity')
     need(len({r['filename'] for r in protected}) == len(protected), 'duplicate protected filename')
     return known
 
@@ -158,8 +166,8 @@ def tar_metadata(stream):
             key, value = line.split(' = ', 1);fields.setdefault(key, []).append(value)
     need(all(len(fields.get(k, [])) == 1 for k in ('pkgname', 'pkgver', 'arch')), 'package metadata identity')
     name, version, arch = (fields[k][0] for k in ('pkgname', 'pkgver', 'arch'))
-    need(NAME.fullmatch(name) and arch in ('any', 'aarch64') and 0 < len(version) <= 256 and
-         not re.search(r'[\s\x00]', version) and fields.get('license'), 'unsupported package metadata')
+    need(NAME.fullmatch(name) and arch in ('any', 'aarch64') and full_version(version) and
+         fields.get('license'), 'unsupported package metadata')
     return {'name': name, 'version': version, 'arch': arch}
 
 
@@ -187,26 +195,47 @@ def version_compare(left, right):
     return int(process.stdout.strip())
 
 
+def classify_versions(rows, protected, retain):
+    by_version = defaultdict(list)
+    for row in rows:
+        by_version[row['package']['version']].append(row)
+    versions = sorted(sorted(by_version), key=cmp_to_key(version_compare), reverse=True)
+    groups = []
+    for version in versions:
+        if not groups or version_compare(groups[-1][0], version) != 0:
+            groups.append([])
+        groups[-1].append(version)
+
+    for index, group in enumerate(groups):
+        if protected.intersection(group):
+            action = 'protected'
+        else:
+            action = 'retained' if index < retain else 'candidate'
+        for version in group:
+            for row in by_version[version]:
+                row['action'] = action
+
+
 def plan_for(paths, fds, policy):
     known = policy_check(policy);guard(paths, fds)
     names = sorted(os.listdir(fds[0]));need(len(names) <= MAX_FILES, 'cache member bound')
     entries = [record(fds[0], name) for name in names]
     by_name = {row['filename']: row for row in entries}
+    protected = defaultdict(set)
     for pin in policy['protected']:
         row = by_name.get(pin['filename'], {})
         need(row.get('package') == {k: pin[k] for k in ('name', 'version', 'arch')} and row.get('sha256') == pin['sha256'], 'protected rollback archive missing/changed: ' + pin['filename'])
-    for package, arch in sorted(known):
-        rows = [row for row in entries if row.get('package', {}).get('name') == package and row['package']['arch'] == arch]
-        versions = sorted({row['package']['version'] for row in rows}, key=cmp_to_key(version_compare), reverse=True)
-        retained = []
-        for version in versions:
-            if not any(version_compare(version, kept) == 0 for kept in retained):retained.append(version)
-            if len(retained) == policy['retain_versions']:break
-        protected = [p['version'] for p in policy['protected'] if (p['name'], p['arch']) == (package, arch)]
-        for row in rows:
-            version = row['package']['version']
-            row['action'] = 'protected' if any(version_compare(version, p) == 0 for p in protected) else \
-                'retained' if any(version_compare(version, p) == 0 for p in retained) else 'candidate'
+        protected[pin['name'], pin['arch']].add(pin['version'])
+
+    scopes = defaultdict(list)
+    for row in entries:
+        if 'package' in row:
+            package = row['package']
+            scope = package['name'], package['arch']
+            if scope in known:
+                scopes[scope].append(row)
+    for scope, rows in scopes.items():
+        classify_versions(rows, protected[scope], policy['retain_versions'])
     guard(paths, fds)
     return {'schema_version': 1, 'purpose': 'package-cache-preview', 'cache': str(paths[0]), 'database': str(paths[1]),
             'directory_ids': [{'dev': os.fstat(fd).st_dev, 'ino': os.fstat(fd).st_ino} for fd in fds],
