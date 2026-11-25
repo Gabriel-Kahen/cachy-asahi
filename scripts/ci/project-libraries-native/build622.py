@@ -563,8 +563,14 @@ def actor(scratch, args, report):
         report["passive_inspection"] = inspect_packages(scratch, jbig, tiff)
         report["phase"] = "signed-disposable-lifecycle"
         report["lifecycle"] = lifecycle(docker, base, jbig, tiff, scratch, signed["test_signer"])
-        report["phase"] = "cleanup"
         report["status"] = "NATIVE_BUILD_PAIRS_AND_FRESH_LIFECYCLE_PASSED"
+        if args.historical_cache is not None:
+            from migration622 import native_run
+
+            report["phase"] = "signed-historical-migration"
+            report["historical_migration"] = native_run(docker, base, jbig, tiff, scratch, args.historical_cache, report)
+            report["status"] = "NATIVE_BUILD_PAIRS_AND_HISTORICAL_MIGRATION_PASSED"
+        report["phase"] = "cleanup"
     finally:
         try:
             if docker:
@@ -607,8 +613,11 @@ def main():
     cache.add_argument("--retained-cache", type=Path, help="private directory staged by the SSH carrier step")
     parser.add_argument("--codec-cache", type=Path, help="flat official codec cache")
     parser.add_argument("--upstream-dir", type=Path, help="four upstream inputs named by materialization-plan keys")
+    parser.add_argument("--historical-cache", type=Path, help="separate pinned carrier for native provider migration")
     parser.add_argument("--export-retained", type=Path, help="new private directory for the 14 retained bodies")
     args = parser.parse_args()
+    if args.inputs_only and args.historical_cache is not None:
+        parser.error("--historical-cache requires the native lane")
     if args.export_retained and not (args.inputs_only and args.minimal_cache):
         parser.error("--export-retained requires --inputs-only and --minimal-cache")
     os.umask(0o077)

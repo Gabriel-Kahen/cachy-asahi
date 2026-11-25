@@ -24,6 +24,10 @@ REF = "refs/heads/native622-r1"
 COMMIT = "c6ed50287db7e7d743111d76e9f0c35179c90b7f"
 TREE = "203b14cc4d8afc806c97b10f53518b6b3b5c8659"
 ALARM_TREE = "446263ab279603bfda93641c87aa8cad6f53c899"
+HISTORICAL_REF = "refs/heads/native622-historical-r1"
+HISTORICAL_COMMIT = "564f5c74b11b73eb43fe6b1879412c82ade3e6be"
+HISTORICAL_TREE = "96812687497a5f7674136b187a6a56300781bbe7"
+HISTORICAL_ALARM_TREE = "0e72c9c6cfec72215f86c475972474277692d148"
 HOST_KEY = "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl\n"
 DEPLOY_KEY = [b"256", b"SHA256:6gnCZBWA+I9mccJV/YzywHoefkGrpuKBHU0dVcgqn7k"]
 GIT = ["/usr/bin/git", "--no-replace-objects", "-c", "core.hooksPath=/dev/null",
@@ -38,7 +42,7 @@ def checked(runner, argv, timeout=15):
     return result.stdout
 
 
-def ssh_fetch(runner, git, secret, scratch):
+def ssh_fetch(runner, git, secret, scratch, ref=REF):
     require(64 <= len(secret) <= 32768 and secret.startswith("-----BEGIN OPENSSH PRIVATE KEY-----\n")
             and secret.rstrip().endswith("-----END OPENSSH PRIVATE KEY-----"), "OpenSSH deploy key required")
     with tempfile.TemporaryDirectory(prefix="credential-", dir=scratch) as temporary:
@@ -57,7 +61,7 @@ def ssh_fetch(runner, git, secret, scratch):
         runner.env["GIT_SSH_COMMAND"] = shlex.join(ssh)
         try:
             checked(runner, git + ["fetch", "--quiet", "--depth=1", "--no-tags", "--no-recurse-submodules",
-                                   "--no-write-fetch-head", REMOTE, f"{REF}:{REF}"], timeout=175)
+                                   "--no-write-fetch-head", REMOTE, f"{ref}:{ref}"], timeout=175)
         finally:
             del runner.env["GIT_SSH_COMMAND"]
 
@@ -73,21 +77,29 @@ def verify_tree(raw, pins):
     require(not expected, "complete carrier blob membership")
 
 
-def materialize(runner, git, scratch, destination):
+def materialize(runner, git, scratch, destination, historical=False):
+    if historical:
+        from migration622 import HISTORICAL
+
+        ref, commit, tree, alarm_tree = HISTORICAL_REF, HISTORICAL_COMMIT, HISTORICAL_TREE, HISTORICAL_ALARM_TREE
+        pins = {name: {"bytes": size, "sha256": digest} for name, (size, digest) in HISTORICAL.items()}
+    else:
+        ref, commit, tree, alarm_tree = REF, COMMIT, TREE, ALARM_TREE
+        pins = retained_pins()
+
     def read(*args, timeout=15):
         return checked(runner, git + list(args), timeout)
 
-    require(read("rev-parse", "--verify", REF + "^{commit}") == (COMMIT + "\n").encode(), "reviewed carrier commit")
-    headers = read("cat-file", "commit", COMMIT).split(b"\n\n", 1)[0].splitlines()
-    require(headers[0] == ("tree " + TREE).encode() and not any(row.startswith(b"parent ") for row in headers),
+    require(read("rev-parse", "--verify", ref + "^{commit}") == (commit + "\n").encode(), "reviewed carrier commit")
+    headers = read("cat-file", "commit", commit).split(b"\n\n", 1)[0].splitlines()
+    require(headers[0] == ("tree " + tree).encode() and not any(row.startswith(b"parent ") for row in headers),
             "reviewed parentless carrier commit")
-    require(read("ls-tree", "-z", TREE) == f"040000 tree {ALARM_TREE}\talarm-cache\0".encode(),
+    require(read("ls-tree", "-z", tree) == f"040000 tree {alarm_tree}\talarm-cache\0".encode(),
             "exact alarm-cache carrier tree")
-    pins = retained_pins()
-    verify_tree(read("ls-tree", "-r", "-l", "-z", "--full-tree", TREE), pins)
+    verify_tree(read("ls-tree", "-r", "-l", "-z", "--full-tree", tree), pins)
     checkout = scratch / "checkout"
     checkout.mkdir(mode=0o700)
-    read("--work-tree=" + str(checkout), "read-tree", TREE)
+    read("--work-tree=" + str(checkout), "read-tree", tree)
     read("--work-tree=" + str(checkout), "checkout-index", "--all", "--prefix=" + str(checkout) + "/", timeout=35)
     stage_set(destination, pins, checkout / "alarm-cache")
 
@@ -98,7 +110,7 @@ def private_runner(scratch):
     return Runner(210, env, scratch)
 
 
-def stage(destination, secret):
+def stage(destination, secret, historical=False):
     # The output name is unique to this attempt. Move the complete verified
     # flat cache into the reserved directory after retiring the credentials.
     destination.mkdir(mode=0o700)
@@ -109,10 +121,10 @@ def stage(destination, secret):
             store = scratch / "carrier.git"
             checked(runner, GIT + ["init", "--bare", "--quiet", "--template=", "--object-format=sha1", str(store)])
             git = GIT + ["--git-dir=" + str(store)]
-            ssh_fetch(runner, git, secret, scratch)
+            ssh_fetch(runner, git, secret, scratch, HISTORICAL_REF if historical else REF)
             del secret
             ready = scratch / "verified"
-            materialize(runner, git, scratch, ready)
+            materialize(runner, git, scratch, ready, historical)
             ready.rename(destination)
     except BaseException:
         retire(destination)
@@ -132,6 +144,7 @@ def retire(destination):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("stage", "retire"))
+    parser.add_argument("--historical", action="store_true", help="use the separate historical-provider carrier")
     args = parser.parse_args()
     os.umask(0o077)
     secret = os.environ.pop(SSH_ENV, "")
@@ -142,10 +155,11 @@ def main():
                 and temporary.is_absolute() and temporary == temporary.resolve() and temporary.is_dir()
                 and temporary.stat().st_uid == os.getuid(),
                 "owned runner attempt path")
-        destination = temporary / f"libraries622-retained-{run}-{attempt}"
+        lane = "historical" if args.historical else "retained"
+        destination = temporary / f"libraries622-{lane}-{run}-{attempt}"
         with cancellation_handlers():
             if args.mode == "stage":
-                stage(destination, secret)
+                stage(destination, secret, args.historical)
             else:
                 retire(destination)
     except (Exception, Cancelled):

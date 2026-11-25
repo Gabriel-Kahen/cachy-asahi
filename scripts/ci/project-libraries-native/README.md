@@ -162,7 +162,42 @@ code when available, observed makepkg phases and recognized diagnostic
 markers. The cleanup report covers the job's named and labelled containers and images.
 Daemon build-cache retirement is unverified.
 
-The next installed qualification needs a reviewed maintenance image with
-the original signed providers and representative consumers. Provider
-replacement and restoration, native 16 KiB validation, physical M2
-validation and public distribution review remain open.
+## Historical provider replacement
+
+The disposable test uses the exact old JBIG and TIFF providers, signed
+`lcms2 2.19.1-1`, and the three verified codec packages. It replaces both
+old providers in one transaction and restores both in one transaction with
+the consumer installed throughout. [Emulated result and native boundary](../../../docs/validation/project-libraries-native-20261125.md#historical-providers-on-a-reduced-emulated-fixture)
+
+The native option fetches a separate parentless six-file carrier from the
+same private repository with the existing read-only
+`CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY` secret. The carrier uses original
+basenames under `alarm-cache/`.
+
+| Ref | Commit | Tree |
+| --- | --- | --- |
+| `refs/heads/native622-historical-r1` | `564f5c74b11b73eb43fe6b1879412c82ade3e6be` | `96812687497a5f7674136b187a6a56300781bbe7` |
+
+After publishing the separate private ref, select `lane=native-migration`
+when using the standalone registered workflow. On a reviewed
+`native-arm-build.yml` caller, add a `project-libraries-migration` mode
+that selects `lane=native-migration` and excludes the unrelated native job.
+The reusable job authenticates the two carriers in separate steps, rebuilds
+both package pairs, and consumes the passing exact archives inside the
+same job. It runs the fresh lifecycle first, then uses a new disposable
+instance of Minimal206 for the old-provider migration.
+
+```sh
+gh workflow run native-arm-build.yml \
+  -R Gabriel-Kahen/cachy-asahi --ref "$reviewed_ref" \
+  -f mode=project-libraries-migration -f project_libraries_head="$reviewed_head"
+```
+
+For a local disposable root with the locked Minimal206 inventory, use
+`migration622.py --help` to stage the two signed providers, unchanged
+consumer, official codecs and exact project pair. The staged
+`migration.sh` requires a read-only mount at `/migration` inside an
+offline disposable AArch64 root, Required package verification and
+`CACHY_ASAHI_MIGRATION=1`. The default stage requires both native archive
+hashes. `--emulated-tiff` admits the recorded local TIFF archive for the
+reduced emulated fixture and marks the terminal result accordingly.

@@ -65,16 +65,57 @@ private runner cache. Docker daemon build-cache retirement is unverified.
 The run published bounded metadata and hashes in its job log and uploaded
 zero Actions artifacts.
 
+## Historical providers on a reduced emulated fixture
+
+A separate local, offline AArch64 QEMU user-mode fixture ran with 4,096-byte
+pages. It authenticated the original ALARM signatures on `jbigkit 2.1-8`,
+`libtiff 4.7.2-1` and `lcms2 2.19.1-1` from the retained Overlay583 inputs.
+The 206-package builder plus those three packages and the three pinned
+official codecs formed the 212-package historical inventory. Pacman used
+Required signatures with scriptlets disabled and the builder hook masks
+in place.
+
+The project JBIG archive matched the hosted archive byte for byte. The
+local TIFF rebuild used the same reviewed recipe and 210-package build
+inventory. Its 861,864-byte archive has SHA-256
+`085e8293b170ef5fa30febd3f7d4079da69b4b104c0e91733a30640e2e3f8875`.
+The hosted archive was 862,056 bytes and had the different digest above.
+Both TIFF shared libraries matched the hosted ELF hashes byte for byte.
+The local package metadata matched the reviewed recipe, including the
+PKGBUILD hash, and all 210 BUILDINFO package entries matched the hosted
+inventory lock. Both inspections counted 15 corresponding-source members.
+The hosted receipt exposes archive and ELF hashes and the builder
+inventory hash. Raw hosted PKGINFO and BUILDINFO bytes were unavailable for
+a direct metadata comparison.
+
+| Checkpoint | Packages | SHA-256 of sorted inventory |
+| --- | ---: | --- |
+| Minimal206 | 206 | `303cb32db7378e2cdd5d7645df1dc1f5e7a30fc9ea588f0d2867eede21127e66` |
+| Historical providers and consumer | 212 | `9203a23bef9d2a8ba4eb9135536d146ae8a8d89b936072e89851c91afde6cd87` |
+| Project providers and unchanged consumer | 212 | `abbc68dd92b0324962fb309f848bad485f745368fd769516fcf4300aef0283e4` |
+| Historical providers restored | 212 | `9203a23bef9d2a8ba4eb9135536d146ae8a8d89b936072e89851c91afde6cd87` |
+
+One signed transaction replaced both original providers together. A second
+transaction restored both. All three provider checkpoints passed the
+package database and file checks, loader resolution, the 32×4 TIFF/JBIG
+codec roundtrip and a 2×2 RGB TIFF conversion with the unchanged
+`lcms2` `tificc`. The four installed project shared libraries matched
+the hosted ELF hashes. After restoration, the original library and
+consumer file hashes matched the first checkpoint, and stale project
+SONAMEs and source bundle entry points were absent.
+[Disposable migration driver](../../scripts/ci/project-libraries-native/migration622.sh)
+
 ## Remaining qualification
 
-Provider replacement and restoration remain unrun. The next installed
-qualification depends on a reviewed maintenance composition with pinned
-signed archives for both original providers and representative installed
-consumers. Replace and restore both providers together, verify the installed
-inventory and ownership at each checkpoint, and run the dependent loader
-and application checks. In the historical comparison, `libtiff 4.7.2-1`
-from the original provider pair links to `libjbig.so.2.1` from
-`jbigkit 2.1-8`. `lcms2`'s `tificc` is a recorded direct TIFF consumer. [Historical reverse-consumer evidence](../workstreams/maintained-reverse-consumer-migration-impact.md)
+The native migration option needs the newly rebuilt, exact hosted TIFF
+archive in the same job that runs the transaction. The original providers
+and representative consumer are available through the separate pinned
+historical carrier. The emulated fixture qualifies the exact historical
+provider pair against the recorded local TIFF archive on the reduced
+inventory. Qualification on the intended maintenance composition still
+depends on reviewing that composition and its installed consumers before
+running the replacement and restoration there.
+[Historical reverse-consumer evidence](../workstreams/maintained-reverse-consumer-migration-impact.md)
 
 Native 16 KiB execution, physical M2 Air testing, production trust, and
 distribution review remain open.

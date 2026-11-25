@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import build622
 import carrier622
 import inputs622
+import migration622
 
 
 class IntakeTests(unittest.TestCase):
@@ -126,6 +127,70 @@ class CarrierTests(unittest.TestCase):
                     carrier622.ssh_fetch(runner, ["git"], secret, Path(directory))
             self.assertEqual(checked.call_count, 1)
             self.assertEqual(list(Path(directory).iterdir()), [])
+
+
+class MigrationTests(unittest.TestCase):
+    def test_emulated_tiff_requires_explicit_profile_and_preserves_jbig(self):
+        native = migration622.project_pins(False)
+        emulated = migration622.project_pins(True)
+        changed = {name for name in native if native[name] != emulated[name]}
+        self.assertEqual(changed, {"cachy-asahi-libtiff-4.7.2-1.1-aarch64.pkg.tar.xz"})
+        self.assertEqual(native, migration622.PROJECT_PACKAGES)
+
+    def test_native_wrapper_uses_fresh_base_and_requires_historical_readback(self):
+        base = "sha256:" + "b" * 64
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            docker = build622.DockerScope(root)
+            packages = [root / name for name in migration622.PROJECT_PACKAGES]
+            for package in packages:
+                package.write_bytes(b"fixture")
+            base_lock = (migration622.BASE_FILES / "expected206.lock").read_bytes()
+            historical = migration622.LOCKS["historical.lock"][1]
+            project = migration622.LOCKS["project.lock"][1]
+            inventories = [hashlib.sha256(base_lock).hexdigest(), historical, project, historical]
+            lines = [f"{value}  /tmp/project-libraries-migration.edcba001/inventory" for value in inventories]
+            raw = ("\n".join(lines + ["TIFF JBIG roundtrip passed"] * 3 +
+                              ["MIGRATION622_PASSED native-tiff"]) + "\n").encode()
+
+            def stage(args):
+                self.assertFalse(args.emulated_tiff)
+                self.assertEqual(args.historical_cache, root / "historical")
+                self.assertEqual(sorted(path.name for path in args.project_cache.iterdir()),
+                                 sorted(migration622.PROJECT_PACKAGES))
+                args.output.mkdir()
+                (args.output / "base.lock").write_bytes(base_lock)
+                (args.output / "test-fingerprint").write_text("A" * 40 + "\n")
+
+            def call(*args, seconds):
+                self.assertEqual(args[:3], ("run", "--rm", "--name"))
+                self.assertIn("--network=none", args)
+                self.assertIn(f"type=bind,src={root / 'migration'},dst=/migration,readonly", args)
+                self.assertEqual(args[-2:], (base, "/migration/migration.sh"))
+                self.assertEqual(seconds, 420)
+                return subprocess.CompletedProcess(args, 0, raw, b"")
+
+            with (patch.object(migration622, "stage", side_effect=stage),
+                  patch.object(docker, "call", side_effect=call),
+                  patch.object(docker, "owned_containers", return_value=[])):
+                result = migration622.native_run(docker, base, *packages, root, root / "historical", {})
+            self.assertEqual(result["inventory_sequence"], inventories)
+            self.assertEqual(result["tiff_jbig_roundtrips"], 3)
+
+    def test_both_migration_locks_preserve_consumer_and_all_unrelated_packages(self):
+        contract = inputs622.read_pin(inputs622.PROJECT / "minimal206-extension.json", inputs622.EXTENSION_PIN)
+        base = (migration622.BASE_FILES / "expected206.lock").read_bytes()
+        locks = migration622.migration_locks(base, contract)
+        historical, project = (set(locks[name].decode().splitlines())
+                               for name in ("historical.lock", "project.lock"))
+        self.assertEqual(len(historical), 212)
+        self.assertEqual(len(project), 212)
+        self.assertEqual(historical - project, {"jbigkit 2.1-8", "libtiff 4.7.2-1"})
+        self.assertEqual(project - historical, {"cachy-asahi-jbigkit 2.2-1.1", "cachy-asahi-libtiff 4.7.2-1.1"})
+        self.assertIn("lcms2 2.19.1-1", historical & project)
+        self.assertLess(set(base.decode().splitlines()), historical & project)
+        with self.assertRaises(ValueError):
+            migration622.migration_locks(base + b"foreign 1-1\n", contract)
 
 
 class BuilderTests(unittest.TestCase):

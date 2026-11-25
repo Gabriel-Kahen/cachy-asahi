@@ -7,13 +7,14 @@ on:
         required: true
         type: string
       lane:
-        description: Authenticate inputs only or run both build pairs and the fresh signed lifecycle
+        description: Select inputs, native pairs and fresh lifecycle, or native pairs and historical migration
         type: choice
         required: true
         default: inputs
         options:
           - inputs
           - native
+          - native-migration
   workflow_call:
     inputs:
       reviewed_head:
@@ -36,7 +37,7 @@ jobs:
       github.repository == 'Gabriel-Kahen/cachy-asahi' &&
       github.event_name == 'workflow_dispatch' &&
       github.sha == inputs.reviewed_head && github.workflow_sha == inputs.reviewed_head &&
-      (inputs.lane == 'inputs' || inputs.lane == 'native')
+      (inputs.lane == 'inputs' || inputs.lane == 'native' || inputs.lane == 'native-migration')
     runs-on: ubuntu-24.04-arm
     environment: native-622-inputs
     timeout-minutes: 100
@@ -61,6 +62,14 @@ jobs:
         env:
           CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
         run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py stage
+      - name: Stage the pinned historical provider and consumer carrier
+        id: historical
+        if: inputs.lane == 'native-migration'
+        shell: bash
+        timeout-minutes: 4
+        env:
+          CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py stage --historical
       - name: Authenticate inputs and execute the selected lane
         shell: bash
         timeout-minutes: 79
@@ -73,6 +82,9 @@ jobs:
           case "$PROJECT_LIBRARIES_LANE" in
             inputs) set -- --inputs-only ;;
             native) set -- ;;
+            native-migration)
+              set -- --historical-cache "$RUNNER_TEMP/libraries622-historical-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+              ;;
             *) exit 2 ;;
           esac
           exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/build622.py "$@" \
@@ -82,3 +94,8 @@ jobs:
         shell: bash
         timeout-minutes: 1
         run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py retire
+      - name: Retire the private historical runner cache
+        if: always() && steps.historical.outcome == 'success'
+        shell: bash
+        timeout-minutes: 1
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py retire --historical
