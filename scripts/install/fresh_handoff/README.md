@@ -148,8 +148,8 @@ the maintained installer for the selected Asahi base. The coordinator then
 admits native preflight and the full Asahi transaction before enrollment preview
 and reviewed installation. First-login configuration, testing the retained base
 session, and testing boot and session recovery follow. `ACTIONS.txt` names the
-existing tools and gives only
-first-login read-only/selection preview argv. Native preflight requires its
+existing tools and gives first-login inspection and selection preview commands.
+Native preflight requires its
 existing in-process admission. The local transaction worker accepts disposable
 fixture contracts; it is not a live-root installer. Production enrollment and
 installation remain held because this checkout supplies no accepted release
