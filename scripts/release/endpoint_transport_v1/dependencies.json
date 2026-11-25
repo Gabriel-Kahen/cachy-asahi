@@ -18,8 +18,8 @@
       "sha256": "c4de7e4c2eebc7a0fb510377480c19eee873bd65ab965ad6ed04ac0aa7aada79"
     },
     "scripts/release/export_repository.py": {
-      "bytes": 15157,
-      "sha256": "9d07089a8855a1b11ad8a8f2ef680b00aa4ea48f7f422e05ce83a279780595ea"
+      "bytes": 15986,
+      "sha256": "af6818e07d302ba8422fe73746491c6a1c06e3e97c3bff4b3e4ac3ad606a64f8"
     },
     "scripts/release/offline_kit.py": {
       "bytes": 14796,
