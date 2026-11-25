@@ -1,0 +1,78 @@
+{
+  "capacity": {
+    "allowed_cpus": 16,
+    "host_disk_free_bytes": 169521598464,
+    "host_mem_available_bytes": 17091563520
+  },
+  "images": {
+    "Image": {
+      "bytes": 9019400,
+      "sha256": "36066ded2f5721fd9bb257cebb2e4cb32084f45c3717f4d7a45430fe3cdcc494"
+    },
+    "boot.raw": {
+      "bytes": 1611661312,
+      "sha256": "f34febf4f47978a6b188fccb3c2c23bafeeccda8ad09d02e06005407ecf54ce1"
+    },
+    "core.qcow2": {
+      "bytes": 267386880,
+      "sha256": "65b812f17dfd8bd24e7f1e8e4554f719749ae96c547e4719eb13c307b81188d7"
+    },
+    "gui.qcow2": {
+      "bytes": 750845952,
+      "sha256": "26afc11e8581afe2556be6ae0171c88cd64e755dcff6f9253cdd3cbb26d25ef4"
+    },
+    "scratch.raw": {
+      "bytes": 17179869184,
+      "sha256": "70ca6c345fcf5e5d29d0bb90993d54c17a54164f23b2a6fe839e061b51edca45"
+    }
+  },
+  "probe_nonce": "03f882a40d8826712ba2a4bf58c790c5",
+  "qemu_argv": [
+    "/usr/bin/qemu-system-aarch64",
+    "-machine",
+    "virt",
+    "-accel",
+    "tcg,thread=multi",
+    "-rtc",
+    "base=utc,clock=host",
+    "-cpu",
+    "max",
+    "-smp",
+    "4",
+    "-m",
+    "4096",
+    "-nodefaults",
+    "-no-user-config",
+    "-display",
+    "none",
+    "-monitor",
+    "none",
+    "-nic",
+    "none",
+    "-no-reboot",
+    "-kernel",
+    "/inputs/Image",
+    "-append",
+    "root=PARTUUID=03f882a4-01 rootfstype=ext4 rootflags=noload ro rootwait console=ttyAMA0,115200n8 init=/qtbase-dry-run.sh qtbase_dry_run_nonce=03f882a40d8826712ba2a4bf58c790c5",
+    "-serial",
+    "stdio",
+    "-name",
+    "qtbase-dry-run-03f882a40d8826712ba2a4bf58c790c5",
+    "-sandbox",
+    "on,obsolete=deny,elevateprivileges=deny,spawn=deny,resourcecontrol=deny",
+    "-drive",
+    "if=none,id=boot,file=/inputs/boot.raw,format=raw,readonly=on",
+    "-device",
+    "virtio-blk-device,drive=boot",
+    "-drive",
+    "if=none,id=scratch,file=/out/probe.qcow2,format=qcow2,readonly=off,discard=ignore",
+    "-device",
+    "virtio-blk-device,drive=scratch"
+  ],
+  "runner_image": "sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a",
+  "scope": "LOCAL_DISPOSABLE_NINJA_SCHEDULING_PROBE",
+  "source": {
+    "bytes": 5244,
+    "sha256": "32d61e9b96314177513410e180537a1c79b89367ba54aeea6ff3f98e1b1543eb"
+  }
+}

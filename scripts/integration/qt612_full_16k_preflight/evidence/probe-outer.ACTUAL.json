@@ -1,0 +1,23 @@
+{
+  "container_id": "28944fa66825089f375b744e3708704d0e41894449b70ac1450dc1c28a366566",
+  "cpus": 4,
+  "deadline_seconds": 240,
+  "image": "sha256:52958d534193d739aeb6d3c9239ed31b97f8fb357a618e14391293068b28cd2a",
+  "initial_chain": {
+    "bytes": 4579,
+    "sha256": "34c0c511049c97214349e6268631b066a4bfc5fad2ea58f16504dbfbf9332978"
+  },
+  "max_capture_bytes": 8388608,
+  "memory_bytes": 6442450944,
+  "observed_absent_twice": true,
+  "overlay": {
+    "bytes": 3014656,
+    "sha256": "5aaa4dc3ab2f9e1e0050df63a019c58728016200861fdcfad215f6d53dbf3a42"
+  },
+  "scope": "LOCAL_DISPOSABLE_NINJA_SCHEDULING_PROBE",
+  "serial": {
+    "bytes": 85558,
+    "sha256": "55d50fe5f241caeb83950e43aca8d15f837eb2d1005f347254be30139670c04f"
+  },
+  "state": "exited 0 false"
+}

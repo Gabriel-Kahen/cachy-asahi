@@ -86,6 +86,9 @@ still need measurement.
 
 The retained local probe, decoded logs and updated unissued preflight
 are under `~/.cache/qtbase-full-dry-run-20261125.FK0DZ4UP/`.
+The [committed evidence](evidence) includes the original receipts and
+the losslessly compressed serial stream. Its uncompressed SHA-256 is
+`55d50fe5f241caeb83950e43aca8d15f837eb2d1005f347254be30139670c04f`.
 
 | File | SHA-256 |
 | --- | --- |
@@ -109,6 +112,87 @@ package lifecycle still need evidence.
 The passive `prepare.py` plan grants no full-build authority. Both routes
 still need reviewed limits for compilation and package staging, a
 qualified output package and an owned install, loader and rollback trial.
+
+## Proposed bounded build-only successor
+
+Continue the tested Q3 chain on the local Ryzen 7 3700X using the pinned
+rootless controller. Keep the original kernel, read-only configured scratch,
+QtCore and QtGui backing layers, the 356-package lock, and the pinned
+Qtbase graph. Discard the dry-run child and start the successor from a
+fresh child of QtGui. Use the observed dry run to require zero QtGui
+actions and the exact 1,216-action multiset before executing the serial
+`cmake --build /qt-recipe/src/build --parallel 1 --target all`.
+
+The completed Core and Gui builds used four QEMU vCPUs, a four-CPU
+container quota and one Ninja job. Their respective wall times were 6,212.764 and
+8,343.745 seconds, with 321 and 318 actions. Both containers reached
+6 GiB of accounted memory. Scaling by their observed rates puts 1,216
+actions at roughly 6.54–8.86 hours and the child EOF at roughly 0.94–2.67 GiB.
+These are illustrations for budget selection. Compilation mix, link peaks
+and filesystem growth for the remaining graph still need measurement.
+
+| Resource | Proposed first full-build limits |
+| --- | --- |
+| CPU and RAM | Four vCPUs, one build job, 6 GiB guest, 8 GiB container with no additional container swap |
+| Deadlines | 14 hours guest build, 14 hours 15 minutes QEMU, 14 hours 20 minutes outer attach |
+| Writable media | 8 GiB child file cap, 2 GiB clean result disk, 2 GiB live free-space floor inside the guest |
+| Retained output | 1 GiB artifact cap, 64 MiB build log cap, 128 MiB host report allocation |
+| Host reserve | 2 GiB disk and 2 GiB available memory beyond the selected limits |
+
+At 4:56 p.m. Eastern on November 25 the host exposed 16 logical CPUs,
+14.75 GiB available RAM and 161.77 GiB free on the cache volume. This
+fits the proposed 10 GiB available-memory check and the 12.125 GiB
+post-restore disk admission check. Budgeting the full logical size of
+all known input images raises the pre-restore disk threshold to
+32,837,902,344 bytes. The prior disposable guest reported 11,558,694,912
+free bytes after the dry run. Repeat both admission checks at launch
+and monitor host reserve, child EOF and guest free space during execution.
+These observations carry no resource reservation.
+
+The original QtGui authority passed historical readback, failed the live
+entry window and refused a changed scope under the frozen reader. The
+successor needs an independently issued `Root` selection for a new
+build-only scope. Bind the following fields in its sealed handoff and
+independently supplied selection digest.
+
+| Binding | Required values |
+| --- | --- |
+| Authority | Fresh nonce and scope, approving issuer, approved handoff and plan SHA-256s, creation and expiration for entry |
+| Producer | Reviewed source revision and source-tree digest, exact guest worker, host actor and independent reader, controller image, tool pins and rootless endpoint |
+| Input state | Q3 terminal, 356-package lock, two archived link readbacks, dry-run receipt and logs, configured graph and inherited ELF pins |
+| Media | Exact kernel, reviewed derivative boot image and fresh result image pins, four-node block chain including the new child, separate owned output directory |
+| Work and limits | Exact build argv and environment, selected deadlines, memory and disk bounds, artifact allowlist, partial-failure retention and owned process retirement |
+
+The local build can reuse the verified installed md4c bytes on the
+read-only Q3 base. Q3's original TEST signer is
+`D02BE98DE9C0986C1120951315A8B1E319DBEE03` and that authority expired on
+November 19. The hosted route's later TEST signer
+`CE8ED75F205581BFF9C470173F6B1AA9DA3ABD8A` also expired. A fresh
+transaction needs current trust for any archive it introduces. The
+resulting Qt package needs a separately selected current TEST certificate,
+its full signing fingerprint, exact archive and detached-signature pins,
+and an independently authorized install and rollback scope.
+
+The source-only next step is a dedicated successor actor and reader
+using the existing owned process and allocation guards. Seal its
+build-only worker into a new boot image. Require a freshly checked dry run,
+natural serial completion, zero pending `all` work after the build,
+preserved input pins and a bounded output inventory for the 18 shared
+library targets. The present QtGui actor accepts its three-node chain,
+original scope and 4 GiB child ceiling. The proposed route supplies
+inputs and limits for reviewing the successor.
+
+After the build, run the GUI-server reference recipe's package checks
+and staging in a separately bounded phase. The supported install must
+resolve its exact dependencies and provider conflicts under private
+signature-required ALPM, then validate the 16 KiB loader, CMake consumer,
+plugins, GUI smoke and rollback. The other Qt family repositories and
+physical Asahi graphics remain separate qualifications.
+[GUI-server recipe](../../../packages/port/qt612-gui-server-source-reference/PKGBUILD)
+
+The route review and host snapshot are in
+`~/.cache/qtbase-full-route-review-20261125.j5djy795/full-build-route.UNISSUED.json`,
+SHA-256 `ee20cb360c411d1f4bd3bfcd0bba93ff29c363f848e0bb0aca9efb14ff54f8ff`.
 
 [QtGui hardware and build scope](../../../docs/validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
 · [Separate native Qt family producer](../../ci/qt612-complete-family-native-source/README.md)
