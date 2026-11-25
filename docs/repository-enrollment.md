@@ -163,30 +163,10 @@ atomic transaction across the keyring and both configuration files:
 
 Unknown or damaged managed state requires manual resolution; a rerun deliberately
 does not overwrite it. Abrupt process death or storage failure can leave temporary
-files or the transaction lock. Diagnose an existing lock before retrying apply.
+files or the transaction lock. Investigate any lock against active pacman/keyring
+work before removing it manually; this tool never removes a pre-existing lock.
 Disabling the repository does not revoke or remove trust. Any key revocation or
 trust removal needs a separate decision accounting for other users of that key.
-
-### Diagnosing an existing database lock
-
-1. Identify the selected root and its `var/lib/pacman/db.lck`. Confirm which
-   package managers and automated jobs use that same database. Check for an
-   explicit pacman `DBPath` or `--dbpath` override and for containers or chroots
-   sharing the target database. [pacman manual](https://man.archlinux.org/man/pacman.8.en#OPTIONS)
-2. Coordinate a pause on new package and enrollment jobs for the target.
-   Check active pacman/libalpm front ends, enrollment and trust-transition
-   commands, and `pacman-key` work on the same keyring. Inspect the lock's path,
-   device and inode. Use process listings and, where available, `fuser` with
-   sufficient privileges. Treat lock age, recorded PID and an empty `fuser`
-   result as clues. Require confirmation across every namespace that can write
-   to the database. [ArchWiki lock troubleshooting](https://wiki.archlinux.org/title/Pacman#%22Failed_to_init_transaction_(unable_to_lock_database)%22_error)
-3. Preserve the lock if activity, ownership or identity is uncertain, or if
-   the entry changes during diagnosis. For a confirmed stale lock, follow the
-   target's manual recovery procedure while new jobs remain paused. Enrollment
-   preserves existing locks. If a package transaction was interrupted, review
-   the target's pacman log and package database before resuming. Inspect the
-   managed include and trust state and run a fresh enrollment or disable
-   preview before retrying apply.
 
 ## Validation and limits
 
