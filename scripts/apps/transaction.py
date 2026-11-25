@@ -315,8 +315,10 @@ def main():
    need(closure is not None or 'apps_full574_binding' not in owner['copy'],'full574 copy requires original explicit policy/lease')
    with locked(workspace):
     inventory=app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r))
-    if closure is not None:closure.owner(owner);closure.selection({},{},inventory,observe(root,budget,closure)['nodes'])
-    result=dict(status='OBSERVED_OWNED_COPY',before=pins(observe(root,budget,closure),inventory))
+    if closure is not None:closure.owner(owner)
+    observation=observe(root,budget,closure)
+    if closure is not None:closure.selection({},{},inventory,observation['nodes'])
+    result=dict(status='OBSERVED_OWNED_COPY',before=pins(observation,inventory))
   elif a.action=='dispose-copy':
    workspace,root,owner=root_guard(a)
    with locked(workspace):

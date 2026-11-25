@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: MIT
 """Source/temp-data controls only; actual namespace fixtures are separately labelled."""
-import copy,importlib.util,json,os,sys,tempfile,time,unittest
+import copy,importlib.util,io,json,os,sys,tempfile,time,unittest
+from contextlib import nullcontext, redirect_stdout
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 sys.dont_write_bytecode=True
 spec=importlib.util.spec_from_file_location('apps_transaction',Path(__file__).with_name('transaction.py'));T=importlib.util.module_from_spec(spec);spec.loader.exec_module(T)
 FILE=dict(type='file',mode=0o644,uid=0,gid=0,bytes=1,sha256='a'*64)
@@ -44,6 +45,35 @@ class Guards(unittest.TestCase):
   actual=T.pins(changed,inventory);self.assertNotEqual(original['tree_sha256'],actual['tree_sha256']);self.assertEqual(original['database_sha256'],actual['database_sha256'])
   changed=copy.deepcopy(observation);changed['nodes']['var/lib/pacman/local/a-1/desc']['sha256']='b'*64
   self.assertNotEqual(original['database_sha256'],T.pins(changed,inventory)['database_sha256'])
+ def test_full574_inspect_reports_the_observation_used_for_selection(self):
+  workspace=Path('/owned-workspace');root=workspace/'root'
+  owner={'copy':{'apps_full574_binding':'fixture'}}
+  inventory={'packages':[{'name':'base','version':'1'}]}
+  first={'nodes':seed()}
+  changed={'nodes':first['nodes']|{'home/user/note':FILE|{'sha256':'b'*64}}}
+  app=Mock()
+  app.inventory_reader.return_value.collect.return_value=inventory
+  closure=Mock()
+  budget=T.limits()
+  argv=['transaction.py','inspect','--workspace',str(workspace),'--apps-source','/fixture/apps',
+        '--apps-provenance-sha256','a'*64,'--repository-source','/fixture/repository']
+  output=io.StringIO()
+  with (
+      patch.object(sys,'argv',argv),
+      patch.object(T,'root_guard',return_value=(workspace,root,owner)),
+      patch.object(T,'app_source',return_value=(app,None,None)),
+      patch.object(T,'limits',return_value=budget),
+      patch.object(T,'closure_for',return_value=closure),
+      patch.object(T,'locked',return_value=nullcontext()),
+      patch.object(T,'observe',side_effect=[first,changed]) as observe,
+      redirect_stdout(output),
+  ):
+   self.assertEqual(T.main(),0,output.getvalue())
+  closure.owner.assert_called_once_with(owner)
+  closure.selection.assert_called_once_with({},{},inventory,first['nodes'])
+  self.assertEqual(json.loads(output.getvalue()),
+                   {'status':'OBSERVED_OWNED_COPY','before':T.pins(first,inventory)})
+  observe.assert_called_once_with(root,budget,closure)
  def test_finite_existing_full_root_bounds(self):
   value=T.limits();self.assertEqual((value.max_packages,value.max_nodes,value.max_bytes),(587,500000,8*1024**3));self.assertLessEqual(value.deadline-time.monotonic(),300)
  def test_payload_rejects_trust_hook_setid_alias_and_nonusr(self):
