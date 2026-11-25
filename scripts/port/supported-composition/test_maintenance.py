@@ -89,6 +89,19 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(root['differing_metadata_fields'], ['PROVIDES'])
         self.assertFalse(proposed['provider_bindings'][0]['final_witness_matches'])
 
+    def test_same_version_project_root_requires_reinstall_in_both_profiles(self):
+        installed = T.package('candidate', depends=('python>=3.11',))
+        installed['ARCH'] = ['any']
+        self.before.append(installed)
+        report = self.proposed(self.full())
+        for result in (report, report['proposed_maintenance']):
+            self.assertEqual(result['metadata_prepare_status'], 'FAIL')
+            self.assertIn({
+                'code': 'same-version-project-root-needs-explicit-reinstall-plan',
+                'target': {'name': 'candidate', 'version': '1-1', 'repo': 'project'},
+            }, result['blockers'])
+            self.assertNotIn('candidate', {row['name'] for row in result['prepare']['add']})
+
     def test_wrong_after_missing_before_extra_package_and_reason_are_refused(self):
         alterations = [lambda p: p['changes'][0].update(after='3.14.9-1'),
                        lambda p: p['changes'][0].update(before='3.14.6-1'),

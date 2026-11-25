@@ -130,6 +130,16 @@ def clean_metadata(row):
     return row
 
 
+def target_blockers(targets, image, catalogs):
+    for row in targets:
+        name, version, repo = (row[key] for key in ('name', 'version', 'repo'))
+        metadata = image.get(name) if repo == 'observed-Asahi-base' else catalogs.get(repo, {}).get(name)
+        if not metadata or metadata['VERSION'] != [version]:
+            yield {'code': 'exact-target-pin-unavailable', 'target': row}
+        if repo == 'project' and image.get(name, {}).get('VERSION') == [version]:
+            yield {'code': 'same-version-project-root-needs-explicit-reinstall-plan', 'target': row}
+
+
 def check_roots(targets, final, image, catalogs):
     results = {}
     for target in targets:
@@ -348,12 +358,7 @@ def compose(contract, output, reader=None, maintenance_ref=None, contract_ref=No
             allowed[row['name']] = row
             if row['name'] in protected:
                 block('protected-base-policy-cannot-relax-original-tuple', policy=row)
-        for row in targets:
-            metadata = image.get(row['name']) if row['repo'] == 'observed-Asahi-base' else catalogs.get(row['repo'], {}).get(row['name'])
-            if not metadata or metadata['VERSION'] != [row['version']]:
-                block('exact-target-pin-unavailable', target=row)
-            if row['repo'] == 'project' and image.get(row['name'], {}).get('VERSION') == [row['version']]:
-                block('same-version-project-root-needs-explicit-reinstall-plan', target=row)
+        report['blockers'].extend(target_blockers(targets, image, catalogs))
         with tempfile.TemporaryDirectory(prefix='private-supported-composition-', dir=output) as temporary:
             work = Path(temporary)
             for name in ('root', 'db/sync', 'cache', 'gpg', 'hooks'):
@@ -429,7 +434,7 @@ def compose(contract, output, reader=None, maintenance_ref=None, contract_ref=No
                 ('status', 'metadata_prepare_status', 'blockers', 'base_changes', 'protected_package_count', 'final_package_count')}
             report['proposed_maintenance'] = maintenance.evaluate(maintenance_ref, contract_ref, contract, reader, output,
                 image=image, protected=protected, catalogs=pristine_catalogs, targets=targets, provenance=provenance,
-                tx=t, prepare=prepare_isolated, check_roots=check_roots, platform=PLATFORM)
+                tx=t, prepare=prepare_isolated, target_blockers=target_blockers, check_roots=check_roots, platform=PLATFORM)
             report.update(status='HOLD', approval_status='UNAPPROVED', original_policy_failure_retained=bool(report['blockers']))
         reader.recheck()
     except BaseException as error:
