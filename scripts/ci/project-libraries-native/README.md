@@ -15,15 +15,15 @@ for the original producer's archive fallback. The rootfs, its signature,
 the three keyring inputs, and 192 package bodies returned HTTP 200 to HEAD.
 These response codes establish transport availability at probe time.
 
-The decisive missing input is
+A decisive public acquisition failure was
 `linux-aarch64-7.3.4-3-aarch64.pkg.tar.xz`, 69,887,600 bytes with SHA-256
 `ba67012ac8ae1312e32c9e5bbee49428e3c8e9405d3d85312732847a9820964c`.
 Full GETs returned HTTP 404 from the California and Florida ALARM mirrors,
 the original per-package archive fallback, and the archive's November 15
-and 23 snapshots. The local retained source-input pack lacks that digest.
-The r12 profile contains the exact detached signature, and its signed
-rootfs inventory lists `linux-aarch64 7.1.6-1`. The frozen image requires
-`7.3.4-3`.
+and 23 snapshots. The original Minimal206 cache was recovered separately. All 417 objects
+matched their exact lengths and SHA-256 pins, including the kernel archive.
+All 207 detached signature checks passed against the locked ALARM signer.
+The runner still needs an authenticated route to the retained objects.
 
 The candidate's `scripts/build/project-libraries/prepare.py` accepted all
 four pinned upstream files and produced byte-identical recipe trees in two
@@ -45,7 +45,8 @@ signature. Full 417-input acquisition and authentication must still pass
 before a future native build. A successor baseline requires review of its
 own signed inputs and exact package inventory.
 
-**Dispatch inputs** are unavailable for #622 while this acquisition hold
-is open. Both native pairs and signed lifecycle checks remain pending.
+Hosted dispatch needs a runner-readable source for the recovered inputs or a
+reviewed successor baseline. Both native pairs and signed lifecycle checks
+remain pending.
 Future public CI evidence must be limited to approved metadata and must
 exclude package bodies, materialized recipes, and held source.

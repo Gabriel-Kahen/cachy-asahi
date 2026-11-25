@@ -16,6 +16,9 @@ only the Fish package and exercised staging, comparison and withdrawal.
 - The current native library and kernel work is tracked in
   [#622](https://github.com/Gabriel-Kahen/cachy-asahi/issues/622) and
   [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623).
+  All 417 Minimal206 objects and all 11 missing kernel-job package and
+  signature pairs were authenticated in retained local caches. Hosted native
+  builds still need access to the recovered inputs.
 - The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
   identifies the exact historical build inputs still needed for Perl and Python.
 - Stable overlay promotion requires a supported Asahi composition, production
