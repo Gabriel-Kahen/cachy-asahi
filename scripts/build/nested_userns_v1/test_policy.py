@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: MIT
 """Portable DATA/argv controls only: never Docker, namespaces, build or Reader."""
 import ast
+from io import BytesIO
 import json
 import os
 from pathlib import Path
 import subprocess
 import sys
+import tarfile
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -163,6 +165,59 @@ class Controls(unittest.TestCase):
         with tempfile.TemporaryDirectory()as d:
             (Path(d)/'provenance.json').write_text('{}')
             with self.assertRaisesRegex(ValueError,'policy binding missing'):C.verify(d)
+
+    def test_comparator_binds_inventory_hash_and_observed_packages(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory)
+            (out / 'inputs').mkdir()
+            (out / 'artifacts').mkdir()
+            recipe = out / 'inputs/PKGBUILD'
+            recipe.write_text('MODELED reviewed recipe\n')
+            recipe_hash = C.digest(recipe)
+            artifact = out / 'artifacts/example-1-1-any.pkg.tar.gz'
+            with tarfile.open(artifact, 'w:gz') as archive:
+                entries = {
+                    '.PKGINFO': b'pkgname = example\npkgbase = example\npkgver = 1-1\narch = any\nlicense = MIT\n',
+                    '.BUILDINFO': (b'format = 2\npkgname = example\npkgver = 1-1\npkgarch = any\n'
+                                   + f'pkgbuild_sha256sum = {recipe_hash}\n'.encode()),
+                    '.MTREE': b'MODELED manifest\n',
+                    'usr/share/example/data': b'MODELED payload\n',
+                }
+                for name, body in entries.items():
+                    member = tarfile.TarInfo(name)
+                    member.size = len(body)
+                    archive.addfile(member, BytesIO(body))
+            for name in ('build.log', 'validation.json', 'artifacts/generated.SRCINFO',
+                         'artifacts/environment.txt', 'artifacts/config.sha256',
+                         'artifacts/makepkg.conf', 'artifacts/pacman.conf'):
+                (out / name).write_text('MODELED evidence\n')
+            expected = out / 'expected-packages.lock'
+            observed = out / 'artifacts/packages.lock'
+            record_path = out / 'provenance.json'
+            for claimed_hash, observed_lock, reason in (
+                (None, 'base-devel 1-1\n', None),
+                ('0' * 64, 'base-devel 1-1\n', 'recorded expected package lock checksum differs'),
+                (None, 'base-devel 2-1\n', 'observed builder package lock differs'),
+            ):
+                with self.subTest(claimed_hash=claimed_hash, observed_lock=observed_lock):
+                    expected.write_text('base-devel 1-1\n')
+                    observed.write_text(observed_lock)
+                    record = dict(
+                        status='built-package-static-pass', nested_namespaces=None,
+                        expected_packages_sha256=claimed_hash or C.digest(expected),
+                        recipe_inputs={'PKGBUILD': recipe_hash},
+                        recipe_metadata=dict(pkgname=['example'], pkgver=['1'], pkgrel=['1'],
+                                             arch=['any'], license=['MIT']),
+                        artifacts={artifact.name: C.digest(artifact)},
+                        files={str(path.relative_to(out)): C.digest(path) for path in out.rglob('*')
+                               if path.is_file() and path not in (recipe, record_path)},
+                    )
+                    record_path.write_text(json.dumps(record))
+                    if reason is None:
+                        self.assertEqual(C.verify(out)[0], record)
+                    else:
+                        with self.assertRaisesRegex(ValueError, reason):
+                            C.verify(out)
 
     def test_comparator_requires_same_default_or_custom_policy(self):
         a=dict(clean_environment_id='one',image='same',image_id='same',mode='native',source_date_epoch=1,recipe_inputs={'x':'y'},recipe_metadata={'x':'y'},expected_packages_sha256='a',entry_script_sha256='b',nested_namespaces=None)

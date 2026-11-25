@@ -60,6 +60,10 @@
           "before": "    if record.get('status') !="
         },
         {
+          "after": "    expected_lock = record['files']['expected-packages.lock']\n    if record.get('expected_packages_sha256') != expected_lock:\n        raise ValueError(f'{path}: recorded expected package lock checksum differs')\n    if record['files']['artifacts/packages.lock'] != expected_lock:\n        raise ValueError(f'{path}: observed builder package lock differs from expected lock')\n    actual = {p.name for p in",
+          "before": "    actual = {p.name for p in"
+        },
+        {
           "after": "'entry_script_sha256', 'nested_namespaces'):",
           "before": "'entry_script_sha256'):"
         }

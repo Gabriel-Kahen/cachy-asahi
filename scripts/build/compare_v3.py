@@ -36,6 +36,11 @@ def verify(path):
         item = (path / name).resolve()
         if not item.is_relative_to(path) or digest(item) != checksum:
             raise ValueError(f'{path}: missing/changed evidence {name}')
+    expected_lock = record['files']['expected-packages.lock']
+    if record.get('expected_packages_sha256') != expected_lock:
+        raise ValueError(f'{path}: recorded expected package lock checksum differs')
+    if record['files']['artifacts/packages.lock'] != expected_lock:
+        raise ValueError(f'{path}: observed builder package lock differs from expected lock')
     actual = {p.name for p in (path / 'artifacts').glob('*.pkg.tar.*') if not p.name.endswith('.sig')}
     if actual != set(record['artifacts']):
         raise ValueError(f'{path}: unexpected/missing artifact set')
