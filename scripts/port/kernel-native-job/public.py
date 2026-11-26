@@ -50,6 +50,10 @@ ACQUISITION_PHASES = frozenset(('ROOT_PREFLIGHT', 'SOURCE_PINS', 'INPUT_CONTRACT
     'CANDIDATE_SLICE', 'PATCH_LOGS', 'FINAL_BUDGET', 'RECEIPT_SAVE'))
 ACQUISITION_REFUSALS = frozenset(('UNKNOWN', 'SOURCE_PIN', 'INPUT_CONTRACT', 'SIZE_HASH',
     'DEADLINE', 'BYTE_CAP', 'PATH', 'HTTP_RETURN', 'HTTP_CHILD', 'SIGNATURE', 'CONFIG', 'PATCH', 'STORAGE'))
+PRODUCER_INPUTS = 501
+PRODUCER_FAILURE_KINDS = frozenset(('HTTP_404', 'HTTP_OTHER', 'HTTPS_TRANSPORT', 'OTHER'))
+PRODUCER_PHASES = {'NOT_OBSERVED': {'BEFORE_ACQUISITION'}, 'IN_PROGRESS': {'ACQUISITION'},
+                   'FAIL': {'ACQUISITION'}, 'PASS': {'INPUT_AUDIT', 'BUILD'}}
 
 
 def need(value):
@@ -89,6 +93,50 @@ def acquisition_failure(value):
     if group['availability'] == 'VERIFIED':
         record=acquisition_failure_record(group['diagnostic'])
         encoded=json.dumps(record,sort_keys=True,separators=(',',':'),allow_nan=False).encode()+b'\n'
+        need(type(group['sha256']) is str and hashlib.sha256(encoded).hexdigest() == group['sha256'])
+    else:
+        need(group['sha256'] is group['diagnostic'] is None)
+
+
+def producer_failed_first(value):
+    first = value.get('parallel_first_failure')
+    return (first is not None and first['producer'] == exit_record(1) and
+            first['acquisition'] in ({'kind': 'UNOBSERVED', 'code': None}, exit_record(0)))
+
+
+def producer_failure_bytes(record):
+    need(type(record) is dict and set(record) ==
+         {'schema_version', 'purpose', 'phase', 'acquisition', 'counts', 'failure_kinds'} and
+         type(record['schema_version']) is int and record['schema_version'] == 1 and
+         record['purpose'] == 'kernel-producer-failure')
+    state, phase, counts, kinds = (record[key] for key in ('acquisition', 'phase', 'counts', 'failure_kinds'))
+    need(type(state) is str and state in PRODUCER_PHASES and type(phase) is str and phase in PRODUCER_PHASES[state])
+    if state == 'NOT_OBSERVED':
+        need(counts is kinds is None)
+    else:
+        need(type(counts) is dict and set(counts) == {'pass', 'fail', 'pending'} and
+             type(kinds) is dict and set(kinds) == PRODUCER_FAILURE_KINDS and
+             all(type(count) is int and 0 <= count <= PRODUCER_INPUTS
+                 for count in (*counts.values(), *kinds.values())) and
+             sum(counts.values()) == PRODUCER_INPUTS and sum(kinds.values()) == counts['fail'])
+        if state == 'PASS':
+            need(counts['pass'] == PRODUCER_INPUTS)
+        elif state == 'FAIL':
+            need(counts['fail'] > 0 and counts['pending'] == 0)
+    return json.dumps(record, sort_keys=True, separators=(',', ':'), allow_nan=False).encode() + b'\n'
+
+
+def producer_failure(value):
+    if 'producer_failure' not in value:
+        return
+    need(value['schema_version'] == 4 and value['status'] == value['producer'] == 'FAIL' and
+         value['first_failed_phase'] == 'parallel' and value['failure_reason'] in ('PRODUCER_EXIT', 'BOTH_CHILDREN_EXIT') and
+         value['producer_exit'] == exit_record(1) and producer_failed_first(value))
+    group = value['producer_failure']
+    need(type(group) is dict and set(group) == {'availability', 'reason', 'sha256', 'diagnostic'})
+    need((group['availability'], group['reason']) in (('VERIFIED', 'OBSERVED'), ('UNAVAILABLE', 'MISSING'), ('REFUSED', 'INVALID')))
+    if group['availability'] == 'VERIFIED':
+        encoded = producer_failure_bytes(group['diagnostic'])
         need(type(group['sha256']) is str and hashlib.sha256(encoded).hexdigest() == group['sha256'])
     else:
         need(group['sha256'] is group['diagnostic'] is None)
@@ -765,7 +813,7 @@ def project(data, commit, pin, outcome):
     value = decode(data)
     need(type(value['schema_version']) is int and
          ((value['schema_version'] == 3 and set(value) == LEGACY_KEYS) or
-          (value['schema_version'] == 4 and set(value) - {'parallel_first_failure', 'acquisition_failure'} == KEYS)) and value['stage'] == 'kernel-native-development-job' and
+          (value['schema_version'] == 4 and set(value) - {'parallel_first_failure', 'acquisition_failure', 'producer_failure'} == KEYS)) and value['stage'] == 'kernel-native-development-job' and
          type(value['cancelled']) is bool and value['selected_for_release'] is False and
          value['source_commit'] == commit and value['packet_sha256'] == pin)
     need(value['status'] in {'PASS', 'FAIL'} and value['phase'] in PHASES and
@@ -779,6 +827,7 @@ def project(data, commit, pin, outcome):
     daemon_baseline(value)
     parallel_failure(value)
     acquisition_failure(value)
+    producer_failure(value)
     if value['schema_version'] == 4:
         kernel_child(value['kernel_child'])
     accepted = (value['phase'] == 'complete' and not value['cancelled'] and

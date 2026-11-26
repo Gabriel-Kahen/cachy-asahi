@@ -227,11 +227,12 @@ class JobContracts(unittest.TestCase):
         row = {'Id': self.image, 'Architecture': 'arm64', 'Os': 'linux'}
         fake.call.side_effect = [SimpleNamespace(returncode=0, stdout=json.dumps([row]).encode()),
             SimpleNamespace(returncode=0, stdout=b''), SimpleNamespace(returncode=1, stdout=b'No such image')]
-        phases = []; self.parallel_override = None
+        phases = []; self.parallel_override = None; self.first_parallel_exit = None
         self.child_receipt_change = None; self.child_exit = 0
         def runner(seconds, env, logs):
             instance = Mock(deadline=job.snapshot_clock() + seconds); instance.run_many.return_value = [SimpleNamespace(returncode=0), SimpleNamespace(returncode=0)]
             if seconds == job.PARALLEL and self.parallel_override is not None:
+                instance.parallel_first_failure = self.first_parallel_exit
                 if isinstance(self.parallel_override, BaseException): instance.run_many.side_effect = self.parallel_override
                 else: instance.run_many.return_value = self.parallel_override
             instance.run.return_value = SimpleNamespace(returncode=0, stdout=b'')
@@ -483,6 +484,24 @@ class JobContracts(unittest.TestCase):
                 self.assertEqual(status['cleanup'], 'FAIL')
                 self.assertEqual(status['producer'], 'FAIL' if codes[0] else 'NOT RUN')
                 self.assertEqual(status['baseline'], 'NOT RUN')
+        self.assertFalse(any(seconds == job.KERNEL_ENVELOPE for seconds, _ in phases))
+
+    def test_only_producer_first_collects_native_producer_failure_data(self):
+        _, phases = self.controller_fixture()
+        for index, first in enumerate(((1, None), (None, -2), (1, -2))):
+            with self.subTest(first=first):
+                self.next_output(index)
+                self.first_parallel_exit = first
+                command = job.producer_command(self.args.output / 'private/source', self.args.output / 'private')
+                self.parallel_override = [subprocess.CompletedProcess(command, 1, b''),
+                                          SimpleNamespace(returncode=-2, stdout=b'')]
+                self.assertEqual(job.execute(self.args), 1)
+                value, _ = self.failure_receipts('parallel', 'BOTH_CHILDREN_EXIT')
+                self.assertEqual(value['cleanup'], 'FAIL')
+                if first == (1, None):
+                    self.assertEqual(value['producer_failure']['availability'], 'UNAVAILABLE')
+                else:
+                    self.assertNotIn('producer_failure', value)
         self.assertFalse(any(seconds == job.KERNEL_ENVELOPE for seconds, _ in phases))
 
     def test_parallel_exceptions_are_finite_unobserved_and_do_not_export_secret_text(self):
@@ -1453,6 +1472,87 @@ class AcquisitionFailureObservation(unittest.TestCase):
         status={'first_failed_phase':'parallel','cleanup':'FAIL'}
         with self.assertRaises(job.runtime.Cancelled):job.observe_acquisition_failure(status,Result(),'a'*32)
         self.assertEqual(status,{'first_failed_phase':'parallel','cleanup':'FAIL'})
+
+
+class ProducerFailureObservation(unittest.TestCase):
+    def setUp(self):
+        workspace = tempfile.TemporaryDirectory()
+        self.addCleanup(workspace.cleanup)
+        self.snapshot = Path(__file__).resolve().parents[3]
+        private = Path(workspace.name)
+        self.producer = private / 'producer'
+        self.producer.mkdir()
+        self.command = job.producer_command(self.snapshot, private)
+        self.record = {'status': 'failed', 'mode': 'build', 'native_build': 'NOT RUN',
+                       'hardware_validation': 'NOT RUN', 'reviewed_inputs_sha256': job.packet.INPUTS_SHA,
+                       'reviewed_recipes_sha256': job.packet.RECIPES_SHA,
+                       'bootstrap_script_sha256': job.packet.HELPERS['scripts/ci/native_arm.py'][0],
+                       'error': 'private /home/secret-log content'}
+
+    def result(self):
+        job.save(self.producer / 'result.json', self.record)
+        return subprocess.CompletedProcess(self.command, 1, b'private prior output\n' +
+                                           json.dumps(self.record, sort_keys=True).encode() + b'\n')
+
+    def acquisition(self):
+        lock = job.packet.load(self.snapshot / 'scripts/ci/inputs.lock.json', job.packet.INPUTS_SHA)
+        payloads = [lock['rootfs'], *lock['packages']]
+        rows = {item['filename']: dict(expected_sha256=item['sha256'], expected_bytes=item['size'], status='PASS')
+                for item in [*lock['keyring_files'], *payloads]}
+        rows.update({item['filename'] + '.sig': dict(expected_sha256=item['signature_sha256'],
+                    expected_bytes=item['signature_size'], status='PASS') for item in payloads})
+        return dict(schema_version=1, acquisition='PASS', signature_authentication='NOT RUN',
+                    counts={'total': len(rows), 'pass': len(rows), 'fail': 0, 'pending': 0}, inputs=rows)
+
+    def observe(self, result):
+        before = {'failure_reason': 'BOTH_CHILDREN_EXIT', 'first_failed_phase': 'parallel', 'cleanup': 'FAIL'}
+        status = dict(before)
+        job.observe_producer_failure(status, result, self.command, self.snapshot, self.producer)
+        group = status.pop('producer_failure')
+        self.assertEqual(status, before)
+        self.assertNotIn('private', json.dumps(group))
+        return group
+
+    def test_counts_closed_failure_categories_from_pinned_input_inventory(self):
+        acquired = self.acquisition()
+        rows = iter(acquired['inputs'].values())
+        for message, code in [('HTTP failure', 404), ('HTTP failure', 503), ('HTTPS transport failure', None)]:
+            next(rows).update(status='FAIL', error_type='AcquisitionError', error=message, http_status=code)
+        next(rows).update(status='FAIL', error_type='ValueError',
+                          error='transport, cache or pinned-byte validation failed')
+        acquired.update(acquisition='FAIL', counts={'total': 501, 'pass': 497, 'fail': 4, 'pending': 0})
+        job.save(self.producer / 'acquisition.json', acquired)
+        group = self.observe(self.result())
+        self.assertEqual(group['availability'], 'VERIFIED')
+        self.assertEqual(group['diagnostic']['phase'], 'ACQUISITION')
+        self.assertEqual(group['diagnostic']['counts'], {'pass': 497, 'fail': 4, 'pending': 0})
+        self.assertEqual(group['diagnostic']['failure_kinds'], dict.fromkeys(job.public.PRODUCER_FAILURE_KINDS, 1))
+
+    def test_distinguishes_missing_before_acquisition_audit_and_build(self):
+        self.assertEqual(self.observe(subprocess.CompletedProcess(self.command, 1, b''))['availability'], 'UNAVAILABLE')
+        group = self.observe(self.result())
+        self.assertEqual(group['diagnostic']['phase'], 'BEFORE_ACQUISITION')
+        self.assertIsNone(group['diagnostic']['counts'])
+        job.save(self.producer / 'acquisition.json', self.acquisition())
+        self.assertEqual(self.observe(self.result())['diagnostic']['phase'], 'INPUT_AUDIT')
+        self.record['verified_signed_packages'] = 248
+        self.assertEqual(self.observe(self.result())['diagnostic']['phase'], 'BUILD')
+
+    def test_refuses_wrong_command_result_echo_input_pin_and_tally(self):
+        result = self.result()
+        for wrong in (subprocess.CompletedProcess([*self.command, '--extra'], 1, result.stdout),
+                      subprocess.CompletedProcess(self.command, -2, result.stdout),
+                      subprocess.CompletedProcess(self.command, 1, result.stdout + b'not final\n')):
+            self.assertEqual(self.observe(wrong)['availability'], 'REFUSED')
+        for field, value in (('expected_sha256', 'a' * 64), ('status', 'PENDING'), ('expected_bytes', True)):
+            acquired = self.acquisition()
+            next(iter(acquired['inputs'].values()))[field] = value
+            job.save(self.producer / 'acquisition.json', acquired)
+            with self.subTest(field=field):
+                self.assertEqual(self.observe(result)['availability'], 'REFUSED')
+        self.record['error'] = 'changed private error'
+        job.save(self.producer / 'result.json', self.record)
+        self.assertEqual(self.observe(result)['availability'], 'REFUSED')
 
 
 if __name__ == '__main__': unittest.main()

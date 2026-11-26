@@ -1101,5 +1101,53 @@ class AcquisitionFailurePublicTests(unittest.TestCase):
             with self.assertRaises(ValueError):public.acquisition_failure_record(record)
 
 
+class ProducerFailurePublicTests(unittest.TestCase):
+    def fixture(self, first=(1, None)):
+        value = receipt()
+        value.update(schema_version=4, status='FAIL', phase='cleanup', producer='FAIL', kernel_probe='NOT RUN',
+                     baseline='NOT RUN', candidate='NOT RUN', cleanup='FAIL', native_compilation='NOT RUN',
+                     first_failed_phase='parallel', failure_reason='BOTH_CHILDREN_EXIT',
+                     producer_exit=public.exit_record(1), acquisition_exit=public.exit_record(-2),
+                     parallel_first_failure=public.parallel_failure_record(first),
+                     kernel_child=dict(availability='NOT_RUN', exit=dict(kind='NOT_RUN', code=None), diagnostics=None))
+        value['daemon_baseline'].update(producer_mutation='UNCERTAIN', owned_absence='UNVERIFIED')
+        diagnostic = dict(schema_version=1, purpose='kernel-producer-failure', phase='ACQUISITION',
+                          acquisition='FAIL', counts={'pass': 500, 'fail': 1, 'pending': 0},
+                          failure_kinds=dict.fromkeys(public.PRODUCER_FAILURE_KINDS, 0) | {'HTTP_404': 1})
+        value['producer_failure'] = dict(availability='VERIFIED', reason='OBSERVED',
+            sha256=hashlib.sha256(public.producer_failure_bytes(diagnostic)).hexdigest(), diagnostic=diagnostic)
+        return value
+
+    def test_roundtrip_preserves_failure_cleanup_and_no_native_work(self):
+        value = self.fixture()
+        for outcome in ('failure', 'success', 'cancelled'):
+            projected = public.project(encoded(value), COMMIT, PIN, outcome)
+            self.assertEqual(projected['producer_failure'], value['producer_failure'])
+            for key in ('status', 'producer', 'cleanup', 'first_failed_phase', 'failure_reason', 'native_compilation'):
+                self.assertEqual(projected[key], value[key])
+        legacy = dict(value)
+        legacy.pop('producer_failure')
+        self.assertEqual(public.project(encoded(legacy), COMMIT, PIN, 'failure'), legacy)
+
+    def test_refuses_tied_first_unauthenticated_and_grafted_details(self):
+        for first in ((1, -2), (None, -2)):
+            with self.subTest(first=first), self.assertRaises(ValueError):
+                public.project(encoded(self.fixture(first)), COMMIT, PIN, 'failure')
+        value = self.fixture()
+        value.pop('parallel_first_failure')
+        with self.assertRaises(ValueError):
+            public.project(encoded(value), COMMIT, PIN, 'failure')
+        for change in (dict(phase='/home/private'), dict(raw_error='/home/private'),
+                       dict(counts={'pass': 499, 'fail': 1, 'pending': 1}),
+                       dict(failure_kinds={'HTTP_404': True})):
+            diagnostic = self.fixture()['producer_failure']['diagnostic']
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                public.producer_failure_bytes(dict(diagnostic, **change))
+        value = self.fixture()
+        value['producer_failure']['sha256'] = 'b' * 64
+        with self.assertRaises(ValueError):
+            public.project(encoded(value), COMMIT, PIN, 'failure')
+
+
 if __name__ == '__main__':
     unittest.main()

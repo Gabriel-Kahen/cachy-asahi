@@ -95,6 +95,98 @@ def observe_acquisition_failure(status, result, nonce):
     status['acquisition_failure']=group
 
 
+def producer_input_counts(snapshot, raw):
+    inputs = packet.load(snapshot / 'scripts/ci/inputs.lock.json', packet.INPUTS_SHA)
+    signed = [inputs['rootfs'], *inputs['packages']]
+    expected = {row['filename']: (row['sha256'], row['size'])
+                for row in [*inputs['keyring_files'], *signed]}
+    expected.update({row['filename'] + '.sig': (row['signature_sha256'], row['signature_size'])
+                     for row in signed})
+    receipt = packet.decode(raw)
+    packet.need(set(receipt) == {'schema_version', 'acquisition', 'signature_authentication', 'inputs', 'counts'}
+                and type(receipt['schema_version']) is int and receipt['schema_version'] == 1
+                and receipt['signature_authentication'] == 'NOT RUN'
+                and type(receipt['inputs']) is dict and receipt['inputs'].keys() == expected.keys()
+                and len(expected) == public.PRODUCER_INPUTS, 'producer-acquisition-receipt')
+    counts = dict.fromkeys(('pass', 'fail', 'pending'), 0)
+    kinds = dict.fromkeys(public.PRODUCER_FAILURE_KINDS, 0)
+    for name, row in receipt['inputs'].items():
+        packet.need(type(row) is dict, 'producer-acquisition-input')
+        state = row['status']
+        packet.need(type(state) is str and state in {'PASS', 'FAIL', 'PENDING'}
+                    and type(row['expected_bytes']) is int
+                    and (row['expected_sha256'], row['expected_bytes']) == expected[name], 'producer-acquisition-input')
+        counts[state.lower()] += 1
+        extra = row.keys() - {'status', 'expected_sha256', 'expected_bytes'}
+        if state != 'FAIL':
+            packet.need(not extra, 'producer-acquisition-shape')
+            continue
+        kind = row['error']
+        transport = kind in ('HTTP failure', 'HTTPS transport failure')
+        packet.need(extra == ({'error', 'error_type', 'http_status'} if transport else {'error', 'error_type'})
+                    and type(row['error_type']) is str, 'producer-acquisition-shape')
+        if kind == 'HTTP failure':
+            code = row['http_status']
+            packet.need(code is None or type(code) is int and 100 <= code <= 599, 'producer-http-status')
+            kinds['HTTP_404' if code == 404 else 'HTTP_OTHER'] += 1
+        elif kind == 'HTTPS transport failure':
+            packet.need(row['http_status'] is None, 'producer-https-status')
+            kinds['HTTPS_TRANSPORT'] += 1
+        else:
+            packet.need(kind == 'transport, cache or pinned-byte validation failed', 'producer-acquisition-kind')
+            kinds['OTHER'] += 1
+    packet.need(type(receipt['counts']) is dict and all(type(value) is int for value in receipt['counts'].values())
+                and receipt['counts'] == dict(counts, total=len(expected)), 'producer-acquisition-counts')
+    return receipt['acquisition'], counts, kinds
+
+
+def producer_file(path, limit):
+    try:
+        path.lstat()
+    except FileNotFoundError:
+        return None
+    return packet.read(path, limit)
+
+
+def observe_producer_failure(status, result, command, snapshot, producer):
+    """Project observations from the exact naturally failed producer only."""
+    group = {'availability': 'UNAVAILABLE', 'reason': 'MISSING', 'sha256': None, 'diagnostic': None}
+    try:
+        packet.need(result.args == command and result.returncode == 1 and type(result.stdout) is bytes
+                    and len(result.stdout) <= runtime.MAX_OUTPUT, 'producer-failure-process')
+        raw = producer_file(producer / 'result.json', 16 * 1024)
+        if raw is not None:
+            record = packet.decode(raw)
+            expected = {'status': 'failed', 'mode': 'build', 'native_build': 'NOT RUN',
+                        'hardware_validation': 'NOT RUN', 'reviewed_inputs_sha256': packet.INPUTS_SHA,
+                        'reviewed_recipes_sha256': packet.RECIPES_SHA,
+                        'bootstrap_script_sha256': packet.HELPERS['scripts/ci/native_arm.py'][0]}
+            audited = 'verified_signed_packages' in record
+            packet.need(record.keys() == expected.keys() | {'error'} | ({'verified_signed_packages'} if audited else set())
+                        and all(record[key] == value for key, value in expected.items())
+                        and type(record['error']) is str and (not audited or
+                            type(record['verified_signed_packages']) is int and record['verified_signed_packages'] == 248),
+                        'producer-failure-result')
+            echoed = json.dumps(record, sort_keys=True).encode()
+            packet.need(result.stdout.rsplit(b'\n', 2)[-2:] == [echoed, b''],
+                        'producer-failure-echo')
+            acquisition = producer_file(producer / 'acquisition.json', 512 * 1024)
+            state, counts, kinds = ('NOT_OBSERVED', None, None) if acquisition is None else (
+                producer_input_counts(snapshot, acquisition))
+            phase = 'BEFORE_ACQUISITION' if acquisition is None else 'ACQUISITION'
+            if state == 'PASS':
+                phase = 'BUILD' if audited else 'INPUT_AUDIT'
+            packet.need(not audited or state == 'PASS', 'producer-failure-audit')
+            diagnostic = dict(schema_version=1, purpose='kernel-producer-failure', phase=phase,
+                              acquisition=state, counts=counts, failure_kinds=kinds)
+            encoded = public.producer_failure_bytes(diagnostic)
+            group = {'availability': 'VERIFIED', 'reason': 'OBSERVED',
+                     'sha256': packet.sha(encoded), 'diagnostic': diagnostic}
+    except Exception:
+        group = {'availability': 'REFUSED', 'reason': 'INVALID', 'sha256': None, 'diagnostic': None}
+    status['producer_failure'] = group
+
+
 def failure_reason(error, phase, fallback):
     # Match only exact known errors; never publish arbitrary exception text.
     message = error.args[0] if type(error) is ValueError and len(error.args) == 1 and type(error.args[0]) is str else None
@@ -714,6 +806,8 @@ def work(args, terminal, start):
             if failed[0]: status['producer'] = 'FAIL'
             reason = 'BOTH_CHILDREN_EXIT' if all(failed) else 'PRODUCER_EXIT' if failed[0] else 'ACQUISITION_EXIT'
             public.record_failure(status, 'parallel', reason)
+            if public.producer_failed_first(status):
+                observe_producer_failure(status, results[0], commands[0], snapshot, private / 'producer')
             if failed[1]: observe_acquisition_failure(status, results[1], acquisition_nonce)
         packet.need(not any(failed), 'producer-or-acquisition-failed')
         context = ('producer', 'PRODUCER_RECEIPT_REJECTED')
