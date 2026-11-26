@@ -50,7 +50,7 @@ jobs:
           ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
           EXECUTION_REF = 'refs/heads/codex/maintained-desktop-v2-retained-inputs-20261125'
           COMPOSITION = 'repository-svg-maintained-v1'
-          PACKET_SHA = '718f87c370061e40e1f18da7fe9b723d8d34822c2922e423f7fa123bd9734a74'
+          PACKET_SHA = '31e34f857344838bcabcfba328de048412d233872d7344438f128811578e0bd8'
           PACKET_PATH = 'scripts/ci/development/packet.lock.json'
           PACKET_BYTES = 94736
           INPUTS_PATH = 'scripts/ci/inputs.lock.json'
