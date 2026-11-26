@@ -139,6 +139,64 @@ evidence export.
 The separate sibling validator takes original ALPM diagnostics and stopped
 database observations from independently retired sibling clones.
 
+## Owned Q3 launch
+
+`media.py` seals one case from the unissued stage, the current installed
+selection, the exact signed package and the retired package handoff. It
+reuses the existing boot partition and result format. Each case receives
+a fresh PARTUUID, a read-only operands disk, and a writable child backed
+directly by the original Q3 raw scratch. The container, scope and result
+are owned by the existing Qt lifecycle code. PID 1 verifies the boot
+identity, selected source, present RTC and offline device roles before
+starting an installed worker.
+
+```sh
+python3 -I -B "$lane/media.py" --stage "$PRIVATE_STAGE" --plan-sha256 "$PLAN_SHA" \
+  --selection "$SELECTION" --selection-sha256 "$SELECTION_SHA" \
+  --handoff "$PACKAGE_HANDOFF" --handoff-sha256 "$PACKAGE_HANDOFF_SHA" \
+  --retirement "$PACKAGE_RETIREMENT" --retirement-sha256 "$PACKAGE_RETIREMENT_SHA" \
+  --archive "$ARCHIVE" --certificate "$CERT" --signature "$SIGNATURE" \
+  --runner "$CANONICAL_RUNNER" --boot-template "$RETIRED_BOOT" --image "$Q3_IMAGE" \
+  --format-tools "$FORMAT_TOOLS" --format-tools-sha256 "$FORMAT_TOOLS_SHA" \
+  --case main --clone "$PLAN_NONCE" --protect "$PROTECTED_PATH" --output "$CASE_MEDIA"
+```
+
+Use the exact original archive filename, the pinned Qt actor runner from
+the retired handoff, and the 1,611,661,312-byte retired full-build boot
+template with SHA-256 `951bdc40ec6d3c4735d688acda30f153a22019862bc255059b874d9c27e0a858`.
+*Tampered signature* takes a fresh clone and a distinct
+`--tampered-signature` of the same length with one detached signature
+packet. The ordinary GPG verifier must reject that signature against the
+selected public key. *Unknown key* takes another fresh clone, the original
+signature and the empty disposable keyring. For both siblings omit
+`--protect` and use distinct nonzero first eight hex digits for the clone.
+
+Independently pin a canonical authority containing kind
+`ROOT_QTBASE16K_INSTALLED_OWNER_V1`, issuer `Root`, approved `true`,
+scope `cachy-asahi-qtbase16k-installed-trial.scope`, the exact case, clone
+and `media_sha256`, and integer `created_utc` and `expires_utc`
+within a one-hour entry window. The pinned installed selection separately
+binds the signed archive, public TEST certificate, payload ownership and
+Q3 provider maps.
+
+```sh
+site=(--media "$CASE_MEDIA" --media-sha256 "$MEDIA_SHA"
+      --authority "$AUTHORITY" --authority-sha256 "$AUTHORITY_SHA")
+python3 -I -B "$lane/site.py" preflight "${site[@]}"
+systemd-run --user --scope --unit=cachy-asahi-qtbase16k-installed-trial.scope \
+  --property=KillMode=control-group --property=KillSignal=SIGTERM \
+  --property=SendSIGKILL=yes --property=TimeoutStopSec=360s \
+  python3 -I -B "$lane/site.py" run "${site[@]}"
+python3 -I -B "$lane/site.py" observe "${site[@]}" > "$LOCAL_RETIREMENT"
+python3 -I -B "$lane/readback.py" --media "$CASE_MEDIA" --media-sha256 "$MEDIA_SHA" \
+  --retirement "$LOCAL_RETIREMENT" --retirement-sha256 "$LOCAL_RETIREMENT_SHA"
+```
+
+Reopen the three case receipts with matching plan, installed selection,
+Q3 scratch and baseline database digests and three distinct clone IDs.
+The case reader reopens the natural QEMU and fsck receipts and the
+guest evidence straight from the retired result disk.
+
 ```sh
 python3 -I -B -Werror::ResourceWarning "$lane/test_worker.py"
 python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane" -p test_observer.py
