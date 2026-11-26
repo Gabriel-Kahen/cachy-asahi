@@ -21,27 +21,28 @@ only the Fish package and exercised staging, comparison and withdrawal.
   the intended maintenance composition and physical 16 KiB testing remain open.
   [Native build and lifecycle evidence](validation/project-libraries-native-20261125.md)
 - Kernel [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) passed
-  hosted intake and all four baseline build commands. The third run passed
-  all 28,857 RELA records, then stopped at symbol-range validation before the
-  candidate started. The pinned linker reproduces a valid `_end` after `.bss`
-  and the last load segment. The verifier now checks that specific Image
-  endpoint against the header and reports bounded symbol diagnostics on a
-  refusal. The fourth run passed the Image endpoint, byte projection and
-  embedded configuration checks, then refused the file geometry of an ELF
-  module section. The candidate comparison remains open.
-  [Third hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45717672590)
-  · [Fourth hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45726872408)
+  baseline compilation, Image relocation and byte projection, and embedded
+  configuration checks. The latest completed baseline build was refused at
+  module dependency verification. The verifier now matches the provider
+  basenames Kbuild actually writes. The refreshed run passed intake with
+  230 retained files and entered the build step. The candidate comparison
+  and boot remain open.
+  [Refreshed hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45766930508)
   · [Verifier and diagnostics](workstreams/kernel-native-job.md)
 - Updater 4.4.2-3 passed its native AArch64 build pair and all 15 Check and
-  refusal cases after signed installation in a disposable container. Cleanup
-  and independent recovery passed. Eight full-update source fixtures passed.
-  A real 16 KiB update transaction and target lifecycle remain open.
+  refusal cases after signed installation in a disposable container. Separate
+  emulated AArch64 guests with 16 KiB pages passed a TEST-signed upgrade and a
+  bad-signature refusal with zero commits. Independent readback and retirement
+  passed for both guests. The supported Asahi transaction, coordinated platform
+  update and boot recovery remain open.
   [Build and installed Check evidence](validation/updater-native-45715088356.md)
+  · [Emulated update and refusal](validation/updater-q3-emulated-arm16k-20261126.md)
 - The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
   identifies the exact historical build inputs still needed for Perl and Python.
 - Qtbase `all` scheduled exactly the pinned 1,216 remaining actions in a
-  disposable emulated 16 KiB guest. The separate scoped full-target trial
-  booted and is running. Installation needs qualified archives and a
+  disposable emulated 16 KiB guest. The first full-target trial reached its
+  4 GiB disk ceiling. The replacement booted with an 8 GiB ceiling.
+  Installation needs a verified full build, qualified archives and a
   TEST-signed lifecycle. [Dry run and build-only plan](../scripts/integration/qt612_full_16k_preflight/README.md)
 - The virtual desktop successor requires a terminal event after guest
   cleanup, bounded UART EOF, and outer-reader verification before accepting

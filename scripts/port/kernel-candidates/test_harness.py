@@ -173,7 +173,8 @@ class HarnessTests(unittest.TestCase):
                 row = tarfile.TarInfo(name); row.type = tarfile.SYMTYPE; row.linkname = target; stream.addfile(row)
         self.refresh(); args = self.args('baseline'); args.full_source = True
         with patch.object(harness.shutil, 'disk_usage', return_value=SimpleNamespace(free=4 * 1024**3)):
-            with self.assertRaises(ValueError): harness.run(args)
+            with self.assertRaises((ValueError, tarfile.FilterError)):
+                harness.run(args)
         self.assertEqual(json.loads((args.output / 'result.json').read_text())['status'], 'FAIL')
         self.assertFalse((args.output / 'source-tree/linux-test/escape').is_symlink())
 

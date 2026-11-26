@@ -137,6 +137,13 @@ jobs:
           PY
           bash -n scripts/build/container-entry.sh
           bash -n scripts/build/container-entry-v2.sh
+      - name: Check kernel build, output verifier and native job fixtures
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        run: |
+          # Some source-fixture cases need retained private input and report a skip here.
+          for suite in kernel-candidates kernel-native-stage kernel-native-job; do
+            /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s "scripts/port/$suite" -p 'test_*.py'
+          done
       - uses: ./.github/actions/apps-package-source
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         id: apps7-source
