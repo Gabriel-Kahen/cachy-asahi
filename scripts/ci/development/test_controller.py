@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 from types import ModuleType, SimpleNamespace
@@ -10,6 +11,32 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import controller
 from common import save
+
+
+class DirectEntryTests(unittest.TestCase):
+    def test_direct_entry_exposes_canonical_builtins_before_main(self):
+        script = """
+import builtins
+from pathlib import Path
+import sys
+
+__file__ = sys.argv[1]
+assert __builtins__ is builtins
+sys.path.insert(0, str(Path(__file__).parent))
+
+def stop_before_main(frame, event, _):
+    if event == 'call' and frame.f_code.co_name == 'main' and frame.f_code.co_filename == __file__:
+        assert frame.f_globals['__builtins__'] is vars(builtins)
+        assert frame.f_builtins is vars(builtins)
+        raise SystemExit(0)
+
+sys.settrace(stop_before_main)
+exec(compile(Path(__file__).read_bytes(), __file__, 'exec'))
+raise AssertionError('controller entry did not call main')
+"""
+        result = subprocess.run([sys.executable, '-E', '-s', '-B', '-c', script, controller.__file__],
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
 
 
 class ControllerTests(unittest.TestCase):
