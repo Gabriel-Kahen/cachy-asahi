@@ -49,7 +49,8 @@ only the Fish package and exercised staging, comparison and withdrawal.
   repository launch still pinned the previous script, and 18 QEMU tooling inputs
   returned HTTP 404. The existing public carrier matches all 45 tooling pins.
   [Successor admission](workstreams/virtual-desktop-completion-v2-admission.md)
-  · [Corrected hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45728195500)
+  · [Installed lifecycle run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45728195500)
+  · [Repository and tooling retry](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45731218357)
 - Stable overlay promotion requires a supported Asahi composition, production
   signing custody and repository hosting, and installation and recovery records
   for both [13-inch](validation/m2-air-13.md) and [15-inch](validation/m2-air-15.md)

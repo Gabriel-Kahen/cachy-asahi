@@ -105,4 +105,13 @@ previous runner hash. The separate virtual tooling request received 18 HTTP
 404s. The [public tooling carrier](https://github.com/Gabriel-Kahen/cachy-asahi/tree/9edb7b992419754a6b9b42b85a59a4f5690451c7/tooling-inputs)
 returned all 45 exact objects, and all 21 detached signatures verified against
 the pinned ALARM key. QEMU and both physical M2 Air records remain `NOT RUN`.
-[Corrected hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45728195500)
+[Installed lifecycle run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45728195500)
+
+Source `a902e45a24d09393c0c8f8426d1fcb3ab1f8d9fc` rebinds both repository
+worker pins. It uses the retained carrier only for the exact 18 inputs that
+returned 404, with the same size, digest and signature checks. The ARM C01
+source acquisition uses the upstream fossil URL and handles HTTP response EOF
+under its existing deadline. The live download matched the 1,502,830-byte
+archive and its pinned SHA-256. The latest trial uses separately verified
+Source, Code and Data bindings.
+[Repository and tooling retry](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45731218357)
