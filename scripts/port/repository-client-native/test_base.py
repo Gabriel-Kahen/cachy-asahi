@@ -43,17 +43,38 @@ class BaseParserTests(unittest.TestCase):
         self.assertEqual(len(result['local_records']), 682)
 
     def test_relations_and_symlink_ownership_retained(self):
-        self.records[self.first]['desc'] += b'%DEPENDS%\nbase-001>=1-1\nlibfoo.so=2-64\n\n%PROVIDES%\nvirtual-base=1\n\n%CONFLICTS%\nold-base\n\n'
+        self.records[self.first]['desc'] += (b'%DEPENDS%\nbase-001>=1-1\nlibEGL.so=1-64\n\n'
+                                             b'%PROVIDES%\nlibLLVM.so=22.1-64\n\n%CONFLICTS%\nWIREGUARD-MODULE\n\n')
         self.records[self.first]['files'] += b'%BACKUP%\nusr/bin/base-000\t0123456789abcdef0123456789abcdef\n\n'
         row = base.parse_local(self.records, self.lock)['packages'][0]
-        self.assertEqual(row['depend'], ['base-001>=1-1', 'libfoo.so=2-64'])
+        self.assertEqual(row['depend'], ['base-001>=1-1', 'libEGL.so=1-64'])
         self.assertIn('usr/bin/base-000', row['files'])  # Metadata does not dereference symlink payloads.
-        self.assertEqual(row['provides'], ['virtual-base=1'])
+        self.assertEqual(row['provides'], ['libLLVM.so=22.1-64'])
+        self.assertEqual(row['conflict'], ['WIREGUARD-MODULE'])
 
     def test_any_arch_and_empty_files_allowed(self):
         self.records[self.first]['desc'] = self.records[self.first]['desc'].replace(b'aarch64', b'any')
         self.records[self.first]['files'] = b'%FILES%\n\n'
         self.assertEqual(base.parse_local(self.records, self.lock)['packages'][0]['files'], [])
+
+    def test_zero_byte_alpm_files_record_matches_query_omission(self):
+        self.records[self.first]['files'] = b''
+        result = base.parse_local(self.records, self.lock)
+        self.assertEqual(result['packages'][0]['files'], [])
+        self.assertEqual(result['local_records'][self.first + '/files'],
+                         {'sha256': base.digest(b''), 'bytes': 0})
+        listing = ''.join(f'base-{i:03d} /{path}\n' for i in range(1, 341)
+                          for path in ('usr/', 'usr/bin/', f'usr/bin/base-{i:03d}')).encode()
+        base.validate_queries(result, self.records, self.lock, listing)
+        for extra in (b'base-000 (no files)\n', b'base-000 /usr/bin/unowned\n'):
+            with self.subTest(extra=extra), self.assertRaisesRegex(base.Refused, 'pacman -Ql differs'):
+                base.validate_queries(result, self.records, self.lock, listing + extra)
+
+    def test_nonempty_files_record_requires_files_section(self):
+        for raw in (b'\n', b'%BACKUP%\n\n'):
+            with self.subTest(raw=raw), self.assertRaisesRegex(base.Refused, 'missing FILES section'):
+                self.records[self.first]['files'] = raw
+                base.parse_local(self.records, self.lock)
 
     def test_wrong_package_count(self):
         for change in ('missing', 'extra'):
@@ -99,6 +120,31 @@ class BaseParserTests(unittest.TestCase):
                 self.records[self.first]['files'] = ('%FILES%\n' + path + '\n\n').encode()
                 with self.assertRaises(base.Refused):
                     base.parse_local(self.records, self.lock)
+
+    def test_literal_systemd_unit_paths_require_exact_file_and_owner(self):
+        paths = [r'usr/lib/systemd/system/system-systemd\x2dcryptsetup.slice',
+                 r'usr/lib/systemd/system/system-systemd\x2dmute\x2dconsole.slice',
+                 r'usr/lib/systemd/system/system-systemd\x2dveritysetup.slice']
+        systemd = self.records.pop(self.first)
+        self.records['systemd-1-1'] = systemd
+        lock = self.lock.split(b'\n', 1)[1] + b'systemd 1-1\n'
+        systemd['desc'] = systemd['desc'].replace(b'base-000', b'systemd')
+        systemd['files'] = ('%FILES%\n' + '\n'.join(paths) + '\n\n').encode()
+        result = base.parse_local(self.records, lock)
+        self.assertEqual(result['packages'][-1]['files'], paths)
+        listing = ''.join(f'base-{i:03d} /{path}\n' for i in range(1, 341)
+                          for path in ('usr/', 'usr/bin/', f'usr/bin/base-{i:03d}'))
+        listing += ''.join(f'systemd /{path}\n' for path in paths)
+        base.validate_queries(result, self.records, lock, listing.encode())
+        with self.assertRaisesRegex(base.Refused, 'pacman -Ql differs'):
+            base.validate_queries(result, self.records, lock, listing.replace(r'\x2d', '-').encode())
+        for path, owner in ((paths[0], 'base-001'), (paths[1] + '/', 'systemd'),
+                            (paths[2].replace('veritysetup', 'other'), 'systemd')):
+            with self.subTest(path=path, owner=owner), self.assertRaisesRegex(base.Refused, 'unsafe file ownership path'):
+                base.canonical_file(path, owner)
+        systemd['files'] += f'%BACKUP%\n{paths[0]}\t{"0" * 32}\n\n'.encode()
+        with self.assertRaisesRegex(base.Refused, 'unsafe file ownership path'):
+            base.parse_local(self.records, lock)
 
     def test_duplicate_file_ownership_and_bad_backup(self):
         self.records['base-001-1-1']['files'] = self.records[self.first]['files']

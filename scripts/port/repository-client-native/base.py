@@ -26,7 +26,13 @@ RECORD_LIMIT = 4 * 1024**2
 TOTAL_LIMIT = 64 * 1024**2
 COMMAND_LIMIT = 16 * 1024**2
 NAME = r'[a-z0-9][a-z0-9@._+-]{0,127}'
+RELATION_NAME = r'[A-Za-z0-9][A-Za-z0-9@._+-]{0,127}'
 VERSION = r'[A-Za-z0-9][A-Za-z0-9._+:~-]{0,255}'
+SYSTEMD_UNIT_PATHS = frozenset({
+    r'usr/lib/systemd/system/system-systemd\x2dcryptsetup.slice',
+    r'usr/lib/systemd/system/system-systemd\x2dmute\x2dconsole.slice',
+    r'usr/lib/systemd/system/system-systemd\x2dveritysetup.slice',
+})
 DESC_FIELDS = {'NAME', 'VERSION', 'BASE', 'DESC', 'URL', 'ARCH', 'BUILDDATE', 'INSTALLDATE', 'PACKAGER',
                'SIZE', 'ISIZE', 'REASON', 'VALIDATION', 'LICENSE', 'GROUPS', 'DEPENDS', 'OPTDEPENDS',
                'PROVIDES', 'CONFLICTS', 'REPLACES', 'XDATA'}
@@ -79,6 +85,14 @@ def sections(raw, allowed):
     return result
 
 
+def file_sections(raw):
+    files = sections(raw, {'FILES', 'BACKUP'})
+    # ALPM writes a zero-byte files record for a package with no owned entries.
+    need('FILES' in files or raw == b'', 'missing FILES section')
+    files.setdefault('FILES', [])
+    return files
+
+
 def inventory(raw):
     rows = text(raw, 256 * 1024).splitlines(keepends=True)
     need(len(rows) == COUNT and rows == sorted(rows), 'exact sorted 341-package lock required')
@@ -91,8 +105,10 @@ def inventory(raw):
     return result
 
 
-def canonical_file(value):
-    need(isinstance(value, str) and value and len(value.encode()) <= 4096 and '\\' not in value
+def canonical_file(value, owner=None):
+    # These packaged unit filenames contain literal systemd escapes in ALPM.
+    need(isinstance(value, str) and value and len(value.encode()) <= 4096
+         and ('\\' not in value or (owner == 'systemd' and value in SYSTEMD_UNIT_PATHS))
          and not any(ord(c) < 32 or ord(c) == 127 for c in value), 'unsafe file ownership path')
     directory = value.endswith('/')
     item = value[:-1] if directory else value
@@ -124,11 +140,10 @@ def parse_local(records, lock):
              and name not in names, 'local package/lock mismatch')
         need(arch in {'aarch64', 'any'}, 'non-ARM base architecture')
         names.add(name)
-        files = sections(record['files'], {'FILES', 'BACKUP'})
-        need('FILES' in files, 'missing FILES section')
+        files = file_sections(record['files'])
         paths = []
         for value in files['FILES']:
-            item, directory = canonical_file(value)
+            item, directory = canonical_file(value, name)
             if not directory:
                 need(item not in owners, 'duplicate base file ownership')
                 owners[item] = name
@@ -141,7 +156,7 @@ def parse_local(records, lock):
         row = {'name': name, 'version': version, 'arch': arch, 'files': sorted(paths)}
         for section, field in (('DEPENDS', 'depend'), ('PROVIDES', 'provides'), ('CONFLICTS', 'conflict')):
             values = desc.get(section, [])
-            need(all(re.fullmatch(NAME + r'(?:(?:<=|>=|=|<|>)' + VERSION + ')?', value) for value in values),
+            need(all(re.fullmatch(RELATION_NAME + r'(?:(?:<=|>=|=|<|>)' + VERSION + ')?', value) for value in values),
                  'invalid package relation')
             row[field] = sorted(values)
         packages.append(row)
@@ -248,8 +263,8 @@ def validate_queries(base, records, query, listing):
     expected_paths = set()
     for dirname, record in records.items():
         name = sections(record['desc'], DESC_FIELDS)['NAME'][0]
-        for path in sections(record['files'], {'FILES', 'BACKUP'})['FILES']:
-            canonical_file(path)
+        for path in file_sections(record['files'])['FILES']:
+            canonical_file(path, name)
             expected_paths.add(name + ' /' + path)
     actual = text(listing, COMMAND_LIMIT).splitlines()
     need(len(actual) == len(set(actual)) and set(actual) == expected_paths, 'pacman -Ql differs from exact local FILES')
