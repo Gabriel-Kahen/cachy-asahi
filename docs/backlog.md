@@ -26,25 +26,29 @@ only the Fish package and exercised staging, comparison and withdrawal.
   candidate started. The pinned linker reproduces a valid `_end` after `.bss`
   and the last load segment. The verifier now checks that specific Image
   endpoint against the header and reports bounded symbol diagnostics on a
-  refusal. The native comparison remains open.
+  refusal. The fourth hosted run has passed intake and entered the build step.
   [Third hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45717672590)
+  · [Fourth hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45726872408)
   · [Verifier and diagnostics](workstreams/kernel-native-job.md)
 - Updater 4.4.2-3 passed its native AArch64 build pair and all 15 Check and
   refusal cases after signed installation in a disposable container. Cleanup
-  and independent recovery passed. The full update transaction, 16 KiB
-  execution and target lifecycle remain open.
+  and independent recovery passed. Eight full-update source fixtures passed.
+  A real 16 KiB update transaction and target lifecycle remain open.
   [Build and installed Check evidence](validation/updater-native-45715088356.md)
 - The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
   identifies the exact historical build inputs still needed for Perl and Python.
 - Qtbase `all` scheduled exactly the pinned 1,216 remaining actions in a
-  disposable emulated 16 KiB guest. A full build needs a fresh scoped runner
-  grant. Installation needs separately qualified archives and a TEST-signed
-  lifecycle. [Dry run and build-only plan](../scripts/integration/qt612_full_16k_preflight/README.md)
+  disposable emulated 16 KiB guest. The separate scoped full-target trial
+  booted and is running. Installation needs qualified archives and a
+  TEST-signed lifecycle. [Dry run and build-only plan](../scripts/integration/qt612_full_16k_preflight/README.md)
 - The virtual desktop successor requires a terminal event after guest
   cleanup, bounded UART EOF, and outer-reader verification before accepting
-  frames. Its exact source selection passed local checks. A fresh execution
-  grant and retained inputs are required for a QEMU desktop run.
+  frames. One retained-input run authenticated all 501 inputs and produced
+  four matching native build pairs, then stopped before QEMU. An independently
+  reviewed correction passed exact replay of all eight archives and is running
+  in the next hosted trial.
   [Successor admission](workstreams/virtual-desktop-completion-v2-admission.md)
+  · [Corrected hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45728195500)
 - Stable overlay promotion requires a supported Asahi composition, production
   signing custody and repository hosting, and installation and recovery records
   for both [13-inch](validation/m2-air-13.md) and [15-inch](validation/m2-air-15.md)

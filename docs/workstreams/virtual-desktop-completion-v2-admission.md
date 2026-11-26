@@ -82,5 +82,23 @@ preparation free space of twice the staged allocation plus 1 GiB. At the
 allowed staged ceiling this is just under 13 GiB free, in addition to the
 storage already used by the builder and cache.
 
-This preflight supplies source and fixture evidence. Live generic QEMU execution
-for the successor and both physical M2 Air records are `NOT RUN`.
+## Hosted execution
+
+The first hosted run stopped at 206 input download failures. The retained
+retry staged 496 objects, authenticated all 501 inputs and verified 249
+signatures. Eight native builds produced four byte-identical pairs. The
+lifecycle and repository checks refused the reviewed screenshot helper at
+separate boundaries, and the direct CPython entry refused the controller's
+builtins namespace before the native callback. The job stopped before QEMU.
+[First hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45715540986)
+· [Retained-input run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45724826905)
+
+The next Source, `ab4923911f7828978c0caefb06a316ac72440d82`, admits the exact
+reviewed helper and TEST upgrade, checks the helper's executable mode, and
+normalizes CPython's canonical builtins at the direct entry. The exact replay
+verified all eight native archives and 38 payload digests. Independent review
+rehashes the 261 packet rows and 161 initial source rows. Both pinned parsers
+accepted the separately sealed Data with the exact Code, Source and carrier.
+Live QEMU evidence for this successor is pending. Both physical M2 Air records
+remain `NOT RUN`.
+[Corrected hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45728195500)
