@@ -226,9 +226,9 @@ historical_native_build_version = "4.4.2-2"
 historical_native_build = "PASS native build pair, signed disposable installation and seven Check/refusal cases"
 historical_native_build_commit = "480053c0866a922138d85af2b9880fb0e10d7b2c"
 historical_native_evidence = "docs/validation/updater-real-check-native-20261015.md"
-installation = "PASS signed disposable native AArch64 installation and all 15 installed Check and refusal cases."
+installation = "PASS signed disposable native AArch64 installation and 15 installed Check/refusal cases. The configured upgrade and separate package-signature refusal passed on emulated AArch64 with 16 KiB pages."
 hardware_validation = "NOT RUN"
-next_step = "Exercise the full update transaction, coordinated Apple updates, 16 KiB execution and target lifecycle. Complete release notices before selection."
+next_step = "Exercise the coordinated Apple update and recovery lifecycle on the supported Asahi composition and both M2 Air sizes. Complete release notices before selection."
 
 [[packages]]
 name = "cachy-asahi-fdk-aac"

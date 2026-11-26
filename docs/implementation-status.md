@@ -11,6 +11,13 @@ readback with the corrected ELF reader. It linked QtGui and QtDBus in the
 pinned 356-package emulated AArch64 16 KiB guest and preserved QtCore. Full Qt
 build and installation remain open. [QtGui evidence](validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
 
+**November 26, 2026.** Updater 4.4.2-3 passed a configured TEST-signed
+upgrade and a separate package-signature refusal on emulated AArch64 with
+16 KiB pages. The refusal committed zero changes. Both guests passed
+independent readback and retirement. The supported Asahi transaction and
+physical M2 checks remain open.
+[Updater validation](validation/updater-q3-emulated-arm16k-20261126.md)
+
 Track current engineering follow-ups in
 [GitHub Issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues).
 The [historical execution log](backlog.md) records earlier decisions and

@@ -1,11 +1,11 @@
 # Configured updater 4.4.2-3 preflight
 
-Run 45715088356 qualified the native package and installed Check. The next
-entry is the installed `arch-update` with no arguments. The repository has
-measured 16 KiB signed ALPM trials and a native installed Check result.
-The exact combination of the qualified installed CLI, a signed generic
-update, and Apple-policy refusals in a 16 KiB guest remains open.
+Run 45715088356 qualified the native package and installed Check. On
+November 26 the installed `arch-update` with no arguments passed a
+TEST-signed generic upgrade, two Apple-policy refusals, and a separate
+package-signature refusal in emulated AArch64 guests with 16 KiB pages.
 [Installed Check evidence](../../../docs/validation/updater-native-45715088356.md)
+· [Signed upgrade and refusal](../../../docs/validation/updater-q3-emulated-arm16k-20261126.md)
 
 ## Source fixture
 
@@ -281,21 +281,18 @@ cleanup and recovery. Issue its disposable TEST signature separately
 against the unchanged bytes. The existing public evidence path remains
 the run's receipt channel. [Native pair adapter](../../../packages/tools/cachy-asahi-update/updater-native.py) · [Stage cleanup](../../port/updater-native-stage/stage.py)
 
-The existing private `Gabriel-Kahen/cachy-asahi-ci-inputs` repository is the
-custody destination. Its Actions service is enabled. A private artifact
-handoff still needs an independently reviewed workflow and a non-root
-native ARM runner with local ARM Docker. The qualified public workflow
-can execute only in its public source repository. The existing private
-deploy key provides read-only input access. The private workflow can use
-an explicitly scoped same-repository input selection and short-lived
-artifact storage, subject to admission.
+Private run 45758151376 used the independently reviewed non-root
+AArch64 runner and same-repository input selection in
+`Gabriel-Kahen/cachy-asahi-ci-inputs`. Capacity measured two CPUs,
+8,290,078,720 bytes of memory and 34,637,348,864 bytes of shared free
+space. Both native archives matched the required SHA-256. Independent
+recovery and retirement passed, and one exact archive was verified in
+private custody.
 
 Bind source `96a3848c4c4e7d88a2ac979d27066f99b150315a`, the 354-package
 lock SHA-256
 `5c72ffef2fadecc631861ef12ab7f48e083694a402d0428a395da64fa592dcee`, and
 the same 527 authenticated inputs. The four immutable private carriers
-provide 224 of those inputs. The unchanged stage additionally requires
-18 GiB free on a shared filesystem or 10 GiB free on each of separate
-output and Docker filesystems. Actual runner capacity remains unverified.
-GitHub lists 14 GB of storage for the standard private ARM runner.
-[Frozen carriers](../../port/updater-native-stage/retained-inputs.json) · [Private runner specifications](https://docs.github.com/en/actions/reference/runners/github-hosted-runners#standard-runners-for-private-repositories)
+provide 224 of those inputs. The stage requires 18 GiB free on a shared
+filesystem or 10 GiB free on each of separate output and Docker filesystems.
+[Frozen carriers](../../port/updater-native-stage/retained-inputs.json)
