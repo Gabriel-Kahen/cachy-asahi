@@ -71,30 +71,38 @@ The command checks all 417 r12 lengths and hashes, all 207 ALARM signatures,
 the signed rootfs layout, the six codec files and three codec signatures,
 and the independently pinned 206- and 210-package locks. It materializes
 the recipes twice and compares the exact 27-file set and both recipe hash
-maps. The optional export contains only the 14 package bodies whose pinned
-primary URLs returned 404 in the November 25 recheck. It is a flat private
-directory keyed by the original basenames. It totals 107,101,116 bytes.
+maps. The optional export contains the 15 package bodies whose pinned primary
+URLs failed in the November 25–26 checks. It is a flat private directory
+keyed by the original basenames. It totals 107,537,648 bytes.
 The largest member is 69,887,600 bytes. An uncompressed archive of the whole export exceeds
 GitHub's 100 MiB Git limit, as does the 829,367,415-byte rootfs
 fetched from its public origin.
 
 ## Publish the private carrier
 
-The local carrier is a parentless SHA-1 Git commit with 14 regular
+The current local carrier is a parentless SHA-1 Git commit with 15 regular
 `100644` blobs under `alarm-cache/`, each at its original basename.
 Its only intended destination is the private
 `Gabriel-Kahen/cachy-asahi-ci-inputs` repository.
 
 | Ref | Commit | Tree |
 | --- | --- | --- |
-| `refs/heads/native622-r1` | `c6ed50287db7e7d743111d76e9f0c35179c90b7f` | `203b14cc4d8afc806c97b10f53518b6b3b5c8659` |
+| `refs/heads/native622-r2` | `8532184d4d6b3a0d8d3b12289fae1e19e270938e` | `70b65df54a630428e86adab3bf9faf26054fce79` |
+
+The second carrier retains the original fourteen bodies and adds the exact
+`zstd 1.5.7-3` archive. The repaired legacy checkout reached acquisition on
+November 26 and the original mirror returned HTTP 404 for that archive.
+The local retained body and a public mirror download matched the existing
+r12 length and SHA-256. The unchanged r12 profile supplies the already
+pinned detached signature.
+[Hosted acquisition failure](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45884676311)
 
 Use a publish credential to create that branch. The runner uses the existing
 read-only deploy key. It pins GitHub's Ed25519 host key, the deploy-key
 fingerprint, ref, commit, tree, file modes, sizes, and per-file SHA-256s.
 Only the dedicated SSH step receives `CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY`.
 The step removes its identity file before materialization and retires the
-temporary Git store before returning. The build step rechecks the 14 files as
+temporary Git store before returning. The build step rechecks all 15 files as
 part of full r12 authentication and uses the original pinned public routes
 and r12 signature seed for the rest. A failed fetch or pin mismatch holds
 the lane.

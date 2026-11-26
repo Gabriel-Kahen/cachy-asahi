@@ -182,6 +182,21 @@ The project recipe disables Vulkan. The R132 replacement remains **HOLD**
 with both the dependency and ELF blockers. No replacement or restoration
 transaction ran. The Q3 installed result above retains its original scope.
 
+The retained ALARM recipe's Qt patch `032643f99e090e0304ef935c2ee11c109d55c8a1`
+applied to the nine affected Qt 6.12.0 source paths. The patched Markdown
+importer compiled to an x86_64 object with the exact official Qt headers and
+the header from signed R132 `md4c 0.6.0-2`. The unpatched source compiled
+against 0.5.3 and stopped at the dialect assertion against 0.6.
+The archived official Qt build lists Vulkan headers
+`1:1.4.363.0-1`. The verified ALARM archive has SHA-256
+`a9a8b1226aad787e8a3931da08cadc6b459d6efa73f86cc585de20aae1e45dab`.
+Those headers and official Qt 6.12 headers also compiled an x86_64 consumer
+object retaining the six affected Qt Quick imports. The probe receipt SHA-256
+is `7b105dcb1da34196eb471e8a4a53340d7a2b8b904410af20dcd27fa48cf5b351`.
+This prepares the source and header inputs for a distinct successor recipe.
+The ARM16K rebuild, generated provider exports and signed migration still
+need evidence. [ALARM Vulkan headers](https://archlinuxarm.org/packages/aarch64/vulkan-headers)
+
 ## Guest supervisor callbacks
 
 `worker.py` rederives the selected preflight plan before invoking any

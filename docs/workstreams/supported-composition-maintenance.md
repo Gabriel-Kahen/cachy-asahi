@@ -236,6 +236,8 @@ The retained R132 Asahi Minimal seed was rehashed from its compressed copy.
 The historical generic control disk path was absent at readback. A generic
 16 KiB guest trial also needs the exact control disk or a separately reviewed
 replacement. This setup exercises the filesystem transaction and recovery.
+[Historical control disk pin](../validation/arm16k-warm-second-boot-observation-20261116.md)
+
 The installed stock Asahi kernel lacks the selected PL011 console and the
 original initramfs lacks the VirtIO modules used by the R132 QEMU boot path.
 Boot of the installed kernel and physical M2 recovery remain open.

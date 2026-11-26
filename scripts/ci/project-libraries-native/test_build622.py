@@ -32,6 +32,15 @@ class IntakeTests(unittest.TestCase):
             )), self.assertRaisesRegex(ValueError, "exact clean #622 candidate tree"):
                 inputs622.bind_candidate()
 
+    def test_legacy_zstd_body_is_carried_and_uses_the_locked_signature(self):
+        name = "zstd-1.5.7-3-aarch64.pkg.tar.xz"
+        pins = inputs622.retained_pins()
+        self.assertEqual(pins[name], {
+            "bytes": 436532,
+            "sha256": "c3b907c36049b338bda0c6d85260251e48d17e2be6c0e11ddc0dfd4cf9d2e89a",
+        })
+        self.assertNotIn(name + ".sig", pins)
+
     def test_wrong_cache_bytes_refuse_without_any_endpoint_or_public_fallback(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

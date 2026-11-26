@@ -19,7 +19,7 @@ CANDIDATE_TREE = "8cf292a311f6abccbb6de51963fd4751b13bcd5c"
 # 6835cdf1 changed only the guide inside the qualified recipe tree.
 CANDIDATE_TREES = frozenset((CANDIDATE_TREE, "441815470dc9434c9b4f314f57cb2521f19e9520"))
 PROJECT = ROOT / "scripts/build/project-libraries"
-# Exact bodies whose pinned primary routes returned 404 on 2026-11-25.
+# Exact bodies whose pinned primary routes failed on November 25–26, 2026.
 # Every size and digest comes from the r12 lock, including the kernel body.
 RETAINED = frozenset({
     "ca-certificates-mozilla-3.133-1-aarch64.pkg.tar.xz",
@@ -36,6 +36,7 @@ RETAINED = frozenset({
     "linux-aarch64-7.3.4-3-aarch64.pkg.tar.xz",
     "pacman-mirrorlist-20260411-2-any.pkg.tar.xz",
     "tpm2-tss-4.2.1-2-aarch64.pkg.tar.xz",
+    "zstd-1.5.7-3-aarch64.pkg.tar.xz",
 })
 EXTENSION_PIN = "f95032f8c8ffaec5a16ba372952328eaaab97a87d3535504bffcf541716ce4d1"
 PRODUCER_FILES = (
@@ -192,7 +193,7 @@ def prepare_inputs(args, scratch, report):
                  {"bytes": row["size"], "sha256": row["sha256"], "url": row["url"]} for row in objects}
     require(len(base_pins) == 211 and RETAINED <= base_pins.keys(), "r12 body/key namespace")
     # A full local cache supplies every byte. A hosted run selects only the
-    # 14 already staged private objects before authenticating the same lock.
+    # The exact staged private objects are checked against the same lock.
     if args.minimal_cache:
         for item in inputs["packages"]:
             signature = native.signature_item(item)
