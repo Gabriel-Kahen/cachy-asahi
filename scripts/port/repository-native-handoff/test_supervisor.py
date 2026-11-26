@@ -23,14 +23,14 @@ class SupervisorTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(prefix='local-role-supervisor-');self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
 
-    def setup_role(self, body, **limits):
+    def setup_role(self, body, *, role='bind-metadata', **limits):
         source = ('import os, signal, socket, sys, time\nfrom pathlib import Path\n'
                   'def callback():\n'+''.join('    '+line+'\n' for line in body.splitlines())).encode()
         path = self.root/'trusted_local_callback.py';path.write_bytes(source)
         module = types.ModuleType('captured_local_test');module.__file__ = str(path)
         exec(compile(source,str(path),'exec'),module.__dict__)
         grant = {'module':module.__name__,'source_file':str(path),'source_sha256':hashlib.sha256(source).hexdigest()}
-        actor = supervisor.RoleSupervisor({'bind-metadata':grant},deadline=time.monotonic()+4,cleanup_seconds=limits.pop("cleanup_seconds",.3),**limits)
+        actor = supervisor.RoleSupervisor({role:grant},deadline=time.monotonic()+4,cleanup_seconds=limits.pop("cleanup_seconds",.3),**limits)
         return actor,module.callback
 
     def test_actual_json_and_bytes_result_with_separate_stdout_stderr(self):
@@ -210,6 +210,84 @@ class SupervisorTests(unittest.TestCase):
                 with self.assertRaises(supervisor.Refused) as caught:actor('bind-metadata',callback,deadline=time.monotonic()+2)
                 self.assertEqual(caught.exception.receipt['status'],'FAIL')
                 self.assertEqual(caught.exception.receipt['cleanup']['status'],'PASS')
+                self.assertNotIn('child_error',caught.exception.receipt)
+
+    def test_baseline_callback_error_keeps_original_refusal_and_fixed_category(self):
+        for role,exception,kind in (
+                ('collect-base','FileNotFoundError','OS_ERROR'),
+                ('receive-base','ValueError','VALUE_ERROR'),
+                ('consume-provenance','TypeError','TYPE_ERROR'),
+                ('collect-base','RuntimeError','OTHER')):
+            with self.subTest(role=role,exception=exception):
+                actor,callback = self.setup_role(f'raise {exception}("private cause")',role=role)
+                with self.assertRaisesRegex(supervisor.Refused,'^role-natural-exit-required$') as caught:
+                    actor(role,callback,deadline=time.monotonic()+2)
+                receipt = caught.exception.receipt
+                self.assertIs(receipt,actor.receipts[-1])
+                self.assertEqual(receipt['status'],'FAIL')
+                self.assertEqual(receipt['natural_exit'],{'code':os.CLD_EXITED,'status':1})
+                self.assertEqual(receipt['cleanup'],{'status':'PASS','group_absent':True,'reaped':True})
+                self.assertEqual(receipt['child_error'],kind)
+                self.assertNotIn('private cause',repr(receipt))
+
+    def test_baseline_wrong_exit_malformed_or_unbounded_failure_does_not_get_category(self):
+        role = 'collect-base'
+        for body,limits in (('os._exit(1)',{}),('os._exit(2)',{}),('os.kill(os.getpid(),signal.SIGTERM)',{}),
+                            ('raise KeyboardInterrupt("local interrupt")',{}),('raise SystemExit(1)',{}),
+                            ('return 1.5',{}),('raise RuntimeError("too small")',{'result_limit':8})):
+            with self.subTest(body=body):
+                actor,callback = self.setup_role(body,role=role,**limits)
+                with self.assertRaisesRegex(supervisor.Refused,'^role-natural-exit-required$') as caught:
+                    actor(role,callback,deadline=time.monotonic()+2)
+                self.assertNotIn('child_error',caught.exception.receipt)
+        actual = supervisor.write
+        for frame in (b'{"status":"FAIL","error":"OTHER"}',
+                      b'{"error":"OTHER","status":"FAIL"}\n', b'{"error":"PRIVATE","status":"FAIL"}',
+                      b'{"status":"PASS","value":["scalar",null]}', b'x'*256):
+            with self.subTest(frame=frame):
+                def replace_result(fd,raw):
+                    return actual(fd,frame if raw in supervisor.BASELINE_FAILURE_FRAMES else raw)
+                actor,callback = self.setup_role('raise RuntimeError("from callback")',role=role)
+                with mock.patch.object(supervisor,'write',side_effect=replace_result), \
+                     self.assertRaisesRegex(supervisor.Refused,'^role-natural-exit-required$') as caught:
+                    actor(role,callback,deadline=time.monotonic()+2)
+                self.assertNotIn('child_error',caught.exception.receipt)
+
+    def test_baseline_callback_error_does_not_survive_failed_cleanup_or_source_drift(self):
+        role = 'receive-base'
+        actor,callback = self.setup_role('Path(__file__).chmod(0o755)\nraise ValueError("private")',role=role)
+        with self.assertRaisesRegex(supervisor.Refused,'^role-natural-exit-required$') as caught:
+            actor(role,callback,deadline=time.monotonic()+2)
+        self.assertEqual(caught.exception.receipt['cleanup']['status'],'PASS')
+        self.assertNotIn('child_error',caught.exception.receipt)
+
+        actor,callback = self.setup_role('raise ValueError("private")',role=role)
+        actual = os.killpg
+        def fail_group_check(pid,number):
+            if number == 0:raise OSError('local check failed')
+            return actual(pid,number)
+        with mock.patch.object(os,'killpg',side_effect=fail_group_check), \
+             self.assertRaisesRegex(supervisor.Refused,'^role-natural-exit-required$') as caught:
+            actor(role,callback,deadline=time.monotonic()+2)
+        self.assertEqual(caught.exception.receipt['cleanup']['status'],'FAIL')
+        self.assertNotIn('child_error',caught.exception.receipt)
+
+    def test_baseline_callback_error_does_not_survive_late_parent_signal(self):
+        role = 'consume-provenance'
+        actor,callback = self.setup_role('raise TypeError("private")',role=role)
+        actual,events = signal.signal,[]
+        originals = {number:signal.getsignal(number) for number in supervisor.SIGNALS}
+        def restore(number,handler):
+            result = actual(number,handler)
+            if not actor.active and actor.receipts and handler == originals[number] and not events:
+                events.append(True);os.kill(os.getpid(),signal.SIGTERM)
+            return result
+        with mock.patch.object(signal,'signal',side_effect=restore), \
+             self.assertRaisesRegex(supervisor.Refused,'^role-natural-exit-required$') as caught:
+            actor(role,callback,deadline=time.monotonic()+2)
+        self.assertEqual(events,[True])
+        self.assertEqual(caught.exception.receipt['cleanup']['status'],'PASS')
+        self.assertNotIn('child_error',caught.exception.receipt)
 
     def test_constructor_no_actor_and_deadline_cannot_renew(self):
         actor,callback = self.setup_role('return {}')

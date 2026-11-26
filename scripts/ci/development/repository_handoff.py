@@ -42,6 +42,9 @@ CODES = {'grant-refused', 'source-refused', 'callback-refused', 'initial-failed'
          'capture-failed', 'baseline-failed', 'public-receiver-failed', 'crypto-failed',
          'authority-failed', 'acceptance-failed', 'restage-failed', 'cancelled',
          'deadline', 'cleanup-failed', 'status-persistence-failed'}
+BASELINE_STAGES = ('provenance', 'staging', 'base-result')
+BASELINE_ROLES = ('collect-base', 'receive-base', 'consume-provenance')
+BASELINE_CHILD_ERRORS = ('OS_ERROR', 'VALUE_ERROR', 'TYPE_ERROR', 'OTHER')
 STATUS_FIELDS = {'schema_version','purpose','status','initial_exit_code','callback_entered',
     'input_acceptance','restage','cleanup','cancelled','error_code','hardware_validation',
     'production_trust','stable_promotion','development_only','selected_for_release','original_B_continuity',
@@ -1362,6 +1365,7 @@ class Session:
         self.startup_phase = 'source-bound'
         self.startup_failure = None
         self.native_hook_entered = False
+        self.baseline_phase = self.baseline_receipts_before = None
         self.source_graph = {}
         self.view_root = self.view_node = self.view_parent_node = None
         self.view_receipt = self.view_receipt_sha256 = None
@@ -1579,6 +1583,24 @@ class Session:
         need(all(type(value) is bool for value in result),'callback-refused')
         return result
 
+    def baseline_child_error(self, error):
+        """Attribute a closed category only to this call's captured supervisor receipt."""
+        if self.baseline_phase not in BASELINE_ROLES or self.baseline_receipts_before is None:
+            return None
+        supervisor = self.source_graph['runtime']['supervisor']
+        if (type(supervisor) is not types.ModuleType or type(error) is not supervisor.Refused
+                or type(self.supervise) is not supervisor.RoleSupervisor or self.supervise.failed is not True):
+            return None
+        receipts, receipt = self.supervise.receipts, error.receipt
+        if (type(receipts) is list and len(receipts) == self.baseline_receipts_before + 1
+                and type(receipt) is dict and receipt is receipts[-1]
+                and receipt.get('role') == self.baseline_phase and receipt.get('status') == 'FAIL'
+                and receipt.get('cleanup') == {'status':'PASS','group_absent':True,'reaped':True}):
+            category = receipt.get('child_error')
+            if type(category) is str and category in BASELINE_CHILD_ERRORS:
+                return category
+        return None
+
     def startup_failed(self, error):
         """Keep the first finite observation without changing the exception/cause."""
         if self.startup_failure is not None:return
@@ -1595,6 +1617,13 @@ class Session:
         self.startup_failure = {'phase':self.startup_phase,'kind':kind,'site':site,
             'object_clause':vars(error).get('_graph_object_clause','OTHER') if type(error) is Refused else 'OTHER',
             'object_callsite':vars(error).get('_graph_object_callsite','OTHER') if type(error) is Refused else 'OTHER'}
+        if (self.startup_phase == 'native-hook' and self.native_hook_entered is True
+                and self.operation == 'baseline-failed' and type(self.baseline_phase) is str
+                and self.baseline_phase in BASELINE_STAGES + BASELINE_ROLES):
+            baseline = {'phase':self.baseline_phase,'child_error':None}
+            self.startup_failure['baseline'] = baseline
+            try:baseline['child_error'] = self.baseline_child_error(error)
+            except BaseException:pass  # Optional attribution never replaces the first cause.
 
     def startup_projection(self):
         """Failure-only closed observations; never an acceptance/status receipt."""
@@ -1627,22 +1656,34 @@ class Session:
                  'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_CONSTANTS','SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_FLAGS',
                  'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_CODE','SERVICE_CANCEL_EXIT_SET_HANDLER_API_FRAME',
                  'SERVICE_CANCEL_EXIT_SET_HANDLER_API_OFFSET','OTHER')
+        fields = {'phase','kind','site','object_clause','object_callsite'}
         failure = self.startup_failure
         need(type(self.startup_phase) is str and self.startup_phase in phases and
              type(self.native_hook_entered) is bool and type(failure) is dict and
-             set(failure) == {'phase','kind','site','object_clause','object_callsite'} and
-             all(type(failure[key]) is str for key in failure) and
+             set(failure) in (fields, fields | {'baseline'}) and
+             all(type(failure[key]) is str for key in fields) and
              failure['phase'] in phases and failure['kind'] in kinds and failure['site'] in sites and
              failure['object_clause'] in ('FUNCTION_TYPE','MODULE_TYPE','GLOBALS','OTHER') and
              failure['object_callsite'] in ('DECLARED','OVERRIDE','IMPORTED','LAUNCH_VALIDATOR','COMMON_VALIDATOR','LANGUAGE','OTHER'),
              'status-persistence-failed')
         status = status_projection(self.result)
         need(status['status'] == 'FAIL' and status['error_code'] in CODES,'status-persistence-failed')
-        return {'schema_version':2,'purpose':'maintained-composed-startup-refusal','status':'FAIL',
+        result = {'schema_version':2,'purpose':'maintained-composed-startup-refusal','status':'FAIL',
                 'phase':failure['phase'],'kind':failure['kind'],'site':failure['site'],
                 'object_clause':failure['object_clause'],'object_callsite':failure['object_callsite'],
                 'native_hook_entered':self.native_hook_entered,
                 'error_code':status['error_code'],'cleanup':status['cleanup']}
+        if 'baseline' in failure:
+            baseline = failure['baseline']
+            need(failure['phase'] == 'native-hook' and self.native_hook_entered and
+                 type(baseline) is dict and set(baseline) == {'phase','child_error'} and
+                 type(baseline['phase']) is str and baseline['phase'] in BASELINE_STAGES + BASELINE_ROLES and
+                 (baseline['child_error'] is None or
+                  type(baseline['child_error']) is str and baseline['child_error'] in BASELINE_CHILD_ERRORS
+                  and baseline['phase'] in BASELINE_ROLES), 'status-persistence-failed')
+            category = baseline['child_error'] if status['cleanup'] == 'PASS' and not status['cancelled'] else None
+            result.update(schema_version=3, baseline={'phase':baseline['phase'],'child_error':category})
+        return result
 
     def emit_startup_refusal(self, deadline):
         """Existing endpoint and captured class/source custody; no new allowance."""
@@ -1998,6 +2039,12 @@ class Session:
         check(self.work_end, self.cancelled)
         self.sources.guard(self.work_end, self.cancelled)
 
+    def supervise_baseline(self, role, callback, *, deadline):
+        self.baseline_phase = role
+        receipts = getattr(self.supervise, 'receipts', None)
+        self.baseline_receipts_before = len(receipts) if type(receipts) is list else None
+        return self.supervise(role, callback, deadline=deadline)
+
     def pending_consumer(self, controller, services, modules, collector, collector_pins):
         # Existing broad consumers have already returned; no added work precedes E.
         self.end = min(self.job_deadline, time.monotonic() + 1200)
@@ -2018,22 +2065,27 @@ class Session:
                 output=self.private/'pending', deadline=self.work_end)
         self.tick()
         self.operation = 'baseline-failed'
+        self.baseline_phase = 'provenance'
         provenance = broker.baseline_provenance(controller, job,
             repository_url='https://github.com/Gabriel-Kahen/cachy-asahi',
             deadline=self.work_end, cancelled=self.cancelled)
         need(provenance['file_count'] == 243, 'baseline-failed')
+        self.baseline_phase = 'staging'
         broker.stage_exact(provenance['selections'], provenance['request']['files'], self.private/'provenance',
             deadline=self.work_end, cancelled=self.cancelled)
         raw = capture.encoded(provenance['request'])
         with self.step('baseline-failed'):
+            self.baseline_phase = 'collect-base'
             self.collected = broker.collect_baseline(collector, collector_pins, controller,
                 output=self.private/'base', provenance_root=self.private/'provenance',
                 provenance_raw=raw, provenance_pin=digest(raw), deadline=self.work_end,
-                supervise=self.supervise, cancelled=self.cancelled)
+                supervise=self.supervise_baseline, cancelled=self.cancelled)
+        self.baseline_phase = 'base-result'
         base_result = capture.decode(capture.read(self.private/'base/result.json', deadline=self.work_end))
         need(len(base_result['files']) == 688 and self.collected.get('status') == 'PENDING', 'baseline-failed')
         self.job = job
         self.tick()
+        self.baseline_phase = self.baseline_receipts_before = None
         return {'status':'PENDING', 'native_admission':'NOT RUN'}
 
     def terminal_consumer(self, code, services, modules, collector, phase, callbacks):

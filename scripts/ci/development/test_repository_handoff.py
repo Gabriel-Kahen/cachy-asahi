@@ -1252,7 +1252,8 @@ class StartupRefusalModels(unittest.TestCase):
         rows=copy.deepcopy(json.loads((self.root/'scripts/ci/development/packet.lock.json').read_bytes())['source_files'])
         for name,row in rows.items():row['sha256']=adapter.digest((self.root/name).read_bytes())
         self.grant={'source_files':rows,
-            'source_commit':'a'*40,'run_id':'1','run_attempt':'1','actor_contract_sha256':'b'*64,'initial_invocation_sha256':'c'*64}
+            'source_commit':'a'*40,'recipe_source_commit':'a'*40,'run_id':'1','run_attempt':'1',
+            'actor_contract_sha256':'b'*64,'initial_invocation_sha256':'c'*64}
         self.sources=adapter.Sources(self.root,self.grant,self.end)
         self.session=adapter.Session(self.sources,self.root/'never-allocated',job_deadline=self.end,
                                      composition='installer-preflight-maintained-v1')
@@ -1274,6 +1275,88 @@ class StartupRefusalModels(unittest.TestCase):
         self.assertNotIn(str(self.root),text);self.assertLessEqual(len(text),1024)
         self.session.result['status']='PASS'
         with self.assertRaises(adapter.Refused):self.session.startup_projection()
+    def test_baseline_marker_tracks_pending_boundaries_and_resets_on_success(self):
+        phases = ('provenance','staging','collect-base','receive-base','consume-provenance','base-result')
+        first = ValueError('private original failure')
+        for target in (*phases, None):
+            with self.subTest(target=target):
+                session = adapter.Session(self.sources,self.root/'never-allocated',job_deadline=self.end)
+                session.private = session.output
+                session.startup_phase, session.native_hook_entered = 'native-hook', True
+                def at(phase, value=None):
+                    if phase == target:raise first
+                    return value
+                def collect(*args, supervise, deadline, **kwargs):
+                    for role in phases[2:5]:
+                        supervise(role,lambda:at(role),deadline=deadline)
+                    return {'status':'PENDING'}
+                broker = types.SimpleNamespace(identity=lambda job:None,authority_selections=lambda *a,**k:None,
+                    baseline_provenance=lambda *a,**k:at('provenance',{
+                        'file_count':243,'selections':{},'request':{'files':{}}}),
+                    stage_exact=lambda *a,**k:at('staging'),collect_baseline=collect)
+                capture = types.SimpleNamespace(encoded=adapter.encoded,decode=lambda raw:raw,
+                    read=lambda *a,**k:at('base-result',{'files':[None]*688}))
+                services = {'pending':types.SimpleNamespace(contract={'nonce':'model'},capture=lambda *a,**k:None),
+                    'supervise_factory':lambda end:lambda role,callback,*,deadline:callback()}
+                def pending():
+                    return session.pending_consumer(types.SimpleNamespace(image='model'),services,
+                        {'broker':broker,'capture':capture},{},{})
+                with patch.object(adapter.Session,'tick',return_value=None):
+                    if target is None:
+                        self.assertEqual(pending()['status'],'PENDING')
+                        self.assertIsNone(session.baseline_phase)
+                        continue
+                    with self.assertRaises(ValueError) as caught:pending()
+                self.assertIs(caught.exception,first)
+                session.startup_failed(first)
+                session.result.update(status='FAIL',error_code='baseline-failed',cleanup='PASS')
+                value = session.startup_projection()
+                self.assertEqual(value['schema_version'],3)
+                self.assertEqual(value['baseline'],{'phase':target,'child_error':None})
+    def test_baseline_child_category_requires_current_receipt_and_cleanup(self):
+        import contextlib,io
+        session = self.session
+        path = self.root/adapter.PREFIXES['runtime']/'supervisor.py'
+        supervisor = types.ModuleType('baseline_test_supervisor')
+        supervisor.__file__ = str(path)
+        exec(compile(path.read_bytes(),str(path),'exec'),vars(supervisor))
+        session.source_graph = {'runtime':{'supervisor':supervisor}}
+        session.supervise = object.__new__(supervisor.RoleSupervisor)
+        session.supervise.failed = True
+        session.operation = 'baseline-failed'
+        session.startup_phase, session.native_hook_entered = 'native-hook', True
+        session.baseline_phase, session.baseline_receipts_before = 'receive-base', 0
+        receipt = {'role':'receive-base','status':'FAIL','child_error':'VALUE_ERROR',
+                   'cleanup':{'status':'PASS','group_absent':True,'reaped':True},
+                   'stdout':b'SECRET private child output'}
+        session.supervise.receipts = [receipt]
+        first = supervisor.Refused('SECRET private error',receipt)
+        session.baseline_receipts_before = 1
+        self.assertIsNone(session.baseline_child_error(first))  # No new receipt on this call.
+        session.baseline_receipts_before = 0
+        self.assertIsNone(session.baseline_child_error(supervisor.Refused('same bytes',dict(receipt))))
+        self.assertIsNone(session.baseline_child_error(supervisor.Cancelled('cancelled',receipt)))
+        with patch.dict(receipt,role='collect-base'):
+            self.assertIsNone(session.baseline_child_error(first))
+        with patch.dict(receipt,child_error='SECRET'):
+            self.assertIsNone(session.baseline_child_error(first))
+        with patch.dict(receipt,cleanup={'status':'FAIL'}):
+            self.assertIsNone(session.baseline_child_error(first))
+        session.startup_failed(first)
+        session.startup_failed(SystemExit(99))
+        session.result.update(status='FAIL',error_code='baseline-failed',cleanup='PASS')
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):session.emit_startup_refusal(self.end)
+        text = output.getvalue()
+        value = json.loads(text.removeprefix('MAINTAINED_COMPOSED_STARTUP_REFUSAL='))
+        self.assertEqual(value['baseline'],{'phase':'receive-base','child_error':'VALUE_ERROR'})
+        self.assertLessEqual(len(text),1024)
+        self.assertNotIn('SECRET',text)
+        for change in ({'cleanup':'FAIL'},{'cancelled':True}):
+            with patch.dict(session.result,**change):
+                self.assertEqual(session.startup_projection()['baseline'],{'phase':'receive-base','child_error':None})
+        with patch.dict(session.startup_failure['baseline'],child_error='SECRET'),self.assertRaises(adapter.Refused):
+            session.startup_projection()
     def test_internal_closed_source_site_and_sticky_first_observation(self):
         try:self.sources.graph_function(lambda:None,None,callsite='DECLARED')
         except adapter.Refused as error:
@@ -1394,13 +1477,13 @@ class OptionalDiagnosticPublicationCorrection(unittest.TestCase):
     def test_compound_interrupt_replacement_fault_old_red_new_green(self):
         from contextlib import ExitStack,nullcontext
         corrected_raw=PATH.read_text()
-        self.assertEqual(hashlib.sha256(corrected_raw.encode()).hexdigest(),'1f8eac3cca7c2e44237380aac0f2df9c047c60b5733a94941bcec6c66b3bd7da')
+        self.assertEqual(hashlib.sha256(corrected_raw.encode()).hexdigest(),'92300bac6bf6fbdf869a63f12d8509213167207f8f11046bd8ab2a0c99212341')
         # Counterfactual of this pinned Source: reverse only the optional publication branch.
         new_branch="                try:publish_status(self.output/'status',self.result,replace=True)\n                except BaseException:\n                    pass  # Optional re-publication cannot replace the first failure.\n"
         old_branch="                publish_status(self.output/'status',self.result,replace=True)\n"
         self.assertEqual(corrected_raw.count(new_branch),1)
         old_raw=corrected_raw.replace(new_branch,old_branch,1).encode()
-        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'1aa1aa8501fff56f85efcd2137c0fd68cfdb3405378aa5c69f51fb9e792b92f0')
+        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'d6c42178221208d3490f9dee5854eb391005d15fc1060633da1a72464abd4c4e')
         old=types.ModuleType('frozen_optional_diagnostic_old');old.__file__=str(PATH)
         exec(compile(old_raw,str(PATH),'exec'),old.__dict__)
         for late_type in (OSError,KeyboardInterrupt,SystemExit):

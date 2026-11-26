@@ -23,8 +23,8 @@ import threading
 import time
 import types
 
-ROLES = {'collect-base', 'receive-base', 'consume-provenance', 'bind-metadata',
-         'phase-accept', 'phase-restage', 'crypto-attest'}
+BASELINE_ROLES = {'collect-base', 'receive-base', 'consume-provenance'}
+ROLES = BASELINE_ROLES | {'bind-metadata', 'phase-accept', 'phase-restage', 'crypto-attest'}
 RESULT_LIMIT, TOTAL_LIMIT, STREAM_LIMIT = 16 * 1024**2, 64 * 1024**2, 16 * 1024**2
 SIGNALS = {signal.SIGINT, signal.SIGTERM}
 
@@ -54,6 +54,11 @@ def canonical(value):
         return json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False, ensure_ascii=True).encode()
     except (TypeError, ValueError, RecursionError):
         raise Refused('role-result-json') from None
+
+
+BASELINE_FAILURE_FRAMES = {canonical({'status':'FAIL','error':kind}):kind
+                           for kind in ('OS_ERROR','VALUE_ERROR','TYPE_ERROR','OTHER')}
+BASELINE_FAILURE_LIMIT = max(map(len,BASELINE_FAILURE_FRAMES))
 
 
 def pack(value, depth=0):
@@ -213,7 +218,8 @@ def write(fd, raw):
         raw = raw[count:]
 
 
-def child(callback, ready, barrier, result, stdout, stderr, deadline, result_limit):
+def child(callback, ready, barrier, result, stdout, stderr, deadline, result_limit, baseline):
+    in_callback = False
     try:
         os.setsid()
         write(ready,str(os.getpid()).encode()+b'\n')
@@ -238,7 +244,9 @@ def child(callback, ready, barrier, result, stdout, stderr, deadline, result_lim
         cpu = max(1,min(1200,math.ceil(deadline-time.monotonic())))
         resource.setrlimit(resource.RLIMIT_CPU,(cpu,cpu))
         check(deadline)
+        in_callback = True
         value = callback()
+        in_callback = False
         raw = canonical({'status':'PASS','value':pack(value)})
         need(len(raw) <= result_limit,'role-result-bound')
         write(result,raw)
@@ -246,8 +254,16 @@ def child(callback, ready, barrier, result, stdout, stderr, deadline, result_lim
         os.close(result)
         os._exit(0)
     except BaseException as error:
-        try: write(result,canonical({'status':'FAIL','error':type(error).__name__}))
-        except BaseException: pass
+        try:
+            if not baseline:
+                write(result,canonical({'status':'FAIL','error':type(error).__name__}))
+            elif in_callback and isinstance(error,Exception) and not isinstance(error,Cancelled):
+                kind = ('OS_ERROR' if isinstance(error,OSError) else
+                        'VALUE_ERROR' if isinstance(error,ValueError) else
+                        'TYPE_ERROR' if isinstance(error,TypeError) else 'OTHER')
+                raw = canonical({'status':'FAIL','error':kind})
+                if len(raw) <= result_limit:write(result,raw)
+        except BaseException:pass
         os._exit(1)
 
 
@@ -283,14 +299,15 @@ class RoleSupervisor:
         if self.source_guard is not None:self.source_guard()
 
     def __call__(self, role, captured_trusted_callback, *, deadline):
-        pending = []
+        pending, diagnostic = [],[]
         def cancel(number, _): pending.append(number)
         try:
             need(threading.current_thread() is threading.main_thread(), 'role-main-thread')
             need(threading.active_count() == 1 and len(os.listdir('/proc/self/task')) == 1,'role-single-thread-parent')
             no_existing_children()
             with handlers(cancel):
-                value = self._call(role, captured_trusted_callback, deadline=deadline, pending=pending)
+                value = self._call(role, captured_trusted_callback, deadline=deadline,
+                                   pending=pending, diagnostic=diagnostic)
             if pending:
                 raise Cancelled('role-late-cancelled', self.receipts[-1] if self.receipts else {})
             check(min(deadline,self.deadline))
@@ -300,10 +317,13 @@ class RoleSupervisor:
             if self.receipts:
                 self.receipts[-1]['status'] = 'FAIL'
                 if isinstance(error,Refused):error.receipt = self.receipts[-1]
+                if diagnostic and not pending and time.monotonic() < min(deadline,self.deadline):
+                    observed, receipt, kind = diagnostic[0]
+                    if error is observed and self.receipts[-1] is receipt:receipt['child_error'] = kind
             if isinstance(error,Refused):raise
             raise Refused('role-supervision-failed-'+type(error).__name__, self.receipts[-1] if self.receipts else {}) from None
 
-    def _call(self, role, captured_trusted_callback, *, deadline, pending):
+    def _call(self, role, captured_trusted_callback, *, deadline, pending, diagnostic):
         need(threading.current_thread() is threading.main_thread() and not self.active and not self.failed,'role-supervisor-state')
         check(deadline);check(self.deadline)
         deadline = min(deadline,self.deadline)
@@ -321,6 +341,7 @@ class RoleSupervisor:
         self.receipts.append(receipt);self.active = True
         pipes, pid, registered, old_reaper, error = [],None,False,None,None
         owned, foreign, buffers = {},set(),{}
+        baseline, failure_frame = role in BASELINE_ROLES, None
         def cancel(number,_): pending.append(number)
         try:
             with handlers(cancel):
@@ -336,7 +357,8 @@ class RoleSupervisor:
                     sys.stdout.flush();sys.stderr.flush()
                     pid = os.fork()
                     if pid == 0:
-                        child(captured_trusted_callback,ready[1],barrier[0],result[1],stdout[1],stderr[1],work_deadline,self.result_limit)
+                        child(captured_trusted_callback,ready[1],barrier[0],result[1],stdout[1],stderr[1],
+                              work_deadline,self.result_limit,baseline)
                     receipt['pid'] = pid
                     row = processes().get(pid)
                     need(row is not None,'role-leader-identity')
@@ -379,6 +401,9 @@ class RoleSupervisor:
                                     need(len(buffers[label]) <= (self.result_limit if label == 'result' else self.stream_limit)
                                          and sum(map(len,buffers.values())) <= TOTAL_LIMIT,'role-output-bound')
                             break
+                if baseline and registered and receipt['natural_exit'] == {'code':os.CLD_EXITED,'status':1} and (
+                        time.monotonic() < work_deadline and len(buffers['result']) <= BASELINE_FAILURE_LIMIT):
+                    failure_frame = bytes(buffers['result'])
                 need(registered and receipt['natural_exit'] == {'code':os.CLD_EXITED,'status':0},'role-natural-exit-required')
                 envelope = decode(bytes(buffers['result']))
                 need(type(envelope) is dict and set(envelope) == {'status','value'} and envelope['status'] == 'PASS','role-result-required')
@@ -453,6 +478,16 @@ class RoleSupervisor:
         if pending:error = Cancelled('role-cancelled',receipt)
         if error is not None:
             self.failed = True;receipt['status'] = 'FAIL'
+            kind = BASELINE_FAILURE_FRAMES.get(failure_frame)
+            if (kind is not None and type(error) is Refused and error.args == ('role-natural-exit-required',)
+                    and buffers['result'] == failure_frame
+                    and receipt['cleanup'] == {'status':'PASS','group_absent':True,'reaped':True}
+                    and {'pid':pid,'status':1 << 8} in receipt.get('reaped',())):
+                try:
+                    self.guard_sources()
+                    check(deadline)
+                except BaseException:pass  # Optional detail cannot replace the original refusal.
+                else:diagnostic.append((error,receipt,kind))
             if isinstance(error,Refused):error.receipt = receipt;raise error
             raise Refused('role-callback-failed-'+type(error).__name__,receipt) from None
         try:

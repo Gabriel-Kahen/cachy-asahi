@@ -21,7 +21,7 @@
   },
   "supervisor.py": {
     "mode": 420,
-    "sha256": "06701d2f2e78ee3366e4a4ba23cc7df99cc9d16d3d4e0401f0c0ee52302b5b2c"
+    "sha256": "ed1aea409f94cfe70f96f8dcd11e9fd77a770f84bea92d4562c7da4918038581"
   },
   "transport.py": {
     "mode": 420,

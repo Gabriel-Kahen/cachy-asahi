@@ -1172,7 +1172,7 @@
     "scripts/port/repository-client-native/source-map.json": "01a546a8aeb888f310f2756161b958ea91e683bdd8594cf0a149811709c92303",
     "scripts/port/repository-client-phase-stage/dependencies.py": "af3b8bdc925f2bd6673a034e26f3909ffb64f63ab8033f8ca4511b721a0c8e94",
     "scripts/port/repository-client-phase-stage/source-map.json": "2387acde7ea3103e958e5be584952e54879f63de7671282ca92d537209f77c59",
-    "scripts/port/repository-native-handoff/source-map.json": "5202f267c8c009e93ec5ba67e5725ca5814a599f6378e093a0b56d10223a8e96",
+    "scripts/port/repository-native-handoff/source-map.json": "1b6749b95f5287905f820a43e7bcb21fcb0c125ca3a6135e406c049e00967b6c",
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
   },
@@ -1802,7 +1802,7 @@
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "1f8eac3cca7c2e44237380aac0f2df9c047c60b5733a94941bcec6c66b3bd7da"
+      "sha256": "92300bac6bf6fbdf869a63f12d8509213167207f8f11046bd8ab2a0c99212341"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -1830,7 +1830,7 @@
     },
     "scripts/ci/development/test_repository_handoff.py": {
       "mode": 420,
-      "sha256": "4b220bbcf53310668423d5d3e98ebb70b92fdb6f52db964cf026057230d6939d"
+      "sha256": "c38134f2f63ae177f6f97345914b69379dd432acc89c3f60e6be18ecc6f49183"
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
@@ -2134,11 +2134,11 @@
     },
     "scripts/port/repository-native-handoff/source-map.json": {
       "mode": 420,
-      "sha256": "5202f267c8c009e93ec5ba67e5725ca5814a599f6378e093a0b56d10223a8e96"
+      "sha256": "1b6749b95f5287905f820a43e7bcb21fcb0c125ca3a6135e406c049e00967b6c"
     },
     "scripts/port/repository-native-handoff/supervisor.py": {
       "mode": 420,
-      "sha256": "06701d2f2e78ee3366e4a4ba23cc7df99cc9d16d3d4e0401f0c0ee52302b5b2c"
+      "sha256": "ed1aea409f94cfe70f96f8dcd11e9fd77a770f84bea92d4562c7da4918038581"
     },
     "scripts/port/repository-native-handoff/transport.py": {
       "mode": 420,
