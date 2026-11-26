@@ -70,15 +70,28 @@ closure. It builds the independent consumer once, then reruns that same
 consumer after both reinstalls. After each removal it compares the stopped
 database and protected observations with the recorded baseline.
 
-The worker has no CLI or default executor. The future guest supervisor supplies
-all command, mount-identity, signature-input, installed-state and loader
-observations. It must use the existing stopped database reader, capture the
-normal loader's actual maps and approved path owners, and retain the raw command
-streams. The separate sibling validator takes original ALPM diagnostic and
-stopped-database observations from independently retired sibling clones.
+The worker has no CLI or default executor. The future guest supervisor provides
+the bounded command recorder and checks the admitted guest and mounts. Stage
+the exact [loader probe](loader_probe.py) at `/qt-install-inputs/loader_probe.py`
+on the read-only media. Inside the Q3 chroot, create
+`observer.Observer(plan, selection, run, protected_paths)` with the selected
+configuration paths. Pass its `run` and `observe` methods and the output of
+`observer.input_evidence()` to the worker. The observer reads the three trust
+operands, uses the existing stopped database recorder, and joins actual
+`pacman` inventory and file ownership to the mapped files. Provider
+observations resolve ELF dependencies only through the actual standard-loader
+maps. For the original consumer command, the observer enables glibc's
+`LD_DEBUG=files` diagnostic and records which library the consumer process
+initialized and opened. Loader search paths remain unchanged.
+
+The supervisor retains original command streams, including map probes and
+the consumer trace. It must run the consumer as the selected ordinary user.
+The separate sibling validator takes original ALPM diagnostics and stopped
+database observations from independently retired sibling clones.
 
 ```sh
 python3 -I -B -Werror::ResourceWarning "$lane/test_worker.py"
+python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane" -p test_observer.py
 ```
 
 These controls feed inert fixtures through the actual worker. They exercise
