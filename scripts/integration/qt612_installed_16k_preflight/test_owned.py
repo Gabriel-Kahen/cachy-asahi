@@ -228,6 +228,58 @@ class Owned(unittest.TestCase):
             (root / "protect.list").write_text("/different\n")
             self.assertNotEqual(subprocess.run(command, capture_output=True, timeout=6).returncode, 0)
 
+    def test_installed_pid1_exports_only_complete_bounded_evidence_list(self):
+        shell = r"""
+source "$1"
+root=$2/child
+base=$2/runtime
+mode=$3
+find() {
+    local leaf=$1/result.json
+    case "$mode" in
+        normal) command find "$@" ;;
+        producer-failed) printf '%s\0' "$leaf"; return 23 ;;
+        partial) printf '%s\0%s' "$leaf" "$leaf" ;;
+        oversized) printf '%s\0%0*d\0' "$leaf" "$((262143 - ${#leaf}))" 0 ;;
+    esac
+}
+stat() {
+    if [[ $1 == -c && $2 == %u:%g:%h ]]; then
+        printf '0:0:'
+        command stat -c %h -- "$4"
+    else
+        command stat "$@"
+    fi
+}
+export_evidence
+"""
+        for mode in ("normal", "producer-failed", "partial", "oversized"):
+            with self.subTest(mode=mode), TemporaryDirectory() as directory:
+                fixture = Path(directory)
+                evidence = fixture / "child/qt-install-work/evidence"
+                runtime = fixture / "runtime"
+                (evidence / "commands").mkdir(parents=True)
+                (runtime / "result").mkdir(parents=True)
+                (runtime / "rtc-clock.env").write_bytes(b"clock\n")
+                (evidence / "result.json").write_bytes(b"result\n")
+                (evidence / "commands/stage.json").write_bytes(b"command\n")
+                result = subprocess.run(
+                    ["/usr/bin/bash", "--noprofile", "--norc", "-c", shell, "fixture",
+                     str(HERE / "owned-guest-init.sh"), directory, mode],
+                    capture_output=True, text=True, timeout=6,
+                )
+                self.assertEqual(list(runtime.glob("evidence-list.*")), [])
+                if mode == "normal":
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual((runtime / "result/evidence/result.json").read_bytes(), b"result\n")
+                    self.assertEqual((runtime / "result/evidence/commands/stage.json").read_bytes(), b"command\n")
+                    self.assertEqual((runtime / "result/rtc-clock.env").read_bytes(), b"clock\n")
+                else:
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual(list((runtime / "result").iterdir()), [])
+                    if mode == "oversized":
+                        self.assertIn("evidence path list exceeds 262144 bytes", result.stderr)
+
     def test_installed_pid1_cleans_up_and_requests_forced_shutdown_once(self):
         shell = r"""
 source "$1"

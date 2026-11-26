@@ -102,12 +102,28 @@ select_disks() {
        && $(blockdev --getro "$data") == 1 && $(blockdev --getsize64 "$data") == 1073741824 ]]
 }
 
-export_evidence() {
-    local evidence=$root/qt-install-work/evidence cursor raw
-    local -a paths
+export_evidence() (
+    local evidence=$root/qt-install-work/evidence cursor raw listing list_bytes
+    local list_limit=262144 list_status=0 consumed=0
+    local -a paths=()
     [[ -d $evidence && ! -L $evidence ]] || return 1
-    mapfile -d '' -t paths < <(find "$evidence" -mindepth 1 -maxdepth 2 -print0 | head -zc 262145)
-    (( ${#paths[@]} > 0 && ${#paths[@]} <= 900 )) || return 1
+    listing=$(mktemp -- "$base/evidence-list.XXXXXXXX") || return 1
+    trap 'rm -f -- "$listing"' EXIT
+    find "$evidence" -mindepth 1 -maxdepth 2 -print0 |
+        head -c "$((list_limit + 1))" >"$listing" || list_status=$?
+    list_bytes=$(stat -c %s -- "$listing") || return 1
+    if (( list_bytes > list_limit )); then
+        printf 'Installed evidence path list exceeds %s bytes\n' "$list_limit" >&2
+        return 1
+    fi
+    (( list_status == 0 && list_bytes > 0 )) || return 1
+    while IFS= read -r -d '' cursor; do
+        [[ $cursor == "$evidence/"* ]] && (( ${#paths[@]} < 900 )) || return 1
+        paths+=("$cursor")
+        consumed=$((consumed + ${#cursor} + 1))
+    done <"$listing" || return 1
+    # A partial final record is never returned by read.
+    (( consumed == list_bytes )) || return 1
     mkdir -m 700 "$base/result/evidence" "$base/result/evidence/commands" || return 1
     local total=0
     for cursor in "${paths[@]}"; do
@@ -124,7 +140,7 @@ export_evidence() {
     install -m 600 -- "$base/rtc-clock.env" "$base/result/rtc-clock.env" || return 1
     [[ -s $base/result/evidence/result.json ]] || return 1
     sync -f "$base/result"
-}
+)
 
 main() {
     local -a words
