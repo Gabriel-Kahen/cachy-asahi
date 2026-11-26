@@ -1143,7 +1143,12 @@ jobs:
           python3 -B -m unittest discover -s scripts/port/repository-native-handoff
       - name: Check offline updater guest admission and transaction observations
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
-        run: python3 -I -B -Werror scripts/ci/updater-full-update/test_guest.py
+        run: |
+          lane=scripts/ci/updater-full-update
+          bash -n "$lane/q3-guest-init.sh"
+          for suite in guest q3_media q3_owner q3_readback; do
+            python3 -I -B -Werror "$lane/test_$suite.py"
+          done
       - name: Check opt-in Zsh substring module without changing user bindings
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         run: |
