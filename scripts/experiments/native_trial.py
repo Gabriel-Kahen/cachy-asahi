@@ -21,7 +21,7 @@ import stage
 
 INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 PACKAGES_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
-SOURCE = {'filename': 'zlib-1.3.2.tar.gz', 'url': 'https://zlib.net/zlib-1.3.2.tar.gz',
+SOURCE = {'filename': 'zlib-1.3.2.tar.gz', 'url': 'https://zlib.net/fossils/zlib-1.3.2.tar.gz',
           'size': 1502830, 'sha256': arm.SOURCE_SHA}
 
 
