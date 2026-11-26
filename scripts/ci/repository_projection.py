@@ -187,7 +187,8 @@ def operation_files(raw, result, contract):
             need(name not in expected_files and isinstance(digest, str) and DIGEST.fullmatch(digest),
                  'repository payload authority differs')
             expected_files[name] = {'type': 'regular', 'uid': 0, 'gid': 0,
-                                    'mode': 0o755 if name == 'usr/bin/cachy-asahi-setup' else 0o644, 'sha256': digest}
+                                    'mode': 0o755 if name in {'usr/bin/cachy-asahi-setup', 'usr/bin/cachy-asahi-screenshot'} else 0o644,
+                                    'sha256': digest}
     expected_files['usr/share/cachy-asahi-repository-TEST/fixture.txt'] = {
         'type': 'regular', 'uid': 0, 'gid': 0, 'mode': 0o644,
         'sha256': hashlib.sha256(b'SYNTHETIC TEST fixture version 1\n').hexdigest()}

@@ -118,6 +118,43 @@ class RepositoryOperationTests(unittest.TestCase):
             self.assertEqual(index['files'][name]['public_sha256'], hashlib.sha256(data).hexdigest())
         self.assertEqual(before, {path.name: path.read_bytes() for path in self.raw.iterdir()})
 
+    def screenshot_snapshots(self):
+        member = 'usr/bin/cachy-asahi-screenshot'
+        digest = '5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8'
+        package = next(row for row in self.contract['baseline'] if row['name'] == 'cachy-asahi-hyprland-settings')
+        package['payload_sha256'][member] = digest
+        names = [projection.REJECTION + '-after-snapshot.json',
+                 *(projection.RESET + '-' + phase + '-snapshot.json' for phase in ('before', 'after'))]
+        for name in names:
+            value = json.loads((self.raw / name).read_bytes())
+            value['files'][member] = {'type': 'regular', 'uid': 0, 'gid': 0, 'mode': 0o755, 'sha256': digest}
+            self.rebind(name, json.dumps(value).encode())
+        return member, names
+
+    def test_reviewed_executable_screenshot_snapshots_preserve_exact_bytes(self):
+        member, names = self.screenshot_snapshots()
+        before = {name: (self.raw / name).read_bytes() for name in names}
+        files, _ = self.operations()
+        for name in names:
+            self.assertEqual((self.raw / name).read_bytes(), before[name])
+            self.assertEqual(json.loads(before[name])['files'][member]['mode'], 0o755)
+            if name in files:
+                self.assertEqual(files[name][1], before[name])
+
+    def test_screenshot_snapshot_metadata_and_content_drift_refused_after_rehash(self):
+        member, names = self.screenshot_snapshots()
+        for name in names:
+            original = (self.raw / name).read_bytes()
+            for key, value in (('mode', 0o644), ('mode', 0o4755), ('uid', 1), ('gid', 1),
+                               ('type', 'symlink'), ('sha256', '0' * 64)):
+                changed = json.loads(original)
+                changed['files'][member][key] = value
+                self.rebind(name, json.dumps(changed).encode())
+                with self.subTest(name=name, key=key, value=value), self.assertRaisesRegex(
+                        ValueError, 'repository installed snapshot differs from baseline authority'):
+                    self.operations()
+                self.rebind(name, original)
+
     def test_original_generic_export_still_refuses_exact_nine_names(self):
         manifest = exporter.export_evidence(self.raw, Path(self.temporary.name) / 'public')
         self.assertEqual(manifest['evidence_export'], 'FAIL')

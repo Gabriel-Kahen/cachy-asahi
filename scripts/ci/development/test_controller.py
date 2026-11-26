@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import time
@@ -1422,6 +1423,30 @@ class EarlyEntryModels(unittest.TestCase):
         self.value=dict(self.fixture.value,issued_monotonic=99800.0,deadline_monotonic=110600.0)
         self.entry=100000.0;self.early=99820.0;self.J=109900.0
         controller.CANCELLED=False
+
+    def test_direct_entry_exposes_canonical_builtins_before_main(self):
+        script = """
+import builtins
+from pathlib import Path
+import sys
+
+__file__ = sys.argv[1]
+assert __builtins__ is builtins
+sys.path.insert(0, str(Path(__file__).parent))
+
+def stop_before_main(frame, event, _):
+    if event == 'call' and frame.f_code.co_name == 'main' and frame.f_code.co_filename == __file__:
+        assert frame.f_globals['__builtins__'] is vars(builtins)
+        assert frame.f_builtins is vars(builtins)
+        raise SystemExit(0)
+
+sys.settrace(stop_before_main)
+exec(compile(Path(__file__).read_bytes(), __file__, 'exec'))
+raise AssertionError('controller entry did not call main')
+"""
+        result = subprocess.run([sys.executable, '-E', '-s', '-B', '-c', script, controller.__file__],
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def clock(self,early=None,value=None,entry=None):
         return controller.workflow_clock(self.fixture.raw(self.value if value is None else value),

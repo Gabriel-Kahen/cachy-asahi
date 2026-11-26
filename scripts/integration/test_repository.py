@@ -919,13 +919,15 @@ class RepositoryTests(unittest.TestCase):
         return path
 
     def test_reviewed_desktop_screenshot_has_exact_scope_and_header(self):
-        inspected = self.runner.metadata(self.screenshot_archive())
         member = 'usr/bin/cachy-asahi-screenshot'
-        self.assertEqual(inspected['name'], 'cachy-asahi-hyprland-settings')
-        self.assertEqual(inspected['version'], '0.1.0-2')
-        self.assertEqual(inspected['payload_sha256'][member],
-                         '5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8')
-        self.assertEqual(inspected['payload_metadata'][member], {'mode': 0o755, 'uid': 0, 'gid': 0})
+        for version in ('0.1.0-2', '0.1.1-1'):
+            with self.subTest(version=version):
+                inspected = self.runner.metadata(self.screenshot_archive(version=version))
+                self.assertEqual(inspected['name'], 'cachy-asahi-hyprland-settings')
+                self.assertEqual(inspected['version'], version)
+                self.assertEqual(inspected['payload_sha256'][member],
+                                 '5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8')
+                self.assertEqual(inspected['payload_metadata'][member], {'mode': 0o755, 'uid': 0, 'gid': 0})
 
     def test_screenshot_scope_refuses_identity_content_and_header_drift(self):
         for change in ({'name': 'cachy-asahi-setup'}, {'version': '0.1.0-3'}, {'arch': 'aarch64'},

@@ -2088,6 +2088,10 @@ def main(argv=None):
 
 
 if __name__ == '__main__':
+    import builtins
+
+    if __builtins__ is builtins:
+        __builtins__ = vars(builtins)
     try:
         sys.exit(main())
     except (ValueError, OSError, KeyError, TypeError, KeyboardInterrupt):

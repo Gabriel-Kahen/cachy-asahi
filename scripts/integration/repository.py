@@ -406,7 +406,7 @@ class Integration:
                 attributes[normalized] = archive_metadata(description)
         screenshot = 'usr/bin/cachy-asahi-screenshot'
         if any(name.removeprefix('./').rstrip('/') == screenshot for name in entries):
-            need(info['pkgname'] == ['cachy-asahi-hyprland-settings'] and info['pkgver'] == ['0.1.0-2'] and
+            need(info['pkgname'] == ['cachy-asahi-hyprland-settings'] and info['pkgver'][0] in {'0.1.0-2', '0.1.1-1'} and
                  info['arch'] == ['any'] and
                  payload.get(screenshot) == '5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8' and
                  attributes.get(screenshot) == {'mode': 0o755, 'uid': 0, 'gid': 0},

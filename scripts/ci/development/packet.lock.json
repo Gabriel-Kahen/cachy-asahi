@@ -1024,7 +1024,7 @@
     },
     "scripts/ci/repository_projection.py": {
       "mode": 420,
-      "sha256": "e249c0454ff4b207ce7c402f928815a62cf7ed3b43ad0b66eb5ae3467ef36d07"
+      "sha256": "d6dedea3d726782457af79a385c2a5f0edc1ffae5793e9ad3a1805b8dbbaf8b1"
     },
     "scripts/ci/sign_fixture.py": {
       "mode": 420,
@@ -1068,7 +1068,7 @@
     },
     "scripts/ci/test_repository_projection.py": {
       "mode": 420,
-      "sha256": "cca61a7542b29888e9cfa41d30e9a32e25099008e173d7bec8d91cdda0c6591d"
+      "sha256": "a882f433003254a818eb8e5268fb1784220e91d5929bae4b36e0e5a38e603b5f"
     },
     "scripts/ci/test_sign_fixture.py": {
       "mode": 420,
@@ -1104,7 +1104,7 @@
     },
     "scripts/integration/lifecycle.py": {
       "mode": 420,
-      "sha256": "21dc5f781c561f25ff0cffcc39e17c6e78ad63f011978b4e6ec531191a447dba"
+      "sha256": "c3223a1bd4002683071f4442e1f5b9caf439c68c4e231da10039cc9cebcdb52b"
     },
     "scripts/integration/onboarding.py": {
       "mode": 420,
@@ -1112,7 +1112,7 @@
     },
     "scripts/integration/repository.py": {
       "mode": 420,
-      "sha256": "f931997db811325774dec9f4f9126560da27fd14fc5436b37b4578f9c3492cfd"
+      "sha256": "fdfd3611ca8d3fab7584594ccaf627f42a9ae31898372925af1bcae173d55cd7"
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
@@ -1124,7 +1124,7 @@
     },
     "scripts/integration/test_lifecycle.py": {
       "mode": 420,
-      "sha256": "9adf967a0b415d6aa7fb116f004d25f6c61f616acef840b436c5267f67c2faa1"
+      "sha256": "7a4c7361eeabb613b2e1a9161872eacd793acb2ddc9a651ec688065c3c573bc5"
     },
     "scripts/integration/test_onboarding.py": {
       "mode": 420,
@@ -1132,7 +1132,7 @@
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
-      "sha256": "b9df5b10b84f42ea62ccf386f30b01654ccd32eeaf4b794c5301cf99809f02a3"
+      "sha256": "e2406e658a6439a44e64399ff61846bef5ba0ef6a8a757acb6ae0bdfb8472e46"
     },
     "scripts/release/release.py": {
       "mode": 493,
@@ -1162,10 +1162,10 @@
   "lineage": "CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE",
   "metadata_pins": {
     "manifests/reviewed/ksmctl.json": "f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44",
-    "manifests/reviewed/maintained-composed-v1.json": "ca87521f90a559c29315f6afb79e6689c128b1315d4a5d26308612117ff40985",
+    "manifests/reviewed/maintained-composed-v1.json": "35ea107e3dd2e86549086588a714c0ee3cd8998231723a7e7fb3ef9c0df7bc1b",
     "manifests/reviewed/repository-generic-policy.json": "ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e",
     "scripts/ci/inputs.lock.json": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
-    "scripts/ci/integration.lock.json": "408897610b5bc4c51f3e75638eb6cd6f04f1c224ec156260f538d29710d0779e",
+    "scripts/ci/integration.lock.json": "39a4274084f921affb9370fa25853557b5e1dff4beab17119ed35ef17acfc82c",
     "scripts/ci/recipes.lock.json": "a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3",
     "scripts/experiments/stage.lock.json": "8e0d982e136f8f1c79bebbeca8448f48a8466e95dbb8695042e7528a26f731ca",
     "scripts/port/refreshed-desktop/proposed-builder-inventory.lock": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
@@ -1214,7 +1214,7 @@
     },
     "manifests/reviewed/maintained-composed-v1.json": {
       "mode": 420,
-      "sha256": "ca87521f90a559c29315f6afb79e6689c128b1315d4a5d26308612117ff40985"
+      "sha256": "35ea107e3dd2e86549086588a714c0ee3cd8998231723a7e7fb3ef9c0df7bc1b"
     },
     "manifests/reviewed/repository-generic-policy.json": {
       "mode": 420,
@@ -1786,7 +1786,7 @@
     },
     "scripts/ci/development/controller.py": {
       "mode": 420,
-      "sha256": "fe53e9eae762a78a5bd00ef2dff07b12bab628bdbf021b91c24eb6428850e1a9"
+      "sha256": "c8a84e1f50374f756c1e9ab379e0b5ef1e8b00b5246406cea53251a683229567"
     },
     "scripts/ci/development/initial_artifacts.py": {
       "mode": 420,
@@ -1794,15 +1794,15 @@
     },
     "scripts/ci/development/packet.py": {
       "mode": 420,
-      "sha256": "e8126c99762d9fb93810136884ff56e847a2ff09bab895c0f45bb3d7b9de2dab"
+      "sha256": "aae8e957d0d2689de7a1be06a8beeb837ba96b63aa01e0ab844be7349f7f01a0"
     },
     "scripts/ci/development/repository_authority.py": {
       "mode": 420,
-      "sha256": "beecde2beeb228713753b0116f50101fc3ed3f69a0845bb40950c9eaec0b7303"
+      "sha256": "6968fcfd97c69c90ca3a39e5463836d94b8227728275fee605de38bf17867f11"
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "b21a466e3bd6bf4a215f3eb2a904b6d1e10389da28a89636f8b995dc336cf913"
+      "sha256": "1f8eac3cca7c2e44237380aac0f2df9c047c60b5733a94941bcec6c66b3bd7da"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -1814,7 +1814,7 @@
     },
     "scripts/ci/development/test_controller.py": {
       "mode": 420,
-      "sha256": "95a75108ebfa3fc5be5379053e74ef5481fa696c9a22655375dd3d6307c0fd2f"
+      "sha256": "62c477138bc2ddd8d359d1fd01eaee22e2ebf5cf1ae636a9499b7c78e6a92175"
     },
     "scripts/ci/development/test_initial_artifacts.py": {
       "mode": 420,
@@ -1830,7 +1830,7 @@
     },
     "scripts/ci/development/test_repository_handoff.py": {
       "mode": 420,
-      "sha256": "1fa79cf94c62b7edd2ef4933bc8da05a44b800eb9d5cd681411accb519fb2d26"
+      "sha256": "4b220bbcf53310668423d5d3e98ebb70b92fdb6f52db964cf026057230d6939d"
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
@@ -1854,7 +1854,7 @@
     },
     "scripts/ci/integration.lock.json": {
       "mode": 420,
-      "sha256": "408897610b5bc4c51f3e75638eb6cd6f04f1c224ec156260f538d29710d0779e"
+      "sha256": "39a4274084f921affb9370fa25853557b5e1dff4beab17119ed35ef17acfc82c"
     },
     "scripts/ci/integration.py": {
       "mode": 420,
@@ -1882,7 +1882,7 @@
     },
     "scripts/ci/repository_projection.py": {
       "mode": 420,
-      "sha256": "e249c0454ff4b207ce7c402f928815a62cf7ed3b43ad0b66eb5ae3467ef36d07"
+      "sha256": "d6dedea3d726782457af79a385c2a5f0edc1ffae5793e9ad3a1805b8dbbaf8b1"
     },
     "scripts/ci/sign_fixture.py": {
       "mode": 420,
@@ -1926,7 +1926,7 @@
     },
     "scripts/ci/test_repository_projection.py": {
       "mode": 420,
-      "sha256": "cca61a7542b29888e9cfa41d30e9a32e25099008e173d7bec8d91cdda0c6591d"
+      "sha256": "a882f433003254a818eb8e5268fb1784220e91d5929bae4b36e0e5a38e603b5f"
     },
     "scripts/ci/test_sign_fixture.py": {
       "mode": 420,
@@ -2006,7 +2006,7 @@
     },
     "scripts/integration/lifecycle.py": {
       "mode": 420,
-      "sha256": "21dc5f781c561f25ff0cffcc39e17c6e78ad63f011978b4e6ec531191a447dba"
+      "sha256": "c3223a1bd4002683071f4442e1f5b9caf439c68c4e231da10039cc9cebcdb52b"
     },
     "scripts/integration/onboarding.py": {
       "mode": 420,
@@ -2014,7 +2014,7 @@
     },
     "scripts/integration/repository.py": {
       "mode": 420,
-      "sha256": "f931997db811325774dec9f4f9126560da27fd14fc5436b37b4578f9c3492cfd"
+      "sha256": "fdfd3611ca8d3fab7584594ccaf627f42a9ae31898372925af1bcae173d55cd7"
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
@@ -2026,7 +2026,7 @@
     },
     "scripts/integration/test_lifecycle.py": {
       "mode": 420,
-      "sha256": "9adf967a0b415d6aa7fb116f004d25f6c61f616acef840b436c5267f67c2faa1"
+      "sha256": "7a4c7361eeabb613b2e1a9161872eacd793acb2ddc9a651ec688065c3c573bc5"
     },
     "scripts/integration/test_onboarding.py": {
       "mode": 420,
@@ -2034,7 +2034,7 @@
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
-      "sha256": "b9df5b10b84f42ea62ccf386f30b01654ccd32eeaf4b794c5301cf99809f02a3"
+      "sha256": "e2406e658a6439a44e64399ff61846bef5ba0ef6a8a757acb6ae0bdfb8472e46"
     },
     "scripts/port/refreshed-desktop/proposed-builder-inventory.lock": {
       "mode": 420,

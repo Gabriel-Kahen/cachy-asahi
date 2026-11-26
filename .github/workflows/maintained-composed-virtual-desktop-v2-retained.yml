@@ -42,15 +42,15 @@ jobs:
           from contextlib import contextmanager
 
           REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
-          CODE_COMMIT = 'b489e54b5c526525cc083fba0bdcf89962951d00'
+          CODE_COMMIT = 'bcb05d712aec1ccad39d1f576403c4eaf4814fef'
           LAUNCHER_PATH = '.github/bootstrap/development-launcher.py'
-          LAUNCHER_SHA = 'c592842869d15bbae7833df7671b934cd62207df6ddf17dff640b3d72ca1a5be'
+          LAUNCHER_SHA = '98b2a151ee170887b0bb5d00629789230f7ec327208291edefbf8d8b1d5eba87'
           LAUNCHER_BYTES = 26685
-          BOOTSTRAP_SHA = '3aacfc9c397c30cb2bf713ddc28f4d9a06bfa74cbf416bf5a452bd07de7ba836'
+          BOOTSTRAP_SHA = 'f30859c22620da2287517ad258f8d3d67f263bb5c0cdbaf90ddf3e314d5316d0'
           ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
           EXECUTION_REF = 'refs/heads/codex/maintained-desktop-v2-retained-inputs-20261125'
           COMPOSITION = 'repository-svg-maintained-v1'
-          PACKET_SHA = 'da07c4e5c7832f09be9b1e1e506387bca60ac154a05242c3f545fdd922b8ae11'
+          PACKET_SHA = 'd840172139b8d8192f3118ee639495791a29f740f3b0d556e6634a57b4d2df7c'
           PACKET_PATH = 'scripts/ci/development/packet.lock.json'
           PACKET_BYTES = 94736
           INPUTS_PATH = 'scripts/ci/inputs.lock.json'

@@ -1028,7 +1028,7 @@
     },
     "scripts/ci/repository_projection.py": {
       "mode": 420,
-      "sha256": "e249c0454ff4b207ce7c402f928815a62cf7ed3b43ad0b66eb5ae3467ef36d07"
+      "sha256": "d6dedea3d726782457af79a385c2a5f0edc1ffae5793e9ad3a1805b8dbbaf8b1"
     },
     "scripts/ci/sign_fixture.py": {
       "mode": 420,
@@ -1072,7 +1072,7 @@
     },
     "scripts/ci/test_repository_projection.py": {
       "mode": 420,
-      "sha256": "cca61a7542b29888e9cfa41d30e9a32e25099008e173d7bec8d91cdda0c6591d"
+      "sha256": "a882f433003254a818eb8e5268fb1784220e91d5929bae4b36e0e5a38e603b5f"
     },
     "scripts/ci/test_sign_fixture.py": {
       "mode": 420,
@@ -1108,7 +1108,7 @@
     },
     "scripts/integration/lifecycle.py": {
       "mode": 420,
-      "sha256": "21dc5f781c561f25ff0cffcc39e17c6e78ad63f011978b4e6ec531191a447dba"
+      "sha256": "c3223a1bd4002683071f4442e1f5b9caf439c68c4e231da10039cc9cebcdb52b"
     },
     "scripts/integration/onboarding.py": {
       "mode": 420,
@@ -1116,7 +1116,7 @@
     },
     "scripts/integration/repository.py": {
       "mode": 420,
-      "sha256": "f931997db811325774dec9f4f9126560da27fd14fc5436b37b4578f9c3492cfd"
+      "sha256": "fdfd3611ca8d3fab7584594ccaf627f42a9ae31898372925af1bcae173d55cd7"
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
@@ -1128,7 +1128,7 @@
     },
     "scripts/integration/test_lifecycle.py": {
       "mode": 420,
-      "sha256": "9adf967a0b415d6aa7fb116f004d25f6c61f616acef840b436c5267f67c2faa1"
+      "sha256": "7a4c7361eeabb613b2e1a9161872eacd793acb2ddc9a651ec688065c3c573bc5"
     },
     "scripts/integration/test_onboarding.py": {
       "mode": 420,
@@ -1136,7 +1136,7 @@
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
-      "sha256": "b9df5b10b84f42ea62ccf386f30b01654ccd32eeaf4b794c5301cf99809f02a3"
+      "sha256": "e2406e658a6439a44e64399ff61846bef5ba0ef6a8a757acb6ae0bdfb8472e46"
     },
     "scripts/release/release.py": {
       "mode": 493,
