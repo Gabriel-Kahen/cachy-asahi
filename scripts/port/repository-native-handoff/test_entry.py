@@ -318,8 +318,8 @@ class EntryTests(unittest.TestCase):
 
 class DependencyGraphTests(unittest.TestCase):
     """Load actual copied, pinned sources; never invoke a package/native actor."""
-    PINS = {'collector': 'b5f2d88fa7a072a6f29e062b0e7446f067b1f71eb280c9d3ce62633a0908ec4b',
-            'phase': '2316c49df374156ebb9800756a3e582d4bf83e1e2f2cad17244bfc696cca477a'}
+    PINS = {'collector': '122c49dd921d22a46f280b2940f2d4a7dfdee7e1a1459a5d7a4a4cd6dd9cc581',
+            'phase': 'e320a92f166303c3e6fcbbad00af2b7fe998666c9e9d7d2ea571dcfc01311932'}
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
@@ -336,36 +336,6 @@ class DependencyGraphTests(unittest.TestCase):
             for name in [prefix + '/source-map.json', *names]: self.copy(name)
         for name in e.PREDECESSORS:
             self.copy(name); self.files.append(name)
-        self.bind_current_fixture_predecessors()
-    def bind_current_fixture_predecessors(self):
-        """Synthetic fixture pins only; never rebase an accepted runtime graph."""
-        self.PINS = dict(self.PINS)
-        fixed = ('scripts/release/release.py', 'scripts/client/client.py')
-        orchestrator = self.root/e.COLLECTOR_ROOT/'orchestrator.py'
-        declarations = e.literals(orchestrator.read_bytes(), ('HELD', 'DEPENDENCIES'))
-        self.assertEqual(set(declarations['DEPENDENCIES']), set(fixed))
-        pairs = [(declarations['DEPENDENCIES'][name], hashlib.sha256((self.root/name).read_bytes()).hexdigest()) for name in fixed]
-        historical = self.root/'scripts/port/repository-client-stage/adapter.py'
-        phase_adapter = self.root/e.PHASE_ROOT/'adapter.py'
-        dependency = self.root/e.PHASE_ROOT/'dependencies.py'
-        def replace(path, replacements):
-            raw = path.read_bytes()
-            for old, new in replacements:
-                self.assertEqual(raw.count(old.encode()), 1, (path.name, old))
-                raw = raw.replace(old.encode(), new.encode())
-            path.write_bytes(raw)
-        old_adapter = declarations['HELD']['adapter.py']
-        self.assertEqual(hashlib.sha256(historical.read_bytes()).hexdigest(), old_adapter)
-        replace(historical, pairs);new_adapter = hashlib.sha256(historical.read_bytes()).hexdigest()
-        old_orchestrator = self.manifests['collector']['orchestrator.py']['sha256']
-        replace(orchestrator, [*pairs, (old_adapter, new_adapter)])
-        new_orchestrator = hashlib.sha256(orchestrator.read_bytes()).hexdigest()
-        self.PINS['collector'] = self.repin('collector', 'orchestrator.py')
-        replace(phase_adapter, pairs)
-        replace(dependency, [*pairs, (old_adapter, new_adapter), (old_orchestrator, new_orchestrator),
-                             (type(self).PINS['collector'], self.PINS['collector'])])
-        self.repin('phase', 'adapter.py')
-        self.PINS['phase'] = self.repin('phase', 'dependencies.py')
     def copy(self, name):
         source, target = self.repo / name, self.root / name
         target.parent.mkdir(parents=True, exist_ok=True)

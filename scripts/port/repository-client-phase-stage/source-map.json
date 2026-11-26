@@ -1,11 +1,11 @@
 {
   "adapter.py": {
     "mode": 420,
-    "sha256": "367def6626eace35d3e4c79feee089680e907a5a2f5f2090d8187aa39c8ccfe1"
+    "sha256": "03bbc2e39759619ff68de5dc5e126c1faf8a1967b86d11a8d6a4d3013310959a"
   },
   "dependencies.py": {
     "mode": 420,
-    "sha256": "04751bbc74db77974012f4979d916c238b2a91bf783ad464e090283e2cc12350"
+    "sha256": "c66510c28bf22dde5066d292d3f785f123b7f0068bbbc5c920603f2194e2b671"
   },
   "entry.py": {
     "mode": 420,
