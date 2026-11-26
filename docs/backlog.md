@@ -21,18 +21,11 @@ only the Fish package and exercised staging, comparison and withdrawal.
   the intended maintenance composition and physical 16 KiB testing remain open.
   [Native build and lifecycle evidence](validation/project-libraries-native-20261125.md)
 - Kernel [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) passed
-  baseline compilation, Image relocation and byte projection, and embedded
-  configuration checks. An earlier baseline build was refused at
-  module dependency verification. The verifier now matches the provider
-  basenames Kbuild actually writes. The refreshed run passed intake with
-  230 retained files and compiled the baseline. The verifier then refused
-  `.debug_aranges` file alignment. The pinned linker reproduced that layout.
-  The next build returned zero and output verification stopped with an
-  unclassified exception. Source review found a separate ASCII-only parser
-  defect on UTF-8 module author strings. The candidate comparison and boot
-  remain open.
-  [Module geometry run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45766930508)
-  · [Latest verifier result](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45774638440)
+  the hosted native AArch64 baseline and candidate builds at `4e5493cb`. Both
+  builds exited zero and passed output verification. Cleanup removed the
+  run-owned resources and preserved the six pre-existing Docker images. Boot,
+  installation, physical M2 validation and performance remain open.
+  [Passing native run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45784522085)
   · [Verifier and diagnostics](workstreams/kernel-native-job.md)
 - Updater 4.4.2-3 passed its native AArch64 build pair and all 15 Check and
   refusal cases after signed installation in a disposable container. Separate

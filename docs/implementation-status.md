@@ -19,6 +19,16 @@ independent readback and retirement. The supported Asahi transaction and
 physical M2 checks remain open.
 [Updater validation](validation/updater-q3-emulated-arm16k-20261126.md)
 
+**November 26, 2026.** The native AArch64 kernel baseline and candidate for
+[#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) both built and
+passed output verification at `4e5493cbd384feaae027abb476437c90b7c07cba`.
+The same run passed signed dependency acquisition, the toolchain probe and
+cleanup. The bounded public receipt SHA-256 is
+`149a6612fdd113ec01bb4d9d0c9d4d19a8f650982f7aed20363524d0a361d46a`.
+The workflow retained status only. Kernel boot, installation, physical M2
+behavior and performance remain open.
+[Native run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45784522085)
+
 Track current engineering follow-ups in
 [GitHub Issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues).
 The [historical execution log](backlog.md) records earlier decisions and
