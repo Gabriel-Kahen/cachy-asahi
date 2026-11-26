@@ -25,15 +25,15 @@ SSH_REMOTE = 'git@github.com:Gabriel-Kahen/cachy-asahi-ci-inputs.git'
 SSH_REF = 'refs/heads/native623-r1'
 SSH_COMMIT = 'b429266444c82238783044301ceb0f8d08bbf3f6'
 SSH_TREE = 'a8f1cd41e3aadeee9a25bc3b96e14c823de870aa'
-BASE_REF = 'refs/heads/native623-base-r1'
-BASE_COMMIT = '3ac0b845b13b9a8f1da4fc9ec90ac627a6f0da0c'
-BASE_TREE = 'e3f619a2bb8a287cd0aaa7d1975d8d392cb8786e'
+BASE_REF = 'refs/heads/native623-base-r2'
+BASE_COMMIT = '6d2e0ee29159be52744c1fd8b8109dbce7f09c93'
+BASE_TREE = 'af22c8f7619135a3bc6a22f6f7d7e12723cbc1d8'
 NATIVE349_REF = 'refs/heads/native349-r1'
 NATIVE349_COMMIT = '9d9e1ab7ce694e33238ec1152bef72270d4bf91f'
 NATIVE349_TREE = 'cc6298d8dbbb5b0dd522de76b7140306d83bfe7a'
 NATIVE349_MANIFEST = (99724, 'd831cf894377deb4a90f6b8fd69eca08263318273a58061936f00b7ad82ba18e')
 BASE_NAMES = {'at-spi2-core', 'dav1d', 'fontconfig', 'gdb', 'gdb-common', 'gnutls', 'gpgme',
-              'libffi', 'libfontenc', 'libjxl', 'libxfont2'}
+              'gtk-update-icon-cache', 'libffi', 'libfontenc', 'libinput', 'libjxl', 'libxfont2'}
 HOST_KEY = 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl\n'
 DEPLOY_KEY = b'256 SHA256:6gnCZBWA+I9mccJV/YzywHoefkGrpuKBHU0dVcgqn7k'
 SSH_SECONDS = 210
@@ -128,7 +128,7 @@ def carrier_profiles():
                 producer[path] = pin
             if row['name'] in BASE_NAMES:
                 supplemental['alarm-cache/' + name] = pin
-    require(len(producer) == 182 and len(supplemental) == 22)
+    require(len(producer) == 182 and len(supplemental) == 26)
     return ((SSH_REF, SSH_COMMIT, SSH_TREE, kernel_files()),
             (BASE_REF, BASE_COMMIT, BASE_TREE, supplemental),
             (NATIVE349_REF, NATIVE349_COMMIT, NATIVE349_TREE, producer | {'manifest.json': NATIVE349_MANIFEST}))

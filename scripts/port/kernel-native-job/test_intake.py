@@ -57,9 +57,15 @@ class IntakeTests(unittest.TestCase):
 
     def test_ssh_closes_both_pinned_lanes_without_overwriting_base_files(self):
         kernel, added, historical = intake.carrier_profiles()
-        self.assertEqual([len(profile[3]) for profile in (kernel, added, historical)], [22, 22, 183])
+        self.assertEqual([len(profile[3]) for profile in (kernel, added, historical)], [22, 26, 183])
+        lock = json.loads((ROOT / 'scripts/ci/inputs.lock.json').read_bytes())
+        for row in lock['packages']:
+            if row['name'] in {'gtk-update-icon-cache', 'libinput'}:
+                path = 'alarm-cache/' + row['filename']
+                self.assertEqual(added[3][path], (row['size'], row['sha256']))
+                self.assertEqual(added[3][path + '.sig'], (row['signature_size'], row['signature_sha256']))
         files = intake.retained_files('ssh')
-        self.assertEqual(sum(path.startswith('alarm-cache/') for path in files), 210)
+        self.assertEqual(sum(path.startswith('alarm-cache/') for path in files), 214)
         self.assertEqual(sum(path.startswith('extension/') for path in files), 16)
         self.assertEqual({key: files[key] for key in intake.retained_files('https')}, intake.kernel_files())
         self.assertNotIn('manifest.json', files)
