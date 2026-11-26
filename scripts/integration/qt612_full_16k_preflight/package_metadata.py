@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Prepare the exact packaging-only Qtbase provider metadata successor."""
+"""Prepare the exact Qtbase package-only recipe and provider metadata."""
 
 import argparse
 import hashlib
@@ -15,12 +15,47 @@ PACKAGE = "cachy-asahi-qt612-gui-server-source-reference"
 VERSION = "6.12.0-2"
 RECIPE_PINS = {
     (6145, "121f2ec8f25a8c935be16136cd3dc036603679fdaea2f1b95e45a7a2201f852b"):
-        ("canonical", (6153, "df567ae1927ef84e6b45d9d2a2766d9b1cbdbfc65d30060d8d5c9cab850a2e65")),
+        ("canonical", (7474, "b62040f3ede97d3548271f80fc903e87d48db1682fbd6c5f6a4bdc2d0b6913a8")),
     (6232, "b8ab08950fc2e5729e00bc066e13897163ae52362105aa90d58569f603e07296"):
-        ("q3", (6240, "32debaeea9895337aa93309ff22e31f30a849e0b9d8579063a58db1d73c9a1e9")),
+        ("q3", (7561, "7d2ee635058190e7ccad69ca4546920f88136e1ce79daee5a9388f953a6bb149")),
 }
 SRCINFO_INPUT = (3856, "9c132b1d743040efcfad23401efee5879270fab91d71877fe0972d6501bdb445")
 SRCINFO_OUTPUT = (3858, "d6ce3f256bbdab09b98f03bb7163b637635d5e820ed3a09492da7399225070b8")
+
+NORMALIZE_TOOL_ALIASES = br'''_qt_normalize_tool_aliases() (
+  local bin="$pkgdir/usr/lib/qt6/bin" tool original alias tmp=
+  local -a left=() right=() copies=()
+  [[ $(realpath -e -- "$bin") == "$bin" ]] || return 1
+  for tool in qmake qtpaths; do
+    original=$bin/$tool alias=$bin/${tool}6
+    [[ -f $original && ! -L $original && -f $alias && ! -L $alias ]] || return 1
+    read -r -a left <<< "$(stat -c '%d %i %h %a %s %u %g' -- "$original")" || return
+    read -r -a right <<< "$(stat -c '%d %i %h %a %s %u %g' -- "$alias")" || return
+    [[ ${#left[@]} == 7 && ${#right[@]} == 7 && ${left[*]:3} == "${right[*]:3}" &&
+       ${left[3]} == 755 && ${left[4]} -gt 0 && ${left[4]} -le 134217728 ]] || return 1
+    if [[ ${left[0]}:${left[1]} == "${right[0]}:${right[1]}" ]]; then
+      [[ ${left[2]} == 2 && ${right[2]} == 2 ]] || return 1
+      copies+=("$alias")
+    else
+      [[ ${left[2]} == 1 && ${right[2]} == 1 ]] && cmp -s -- "$original" "$alias" || return 1
+    fi
+  done
+
+  trap '[[ -z $tmp ]] || rm -f -- "$tmp"' EXIT
+  for alias in "${copies[@]}"; do
+    tmp=$(mktemp -- "$bin/.qt-alias.XXXXXXXX") || return
+    cp --preserve=mode,ownership,timestamps -- "$alias" "$tmp" || return
+    cmp -s -- "$alias" "$tmp" && mv -T -- "$tmp" "$alias" || return
+    tmp=
+  done
+)
+
+'''
+STAGE_CHECK = (b'  python "$srcdir/check_stage.py" --root "$pkgdir" \\\n'
+               b'    --license-manifest "$srcdir/source-notices.json"')
+PROJECTED_STAGE_CHECK = (b'  _qt_normalize_tool_aliases || return\n'
+                         b'  python "$srcdir/check_stage.py" --root "$pkgdir" \\\n'
+                         b'    --license-manifest "$pkgdir/usr/share/licenses/$pkgname/source-notices.json"')
 
 
 def pin(body):
@@ -41,6 +76,10 @@ def successor(recipe, srcinfo):
     # side omits it, which would also satisfy an official -3 exact dependency.
     projected = recipe.replace(b"\npkgrel=1\n", b"\npkgrel=2\n").replace(
         b'provides=("qt6-base=$pkgver" ', b'provides=("qt6-base=$pkgver-$pkgrel" ')
+    # Qt creates two versioned private hardlinks. Its own fallback is a byte
+    # copy. Keep the checker on ordinary files, including makepkg's notice input.
+    projected = projected.replace(b"\npackage() {\n", b"\n" + NORMALIZE_TOOL_ALIASES + b"package() {\n", 1).replace(
+        STAGE_CHECK, PROJECTED_STAGE_CHECK, 1)
     projected_info = srcinfo.replace(b"\tpkgrel = 1\n", b"\tpkgrel = 2\n").replace(
         b"\tprovides = qt6-base=6.12.0\n", b"\tprovides = qt6-base=6.12.0-2\n")
     if pin(projected) != expected or pin(projected_info) != SRCINFO_OUTPUT:
