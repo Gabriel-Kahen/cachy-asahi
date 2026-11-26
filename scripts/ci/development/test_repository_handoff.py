@@ -754,6 +754,51 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
     def refuse(self):
         with self.assertRaises(self.a.Refused):self.check()
 
+    @staticmethod
+    def collected_with_ownership(counts):
+        packages = [
+            {'name':f'fixture-{package}', 'version':'1-1', 'arch':'aarch64',
+             'files':[f'usr/share/fixture-{package}/file-{index}' for index in range(count)],
+             'depend':[], 'provides':[], 'conflict':[]}
+            for package,count in enumerate(counts)
+        ]
+        return {'status':'PENDING','components':{'base':{'packages':packages}}}
+
+    def test_captured_desktop_installed_ownership_size(self):
+        # Exact installed-file counts from seven pinned packages, in a 341-package base.
+        counts = [6730,2867,3071,2371,2447,2227,1949] + [0]*334
+        self.assertEqual(sum(counts),21662)
+        with patch.object(self.session,'collected',self.collected_with_ownership(counts)):
+            self.check()
+
+    def test_captured_desktop_ownership_scale(self):
+        # 89,433 was the modeled complete listing size including directory rows.
+        counts = [263]*91 + [262]*250
+        with patch.object(self.session,'collected',self.collected_with_ownership(counts)):
+            self.check()
+
+    def test_ownership_limit_is_cumulative_across_packages(self):
+        observed = self.collected_with_ownership([100000,100000])
+        packages = observed['components']['base']['packages']
+        with patch.object(self.session,'collected',observed):
+            self.check()
+            packages[1]['files'].append('usr/share/fixture-1/one-more')
+            self.refuse()
+
+    def test_ownership_requires_exact_lists_of_strings(self):
+        observed = self.collected_with_ownership([1])
+        package = observed['components']['base']['packages'][0]
+        for files in (('usr/share/file',),[b'usr/share/file'],[['usr/share/file']]):
+            with self.subTest(files=files),patch.object(self.session,'collected',observed):
+                package['files'] = files
+                self.refuse()
+
+    def test_other_collected_lists_keep_structural_limit(self):
+        observed = self.collected_with_ownership([20000])
+        observed['components']['packages'] = observed['components']['base']['packages']
+        with patch.object(self.session,'collected',observed):
+            self.refuse()
+
     def test_actual_slots_and_full_source_namespaces_accept_inert_state(self):
         self.check()
         with patch.dict(os.environ,GITHUB_SHA=self.grant['source_commit'],GITHUB_RUN_ID='123',GITHUB_RUN_ATTEMPT='2'):

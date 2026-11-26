@@ -131,6 +131,21 @@ overlay frame SHA-256 is
 
 The overall workflow returned `baseline-failed` in the downstream repository
 handoff after the producer and virtual checks. Independent replay verified the
-243 native provenance entries. The first failure within the downstream staging
-or collector path is still under review. Graphics acceleration, physical M2
-behavior and performance acceptance remain `NOT RUN`.
+243 native provenance entries. The next run reached `collect-base` and
+refused. Exact retained inputs exposed valid ALPM relations with uppercase
+letters, three literal systemd unit paths and zero-byte records for packages
+with no files. The corrected collector advanced beyond this stage.
+[Collector refusal](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45758129072)
+· [Post-collection run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45761695840)
+
+The next hosted diagnostic identified an extra instance field on the original
+controller before the public receiver. The virtual adapter now holds that
+field only during its call and restores the prior state on success, error, or
+cancellation. A separate source test authenticated the positive callback
+state with 89,433 modeled package-owned paths across 341 package rows. The
+state reader checks every path's exact type and applies a separate cumulative
+limit to those lists. Other values retain the structural limit.
+[Exact callback diagnostic](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45765388674)
+
+Hosted re-verification of the later source changes, graphics acceleration,
+physical M2 behavior and performance acceptance remain open.
