@@ -128,9 +128,11 @@ UTC before importing fresh trust. The adapter checks plan validity again.
 
 Prepare the guest with the following selected inputs:
 
-- A fresh owned boot and scratch root with the Q3 356-package versions.
-  The selected seed is 829,367,415 bytes with SHA-256
-  `42a4eeaa038994ffd31fa173256ef2f0ef511358eeb41b9ea1f8626391b9b319`.
+- A fresh updater boot derivative and writable QCOW2 child of the sealed Q3
+  scratch. The 17,179,869,184-byte backing image has SHA-256
+  `70ca6c345fcf5e5d29d0bb90993d54c17a54164f23b2a6fe839e061b51edca45`.
+  The 1,611,661,312-byte Qt boot derivative used to prepare the updater boot
+  has SHA-256 `951bdc40ec6d3c4735d688acda30f153a22019862bc255059b874d9c27e0a858`.
   The generic control Image is 9,019,400 bytes with SHA-256
   `36066ded2f5721fd9bb257cebb2e4cb32084f45c3717f4d7a45430fe3cdcc494`.
   The 6,925-byte `q3.lock` SHA-256 is
@@ -138,10 +140,12 @@ Prepare the guest with the following selected inputs:
   Boot authority also needs the exact generic kernel config, pinned guest
   worker, read-only input media, a fresh nonce, and reviewed resource and
   retirement bounds.
-- An authenticated before-lock with the five fixed runtime versions,
-  the qualified installed updater, the old inert fixture, and the
-  selected signed sudo package. Use the existing signed bootstrap and
-  verifier to stage them. Place the exact qualified archive and separately
+- The authenticated 362-package before-lock includes the 356-package Q3
+  baseline, including signed sudo `1.9.17.p2-6` and xdg-utils `1.2.1-2`,
+  plus four vendor additions, the qualified updater and the old inert
+  fixture. Its SHA-256 is
+  `7a5779caafed704a109debcf207b040e32565b5102c889809eb33d9bbbe8680b`.
+  Place the exact qualified archive and separately
   issued detached TEST signature on media as `updater.pkg` and
   `updater.pkg.sig`. Include the original signed old fixture
   `cachy-asahi-check-fixture-0.1.0-1-any.pkg.tar.gz` and its detached signature
@@ -161,31 +165,39 @@ Prepare the guest with the following selected inputs:
   the input directory. The qualified helper evaluates these synthetic policy
   inputs. The root-owned configuration forces required signatures and
   checks the sole fixture version, archive digest and URL in the real preview.
-- A separately reviewed guest sudo mount and root-owned sudoers file
-  containing exactly `guest.SUDOERS`, with no additional rules. The adapter
-  checks setuid support and the literal rule. The installed updater runs as
-  UID/GID 1000. Its scoped shim records the CLI's sudo request and delegates
-  only the single approved update to real sudo. News, service discovery and
-  other maintenance actions are inert in this fixture.
+- A scoped guest sudo mount and root-owned sudoers file containing exactly
+  `guest.SUDOERS`. The disposable work filesystem remains `nosuid`. The
+  guest gives setuid execution to the pinned `/usr/bin/sudo` through one
+  read-only file bind. UID/GID 1000 invokes real sudo only for the admitted
+  update. The worker checks that sudo refuses package removal.
 
-The retained Q3 seed, Image, public trust and inventory are inputs to a
-reconstruction. The signed pairs for its 165→349→356 transition and a
-current scoped md4c TEST signature are needed to recreate that exact root.
-The original 1,610,612,736-byte warm boot disk pinned by the owner
-(`f30fa96283042b12229b455fe33918facb83a0650a8e7849fcaab493dda366cb`)
-is absent at its recorded location. The frozen Q3 guest also mounts the
-working chroot `nosuid` and therefore cannot supply this sudo boundary.
-Reuse the Q3 owner and signed ALPM phases through the verified 356 lock
-and retired bootstrap trust in a separately approved sibling profile.
-Place the pinned worker read-only at `/updater-code/guest.py` and the
-existing [detached signature verifier](../../client/client.py) at
-`/updater-code/client.py`. Its SHA-256 is
-`48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7`.
-Call the worker with `/usr/bin/python -I -B` inside the admitted disposable
-root. The owner must admit the updater terminal receipt and dispose of the guest.
-The existing RTC-disabled Image also leaves the live-clock proof for
-fresh TEST trust to the selected owner.
-[Q3 guest setup](../../integration/qt612_base_16k_rehearsal/guest-init.sh) · [Owned controller](../../install/overlay583_trial/controller.py)
+`prepare_q3.py` uses the existing Qt offline boot patcher to create a
+separate updater boot partition on a fresh reflink. It reads back the
+patched worker and file modes and stages the locked vendor pairs and two
+unsigned inert fixture archives. Reuse the [offline owner pattern](../../integration/qt612_base_16k_link_preflight/actor.py)
+with one fresh writable QCOW2 child backed directly by the pinned Q3 raw
+scratch. The old Qt execution authority covers only the Qt operation.
+The updater preparation leaves launch authority unissued.
+
+The pinned Image has PL031 built in. The original Q3 serial shows
+`rtc0` initialized the guest system clock to 07:19:46 UTC on November 18,
+and the guest ALPM log continued at current UTC. The sibling boot uses
+the existing RTC guard to check hctosys, advancing RTC and system time
+against the owner's actual QEMU-start UTC before loading fresh TEST trust.
+[Q3 evidence](../../../docs/validation/qtbase612-emulated-arm16k-configure-20261118.md) · [RTC guard](../../integration/arm16k_c01_workflow_rtc/rtc-clock.sh)
+
+Complete the media tree with the pinned updater, detached TEST
+signatures, fixture-only signed database, a single public primary with a
+TEST UID and lifetime of at most one day in `TEST-public.gpg`, policy and
+observation files, and a fresh `plan.json`.
+The owner seals that tree in a read-only 128 MiB ext4 volume with the
+label and UUID in `PLAN.UNISSUED.json`. The image root must have mode
+0755 and the policy files must be readable by UID 1000.
+Bind the final media, guest worker, RTC and boot nonce, runner limits,
+cleanup and the live plan hash in the updater admission. The
+`qemu_argv_template` placeholders require actual plan SHA-256 and
+QEMU-start UTC. The host verifies the guarded serial receipt, natural
+guest shutdown, original backing hashes, and independent owner retirement.
 
 The adapter runs the unconfigured and protected refusals first. It
 compares the local database, complete inventory, inert payload, and
