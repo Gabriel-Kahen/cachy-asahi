@@ -198,3 +198,45 @@ The FDK variant is under
 | `preview1-archive-source-joins.ACTUAL.json` | `4517e48eb55f2077cba2be53536d42550965626f2fb59d494123d56a67e42b40` |
 | `qt-alternative-preview1-selection.ACTUAL.json` | `aeb0536068e09140bbf577ee36beec960520ca4415f095c30d77379bc2302cfc` |
 | FDK variant `comparison.DATA.json` | `62bb1911fbcd1f1aef194d2b54c4b82d1ebeb863d672b000aa635e11bc1730ab` |
+
+## November 26 sign-free 629-package preflight
+
+The exact 629-package profile with vendor Qt6 Base `6.12.0-3` has all 374
+forward and reverse archive bodies in local custody. The readback rehashed the
+original 753-file R132 transport and verified 366 forward and three reverse
+vendor signatures with the existing guest signature predicate. All five Preview
+archives matched the proposed inventory, the published checksums and the
+retained synthetic staging bundle. Their `.PKGINFO` and `.BUILDINFO` matched
+the expected package metadata and build records. All five detached signatures
+verified with the retained staging TEST certificate. Setup `0.3.0-1` matches
+the R132 archive bytes. First Login `0.1.0-3` requires its own signature over
+the new archive bytes. [Local signed staging rehearsal](../validation/b08-b09-signed-staging-20261125.md)
+
+Projected locks start from the same 261-package Asahi Minimal base. The
+371 forward operands yield 629 packages. The three reverse operands restore
+the original NetworkManager, Perl and Python versions with 629 packages still
+present. The preflight did not apply either transaction. The receipt and
+projected locks are under `~/.codex/evidence/asahi629-sign-free-preflight-Bhh1eY/`.
+`archive-and-certificate-preflight.json` has SHA-256
+`0ff4c9cb9679525c3aa982d9bfc06106c208f876ba6c07581fb0c12413e92793`.
+
+The staging TEST certificate `3F31C957865CD10AF794C90D177CA1397E0C5806`
+expires November 26 at 19:49:12 UTC. It had 1,019 seconds remaining at the
+readback, short of the existing 5,820-second bind and run budget. The synthetic
+staging release was withdrawn and its signing home was removed. The two
+original R132 project TEST certificates are already expired. A stock R132
+rerun needs fresh review and signatures for both original project roles.
+The 629-package trial needs current, reviewed TEST trust and signatures for
+all five selected project archives, a separately bound 629-package guest
+selection, and fresh one-use Root authority. The existing runner selects the
+exact R132 626-package transaction. The 629 preflight remains **HOLD /
+UNAPPROVED**.
+
+The retained R132 Asahi Minimal seed was rehashed from its compressed copy.
+The historical generic control disk path was absent at readback. A generic
+16 KiB guest trial also needs the exact control disk or a separately reviewed
+replacement. This setup exercises the filesystem transaction and recovery.
+The installed stock Asahi kernel lacks the selected PL011 console and the
+original initramfs lacks the VirtIO modules used by the R132 QEMU boot path.
+Boot of the installed kernel and physical M2 recovery remain open.
+[R132 generic guest and stock boot evidence](../validation/asahi626-maintenance-emulated-arm16k-20261118.md)

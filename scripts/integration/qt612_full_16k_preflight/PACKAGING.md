@@ -161,9 +161,7 @@ python3 -I -B -Werror "$lane/package_site.py" preflight \
 Run mode requires the selected package scope, control-group stop signals,
 and effective 360-second systemd stop grace. After that scope exits, use
 observe mode with the same inputs to verify the original container and
-scope retirement. The package runtime has fixture coverage. Its first
-live invocation depends on completed full-build evidence and separate
-packaging admission.
+scope retirement.
 
 The [offline reader](package_result.py) takes the staged plan and exact
 external SHA-256s for the original selection, QEMU serial and result image.

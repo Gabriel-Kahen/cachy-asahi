@@ -148,6 +148,40 @@ the TEST trust configuration, and the selected package and path checks.
 Official provider replacement, the supported Asahi composition, production
 trust and physical M2 validation remain open.
 
+### Official provider replacement on R132
+
+The retained R132 emulated AArch64 inventory with 16 KiB pages includes
+official `qt6-base 6.12.0-3`. Offline verification accepted its original
+detached signature using the pinned public ALARM key
+`68B3537F39A313B3E574D06777193F152BDBE6A6`.
+[R132 maintenance result](../../../docs/validation/asahi626-maintenance-emulated-arm16k-20261118.md)
+
+| Compared input or receipt | SHA-256 |
+| --- | --- |
+| Official Qt archive | `2777135b375ba82250896fa9a993926bf3c05b59dd22217f63d6a1391c1b4c31` |
+| Official detached signature | `8db1bcda35923c7e719b2b82162521e59edc4aeb0ec45a270e94f0327a2673f5` |
+| Q3-tested project archive | `0c6ad9610086bfb7b2a88f9cb8794b88d2432dd53436fbc18eec808af01ea315` |
+| R132 independent terminal receipt | `7ef472629ca77ad94fd30c94268d747982c1971be96a2ecb118acfc7a1a968d8` |
+| R132 626-package rollback inventory | `671526351a35f00582e4fab2b0fb66d40832144adb72eb44aa412d6af7ce942c` |
+| Offline replacement comparison | `7d43e3a6cfdf4d47b22b731004865b0784b76772f79f203338be9864372d7d33` |
+
+The R132 package set fails the replacement dependency check. On a disposable
+metadata-only local database, ordinary `pacman -T` accepted all 812 dependency
+expressions for the retained inventory. Substituting the exact project archive
+metadata left `md4c<0.6` as the sole unsatisfied expression. R132 carries
+`md4c 0.6.0-2`; Q3 carries `0.5.3-1`. The five R132 packages that require
+the Qt provider use the bare `qt6-base` name.
+
+Archive ELF readback found the same 18 top-level Qt SONAMEs in both providers,
+with 4,405 common payload leaves. The retained official
+`qt6-declarative 6.12.0-1` has six strong Vulkan-related symbol references in
+`libQt6Quick.so.6.12.0` and three in `libQt6QuickWidgets.so.6.12.0` that
+official QtGui exports and the project archive omits. The affected symbols
+include `QWindow::setVulkanInstance` and `QVulkanDefaultInstance::instance`.
+The project recipe disables Vulkan. The R132 replacement remains **HOLD**
+with both the dependency and ELF blockers. No replacement or restoration
+transaction ran. The Q3 installed result above retains its original scope.
+
 ## Guest supervisor callbacks
 
 `worker.py` rederives the selected preflight plan before invoking any

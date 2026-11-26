@@ -45,11 +45,15 @@ only the Fish package and exercised staging, comparison and withdrawal.
   the verified Qtbase 6.12.0-2 archive. Its TEST-signed installed lifecycle
   passed on the Q3 baseline, including database restoration after both
   removals and separate refusals for a tampered signature and an unknown
-  signer. Official provider replacement and maintained Asahi integration
-  remain open.
+  signer. On the retained R132 inventory, the project archive's
+  `md4c<0.6` requirement is unsatisfied. The installed Qt Quick and Quick
+  Widgets binaries also require nine Vulkan symbols absent from that
+  archive. Official provider replacement needs a compatible candidate
+  and an installed lifecycle trial.
   [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
   · [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
   · [Installed lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
+  · [R132 replacement checks](../scripts/integration/qt612_installed_16k_preflight/README.md#official-provider-replacement-on-r132)
 - The virtual desktop successor requires a terminal event after guest
   cleanup, bounded UART EOF, and outer-reader verification before accepting
   frames. The retained-input run `45731218357` authenticated all 45 tooling objects,
