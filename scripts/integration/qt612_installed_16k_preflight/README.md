@@ -96,6 +96,22 @@ restoration remain open.
 An official Qt provider replacement needs a separate admitted image, a
 current trusted rollback archive and its own consumer requirements.
 
+### First installed attempt
+
+The first positive guest completed all six lifecycle observations. Its
+retired writable child held the callback result and 629 command files.
+Direct readback of the child found all 4,635 expected payload leaves,
+18 resolved Qt SONAMEs and the exact 67 Q3 providers at each installed
+stage. All Qt SONAMEs were absent at baseline and after each removal.
+The worker result SHA-256 was
+`b7a9185b0d61d8a0fdaa6aa31d7c18fcde27fc99f6c615fb9ad80d6ebdb59062`.
+
+The outer guest held before exporting that evidence. The boot image
+lacked the `/dev/fd` path used by the evidence listing, and its bare
+`poweroff` command was unavailable after the disks unmounted. The
+coordinator retired the owned scope and container. Qualification still
+requires a fresh run with a complete result disk and natural shutdown.
+
 ## Guest supervisor callbacks
 
 `worker.py` rederives the selected preflight plan before invoking any
