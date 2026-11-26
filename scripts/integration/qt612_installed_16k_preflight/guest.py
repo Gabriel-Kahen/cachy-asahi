@@ -21,6 +21,8 @@ W, P, T = O.W, O.P, O.T
 MEDIA, WORK = Path(P.MEDIA), Path(P.WORK)
 SOURCE = P.ROOT
 BOOT_NONCE = "cachy_qt_install_nonce="
+BOOT_CASE = "cachy_qt_install_case="
+BOOT_CLONE = "cachy_qt_install_clone="
 PLAN_FILE = "PLAN.json"
 SELECTION_FILE = "SELECTION.json"
 INVENTORY_FILE = "expected356.lock"
@@ -58,15 +60,24 @@ def verify_mounts(lines, source, media, guest):
            "Qt work and local package database must belong to the disposable Q3 root")
 
 
-def verify_boundary(nonce, guest):
+def verify_boot_case(args, nonce, *, case=None, clone=None):
+    selected = [arg for arg in args if arg.startswith((BOOT_CASE, BOOT_CLONE))]
+    allowed = {(), (BOOT_CASE + "main", BOOT_CLONE + nonce)} if case is None else {
+        (BOOT_CASE + case, BOOT_CLONE + clone)
+    }
+    # Ordering on the kernel command line does not confer authority.
+    T.need([arg for arg in args if arg.startswith(BOOT_NONCE)] == [BOOT_NONCE + nonce]
+           and any(sorted(selected) == sorted(pair) for pair in allowed), "Exact guest boot case and clone required")
+
+
+def verify_boundary(nonce, guest, *, case=None, clone=None):
     T.need(sys.flags.isolated and sys.dont_write_bytecode and __debug__ and os.getuid() == os.geteuid() == 0
            and os.uname().machine == guest["architecture"] == "aarch64"
            and os.sysconf("SC_PAGE_SIZE") == guest["page_size_bytes"] == 16384,
            "Expected isolated root program in the admitted AArch64 16 KiB guest")
     args = kernel_text("/proc/cmdline").split()
-    T.need([arg for arg in args if arg.startswith(BOOT_NONCE)] == [BOOT_NONCE + nonce]
-           and {node.name for node in Path("/sys/class/net").iterdir()} == {"lo"},
-           "Unique guest boot nonce and offline network required")
+    verify_boot_case(args, nonce, case=case, clone=clone)
+    T.need({node.name for node in Path("/sys/class/net").iterdir()} == {"lo"}, "Offline guest required")
     verify_mounts(kernel_text("/proc/self/mountinfo").splitlines(), SOURCE, MEDIA, guest)
     root_device = Path("/").stat().st_dev
     T.need(all(T.ordinary(path).stat().st_dev == root_device for path in (WORK, Path("/var/lib/pacman/local"))),
@@ -188,12 +199,99 @@ def execute(plan_raw, plan_sha, inventory, selection_raw, selection_sha, *, now,
         output.write(T.encoded(result))
 
 
+def retain_database(output, point):
+    original = W.stopped_database(Path("/"))
+    T.need(0 < len(original) <= 128 << 20, "Bounded stopped Q3 database required")
+    with (output / f"database-{point}.json").open("xb") as stream:
+        stream.write(original)
+    return original
+
+
+def execute_negative(plan_raw, plan_sha, inventory, selection_raw, selection_sha, *,
+                     now, deadline, case, clone, signature_sha):
+    plan = W.read_plan(plan_raw, plan_sha, inventory)
+    selection = W.read_selection(selection_raw, selection_sha, plan_sha, now)
+    nonce = plan["nonce"]
+    T.need(case in W.NEGATIVE_CASES and type(clone) is str and re.fullmatch("[0-9a-f]{32}", clone)
+           and clone != nonce and type(signature_sha) is str and T.HEX.fullmatch(signature_sha),
+           "Exact selected signature-refusal clone required")
+    original_signature = selection["inputs"]["signature"]
+    tampered = case == "tampered_signature"
+    T.need((signature_sha != original_signature["sha256"]) == tampered,
+           "Signature differs from the selected case operand")
+    expected = selection["inputs"] | {"signature": original_signature | {"sha256": signature_sha}}
+    verify_boundary(nonce, plan["guest"], case=case, clone=clone)
+    W.check_signed_inputs(expected, **O.input_evidence(MEDIA, WORK))
+    T.need(time.monotonic() + CLEANUP_SECONDS + 3 < deadline, "Insufficient owned guest time")
+    commands = prepare_work()
+    run = Runner(runtime_module(), commands, deadline, plan["consumer"])
+    baseline = plan["stages"][0]
+    key = selection["key"]
+    argv = plan["negative_trials"][case]["command"]
+
+    def inventory_at(point):
+        queried = W.command(run, f"inventory-{point}", baseline["inventory_query"])["stdout"]
+        pin = T.pin(T.sorted_rows(queried))
+        T.need(pin == baseline["inventory"], "Signature refusal clone has the wrong Q3 inventory")
+        return pin
+
+    def empty_keyring(point):
+        listing = W.command(run, f"keyring-{point}", W.GPG + ["--with-colons", "--list-keys"])["stdout"]
+        T.need(all(line.startswith(b"tru:") for line in listing.splitlines()),
+               "Unknown-key clone must have an empty disposable keyring")
+
+    primary = None
+    try:
+        inventory_before = inventory_at("before")
+        before = retain_database(commands.parent, "before")
+        if tampered:
+            shown = W.command(run, "test-certificate", W.GPG + ["--with-colons", "--show-keys", "--", P.CERT])["stdout"]
+            observed = W.F.test_key(T, shown, key["fingerprint"], now)
+            T.need(observed == {name: key[name] for name in ("fingerprint", "created", "expires")},
+                   "Exact selected public TEST certificate required")
+            W.command(run, "key-import", W.GPG + ["--import", "--", P.CERT])
+            W.command(run, "key-trust", W.GPG + ["--import-ownertrust"], data=(key["fingerprint"] + ":6:\n").encode())
+        else:
+            empty_keyring("before")
+        refusal = W.command(run, "signature-refusal", argv, accepted=(1,), timeout=240)
+        after = retain_database(commands.parent, "after")
+        inventory_after = inventory_at("after")
+        if not tampered:
+            empty_keyring("after")
+        result = dict(clone=clone, scratch=P.Q3_SCRATCH, configuration=T.pin(P.CONFIG.encode()),
+                      archive=expected["archive"], signature=expected["signature"], argv=argv,
+                      database_before=before, database_after=after,
+                      **{name: refusal[name] for name in ("exit_code", "natural", "group_empty", "stderr")})
+        W.review_negative(plan, selection, before, {nonce}, case, result)
+    except BaseException as error:
+        primary = error
+        raise
+    finally:
+        try:
+            W.command(run, "trust-retirement", W.RETIRE)
+        except Exception as error:
+            if primary is None:
+                raise
+            primary.add_note("Owned TEST trust retirement also failed: " + str(error))
+
+    for name in ("database_before", "database_after", "stderr"):
+        result[name] = T.pin(result[name])
+    result.update(kind="QTBASE16K_INSTALLED_NEGATIVE_RESULT_V1", status="SIGNATURE_REFUSAL_VERIFIED_ONLY",
+                  case=case, nonce=nonce, plan_sha256=plan_sha, selection_sha256=selection_sha,
+                  inventory_before=inventory_before, inventory_after=inventory_after)
+    with (commands.parent / "result.json").open("xb") as output:
+        output.write(T.encoded(result))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--plan-sha256", required=True)
     parser.add_argument("--selection-sha256", required=True)
     parser.add_argument("--deadline-uptime", type=int, required=True)
-    parser.add_argument("--protect", action="append", required=True)
+    parser.add_argument("--protect", action="append")
+    parser.add_argument("--case", choices=W.NEGATIVE_CASES)
+    parser.add_argument("--clone")
+    parser.add_argument("--signature-sha256")
     args = parser.parse_args()
 
     def interrupt(_signum, _frame):
@@ -207,8 +305,16 @@ def main():
         plan = T.read(MEDIA / PLAN_FILE, cap=64 << 10)
         selected = T.read(MEDIA / SELECTION_FILE, cap=W.MAX_SELECTION)
         inventory = T.read(MEDIA / INVENTORY_FILE, P.Q3_INVENTORY, cap=16 << 10)
-        execute(plan, args.plan_sha256, inventory, selected, args.selection_sha256,
-                now=int(time.time()), deadline=deadline, protected=protected_paths(args.protect))
+        now = int(time.time())
+        if args.case is None:
+            T.need(args.clone is None and args.signature_sha256 is None, "Sibling options require a selected case")
+            execute(plan, args.plan_sha256, inventory, selected, args.selection_sha256,
+                    now=now, deadline=deadline, protected=protected_paths(args.protect or ()))
+        else:
+            T.need(args.protect is None, "Protected paths belong to the main installed trial")
+            execute_negative(plan, args.plan_sha256, inventory, selected, args.selection_sha256,
+                             now=now, deadline=deadline, case=args.case, clone=args.clone,
+                             signature_sha=args.signature_sha256)
     except (OSError, KeyError, TypeError, ValueError, KeyboardInterrupt):
         sys.exit("Installed Qtbase guest refused or held")
 

@@ -26,6 +26,7 @@ MAX_SELECTION = 16 << 20
 OFFSCREEN = "/usr/lib/qt6/plugins/platforms/libqoffscreen.so"
 VERSION_REFUSAL = b"qt6-base=6.12.0-3\n"
 INPUT_LIMITS = {"archive": 512 << 20, "certificate": 128 << 10, "signature": 32 << 10}
+NEGATIVE_CASES = ("tampered_signature", "unknown_key")
 
 
 def pin_shape(pin, maximum, *, minimum=1):
@@ -158,6 +159,16 @@ def check_view(plan, stage, payload, providers, observation, baseline=None):
                "Exact baseline local database and absence of installed Qt payload/loaders required")
 
 
+def check_signed_inputs(expected, config_raw, input_pins, certificate_raw, signature_raw):
+    T.need(input_pins == expected and config_raw == P.CONFIG.encode(),
+           "Exact signed staged inputs and private Required TrustedOnly policy required")
+    T.need(type(certificate_raw) is bytes and len(certificate_raw) <= INPUT_LIMITS["certificate"]
+           and T.pin(certificate_raw) == input_pins["certificate"] and L.packet_tags(certificate_raw) == [6, 13, 2]
+           and type(signature_raw) is bytes and len(signature_raw) <= INPUT_LIMITS["signature"]
+           and T.pin(signature_raw) == input_pins["signature"] and L.packet_tags(signature_raw) == [2],
+           "Only the exact public TEST certificate and detached signature may enter the guest")
+
+
 def exercise(plan_raw, plan_sha, inventory, selection_raw, selection_sha, *, now, config_raw, input_pins,
              certificate_raw, signature_raw, verify_boundary, run, observe):
     """Exercise model or admitted-guest callbacks. Neither callback is supplied here."""
@@ -167,13 +178,7 @@ def exercise(plan_raw, plan_sha, inventory, selection_raw, selection_sha, *, now
     check_payload_selection(plan, payload)
     providers = selection["providers"]
     check_provider_selection(inventory, providers)
-    T.need(input_pins == selection["inputs"] and config_raw == P.CONFIG.encode(),
-           "Exact signed staged inputs and private Required TrustedOnly policy required")
-    T.need(type(certificate_raw) is bytes and len(certificate_raw) <= INPUT_LIMITS["certificate"]
-           and T.pin(certificate_raw) == input_pins["certificate"] and L.packet_tags(certificate_raw) == [6, 13, 2]
-           and type(signature_raw) is bytes and len(signature_raw) <= INPUT_LIMITS["signature"]
-           and T.pin(signature_raw) == input_pins["signature"] and L.packet_tags(signature_raw) == [2],
-           "Only the exact public TEST certificate and detached signature may enter the guest")
+    check_signed_inputs(selection["inputs"], config_raw, input_pins, certificate_raw, signature_raw)
     T.need(verify_boundary(plan["nonce"], plan["guest"]) is True,
            "Exact isolated AArch64 16 KiB guest boundary required")
     manager = plan["package_manager"]
@@ -236,35 +241,40 @@ def exercise(plan_raw, plan_sha, inventory, selection_raw, selection_sha, *, now
                 timeline=calls, negatives="SEPARATE_CLONES_REQUIRED", physical_M2="NOT_RUN")
 
 
+def review_negative(plan, selection, baseline_database, used_clones, role, row):
+    T.need(role in NEGATIVE_CASES
+           and row.keys() == {"clone", "scratch", "configuration", "archive", "signature", "argv", "exit_code",
+                              "natural", "group_empty", "stderr", "database_before", "database_after"}
+           and type(row["clone"]) is str and re.fullmatch("[0-9a-f]{32}", row["clone"])
+           and row["clone"] not in used_clones and row["scratch"] == P.Q3_SCRATCH
+           and row["configuration"] == T.pin(P.CONFIG.encode())
+           and row["archive"] == selection["inputs"]["archive"]
+           and row["argv"] == plan["negative_trials"][role]["command"]
+           and type(row["exit_code"]) is int and row["exit_code"] == 1
+           and row["natural"] is row["group_empty"] is True
+           and row["database_before"] == row["database_after"] == baseline_database,
+           "Exact offline sibling refusal and clean database required: " + role)
+    pin_shape(row["signature"], INPUT_LIMITS["signature"])
+    stderr = row["stderr"]
+    T.need(type(stderr) is bytes and 0 < len(stderr) <= MAX_STREAMS and not T.HOOK_FAILURE.search(stderr),
+           "Finite original ALPM diagnostic required")
+    signature = selection["inputs"]["signature"]
+    if role == "tampered_signature":
+        T.need(row["signature"]["bytes"] == signature["bytes"] and row["signature"] != signature
+               and b"invalid or corrupted package (PGP signature)" in stderr,
+               "Expected invalid detached-signature refusal")
+    else:
+        T.need(row["signature"] == signature
+               and (b"required key missing from keyring" in stderr or b"is unknown trust" in stderr),
+               "Expected the selected signature to be refused without its TEST key")
+
+
 def review_negatives(plan, selection, baseline_database, main_clone, rows):
     """Require distinct sibling ALPM refusal receipts and exact local DB equality."""
     T.need(type(rows) is dict and rows.keys() == plan["negative_trials"].keys(),
            "Both sibling signature-refusal trials required")
     clones = {main_clone}
     for role, row in rows.items():
-        T.need(row.keys() == {"clone", "scratch", "configuration", "archive", "signature", "argv", "exit_code",
-                              "natural", "group_empty", "stderr", "database_before", "database_after"}
-               and type(row["clone"]) is str and re.fullmatch("[0-9a-f]{32}", row["clone"])
-               and row["clone"] not in clones and row["scratch"] == P.Q3_SCRATCH
-               and row["configuration"] == T.pin(P.CONFIG.encode())
-               and row["archive"] == selection["inputs"]["archive"]
-               and row["argv"] == plan["negative_trials"][role]["command"]
-               and type(row["exit_code"]) is int and row["exit_code"] == 1
-               and row["natural"] is row["group_empty"] is True
-               and row["database_before"] == row["database_after"] == baseline_database,
-               "Exact offline sibling refusal and clean database required: " + role)
+        review_negative(plan, selection, baseline_database, clones, role, row)
         clones.add(row["clone"])
-        pin_shape(row["signature"], INPUT_LIMITS["signature"])
-        stderr = row["stderr"]
-        T.need(type(stderr) is bytes and 0 < len(stderr) <= MAX_STREAMS and not T.HOOK_FAILURE.search(stderr),
-               "Finite original ALPM diagnostic required")
-        signature = selection["inputs"]["signature"]
-        if role == "tampered_signature":
-            T.need(row["signature"]["bytes"] == signature["bytes"] and row["signature"] != signature
-                   and b"invalid or corrupted package (PGP signature)" in stderr,
-                   "Expected invalid detached-signature refusal")
-        else:
-            T.need(row["signature"] == signature
-                   and (b"required key missing from keyring" in stderr or b"is unknown trust" in stderr),
-                   "Expected the selected signature to be refused without its TEST key")
     return dict(status="SIG_REFUSALS_REVIEWED_ONLY", siblings=sorted(clones - {main_clone}))
