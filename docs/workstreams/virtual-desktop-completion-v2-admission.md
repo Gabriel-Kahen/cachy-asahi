@@ -99,6 +99,10 @@ normalizes CPython's canonical builtins at the direct entry. The exact replay
 verified all eight native archives and 38 payload digests. Independent review
 rehashes the 261 packet rows and 161 initial source rows. Both pinned parsers
 accepted the separately sealed Data with the exact Code, Source and carrier.
-Live QEMU evidence for this successor is pending. Both physical M2 Air records
-remain `NOT RUN`.
+The hosted trial passed the signed installed lifecycle and entered the native
+callback. The interposed repository launcher and producer still required the
+previous runner hash. The separate virtual tooling request received 18 HTTP
+404s. The [public tooling carrier](https://github.com/Gabriel-Kahen/cachy-asahi/tree/9edb7b992419754a6b9b42b85a59a4f5690451c7/tooling-inputs)
+returned all 45 exact objects, and all 21 detached signatures verified against
+the pinned ALARM key. QEMU and both physical M2 Air records remain `NOT RUN`.
 [Corrected hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45728195500)

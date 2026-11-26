@@ -44,9 +44,10 @@ only the Fish package and exercised staging, comparison and withdrawal.
 - The virtual desktop successor requires a terminal event after guest
   cleanup, bounded UART EOF, and outer-reader verification before accepting
   frames. One retained-input run authenticated all 501 inputs and produced
-  four matching native build pairs, then stopped before QEMU. An independently
-  reviewed correction passed exact replay of all eight archives and is running
-  in the next hosted trial.
+  four matching native build pairs. The next Source passed the signed installed
+  lifecycle and entered the native callback, then stopped before QEMU. The
+  repository launch still pinned the previous script, and 18 QEMU tooling inputs
+  returned HTTP 404. The existing public carrier matches all 45 tooling pins.
   [Successor admission](workstreams/virtual-desktop-completion-v2-admission.md)
   · [Corrected hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45728195500)
 - Stable overlay promotion requires a supported Asahi composition, production
