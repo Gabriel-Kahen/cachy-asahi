@@ -19,6 +19,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 import unittest
 from unittest import mock
 
@@ -204,6 +205,30 @@ def sign(path, *_):
     Path(str(path) + '.sig').write_bytes(b'inert signature fixture')
 
 def database(path, *_):
+    if mode == 'actor':
+        helper = '''
+import os, signal, sys, time
+from pathlib import Path
+
+stage, database, result = int(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+workspace = database.parent.parent
+time.sleep(.1)
+os.kill(stage, signal.SIGTERM)
+deadline = time.monotonic() + 3
+while workspace.exists() and time.monotonic() < deadline:
+    time.sleep(.01)
+try:
+    database.write_bytes(b'late helper write')
+except FileNotFoundError:
+    observed = 'workspace absent'
+else:
+    observed = 'late write succeeded'
+temporary = result.with_suffix('.tmp')
+temporary.write_text(observed)
+temporary.replace(result)
+'''
+        r.run(['/bin/bash', '-c', '"$@"; exit $?', 'offline-repo-add', sys.executable, '-B', '-c',
+               helper, str(os.getpid()), str(path), str(Path(root).parent / 'helper-result')])
     path.write_bytes(b'inert database fixture')
     path.with_name('fixture.files.tar.gz').write_bytes(b'inert file table fixture')
 
@@ -250,6 +275,19 @@ with mock.patch.object(r.tempfile, 'TemporaryDirectory', temporary), \\
         self.assertEqual((self.destination / "repo" / self.package.name).read_bytes(), self.package.read_bytes())
         self.assertEqual(self.stage_cli("none").returncode, 1)
         self.assertEqual(manifest.read_bytes(), saved)
+
+    def test_term_while_waiting_for_repository_actor_cleans_the_staging_path(self):
+        result = self.stage_cli("actor")
+        self.assertEqual(result.returncode, -signal.SIGTERM, result.stderr)
+        helper_result = self.base / "helper-result"
+        deadline = time.monotonic() + 4
+        while not helper_result.exists() and time.monotonic() < deadline:
+            time.sleep(.01)
+        self.assertEqual(helper_result.read_text(), "workspace absent")
+        self.assertFalse(self.destination.exists())
+        self.assert_unrelated_preserved()
+        result = self.stage_cli("none")
+        self.assertEqual(result.returncode, 0, result.stderr)
 
 
 class ReleaseTests(unittest.TestCase):
@@ -530,6 +568,33 @@ class ReleaseTests(unittest.TestCase):
         self.verify()
         self.assertTrue((self.directory / "repo/fixture.db").is_symlink())
         self.assertTrue((self.directory / "repo/fixture.files.tar.gz.sig").is_file())
+
+    def test_changed_archive_copy_refuses_before_package_parsing_or_signing(self):
+        replacement = self.inputs / "substitute.tar.gz"
+        with tarfile.open(self.archive) as original, tarfile.open(replacement, "w:gz") as target:
+            for entry in original:
+                with original.extractfile(entry) as extracted:
+                    data = extracted.read()
+                if entry.name == "usr/share/fixture/config":
+                    data = b"different fixture contents\n"
+                entry.size = len(data)
+                target.addfile(entry, io.BytesIO(data))
+        self.assertEqual(r.pkginfo(replacement), r.pkginfo(self.archive))
+        self.assertNotEqual(r.sha(replacement), self.digest)
+        copy_file = r.shutil.copyfile
+
+        def copy_changed_archive(source, destination):
+            return copy_file(replacement if source == self.archive else source, destination)
+
+        with mock.patch.object(r.shutil, "copyfile", side_effect=copy_changed_archive), \
+             mock.patch.object(r, "pkginfo") as metadata, mock.patch.object(r, "sign") as signer, \
+             mock.patch.object(r, "add_database") as database:
+            with self.assertRaisesRegex(r.Error, "copied artifact checksum mismatch"):
+                self.stage()
+        for operation in (metadata, signer, database):
+            operation.assert_not_called()
+        self.assertFalse(list(self.root.glob(".staging-*")))
+        self.assertFalse((self.root / "staging/fixture-1").exists())
 
     def test_builder_snapshot_is_independent_and_build_evidence_stays_bound(self):
         provenance = r.load(self.inputs / "provenance.json")

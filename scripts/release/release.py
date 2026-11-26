@@ -41,7 +41,8 @@ class Error(Exception):
     pass
 
 
-class StageTerminated(InterruptedError):
+class StageTerminated(BaseException):
+    # I/O helpers may retry or suppress ordinary interrupted syscalls.
     pass
 
 
@@ -484,13 +485,15 @@ def stage(args, root, key, env):
             copied = out / "repo" / archive.name
             require(not copied.exists(), "duplicate package filename")
             shutil.copyfile(archive, copied)
+            copied_digest = sha(copied)
+            require(copied_digest == item["artifact"]["sha256"], f"copied artifact checksum mismatch: {archive.name}")
             p = pkginfo(copied)
             require(p["name"] not in {q["name"] for q in packages}, "duplicate package name")
             record_path = file_ref(base_dir, item["provenance"])
-            provenance_check(p, load(record_path), item["artifact"]["sha256"], spec)
+            provenance_check(p, load(record_path), copied_digest, spec)
             record_name = f"provenance/{p['name']}.json"
             shutil.copyfile(record_path, out / record_name)
-            p.update(filename=archive.name, sha256=sha(copied), provenance=record_name)
+            p.update(filename=archive.name, sha256=copied_digest, provenance=record_name)
             packages.append(p)
         dependency_check(spec, packages, load(out / "base.json"))
         if 'source_delivery' in spec:
