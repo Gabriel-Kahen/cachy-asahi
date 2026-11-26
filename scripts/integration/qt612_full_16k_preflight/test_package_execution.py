@@ -153,6 +153,40 @@ class Execution(unittest.TestCase):
             with self.assertRaises(ValueError):
                 E.terminal(raw, G.NONCE)
 
+    def test_redirected_worker_failure_reports_hold_on_original_stream(self):
+        init = (HERE / "package-guest-init.sh").read_text()
+        start = init.index('    guest "$remaining"')
+        worker = init[start:init.index("\n}", start)]
+        fixture = r'''
+ROOT=$1 EXPORT=$1/export result=inert nonce=$2 phase=package
+remaining=2700 package_plan=inert package_selection=inert
+mkdir "$ROOT$PACKAGE_OUTPUT" "$EXPORT"
+worker_exit=$3
+guest() {
+    printf 'private stdout\n'
+    printf 'private stderr\n' >&2
+    /usr/bin/bash --noprofile --norc -c 'exit "$1"' bash "$worker_exit"
+}
+builder_absent() { return 0; }
+mount() { return 0; }
+mountpoint() { [[ $3 == "$EXPORT" ]]; }
+umount() { [[ $3 == "$EXPORT" ]]; }
+sync() { return 0; }
+fresh_result_root() { return 0; }
+package_shutdown() {
+    printf '%s %s %s %s\n' "$PACKAGE_TERMINAL" "$nonce" "$1" "$phase"
+    exit 0
+}
+trap 'package_finish HOLD' ERR HUP INT TERM
+'''
+        for code, expected in ((0, ("PASS", "complete")), (1, ("HOLD", "package")), (124, ("HOLD", "package"))):
+            with self.subTest(code=code), TemporaryDirectory() as temp:
+                result = bash(fixture + worker, temp, G.NONCE, str(code))
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stderr, b"")
+                self.assertEqual(result.stdout.count(b"\n"), 1)
+                self.assertEqual(E.terminal(result.stdout, G.NONCE), expected)
+
 
 class OfflineReadback(unittest.TestCase):
     def test_worker_readback_binds_commands_archive_and_metadata(self):

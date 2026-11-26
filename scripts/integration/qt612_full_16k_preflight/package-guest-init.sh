@@ -209,9 +209,10 @@ package_main() {
     elapsed=$((10#${BASH_REMATCH[1]} + 1))
     remaining=$((PACKAGE_DEADLINE - elapsed))
     (( remaining >= 2700 ))
+    # Finish after the worker's stream redirections have been restored.
     guest "$remaining" /usr/bin/python -I -B -Werror /qtmedia/packaging/package_guest.py \
         --plan-sha256 "$package_plan" --selection-sha256 "$package_selection" \
-        --worker-deadline-uptime "$PACKAGE_DEADLINE" </dev/null >/dev/null 2>&1
+        --worker-deadline-uptime "$PACKAGE_DEADLINE" </dev/null >/dev/null 2>&1 || package_finish HOLD
     builder_absent
     phase=complete
     package_finish PASS
