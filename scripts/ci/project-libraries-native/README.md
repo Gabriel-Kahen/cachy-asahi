@@ -196,3 +196,34 @@ offline disposable AArch64 root, Required package verification and
 `CACHY_ASAHI_MIGRATION=1`. The default stage requires both native archive
 hashes. `--emulated-tiff` admits the recorded local TIFF archive for the
 reduced emulated fixture and marks the terminal result accordingly.
+
+## Maintained 341-package baseline
+
+The maintained lane binds the same 501 input objects and 341-package
+inventory as the passing native kernel producer. Five additional signed
+packages provide CMake and its exact dependencies. Their private carrier has
+ten pinned files. The input-only run verifies all 249 original signatures,
+the signed rootfs inventory, the five extension signatures and the two
+matching materializations of the reviewed project recipes.
+
+The native lane builds JBIG twice on the untouched 341-package image. It
+then replaces JBIG and adds five build dependencies in a private
+346-package image for two TIFF builds. Each pair must be byte-identical,
+and each BUILDINFO inventory must match its selected image. A separate
+341-package container replaces both distro providers in a single signed
+transaction and restores both together. It checks the exact inventory and
+selected library bytes, and runs the unchanged `tificc` and the TIFF/JBIG
+roundtrip before replacement, after replacement and after restoration.
+
+The selected userspace ELF scan found `tificc` was the only unchanged direct
+consumer of the TIFF library. The old TIFF and JBIG packages contained all
+legacy JBIG links. The current upstream-only TIFF virtual provide satisfies
+the original pkgrel demand in ALPM. That behavior is recorded independently
+from the archive identity and the consumer check.
+
+Dispatch through the registered `native-arm-build.yml` workflow with
+`mode=project-libraries-maintained-inputs` and the exact
+`project_libraries_head` on the branch allowed by `native-622-inputs`. Use
+`mode=project-libraries-maintained-native` after the matching hosted input
+audit passes. The runner keeps source material, package bodies and keys
+private. It publishes bounded build, migration and cleanup results.

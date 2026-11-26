@@ -7,7 +7,7 @@ on:
         required: true
         type: string
       lane:
-        description: Select inputs, native pairs and fresh lifecycle, or native pairs and historical migration
+        description: Select Minimal206 or maintained inputs, native pairs, or provider migration
         type: choice
         required: true
         default: inputs
@@ -15,6 +15,8 @@ on:
           - inputs
           - native
           - native-migration
+          - maintained-inputs
+          - maintained-native
   workflow_call:
     inputs:
       reviewed_head:
@@ -99,3 +101,66 @@ jobs:
         shell: bash
         timeout-minutes: 1
         run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py retire --historical
+  maintained-pairs:
+    if: >-
+      github.repository == 'Gabriel-Kahen/cachy-asahi' &&
+      github.event.repository.private == false &&
+      github.event_name == 'workflow_dispatch' &&
+      github.sha == inputs.reviewed_head && github.workflow_sha == inputs.reviewed_head &&
+      (inputs.lane == 'maintained-inputs' || inputs.lane == 'maintained-native')
+    runs-on: ubuntu-24.04-arm
+    environment: native-622-inputs
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        timeout-minutes: 5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify the exact reviewed checkout
+        timeout-minutes: 1
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Stage the pinned maintained baseline carriers
+        id: maintained-base
+        timeout-minutes: 4
+        env:
+          KERNEL_RETAINED_TRANSPORT: ssh
+          CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
+        shell: bash
+        run: exec /usr/bin/python3 -I -B scripts/port/kernel-native-job/intake.py >/dev/null 2>&1
+      - name: Stage the five pinned maintained builder extension pairs
+        id: maintained-extension
+        timeout-minutes: 4
+        env:
+          CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
+        shell: bash
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py stage --maintained-extension
+      - name: Authenticate maintained inputs and run the selected lane
+        timeout-minutes: 79
+        env:
+          PROJECT_LIBRARIES_LANE: ${{ inputs.lane }}
+          TMPDIR: ${{ runner.temp }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          case "$PROJECT_LIBRARIES_LANE" in
+            maintained-inputs) set -- --inputs-only ;;
+            maintained-native) set -- --native ;;
+            *) exit 2 ;;
+          esac
+          exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/maintained_build622.py "$@" \
+            --reviewed-head "$GITHUB_SHA" \
+            --retained-cache "$RUNNER_TEMP/kernel623-retained-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/alarm-cache" \
+            --maintained-extension-cache "$RUNNER_TEMP/libraries622-maintained-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Retire the private maintained baseline cache
+        if: always() && steps.maintained-base.outcome && steps.maintained-base.outcome != 'skipped'
+        timeout-minutes: 1
+        shell: bash
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py retire --maintained-base
+      - name: Retire the private maintained builder extension cache
+        if: always() && steps.maintained-extension.outcome && steps.maintained-extension.outcome != 'skipped'
+        timeout-minutes: 1
+        shell: bash
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py retire --maintained-extension

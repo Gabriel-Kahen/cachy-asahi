@@ -28,6 +28,10 @@ HISTORICAL_REF = "refs/heads/native622-historical-r1"
 HISTORICAL_COMMIT = "564f5c74b11b73eb43fe6b1879412c82ade3e6be"
 HISTORICAL_TREE = "96812687497a5f7674136b187a6a56300781bbe7"
 HISTORICAL_ALARM_TREE = "0e72c9c6cfec72215f86c475972474277692d148"
+MAINTAINED_REF = "refs/heads/native622-maintained-extension-r1"
+MAINTAINED_COMMIT = "02bb95c5e2e2bdd5856bcd47f97d9674d999d7e2"
+MAINTAINED_TREE = "850138f95224b2057b21c810a64ce78f0ebb5033"
+MAINTAINED_ALARM_TREE = "8a7bf7392193d010654e0b904e86ae11b9d47601"
 HOST_KEY = "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl\n"
 DEPLOY_KEY = [b"256", b"SHA256:6gnCZBWA+I9mccJV/YzywHoefkGrpuKBHU0dVcgqn7k"]
 GIT = ["/usr/bin/git", "--no-replace-objects", "-c", "core.hooksPath=/dev/null",
@@ -77,16 +81,21 @@ def verify_tree(raw, pins):
     require(not expected, "complete carrier blob membership")
 
 
-def materialize(runner, git, scratch, destination, historical=False):
+def carrier_profile(historical=False, maintained=False):
+    if maintained:
+        from maintained_inputs622 import extension_pins
+
+        return MAINTAINED_REF, MAINTAINED_COMMIT, MAINTAINED_TREE, MAINTAINED_ALARM_TREE, extension_pins()
     if historical:
         from migration622 import HISTORICAL
 
-        ref, commit, tree, alarm_tree = HISTORICAL_REF, HISTORICAL_COMMIT, HISTORICAL_TREE, HISTORICAL_ALARM_TREE
         pins = {name: {"bytes": size, "sha256": digest} for name, (size, digest) in HISTORICAL.items()}
-    else:
-        ref, commit, tree, alarm_tree = REF, COMMIT, TREE, ALARM_TREE
-        pins = retained_pins()
+        return HISTORICAL_REF, HISTORICAL_COMMIT, HISTORICAL_TREE, HISTORICAL_ALARM_TREE, pins
+    return REF, COMMIT, TREE, ALARM_TREE, retained_pins()
 
+
+def materialize(runner, git, scratch, destination, profile):
+    ref, commit, tree, alarm_tree, pins = profile
     def read(*args, timeout=15):
         return checked(runner, git + list(args), timeout)
 
@@ -110,7 +119,7 @@ def private_runner(scratch):
     return Runner(210, env, scratch)
 
 
-def stage(destination, secret, historical=False):
+def stage(destination, secret, historical=False, maintained=False):
     # The output name is unique to this attempt. Move the complete verified
     # flat cache into the reserved directory after retiring the credentials.
     destination.mkdir(mode=0o700)
@@ -118,13 +127,14 @@ def stage(destination, secret, historical=False):
         with tempfile.TemporaryDirectory(prefix="carrier-", dir=destination.parent) as temporary:
             scratch = Path(temporary)
             runner = private_runner(scratch)
+            profile = carrier_profile(historical, maintained)
             store = scratch / "carrier.git"
             checked(runner, GIT + ["init", "--bare", "--quiet", "--template=", "--object-format=sha1", str(store)])
             git = GIT + ["--git-dir=" + str(store)]
-            ssh_fetch(runner, git, secret, scratch, HISTORICAL_REF if historical else REF)
+            ssh_fetch(runner, git, secret, scratch, profile[0])
             del secret
             ready = scratch / "verified"
-            materialize(runner, git, scratch, ready, historical)
+            materialize(runner, git, scratch, ready, profile)
             ready.rename(destination)
     except BaseException:
         retire(destination)
@@ -144,8 +154,17 @@ def retire(destination):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("stage", "retire"))
-    parser.add_argument("--historical", action="store_true", help="use the separate historical-provider carrier")
+    profiles = parser.add_mutually_exclusive_group()
+    profiles.add_argument("--historical", action="store_const", const="historical", dest="lane",
+                          help="use the separate historical-provider carrier")
+    profiles.add_argument("--maintained-extension", action="store_const", const="maintained", dest="lane",
+                          help="use the maintained builder extension carrier")
+    profiles.add_argument("--maintained-base", action="store_const", const="maintained-base", dest="lane",
+                          help="retire a maintained base cache staged by kernel intake")
+    parser.set_defaults(lane="retained")
     args = parser.parse_args()
+    if args.mode == "stage" and args.lane == "maintained-base":
+        parser.error("maintained base is staged through kernel intake")
     os.umask(0o077)
     secret = os.environ.pop(SSH_ENV, "")
     try:
@@ -155,11 +174,11 @@ def main():
                 and temporary.is_absolute() and temporary == temporary.resolve() and temporary.is_dir()
                 and temporary.stat().st_uid == os.getuid(),
                 "owned runner attempt path")
-        lane = "historical" if args.historical else "retained"
-        destination = temporary / f"libraries622-{lane}-{run}-{attempt}"
+        name = "kernel623-retained" if args.lane == "maintained-base" else f"libraries622-{args.lane}"
+        destination = temporary / f"{name}-{run}-{attempt}"
         with cancellation_handlers():
             if args.mode == "stage":
-                stage(destination, secret, args.historical)
+                stage(destination, secret, historical=args.lane == "historical", maintained=args.lane == "maintained")
             else:
                 retire(destination)
     except (Exception, Cancelled):
