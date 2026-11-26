@@ -9,6 +9,7 @@ import tempfile
 import unittest
 
 import maintained_inputs622 as maintained
+from inputs622 import load
 
 
 class MaintainedInputs(unittest.TestCase):
@@ -146,6 +147,69 @@ class MaintainedInputs(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "same-job"):
             maintained.bootstrap_maintained(self.prepared_item, self.root, {}, run_producer=different_commit, commit="b" * 40)
+
+    def failure_receipts(self, output):
+        output.mkdir()
+        tag = "cachy-asahi-fish-config-1"
+        record = {"status": "failed", "mode": "build", "native_build": "NOT RUN", "hardware_validation": "NOT RUN",
+                  "reviewed_inputs_sha256": self.binding["input_lock_sha256"],
+                  "reviewed_recipes_sha256": self.binding["recipe_lock_sha256"],
+                  "bootstrap_script_sha256": self.packet.HELPERS[maintained.PRODUCER][0],
+                  "verified_signed_packages": 248,
+                  "error": f"command failed (1); see {output / (tag + '-driver.log')}"}
+        (output / "result.json").write_text(json.dumps(record))
+        acquisition = {"schema_version": 1, "acquisition": "PASS", "signature_authentication": "NOT RUN",
+                       "counts": {"total": 501, "pass": 501, "fail": 0, "pending": 0},
+                       "inputs": {name: {"status": "PASS", "expected_bytes": row["bytes"],
+                                        "expected_sha256": row["sha256"]} for name, row in self.pins.items()}}
+        (output / "acquisition.json").write_text(json.dumps(acquisition))
+        context = output / "context"
+        context.mkdir()
+        config = context / "pacman.conf"
+        config.write_bytes(maintained.PACMAN_CONFIG)
+        config.chmod(0o600)
+        recipe = output / tag
+        recipe.mkdir()
+        (recipe / "build.log").write_bytes(b"RAW_PRIVATE_DIAGNOSTIC\n"
+            b"error: config file /etc/pacman.conf could not be read: Permission denied\n")
+        return (json.dumps(record, sort_keys=True) + "\n").encode()
+
+    def test_natural_producer_failure_projects_only_exact_receipt_mode_and_marker(self):
+        self.prepared_item = self.prepared()
+        observer = load(maintained.ROOT / "scripts/port/kernel-native-job/job.py", "_622_failure_fixture")
+        report = {}
+
+        def run(argv, *, cwd):
+            return subprocess.CompletedProcess(argv, 1, self.failure_receipts(Path(argv[-1])))
+
+        with self.assertRaisesRegex(ValueError, "maintained producer natural exit"):
+            maintained.bootstrap_maintained(self.prepared_item, self.root, report, run_producer=run,
+                commit="a" * 40, observe_failure=observer.observe_producer_failure)
+        note = report["maintained_producer_failure"]
+        self.assertEqual((note["exit_code"], note["pacman_conf_mode"], note["pacman_permission"]), (1, 0o600, "OBSERVED"))
+        self.assertEqual(note["observation"]["diagnostic"]["phase"], "BUILD")
+        self.assertEqual(note["command"], {"role": "RECIPE_BUILD", "recipe": "cachy-asahi-fish-config", "attempt": 1, "exit_code": 1})
+        emitted = json.dumps(report)
+        for private in (str(self.root), "RAW_PRIVATE_DIAGNOSTIC", "Permission denied", "rootfs.tar.gz", "pacman.conf could"):
+            self.assertNotIn(private, emitted)
+
+    def test_unjoined_failure_does_not_supply_mode_stage_or_log_marker(self):
+        self.prepared_item = self.prepared()
+        observer = load(maintained.ROOT / "scripts/port/kernel-native-job/job.py", "_622_invalid_failure_fixture")
+        report = {}
+
+        def run(argv, *, cwd):
+            self.failure_receipts(Path(argv[-1]))
+            return subprocess.CompletedProcess(argv, 1, b"other producer stdout\n")
+
+        with self.assertRaisesRegex(ValueError, "maintained producer natural exit"):
+            maintained.bootstrap_maintained(self.prepared_item, self.root, report, run_producer=run,
+                commit="a" * 40, observe_failure=observer.observe_producer_failure)
+        note = report["maintained_producer_failure"]
+        self.assertEqual(note["observation"]["availability"], "REFUSED")
+        self.assertEqual(note["pacman_permission"], "NOT_OBSERVED")
+        self.assertIsNone(note["pacman_conf_mode"])
+        self.assertIsNone(note["command"])
 
     def test_audit_requires_each_exact_signature_and_its_actual_operands(self):
         self.prepared_item = self.prepared()

@@ -21,6 +21,13 @@ INPUTS = "scripts/ci/inputs.lock.json"
 PRODUCER = "scripts/ci/native_arm.py"
 CHECKER = "scripts/checks/package_checks.py"
 BASE_LOCK = "scripts/ci/maintained-native/locks/builder-successor.lock"
+PACMAN_CONFIG = (b"[options]\nArchitecture = aarch64\nSigLevel = Required\n"
+                 b"LocalFileSigLevel = Required\nHookDir = /builder-disabled-hooks\n")
+PACMAN_PERMISSION_LINES = frozenset((
+    b"error: config file /etc/pacman.conf could not be read: Permission denied",
+    b"sha256sum: /etc/pacman.conf: Permission denied",
+    b"cp: cannot open '/etc/pacman.conf' for reading: Permission denied",
+))
 
 
 @dataclass(frozen=True)
@@ -327,7 +334,63 @@ def audit_maintained(prepared, scratch, report):
                                                "signed_package_metadata": True}
 
 
-def bootstrap_maintained(prepared, scratch, report, *, run_producer, commit):
+def producer_command_failure(output, error, packet):
+    """Recognize only the original producer's fixed log destinations."""
+    match = re.fullmatch(r"command failed \((-?[0-9]{1,3})\); see ([^\n]+)", error)
+    if match is None or not -64 <= int(match[1]) <= 255 or int(match[1]) == 0:
+        return None, None
+    known = {str(output / "bootstrap.log"): ("BOOTSTRAP", None, None, output / "bootstrap.log")}
+    for base in sorted(packet.RECIPE_BASES):
+        recipe = Path(base).name
+        known[str(output / (recipe + "-compare.json"))] = ("RECIPE_COMPARE", recipe, None, None)
+        for attempt in (1, 2):
+            tag = f"{recipe}-{attempt}"
+            known[str(output / (tag + "-driver.log"))] = ("RECIPE_BUILD", recipe, attempt, output / tag / "build.log")
+    if match[2] not in known:
+        return None, None
+    role, recipe, attempt, log = known[match[2]]
+    return {"role": role, "recipe": recipe, "attempt": attempt, "exit_code": int(match[1])}, log
+
+
+def maintained_producer_failure(natural, argv, source, output, packet, observer):
+    """Capture only exact completed-process evidence before caller retirement."""
+    disposition = {"exit_code": natural.returncode, "observation": None, "command": None,
+                   "pacman_conf_mode": None, "pacman_permission": "NOT_OBSERVED"}
+    if observer is None or natural.returncode != 1:
+        return disposition
+    try:
+        observed = {}
+        observer(observed, natural, argv, source, output)
+        group = observed["producer_failure"]
+        disposition["observation"] = group
+        if group["availability"] != "VERIFIED" or group["diagnostic"]["phase"] != "BUILD":
+            return disposition
+        result = packet.decode(packet.read(output / "result.json", 16 * 1024))
+        require(natural.stdout.rsplit(b"\n", 2)[-2:] == [json.dumps(result, sort_keys=True).encode(), b""],
+                "maintained producer diagnostic echo changed")
+        disposition["command"], log = producer_command_failure(output, result["error"], packet)
+    except Exception:
+        # A missing or rejected diagnostic cannot replace the original failure.
+        disposition.update(observation=None, command=None)
+        return disposition
+
+    try:
+        config, mode = packet.capture(output / "context/pacman.conf", 4096)
+        if config == PACMAN_CONFIG:
+            disposition["pacman_conf_mode"] = mode
+    except (OSError, ValueError):
+        pass
+    if log is not None:
+        try:
+            body = packet.read(log, 256 * 1024)
+            disposition["pacman_permission"] = ("OBSERVED" if any(line in PACMAN_PERMISSION_LINES
+                for line in body.split(b"\n")) else "ABSENT_IN_BOUNDED_LOG")
+        except (OSError, ValueError):
+            pass
+    return disposition
+
+
+def bootstrap_maintained(prepared, scratch, report, *, run_producer, commit, observe_failure=None):
     """Launch only the original producer through the caller's native scope."""
     require(type(commit) is str and re.fullmatch(r"[0-9a-f]{40}", commit), "exact maintained source commit")
     binding = locked()["baseline"]
@@ -344,7 +407,11 @@ def bootstrap_maintained(prepared, scratch, report, *, run_producer, commit):
     report["phase"] = "maintained-producer"
     natural = run_producer(argv, cwd=source)
     require(type(natural) is subprocess.CompletedProcess and natural.args == argv and type(natural.returncode) is int
-            and natural.returncode == 0, "maintained producer natural exit")
+            and -64 <= natural.returncode <= 255, "maintained producer natural exit")
+    if natural.returncode != 0:
+        report["maintained_producer_failure"] = maintained_producer_failure(
+            natural, argv, source, output, packet, observe_failure)
+        require(False, "maintained producer natural exit")
     result, bootstrap, runner = (packet.load(output / name) for name in ("result.json", "bootstrap.json", "runner.json"))
     image = packet.read(output / "image-id", 128).decode("ascii").strip()
     checksum = packet.HELPERS[PRODUCER][0]

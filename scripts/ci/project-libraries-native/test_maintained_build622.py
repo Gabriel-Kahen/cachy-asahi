@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: MIT
 """Offline controls for the maintained #622 inventories, migration and owner joins."""
 
+import os
 from pathlib import Path
 import re
 from runpy import run_path
 import shutil
+import stat
 import subprocess
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
@@ -149,6 +151,29 @@ class MaintainedBuild(unittest.TestCase):
             with patch.object(M.B.DockerScope, "call") as call:
                 scope.call("image", "rm", "owned")
                 call.assert_called_once_with("image", "rm", "--no-prune", "owned", seconds=60)
+
+    def test_only_original_producer_inherits_public_input_modes(self):
+        class Cancelled(BaseException):
+            pass
+
+        with TemporaryDirectory() as directory:
+            scratch = Path(directory)
+            mode = os.umask(0o077)
+            try:
+                def record(*_args, **_kwargs):
+                    path = Path("pacman.conf")
+                    path.write_text("fixture")
+                    self.assertEqual(path.resolve().parent, scratch)
+                    self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o644)
+                    raise Cancelled()
+
+                with self.assertRaises(InterruptedError):
+                    M.run_original_producer(SimpleNamespace(run=record), ["producer"], cwd=scratch, cancelled=Cancelled)
+                private = scratch / "private"
+                private.touch()
+                self.assertEqual(stat.S_IMODE(private.stat().st_mode), 0o600)
+            finally:
+                os.umask(mode)
 
     @unittest.skipUnless(shutil.which("pacman", path="/usr/bin:/bin"), "isolated ALPM query unavailable")
     def test_current_tiff_provide_does_not_distinguish_official_pkgrel(self):

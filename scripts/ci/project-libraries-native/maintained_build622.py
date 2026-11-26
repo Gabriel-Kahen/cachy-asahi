@@ -4,6 +4,7 @@
 
 import argparse
 from contextlib import chdir
+from functools import partial
 import hashlib
 import json
 import os
@@ -471,6 +472,19 @@ def retire(docker, k, baseline, network, env, scratch, base, report):
     return failure
 
 
+def run_original_producer(runner, argv, *, cwd, cancelled):
+    # Docker preserves its root-owned inputs' mode. makepkg runs as alarm and
+    # reads the producer's generated pacman configuration without privilege.
+    previous = os.umask(0o022)
+    try:
+        with chdir(cwd):
+            return runner.run(argv, timeout=2050, log="maintained-producer.log")
+    except cancelled as error:
+        raise InterruptedError("maintained producer interrupted") from error
+    finally:
+        os.umask(previous)
+
+
 def native_run(prepared, args, scratch, report, inputs, base_rows, tiff_rows, project_rows):
     k = B.load(KERNEL / "job.py", "_maintained622_kernel_host")
     docker = MaintainedScope(scratch)
@@ -487,15 +501,10 @@ def native_run(prepared, args, scratch, report, inputs, base_rows, tiff_rows, pr
         docker.probe()
         baseline.start(setup)
 
-        def run_producer(argv, *, cwd):
-            try:
-                with chdir(cwd):
-                    return setup.run(argv, timeout=2050, log="maintained-producer.log")
-            except k.runtime.Cancelled as error:
-                raise InterruptedError("maintained producer interrupted") from error
-
         report["phase"] = "maintained341-bootstrap"
-        candidate = inputs.bootstrap_maintained(prepared, scratch, report, run_producer=run_producer, commit=args.reviewed_head)
+        run_producer = partial(run_original_producer, setup, cancelled=k.runtime.Cancelled)
+        candidate = inputs.bootstrap_maintained(prepared, scratch, report, run_producer=run_producer,
+                                                commit=args.reviewed_head, observe_failure=k.observe_producer_failure)
         B.require(re.fullmatch(B.IMAGE_ID, candidate) and candidate not in baseline.protected(),
                   "fresh immutable maintained producer image")
         observed = network.image(setup, candidate)
