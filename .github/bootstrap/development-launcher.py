@@ -22,7 +22,7 @@ from contextlib import contextmanager
 
 REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
 REMOTE = 'https://github.com/' + REPOSITORY + '.git'
-BOOTSTRAP_SHA = '3aacfc9c397c30cb2bf713ddc28f4d9a06bfa74cbf416bf5a452bd07de7ba836'
+BOOTSTRAP_SHA = 'f30859c22620da2287517ad258f8d3d67f263bb5c0cdbaf90ddf3e314d5316d0'
 ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
 CODE_PATHS = {'bootstrap':'.github/bootstrap/development-bootstrap.py',
               'issuer':'.github/bootstrap/development-clock-issuer.py'}
