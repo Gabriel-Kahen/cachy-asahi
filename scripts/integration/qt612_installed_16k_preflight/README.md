@@ -164,23 +164,37 @@ python3 -I -B "$lane/media.py" --stage "$PRIVATE_STAGE" --plan-sha256 "$PLAN_SHA
 Use the exact original archive filename, the pinned Qt actor runner from
 the retired handoff, and the 1,611,661,312-byte retired full-build boot
 template with SHA-256 `951bdc40ec6d3c4735d688acda30f153a22019862bc255059b874d9c27e0a858`.
-*Tampered signature* takes a fresh clone and a distinct
+The main case records the exact `--protect` selection and whether each
+selected path existed in the baseline. Its preservation result covers
+those paths and separately checked providers.
+
+The tampered-signature case takes a fresh clone and a distinct
 `--tampered-signature` of the same length with one detached signature
-packet. The ordinary GPG verifier must reject that signature against the
-selected public key. *Unknown key* takes another fresh clone, the original
-signature and the empty disposable keyring. For both siblings omit
-`--protect` and use distinct nonzero first eight hex digits for the clone.
+packet. The owned GPG command must verify that the selected key rejects
+this signature before ALPM runs. The unknown-key case takes another fresh
+clone, the original signature and an empty disposable keyring. Omit
+`--protect` for both siblings and use distinct nonzero first eight hex
+digits for all three clone identities.
+
+Use the unissued site description to select the original capsule and
+control directory identities independently before issuing an owner grant.
+
+```sh
+python3 -I -B "$lane/site.py" describe --media "$CASE_MEDIA" --media-sha256 "$MEDIA_SHA" \
+  > "$CASE_SITE"
+```
 
 Independently pin a canonical authority containing kind
-`ROOT_QTBASE16K_INSTALLED_OWNER_V1`, issuer `Root`, approved `true`,
-scope `cachy-asahi-qtbase16k-installed-trial.scope`, the exact case, clone
-and `media_sha256`, and integer `created_utc` and `expires_utc`
-within a one-hour entry window. The pinned installed selection separately
-binds the signed archive, public TEST certificate, payload ownership and
-Q3 provider maps.
+`ROOT_QTBASE16K_INSTALLED_OWNER_V2`, issuer `Root`, approved `true`,
+scope `cachy-asahi-qtbase16k-installed-trial.scope`, the exact case,
+clone, `media_sha256`, `site_sha256`, and integer `created_utc` and
+`expires_utc` spanning at most one hour. The pinned installed selection
+separately binds the signed archive, public TEST certificate, payload
+ownership and Q3 provider maps.
 
 ```sh
 site=(--media "$CASE_MEDIA" --media-sha256 "$MEDIA_SHA"
+      --site "$CASE_SITE" --site-sha256 "$SITE_SHA"
       --authority "$AUTHORITY" --authority-sha256 "$AUTHORITY_SHA")
 python3 -I -B "$lane/site.py" preflight "${site[@]}"
 systemd-run --user --scope --unit=cachy-asahi-qtbase16k-installed-trial.scope \
@@ -189,13 +203,25 @@ systemd-run --user --scope --unit=cachy-asahi-qtbase16k-installed-trial.scope \
   python3 -I -B "$lane/site.py" run "${site[@]}"
 python3 -I -B "$lane/site.py" observe "${site[@]}" > "$LOCAL_RETIREMENT"
 python3 -I -B "$lane/readback.py" --media "$CASE_MEDIA" --media-sha256 "$MEDIA_SHA" \
-  --retirement "$LOCAL_RETIREMENT" --retirement-sha256 "$LOCAL_RETIREMENT_SHA"
+  --site "$CASE_SITE" --site-sha256 "$SITE_SHA" --authority-sha256 "$AUTHORITY_SHA" \
+  --retirement "$LOCAL_RETIREMENT" --retirement-sha256 "$LOCAL_RETIREMENT_SHA" \
+  > "$CASE_READBACK"
 ```
 
-Reopen the three case receipts with matching plan, installed selection,
-Q3 scratch and baseline database digests and three distinct clone IDs.
-The case reader reopens the natural QEMU and fsck receipts and the
-guest evidence straight from the retired result disk.
+The offline case reader reopens the original host custody, inputs and
+child chain, natural QEMU and fsck receipts, and owned guest commands and
+output from the retired result disk. Each case receipt qualifies just
+that case. Combine all three independently selected case receipt hashes
+to verify matching plans, installed selections, Q3 scratch and baseline
+database, with distinct clone, media, site, authority and retirement
+identities.
+
+```sh
+python3 -I -B "$lane/qualify.py" \
+  --main "$MAIN_READBACK" --main-sha256 "$MAIN_SHA" \
+  --tampered-signature "$TAMPERED_READBACK" --tampered-signature-sha256 "$TAMPERED_SHA" \
+  --unknown-key "$UNKNOWN_KEY_READBACK" --unknown-key-sha256 "$UNKNOWN_KEY_SHA"
+```
 
 ```sh
 python3 -I -B -Werror::ResourceWarning "$lane/test_worker.py"
