@@ -164,17 +164,61 @@ checks, loader resolution, the TIFF/JBIG roundtrip, and the unchanged
 the hosted ELF hashes. On restoration, the original library and consumer
 hashes matched their initial values and project-only paths were absent.
 
+## Reviewed maintained baseline on November 26, 2026
+
+Native AArch64 run 45822448301 passed at
+`f113b1347ae4ac1cd0f976e6206bbff70497b777` with 4,096-byte pages. The
+same-head input audit verified 501 pinned baseline objects, 249 original
+signatures, and five additional signed build dependencies. The public
+input receipt SHA-256 is
+`c6da130b61bae37fec62f0ff560c0d6968af94138ae2c929ecb57831bf5e798e`.
+The native job independently verified those inputs and read back the
+exact 341-package producer inventory. Both recipe materializations matched
+across all 27 files.
+[Hosted input audit](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45822018823)
+· [Native builds and migration](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45822448301)
+
+Both clean builds per package ran their makepkg checks and returned
+byte-identical archives. BUILDINFO matched the complete 341-package
+JBIG build inventory and the private 346-package TIFF build inventory.
+The latter installed the same-job TEST-signed JBIG archive and five
+pinned CMake dependencies with Required signature verification.
+
+| Package | Bytes per archive | SHA-256 of both byte-identical archives |
+| --- | ---: | --- |
+| `cachy-asahi-jbigkit 2.2-1.1` | 144,384 | `fa97ca68d1c7474fdbd17ce59ab2f99a164a2eae8b762f65980b738a791af97c` |
+| `cachy-asahi-libtiff 4.7.2-1.1` | 863,116 | `30444dd49066f88d247cee6f6259eb9f5ebdba7f68752fc7c3672e0f64718590` |
+
+A separate offline 341-package container replaced both original
+providers in one signed transaction and restored them together. The
+original and restored inventory hash was
+`fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25`.
+The inventory with the two project providers was
+`b5905bc7da08ca7ee6f7fe1d9d8df8f98c3de924f014ce293a3290c3e22ef346`.
+All three checkpoints passed package database, loader, ownership, payload
+hash and TIFF/JBIG roundtrip checks. The unchanged `tificc` executable
+and its ALPM metadata matched their originals at all three checkpoints.
+The passive scan of the maintained userspace found it was the only direct
+TIFF consumer outside the replaced packages. ALPM also accepted the
+original TIFF pkgrel expression through the release-less virtual provide.
+
+The earlier native attempt stopped at the original producer exit.
+The launcher inherited a private umask that made the producer's copied
+pacman configuration unreadable to the unprivileged builder. The
+corrected launch scopes `022` to the producer and preserves the private
+parent directory. The first failed command in the earlier run remains
+unavailable. The corrected run verified owned image and container absence,
+both private cache retirements and preservation of all six pre-existing
+Docker images. The bounded native receipt SHA-256 is
+`bb53b22faa8e0be66bfb3d9dd2fbb5f45baf3d4afa5b14f295db764f837dd52d`.
+The workflow published status and hashes, with zero Actions artifacts.
+Docker build-cache retirement remains unverified.
+[Earlier producer hold](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45820480303)
+
 ## Remaining qualification
 
-The passed native gate covers the reduced Minimal206 fixture with the
-pinned historical providers, three codecs and the single installed
-reverse consumer `lcms2`. For the intended maintenance composition,
-pin the selected signed inventory and identify its installed direct and
-transitive consumers. Verify provider resolution, package conflicts and
-ABI compatibility there, exercise the installed consumers before and
-after replacement, and verify restoration of the original inventory and
-payloads. Evaluation on that composition remains open.
+The maintained result covers the reviewed 341-package ARM baseline and
+its unchanged direct TIFF consumer. The supported Asahi installation and
+its indirect consumers, native 16 KiB execution, both physical M2 Air
+models, production trust, and distribution review remain open.
 [Historical reverse-consumer evidence](../workstreams/maintained-reverse-consumer-migration-impact.md)
-
-Native 16 KiB execution, physical M2 Air testing, production trust, and
-distribution review remain open.

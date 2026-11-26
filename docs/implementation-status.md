@@ -19,6 +19,15 @@ independent readback and retirement. The supported Asahi transaction and
 physical M2 checks remain open.
 [Updater validation](validation/updater-q3-emulated-arm16k-20261126.md)
 
+**November 26, 2026.** JBIG and TIFF each produced two byte-identical native
+AArch64 archives on the reviewed maintained 341-package baseline and its
+private TIFF build extension. The exact signed pair replaced and restored
+both original providers on the maintained baseline. The unchanged
+`tificc` and the TIFF/JBIG roundtrip passed all three checkpoints. The run
+used 4 KiB pages and verified owned cleanup. The supported Asahi installation,
+physical M2 behavior and distribution review remain open.
+[Maintained build and migration evidence](validation/project-libraries-native-20261125.md#reviewed-maintained-baseline-on-november-26-2026)
+
 **November 26, 2026.** The native AArch64 kernel baseline and candidate for
 [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) both built and
 passed output verification at `4e5493cbd384feaae027abb476437c90b7c07cba`.

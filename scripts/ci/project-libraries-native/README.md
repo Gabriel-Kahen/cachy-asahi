@@ -227,3 +227,7 @@ Dispatch through the registered `native-arm-build.yml` workflow with
 `mode=project-libraries-maintained-native` after the matching hosted input
 audit passes. The runner keeps source material, package bodies and keys
 private. It publishes bounded build, migration and cleanup results.
+
+The corrected hosted native lane passed on November 26, 2026, after
+scoping the producer umask to preserve unprivileged read access to its
+copied builder configuration. [Maintained build and migration results](../../../docs/validation/project-libraries-native-20261125.md#reviewed-maintained-baseline-on-november-26-2026)
