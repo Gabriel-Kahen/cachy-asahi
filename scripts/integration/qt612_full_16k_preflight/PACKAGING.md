@@ -2,9 +2,28 @@
 
 This handoff starts after independent full-build readback and host retirement.
 The source preflight can stage an unissued packaging plan and its guest
-worker. A separate boot payload and offline reader define the package
-guest boundary. Packaging, signing, installation and rollback remain
-`NOT_RUN`.
+worker. A separate boot payload and offline reader define the package guest
+boundary. The first attempt passed the dependency, source and recipe smoke
+checks. The staging checker then refused the hard-linked tools `qmake` and
+`qtpaths` and their versioned aliases in `usr/lib/qt6/bin`. The
+retired workspace contained 5,109 entries and only those two repeated
+non-directory inodes. The completed build and its input media remain
+available for a fresh package-only attempt.
+
+The refused guest retained its HOLD result and logs, then powered down.
+Its launcher returned 1, and both post-scope observations confirmed that
+the owned container and scope had retired. The failure trap ran while the
+worker streams were redirected, hiding its UART marker. The corrected
+launcher emits the HOLD marker after restoring those streams. Packaging
+acceptance, signing, installation and rollback remain open.
+
+The package-only recipe projection checks the two known tool pairs, and
+copies each versioned alias to its own inode when CMake created a hardlink.
+The public `qmake6` symlink remains in the package. The staging checker reads
+the regular installed notice policy copy and verifies the original policy
+digest. The unchanged checker passed a copy of the retired payload with
+those two corrections applied. Its original hardlink and notice checks
+remain in force.
 
 ## Assemble from the completed build
 
