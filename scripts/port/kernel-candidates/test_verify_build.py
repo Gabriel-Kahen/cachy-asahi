@@ -148,8 +148,8 @@ class BuildChecks(unittest.TestCase):
         mock = patch.object(verifier,'source_evidence',return_value=IDENTITIES)
         mock.start(); self.addCleanup(mock.stop)
 
-    def outputs(self):
-        build = self.root / 'build'; build.mkdir()
+    def outputs(self, build_name='build', *, first_depends=''):
+        build = self.root / build_name; build.mkdir()
         (build / '.config').write_text(self.text)
         release = '7.1.13-ARCH-cachy-asahi-kernel-c01'
         for name, content in {'include/config/kernel.release':release + '\n',
@@ -167,9 +167,10 @@ class BuildChecks(unittest.TestCase):
         symvers = ['0x00000000\tkernel_export\tvmlinux\tEXPORT_SYMBOL\t\n']
         for index, name in enumerate(modules):
             modname = Path(name).stem.replace('-','_')
+            depends = first_depends if index == 0 else ''
             modinfo = b'\0'.join((b'name=' + modname.encode(),
                                  b'vermagic=' + (release + ' SMP preempt mod_unload aarch64').encode(),
-                                 b'license=GPL',b'depends=')) + b'\0'
+                                 b'license=GPL', b'depends=' + depends.encode())) + b'\0'
             path = build / name; path.parent.mkdir(parents=True,exist_ok=True)
             path.write_bytes(elf_bytes(b'\x1f\x20\x03\xd5' * 4,module=True,modinfo=modinfo,export='module_export_' + str(index)))
             symvers.append('0x00000000\tmodule_export_' + str(index) + '\t' + name[:-3] + '\tEXPORT_SYMBOL_GPL\tAPPLE\n')
@@ -607,6 +608,22 @@ class BuildChecks(unittest.TestCase):
         build = self.outputs(); order = build / 'modules.order'; name = order.read_text().splitlines()[0]
         order.write_text('\n'.join(order.read_text().splitlines()[1:])+'\n'); (build / (name[:-2]+'.ko')).unlink()
         with self.assertRaises(ValueError): self.verify(build)
+
+    def test_modpost_dependencies_preserve_provider_basename(self):
+        module, provider, _ = verifier.APPLE_MODULES.values()
+        build = self.outputs(first_depends=Path(provider).stem)
+        result = self.verify(build)
+        self.assertEqual(result['modules'][module]['name'], Path(module).stem.replace('-', '_'))
+        self.assertEqual(result['modules'][provider]['name'], Path(provider).stem.replace('-', '_'))
+
+    def test_modpost_dependencies_require_distinct_other_inventory_entries(self):
+        module, provider, _ = (Path(path).stem for path in verifier.APPLE_MODULES.values())
+        for case, depends in (('unknown', 'absent-provider'), ('self', module),
+                              ('duplicate', f'{provider},{provider}'), ('alias', provider.replace('-', '_'))):
+            with self.subTest(case=case):
+                build = self.outputs(case, first_depends=depends)
+                with self.assertRaisesRegex(ValueError, 'module dependencies outside actual inventory'):
+                    self.verify(build)
 
     def test_module_arch_type_vermagic_name_descriptor_relocation_refused(self):
         build = self.outputs(); path = build / next(iter(verifier.APPLE_MODULES.values())); original = path.read_bytes()

@@ -765,8 +765,8 @@ def verify_outputs(build, source, expected_config=None):
         loads = reader.loads
         elf_config = embedded_config(elf, cfg)
         modules, expected_magic = {}, vermagic(release, settings)
-        modnames = {Path(name).stem.replace('-', '_') for name in order}
-        harness.need(len(modnames) == len(order), 'ambiguous module names')
+        module_stems = {Path(name).stem for name in order}
+        harness.need(len({stem.replace('-', '_') for stem in module_stems}) == len(order), 'ambiguous module names')
         for ordinal, name in enumerate(order):
             path = build / (name[:-2] + '.ko')
             with ELF(path, 1, 1024**3, module_ordinal=ordinal) as reader:
@@ -784,11 +784,15 @@ def verify_outputs(build, source, expected_config=None):
                     key, value = row.decode('ascii').split('=', 1)
                     harness.need(re.fullmatch(r'[A-Za-z0-9_]+', key) and all(32 <= ord(c) < 127 for c in value), 'module metadata text invalid')
                     info.setdefault(key, []).append(value)
-                expected_name = Path(name).stem.replace('-', '_')
+                stem = Path(name).stem
+                expected_name = stem.replace('-', '_')
                 harness.need(info.get('vermagic') == [expected_magic] and info.get('name') == [expected_name] and
                              info.get('license') and len(info.get('depends', [])) == 1, 'module vermagic/name/license/dependency metadata invalid')
                 depends = info['depends'][0].split(',') if info['depends'][0] else []
-                harness.need(len(set(depends)) == len(depends) and set(depends) <= modnames - {expected_name}, 'module dependencies outside actual inventory')
+                # Pinned modpost emits the original provider basename in depends.
+                providers = set(depends)
+                harness.need(len(providers) == len(depends) and stem not in providers and providers <= module_stems,
+                             'module dependencies outside actual inventory')
             modules[name[:-2] + '.ko'] = {'sha256': harness.digest(path), 'bytes': path.stat().st_size, 'name': expected_name, 'vermagic': expected_magic}
         dtbs = {name: verify_dtb(build / 'arch/arm64/boot/dts/apple' / name, identity) for name, identity in identities.items()}
         return {'status': 'BUILD_OUTPUT_STRUCTURE_VERIFIED', 'source_commit': SOURCE_COMMIT, 'source_evidence_sha256': SOURCE_PINS, 'source_links': source_link_check,
