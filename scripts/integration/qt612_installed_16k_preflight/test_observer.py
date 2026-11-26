@@ -77,6 +77,15 @@ class Evidence(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "did not map and open"):
                 O.plugin_trace(bad, PROGRAM)
 
+    def test_competing_program_generations_refuse_only_in_consumer_pid(self):
+        wrapper = (b"  177: calling init: /usr/lib/libcap.so.2\n"
+                   b"  177: initialize program: setpriv\n")
+        expected = {PLUGIN, "/lib/ld-linux-aarch64.so.1"}
+        self.assertEqual(O.plugin_trace(wrapper.replace(b"177:", b"183:") + trace(), PROGRAM), expected)
+        for raw in (wrapper + trace(), trace() + wrapper, trace() + trace()):
+            with self.assertRaisesRegex(ValueError, "Competing executable generations"):
+                O.plugin_trace(raw, PROGRAM)
+
     def test_actual_device_and_inode_observation_and_disappeared_map(self):
         raw = f"7f-8f r-xp 00000000 f:22 125 {SO}\n".encode()
         self.assertEqual(L.file_maps(raw), {SO: [15, 34, 125]})
@@ -157,5 +166,22 @@ class HostLoaderFixture(unittest.TestCase):
         python = "/usr/bin/python3"
         row = subprocess.run([python, "-I", "-B", "-c", "import ctypes,sys; ctypes.CDLL(sys.argv[1])", library],
                              env={"PATH": "/usr/bin:/bin", "LC_ALL": "C", "LD_DEBUG": "files"},
+                             capture_output=True, check=True, timeout=10)
+        self.assertIn(library, O.plugin_trace(row.stderr, python, library))
+
+    @unittest.skipUnless(Path("/usr/lib/libcrypto.so.3").is_file(), "Local glibc loader fixture unavailable")
+    def test_real_glibc_shell_exec_cannot_pollute_consumer_mapping(self):
+        library = "/usr/lib/libcrypto.so.3"
+        python = "/usr/bin/python3"
+        launch = ["/usr/bin/bash", "--noprofile", "--norc", "-c", 'exec "$@"', "fixture"]
+        consumer = [python, "-I", "-B", "-c", "import ctypes,sys; ctypes.CDLL(sys.argv[1])", library]
+        env = {"PATH": "/usr/bin:/bin", "LC_ALL": "C"}
+        row = subprocess.run(launch + consumer, env=env | {"LD_DEBUG": "files"},
+                             capture_output=True, check=True, timeout=10)
+        self.assertIn(b"initialize program: /usr/bin/bash", row.stderr)
+        self.assertIn(b"initialize program: /usr/bin/python3", row.stderr)
+        with self.assertRaisesRegex(ValueError, "Competing executable generations"):
+            O.plugin_trace(row.stderr, python, library)
+        row = subprocess.run(launch + ["/usr/bin/env", "LD_DEBUG=files", *consumer], env=env,
                              capture_output=True, check=True, timeout=10)
         self.assertIn(library, O.plugin_trace(row.stderr, python, library))

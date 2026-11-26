@@ -40,7 +40,9 @@ secret keys into the guest.
 · [Stopped ALPM database snapshot](../../install/overlay583_trial/trial.py)
 
 At each installed stage, confirm the exact new inventory, database consistency,
-all package-owned payload and aliases, and the 40 runtime dependencies.
+all package-owned files and symlink leaves, and the 40 runtime dependencies.
+Check the types of directories reported by pacman outside the shared
+`/usr`, `/usr/lib`, `/usr/share`, and `/usr/bin` roots.
 `qt6-base=6.12.0-2` and the upstream-version consumer must resolve. The exact
 official `qt6-base=6.12.0-3` demand must return solely the unsatisfied demand.
 Check every Qt SONAME with the regular loader using RTLD_NOW/LOCAL and bind
@@ -73,7 +75,11 @@ database and protected observations with the recorded baseline.
 The worker has no CLI or default executor. The future guest supervisor provides
 the bounded command recorder and checks the admitted guest and mounts. Stage
 the exact [loader probe](loader_probe.py) at `/qt-install-inputs/loader_probe.py`
-on the read-only media. Inside the Q3 chroot, create
+on the read-only media. Also mount the pinned source files in their repository
+layout so the observer and worker can load both preflights, the package
+metadata projection, Qt recipe inputs and checker, the Overlay583 database
+recorder, and the llhttp and Fish trust readers.
+Inside the Q3 chroot, create
 `observer.Observer(plan, selection, run, protected_paths)` with the selected
 configuration paths. Pass its `run` and `observe` methods and the output of
 `observer.input_evidence()` to the worker. The observer reads the three trust
@@ -85,7 +91,10 @@ maps. For the original consumer command, the observer enables glibc's
 initialized and opened. Loader search paths remain unchanged.
 
 The supervisor retains original command streams, including map probes and
-the consumer trace. It must run the consumer as the selected ordinary user.
+the consumer trace. It drops privileges to the selected ordinary user before
+setting `LD_DEBUG` in the environment of the consumer's final exec. Earlier
+wrappers run without that diagnostic. The observer refuses traces with
+multiple program initializations in the consumer PID.
 The separate sibling validator takes original ALPM diagnostics and stopped
 database observations from independently retired sibling clones.
 

@@ -19,7 +19,7 @@ VIEW_CAP = 16 << 20
 LEAVES = 32768
 TRACE = re.compile(rb"\s*([0-9]+):\s+calling init: (/[^\x00-\x20]+)\s*")
 OPEN = re.compile(rb"\s*([0-9]+):\s+opening file=(/[^\x00-\x20]+) \[0\]; direct_opencount=[1-9][0-9]*\s*")
-PROGRAM = re.compile(rb"\s*([0-9]+):\s+initialize program: (/[^\x00-\x20]+)\s*")
+PROGRAM = re.compile(rb"\s*([0-9]+):\s+initialize program: ([^\x00\r\n]+?)\s*")
 
 
 def input_evidence(media=Path(P.MEDIA), work=Path(P.WORK)):
@@ -76,21 +76,24 @@ def protected_view(paths):
 def plugin_trace(raw, program, offscreen=W.OFFSCREEN):
     """Observe the normal glibc link-map initialization and actual plugin open."""
     T.need(0 < len(raw) <= W.MAX_STREAMS, "Bounded original consumer loader trace required")
-    init, opened, subjects = {}, set(), set()
+    init, opened, programs = {}, set(), {}
     for line in raw.splitlines():
         match = PROGRAM.fullmatch(line)
-        if match and os.fsdecode(match[2]) == program:
-            subjects.add(match[1])
+        if match:
+            programs.setdefault(match[1], []).append(os.fsdecode(match[2]))
         match = TRACE.fullmatch(line)
         if match and match[2].startswith((b"/usr/lib/", b"/lib/")):
             init.setdefault(match[1], set()).add(os.fsdecode(match[2]))
         match = OPEN.fullmatch(line)
         if match and os.fsdecode(match[2]) == offscreen:
             opened.add(match[1])
-    T.need(len(subjects) == 1 and subjects <= opened and subjects <= init.keys()
-           and offscreen in init[next(iter(subjects))],
+    subjects = [pid for pid, names in programs.items() if program in names]
+    T.need(len(subjects) == 1, "Normal installed consumer did not map and open the exact offscreen plugin")
+    pid, = subjects
+    T.need(programs[pid] == [program], "Competing executable generations in consumer loader trace")
+    T.need(pid in opened and offscreen in init.get(pid, ()),
            "Normal installed consumer did not map and open the exact offscreen plugin")
-    result = init[next(iter(subjects))]
+    result = init[pid]
     T.need(len(result) <= 512, "Bounded consumer provider map required")
     return result
 
