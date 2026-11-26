@@ -637,8 +637,9 @@ def fetch_zlib(cache, *, deadline=None):
                     if deadline is not None:
                         timeout = min(15, 90 - (time.monotonic() - started), check_deadline(deadline))
                         require(timeout > 0, 'zlib-fetch-timeout')
-                        # The selected urllib HTTP response's socket; inert fixtures use the same shape.
-                        source.fp.raw._sock.settimeout(timeout)
+                        # HTTPResponse clears fp when the final body read consumes Content-Length.
+                        if source.fp is not None:
+                            source.fp.raw._sock.settimeout(timeout)
                     read = source.read if deadline is None else source.read1
                     data = read(min(65536, ZLIB_SIZE + 1 - size))
                     check_deadline(deadline)

@@ -904,6 +904,25 @@ class SourceFetch(unittest.TestCase):
         with patch.object(b, 'open_zlib', side_effect=AssertionError('cache must be used')):
             self.assertEqual(b.fetch_zlib(self.cache), cached)
 
+    def test_deadline_fetch_accepts_http_response_closed_by_final_content_length_read(self):
+        from http.client import HTTPResponse
+
+        header = f'HTTP/1.1 200 OK\r\nContent-Length: {len(self.data)}\r\n\r\n'.encode()
+        stream = io.BytesIO(header + self.data)
+        socket = Mock()
+        stream.raw = SimpleNamespace(_sock=socket)
+        source = HTTPResponse(SimpleNamespace(makefile=lambda mode: stream))
+        source.url = b.ZLIB_URL
+        source.begin()
+        self.addCleanup(source.close)
+
+        with patch.object(b, 'open_zlib', return_value=source):
+            path = b.fetch_zlib(self.cache, deadline=b.time.monotonic() + 30)
+
+        self.assertEqual(path.read_bytes(), self.data)
+        self.assertIsNone(source.fp)
+        socket.settimeout.assert_called_once()
+
     def test_redirect_oversize_hash_drift_and_cancel_remove_only_owned_temporary(self):
         unrelated = self.cache / 'unrelated.partial'; unrelated.write_bytes(b'preserve')
         for response in (self.response(url='https://other.example/zlib.tar.gz'), self.response(self.data + b'x'),
