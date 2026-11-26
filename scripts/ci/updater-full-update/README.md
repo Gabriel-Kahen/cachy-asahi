@@ -143,8 +143,14 @@ Prepare the guest with the following selected inputs:
   selected signed sudo package. Use the existing signed bootstrap and
   verifier to stage them. Place the exact qualified archive and separately
   issued detached TEST signature on media as `updater.pkg` and
-  `updater.pkg.sig`. The adapter compares the installed Bash entry, library
-  files, and policy executable to that archive before calling the CLI.
+  `updater.pkg.sig`. Include the original signed old fixture
+  `cachy-asahi-check-fixture-0.1.0-1-any.pkg.tar.gz` and its detached signature
+  at the media root. Both detached signatures over the pinned archives must
+  verify using the selected current TEST key. Before creating trial scratch,
+  the adapter also requires the old installed ALPM record to own exactly
+  the inert payload, with no install script. It compares the installed Bash
+  entry, library files, and policy executable to the qualified archive
+  before calling the CLI.
 - A root-owned, public-only `/updater-trust` (0700) containing just the
   selected TEST key for the signed fixture repository. Use ordinary files
   for `fixture.db`, `fixture.db.sig`, the sole package, and its detached
@@ -171,9 +177,12 @@ is absent at its recorded location. The frozen Q3 guest also mounts the
 working chroot `nosuid` and therefore cannot supply this sudo boundary.
 Reuse the Q3 owner and signed ALPM phases through the verified 356 lock
 and retired bootstrap trust in a separately approved sibling profile.
-Place the pinned worker read-only at `/updater-code/guest.py` and call it
-with `/usr/bin/python -I -B` inside the admitted disposable root. The
-owner must admit the updater terminal receipt and dispose of the guest.
+Place the pinned worker read-only at `/updater-code/guest.py` and the
+existing [detached signature verifier](../../client/client.py) at
+`/updater-code/client.py`. Its SHA-256 is
+`48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7`.
+Call the worker with `/usr/bin/python -I -B` inside the admitted disposable
+root. The owner must admit the updater terminal receipt and dispose of the guest.
 The existing RTC-disabled Image also leaves the live-clock proof for
 fresh TEST trust to the selected owner.
 [Q3 guest setup](../../integration/qt612_base_16k_rehearsal/guest-init.sh) · [Owned controller](../../install/overlay583_trial/controller.py)
@@ -212,3 +221,22 @@ Expose the single archive to the guest preparer only after successful
 cleanup and recovery. Issue its disposable TEST signature separately
 against the unchanged bytes. The existing public evidence path remains
 the run's receipt channel. [Native pair adapter](../../../packages/tools/cachy-asahi-update/updater-native.py) · [Stage cleanup](../../port/updater-native-stage/stage.py)
+
+The existing private `Gabriel-Kahen/cachy-asahi-ci-inputs` repository is the
+custody destination. Its Actions service is enabled. A private artifact
+handoff still needs an independently reviewed workflow and a non-root
+native ARM runner with local ARM Docker. The qualified public workflow
+can execute only in its public source repository. The existing private
+deploy key provides read-only input access. The private workflow can use
+an explicitly scoped same-repository input selection and short-lived
+artifact storage, subject to admission.
+
+Bind source `96a3848c4c4e7d88a2ac979d27066f99b150315a`, the 354-package
+lock SHA-256
+`5c72ffef2fadecc631861ef12ab7f48e083694a402d0428a395da64fa592dcee`, and
+the same 527 authenticated inputs. The four immutable private carriers
+provide 224 of those inputs. The unchanged stage additionally requires
+18 GiB free on a shared filesystem or 10 GiB free on each of separate
+output and Docker filesystems. Actual runner capacity remains unverified.
+GitHub lists 14 GB of storage for the standard private ARM runner.
+[Frozen carriers](../../port/updater-native-stage/retained-inputs.json) · [Private runner specifications](https://docs.github.com/en/actions/reference/runners/github-hosted-runners#standard-runners-for-private-repositories)

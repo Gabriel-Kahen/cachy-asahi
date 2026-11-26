@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """One installed updater transaction in a separately admitted offline guest."""
 
+from datetime import datetime, timezone
 import gzip
 import hashlib
 import io
@@ -19,19 +20,25 @@ import tarfile
 import time
 
 INPUT = Path('/updater-input')
+CLIENT = Path('/updater-code/client.py')
+CLIENT_SHA = '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7'
 TRUST = Path('/updater-trust')
 WORK = Path('/updater16k')
 DB = Path('/var/lib/pacman/local')
 NAME = 'cachy-asahi-check-fixture'
 OLD, NEW = '0.1.0-1', '0.1.1-1'
+OLD_ARCHIVE = f'{NAME}-{OLD}-any.pkg.tar.gz'
 PAYLOAD = Path('/usr/share') / NAME / 'value'
 UPDATER = '44b89959b768c80e82d1e32b29348bdd4b58bfb1fabfba393b14794178d086dc'
 Q3_LOCK = 'e2a4da7903e6de26b0ee37758ad424439f83196fa6a3b0bdffa501f35a02d0b9'
 REPO = ('fixture.db', 'fixture.db.sig', f'{NAME}-{NEW}-any.pkg.tar.gz',
         f'{NAME}-{NEW}-any.pkg.tar.gz.sig')
-PKGINFO = '25aaa306aac45d9925ebac8fe8dab3c25d8fad9bd2e1e79fe5544940a8d17ab6'
+PKGINFO = {
+    OLD: 'ee9816e45a9157fb3bbb375f23c4633469fbf2abe43d947c8aaeead288ce77d7',
+    NEW: '25aaa306aac45d9925ebac8fe8dab3c25d8fad9bd2e1e79fe5544940a8d17ab6',
+}
 POLICIES = {'policy.json', 'pre.json', 'post.json', 'protected-policy.json', 'protected-pre.json'}
-FILES = {'q3.lock', 'before.lock', 'updater.pkg', 'updater.pkg.sig', 'hooks.list',
+FILES = {'q3.lock', 'before.lock', 'updater.pkg', 'updater.pkg.sig', OLD_ARCHIVE, OLD_ARCHIVE + '.sig', 'hooks.list',
          *POLICIES, *(f'repo/{name}' for name in REPO)}
 SHA = re.compile('[0-9a-f]{64}')
 FINGERPRINT = re.compile('[0-9A-F]{40}')
@@ -99,7 +106,8 @@ def plan(pin, now):
     need(INPUT.stat().st_mode & 0o001
          and all((INPUT / name).stat().st_mode & 0o004 for name in POLICIES),
          'ordinary guest user must be able to read policy media')
-    verify_fixture_archive(read(INPUT / 'repo' / REPO[2], 1 << 20))
+    verify_fixture_archive(read(INPUT / OLD_ARCHIVE, 1 << 20), OLD)
+    verify_fixture_archive(read(INPUT / 'repo' / REPO[2], 1 << 20), NEW)
     return files, data['signer']
 
 
@@ -156,9 +164,9 @@ def fixture_payload(version):
     return f'inert Check fixture {version}\n'.encode()
 
 
-def verify_fixture_archive(data):
+def verify_fixture_archive(data, version):
     # These are the exact two members from the existing Check fixture writer.
-    members = {'.PKGINFO': PKGINFO, str(PAYLOAD).lstrip('/'): digest(fixture_payload(NEW))}
+    members = {'.PKGINFO': PKGINFO[version], str(PAYLOAD).lstrip('/'): digest(fixture_payload(version))}
     found = {}
     with gzip.GzipFile(fileobj=io.BytesIO(data)) as compressed:
         raw = compressed.read(tarfile.RECORDSIZE + 1)
@@ -276,15 +284,39 @@ def verify_installed_entry():
         need(data == read(Path('/') / relative, 1 << 20), 'installed updater bytes differ')
 
 
-def verify_trust(signer):
+def verify_trust(signer, gpg):
     need(TRUST.resolve(strict=True) == TRUST and TRUST.is_dir() and TRUST.stat().st_uid == 0
          and stat.S_IMODE(TRUST.stat().st_mode) == 0o700, 'private guest trust required')
     private_keys = TRUST / 'private-keys-v1.d'
     need(not private_keys.exists() or not any(private_keys.iterdir()), 'public-only guest trust required')
-    rows = checked(('/usr/bin/gpg', '--batch', '--no-options', '--no-auto-key-retrieve', '--homedir',
-                    str(TRUST), '--with-colons', '--fingerprint', '--list-keys')).splitlines()
+    rows = checked((*gpg, '--with-colons', '--fingerprint', '--list-keys')).splitlines()
     keys = [line.split(':')[9] for line in rows if line.startswith('fpr:')]
     need(keys == [signer], 'exact disposable TEST signer required')
+
+
+def verify_bootstrap(signer, now):
+    source = read(CLIENT, 64 << 10)
+    need(digest(source) == CLIENT_SHA, 'pinned detached signature verifier required')
+    client = {'__name__': 'updater_detached_client', '__file__': str(CLIENT)}
+    exec(compile(source, str(CLIENT), 'exec'), client)
+    gpg = ('/usr/bin/gpg', '--batch', '--no-tty', '--no-options', '--homedir', str(TRUST),
+           '--no-auto-key-retrieve', '--no-auto-key-import', '--auto-key-locate', 'clear',
+           '--disable-dirmngr', '--no-autostart', '--no-auto-check-trustdb', '--lock-never')
+    verify_trust(signer, gpg)
+    for name in ('updater.pkg', OLD_ARCHIVE):
+        result = run((*gpg, '--status-fd', '1', '--verify', '--', str(INPUT / (name + '.sig')), str(INPUT / name)))
+        need(result.returncode == 0, 'bootstrap detached signature verification failed')
+        try:
+            proof = client['signature_status'](result.stdout.encode(), signer,
+                                                datetime.fromtimestamp(now, timezone.utc))
+        except client['Error'] as error:
+            raise ValueError('bootstrap detached signature status refused') from error
+        need(proof['signing_fingerprint'] == signer, 'bootstrap signature requires the exact TEST key')
+
+    installed = DB / f'{NAME}-{OLD}'
+    files = f"%FILES%\n{str(PAYLOAD).lstrip('/')}\n\n".encode()
+    need(read(installed / 'files', 4096) == files and not os.path.lexists(installed / 'install')
+         and read(PAYLOAD, 4096) == fixture_payload(OLD), 'installed old fixture paths or payload differ')
 
 
 def trial(files, results):
@@ -347,12 +379,13 @@ def run_trial(files):
             'command_timed_out': timed_out, 'guest_disposal': 'REQUIRES_OWNER_RECEIPT', **verified}
 
 
-def main():
+def admit_guest():
     pin = boot_pin(os.geteuid(), platform.machine(), os.sysconf('SC_PAGE_SIZE'),
                    {p.name for p in Path('/sys/class/net').iterdir()},
                    Path('/proc/cmdline').read_text(), os.statvfs(INPUT).f_flag & os.ST_RDONLY,
                    Path('/sys/firmware/devicetree/base/model').read_bytes())
-    files, signer = plan(pin, int(time.time()))
+    now = int(time.time())
+    files, signer = plan(pin, now)
     user = pwd.getpwnam('alarm')
     need(user.pw_uid == user.pw_gid == 1000, 'exact ordinary guest user required')
     info = Path('/usr/bin/sudo').lstat()
@@ -362,7 +395,12 @@ def main():
          'root-owned sudoers rule required')
     sudo_boundary(info.st_uid, info.st_mode, os.statvfs('/usr/bin/sudo').f_flag,
                   read(sudoers, 4096))
-    verify_trust(signer)
+    return files, signer, now
+
+
+def main():
+    files, signer, now = admit_guest()
+    verify_bootstrap(signer, now)
     receipt = run_trial(files)
     print(json.dumps(receipt, sort_keys=True))
     return int(receipt['status'] != 'PASS')

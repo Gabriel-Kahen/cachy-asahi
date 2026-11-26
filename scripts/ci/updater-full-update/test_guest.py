@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Source controls for the disposable guest adapter."""
 
+from contextlib import redirect_stdout
 import importlib.util
 import io
 import json
@@ -20,6 +21,7 @@ spec = importlib.util.spec_from_file_location('guest', Path(__file__).with_name(
 guest = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guest)
 CHECK = Path(__file__).resolve().parents[1] / 'updater-optional-check/historical/real-check/real-check.py'
+CLIENT = Path(__file__).resolve().parents[2] / 'client/client.py'
 
 
 def forbid_actor(event, _args):
@@ -55,7 +57,9 @@ class GuestTests(unittest.TestCase):
             (root / 'repo').mkdir()
             for name in guest.FILES:
                 (root / name).write_bytes(name.encode())
-            runpy.run_path(str(CHECK))['write_package'](root / 'repo' / guest.REPO[2], guest.NEW)
+            write = runpy.run_path(str(CHECK))['write_package']
+            write(root / guest.OLD_ARCHIVE, guest.OLD)
+            write(root / 'repo' / guest.REPO[2], guest.NEW)
             files = {name: guest.digest((root / name).read_bytes()) for name in guest.FILES}
             document = {'kind': 'cachy-asahi-updater16k-disposable-v1', 'valid_from': 1, 'expires': 60,
                         'signer': 'A' * 40, 'files': files}
@@ -86,7 +90,72 @@ class GuestTests(unittest.TestCase):
                     member.size = len(data)
                     archive.addfile(member, io.BytesIO(data))
             with self.subTest(member=injected), self.assertRaisesRegex(ValueError, 'archive member'):
-                guest.verify_fixture_archive(buffer.getvalue())
+                guest.verify_fixture_archive(buffer.getvalue(), guest.NEW)
+
+    def bootstrap(self, statuses, *, extra_path=False, install_script=False, error=None):
+        signer = 'A' * 40
+        with tempfile.TemporaryDirectory() as parent:
+            root = Path(parent)
+            database = root / 'db'
+            installed = database / f'{guest.NAME}-{guest.OLD}'
+            installed.mkdir(parents=True)
+            manifest = f"%FILES%\n{str(guest.PAYLOAD).lstrip('/')}\n"
+            if extra_path:
+                manifest += 'usr/share/unrelated\n'
+            manifest = (manifest + '\n').encode()
+            (installed / 'files').write_bytes(manifest)
+            if install_script:
+                (installed / 'install').write_bytes(b'fixture')
+            read = guest.read
+
+            def read_input(path, limit):
+                if path == guest.PAYLOAD:
+                    return guest.fixture_payload(guest.OLD)
+                return read(path, limit)
+
+            with patch.multiple(guest, INPUT=root / 'inputs', WORK=root / 'work', DB=database, CLIENT=CLIENT), \
+                    patch.object(guest, 'admit_guest', return_value=({}, signer, 1800)), \
+                    patch.object(guest, 'verify_trust'), \
+                    patch.object(guest, 'run', side_effect=statuses) as command, \
+                    patch.object(guest, 'read', side_effect=read_input), \
+                    patch.object(guest, 'run_trial', return_value={'status': 'PASS'}) as trial, \
+                    redirect_stdout(io.StringIO()):
+                if error:
+                    with self.assertRaisesRegex(ValueError, error):
+                        guest.main()
+                    trial.assert_not_called()
+                else:
+                    self.assertEqual(guest.main(), 0)
+                    trial.assert_called_once_with({})
+                self.assertEqual(command.call_count, len(statuses))
+                for call, name in zip(command.call_args_list, ('updater.pkg', guest.OLD_ARCHIVE)):
+                    argv, = call.args
+                    self.assertEqual(argv[-6:], ('--status-fd', '1', '--verify', '--',
+                                                str(guest.INPUT / (name + '.sig')), str(guest.INPUT / name)))
+                    self.assertIn('--lock-never', argv)
+                self.assertFalse(guest.WORK.exists())
+            self.assertEqual((installed / 'files').read_bytes(), manifest)
+
+    def status(self, primary='A' * 40, signing='A' * 40, extra='', exit_code=0):
+        lines = ('[GNUPG:] NEWSIG\n'
+                 f'[GNUPG:] GOODSIG {signing[-16:]} TEST\n'
+                 f'[GNUPG:] VALIDSIG {signing} 1970-01-01 1200 0 4 0 22 8 00 {primary}\n'
+                 + extra)
+        return subprocess.CompletedProcess([], exit_code, stdout=lines, stderr='')
+
+    def test_exact_signer_and_old_manifest_admit_trial(self):
+        self.bootstrap([self.status(), self.status()])
+
+    def test_invalid_updater_signature_stops_before_mutation(self):
+        self.bootstrap([self.status(exit_code=1)], error='detached signature verification failed')
+        for status in (self.status(primary='B' * 40), self.status(extra='[GNUPG:] KEYEXPIRED 900\n')):
+            self.bootstrap([status], error='detached signature status refused')
+        self.bootstrap([self.status(signing='B' * 40)], error='exact TEST key')
+
+    def test_invalid_old_signature_or_extra_owned_path_stops_before_mutation(self):
+        self.bootstrap([self.status(), self.status(exit_code=1)], error='detached signature verification failed')
+        self.bootstrap([self.status(), self.status()], extra_path=True, error='old fixture paths or payload differ')
+        self.bootstrap([self.status(), self.status()], install_script=True, error='old fixture paths or payload differ')
 
     def test_only_exact_q3_supplements_and_fixture_delta(self):
         q3 = {f'baseline-{i}': '1-1' for i in range(356)}
