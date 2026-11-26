@@ -37,11 +37,11 @@ only the Fish package and exercised staging, comparison and withdrawal.
   · [Emulated update and refusal](validation/updater-q3-emulated-arm16k-20261126.md)
 - The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
   identifies the exact historical build inputs still needed for Perl and Python.
-- Qtbase `all` scheduled exactly the pinned 1,216 remaining actions in a
-  disposable emulated 16 KiB guest. The first full-target trial reached its
-  4 GiB disk ceiling. The replacement booted with an 8 GiB ceiling.
-  Installation needs a verified full build, qualified archives and a
-  TEST-signed lifecycle. [Dry run and build-only plan](../scripts/integration/qt612_full_16k_preflight/README.md)
+- Qtbase `all` completed in the replacement 8 GiB emulated AArch64 guest
+  with 16 KiB pages. Independent readback verified 18 linked libraries and
+  1,216 distinct Ninja timing and command tuples. The complete build is
+  ready for separate archive assembly and the TEST-signed installed trials.
+  [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
 - The virtual desktop successor requires a terminal event after guest
   cleanup, bounded UART EOF, and outer-reader verification before accepting
   frames. The latest retained-input trial authenticated all 45 tooling objects,

@@ -287,8 +287,24 @@ raises the minimum host disk admission to 12.125 GiB. For a cap above
 4 GiB the disposable actor sets an exact kernel limit and verifies
 that the owned QEMU process inherited it. The original runtime retains
 its process custody and allocation watches. The 8 GiB successor was
-separately selected and launched. Full-target completion and independent
-retirement remain unverified.
+separately selected and launched.
+
+The successor completed on November 26 at source
+`678c2656b9311f791d838fc4dd7ac377c8702749`. The guest build exited zero
+naturally after 21,117.007 seconds, left the `all` target idle and shut down
+cleanly. The independent reader verified all 18 AArch64 shared libraries,
+their SONAMEs and 16 KiB load alignment. The Ninja log had 2,006 appended
+output rows and 1,216 distinct timing and command tuples. The completed
+overlay occupied 5,761,728,512 logical bytes. Both post-scope observations
+found the owned container and scope absent.
+
+| Retained full-build evidence | SHA-256 |
+| --- | --- |
+| Handoff | `4d1972ce3353404ef965b14469fb2c36e7b415c3aa0a07dd865885a03ceca2f3` |
+| Host actor receipt | `14be08b49a11d539a7330a23f10ee52c93ab89798cf302c26b3230cea7f4d35f` |
+| Independent readback | `e980acc3de53d1e4be144eb4eea4f3adb39dd12ae6924aa6bad8f7eec23ab916` |
+| Post-scope retirement | `ab4b1a538941d84edf3d41500d3f0ddf52cd31013a281235a4f46c6ff2140f97` |
+| Completed overlay | `19f3bcc159f871a210dadff81dccd64f442ef8e54219bc9b9ef9c356689e3fa6` |
 
 The [packaging and installed 16 KiB handoff](PACKAGING.md) selects the
 completed overlay and pinned dependencies, projects the corrected Qtbase
