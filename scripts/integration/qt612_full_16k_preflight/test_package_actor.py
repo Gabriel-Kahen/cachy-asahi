@@ -55,6 +55,21 @@ def role_fixture():
 
 
 class Chain(unittest.TestCase):
+    def test_chain_accepts_eight_gib_only_for_the_completed_predecessor(self):
+        nodes, sizes = chain_fixture()
+        predecessor = nodes[1]
+        predecessor["actual-size"] = 8 * GIB
+        file_info = predecessor["children"][0]["info"]
+        file_info.update({"actual-size": 8 * GIB, "virtual-size": 8 * GIB})
+        sizes["complete.qcow2"] = 8 * GIB
+        A.validate_chain(json.dumps(nodes).encode(), sizes)
+        for changed in ({"complete.qcow2": 8 * GIB + 1}, {"gui.qcow2": 4 * GIB + 1}):
+            with self.subTest(changed=changed), self.assertRaisesRegex(ValueError, "Bounded local package backing"):
+                A.validate_chain(json.dumps(nodes).encode(), sizes | changed)
+        predecessor["actual-size"] += 512
+        with self.assertRaisesRegex(ValueError, "bounded sector-aligned backing allocation"):
+            A.validate_chain(json.dumps(nodes).encode(), sizes)
+
     def test_exact_five_nodes_require_complete_between_package_and_gui(self):
         nodes, sizes = chain_fixture()
         A.validate_chain(json.dumps(nodes).encode(), sizes)

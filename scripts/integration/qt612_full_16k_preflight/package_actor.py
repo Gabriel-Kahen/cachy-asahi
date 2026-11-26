@@ -67,8 +67,10 @@ def validate_chain(raw, sizes):
     qcow = dict(type="qcow2", data={"compat": "1.1", "compression-type": "zlib",
                                     "lazy-refcounts": False, "refcount-bits": 16,
                                     "corrupt": False, "extended-l2": False})
+    caps = E.READONLY_BACKING_CAPS | {"overlay.qcow2": 1 << 20}
     for i, (node, name, backing) in enumerate(zip(nodes, chain, (*chain[1:], None), strict=True)):
-        eof, capacity = sizes[Path(name).name], (1 << 20 if i == 0 else 4 << 30 if backing else 16 << 30)
+        leaf = Path(name).name
+        eof, capacity = sizes[leaf], caps[leaf]
         C.need(type(node) is dict and type(eof) is int and 0 < eof <= capacity, "Bounded local package backing required")
         space = node["actual-size"]
         C.need(type(space) is int and 0 < space <= capacity and space % 512 == 0,

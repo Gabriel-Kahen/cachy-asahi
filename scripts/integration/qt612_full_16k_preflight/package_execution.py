@@ -26,6 +26,8 @@ COMMON_INIT_PIN = C.file_pin(12843, "cd7a48f5cd16011501508ff2bf99fd724e1f11ba972
 TERMINAL = b"QTBASE_PACKAGE16K_TERMINAL"
 PHASES = ("boot", "storage", "package", "retain", "cleanup")
 CHAIN = ("/out/overlay.qcow2", "/inputs/complete.qcow2", "/inputs/gui.qcow2", "/inputs/core.qcow2", "/inputs/scratch.raw")
+READONLY_BACKING_CAPS = {"complete.qcow2": 8 << 30, "gui.qcow2": 4 << 30, "core.qcow2": 4 << 30,
+                         "scratch.raw": 16 << 30}
 
 
 def evidence_caps(plan):
@@ -106,8 +108,9 @@ def role_descriptor(plan, boot):
     C.need(inputs.keys() == {"Image", "scratch.raw", "core.qcow2", "gui.qcow2", "complete.qcow2"}
            and {name: P.ref_pin(inputs[name]) for name in F.LOWER} == F.LOWER,
            "Exact already reviewed immutable backings required")
+    caps = READONLY_BACKING_CAPS | {"Image": F.LOWER["Image"]["bytes"]}
     for name, operand in inputs.items():
-        P.ref_shape(operand, 16 << 30 if name == "scratch.raw" else 4 << 30)
+        P.ref_shape(operand, caps[name])
         C.need(operand["bytes"] > 0, "Empty package backing refused")
     C.need(plan["fresh_child"] == dict(path=CHAIN[0], backing=CHAIN[1], backing_format="qcow2",
                                       storage="fresh-writable-child-only"), "Fresh package child contract differs")

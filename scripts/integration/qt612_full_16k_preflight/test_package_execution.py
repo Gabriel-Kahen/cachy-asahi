@@ -20,7 +20,7 @@ E, W, C = R.E, R.W, R.C
 PLAN, SELECTION = C.pin(b"plan"), C.pin(b"selection")
 
 
-def boot_fixture():
+def boot_fixture(complete_bytes=G.PIN["bytes"]):
     g, full, files, plan = G.fixture()
     files |= {name: b"fixture" for name in ["metadata-projection.json",
                                           *(f"recipe/operand-{index}" for index in range(13))]}
@@ -33,7 +33,7 @@ def boot_fixture():
     plan |= dict(staging_files={name: C.pin(body) for name, body in files.items()},
                  readonly_media={name: expected | {"path": "/fixture/" + name}
                                  for name, expected in E.F.LOWER.items()}
-                 | {"complete.qcow2": G.PIN | {"path": "/fixture/complete.qcow2"}},
+                 | {"complete.qcow2": C.file_pin(complete_bytes, G.DIGEST) | {"path": "/fixture/complete.qcow2"}},
                  source_evidence={"boot_template": C.file_pin(E.F.Q.BOOT_BYTES, G.DIGEST) | {"path": "/fixture/boot.raw"}},
                  fresh_child=dict(path=E.CHAIN[0], backing=E.CHAIN[1], backing_format="qcow2",
                                   storage="fresh-writable-child-only"))
@@ -80,6 +80,19 @@ def pass_fixture():
 
 
 class Execution(unittest.TestCase):
+    def test_role_accepts_the_eight_gib_readonly_predecessor(self):
+        def role_with(size):
+            g, full, files, raw, issue = boot_fixture(size)
+            with patch.object(W, "module", side_effect=[full, g]):
+                plan, _, boot = E.boot_bundle(raw, files, issue, C.pin(issue)["sha256"], 1100)
+            return E.role_descriptor(plan, boot)
+
+        role = role_with(8 << 30)
+        self.assertEqual(role["readonly_media"]["complete.qcow2"]["bytes"], 8 << 30)
+        self.assertEqual(role["runtime"]["child_file_size_cap"], 4 << 30)
+        with self.assertRaises(ValueError):
+            role_with((8 << 30) + 1)
+
     def test_boot_uses_exact_existing_guest_and_role_is_inert(self):
         g, full, files, raw, issue = boot_fixture()
         issue_sha = C.pin(issue)["sha256"]
