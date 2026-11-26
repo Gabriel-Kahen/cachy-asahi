@@ -72,35 +72,54 @@ closure. It builds the independent consumer once, then reruns that same
 consumer after both reinstalls. After each removal it compares the stopped
 database and protected observations with the recorded baseline.
 
-The worker has no CLI or default executor. The future guest supervisor provides
-the bounded command recorder and checks the admitted guest and mounts. Stage
-the exact [loader probe](loader_probe.py) at `/qt-install-inputs/loader_probe.py`
-on the read-only media. Also mount the pinned source files in their repository
-layout so the observer and worker can load both preflights, the package
-metadata projection, Qt recipe inputs and checker, the Overlay583 database
-recorder, and the llhttp and Fish trust readers.
-Inside the Q3 chroot, create
-`observer.Observer(plan, selection, run, protected_paths)` with the selected
-configuration paths. Pass its `run` and `observe` methods and the output of
-`observer.input_evidence()` to the worker. The observer reads the three trust
-operands, uses the existing stopped database recorder, and joins actual
+The [guest entry](guest.py) connects the callbacks to the existing [Perl
+command recorder](../arm16k_perl5423_vm/runtime.py). The guest owner self-binds
+`/qtwork/root` on the fresh Q3 ext4 child before chrooting into it and passes
+`cachy_qt_install_nonce=<plan nonce>` at boot. Stage the exact plan
+`PLAN.json`, independent `SELECTION.json`, `expected356.lock`, signed archive
+and public inputs, consumer sources, and [loader probe](loader_probe.py) on
+the read-only `/qt-install-inputs` mount. Create a fresh root-owned
+`/qt-install-work` with mode `0755` and place the emitted `pacman.conf` there.
+The workspace and ALPM database reside on the disposable child.
+
+Mount the pinned sources with their repository paths intact and read-only.
+They include both preflights, the package metadata projection, Qt recipe inputs
+and checker, the Overlay583 database recorder, the llhttp and Fish trust
+readers, and Perl's `runtime.py`, `contracts.py`, `helper-origin.json` and
+`frozen/owned_process.py`. Inside the admitted chroot, invoke the entry with
+the externally selected plan and selection hashes, the guest uptime deadline,
+and one `--protect` per selected path.
+
+```sh
+python3 -I -B "$READONLY_SOURCE/scripts/integration/qt612_installed_16k_preflight/guest.py" \
+  --plan-sha256 "$PLAN_SHA256" --selection-sha256 "$SELECTION_SHA256" \
+  --deadline-uptime "$OWNED_UPTIME_DEADLINE" --protect "$SELECTED_PATH"
+```
+
+The observer reads the three trust operands, uses the existing stopped
+database recorder, and joins actual
 `pacman` inventory and file ownership to the mapped files. Provider
 observations resolve ELF dependencies only through the actual standard-loader
 maps. For the original consumer command, the observer enables glibc's
 `LD_DEBUG=files` diagnostic and records which library the consumer process
 initialized and opened. Loader search paths remain unchanged.
 
-The supervisor retains original command streams, including map probes and
-the consumer trace. It drops privileges to the selected ordinary user before
-setting `LD_DEBUG` in the environment of the consumer's final exec. Earlier
-wrappers run without that diagnostic. The observer refuses traces with
-multiple program initializations in the consumer PID.
+The entry retains the original bounded command streams, map probes and
+consumer trace under `/qt-install-work/evidence/commands`. It stores each
+protected view and stopped database map with its stage observation, and
+reserves time for the worker's existing GPG retirement command. It drops
+privileges to UID/GID 1000 before setting `LD_DEBUG` in the environment of the
+consumer's final exec. Earlier wrappers run without that diagnostic. The
+observer refuses traces with multiple program initializations in the consumer
+PID. The guest owner still owns boot, read-only staging, scope retirement, and
+evidence export.
 The separate sibling validator takes original ALPM diagnostics and stopped
 database observations from independently retired sibling clones.
 
 ```sh
 python3 -I -B -Werror::ResourceWarning "$lane/test_worker.py"
 python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane" -p test_observer.py
+python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane" -p test_guest.py
 ```
 
 These controls feed inert fixtures through the actual worker. They exercise
