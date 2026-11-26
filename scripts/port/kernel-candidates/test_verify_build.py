@@ -203,6 +203,71 @@ class BuildChecks(unittest.TestCase):
         self.assertEqual(result['export_count'],4)
         self.assertEqual(set(result['embedded_config_sha256'].values()),{hashlib.sha256(self.text.encode()).hexdigest()})
 
+    def test_image_end_in_the_pinned_post_bss_reserve_and_export_bounds(self):
+        build = self.outputs()
+        elf = build / 'vmlinux'
+        image = build / 'arch/arm64/boot/Image'
+        with verifier.ELF(elf, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+            start = reader.loads[0]['offset']
+            symbols = reader.symbols['offset']
+        end = symbols + 2 * 24
+        symbol = symbols + 3 * 24
+        self.mutate(image, 16, '<Q', 0x10000)
+        self.mutate(elf, start + 16, '<Q', 0x10000)
+        self.mutate(elf, end + 8, '<Q', TEXT_ADDR + 0x10000)
+        self.assertEqual(self.verify(build)['image_effective_bytes'], 0x10000)
+        good, good_image = elf.read_bytes(), image.read_bytes()
+        for offset, fmt, value, failure in (
+                (end + 8, '<Q', TEXT_ADDR + 0x20000, 'Image size/entry differ'),
+                (end + 16, '<Q', 8, 'Image size/entry differ'),
+                (end + 4, '<B', 0x11, 'Image size/entry differ'),
+                (end + 5, '<B', 2, 'Image size/entry differ'),
+                (end + 6, '<H', 1, 'defined symbol outside allocated section')):
+            with self.subTest(offset=offset, value=value), self.assertRaisesRegex(ValueError, failure):
+                elf.write_bytes(good)
+                self.mutate(elf, offset, fmt, value)
+                self.verify(build)
+        elf.write_bytes(good)
+        self.mutate(elf, 120 + 40, '<Q', 0x10000)
+        with self.assertRaisesRegex(ValueError, 'defined symbol outside allocated section'):
+            self.verify(build)
+        elf.write_bytes(good)
+        self.mutate(image, 16, '<Q', 0x11000)
+        self.mutate(elf, start + 16, '<Q', 0x11000)
+        self.mutate(elf, end + 8, '<Q', TEXT_ADDR + 0x11000)
+        with self.assertRaisesRegex(ValueError, 'defined symbol outside allocated section'):
+            self.verify(build)
+        image.write_bytes(good_image)
+        elf.write_bytes(good)
+        self.mutate(elf, symbol + 6, '<H', 2)
+        self.mutate(elf, symbol + 8, '<Q', TEXT_ADDR + 0x10000)
+        self.mutate(elf, symbol + 16, '<Q', 0)
+        with self.assertRaisesRegex(ValueError, 'defined symbol outside allocated section') as caught:
+            self.verify(build)
+        fact = caught.exception.symbol_range
+        self.assertEqual((fact['role'], fact['elf_type'], fact['failure_count']), ('arm64-image-reference', 3, 1))
+        self.assertEqual(fact['samples'][0]['symbol_class'], 'OTHER')
+        self.assertEqual(fact['samples'][0]['symbol_sha256'], hashlib.sha256(b'kernel_export').hexdigest())
+        self.assertEqual(fact['samples'][0]['section']['name_class'], '.bss')
+        self.assertNotIn('kernel_export', repr(fact))
+
+    def test_symbol_range_holds_first_two_and_reports_incomplete_scan(self):
+        elf = self.outputs() / 'vmlinux'
+        with verifier.ELF(elf, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+            symbols = reader.symbols['offset']
+        for index in (1, 2, 3):
+            self.mutate(elf, symbols + index * 24 + 8, '<Q', TEXT_ADDR + 0x10000)
+        for poison in (False, True):
+            if poison:
+                self.mutate(elf, symbols + 3 * 24 + 5, '<B', 4)
+            with self.assertRaisesRegex(ValueError, 'defined symbol outside allocated section') as caught:
+                with verifier.ELF(elf, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+                    reader.definitions({'_text', '_end', 'kernel_export'})
+            fact = caught.exception.symbol_range
+            self.assertEqual(fact['failure_count'], 2 if poison else 3)
+            self.assertIs(fact['scan_complete'], not poison)
+            self.assertEqual([row['symbol_class'] for row in fact['samples']], ['_text', '_end'])
+
     def test_old_minimal_false_positive_dtbs_refused(self):
         build = self.outputs(); path = build / 'arch/arm64/boot/dts/apple/t8112-j413.dtb'
         path.write_bytes(struct.pack('>II',0xd00dfeed,8))

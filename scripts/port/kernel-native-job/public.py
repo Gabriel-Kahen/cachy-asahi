@@ -428,8 +428,58 @@ def validate_rela_table_fact(value):
     return value
 
 
+def validate_symbol_range_fact(value):
+    need(type(value) is dict and set(value) == {'role', 'elf_type', 'section_offset',
+         'failure_count', 'scan_complete', 'samples'})
+    role, kind = value['role'], value['elf_type']
+    need(type(role) is str and role in ('module', 'elf', 'arm64-image-reference') and
+         type(kind) is int and kind in (1, 2, 3) and (role == 'module') == (kind == 1))
+    need(type(value['section_offset']) is bool and (kind != 1 or value['section_offset']) and
+         type(value['scan_complete']) is bool)
+    count, samples = value['failure_count'], value['samples']
+    need(type(count) is int and 1 <= count <= 2000000 and
+         type(samples) is list and len(samples) == min(count, 2))
+
+    def uint(item, maximum=2**64 - 1):
+        need(type(item) is int and 0 <= item <= maximum)
+
+    for row in samples:
+        need(type(row) is dict and set(row) == {'symbol_class', 'symbol_sha256', 'binding',
+             'type', 'value', 'size', 'section'})
+        label, pin = row['symbol_class'], row['symbol_sha256']
+        need(type(label) is str and label in ('_text', '_end', '__this_module', 'OTHER') and
+             type(pin) is str and re.fullmatch('[0-9a-f]{64}', pin) and
+             (label == 'OTHER' or hashlib.sha256(label.encode('ascii')).hexdigest() == pin))
+        need(type(row['binding']) is int and row['binding'] in (1, 2))
+        uint(row['type'], 15)
+        uint(row['value'])
+        uint(row['size'])
+        section = row['section']
+        need(type(section) is dict and set(section) == {'index', 'type', 'flags', 'addr', 'size', 'name_class'})
+        uint(section['index'], 8191)
+        need(section['index'] > 0 and type(section['name_class']) is str and
+             section['name_class'] in ('.bss', '.sbss', '.head.text', '.text', '.rodata', '.data',
+                                       '.data..percpu', '.gnu.linkonce.this_module', 'OTHER'))
+        uint(section['type'], 0xffffffff)
+        for name in ('flags', 'addr', 'size'):
+            uint(section[name])
+        need(not (section['flags'] & 1 and section['flags'] & 4))
+        lower = 0 if value['section_offset'] else section['addr']
+        need(not (section['flags'] & 2 and row['size'] <= section['size'] and
+                  lower <= row['value'] and row['value'] + row['size'] <= lower + section['size']))
+    return value
+
+
 def validate_output_fact(value, version=4):
-    need(type(version) is int and version in (4, 5, 6) and type(value) is dict)
+    need(type(version) is int and version in (4, 5, 6, 7) and type(value) is dict)
+    if version == 7:
+        need(set(value) == {'call_boundary', 'predicate', 'symbol_range', 'rela_table'} and
+             type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
+             type(value['predicate']) is str and value['predicate'] == 'CHECK_059')
+        validate_symbol_range_fact(value['symbol_range'])
+        if value['rela_table'] is not None:
+            validate_rela_table_fact(value['rela_table'])
+        return value
     keys = {'call_boundary', 'predicate'}
     if version >= 5:
         keys.add('relocation')
@@ -460,8 +510,8 @@ def child_validate_inner_group(group):
         return group
     need(pin is not None)
     row = group['diagnostic']
-    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6))
-    need(set(row) == CHILD_INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5, 6) else set()))
+    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7))
+    need(set(row) == CHILD_INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5, 6, 7) else set()))
     need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
     need(type(row['phase']) is str and row['phase'] in CHILD_INNER_PHASES and type(row['command']) is str and row['command'] in CHILD_INNER_COMMANDS)
     need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -487,7 +537,7 @@ def child_validate_inner_group(group):
     if row['schema_version'] == 3:
         validate_compiler_fact(row['compiler_failure'])
         need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and row['command'] == 'KERNEL' and (row['attempt'] == 'ISSUED') and (row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']}))
-    if row['schema_version'] in (4, 5, 6):
+    if row['schema_version'] in (4, 5, 6, 7):
         validate_output_fact(row['output_failure'], row['schema_version'])
         need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
              row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and

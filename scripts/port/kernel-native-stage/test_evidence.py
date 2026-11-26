@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 import copy
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -398,6 +399,35 @@ class RelocationValidatorParity(unittest.TestCase):
                 mutate(altered)
                 with self.assertRaises(ValueError):
                     validate(altered, 6)
+
+    def test_symbol_diagnostics_refuse_forgery_in_all_three_readers(self):
+        import inner_result
+        validators = (inner_result._output_fact, evidence.validate_output_fact, self.receiver().validate_output_fact)
+        sample = {'symbol_class': '_end', 'symbol_sha256': hashlib.sha256(b'_end').hexdigest(),
+                  'binding': 1, 'type': 0, 'value': 0x20000, 'size': 0,
+                  'section': {'index': 3, 'type': 8, 'flags': 3, 'addr': 0x10000,
+                              'size': 0x8000, 'name_class': '.bss'}}
+        fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_059', 'rela_table': None,
+                'symbol_range': {'role': 'arm64-image-reference', 'elf_type': 3, 'section_offset': False,
+                                 'failure_count': 1, 'scan_complete': True, 'samples': [sample]}}
+        mutations = (
+            lambda row: row.update(predicate='OTHER'),
+            lambda row: row['symbol_range'].update(role='module'),
+            lambda row: row['symbol_range'].update(failure_count=2),
+            lambda row: row['symbol_range'].update(scan_complete=1),
+            lambda row: row['symbol_range']['samples'][0].update(value=0x18000),
+            lambda row: row['symbol_range']['samples'][0].update(symbol_class='raw'),
+            lambda row: row['symbol_range']['samples'][0].update(symbol_sha256='0' * 64),
+            lambda row: row['symbol_range']['samples'][0]['section'].update(index=0),
+            lambda row: row['symbol_range']['samples'][0]['section'].update(name_class='raw'),
+        )
+        for validate in validators:
+            self.assertEqual(validate(copy.deepcopy(fact), 7), fact)
+            for mutate in mutations:
+                altered = copy.deepcopy(fact)
+                mutate(altered)
+                with self.assertRaises(ValueError):
+                    validate(altered, 7)
 
 
 if __name__ == '__main__': unittest.main()

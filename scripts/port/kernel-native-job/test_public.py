@@ -998,7 +998,7 @@ def relocation_fixture():
 
 class RelocationPublicTests(unittest.TestCase):
     value = InnerFailurePublicTests.value
-    def test_relocation_diagnostics_survive_public_projection_without_outcome_upgrade(self):
+    def test_output_diagnostics_survive_public_projection_without_outcome_upgrade(self):
         import importlib.util
         path=HERE.parent/'kernel-native-stage/inner_result.py'
         spec=importlib.util.spec_from_file_location('relocation_inner_fixture',path)
@@ -1013,12 +1013,26 @@ class RelocationPublicTests(unittest.TestCase):
             if saved is None:sys.modules.pop('runtime',None)
             else:sys.modules['runtime']=saved
         binding={'nonce':'a'*32,'action':'baseline','contract_sha256':'b'*64,'worker_sha256':'c'*64}
-        for version in (5, 6):
+        for version in (5, 6, 7):
             row = diag.initial(binding)
             diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL'); diag.returned(row, 0)
             diag.phase(row, 'OUTPUTS')
-            error = ValueError('ELF relocation index/offset invalid')
-            error.relocation_failure = relocation_fixture()
+            if version == 7:
+                error = ValueError('defined symbol outside allocated section')
+                samples = [
+                    {'symbol_class': 'OTHER', 'symbol_sha256': 'f' * 64, 'binding': 2, 'type': 2,
+                     'value': 2**64 - 1, 'size': 2**64 - 1,
+                     'section': {'index': 8191, 'type': 0xffffffff, 'flags': 2**64 - 2,
+                                 'addr': 2**64 - 8, 'size': 8, 'name_class': 'OTHER'}} for _ in range(2)]
+                error.symbol_range = {'role': 'arm64-image-reference', 'elf_type': 3,
+                                      'section_offset': False, 'failure_count': 2000000,
+                                      'scan_complete': True, 'samples': samples}
+                count = 10000000
+                error.rela_table = {'entries': 9 * count, 'types': [[0xffffffff - i, count, count, count]
+                                    for i in reversed(range(8))], 'overflow': [count, count, count]}
+            else:
+                error = ValueError('ELF relocation index/offset invalid')
+                error.relocation_failure = relocation_fixture()
             if version == 6:
                 error.relocation_failure['info'] = (1 << 32) | 1027
                 error.rela_table = {'entries': 1, 'types': [[1027, 1, 1, 0]], 'overflow': [0, 0, 0]}

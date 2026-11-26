@@ -39,6 +39,23 @@ mapped eight-byte destination. Other records remain in the full ELF-to-Image
 byte comparison. The earlier receipts establish compilation command success
 and verifier refusal. The clean native pair and boot remain pending.
 
+Run [45717672590](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45717672590)
+completed the baseline build command and the RELA scan. Its census counted
+28,850 NONE, three ABS64, one GLOB_DAT and three RELATIVE entries, with full
+aligned slots for all seven nonzero-type entries. The output verifier stopped at
+`CHECK_059`, a defined symbol outside its allocated section. The receipt
+omits the symbol name. The candidate did not start and scoped Docker cleanup
+passed with all six preexisting images preserved.
+
+The exact GNU AArch64 linker from the pinned rootfs reproduced the source's
+post-BSS `_end` placement in a local QEMU user-mode linker fixture. It emitted
+a zero-size global `_end` associated with `.bss` at a 64 KiB boundary beyond
+the section and final load segment. The verifier permits this exact ET_DYN
+Image anchor when its value also equals the verified Image entry plus the
+effective Image size. Ordinary exports retain their section bounds. The
+linker fixture establishes the layout behavior. Identifying the rejected
+symbol from the hosted artifact and native pair qualification remain open.
+
 On November 25, the pinned public mirror returned HTTP 404 for 210 of 501
 producer input files. This included the bubblewrap, jbigkit and libtiff
 archive/signature pairs. Eight extension archive/signature pairs were
@@ -305,6 +322,14 @@ whole table's entry count, up to eight distinct low-32-bit types and a
 combined count for the other types. Each type and the combined count report
 entries, fully mapped eight-byte slots and the aligned subset. The first
 failure remains authoritative, and the census contains no raw table bytes.
+
+For `CHECK_059`, worker diagnostic version 7 records the failing ELF role,
+section-relative or virtual-address coordinate system, count of rejected
+symbols, and up to two bounded symbol records from that ELF's scan. It
+retains the RELA census when available. Only fixed linker anchor names and
+fixed section classes are exposed. Other symbol names are represented by
+SHA-256 digests. A later scan error leaves the first failure intact and
+marks the count incomplete.
 
 `phase` remains the current lifecycle phase, including cleanup. The separate
 `first_failed_phase` and `failure_reason` describe the first failure observed by

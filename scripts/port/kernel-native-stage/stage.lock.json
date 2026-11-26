@@ -24,9 +24,9 @@
       "sha256": "f2d6fc62d28b0c189469ca7cf8293f10c574ecd0459c33c013bf1a271b8a5ebf"
     },
     "scripts/port/kernel-candidates/verify_build.py": {
-      "bytes": 51268,
+      "bytes": 54226,
       "mode": 493,
-      "sha256": "e22d1adeb1c931c2dcc6a88ffdf8dd78a735b375af309b76dda9d464752e0a62"
+      "sha256": "3c627d7c23fb6143e4963153a2451cab7c68f2f74fb02833d6298b53a8694524"
     },
     "scripts/port/kernel-native-stage/acquisition.py": {
       "bytes": 20341,
@@ -59,9 +59,9 @@
       "sha256": "ae1d4ce855bd435b62c8fb213cbcf2d4eefd47b62274792c4a6bf299848b3876"
     },
     "scripts/port/kernel-native-stage/evidence.py": {
-      "bytes": 38648,
+      "bytes": 41512,
       "mode": 420,
-      "sha256": "62c5c93b8e99db9b24dde2dd8b8f3021a7e68ac85ffa91002b4eb20b4113f7de"
+      "sha256": "adec3a31defa7942f06e85bcf5ef5447785eece64b4b8a2dbcab7c28400b131b"
     },
     "scripts/port/kernel-native-stage/image.py": {
       "bytes": 15700,
@@ -69,9 +69,9 @@
       "sha256": "3bfd0c1b78d28a4575f9e38c3d6a326da9cc4dae4952cf8f6db21843c6304730"
     },
     "scripts/port/kernel-native-stage/inner_result.py": {
-      "bytes": 42458,
+      "bytes": 45641,
       "mode": 420,
-      "sha256": "2b8d2409f29721335a4f33de95c92937add5f7887a6e8585eb6cb5add01309d1"
+      "sha256": "1457ab3a832178f91dfa11d2aa1472126a066dca2dae6db9339861cf008cd7fd"
     },
     "scripts/port/kernel-native-stage/regression.py": {
       "bytes": 23648,
@@ -104,9 +104,9 @@
       "sha256": "f04251d08135424a30cb522adb28b3712303452d371d34782e7763841db82362"
     },
     "scripts/port/kernel-native-stage/test_evidence.py": {
-      "bytes": 25243,
+      "bytes": 27143,
       "mode": 420,
-      "sha256": "649600212a3a7fc36b02528cbb6f9ba0dac54b0292f20d130349fb233ae400ad"
+      "sha256": "3493620ed13c4e1354209bc3c48910665f15306bf646e7acf55983af1497c406"
     },
     "scripts/port/kernel-native-stage/test_image.py": {
       "bytes": 31199,

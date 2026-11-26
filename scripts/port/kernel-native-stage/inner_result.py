@@ -425,8 +425,58 @@ def _rela_table_fact(value):
     return value
 
 
+def _symbol_range_fact(value):
+    _need(type(value) is dict and set(value) == {'role', 'elf_type', 'section_offset',
+         'failure_count', 'scan_complete', 'samples'})
+    role, kind = value['role'], value['elf_type']
+    _need(type(role) is str and role in ('module', 'elf', 'arm64-image-reference') and
+         type(kind) is int and kind in (1, 2, 3) and (role == 'module') == (kind == 1))
+    _need(type(value['section_offset']) is bool and (kind != 1 or value['section_offset']) and
+         type(value['scan_complete']) is bool)
+    count, samples = value['failure_count'], value['samples']
+    _need(type(count) is int and 1 <= count <= 2000000 and
+         type(samples) is list and len(samples) == min(count, 2))
+
+    def uint(item, maximum=2**64 - 1):
+        _need(type(item) is int and 0 <= item <= maximum)
+
+    for row in samples:
+        _need(type(row) is dict and set(row) == {'symbol_class', 'symbol_sha256', 'binding',
+             'type', 'value', 'size', 'section'})
+        label, pin = row['symbol_class'], row['symbol_sha256']
+        _need(type(label) is str and label in ('_text', '_end', '__this_module', 'OTHER') and
+             type(pin) is str and re.fullmatch('[0-9a-f]{64}', pin) and
+             (label == 'OTHER' or hashlib.sha256(label.encode('ascii')).hexdigest() == pin))
+        _need(type(row['binding']) is int and row['binding'] in (1, 2))
+        uint(row['type'], 15)
+        uint(row['value'])
+        uint(row['size'])
+        section = row['section']
+        _need(type(section) is dict and set(section) == {'index', 'type', 'flags', 'addr', 'size', 'name_class'})
+        uint(section['index'], 8191)
+        _need(section['index'] > 0 and type(section['name_class']) is str and
+             section['name_class'] in ('.bss', '.sbss', '.head.text', '.text', '.rodata', '.data',
+                                       '.data..percpu', '.gnu.linkonce.this_module', 'OTHER'))
+        uint(section['type'], 0xffffffff)
+        for name in ('flags', 'addr', 'size'):
+            uint(section[name])
+        _need(not (section['flags'] & 1 and section['flags'] & 4))
+        lower = 0 if value['section_offset'] else section['addr']
+        _need(not (section['flags'] & 2 and row['size'] <= section['size'] and
+                  lower <= row['value'] and row['value'] + row['size'] <= lower + section['size']))
+    return value
+
+
 def _output_fact(value, version=4):
-    _need(type(version) is int and version in (4, 5, 6) and type(value) is dict)
+    _need(type(version) is int and version in (4, 5, 6, 7) and type(value) is dict)
+    if version == 7:
+        _need(set(value) == {'call_boundary', 'predicate', 'symbol_range', 'rela_table'} and
+             type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
+             type(value['predicate']) is str and value['predicate'] == 'CHECK_059')
+        _symbol_range_fact(value['symbol_range'])
+        if value['rela_table'] is not None:
+            _rela_table_fact(value['rela_table'])
+        return value
     keys = {'call_boundary', 'predicate'}
     if version >= 5:
         keys.add('relocation')
@@ -468,6 +518,12 @@ def output_failure(row, error):
         detail.setdefault('relocation', None)
         detail['rela_table'] = json.loads(_encoded(summary))
         version = 6
+    if predicate == 'CHECK_059' and 'symbol_range' in error.__dict__:
+        symbols = _symbol_range_fact(error.__dict__['symbol_range'])
+        detail.pop('relocation', None)
+        detail.setdefault('rela_table', None)
+        detail['symbol_range'] = json.loads(_encoded(symbols))
+        version = 7
     candidate = dict(row, schema_version=version, output_failure=detail)
     validate(candidate)
     row.update(schema_version=version, output_failure=detail)
@@ -475,8 +531,8 @@ def output_failure(row, error):
 
 
 def _keys(row, public=False):
-    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6))
-    extra = {2: {'config_failure'}, 3: {'compiler_failure'}, 4: {'output_failure'}, 5: {'output_failure'}, 6: {'output_failure'}}.get(row['schema_version'], set())
+    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7))
+    extra = {2: {'config_failure'}, 3: {'compiler_failure'}, 4: {'output_failure'}, 5: {'output_failure'}, 6: {'output_failure'}, 7: {'output_failure'}}.get(row['schema_version'], set())
     return (PUBLIC_KEYS if public else KEYS) | extra
 
 
@@ -531,7 +587,7 @@ def invalidate(row):
 
 
 def _body(row):
-    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6))
+    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7))
     _need(type(row['phase']) is str and row['phase'] in PHASES)
     _need(type(row['command']) is str and row['command'] in COMMANDS)
     _need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -561,7 +617,7 @@ def _body(row):
         _need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
               row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']})
-    if row['schema_version'] in (4, 5, 6):
+    if row['schema_version'] in (4, 5, 6, 7):
         _output_fact(row['output_failure'], row['schema_version'])
         _need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and

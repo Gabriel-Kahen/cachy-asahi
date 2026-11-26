@@ -16,6 +16,8 @@ import zlib
 import harness
 
 R_AARCH64_RELATIVE = 1027
+ARM64_SEGMENT_ALIGN = 64 * 1024
+MAX_IMAGE_MEMORY = 512 * 1024**2
 
 
 def config_bytes(raw):
@@ -179,6 +181,7 @@ class ELF:
     def __init__(self, path, kind, cap, *, artifact_role='elf'):
         harness.regular(path, cap)
         self.path, self.size = path, path.stat().st_size
+        self.elf_type, self.artifact_role = kind, artifact_role
         self.rela_table = None
         self.stream = path.open('rb')
         try:
@@ -408,27 +411,73 @@ class ELF:
         harness.need(row and row['type'] != 8, 'ELF file-backed section required: ' + name)
         return self.read(row['offset'], row['size'], cap)
 
-    def definitions(self, wanted):
+    def definitions(self, wanted, *, image_end=None):
+        if image_end is not None:
+            harness.need(self.artifact_role == 'arm64-image-reference' and
+                         64 < image_end - self.entry <= MAX_IMAGE_MEMORY,
+                         'Image size/entry differ from vmlinux _text/_end')
         row = self.symbols
         strings = self.sections[row['link']]
         names = self.read(strings['offset'], strings['size'])
         harness.need(names and names[0] == names[-1] == 0, 'ELF symbol strings invalid')
-        found = {}
-        for pos in range(0, row['size'], 24 * 4096):
-            raw = self.read(row['offset'] + pos, min(24 * 4096, row['size'] - pos))
-            for nameoff, info, other, section, value, size in struct.iter_unpack('<IBBHQQ', raw):
-                name = cstring(names, nameoff).decode('ascii')
-                harness.need(other & ~3 == 0 and (section < len(self.sections) or section in (0xfff1, 0xfff2)), 'ELF symbol section/visibility invalid')
-                if name in wanted and section and info >> 4 in (1, 2):
+        found, samples = {}, []
+        failure_count = 0
+        scan_complete = True
+        try:
+            for pos in range(0, row['size'], 24 * 4096):
+                raw = self.read(row['offset'] + pos, min(24 * 4096, row['size'] - pos))
+                for nameoff, info, other, section, value, size in struct.iter_unpack('<IBBHQQ', raw):
+                    name = cstring(names, nameoff).decode('ascii')
+                    harness.need(other & ~3 == 0 and (section < len(self.sections) or section in (0xfff1, 0xfff2)), 'ELF symbol section/visibility invalid')
+                    if name not in wanted or not section or info >> 4 not in (1, 2):
+                        continue
                     harness.need(section != 0xfff2 and name not in found, 'ambiguous/common defined export')
+                    end_anchor = name == '_end' and image_end is not None
+                    if end_anchor:
+                        harness.need(info == 0x10 and other == 0 and size == 0 and value == image_end,
+                                     'Image size/entry differ from vmlinux _text/_end')
                     if section != 0xfff1:
                         sec = self.sections[section]
-                        harness.need(sec['flags'] & 2 and size <= sec['size'] and
-                                     ((value <= sec['size'] and value + size <= sec['size']) if self.entry == 0 else
-                                      (sec['addr'] <= value and value + size <= sec['addr'] + sec['size'])), 'defined symbol outside allocated section')
+                        lower = 0 if self.entry == 0 else sec['addr']
+                        in_section = (sec['flags'] & 2 and size <= sec['size'] and
+                                      lower <= value and value + size <= lower + sec['size'])
+                        if not (in_section or (end_anchor and self.image_end_after_bss(value, sec))):
+                            failure_count += 1
+                            if len(samples) < 2:
+                                samples.append(self.symbol_range_sample(name, info, value, size, sec))
                     found[name] = {'value': value, 'size': size, 'section': section, 'type': info & 15}
+        except (OSError, ValueError):
+            if not failure_count:
+                raise
+            scan_complete = False
+        if failure_count:
+            error = ValueError('defined symbol outside allocated section')
+            error.symbol_range = {'role': 'module' if self.elf_type == 1 else self.artifact_role,
+                                  'elf_type': self.elf_type, 'section_offset': self.entry == 0,
+                                  'failure_count': failure_count, 'scan_complete': scan_complete,
+                                  'samples': samples}
+            raise error
         harness.need(set(found) == set(wanted), 'export/kernel symbol missing from actual ELF: ' + ','.join(sorted(set(wanted) - set(found))[:10]))
         return found
+
+    def image_end_after_bss(self, value, section):
+        # The pinned linker script advances dot beyond .bss for reserved page
+        # tables and the early stack, then aligns it before assigning _end.
+        return (self.elf_type == 3 and section['name'] == '.bss' and section['type'] == 8 and
+                section['flags'] & 3 == 3 and value % ARM64_SEGMENT_ALIGN == 0 and
+                section['addr'] + section['size'] <= value and
+                all(load['addr'] + load['memsz'] <= value for load in self.loads))
+
+    @staticmethod
+    def symbol_range_sample(name, info, value, size, section):
+        section_names = ('.bss', '.sbss', '.head.text', '.text', '.rodata', '.data',
+                         '.data..percpu', '.gnu.linkonce.this_module')
+        section_fact = {key: section[key] for key in ('index', 'type', 'flags', 'addr', 'size')}
+        section_fact['name_class'] = section['name'] if section['name'] in section_names else 'OTHER'
+        return {'symbol_class': name if name in ('_text', '_end', '__this_module') else 'OTHER',
+                'symbol_sha256': hashlib.sha256(name.encode('ascii')).hexdigest(),
+                'binding': info >> 4, 'type': info & 15, 'value': value, 'size': size,
+                'section': section_fact}
 
 
 def embedded_config(path, expected):
@@ -653,7 +702,7 @@ def verify_outputs(build, source, expected_config=None):
         header = stream.read(64)
     harness.need(len(header) == 64 and header[56:60] == b'ARM\x64', 'ARM64 Image header required')
     offset, size, flags, r2, r3, r4 = struct.unpack_from('<6Q', header, 8)
-    harness.need(offset == r2 == r3 == r4 == 0 and flags == 12 and 64 < image.stat().st_size <= size <= 512 * 1024**2,
+    harness.need(offset == r2 == r3 == r4 == 0 and flags == 12 and 64 < image.stat().st_size <= size <= MAX_IMAGE_MEMORY,
                  'source-bound little-endian16K Image size/offset/reserved/placement flags required')
     harness.need(struct.unpack_from('<I', header, 4)[0] & 0xfc000000 == 0x14000000, 'Image entry branch required')
     image_efi_header(image, header, settings, size)
@@ -668,7 +717,7 @@ def verify_outputs(build, source, expected_config=None):
         by_owner[owner].add(symbol)
     with ELF(elf, 3 if settings.get('CONFIG_RELOCATABLE') == 'y' else 2, 4 * 1024**3,
              artifact_role='arm64-image-reference') as reader:
-        definitions = reader.definitions(by_owner['vmlinux'] | {'_text', '_end'})
+        definitions = reader.definitions(by_owner['vmlinux'] | {'_text', '_end'}, image_end=reader.entry + size)
         text, end = definitions['_text']['value'], definitions['_end']['value']
         harness.need(reader.entry == text and text >= 0xffff000000000000 and end - text == size, 'Image size/entry differ from vmlinux _text/_end')
         head_load = next(p for p in reader.loads if p['addr'] <= text < p['addr'] + p['filesz'])
