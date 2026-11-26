@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import signal
 import stat
 import subprocess
 import sys
@@ -37,6 +38,10 @@ RECOVERY = {"repository-trust-bootstrap", "repository-fresh-install", "previous-
 
 
 class Error(Exception):
+    pass
+
+
+class StageTerminated(InterruptedError):
     pass
 
 
@@ -424,6 +429,29 @@ def storage_check(root):
             require(path.is_file() if name == ".release.lock" else path.is_dir(), f"wrong storage path type: {name}")
 
 
+@contextlib.contextmanager
+def stage_termination():
+    # An embedding caller may already own termination handling.
+    if signal.getsignal(signal.SIGTERM) != signal.SIG_DFL:
+        yield
+        return
+
+    def interrupt(signum, _frame):
+        signal.signal(signum, signal.SIG_IGN)
+        raise StageTerminated("staging interrupted by SIGTERM")
+
+    try:
+        try:
+            signal.signal(signal.SIGTERM, interrupt)
+            yield
+        finally:
+            signal.signal(signal.SIGTERM, signal.SIG_DFL)
+    except StageTerminated:
+        # Report the ordinary signal exit only after the owned workspace unwinds.
+        signal.raise_signal(signal.SIGTERM)
+        raise
+
+
 def stage(args, root, key, env):
     storage_check(root)
     spec_path = Path(args.spec).resolve()
@@ -437,8 +465,12 @@ def stage(args, root, key, env):
     require(not destination.exists() and not destination.is_symlink() and
             not (root / "withdrawals" / f"{rid}.json").exists(), "release ID already used or withdrawn")
     destination.parent.mkdir(exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix=".staging-", dir=root) as temp:
-        out = Path(temp)
+    with contextlib.ExitStack() as cleanup:
+        mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM})
+        try:
+            out = Path(cleanup.enter_context(tempfile.TemporaryDirectory(prefix=".staging-", dir=root)))
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, mask)
         (out / "repo").mkdir()
         (out / "provenance").mkdir()
         (out / "evidence").mkdir()
@@ -916,7 +948,8 @@ def main():
     env = gpg_env(args.gpg_home, root)
     with locked(root):
         if args.command == "stage":
-            result = stage(args, root, key, env)
+            with stage_termination():
+                result = stage(args, root, key, env)
         elif args.command == "promote":
             result = promote(args, root, key, env)
         elif args.command == "withdraw":

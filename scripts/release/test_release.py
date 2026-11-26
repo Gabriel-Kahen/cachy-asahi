@@ -138,6 +138,120 @@ class DatabaseDescriptorTests(unittest.TestCase):
             list(r.database_descriptors(self.database))
 
 
+class StageTerminationTests(unittest.TestCase):
+    def setUp(self):
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        self.base = Path(folder.name)
+        self.root = self.base / "store"
+        self.home = self.base / "home"
+        self.home.mkdir()
+        self.untouched = self.root / ".staging-unrelated"
+        self.untouched.mkdir(parents=True)
+        (self.untouched / "marker").write_bytes(b"unrelated")
+        stable = self.root / "stable"
+        (stable / "previous").mkdir(parents=True)
+        (stable / "previous/marker").write_bytes(b"selected")
+        (stable / "current").symlink_to("previous")
+        self.destination = self.root / "staging/fixture"
+        self.package = self.base / "fixture-1-1-any.pkg.tar.zst"
+        self.package.write_bytes(b"offline package data")
+        base = self.base / "base.json"
+        provenance = self.base / "provenance.json"
+        for path in (base, provenance):
+            path.write_text("{}")
+
+        def ref(path):
+            return dict(path=path.name, sha256=r.sha(path))
+
+        self.spec = self.base / "spec.json"
+        r.write(self.spec, dict(schema_version=1, target_arch="aarch64", release_id="fixture",
+            repo_name="fixture", source_commit="a" * 40, base=ref(base),
+            packages=[dict(artifact=ref(self.package), provenance=ref(provenance))],
+            policy=dict(supported_models=["m2-air-13"])))
+
+    def stage_cli(self, interrupt):
+        child = """
+import os, signal, sys
+from pathlib import Path
+from unittest import mock
+from test_release import r
+
+mode, root, home, spec, destination, package = sys.argv[1:]
+real_copy, real_rename, real_temporary = r.shutil.copyfile, r.os.rename, r.tempfile.TemporaryDirectory
+
+def temporary(*args, **kwargs):
+    result = real_temporary(*args, **kwargs)
+    if mode == 'create' and kwargs.get('prefix') == '.staging-':
+        os.kill(os.getpid(), signal.SIGTERM)
+    return result
+
+def copy(source, target):
+    result = real_copy(source, target)
+    if mode == 'copy' and str(source) == package:
+        workspace = Path(target).parent.parent
+        assert workspace.parent == Path(root) and workspace.name.startswith('.staging-')
+        os.kill(os.getpid(), signal.SIGTERM)
+    return result
+
+def rename(source, target):
+    result = real_rename(source, target)
+    if mode == 'commit' and str(target) == destination:
+        os.kill(os.getpid(), signal.SIGTERM)
+    return result
+
+def sign(path, *_):
+    Path(str(path) + '.sig').write_bytes(b'inert signature fixture')
+
+def database(path, *_):
+    path.write_bytes(b'inert database fixture')
+    path.with_name('fixture.files.tar.gz').write_bytes(b'inert file table fixture')
+
+sys.argv = ['release.py', '--root', root, '--gpg-home', home, '--key', 'A' * 40, 'stage', '--spec', spec]
+with mock.patch.object(r.tempfile, 'TemporaryDirectory', temporary), \\
+     mock.patch.object(r.shutil, 'copyfile', copy), mock.patch.object(r.os, 'rename', rename), \\
+     mock.patch.multiple(r, sign=sign, add_database=database, verify_signature=lambda *_: None,
+         database_check=lambda *_: None, dependency_check=lambda *_: None, provenance_check=lambda *_: None,
+         pkginfo=lambda _: dict(name='fixture', version='1-1', arch='any')):
+    try:
+        r.main()
+    except r.Error:
+        sys.exit(1)
+"""
+        return subprocess.run([sys.executable, "-B", "-c", child, interrupt,
+                               str(self.root), str(self.home), str(self.spec),
+                               str(self.destination), str(self.package)],
+                              cwd=Path(__file__).resolve().parent, capture_output=True, timeout=10)
+
+    def assert_unrelated_preserved(self):
+        self.assertEqual(list(self.root.glob(".staging-*")), [self.untouched])
+        self.assertEqual((self.untouched / "marker").read_bytes(), b"unrelated")
+        self.assertEqual(os.readlink(self.root / "stable/current"), "previous")
+        self.assertEqual((self.root / "stable/current/marker").read_bytes(), b"selected")
+
+    def test_term_during_workspace_creation_or_copy_cleans_up_and_allows_retry(self):
+        for point in ("create", "copy"):
+            with self.subTest(point=point):
+                result = self.stage_cli(point)
+                self.assertEqual(result.returncode, -signal.SIGTERM, result.stderr)
+                self.assertFalse(self.destination.exists())
+                self.assert_unrelated_preserved()
+        result = self.stage_cli("none")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue((self.destination / "release.json").is_file())
+        self.assert_unrelated_preserved()
+
+    def test_term_after_commit_keeps_the_staged_release(self):
+        result = self.stage_cli("commit")
+        self.assertEqual(result.returncode, -signal.SIGTERM, result.stderr)
+        self.assert_unrelated_preserved()
+        manifest = self.destination / "release.json"
+        saved = manifest.read_bytes()
+        self.assertEqual((self.destination / "repo" / self.package.name).read_bytes(), self.package.read_bytes())
+        self.assertEqual(self.stage_cli("none").returncode, 1)
+        self.assertEqual(manifest.read_bytes(), saved)
+
+
 class ReleaseTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
