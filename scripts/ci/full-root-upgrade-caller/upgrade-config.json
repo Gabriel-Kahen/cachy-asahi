@@ -23,7 +23,7 @@
     "scripts/release/check_source_pins.py": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3",
     "scripts/release/compare_releases.py": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c",
     "scripts/release/export_repository.py": "f895d751e1ce1077da02cb5086ecec97d27a3eb92a5606b5c292fb9d8e0efce9",
-    "scripts/release/release.py": "d0270ef16e0305eb4657f927725ac2a14b6ed5df95599392fc72fcab526913bc",
+    "scripts/release/release.py": "afd2bed6775d435e0a9a4dca62d162b5b32800d9d07dbb2cfc9642ddbcf14e6f",
     "scripts/release/source_delivery.py": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
     "scripts/update/archive_stream.py": "7454682feb4b9c93b8b043b801388ce202e4a4a31c1f396d92c54b8de85a0ad0",
     "scripts/update/aux_checkpoint.py": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7",
