@@ -79,12 +79,23 @@ class CapsuleTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "plan changed"):
                     F.verify_documents(changed, plan, self.source)
         with self.assertRaisesRegex(ValueError, "resource limit"):
-            F.limit_shape(self.limits | {"overlay_file_bytes": 8 * F.GIB})
+            F.limit_shape(self.limits | {"overlay_file_bytes": F.MAX_OVERLAY_FILE_BYTES + 1})
         with self.assertRaisesRegex(ValueError, "headroom|reserve"):
             F.limit_shape(self.limits | {"artifact_bytes": sum(F.INHERITED[role]["bytes"]
                                                                for role in ("core", "dbus", "gui"))})
         with self.assertRaisesRegex(ValueError, "headroom|reserve"):
             F.limit_shape(self.limits | {"qemu_seconds": self.limits["guest_build_seconds"] + F.MIN_QEMU_SLACK_SECONDS - 1})
+
+    def test_explicit_eight_gib_joins_all_outer_disk_bounds(self):
+        limits = self.limits | {"overlay_file_bytes": F.MAX_OVERLAY_FILE_BYTES}
+        plan = F.canonical_plan(NONCE, self.pins, limits, self.runner, self.pieces)
+        policy = plan["actor"]
+        self.assertEqual(policy["child_file_size_cap"], 8 * F.GIB)
+        self.assertEqual(policy["watched_paths"][0], ["/out/overlay.qcow2", 8 * F.GIB])
+        self.assertEqual(policy["watched_tree"], ["/out", 10 * F.GIB + 128 * F.MIB, 2 * F.GIB])
+        self.assertEqual(policy["admission_disk_bytes"], 12 * F.GIB + 128 * F.MIB)
+        self.assertEqual(plan["guest_plan"], self.plan["guest_plan"])
+        self.assertEqual(plan["qemu_argv"], self.plan["qemu_argv"])
 
     def test_resealed_source_mutation_and_extra_symlink_refused(self):
         for name, error in ((F.DRY_RUN_SOURCE, "observed dry run"), (sorted(F.Q.SOURCE_FILES)[0], "historical runtime")):

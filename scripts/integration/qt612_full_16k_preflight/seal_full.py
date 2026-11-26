@@ -110,11 +110,14 @@ def main():
         parser.add_argument("--" + name, type=Path, required=True)
     for name in ("tools-sha256", "nonce"):
         parser.add_argument("--" + name, required=True)
+    parser.add_argument("--overlay-file-bytes", type=int, default=F.LEGACY_QEMU_FILE_SIZE_CAP,
+                        help="Explicit unissued child overlay cap in bytes")
     args = parser.parse_args()
     try:
         tools = C.json_body(C.external(args.tools, 16 * 1024, args.tools_sha256)[0], canonical=True)
         backings = {"scratch.raw": args.scratch, "core.qcow2": args.core, "gui.qcow2": args.gui}
-        report = seal(args.qtgui_capsule, backings, args.output, args.nonce, F.DEFAULT_LIMITS, tools)
+        limits = F.DEFAULT_LIMITS | {"overlay_file_bytes": args.overlay_file_bytes}
+        report = seal(args.qtgui_capsule, backings, args.output, args.nonce, limits, tools)
         sys.stdout.buffer.write(C.wire(report))
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
         sys.exit("Full Qtbase capsule sealing refused")

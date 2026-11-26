@@ -4,6 +4,7 @@
 import argparse
 import os
 from pathlib import Path
+import resource
 from runpy import run_path
 import stat
 import subprocess
@@ -60,6 +61,67 @@ def poll_allocation(watch):
         watch.record()
 
 
+def install_writer_limit(cap):
+    C.need(type(cap) is int and F.LEGACY_QEMU_FILE_SIZE_CAP < cap <= F.MAX_OVERLAY_FILE_BYTES
+           and all(limit == resource.RLIM_INFINITY or limit >= cap
+                   for limit in resource.getrlimit(resource.RLIMIT_FSIZE)),
+           "Exact bounded actor limit must preserve inherited restrictions")
+    resource.setrlimit(resource.RLIMIT_FSIZE, (cap, cap))
+    observed = resource.getrlimit(resource.RLIMIT_FSIZE)
+    C.need(observed == (cap, cap), "Exact actor file limit required")
+    return observed
+
+
+def observe_writer_limit(argv):
+    # The frozen runtime starts QEMU as a direct child of this thread. Its
+    # WNOWAIT supervision keeps that PID from being recycled during this census.
+    children = Path(f"/proc/self/task/{os.getpid()}/children")
+    with children.open("rb") as stream:
+        body = stream.read(257)
+    pids = body.split()
+    C.need(len(body) <= 256 and all(pid.isdigit() for pid in pids), "Bounded actor child census required")
+    expected = b"\0".join(os.fsencode(arg) for arg in argv) + b"\0"
+    matches = []
+    for pid in pids:
+        try:
+            with (Path("/proc") / pid.decode("ascii") / "cmdline").open("rb") as stream:
+                args = stream.read(len(expected) + 1)
+            if args == expected:
+                matches.append(resource.prlimit(int(pid), resource.RLIMIT_FSIZE))
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+    C.need(len(matches) <= 1, "Ambiguous owned QEMU writer")
+    return next(iter(matches), None)
+
+
+def run_qemu(runner):
+    plan, cap = runner.plan, runner.actor["child_file_size_cap"]
+    argv, seconds = plan["qemu_argv"], plan["qemu_seconds"]
+    C.need(type(cap) is int and 0 < cap <= F.MAX_OVERLAY_FILE_BYTES, "Exact finite QEMU file ceiling required")
+    if cap <= F.LEGACY_QEMU_FILE_SIZE_CAP:
+        return runner.phase("qemu", argv, seconds, file_cap=cap), None
+
+    actor_limit = install_writer_limit(cap)
+    inherited = None
+    allocation_guard = runner.runtime.GUARD
+
+    def guard():
+        nonlocal inherited
+        allocation_guard()
+        if inherited is None:
+            inherited = observe_writer_limit(argv)
+            C.need(inherited is None or inherited == actor_limit, "Owned QEMU did not inherit the actor file limit")
+
+    runner.runtime.GUARD = guard
+    try:
+        pin = runner.phase("qemu", argv, seconds)
+    finally:
+        runner.runtime.GUARD = allocation_guard
+    C.need(inherited == actor_limit == resource.getrlimit(resource.RLIMIT_FSIZE),
+           "Observed original QEMU and actor file limits required")
+    return pin, dict(actor=list(actor_limit), qemu=list(inherited))
+
+
 def run(handoff, runner):
     plan, policy = runner.plan, runner.actor
     nonce = plan["nonce"]
@@ -88,7 +150,7 @@ def run(handoff, runner):
         F.validate_chain(chain, {name: plan["inputs"][name]["bytes"] for name in
                                 ("gui.qcow2", "core.qcow2", "scratch.raw")} | {"overlay.qcow2": initial})
         C.need(time.time() < runner.issued["expires_utc"], "Full-build entry window closed before QEMU")
-        qemu = runner.phase("qemu", plan["qemu_argv"], plan["qemu_seconds"], file_cap=policy["child_file_size_cap"])
+        qemu, writer_limits = run_qemu(runner)
         require_absence(nonce)
         serial = T.read(OUT / "qemu.stdout", cap=policy["serial_combined_cap"])
         passed, phase = F.terminal(serial, nonce)
@@ -117,6 +179,8 @@ def run(handoff, runner):
                       overlay=overlay_pin, result_uuid=uuid,
                       native_Qt_full_build="NOT_RUN", physical_M2="NOT_RUN", Root_acceptance=None,
                       host_cgroup_memory_peak_bytes=cgroup_peak(plan["limits"]["actor_memory_bytes"]))
+        if writer_limits is not None:
+            report.update(kind="QTBASE_FULL16K_ACTOR_RESULT_V2", qemu_file_size_limits=writer_limits)
         stored = T.encoded(report)
         C.need(len(stored) <= 16 * 1024, "Finite full-build actor report required")
         report_path = OUT / "actor-result.json"

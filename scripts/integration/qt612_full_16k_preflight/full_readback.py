@@ -16,6 +16,7 @@ import full_guest as G
 
 C = F.C
 ACTOR_KIND = "QTBASE_FULL16K_ACTOR_RESULT_V1"
+EXTENDED_ACTOR_KIND = "QTBASE_FULL16K_ACTOR_RESULT_V2"
 ACTOR_PASS = "PASS_QTBASE_ALL_FOR_REVIEW"
 GUEST_PLAN = "FULL-GUEST-PLAN.json"
 GIB = 1 << 30
@@ -37,10 +38,14 @@ def review_actor(output, plan, report_sha, handoff_sha, authority_sha, plan_sha)
            and stat.S_IMODE(output.lstat().st_mode) == 0o700, "Private ordinary original output directory required")
     policy, limits = plan["actor"], plan["limits"]
     stream_cap = policy["serial_combined_cap"]
+    writer_cap = policy["child_file_size_cap"]
+    C.need(type(writer_cap) is int and 0 < writer_cap <= F.MAX_OVERLAY_FILE_BYTES,
+           "Exact finite QEMU file ceiling required")
+    inherited_limit = writer_cap > F.LEGACY_QEMU_FILE_SIZE_CAP
     phases = (
         ("overlay-create", "overlay_create", policy["overlay_create"], 10, None),
         ("overlay-inspect", "overlay_inspect", policy["overlay_inspect"], 10, None),
-        ("qemu", "qemu", plan["qemu_argv"], plan["qemu_seconds"], policy["child_file_size_cap"]),
+        ("qemu", "qemu", plan["qemu_argv"], plan["qemu_seconds"], None if inherited_limit else writer_cap),
         ("fsck-result", "fsck_result", ["/usr/bin/e2fsck", "-fn", "/out/result.raw"], 60, None),
     )
     names = {"actor-result.json", "overlay.qcow2", "result.raw"} | {
@@ -48,13 +53,22 @@ def review_actor(output, plan, report_sha, handoff_sha, authority_sha, plan_sha)
     C.need({path.name for path in output.iterdir()} == names, "Exact original actor output namespace required")
     raw, report_pin = C.external(output / "actor-result.json", 16 << 10, report_sha)
     report = C.json_body(raw, canonical=True)
-    C.need(report.keys() == C.ACTOR_KEYS and report["kind"] == ACTOR_KIND
+    limit_fields = {"qemu_file_size_limits"} if inherited_limit else set()
+    expected_kind = EXTENDED_ACTOR_KIND if inherited_limit else ACTOR_KIND
+    C.need(report.keys() == C.ACTOR_KEYS | limit_fields and report["kind"] == expected_kind
            and (report["nonce"], report["handoff_sha256"], report["authority_sha256"], report["plan_sha256"])
            == (plan["nonce"], handoff_sha, authority_sha, plan_sha)
            and report["result_uuid"] == plan["result_uuid"] and report["tools"] == policy["profile"]["tools"]
            and report["watched_tree"] == policy["watched_tree"] and report["watched_paths"] == policy["watched_paths"]
            and report["native_Qt_full_build"] == report["physical_M2"] == "NOT_RUN"
            and report["Root_acceptance"] is None, "Exact scoped full Qtbase actor and resource policy required")
+    writer_limits = {}
+    if inherited_limit:
+        exact_limit = [writer_cap, writer_cap]
+        observed = report["qemu_file_size_limits"]
+        C.need(C.wire(observed) == C.wire(dict(actor=exact_limit, qemu=exact_limit)),
+               "Exact observed actor and inherited QEMU file limits required")
+        writer_limits["qemu_file_size_limits"] = observed
     capacity(report["capacity_before"], policy, limits["actor_memory_bytes"], admission=True)
     capacity(report["capacity_after"], policy, limits["actor_memory_bytes"], admission=False)
     commands, streams = {}, {}
@@ -85,7 +99,7 @@ def review_actor(output, plan, report_sha, handoff_sha, authority_sha, plan_sha)
            "Expected bounded observed cgroup memory peak")
     return dict(status="ACTOR_PASS" if passed else "HOLD", phase=phase, actor_result=report_pin,
                 commands=commands, allocation=report["allocation"], result_disk=result, overlay=overlay,
-                host_cgroup_memory_peak_bytes=peak)
+                host_cgroup_memory_peak_bytes=peak, **writer_limits)
 
 
 def read_evidence(path, pin, uuid, caps, passed, artifact_cap):

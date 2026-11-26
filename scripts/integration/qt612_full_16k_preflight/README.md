@@ -143,9 +143,9 @@ At 4:56 p.m. Eastern on November 25 the host exposed 16 logical CPUs,
 14.75 GiB available RAM and 161.77 GiB free on the cache volume. This
 fits the implemented 10 GiB available-memory check and the 8.125 GiB
 disk admission check on the capsule volume. Preparation requires
-same-filesystem reflinks. The earlier 8 GiB child proposal would require
-changing the inherited 4 GiB QEMU file-size guard. The prior disposable
-guest reported 11,558,694,912 free bytes after the dry run. The successor
+same-filesystem reflinks. The inherited per-command QEMU limit is
+4 GiB and remains the default. The prior disposable guest reported
+11,558,694,912 free bytes after the dry run. The successor
 samples guest free space before and after the build. The owned host runtime
 watches host reserve and output allocation during QEMU. Admission reads
 current resources and carries no reservation.
@@ -270,8 +270,24 @@ with the earlier capsule, and both capsules remained unclaimed.
 
 The launcher and revised worker have offline tests for root and
 authority binding, retirement, completion, library identity, deadlines
-and output limits. A fresh Root selection, live launch and compilation,
-and independent retirement of a live attempt remain pending.
+and output limits.
+
+The authorized first full-target attempt exhausted the 4 GiB child
+ceiling after 15,272.820 seconds of QEMU time. QEMU reported file-size
+errors and retired with its process group observed empty twice. The
+guest emitted no terminal marker. The host actor exited 1 and the
+independent outer observer confirmed scope and container retirement.
+Readback verified the original backing pins and retained partial
+evidence. The partial result supplied no completion count.
+
+The recovery capsule may explicitly select
+`seal_full.py --overlay-file-bytes 8589934592`. This sets an 8 GiB
+ceiling for a fresh child, preserves the original backing chain and
+raises the minimum host disk admission to 12.125 GiB. For a cap above
+4 GiB the disposable actor sets an exact kernel limit and verifies
+that the owned QEMU process inherited it. The original runtime retains
+its process custody and allocation watches. This path is unissued
+and requires a fresh selection scoped to the exact replacement capsule.
 
 The [packaging and installed 16 KiB handoff](PACKAGING.md) selects the
 completed overlay and pinned dependencies, projects the corrected Qtbase

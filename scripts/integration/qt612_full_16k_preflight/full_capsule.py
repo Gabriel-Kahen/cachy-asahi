@@ -54,10 +54,12 @@ LOWER = {
 GUEST_LIMITS = ("guest_build_seconds", "build_log_bytes", "artifact_bytes", "guest_min_free_bytes")
 GUEST_RETIRE_SECONDS = 180
 MIN_QEMU_SLACK_SECONDS = 800
-# The unchanged owned runtime enforces a 4 GiB RLIMIT_FSIZE ceiling.
-LIMITS = K.LIMITS | {"guest_min_free_bytes": (2 * GIB, 8 * GIB)}
+LEGACY_QEMU_FILE_SIZE_CAP = 4 * GIB
+MAX_OVERLAY_FILE_BYTES = 8 * GIB
+LIMITS = K.LIMITS | {"guest_min_free_bytes": (2 * GIB, 8 * GIB),
+                    "overlay_file_bytes": (K.LIMITS["overlay_file_bytes"][0], MAX_OVERLAY_FILE_BYTES)}
 DEFAULT_LIMITS = dict(guest_build_seconds=50400, qemu_seconds=51300, build_log_bytes=64 * MIB,
-                      artifact_bytes=GIB, overlay_file_bytes=4 * GIB, result_disk_bytes=2 * GIB,
+                      artifact_bytes=GIB, overlay_file_bytes=LEGACY_QEMU_FILE_SIZE_CAP, result_disk_bytes=2 * GIB,
                       report_allocation_bytes=128 * MIB, host_disk_reserve_bytes=2 * GIB,
                       guest_min_free_bytes=2 * GIB, guest_memory_bytes=6 * GIB, actor_memory_bytes=8 * GIB)
 
