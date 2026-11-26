@@ -18,15 +18,16 @@ maintenance rehearsal. The Asahi proposal remains unapproved.
 
 Qtbase passed dependency installation and configure in emulated 16 KiB AArch64.
 QtCore and QtGui linked, and the QtGui reader verified the dynamic relocation
-to the pinned system md4c provider. The full Qtbase build and separate package
-assembly passed independent readback and retirement. Qtbase installation,
-selection of the supported Asahi composition, installed Asahi kernel boot
-and recovery, both physical M2 Air sizes and production release promotion
-remain open.
+to the pinned system md4c provider. The full build, package assembly and
+TEST-signed installed lifecycle passed independent readback and retirement
+on the Q3 baseline. Selection of the supported Asahi composition, official
+Qt provider replacement, installed Asahi kernel boot and recovery, both
+physical M2 Air sizes and production release promotion remain open.
 [Qtbase validation](validation/qtbase612-emulated-arm16k-configure-20261118.md)
 · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md)
 · [QtGui link](validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
 · [Full Qtbase build](../scripts/integration/qt612_full_16k_preflight/README.md)
+· [Installed Qtbase lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
 · [Implementation status](implementation-status.md)
 
 ## Five required workstreams

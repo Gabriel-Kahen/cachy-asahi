@@ -36,26 +36,37 @@ only the Fish package and exercised staging, comparison and withdrawal.
   [Build and installed Check evidence](validation/updater-native-45715088356.md)
   · [Emulated update and refusal](validation/updater-q3-emulated-arm16k-20261126.md)
 - The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
-  identifies the exact historical build inputs still needed for Perl and Python.
+  identifies the exact final Perl 5.42.3-1 and Python 3.14.8-1 `PKGBUILD`
+  files still needed to complete source custody for the proposed Asahi
+  composition.
 - Qtbase `all` completed in the replacement 8 GiB emulated AArch64 guest
   with 16 KiB pages. Independent readback verified 18 linked libraries and
   1,216 distinct Ninja timing and command tuples. A separate guest produced
-  the verified Qtbase 6.12.0-2 archive. The TEST-signed installed lifecycle
-  remains open.
+  the verified Qtbase 6.12.0-2 archive. Its TEST-signed installed lifecycle
+  passed on the Q3 baseline, including database restoration after both
+  removals and separate refusals for a tampered signature and an unknown
+  signer. Official provider replacement and maintained Asahi integration
+  remain open.
   [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
   · [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
+  · [Installed lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
 - The virtual desktop successor requires a terminal event after guest
   cleanup, bounded UART EOF, and outer-reader verification before accepting
-  frames. The latest retained-input trial authenticated all 45 tooling objects,
+  frames. The retained-input run `45731218357` authenticated all 45 tooling objects,
   ran the generic QEMU desktop and decoded the TEST SVG. The session and seatd
   exited zero, UART reached EOF, and visual review passed for both original
   frames. Signed repository transactions and ARM C01 passed in the same run.
-  The downstream repository baseline handoff remains open.
+  Later diagnostics passed ALPM baseline collection and found leaked virtual
+  callback state in the repository handoff. The draft corrects that state
+  lifetime and checks the captured ownership projection at receiver entry.
+  End-to-end hosted handoff verification remains open.
   [Successor admission](workstreams/virtual-desktop-completion-v2-admission.md)
   · [Installed lifecycle run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45728195500)
   · [Repository and tooling retry](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45731218357)
-- Stable overlay promotion requires a supported Asahi composition, production
-  signing custody and repository hosting, and installation and recovery records
+  · [Callback-state diagnostic](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45765388674)
+- Stable overlay promotion requires approval of the supported Asahi
+  composition, production signing custody and repository hosting, and
+  installation and recovery records
   for both [13-inch](validation/m2-air-13.md) and [15-inch](validation/m2-air-15.md)
   M2 Air systems. Both sizes also need baseline and final-system measurements
   for the performance milestone.

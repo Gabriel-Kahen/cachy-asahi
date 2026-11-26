@@ -8,8 +8,8 @@ repository and physical M2 hardware validation remain open.
 
 **November 25, 2026.** The original November 22 QtGui run passed independent
 readback with the corrected ELF reader. It linked QtGui and QtDBus in the
-pinned 356-package emulated AArch64 16 KiB guest and preserved QtCore. Full Qt
-build and installation remain open. [QtGui evidence](validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
+pinned 356-package emulated AArch64 16 KiB guest and preserved QtCore.
+[QtGui evidence](validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
 
 **November 26, 2026.** Updater 4.4.2-3 passed a configured TEST-signed
 upgrade and a separate package-signature refusal on emulated AArch64 with
@@ -33,11 +33,15 @@ behavior and performance remain open.
 emulated AArch64 guest with 16 KiB pages. Independent readback verified 18
 shared libraries, 1,216 distinct Ninja timing and command tuples, and an
 idle target after the build. The scope and container both retired. The
-separate package guest assembled a verified Qtbase 6.12.0-2 archive, and the
-disposable TEST signature passed offline verification. The installed
-lifecycle remains open.
+separate package guest assembled a verified Qtbase 6.12.0-2 archive. The
+exact TEST-signed package passed install, reinstall, removal, fresh install
+and final removal on the 356-package Q3 baseline. Independent readers
+accepted all three cases, including genuine pacman refusals for a tampered
+signature and an unknown signer. Official Qt provider replacement, the
+supported Asahi composition and physical M2 validation remain open.
 [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
 · [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
+· [Installed lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
 
 Track current engineering follow-ups in
 [GitHub Issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues).
@@ -45,7 +49,7 @@ The [historical execution log](backlog.md) records earlier decisions and
 evidence. The [branch archive](https://github.com/Gabriel-Kahen/cachy-asahi/tree/archive/branches-2026-11-22)
 maps original GitHub branch names to their exact commits.
 
-## Release status on November 18, 2026
+## Earlier component validation
 
 | Area | Verified scope |
 | --- | --- |
@@ -56,7 +60,7 @@ maps original GitHub branch names to their exact commits.
 | Fish upgrade and rollback, emulated AArch64 with 16 KiB pages | The ordinary user exercised the CDPATH regression before, during and after a TEST-signed 0.1.0-1 → 0.1.0-2 → 0.1.0-1 sequence. The restored guest matched all 583 package versions. The 0.1.0-2 archive has an explicit development candidate selector. [Guest validation](validation/native-fish-md4c-reproducibility-20261118.md#signed-fish-upgrade-and-rollback) · [Candidate selection](../scripts/integration/fish_config_overlay583/README.md#select-the-rehearsed-development-candidate) |
 | Asahi maintenance, emulated AArch64 with 16 KiB pages | R132 ran signed transactions on the exact Asahi Minimal filesystem copy with a generic kernel. The inventory changed 261 → 626 → 626. The reverse transaction restored the original Python, NetworkManager and Perl versions and retained all 365 additions. The guest restored the original initramfs and matched all 362 boot and mount entries. The proposal remains unapproved. [R132 validation](validation/asahi626-maintenance-emulated-arm16k-20261118.md) |
 | Python 3.14.8 | One independently verified native AArch64 4 KiB build supplied the TEST-signed package for an emulated ARM16K upgrade and rollback. The original compiled consumer ran on both Python versions, `_tkinter` passed, and the guest restored all 626 package versions and the original Python library bytes. [Native build and guest rehearsal](validation/python3148-native-r4-and-asahi628-20261118.md) |
-| Qtbase 6.12, emulated AArch64 with 16 KiB pages | Q3 verified the signed dependency transactions, reached the exact 356-package inventory and passed ordinary-user configure against system md4c. The Markdown importer compiled and QtCore linked with 16 KiB-compatible load segments. QtGui and the full build remain open. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md) · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md) |
+| Qtbase 6.12, emulated AArch64 with 16 KiB pages | Q3 verified the signed dependency transactions, reached the exact 356-package inventory and passed ordinary-user configure against system md4c. The Markdown importer compiled and QtCore linked with 16 KiB-compatible load segments. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md) · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md) |
 
 Both Current606 R16 desktop cases passed on the same source under emulated
 AArch64 with 16 KiB pages. The minimal and overlay guests each preserved

@@ -1,4 +1,4 @@
-# Qtbase installed 16 KiB trial preflight
+# Qtbase installed 16 KiB trial
 
 This source-only preflight binds a future offline installation of
 `cachy-asahi-qt612-gui-server-source-reference 6.12.0-2` to the exact original
@@ -84,15 +84,15 @@ Check every Qt SONAME with the regular loader using RTLD_NOW/LOCAL and bind
 all actual transitive provider paths and bytes to the selected installed owners.
 Check all plugin and tool owners and exercise the ordinary-user offscreen
 consumer. Both removals must restore the baseline package database byte map,
-configuration checks and original provider runtime. Require the package-owned
-leaves to be removed and every new Qt SONAME to stop resolving. The llhttp
+selected configuration paths and original provider bytes and metadata.
+Require the package-owned leaves to be removed and every new Qt SONAME to
+stop resolving. The llhttp
 guest's existing loader and restore checks illustrate the independent receipts.
 [Installed loader and restore example](../llhttp_overlay583/guest.py)
 
 The preflight emits unissued data and consumer source. It performs no ALPM,
 signature or VM operations. A separate TEST signature covers the archive
-recovered from the retired package guest. Installed loader checks and
-restoration remain open.
+recovered from the retired package guest.
 An official Qt provider replacement needs a separate admitted image, a
 current trusted rollback archive and its own consumer requirements.
 
@@ -109,8 +109,44 @@ The worker result SHA-256 was
 The outer guest held before exporting that evidence. The boot image
 lacked the `/dev/fd` path used by the evidence listing, and its bare
 `poweroff` command was unavailable after the disks unmounted. The
-coordinator retired the owned scope and container. Qualification still
-requires a fresh run with a complete result disk and natural shutdown.
+coordinator retired the owned scope and container.
+
+### Corrected installed trial, November 26, 2026
+
+The corrected positive case used the same 356-package Q3 baseline and
+the exact TEST-signed Qtbase 6.12.0-2 archive. The guest exported a complete
+result disk, unmounted its disks and shut down naturally. Independent
+readback verified 646 original result files, including 629 command files.
+The package counts were `356 → 357 → 357 → 356 → 357 → 356`. Each of the
+three installed stages matched all 4,635 selected file and symlink leaves,
+18 loaded Qt SONAMEs and 67 original Q3 providers. The same ordinary-user
+consumer passed the offscreen and local Wayland server API checks at all
+three stages. Both removals restored the stopped package database byte map
+and the original selected paths. All 18 Qt SONAMEs were absent at baseline
+and after each removal.
+
+Separate guests rejected a tampered signature and a valid signature whose
+signing key was absent from the keyring. Each pacman refusal preserved the
+356-package inventory and the stopped ALPM database byte map. All three
+guests exited zero, passed independent result-disk readback and had their
+scope and container absence confirmed twice.
+
+| Case | Independent readback SHA-256 | Retirement SHA-256 |
+| --- | --- | --- |
+| Signed lifecycle | `af046aaa3d100ebc335a8fac0fe97ec3a8b215c9ec32d96d2962daac1f7f369b` | `4f1aa19572e046085e7b11e82185841e54e8958716b4dd0e7e359773f21482e3` |
+| Tampered signature | `ce5bc4bc662e20cf7f6bf3ea5e2ddd453bb8a3ca51af815521ab32ee821c5dd0` | `ccd44fc2aa157c088e5d60a95396e198534979ea3efc7143996113b1760a4d06` |
+| Unknown signer | `4bc333cc2ad8c8b3d8ec1a7f982e1b5c7aadbfdb453090b83a543e43beb2db38` | `8fc1352e36fb9821805c6bf619657962459394738711bc221c01ae02b8bea0da` |
+
+The three-case qualification returned `PASS_EXACT_EMULATED_INSTALLED_LIFECYCLE`.
+The joined receipt SHA-256 is
+`b1aefe78d48646727cf820874b52002a289ac086d85142aefeda73883b34f8de`.
+The trial used the corrected runner at `def071cda32d3dcde42caa74fdc414385a821a16`
+and the package archive SHA-256
+`0c6ad9610086bfb7b2a88f9cb8794b88d2432dd53436fbc18eec808af01ea315`.
+The result covers the Q3 emulated AArch64 baseline with 16 KiB pages,
+the TEST trust configuration, and the selected package and path checks.
+Official provider replacement, the supported Asahi composition, production
+trust and physical M2 validation remain open.
 
 ## Guest supervisor callbacks
 
@@ -261,5 +297,5 @@ python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane" -p test_g
 These controls feed inert fixtures through the actual worker. They exercise
 command ordering, protected-configuration preservation, failed or unretired
 commands, bad trust and guest boundaries, distinct signature-refusal clones,
-and exact inventory, loader and database restoration. Live signatures and
-installation remain unrun.
+and exact inventory, loader and database restoration. The guest run records
+cover actual signature checks and package transactions.

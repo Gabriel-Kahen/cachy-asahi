@@ -31,7 +31,9 @@ independent reader verified the original archive and packaging records.
 Both retirement observations found the container and scope absent. A
 disposable TEST key signed the recovered archive. Independent local GPG
 verification accepted that signature and rejected the separate mismatched
-signature. The signed installed lifecycle remains open.
+signature. The exact TEST-signed archive later passed the Q3 installed
+lifecycle and both signature-refusal cases.
+[Installed trial](../qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
 
 | Retained package evidence | SHA-256 |
 | --- | --- |
