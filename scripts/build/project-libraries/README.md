@@ -122,8 +122,13 @@ All three TIFF CTest cases passed. The staged C consumer roundtripped a 32×4
 JBIG TIFF and staged `tiffinfo` confirmed its dimensions and compression.
 All four SONAMEs matched and TIFF linked to the staged `libjbig.so.2.2`.
 
-Provisioning the native TIFF builder, all four native package builds, native
-installed ABI checks and signed restoration remain pending. Public
-redistribution also needs review of the linked GPL/Berkeley distribution
-basis and the missing historical TIFF uvcode generator provenance.
+The hosted native lane provisioned the TIFF builder, produced both
+byte-identical build pairs and passed the fresh TEST-signed lifecycle on
+4 KiB AArch64. A separate hosted run replaced and restored the historical
+providers on Minimal206 with `tificc` installed throughout. Migration on the
+intended maintenance composition and physical 16 KiB validation remain
+open. Public redistribution also needs review of the linked GPL/Berkeley
+distribution basis and the missing historical TIFF uvcode generator
+provenance.
+[Native builds and lifecycle evidence](../../../docs/validation/project-libraries-native-20261125.md)
 [Source and licensing design](../../../docs/workstreams/maintained-jbigkit-libtiff-project-source-filter.md)

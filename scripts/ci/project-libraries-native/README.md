@@ -120,17 +120,11 @@ gh workflow run native-arm-project-libraries-622.yml \
 
 Run the second command after the first reports `INPUTS_AUTHENTICATED`.
 
-The existing registered `native-arm-build.yml` can also dispatch this
-same-commit reusable workflow from a reviewed ref. Add two explicit
-Project Libraries modes to that caller, keep its existing job excluded
-for those two modes, and use a separate conditional job to call
-`./.github/workflows/native-arm-project-libraries-622.yml`. Pass the reviewed
-SHA, selected lane and only the named read-only deploy-key secret. The
-registered caller uses a different concurrency group from the callee.
-This route needs a reviewed caller update on the dispatch ref. The
-registered workflow's existing modes do not provide that routing. After
-adding the caller job, dispatch its input check and then the native lane as
-follows.
+The registered [native ARM build workflow](../../../.github/workflows/native-arm-build.yml)
+already routes the Project Libraries modes to the same-commit reusable
+workflow. It passes the reviewed SHA, the selected lane and the named
+read-only deploy-key secret. Dispatch the input check on the reviewed ref,
+then dispatch the native lane after the input check succeeds.
 
 ```sh
 gh workflow run native-arm-build.yml \
