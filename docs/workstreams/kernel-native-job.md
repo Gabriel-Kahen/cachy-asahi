@@ -65,6 +65,17 @@ offsets were eight-byte aligned and whose declared destination alignments were
 32 or 64 bytes. The verifier now separates those constraints for copied module
 sections and keeps raw descriptor, symbol table, and RELA reads aligned.
 
+Run [45757694585](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45757694585)
+completed the baseline build command with exit 0. Output verification reached
+the module dependency check and refused at `CHECK_071`. The candidate did
+not start and the runner preserved all six initial Docker images. The pinned
+Kbuild code writes original provider basenames in `depends` and uses an
+underscored name for the module's `name` field. The verifier now matches the
+original basenames and still refuses ambiguous module names, unknown providers,
+duplicates and self-dependencies. The regression reproduces the mismatch.
+The hosted receipt leaves the first failing module unidentified.
+[Pinned dependency writer](https://github.com/AsahiLinux/linux/blob/94fb23346d522edf53722357c426a3e58030beea/scripts/mod/modpost.c#L1871-L1896)
+
 On November 25, the pinned public mirror returned HTTP 404 for 210 of 501
 producer input files. This included the bubblewrap, jbigkit and libtiff
 archive/signature pairs. Eight extension archive/signature pairs were

@@ -24,9 +24,9 @@
       "sha256": "f2d6fc62d28b0c189469ca7cf8293f10c574ecd0459c33c013bf1a271b8a5ebf"
     },
     "scripts/port/kernel-candidates/verify_build.py": {
-      "bytes": 56480,
+      "bytes": 56693,
       "mode": 493,
-      "sha256": "cec8c81bd737ed94ef2deb075a9bf152ffed5c1ff06e9d83172879cb1a2e0160"
+      "sha256": "bdd642db512543b3e3d6558eaf9c5c6cb08cf181ec15245e3581902c1bd791be"
     },
     "scripts/port/kernel-native-stage/acquisition.py": {
       "bytes": 20341,
