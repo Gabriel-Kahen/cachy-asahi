@@ -13,6 +13,7 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 from runpy import run_path
+import shutil
 import stat
 import sys
 import tarfile
@@ -37,6 +38,7 @@ WAYLAND = "libwayland-server.so.0"
 RESULT = "QTBASE16K_INSTALLED_SELECTION_MAPS_UNISSUED_V1"
 SUPPLEMENT = "QTBASE16K_INSTALLED_SUPPLEMENTARY_SONAMES_V1"
 PATH_PART = re.compile(r"[A-Za-z0-9_.+@:-]{1,255}")
+SYSTEM_TOOL_PATH = "/usr/bin:/usr/sbin"
 COMMAND_ENV = {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "TZ": "UTC"}
 
 
@@ -51,6 +53,14 @@ def hold(path, pin, cap):
         yield stream
         T.need(T.identity(os.fstat(stream.fileno())) == T.identity(path.lstat()) == identity,
                "Original operand changed during selection preparation")
+
+
+def system_tool(name):
+    T.need(name in {"debugfs", "ldconfig", "mke2fs"}, "Unknown selection map host tool")
+    path = shutil.which(name, path=SYSTEM_TOOL_PATH)
+    if path is None:
+        raise FileNotFoundError(f"{name} unavailable in {SYSTEM_TOOL_PATH}")
+    return path
 
 
 def command(argv, limit, seconds=10):
@@ -196,7 +206,7 @@ class Q3:
         operand = "/root" + path
         remaining = self.deadline - time.monotonic()
         T.need(remaining > 0, "Read-only Q3 lookup exceeded its total time limit")
-        stdout, stderr = command(["/usr/bin/debugfs", "-R", operation + " " + operand, self.held_path], cap,
+        stdout, stderr = command([system_tool("debugfs"), "-R", operation + " " + operand, self.held_path], cap,
                                  seconds=min(10, remaining))
         lines = stderr.splitlines()
         T.need(lines and lines[0].startswith(b"debugfs "), "Expected original debugfs diagnostic header")
@@ -233,7 +243,7 @@ class Q3:
         fd = os.memfd_create("qtbase16k-q3-ld-cache", os.MFD_CLOEXEC)
         with os.fdopen(fd, "wb", buffering=0) as stream:
             T.need(stream.write(raw) == len(raw), "Short original Q3 cache staging")
-            stdout, stderr = command(["/usr/bin/ldconfig", "-p", "-C", f"/proc/{os.getpid()}/fd/{fd}"], 2 * MIB)
+            stdout, stderr = command([system_tool("ldconfig"), "-p", "-C", f"/proc/{os.getpid()}/fd/{fd}"], 2 * MIB)
         T.need(not stderr, "Original Q3 loader cache parser diagnostic")
         first, *lines = stdout.decode("ascii").splitlines()
         count = re.match(r"^([0-9]+) libs? found in cache ", first)

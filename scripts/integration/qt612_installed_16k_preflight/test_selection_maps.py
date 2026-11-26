@@ -6,7 +6,6 @@ import lzma
 import os
 from pathlib import Path
 from runpy import run_path
-import shutil
 import subprocess
 import sys
 import tarfile
@@ -183,8 +182,56 @@ class SelectionMaps(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "unique and sorted"):
                 S.load_supplement(f, T.pin(raw)["sha256"])
 
-    @unittest.skipUnless(shutil.which("mke2fs") and shutil.which("debugfs"), "ext4 fixture tools unavailable")
+    def test_system_tools_resolve_in_both_layouts_and_ignore_ambient_path(self):
+        self.assertEqual(S.SYSTEM_TOOL_PATH, "/usr/bin:/usr/sbin")
+        names = ("mke2fs", "debugfs", "ldconfig")
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            bin_dir, sbin_dir, ambient = (root / name for name in ("usr/bin", "usr/sbin", "ambient"))
+            for folder in (bin_dir, sbin_dir, ambient):
+                folder.mkdir(parents=True)
+            for name in names:
+                (ambient / name).touch(mode=0o755)
+            with patch.dict(os.environ, {"PATH": str(ambient)}), patch.dict(
+                S.system_tool.__globals__, {"SYSTEM_TOOL_PATH": f"{bin_dir}:{sbin_dir}"}
+            ):
+                for folder in (sbin_dir, bin_dir):
+                    with self.subTest(folder=folder):
+                        for name in names:
+                            (folder / name).touch(mode=0o755)
+                        self.assertEqual([S.system_tool(name) for name in names],
+                                         [str(folder / name) for name in names])
+                        for name in names:
+                            (folder / name).unlink()
+                with self.assertRaisesRegex(FileNotFoundError, "debugfs unavailable"):
+                    S.system_tool("debugfs")
+
+    def test_q3_passes_the_selected_tools_to_the_bounded_reader(self):
+        calls = []
+
+        def command(argv, cap, **options):
+            calls.append(argv)
+            if argv[0].endswith("/debugfs"):
+                return b"leaf", b"debugfs fixture\n"
+            return b"1 lib found in cache fixture\n\tliba.so.1 (libc6,AArch64) => /usr/lib/liba.so.1\n", b""
+
+        with patch.dict(S.system_tool.__globals__, {
+            "system_tool": lambda name: "/usr/sbin/" + name,
+            "command": command,
+        }):
+            q3 = S.Q3("held", {})
+            self.assertEqual(q3.debugfs("cat", "/usr/lib/liba.so.1", 1024), b"leaf")
+            with patch.object(q3, "node", return_value=None), patch.object(q3, "file", return_value=b"cache"):
+                self.assertEqual(q3.cache, {"liba.so.1": ["/usr/lib/liba.so.1"]})
+        self.assertEqual(calls[0], ["/usr/sbin/debugfs", "-R", "cat /root/usr/lib/liba.so.1", "held"])
+        self.assertEqual(calls[1][:3], ["/usr/sbin/ldconfig", "-p", "-C"])
+
     def test_read_only_debugfs_reopens_the_pinned_image_and_aliases(self):
+        try:
+            mke2fs = S.system_tool("mke2fs")
+            S.system_tool("debugfs")
+        except FileNotFoundError as error:
+            self.skipTest(str(error))
         with TemporaryDirectory() as directory:
             root = Path(directory)
             tree = root / "tree"
@@ -196,7 +243,7 @@ class SelectionMaps(unittest.TestCase):
             disk = root / "original.raw"
             with disk.open("xb") as stream:
                 stream.truncate(4 << 20)
-            subprocess.run(["/usr/bin/mke2fs", "-q", "-F", "-t", "ext4", "-d", tree, disk],
+            subprocess.run([mke2fs, "-q", "-F", "-t", "ext4", "-d", tree, disk],
                            check=True, capture_output=True)
             disk.chmod(0o444)
             expected = T.pin(disk.read_bytes())
