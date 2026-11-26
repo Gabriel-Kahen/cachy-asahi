@@ -275,9 +275,16 @@ jobs:
           python -B -S -Werror::ResourceWarning "$suite"
       - name: Install hosted build-system prerequisites
         if: matrix.component == 'build-systems' || matrix.component == 'python-extension'
+        timeout-minutes: 7
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y cmake meson ninja-build build-essential
+          set -euo pipefail
+          # A stalled mirror previously consumed the entire 15-minute job.
+          apt_get=(sudo -n timeout --verbose --kill-after=15s 180s apt-get
+            -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20
+            -o Acquire::Retries=2
+          )
+          "${apt_get[@]}" -o APT::Update::Error-Mode=any update
+          "${apt_get[@]}" install --no-install-recommends -y cmake meson ninja-build build-essential
       - name: Run both standalone real build-system journeys
         if: matrix.component == 'build-systems'
         env:
