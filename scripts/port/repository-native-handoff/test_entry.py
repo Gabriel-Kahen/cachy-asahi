@@ -3,6 +3,7 @@ import hashlib
 import ast
 import builtins
 import json
+import ntpath
 import os
 from pathlib import Path
 import subprocess
@@ -491,11 +492,30 @@ class DependencyGraphTests(unittest.TestCase):
         with patch.dict(sys.modules, {'fractions': fake}):
             e.LANGUAGE['exec'](e.LANGUAGE['compile'](Path(e.__file__).read_bytes(), e.__file__, 'exec'), loaded.__dict__)
             calls = []
-            def foreign(*args, **kwargs): calls.append(args); raise AssertionError('foreign builtin executed')
-            with patch.object(builtins, '__import__', foreign), patch.object(builtins, 'compile', foreign), patch.object(builtins, 'exec', foreign):
+            def foreign(*args, **kwargs):
+                calls.append(args)
+                raise AssertionError('foreign builtin executed')
+
+            pathlib_globals = vars(loaded.BOOTSTRAP['pathlib'])
+
+            def fixture_import(name, globals=None, locals=None, fromlist=(), level=0):
+                # Ubuntu's Python 3.12 pathlib lazily requests ntpath while
+                # constructing trusted bootstrap paths before the graph loads.
+                if (sys.version_info[:2] == (3, 12) and name == 'ntpath' and
+                        globals is pathlib_globals and not fromlist and level == 0):
+                    return ntpath
+                return foreign(name, globals, locals, fromlist, level)
+
+            with (
+                patch.object(builtins, '__import__', fixture_import),
+                patch.object(builtins, 'compile', foreign),
+                patch.object(builtins, 'exec', foreign),
+            ):
                 collector, _ = self.load('collector', pin=pin, module=loaded)
                 self.assertEqual(str(collector['provenance'].OBSERVED_FRACTION), '1/2')
-                self.assertIs(builtins.__import__, foreign)
+                self.assertIs(builtins.__import__, fixture_import)
+                self.assertIs(builtins.compile, foreign)
+                self.assertIs(builtins.exec, foreign)
             self.assertEqual(calls, []); self.assertIs(sys.modules['fractions'], fake)
     def test_foreign_import_finders_hooks_and_cache_never_run_and_restore_exactly(self):
         pin = self.fraction_fixture(); calls = []
