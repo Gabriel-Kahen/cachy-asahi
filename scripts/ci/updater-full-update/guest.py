@@ -38,6 +38,7 @@ PKGINFO = {
     NEW: '25aaa306aac45d9925ebac8fe8dab3c25d8fad9bd2e1e79fe5544940a8d17ab6',
 }
 POLICIES = {'policy.json', 'pre.json', 'post.json', 'protected-policy.json', 'protected-pre.json'}
+CASES = frozenset(('update', 'signature-refusal'))
 FILES = {'q3.lock', 'before.lock', 'updater.pkg', 'updater.pkg.sig', OLD_ARCHIVE, OLD_ARCHIVE + '.sig', 'hooks.list',
          *POLICIES, *(f'repo/{name}' for name in REPO)}
 SHA = re.compile('[0-9a-f]{64}')
@@ -85,11 +86,18 @@ def boot_pin(uid, machine, pages, network, cmdline, readonly_inputs, model):
     return pins[0]
 
 
-def plan(pin, now):
+def selected_case(cmdline):
+    values = [arg.split('=', 1)[1] for arg in cmdline.split() if arg.startswith('cachy_updater16k_case=')]
+    need(len(values) == 1 and values[0] in CASES, 'one admitted guest case required')
+    return values[0]
+
+
+def plan(pin, now, case='update'):
     raw = read(INPUT / 'plan.json', 16384)
     need(digest(raw) == pin, 'boot plan digest differs')
     data = json.loads(raw)
-    need(set(data) == {'kind', 'valid_from', 'expires', 'signer', 'files'}
+    need(set(data) - {'case'} == {'kind', 'valid_from', 'expires', 'signer', 'files'}
+         and data.get('case', 'update') == case
          and data['kind'] == 'cachy-asahi-updater16k-disposable-v1'
          and type(data['valid_from']) is type(data['expires']) is int
          and type(data['signer']) is str and FINGERPRINT.fullmatch(data['signer'])
@@ -98,6 +106,8 @@ def plan(pin, now):
     files = data['files']
     need(type(files) is dict and files.keys() == FILES and files['updater.pkg'] == UPDATER
          and files['q3.lock'] == Q3_LOCK, 'exact media selection required')
+    same_signature = files['repo/' + REPO[3]] == files[OLD_ARCHIVE + '.sig']
+    need(same_signature == (case == 'signature-refusal'), 'wrong signature provenance for guest case')
     need({p.name for p in (INPUT / 'repo').iterdir()} == set(REPO), 'fixture-only repository required')
     for name, sha in files.items():
         limit = 64 << 20 if name == 'updater.pkg' else 1 << 20
@@ -221,7 +231,7 @@ def write_shims():
                 "if [[ $# == 4 && $1 == pacman && $2 == --color && $3 == never && $4 == -Syu ]]; then\n"
                 "    [[ \"$HOME\" == /updater16k/update ]] || exit 99\n"
                 "    (set -o noclobber; : > \"$HOME/sudo.upgrade\") || exit 99\n"
-                f"    exec /usr/bin/sudo -n -- {shlex.join(UPGRADE)}\n"
+                f"    exec /usr/bin/sudo -n -- {shlex.join(UPGRADE)} 2>\"$HOME/transaction.stderr\"\n"
                 "fi\n"
                 "if [[ $# == 26 && $1 == checkservices && $2 == -F && $3 == -P && $4 == -R ]]; then exit 0; fi\n"
                 "exit 99",
@@ -319,7 +329,16 @@ def verify_bootstrap(signer, now):
          and read(PAYLOAD, 4096) == fixture_payload(OLD), 'installed old fixture paths or payload differ')
 
 
-def trial(files, results):
+def verify_signature_refusal(diagnostic, log):
+    message = re.escape(f'error: {NAME}: signature from "') + r'[^"\n]{1,256}" is invalid'
+    need(re.search(r'^' + message + r'$', diagnostic, re.M) is not None
+         and re.search(r'^error: failed to commit transaction \(invalid or corrupted package(?: \(PGP signature\))?\)$',
+                       diagnostic, re.M) is not None
+         and re.search(r'\[ALPM\] (?:installed|upgraded|reinstalled|downgraded|removed) ', log) is None,
+         'required precommit ALPM signature refusal absent')
+
+
+def trial(files, results, case='update'):
     old, new = expected_inventories(read(INPUT / 'q3.lock', 16384), read(INPUT / 'before.lock', 16384))
     verify_installed_entry()
     prepare_config()
@@ -334,6 +353,17 @@ def trial(files, results):
     state, other = local_db(), local_db(skip_fixture=True)
     bins = write_shims()
     pending = f'{NAME} {OLD} -> {NEW}\n'.encode()
+    if case == 'signature-refusal':
+        observed, calls, record = installed_entry('update', files, bins)
+        results[case] = observed
+        need(observed == 5 and calls == ['pacman --color never -Syu'] and record == [pending, pending]
+             and local_db() == state and actual_inventory() == old
+             and read(PAYLOAD, 4096) == fixture_payload(OLD), 'precommit checkpoint changed')
+        verify_signature_refusal(read(WORK / 'update/transaction.stderr', 65536).decode(),
+                                 read(WORK / 'alpm.log', 256 << 10).decode())
+        checked((*PACMAN, '-Dk'))
+        return {'sudo_upgrade_calls': 1, 'alpm_upgrades': 0, 'refusal_checkpoint_preserved': True,
+                'signature_rejected': True}
     for case, code in (('unconfigured', 21), ('protected', 22), ('update', 0)):
         observed, calls, record = installed_entry(case, files, bins)
         results[case] = observed
@@ -352,14 +382,14 @@ def trial(files, results):
     return {'sudo_upgrade_calls': 1, 'alpm_upgrades': 1, 'refusal_checkpoint_preserved': True}
 
 
-def run_trial(files):
+def run_trial(files, case='update'):
     results = {}
     verified = {}
     passed = removed = timed_out = False
     WORK.mkdir(mode=0o755)
     try:
         WORK.chmod(0o755)
-        verified = trial(files, results)
+        verified = trial(files, results, case)
         passed = True
     except subprocess.TimeoutExpired:
         timed_out = True
@@ -374,18 +404,22 @@ def run_trial(files):
                 removed = True
             except OSError:
                 pass
-    return {'status': 'PASS' if passed and removed and installed == [NEW] else 'HOLD', 'case_exits': results,
+    expected = OLD if case == 'signature-refusal' else NEW
+    return {'status': 'PASS' if passed and removed and installed == [expected] else 'HOLD',
+            'case': case, 'case_exits': results,
             'pages': 16384, 'private_state_removed': removed, 'fixture_db_versions': installed,
             'command_timed_out': timed_out, 'guest_disposal': 'REQUIRES_OWNER_RECEIPT', **verified}
 
 
 def admit_guest():
+    cmdline = Path('/proc/cmdline').read_text()
     pin = boot_pin(os.geteuid(), platform.machine(), os.sysconf('SC_PAGE_SIZE'),
                    {p.name for p in Path('/sys/class/net').iterdir()},
-                   Path('/proc/cmdline').read_text(), os.statvfs(INPUT).f_flag & os.ST_RDONLY,
+                   cmdline, os.statvfs(INPUT).f_flag & os.ST_RDONLY,
                    Path('/sys/firmware/devicetree/base/model').read_bytes())
     now = int(time.time())
-    files, signer = plan(pin, now)
+    case = selected_case(cmdline)
+    files, signer = plan(pin, now, case)
     user = pwd.getpwnam('alarm')
     need(user.pw_uid == user.pw_gid == 1000, 'exact ordinary guest user required')
     info = Path('/usr/bin/sudo').lstat()
@@ -395,13 +429,13 @@ def admit_guest():
          'root-owned sudoers rule required')
     sudo_boundary(info.st_uid, info.st_mode, os.statvfs('/usr/bin/sudo').f_flag,
                   read(sudoers, 4096))
-    return files, signer, now
+    return files, signer, now, case
 
 
 def main():
-    files, signer, now = admit_guest()
+    files, signer, now, case = admit_guest()
     verify_bootstrap(signer, now)
-    receipt = run_trial(files)
+    receipt = run_trial(files, case)
     print(json.dumps(receipt, sort_keys=True))
     return int(receipt['status'] != 'PASS')
 

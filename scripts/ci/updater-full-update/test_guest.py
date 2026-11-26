@@ -114,7 +114,7 @@ class GuestTests(unittest.TestCase):
                 return read(path, limit)
 
             with patch.multiple(guest, INPUT=root / 'inputs', WORK=root / 'work', DB=database, CLIENT=CLIENT), \
-                    patch.object(guest, 'admit_guest', return_value=({}, signer, 1800)), \
+                    patch.object(guest, 'admit_guest', return_value=({}, signer, 1800, 'update')), \
                     patch.object(guest, 'verify_trust'), \
                     patch.object(guest, 'run', side_effect=statuses) as command, \
                     patch.object(guest, 'read', side_effect=read_input), \
@@ -126,7 +126,7 @@ class GuestTests(unittest.TestCase):
                     trial.assert_not_called()
                 else:
                     self.assertEqual(guest.main(), 0)
-                    trial.assert_called_once_with({})
+                    trial.assert_called_once_with({}, 'update')
                 self.assertEqual(command.call_count, len(statuses))
                 for call, name in zip(command.call_args_list, ('updater.pkg', guest.OLD_ARCHIVE)):
                     argv, = call.args
@@ -172,6 +172,24 @@ class GuestTests(unittest.TestCase):
         for invalid in ('', log + log, log + '[ALPM] removed baseline-0 (1-1)\n'):
             with self.subTest(log=invalid), self.assertRaises(ValueError):
                 guest.verify_actions(invalid)
+
+    def test_signed_refusal_requires_real_alpm_status_and_no_commit(self):
+        details = (f'error: {guest.NAME}: signature from "Disposable TEST" is invalid\n'
+                   'error: failed to commit transaction (invalid or corrupted package (PGP signature))\n')
+        guest.verify_signature_refusal(details, '[PACMAN] refreshed signed repository\n')
+        for diagnostic, log in ((details, '[ALPM] upgraded fixture\n'),
+                                (details.replace('is invalid', 'is unknown'), ''),
+                                (details.splitlines()[0], ''),
+                                ('sudo: a password is required\n', '')):
+            with self.subTest(diagnostic=diagnostic), self.assertRaisesRegex(ValueError, 'precommit ALPM'):
+                guest.verify_signature_refusal(diagnostic, log)
+
+    def test_case_must_be_explicit_and_unique(self):
+        label = 'cachy_updater16k_case=signature-refusal'
+        self.assertEqual(guest.selected_case(label), 'signature-refusal')
+        for bad in ('', f'{label} {label}', 'cachy_updater16k_case=other'):
+            with self.assertRaises(ValueError):
+                guest.selected_case(bad)
 
     def exercise(self, *, illicit_call=False, preview_drift=None, allow_removal=False):
         old, new = {guest.NAME: guest.OLD}, {guest.NAME: guest.NEW}
@@ -227,7 +245,7 @@ class GuestTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as parent:
             root = Path(parent)
             (root / 'db' / f'{guest.NAME}-{guest.NEW}').mkdir(parents=True)
-            def fail(_files, results):
+            def fail(_files, results, _case):
                 results.update(unconfigured=21, protected=22, update=23)
                 raise ValueError('modeled postcommit refusal')
             with patch.multiple(guest, WORK=root / 'work', DB=root / 'db', trial=fail):

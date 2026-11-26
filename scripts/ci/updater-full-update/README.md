@@ -194,10 +194,57 @@ The owner seals that tree in a read-only 128 MiB ext4 volume with the
 label and UUID in `PLAN.UNISSUED.json`. The image root must have mode
 0755 and the policy files must be readable by UID 1000.
 Bind the final media, guest worker, RTC and boot nonce, runner limits,
-cleanup and the live plan hash in the updater admission. The
-`qemu_argv_template` placeholders require actual plan SHA-256 and
-QEMU-start UTC. The host verifies the guarded serial receipt, natural
-guest shutdown, original backing hashes, and independent owner retirement.
+cleanup and the live plan hash in the updater admission.
+
+### Separate signed cases
+
+Prepare `update` and `signature-refusal` with distinct nonces, boot
+derivatives and input-media UUIDs. Both use the same pinned Q3 raw backing
+and inert fixture archive bytes. A successor can use
+`prepare_q3.py --prior-packet` with the exact prior isolated preparation
+to share its sealed backing by reference. A run makes one temporary
+reflink of that backing and retires it after the owned container and
+its QCOW2 child have exited.
+
+The negative repository database has a valid TEST signature. Its
+candidate's embedded signature and detached sidecar are the exact
+valid signature over the old fixture. The host media sealer checks that
+the signature fails against the unchanged new archive. In the guest,
+the configured updater must invoke real sudo once and report the
+package's ALPM signature rejection. The complete installed database,
+inventory, payload and pending records must match the old checkpoint.
+A refreshed sync database is allowed in this case.
+
+`q3-media.py` verifies a separately pinned signed request and writes the
+sealed ext4 image, media receipt and guest plan copy. Run `q3-owner.py
+preflight` on the sealed media to obtain the exact admission binding.
+Preflight rehashes the image inputs and emits an unissued receipt
+without opening Docker. The owner supplies `valid_from` and `expires`
+on that binding and independently pins the resulting admission file.
+Provide enough time for the 1,300-second attach ceiling and retirement.
+Use a different fresh attempt path for each case.
+
+```sh
+python3 -I -B q3-media.py --packet "$PREP" --preparation-sha256 "$PREP_SHA" \
+  --signed "$SIGNED_REQUEST" --signed-sha256 "$REQUEST_SHA" --output "$MEDIA"
+python3 -I -B q3-owner.py preflight --packet "$PREP" --preparation-sha256 "$PREP_SHA" \
+  --media "$MEDIA" --media-manifest-sha256 "$MEDIA_HEADER_SHA" --output "$ATTEMPT"
+python3 -I -B q3-owner.py run --packet "$PREP" --preparation-sha256 "$PREP_SHA" \
+  --media "$MEDIA" --media-manifest-sha256 "$MEDIA_HEADER_SHA" --output "$ATTEMPT" \
+  --admission "$ADMISSION" --admission-sha256 "$ADMISSION_SHA"
+python3 -I -B q3-readback.py --plan "$PREP/PLAN.UNISSUED.json" --plan-sha256 "$PREP_SHA" \
+  --guest-plan "$MEDIA/plan.json" --guest-plan-sha256 "$GUEST_PLAN_SHA" \
+  --media-manifest "$MEDIA/media.json" --media-manifest-sha256 "$MEDIA_HEADER_SHA" --media-sha256 "$MEDIA_SHA" \
+  --admission "$ADMISSION" --admission-sha256 "$ADMISSION_SHA" \
+  --owner "$ATTEMPT/owner.json" --owner-sha256 "$OWNER_SHA" --serial "$ATTEMPT/serial.log"
+```
+
+The fixed rootless runner has no network or host devices. Its root and
+all input mounts are read-only. It caps the one writable QCOW2 child
+at 1 GiB and serial at 1 MiB. The independent reader checks the actual
+QEMU command, RTC, guest and Docker receipts, natural poweroff, and
+retirement of the exact container and clone. Retain the attempt
+directory as the one-shot claim and evidence.
 
 The adapter runs the unconfigured and protected refusals first. It
 compares the local database, complete inventory, inert payload, and

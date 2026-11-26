@@ -6,7 +6,7 @@ umask 077
 export PATH=/usr/bin:/bin LC_ALL=C TZ=UTC
 base=/run/updater-q3
 root=$base/work/root
-code=/updater-q3
+code=/updater-q3-v2
 nonce=unknown phase=boot result=HOLD
 
 finish() {
@@ -127,7 +127,10 @@ mount -n -o remount,bind,ro,nosuid,nodev,noexec "$root/updater-code"
 
 phase=bootstrap
 timeout --signal=TERM --kill-after=20s 600s chroot "$root" /usr/bin/env -i PATH=/usr/bin:/bin LC_ALL=C TZ=UTC \
-    /usr/bin/python -I -B /updater-code/q3-setup.py </dev/null
+    /usr/bin/python -I -B /updater-code/q3-setup.py </dev/null >"$base/setup.json"
+[[ $(cat "$base/setup.json") == '{"before_packages": 362, "q3_bootstrap": "PASS"}' ]]
+printf 'UPDATER_Q3_BOOTSTRAP %s ' "$nonce"
+cat "$base/setup.json"
 phase=sudo
 sudo=$root/usr/bin/sudo
 [[ -f $sudo && ! -L $sudo && $(stat -c '%u:%g:%a:%h' "$sudo") == 0:0:4755:1 ]]
@@ -135,6 +138,13 @@ printf '%s  %s\n' 02d73255dabb4e7c477b499ecce56086ff26f1b66a9e0f52ac3a5614068c5e
     sha256sum --check --strict --quiet
 mount -n --bind "$sudo" "$sudo"
 mount -n -o remount,bind,ro,suid,nodev,exec "$sudo"
+sudo_options=$(findmnt -nro VFS-OPTIONS --mountpoint "$sudo")
+[[ ,$sudo_options, == *,ro,* && ,$sudo_options, == *,nodev,* &&
+   ,$sudo_options, != *,nosuid,* && ,$sudo_options, != *,noexec,* ]]
+work_options=$(findmnt -nro VFS-OPTIONS --mountpoint "$base/work")
+input_options=$(findmnt -nro VFS-OPTIONS --mountpoint "$root/updater-input")
+[[ ,$work_options, == *,nosuid,* && ,$input_options, == *,ro,* && $(blockdev --getro "$input") == 1 ]]
+printf 'UPDATER_Q3_MOUNTS %s {"boot_ro":true,"media_ro":true,"scratch_nosuid":true,"sudo_single_file":true}\n' "$nonce"
 phase=worker
 set +e
 timeout --signal=TERM --kill-after=20s 600s chroot "$root" /usr/bin/env -i \

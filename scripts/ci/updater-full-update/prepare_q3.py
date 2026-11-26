@@ -2,6 +2,7 @@
 """Prepare the updater boot and available offline inputs without issuing a VM."""
 
 import argparse
+import gzip
 import json
 from pathlib import Path
 import re
@@ -25,6 +26,9 @@ TOOLS = {
     'mke2fs': (145768, '0b645e158b060a7ff22bff543b20c6aeba043f7ebca24e7a2f63a20bd3e46130'),
 }
 HOOKS = (1001, 'd31e16267b226b46367696f662825642762d34699724525abeaeaa57bad8fe2e')
+PRIOR_PLAN = '22ee97c1d5e023db28572b03ec3ecf7650a3f14b568161b0f71754454b63f10c'
+PRIOR_BOOT = (1611661312, 'aef2b0c4df60f794f7a4f34180e99ff1dba44447bd14b3e0502fbbc3c5d3cd99')
+BOOT_PAYLOAD = '/updater-q3-v2'
 
 
 def file_pin(size, digest):
@@ -48,8 +52,17 @@ def prepare(args):
     p.need(dest.is_absolute() and dest.resolve() == dest and not dest.exists()
            and re.fullmatch(r'/[A-Za-z0-9_./-]+', str(dest)) and not parent.stat().st_mode & 0o022,
            'fresh output under an ordinary private parent required')
-    image_sources = {name: args.capsule / 'inputs' / name for name in PINNED_IMAGES}
-    for source in (args.capsule, args.q3_lock, args.hooks, args.vendor, args.official):
+    base_path = args.capsule if args.prior_packet is None else args.prior_packet
+    originals = dict(PINNED_IMAGES)
+    if args.prior_packet is not None:
+        prior = p.strict_json(p.read(base_path / 'PLAN.UNISSUED.json', PRIOR_PLAN))
+        p.need(prior['inputs'] == {name: file_pin(*pin) for name, pin in
+                                  (originals | {'boot.raw': PRIOR_BOOT}).items()}
+               and prior['authority'] is None,
+               'exact prior isolated updater preparation required')
+        originals['boot.raw'] = PRIOR_BOOT
+    image_sources = {name: base_path / 'inputs' / name for name in originals}
+    for source in (base_path, args.q3_lock, args.hooks, args.vendor, args.official):
         p.need(not dest.is_relative_to(source) and not source.is_relative_to(dest), 'distinct output required')
     expected = {'q3.lock': (6925, guest['Q3_LOCK']), 'hooks.list': HOOKS}
     read = lambda path, pin: p.observe(path, pin[0], collect=True)
@@ -102,30 +115,36 @@ def prepare(args):
         fixture = runpy.run_path(str(REPO / 'scripts/ci/updater-optional-check/historical/real-check/real-check.py'))
         for path, version in ((media / guest['OLD_ARCHIVE'], guest['OLD']), (media / 'repo' / guest['REPO'][2], guest['NEW'])):
             fixture['write_package'](path, version)
-            guest['verify_fixture_archive'](path.read_bytes(), version)
+            body = gzip.compress(gzip.decompress(path.read_bytes()), mtime=0)
+            guest['verify_fixture_archive'](body, version)
+            path.write_bytes(body)
             path.chmod(0o444)
         for name, source in image_sources.items():
             info = source.lstat()
-            p.need(stat.S_ISREG(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o444 and info.st_nlink == 1,
+            p.need(stat.S_ISREG(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o444 and info.st_nlink == 1
+                   and info.st_size == originals[name][0],
                    'sealed original image required')
+            if name == 'scratch.raw' and args.prior_packet is not None:
+                continue  # Mount one verified owned clone per admitted attempt.
             clone = inputs / name
             p.clone(source, clone)
-            p.match(clone, file_pin(*PINNED_IMAGES[name]))
+            p.match(clone, file_pin(*originals[name]))
             if name != 'boot.raw':
                 clone.chmod(0o444)
-        q.patch_boot(SimpleNamespace(P=p, PAYLOAD='/updater-q3', BOOT_BYTES=PINNED_IMAGES['boot.raw'][0]),
+        q.patch_boot(SimpleNamespace(P=p, PAYLOAD=BOOT_PAYLOAD, BOOT_BYTES=PINNED_IMAGES['boot.raw'][0]),
                      format_tools, inputs / 'boot.raw', nonce, payload)
         (inputs / 'boot.raw').chmod(0o444)
-        append = p.boot_cmdline(nonce, '/updater-q3/guest-init.sh')
-        append += f' cachy_updater16k_nonce={nonce} cachy_updater16k={{PLAN_SHA256}} arm16k_rtc_host_epoch={{HOST_UTC}}'
+        append = p.boot_cmdline(nonce, BOOT_PAYLOAD + '/guest-init.sh')
+        append += (f' cachy_updater16k_nonce={nonce} cachy_updater16k_case={args.case}'
+                   ' cachy_updater16k={PLAN_SHA256} arm16k_rtc_host_epoch={HOST_UTC}')
         argv = p.vm_argv('/inputs/Image', append, 'updater-q3-' + nonce,
                          (('boot', 'file=/inputs/boot.raw,format=raw,readonly=on'),
                           ('scratch', 'file=/out/overlay.qcow2,format=qcow2,readonly=off,discard=ignore'),
                           ('input', 'file=/inputs/media.raw,format=raw,readonly=on')))
-        plan = {'kind': 'UPDATER_Q3_PREPARATION_UNISSUED', 'authority': None, 'nonce': nonce,
+        plan = {'kind': 'UPDATER_Q3_PREPARATION_UNISSUED', 'authority': None, 'nonce': nonce, 'case': args.case,
                 'input_ext4': {'bytes': 128 << 20, 'label': 'UPDATER16K', 'uuid': input_uuid},
                 'base_inventory': 356, 'target_inventory': 362,
-                'originals': {name: {'path': str(source), **file_pin(*PINNED_IMAGES[name])}
+                'originals': {name: {'path': str(source), **file_pin(*originals[name])}
                               for name, source in image_sources.items()},
                 'inputs': {name: file_pin(*PINNED_IMAGES[name]) for name in ('scratch.raw', 'Image')},
                 'boot_payload': {name: file_pin(len(body), p.sha(body)) for name, body in payload.items()},
@@ -139,8 +158,12 @@ def prepare(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ('capsule', 'q3-lock', 'hooks', 'vendor', 'official', 'output'):
+    origin = parser.add_mutually_exclusive_group(required=True)
+    origin.add_argument('--capsule', type=Path)
+    origin.add_argument('--prior-packet', type=Path)
+    for name in ('q3-lock', 'hooks', 'vendor', 'official', 'output'):
         parser.add_argument('--' + name, type=Path, required=True)
+    parser.add_argument('--case', choices=('update', 'signature-refusal'), default='update')
     prepare(parser.parse_args())
 
 

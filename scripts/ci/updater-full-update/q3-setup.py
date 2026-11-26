@@ -44,13 +44,14 @@ def selected_test_key(text, signer, now):
 def main():
     guest = runpy.run_path(str(CODE / 'guest.py'))
     need, read, digest, checked = (guest[key] for key in ('need', 'read', 'digest', 'checked'))
+    cmdline = Path('/proc/cmdline').read_text()
     pin = guest['boot_pin'](os.geteuid(), os.uname().machine, os.sysconf('SC_PAGE_SIZE'),
                             {p.name for p in Path('/sys/class/net').iterdir()},
-                            Path('/proc/cmdline').read_text(), os.statvfs(INPUT).f_flag & os.ST_RDONLY,
+                            cmdline, os.statvfs(INPUT).f_flag & os.ST_RDONLY,
                             Path('/sys/firmware/devicetree/base/model').read_bytes())
     need(os.statvfs(CODE).f_flag & os.ST_RDONLY, 'read-only updater code required')
     now = int(time.time())
-    _, signer = guest['plan'](pin, now)
+    _, signer = guest['plan'](pin, now, guest['selected_case'](cmdline))
     need(signer != OFFICIAL, 'disposable signer must be distinct')
     before_raw = read(INPUT / 'before.lock', 16384)
     need(digest(before_raw) == BEFORE_SHA, 'exact Q3 successor inventory required')
