@@ -108,6 +108,43 @@ class ControllerTests(unittest.TestCase):
         self.assertTrue(self.publish())
         self.assertEqual(self.dev.report['status'], 'CAPTURED_REQUIRES_VISUAL_REVIEW')
 
+    def test_virtual_pins_only_live_during_virtual_call(self):
+        pins = {name: f'{index + 1:064x}' for index,name in enumerate(controller.VIRTUAL_NAMES)}
+        source = {'source_files':{'scripts/virtual/'+name:{'sha256':pin} for name,pin in pins.items()}}
+        missing, supplied = object(), {'previous': 'value'}
+        cases = (None, ValueError('modeled adapter failure'), KeyboardInterrupt())
+        for index,error in enumerate(cases):
+            for previous in (missing, supplied):
+                with self.subTest(error=type(error).__name__, prior=previous is supplied):
+                    output = self.root / f'virtual-pin-{index}-{previous is supplied}'
+                    output.mkdir()
+                    development = controller.Development(self.root,output,self.root/'cache',source)
+                    initial = SimpleNamespace(cancelled=False,installed='sha256:'+'a'*64)
+                    if previous is supplied:initial.virtual_packet_sha256 = supplied
+                    before = vars(initial).copy()
+                    ksm, virtual = self.stage('ksm'), self.stage('virtual')
+                    def prior_state():
+                        self.assertEqual(vars(initial),before)
+                        if previous is supplied:self.assertIs(initial.virtual_packet_sha256,supplied)
+                    def run_ksm(*args):
+                        prior_state()
+                        return ksm(*args)
+                    def run_virtual(*args):
+                        self.assertEqual(initial.virtual_packet_sha256,pins)
+                        if error is not None:raise error
+                        return virtual(*args)
+                    with patch.object(self.base,'run_ksm',run_ksm),patch.object(self.virtual,'run_virtual',run_virtual), \
+                            patch.object(development,'recover_public',side_effect=lambda *args:prior_state()):
+                        if isinstance(error,KeyboardInterrupt):
+                            with self.assertRaises(KeyboardInterrupt) as caught:development.consume(initial)
+                            self.assertIs(caught.exception,error)
+                        else:
+                            development.consume(initial)
+                    prior_state()
+                    expected = 'PASS' if error is None else 'FAIL'
+                    self.assertEqual(development.report['stages']['ksm']['status'],'PASS')
+                    self.assertEqual(development.report['stages']['virtual']['status'],expected)
+
     def test_cleanup_failure_is_authoritative(self):
         self.dev.run(self.native(cleanup_pass=False), [])
         self.assertFalse(self.publish())

@@ -1140,7 +1140,8 @@ jobs:
       - name: Check composed entry, source downloads and repository handoff
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         run: |
-          python3 -B -m unittest discover -s scripts/ci/development -p test_controller.py -k DirectEntryTests -k EarlyEntryModels
+          python3 -B -m unittest discover -s scripts/ci/development -p test_controller.py \
+            -k DirectEntryTests -k EarlyEntryModels -k test_virtual_pins_only_live_during_virtual_call
           python3 -B -m unittest discover -s scripts/ci/development -p test_base_stages.py -k fetch
           python3 -B -m unittest discover -s scripts/port/repository-native-handoff
       - name: Check offline updater guest admission and transaction observations

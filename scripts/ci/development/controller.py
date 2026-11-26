@@ -380,8 +380,9 @@ class Development:
         self.callback_entered = True
         virtual_names = VIRTUAL_NAMES
         source_map = self.packet.get('source_files', {})
+        virtual_pins = None
         if all('scripts/virtual/' + name in source_map for name in virtual_names):
-            controller.virtual_packet_sha256 = {name: source_map['scripts/virtual/' + name]['sha256'] for name in virtual_names}
+            virtual_pins = {name: source_map['scripts/virtual/' + name]['sha256'] for name in virtual_names}
         # The initial image is still owned by Controller. It removes it only
         # after this callback returns, including after failed consumers.
         for name, action in (('ksm', run_ksm), ('arm-c01-base', run_arm), ('client', run_client), ('virtual', run_virtual)):
@@ -394,7 +395,23 @@ class Development:
                     require(broad_source_guard(self.repository_session,bound_modules,self.deadline) == observation,
                             'broad-source-identity-drift')
                 kwargs = {'deadline':self.deadline} if self.deadline is not None else {}
-                value = action(controller, self.root, output, **kwargs) if name == 'ksm' else action(controller, self.root, output, self.cache, **kwargs)
+                if name == 'virtual' and virtual_pins is not None:
+                    # The virtual adapter borrows this field only during its call.
+                    state = vars(controller)
+                    missing = object()
+                    previous = state.get('virtual_packet_sha256', missing)
+                    try:
+                        state['virtual_packet_sha256'] = virtual_pins
+                        value = action(controller, self.root, output, self.cache, **kwargs)
+                    finally:
+                        if previous is missing:
+                            state.pop('virtual_packet_sha256', None)
+                        else:
+                            state['virtual_packet_sha256'] = previous
+                elif name == 'ksm':
+                    value = action(controller, self.root, output, **kwargs)
+                else:
+                    value = action(controller, self.root, output, self.cache, **kwargs)
                 if self.deadline is not None:within(self.deadline)
                 if bound_modules is not None:
                     require(broad_source_guard(self.repository_session,bound_modules,self.deadline) == observation,
