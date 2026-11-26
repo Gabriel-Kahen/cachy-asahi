@@ -21,7 +21,7 @@ import tempfile
 import time
 import urllib.request
 import urllib.error
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 from common import (base_prerequisite, command, copy_pinned, digest, read_json,
                     read_regular, require, save, check_deadline, CleanupFailure)
@@ -30,6 +30,19 @@ LIMIT = 4 * 1024**2
 BLOB_LIMIT = 32 * 1024**2
 ACQUISITION_SECONDS = 600
 READ_TIMEOUT = 15
+RETAINED_TOOLING_URL = ('https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/'
+                        '9edb7b992419754a6b9b42b85a59a4f5690451c7/tooling-inputs/')
+RETAINED_TOOLING_PACKAGES = {
+    'libslirp-4.9.5-1-aarch64.pkg.tar.xz',
+    'libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz',
+    'libtracefs-1.8.3-1-aarch64.pkg.tar.xz',
+    'qemu-common-11.1.2-1-aarch64.pkg.tar.xz',
+    'qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz',
+    'qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz',
+    'qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz',
+    'rdma-core-65.0-1-aarch64.pkg.tar.xz',
+    'snappy-1.2.2-3-aarch64.pkg.tar.xz',
+}
 OWNER_TIMEOUT = 3420  # Owner's 3300-second trial plus bounded finalization.
 PACKET_FILES = {'controller.py', 'audit_tooling.py', 'common.py', 'guest.py',
                 'prepare.py', 'run.py', 'gbm_probe.c', 'image_decode_probe.c',
@@ -473,13 +486,18 @@ def acquisition_clock(*, deadline=None):
 
 
 class HTTPSRedirect(urllib.request.HTTPRedirectHandler):
+    def __init__(self, allow_redirects=True):
+        self.allow_redirects = allow_redirects
+
     def redirect_request(self, request, response, code, message, headers, url):
+        if not self.allow_redirects:
+            return None
         require(urlsplit(url).scheme == 'https', 'tooling-insecure-redirect')
         return super().redirect_request(request, response, code, message, headers, url)
 
 
-def open_tooling(url, timeout):
-    return urllib.request.build_opener(HTTPSRedirect()).open(url, timeout=timeout)
+def open_tooling(url, timeout, *, allow_redirects=True):
+    return urllib.request.build_opener(HTTPSRedirect(allow_redirects)).open(url, timeout=timeout)
 
 
 def fetch_blob(row, cache, deadline, *, job_deadline=None):
@@ -528,7 +546,21 @@ def fetch_blob(row, cache, deadline, *, job_deadline=None):
             if job_deadline is not None:
                 timeout = min(READ_TIMEOUT, min(deadline, job_deadline) - time.monotonic())
                 require(timeout > 0, 'stage-deadline-exceeded')
-            source = open_tooling(url, timeout=timeout)
+            try:
+                source = open_tooling(url, timeout=timeout)
+            except urllib.error.HTTPError as error:
+                name = row['filename']
+                if error.code != 404 or name.removesuffix('.sig') not in RETAINED_TOOLING_PACKAGES:
+                    raise
+                error.close()
+                check_deadline(job_deadline)
+                within(deadline)
+                end = deadline if job_deadline is None else min(deadline, job_deadline)
+                timeout = min(READ_TIMEOUT, end - time.monotonic())
+                require(timeout > 0, 'stage-deadline-exceeded')
+                retained_url = RETAINED_TOOLING_URL + quote(name, safe='')
+                source = open_tooling(retained_url, timeout=timeout, allow_redirects=False)
+                require(source.geturl() == retained_url, 'tooling-origin-refused')
             require(urlsplit(source.geturl()).scheme == 'https' and source.status == 200, 'tooling-origin-refused')
             length = source.headers.get('Content-Length')
             require(length is None or length == str(row['size']), 'tooling-size-differs')

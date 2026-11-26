@@ -2,17 +2,20 @@
 import copy
 from contextlib import ExitStack, contextmanager
 import hashlib
+from http.client import HTTPResponse
 import importlib.util
 import io
 import json
 from pathlib import Path
 import shutil
+import socket
 import sys
 import tarfile
 import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
+from urllib.error import HTTPError
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
@@ -718,6 +721,36 @@ class BaseStages(unittest.TestCase):
         self.assertNotIn(str(self.owner / 'public'), kept)
         self.assertIn(str(self.output / 'adapter-status'), kept)
 
+    def test_arm_acquisition_diagnostic_survives_recovery_with_closed_fields(self):
+        self.arm_inputs()
+        b.fetch_zlib.side_effect = HTTPError(b.ZLIB_URL, 404, 'fixture', {}, None)
+        b.run_arm(self.controller, self.root, self.output, self.cache)
+        self.command.assert_not_called()
+        status = self.output / 'adapter-status'
+        path = status / 'result.json'
+        original = b.read_json(path)
+        self.assertEqual(original['failure_phase'], 'zlib-acquisition')
+        self.assertEqual(original['source_http_status'], 404)
+        self.assertIn(str(status), b.recovery_public('arm-c01-base', self.output))
+
+        source_error = {key: value for key, value in original.items() if key != 'source_http_status'}
+        b.save(path, dict(source_error, source_error_code='zlib-pin-refused'))
+        self.assertIn(str(status), b.recovery_public('arm-c01-base', self.output))
+
+        for stage, changes in (
+                ('arm-c01-base', {'failure_phase': 'private-detail'}),
+                ('arm-c01-base', {'failure_phase': 'owner-launch'}),
+                ('arm-c01-base', {'status': 'PASS'}),
+                ('arm-c01-base', {'source_http_status': True}),
+                ('arm-c01-base', {'source_http_status': 600}),
+                ('arm-c01-base', {'source_error_code': 'zlib-pin-refused'}),
+                ('arm-c01-base', {'source_error_code': 'private-detail'}),
+                ('ksm', {})):
+            with self.subTest(stage=stage, changes=changes):
+                value = source_error if changes.get('source_error_code') == 'private-detail' else original
+                b.save(path, dict(value, stage=stage, **changes))
+                self.assertNotIn(str(status), b.recovery_public(stage, self.output))
+
     def test_recovery_policy_refuses_sensitive_components_and_binary_suffix_with_consistent_manifest(self):
         for name in ('nested.gnupg/public.json', 'safe.bin'):
             public = self.base / 'public'; self.write_export(public, {name: b'harmless utf8'})
@@ -903,6 +936,19 @@ class SourceFetch(unittest.TestCase):
         cached = self.cache / 'zlib-1.3.2.tar.gz'; cached.write_bytes(self.data)
         with patch.object(b, 'open_zlib', side_effect=AssertionError('cache must be used')):
             self.assertEqual(b.fetch_zlib(self.cache), cached)
+
+    def test_deadline_fetch_reads_eof_after_http_response_retires_its_socket(self):
+        reader, writer = socket.socketpair()
+        with reader, writer:
+            writer.sendall(b'HTTP/1.1 200 OK\r\nContent-Length: ' + str(len(self.data)).encode()
+                           + b'\r\n\r\n' + self.data)
+            source = HTTPResponse(reader)
+            source.url = b.ZLIB_URL
+            source.begin()
+            with patch.object(b, 'open_zlib', return_value=source):
+                path = b.fetch_zlib(self.cache, deadline=b.time.monotonic() + 5)
+            self.assertIsNone(source.fp)
+        self.assertEqual(path.read_bytes(), self.data)
 
     def test_redirect_oversize_hash_drift_and_cancel_remove_only_owned_temporary(self):
         unrelated = self.cache / 'unrelated.partial'; unrelated.write_bytes(b'preserve')

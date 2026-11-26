@@ -13,11 +13,11 @@
   },
   "launch.py": {
     "mode": 420,
-    "sha256": "dea419a89d73043217bd9d2f8bfa42540bfd6bb0e72e58fd66d28c4ce0a8d969"
+    "sha256": "d456a866ba10342fc7023d35c0dfc275b257622eaee810f85daa04e2667e57fa"
   },
   "producer.py": {
     "mode": 420,
-    "sha256": "47a9630d62929ac93296a87a8259e2aa6ad7e1c8d0123989ac8f1f266afad077"
+    "sha256": "3c43ee5560fc60ddc32c4a758971e35573c263b39cb04e0b313261d241245d7c"
   },
   "supervisor.py": {
     "mode": 420,

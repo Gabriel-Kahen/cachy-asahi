@@ -19,7 +19,7 @@ import stat
 import threading
 import time
 
-ORIGINAL_PIN = 'f931997db811325774dec9f4f9126560da27fd14fc5436b37b4578f9c3492cfd'
+ORIGINAL_PIN = 'fdfd3611ca8d3fab7584594ccaf627f42a9ae31898372925af1bcae173d55cd7'
 MARKER = b'\x1eRCNH1 '
 ACK_MARKER = b'\x1eRCNH1-ACK '
 RESERVED = b'\x1eRCNH1'

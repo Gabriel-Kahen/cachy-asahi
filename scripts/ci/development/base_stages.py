@@ -23,6 +23,7 @@ import tarfile
 import tempfile
 import time
 from types import SimpleNamespace
+from urllib.error import HTTPError
 import urllib.request
 
 from common import (base_prerequisite, check_deadline, command, copy_regular, digest,
@@ -32,9 +33,16 @@ KSM = 'cachy-asahi-ksmctl'
 KSM_PIN = 'f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44'
 ARM_PIN = '8e0d982e136f8f1c79bebbeca8448f48a8466e95dbb8695042e7528a26f731ca'
 EXPORT_PIN = '1ae8aded5ab461b280ca1ff82047f6766d58efacf7a09c83dc84515ac7d2216c'
-ZLIB_URL = 'https://zlib.net/zlib-1.3.2.tar.gz'
+ZLIB_URL = 'https://zlib.net/fossils/zlib-1.3.2.tar.gz'
 ZLIB_SHA = 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16'
 ZLIB_SIZE = 1502830
+ZLIB_ERROR_CODES = frozenset({
+    'unsafe-zlib-cache', 'cached-zlib-drift', 'redirect-refused', 'zlib-origin-refused',
+    'zlib-size-refused', 'zlib-fetch-timeout', 'zlib-pin-refused',
+})
+ARM_FAILURE_PHASES = frozenset({
+    'preflight', 'source-lock', 'zlib-acquisition', 'input-copy', 'owner-launch', 'owner-evidence',
+})
 # Selected bytes independently audited from the exact ZLIB_SHA archive.
 ARM_README_SHA = '4026d921213bb2e311d8d42b44ef53361c102d5d45ae32f93f8e52eaee8d068f'
 ARM_LICENSE_SHA = 'e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2'
@@ -637,8 +645,9 @@ def fetch_zlib(cache, *, deadline=None):
                     if deadline is not None:
                         timeout = min(15, 90 - (time.monotonic() - started), check_deadline(deadline))
                         require(timeout > 0, 'zlib-fetch-timeout')
-                        # The selected urllib HTTP response's socket; inert fixtures use the same shape.
-                        source.fp.raw._sock.settimeout(timeout)
+                        # HTTPResponse can retire its socket on the last Content-Length byte.
+                        if source.fp is not None:
+                            source.fp.raw._sock.settimeout(timeout)
                     read = source.read if deadline is None else source.read1
                     data = read(min(65536, ZLIB_SIZE + 1 - size))
                     check_deadline(deadline)
@@ -978,12 +987,16 @@ def verify_arm(owner, controller, prerequisite, *, deadline=None):
 def run_arm(controller, root, output, cache, *, deadline=None):
     result = {'stage': 'arm-c01-base', 'status': 'FAIL', 'prerequisite': {'status': 'NOT RUN'}, 'public': []}
     owned, first_failure = None, None
+    phase = 'preflight'
     try:
         root, owned, result = start(controller, root, output, 'arm-c01-base', **deadline_options(deadline))
+        phase = 'source-lock'
         lock = arm_lock(root, **deadline_options(deadline))
         for other in (owned, root, Path(controller.native_out)):
             check_deadline(deadline); require(not Path(cache).is_relative_to(other) and not other.is_relative_to(Path(cache)), 'cache-input-output-overlap')
+        phase = 'zlib-acquisition'
         source = fetch_zlib(cache, **deadline_options(deadline))
+        phase = 'input-copy'
         inputs = owned / 'inputs'; inputs.mkdir()
         save(inputs / 'source-input.json', {'url': ZLIB_URL, 'sha256': ZLIB_SHA, 'bytes': ZLIB_SIZE,
                                           'verification': 'reviewed exact bytes; HTTPS transport, no release-signature claim'}, **deadline_options(deadline))
@@ -991,12 +1004,14 @@ def run_arm(controller, root, output, cache, *, deadline=None):
         require(digest(lock_copy, **deadline_options(deadline)) == ARM_PIN, 'arm-source-lock-copy-drift')
         owner = owned / 'owner'
         prerequisite = result['prerequisite']
+        phase = 'owner-launch'
         code = command([sys.executable, '-B', str(root / 'scripts/experiments/stage.py'), '--source-root', str(root),
                  '--lock', str(lock_copy), '--lock-sha256', ARM_PIN, '--source', str(source), '--source-commit', controller.commit,
                  '--image', controller.image, '--base-packages', prerequisite['packages_lock'],
                  '--base-packages-sha256', prerequisite['packages_sha256'], '--expected-packages', prerequisite['packages_lock'],
                  '--expected-packages-sha256', prerequisite['packages_sha256'], '--output', str(owner)], owned / 'driver.log', 1000, **deadline_options(deadline))
         require(code == 0, 'arm-owner-command-failed')
+        phase = 'owner-evidence'
         verify_arm(owner, controller, prerequisite, **deadline_options(deadline))
         result.update(status='PASS', execution='base-only-correctness', installed_handoff='NOT CLAIMED')
     except KeyboardInterrupt as error:
@@ -1006,6 +1021,12 @@ def run_arm(controller, root, output, cache, *, deadline=None):
     except Exception as error:
         first_failure = error
         failed(result, 'stage-deadline-exceeded' if str(error) == 'stage-deadline-exceeded' else 'arm-stage-failed')
+        result['failure_phase'] = phase
+        if phase == 'zlib-acquisition':
+            if isinstance(error, HTTPError) and type(error.code) is int and 100 <= error.code <= 599:
+                result['source_http_status'] = error.code
+            elif type(error) is ValueError and str(error) in ZLIB_ERROR_CODES:
+                result['source_error_code'] = str(error)
     finally:
         if owned is not None:
             cleanup_errors = []
@@ -1102,9 +1123,24 @@ def recovery_public(stage, output, *, deadline=None):
     status = output / 'adapter-status'
     try:
         value = read_json(status / 'result.json', **deadline_options(deadline))
+        allowed = {'stage', 'status', 'prerequisite', 'public', 'hardware_validation', 'performance_acceptance',
+                   'selected_for_release', 'installation', 'error_code', 'execution', 'installed_handoff', 'cleanup', 'cancelled'}
+        if stage == 'arm-c01-base':
+            details = {'source_http_status', 'source_error_code'} & value.keys()
+            allowed.update({'failure_phase', 'source_http_status', 'source_error_code'})
+            if 'failure_phase' in value or details:
+                phase = value.get('failure_phase')
+                require(value.get('status') == 'FAIL' and type(phase) is str and phase in ARM_FAILURE_PHASES
+                        and len(details) <= 1 and (not details or phase == 'zlib-acquisition'),
+                        'invalid-recovery-arm-diagnostic')
+                if 'source_http_status' in details:
+                    code = value['source_http_status']
+                    require(type(code) is int and 100 <= code <= 599, 'invalid-recovery-arm-diagnostic')
+                if 'source_error_code' in details:
+                    code = value['source_error_code']
+                    require(type(code) is str and code in ZLIB_ERROR_CODES, 'invalid-recovery-arm-diagnostic')
         require(value.get('stage') == stage and value.get('status') in ('PASS', 'FAIL', 'NOT RUN')
-                and set(value) <= {'stage', 'status', 'prerequisite', 'public', 'hardware_validation', 'performance_acceptance',
-                                  'selected_for_release', 'installation', 'error_code', 'execution', 'installed_handoff', 'cleanup', 'cancelled'},
+                and value.keys() <= allowed,
                 'invalid-recovery-adapter-status')
         require({path.name for path in status.iterdir()} == {'result.json'}, 'invalid-recovery-adapter-files')
         require(not policy.PRIVATE_CONTENT.search(json.dumps(value, sort_keys=True)), 'private-recovery-status-refused')

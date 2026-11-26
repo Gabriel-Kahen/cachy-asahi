@@ -2147,6 +2147,82 @@ class BoundedTransport(unittest.TestCase):
             self.assertEqual(v.fetch_blob(self.row, self.cache, v.time.monotonic() + 600), path)
         self.assertFalse(any(p.name.endswith('.partial') for p in self.cache.iterdir()))
 
+    def test_retained_input_404_uses_pinned_url_and_remaining_job_budget(self):
+        row = dict(self.row, filename='libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz.sig')
+        retained_url = ('https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/'
+                        '9edb7b992419754a6b9b42b85a59a4f5690451c7/tooling-inputs/'
+                        'libtraceevent-1%3A1.9.0-1-aarch64.pkg.tar.xz.sig')
+        clock = [50]
+        body = io.BytesIO(b'not found')
+        response = self.response(url=retained_url)
+
+        def open_input(url, *, timeout, allow_redirects=True):
+            if url == row['url']:
+                self.assertEqual(timeout, 10)
+                self.assertTrue(allow_redirects)
+                clock[0] = 57
+                raise v.urllib.error.HTTPError(url, 404, 'not found', {}, body)
+            self.assertTrue(body.closed)
+            self.assertEqual(url, retained_url)
+            self.assertEqual(timeout, 3)
+            self.assertFalse(allow_redirects)
+            return response
+
+        with patch.object(v.time, 'monotonic', side_effect=lambda: clock[0]), \
+                patch.object(v, 'open_tooling', side_effect=open_input) as transport:
+            path = v.fetch_blob(row, self.cache, 63, job_deadline=60)
+        self.assertEqual(transport.call_count, 2)
+        self.assertTrue(response.closed)
+        self.assertEqual(path.read_bytes(), self.data)
+        self.assertEqual(list(self.cache.iterdir()), [path])
+
+    def test_retained_input_404_does_not_extend_phase_deadline(self):
+        row = dict(self.row, filename='libslirp-4.9.5-1-aarch64.pkg.tar.xz')
+        clock = [10]
+        body = io.BytesIO(b'not found')
+
+        def expire(url, *, timeout):
+            clock[0] = 16
+            raise v.urllib.error.HTTPError(url, 404, 'not found', {}, body)
+
+        with patch.object(v.time, 'monotonic', side_effect=lambda: clock[0]), \
+                patch.object(v, 'open_tooling', side_effect=expire) as transport, \
+                self.assertRaises(v.AcquisitionDeadline):
+            v.fetch_blob(row, self.cache, 16)
+        transport.assert_called_once()
+        self.assertTrue(body.closed)
+        self.assertEqual(list(self.cache.iterdir()), [])
+
+    def test_retained_input_only_falls_back_on_404_for_exact_names(self):
+        name = 'libslirp-4.9.5-1-aarch64.pkg.tar.xz'
+        for filename, status in ((name, 503), (name + '.sig.sig', 404), (self.row['filename'], 404)):
+            with self.subTest(filename=filename, status=status), io.BytesIO(b'refused') as body:
+                row = dict(self.row, filename=filename)
+                error = v.urllib.error.HTTPError(row['url'], status, 'refused', {}, body)
+                with patch.object(v, 'open_tooling', side_effect=error) as transport, \
+                        self.assertRaises(v.urllib.error.HTTPError) as caught:
+                    v.fetch_blob(row, self.cache, v.time.monotonic() + 600)
+                error.close()
+                self.assertIs(caught.exception, error)
+                transport.assert_called_once()
+                self.assertEqual(list(self.cache.iterdir()), [])
+
+    def test_retained_input_enforces_exact_final_url_and_byte_pin(self):
+        row = dict(self.row, filename='libslirp-4.9.5-1-aarch64.pkg.tar.xz')
+        retained_url = v.RETAINED_TOOLING_URL + row['filename']
+        for response, diagnostic in (
+                (self.response(url='https://example.invalid/redirected'), 'tooling-origin-refused'),
+                (self.response(data=b'x' * len(self.data), url=retained_url), 'tooling-pin-differs')):
+            error = v.urllib.error.HTTPError(row['url'], 404, 'not found', {}, io.BytesIO())
+            with self.subTest(diagnostic=diagnostic), \
+                    patch.object(v, 'open_tooling', side_effect=[error, response]), \
+                    self.assertRaisesRegex(ValueError, diagnostic):
+                v.fetch_blob(row, self.cache, v.time.monotonic() + 600)
+            self.assertTrue(response.closed)
+            self.assertEqual(list(self.cache.iterdir()), [])
+        self.assertIsNone(v.HTTPSRedirect(False).redirect_request(
+            None, None, 302, '', {}, 'https://example.invalid/redirected'))
+
     def test_oversize_hash_failure_and_insecure_final_response_remove_only_owned_partial(self):
         unrelated = self.cache / 'unrelated.partial'; unrelated.write_bytes(b'preserve')
         for response in (self.response(self.data + b'x'), self.response(b'x' * len(self.data)),
