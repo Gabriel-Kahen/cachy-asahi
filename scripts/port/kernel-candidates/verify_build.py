@@ -178,10 +178,11 @@ def verify_dtb(path, expected):
 
 class ELF:
     """Bounded ELF64 reader; never execute tools or map a multi-GiB ELF into RAM."""
-    def __init__(self, path, kind, cap, *, artifact_role='elf'):
+    def __init__(self, path, kind, cap, *, artifact_role='elf', module_ordinal=None):
         harness.regular(path, cap)
         self.path, self.size = path, path.stat().st_size
         self.elf_type, self.artifact_role = kind, artifact_role
+        self.module_ordinal = module_ordinal
         self.rela_table = None
         self.stream = path.open('rb')
         try:
@@ -236,8 +237,7 @@ class ELF:
                              (row['align'] in (0, 1) or row['align'] & (row['align'] - 1) == 0), 'ELF section name/link/alignment invalid')
                 self.by_name[name] = row
                 if row['type'] != 8 and row['size']:
-                    harness.need(row['offset'] >= 64 and row['offset'] + row['size'] <= self.size and
-                                 row['offset'] % max(1, row['align']) == 0, 'ELF section file geometry invalid')
+                    self.check_section_file_geometry(row)
                     ranges.append((row['offset'], row['offset'] + row['size']))
                 harness.need(not (row['flags'] & 1 and row['flags'] & 4), 'ELF writable executable section refused')
         self.loads = []
@@ -318,6 +318,45 @@ class ELF:
                             self.relocation_refusal(artifact_role, kind, row, entry_index, offset, info, linked, target)
         if kernel_image and (relr := self.by_name.get('.relr.dyn')) is not None:
             self.verify_relr(relr)
+
+    def check_section_file_geometry(self, section):
+        offset, size = section['offset'], section['size']
+        alignment = self.section_file_alignment(section)
+        if offset < 64:
+            failed = 'OFFSET_BEFORE_HEADER'
+        elif offset + size > self.size:
+            failed = 'FILE_RANGE'
+        elif offset % alignment:
+            failed = 'FILE_OFFSET_ALIGNMENT'
+        else:
+            return
+        name = section['name']
+        known = ('.text', '.rodata', '.data', '.data..percpu', '.gnu.linkonce.this_module',
+                 '.BTF', '.BTF.base', '.BTF_ids', '.symtab', '.strtab', '.shstrtab', '.modinfo',
+                 '__versions', '__version_ext_crcs', '__version_ext_names')
+        fact = {key: section[key] for key in ('index', 'type', 'flags', 'addr', 'offset', 'size', 'align')}
+        fact.update(name_class=name if name in known else 'OTHER',
+                    name_sha256=hashlib.sha256(name.encode('ascii')).hexdigest())
+        error = ValueError('ELF section file geometry invalid')
+        error.section_geometry = {'role': 'module' if self.elf_type == 1 else self.artifact_role,
+                                  'elf_type': self.elf_type, 'module_ordinal': self.module_ordinal,
+                                  'file_bytes': self.size, 'file_alignment': alignment,
+                                  'failed_check': failed, 'section': fact}
+        raise error
+
+    def section_file_alignment(self, section):
+        alignment = max(1, section['align'])
+        if self.elf_type == 1 and section['type'] in (2, 4):
+            return max(8, alignment)
+        # Pinned GNU ld -r can pack allocated PROGBITS at eight-byte file
+        # boundaries. Linux applies sh_addralign when allocating the copy.
+        # Keep declared file alignment for non-PROGBITS and raw metadata.
+        if (self.elf_type == 1 and section['type'] == 1 and section['flags'] & 2 and section['addr'] == 0 and
+                section['name'] not in ('.BTF', '.BTF.base', '.BTF_ids', '__versions',
+                                        '__version_ext_crcs', '__version_ext_names')):
+            # The loader reads the descriptor before copying it.
+            return 8 if section['name'] == '.gnu.linkonce.this_module' else min(8, alignment)
+        return alignment
 
     def verify_image_rela(self, section, linked, target):
         """Check the writes made by the pinned ET_DYN Image relocator."""
@@ -728,9 +767,9 @@ def verify_outputs(build, source, expected_config=None):
         modules, expected_magic = {}, vermagic(release, settings)
         modnames = {Path(name).stem.replace('-', '_') for name in order}
         harness.need(len(modnames) == len(order), 'ambiguous module names')
-        for name in order:
+        for ordinal, name in enumerate(order):
             path = build / (name[:-2] + '.ko')
-            with ELF(path, 1, 1024**3) as reader:
+            with ELF(path, 1, 1024**3, module_ordinal=ordinal) as reader:
                 definitions = reader.definitions(by_owner[name[:-2]] | {'__this_module'})
                 harness.need(reader.by_name.get('.text', {}).get('flags', 0) & 4 and
                              reader.by_name.get('.gnu.linkonce.this_module', {}).get('flags', 0) & 3 == 3 and

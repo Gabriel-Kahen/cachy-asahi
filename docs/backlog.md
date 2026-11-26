@@ -21,12 +21,14 @@ only the Fish package and exercised staging, comparison and withdrawal.
   the intended maintenance composition and physical 16 KiB testing remain open.
   [Native build and lifecycle evidence](validation/project-libraries-native-20261125.md)
 - Kernel [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) passed
-  hosted intake and all three baseline build commands. The third run passed
+  hosted intake and all four baseline build commands. The third run passed
   all 28,857 RELA records, then stopped at symbol-range validation before the
   candidate started. The pinned linker reproduces a valid `_end` after `.bss`
   and the last load segment. The verifier now checks that specific Image
   endpoint against the header and reports bounded symbol diagnostics on a
-  refusal. The fourth hosted run has passed intake and entered the build step.
+  refusal. The fourth run passed the Image endpoint, byte projection and
+  embedded configuration checks, then refused the file geometry of an ELF
+  module section. The candidate comparison remains open.
   [Third hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45717672590)
   · [Fourth hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45726872408)
   · [Verifier and diagnostics](workstreams/kernel-native-job.md)
@@ -43,11 +45,11 @@ only the Fish package and exercised staging, comparison and withdrawal.
   TEST-signed lifecycle. [Dry run and build-only plan](../scripts/integration/qt612_full_16k_preflight/README.md)
 - The virtual desktop successor requires a terminal event after guest
   cleanup, bounded UART EOF, and outer-reader verification before accepting
-  frames. One retained-input run authenticated all 501 inputs and produced
-  four matching native build pairs. The next Source passed the signed installed
-  lifecycle and entered the native callback, then stopped before QEMU. The
-  repository launch still pinned the previous script, and 18 QEMU tooling inputs
-  returned HTTP 404. The existing public carrier matches all 45 tooling pins.
+  frames. The latest retained-input trial authenticated all 45 tooling objects,
+  ran the generic QEMU desktop and decoded the TEST SVG. The session and seatd
+  exited zero, UART reached EOF, and visual review passed for both original
+  frames. Signed repository transactions and ARM C01 passed in the same run.
+  The downstream repository baseline handoff remains open.
   [Successor admission](workstreams/virtual-desktop-completion-v2-admission.md)
   · [Installed lifecycle run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45728195500)
   · [Repository and tooling retry](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45731218357)

@@ -115,3 +115,22 @@ under its existing deadline. The live download matched the 1,502,830-byte
 archive and its pinned SHA-256. The latest trial uses separately verified
 Source, Code and Data bindings.
 [Repository and tooling retry](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45731218357)
+
+The retry passed all seven initial integration stages, including signed
+repository transactions, and the native ARM C01 base-only correctness trial.
+The generic AArch64 QEMU guest completed a software desktop session in
+316.817 seconds. Both the session and seatd exited zero. The outer reader
+verified the terminal event, UART EOF and owned process retirement. The guest
+decoded the exact TEST SVG as a 128 × 128 image. The coordinator compared both
+original frame digests, verified lossless PNG readbacks and saw the expected
+Wofi prompt and entries over visually distinct backgrounds in both 1024 × 768
+frames. The original minimal frame SHA-256 is
+`6f26cd2204d7eebd43cd500ccee3fd5c10af59b0ffc1eed42513981d768e0a39`. The original
+overlay frame SHA-256 is
+`0b07d0411bd638e1b10e6b8a5be3d52b0a136c13f70e4b31dfbcb939c6a00ea1`.
+
+The overall workflow returned `baseline-failed` in the downstream repository
+handoff after the producer and virtual checks. Independent replay verified the
+243 native provenance entries. The first failure within the downstream staging
+or collector path is still under review. Graphics acceleration, physical M2
+behavior and performance acceptance remain `NOT RUN`.

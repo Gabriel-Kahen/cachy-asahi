@@ -268,6 +268,55 @@ class BuildChecks(unittest.TestCase):
             self.assertIs(fact['scan_complete'], not poison)
             self.assertEqual([row['symbol_class'] for row in fact['samples']], ['_text', '_end'])
 
+    def test_module_copied_sections_allow_pinned_linker_packing_and_keep_raw_guards(self):
+        raw = bytearray(elf_bytes(b'owned_module', module=True))
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        text, descriptor, symbols, relocs = (shoff + index * 64 for index in (1, 3, 4, 6))
+        struct.pack_into('<Q', raw, text + 48, 128)
+        struct.pack_into('<Q', raw, descriptor + 48, 64)
+        path = self.root / 'module.ko'
+        path.write_bytes(raw)
+        with verifier.ELF(path, 1, 1024**3, module_ordinal=17) as reader:
+            self.assertEqual(reader.by_name['.text']['offset'], 64)
+            self.assertEqual(reader.by_name['.gnu.linkonce.this_module']['offset'] % 8, 0)
+        desc_off = struct.unpack_from('<Q', raw, descriptor + 24)[0]
+        sym_off = struct.unpack_from('<Q', raw, symbols + 24)[0]
+        rela_off = struct.unpack_from('<Q', raw, relocs + 24)[0]
+        cases = (
+            ([(text + 24, 63), (text + 32, len(raw))], 'OFFSET_BEFORE_HEADER', '.text'),
+            ([(text + 32, len(raw))], 'FILE_RANGE', '.text'),
+            ([(descriptor + 24, desc_off + 1)], 'FILE_OFFSET_ALIGNMENT', '.gnu.linkonce.this_module'),
+            ([(symbols + 24, sym_off + 1), (symbols + 48, 1)], 'FILE_OFFSET_ALIGNMENT', '.symtab'),
+            ([(relocs + 24, rela_off + 1), (relocs + 48, 1)], 'FILE_OFFSET_ALIGNMENT', '.rela.text'),
+        )
+        for changes, failed, name in cases:
+            altered = bytearray(raw)
+            for offset, value in changes:
+                struct.pack_into('<Q', altered, offset, value)
+            path.write_bytes(altered)
+            with self.subTest(name=name, failed=failed), self.assertRaisesRegex(ValueError, 'ELF section file geometry invalid') as caught:
+                verifier.ELF(path, 1, 1024**3, module_ordinal=17)
+            fact = caught.exception.section_geometry
+            self.assertEqual((fact['role'], fact['module_ordinal'], fact['failed_check']), ('module', 17, failed))
+            self.assertEqual(fact['section']['name_class'], 'OTHER' if name == '.rela.text' else name)
+            self.assertEqual(fact['section']['name_sha256'], hashlib.sha256(name.encode()).hexdigest())
+        struct.pack_into('<Q', raw, descriptor + 24, 64)
+        path.write_bytes(raw)
+        with self.assertRaisesRegex(ValueError, 'overlapping ELF section/header file ranges'):
+            verifier.ELF(path, 1, 1024**3)
+
+    def test_linked_image_keeps_declared_section_file_alignment(self):
+        raw = bytearray(elf_bytes(b'owned_instruction_fixture' * 4))
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        struct.pack_into('<Q', raw, shoff + 64 + 48, 32768)
+        path = self.root / 'vmlinux'
+        path.write_bytes(raw)
+        with self.assertRaisesRegex(ValueError, 'ELF section file geometry invalid') as caught:
+            verifier.ELF(path, 3, 4 * 1024**3, artifact_role='arm64-image-reference')
+        fact = caught.exception.section_geometry
+        self.assertEqual(fact['role'], 'arm64-image-reference')
+        self.assertEqual(fact['file_alignment'], 32768)
+
     def test_old_minimal_false_positive_dtbs_refused(self):
         build = self.outputs(); path = build / 'arch/arm64/boot/dts/apple/t8112-j413.dtb'
         path.write_bytes(struct.pack('>II',0xd00dfeed,8))

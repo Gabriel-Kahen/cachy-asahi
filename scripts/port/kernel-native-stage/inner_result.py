@@ -467,8 +467,65 @@ def _symbol_range_fact(value):
     return value
 
 
+def _section_geometry_fact(value):
+    _need(type(value) is dict and set(value) == {'role', 'elf_type', 'module_ordinal', 'file_bytes',
+         'file_alignment', 'failed_check', 'section'})
+    role, kind = value['role'], value['elf_type']
+    _need(type(role) is str and role in ('module', 'elf', 'arm64-image-reference') and
+         type(kind) is int and kind in (1, 2, 3) and (kind == 1) == (role == 'module'))
+
+    def uint(item, maximum=2**64 - 1):
+        _need(type(item) is int and 0 <= item <= maximum)
+
+    if kind == 1:
+        uint(value['module_ordinal'], 4095)
+    else:
+        _need(value['module_ordinal'] is None)
+    uint(value['file_bytes'], (1 if kind == 1 else 4) * 1024**3)
+    _need(value['file_bytes'] >= 64)
+    section = value['section']
+    _need(type(section) is dict and set(section) == {'index', 'type', 'flags', 'addr', 'offset',
+         'size', 'align', 'name_class', 'name_sha256'})
+    uint(section['index'], 8191)
+    uint(section['type'], 0xffffffff)
+    for name in ('flags', 'addr', 'offset', 'size', 'align'):
+        uint(section[name])
+    _need(section['index'] > 0 and section['type'] != 8 and section['size'] > 0)
+    align = section['align']
+    _need(align == 0 or align & (align - 1) == 0)
+    known = ('.text', '.rodata', '.data', '.data..percpu', '.gnu.linkonce.this_module',
+             '.BTF', '.BTF.base', '.BTF_ids', '.symtab', '.strtab', '.shstrtab', '.modinfo',
+             '__versions', '__version_ext_crcs', '__version_ext_names')
+    pin, label = section['name_sha256'], section['name_class']
+    _need(type(pin) is str and re.fullmatch('[0-9a-f]{64}', pin) and type(label) is str)
+    labels = {hashlib.sha256(name.encode('ascii')).hexdigest(): name for name in known}
+    _need(label == labels.get(pin, 'OTHER'))
+    alignment = max(1, align)
+    if kind == 1 and section['type'] in (2, 4):
+        alignment = max(8, alignment)
+    elif (kind == 1 and section['type'] == 1 and section['flags'] & 2 and section['addr'] == 0 and
+          label not in ('.BTF', '.BTF.base', '.BTF_ids', '__versions',
+                          '__version_ext_crcs', '__version_ext_names')):
+        alignment = 8 if label == '.gnu.linkonce.this_module' else min(8, alignment)
+    _need(type(value['file_alignment']) is int and value['file_alignment'] == alignment)
+    offset = section['offset']
+    failed = ('OFFSET_BEFORE_HEADER' if offset < 64 else 'FILE_RANGE' if offset + section['size'] > value['file_bytes']
+              else 'FILE_OFFSET_ALIGNMENT' if offset % alignment else None)
+    _need(failed is not None and type(value['failed_check']) is str and value['failed_check'] == failed)
+    return value
+
+
 def _output_fact(value, version=4):
-    _need(type(version) is int and version in (4, 5, 6, 7) and type(value) is dict)
+    _need(type(version) is int and version in (4, 5, 6, 7, 8) and type(value) is dict)
+    if version == 8:
+        _need(set(value) == {'call_boundary', 'predicate', 'section_geometry', 'rela_table'} and
+             type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
+             type(value['predicate']) is str and value['predicate'] == 'CHECK_011')
+        _section_geometry_fact(value['section_geometry'])
+        if value['rela_table'] is not None:
+            _need(value['section_geometry']['role'] == 'module')
+            _rela_table_fact(value['rela_table'])
+        return value
     if version == 7:
         _need(set(value) == {'call_boundary', 'predicate', 'symbol_range', 'rela_table'} and
              type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
@@ -524,6 +581,12 @@ def output_failure(row, error):
         detail.setdefault('rela_table', None)
         detail['symbol_range'] = json.loads(_encoded(symbols))
         version = 7
+    if predicate == 'CHECK_011' and 'section_geometry' in error.__dict__:
+        geometry = _section_geometry_fact(error.__dict__['section_geometry'])
+        detail.pop('relocation', None)
+        detail.setdefault('rela_table', None)
+        detail['section_geometry'] = json.loads(_encoded(geometry))
+        version = 8
     candidate = dict(row, schema_version=version, output_failure=detail)
     validate(candidate)
     row.update(schema_version=version, output_failure=detail)
@@ -531,8 +594,8 @@ def output_failure(row, error):
 
 
 def _keys(row, public=False):
-    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7))
-    extra = {2: {'config_failure'}, 3: {'compiler_failure'}, 4: {'output_failure'}, 5: {'output_failure'}, 6: {'output_failure'}, 7: {'output_failure'}}.get(row['schema_version'], set())
+    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8))
+    extra = {2: {'config_failure'}, 3: {'compiler_failure'}, 4: {'output_failure'}, 5: {'output_failure'}, 6: {'output_failure'}, 7: {'output_failure'}, 8: {'output_failure'}}.get(row['schema_version'], set())
     return (PUBLIC_KEYS if public else KEYS) | extra
 
 
@@ -587,7 +650,7 @@ def invalidate(row):
 
 
 def _body(row):
-    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7))
+    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8))
     _need(type(row['phase']) is str and row['phase'] in PHASES)
     _need(type(row['command']) is str and row['command'] in COMMANDS)
     _need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -617,7 +680,7 @@ def _body(row):
         _need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
               row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']})
-    if row['schema_version'] in (4, 5, 6, 7):
+    if row['schema_version'] in (4, 5, 6, 7, 8):
         _output_fact(row['output_failure'], row['schema_version'])
         _need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and

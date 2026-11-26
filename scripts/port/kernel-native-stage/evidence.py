@@ -278,8 +278,65 @@ def validate_symbol_range_fact(value):
     return value
 
 
+def validate_section_geometry_fact(value):
+    need(type(value) is dict and set(value) == {'role', 'elf_type', 'module_ordinal', 'file_bytes',
+         'file_alignment', 'failed_check', 'section'})
+    role, kind = value['role'], value['elf_type']
+    need(type(role) is str and role in ('module', 'elf', 'arm64-image-reference') and
+         type(kind) is int and kind in (1, 2, 3) and (kind == 1) == (role == 'module'))
+
+    def uint(item, maximum=2**64 - 1):
+        need(type(item) is int and 0 <= item <= maximum)
+
+    if kind == 1:
+        uint(value['module_ordinal'], 4095)
+    else:
+        need(value['module_ordinal'] is None)
+    uint(value['file_bytes'], (1 if kind == 1 else 4) * 1024**3)
+    need(value['file_bytes'] >= 64)
+    section = value['section']
+    need(type(section) is dict and set(section) == {'index', 'type', 'flags', 'addr', 'offset',
+         'size', 'align', 'name_class', 'name_sha256'})
+    uint(section['index'], 8191)
+    uint(section['type'], 0xffffffff)
+    for name in ('flags', 'addr', 'offset', 'size', 'align'):
+        uint(section[name])
+    need(section['index'] > 0 and section['type'] != 8 and section['size'] > 0)
+    align = section['align']
+    need(align == 0 or align & (align - 1) == 0)
+    known = ('.text', '.rodata', '.data', '.data..percpu', '.gnu.linkonce.this_module',
+             '.BTF', '.BTF.base', '.BTF_ids', '.symtab', '.strtab', '.shstrtab', '.modinfo',
+             '__versions', '__version_ext_crcs', '__version_ext_names')
+    pin, label = section['name_sha256'], section['name_class']
+    need(type(pin) is str and re.fullmatch('[0-9a-f]{64}', pin) and type(label) is str)
+    labels = {hashlib.sha256(name.encode('ascii')).hexdigest(): name for name in known}
+    need(label == labels.get(pin, 'OTHER'))
+    alignment = max(1, align)
+    if kind == 1 and section['type'] in (2, 4):
+        alignment = max(8, alignment)
+    elif (kind == 1 and section['type'] == 1 and section['flags'] & 2 and section['addr'] == 0 and
+          label not in ('.BTF', '.BTF.base', '.BTF_ids', '__versions',
+                          '__version_ext_crcs', '__version_ext_names')):
+        alignment = 8 if label == '.gnu.linkonce.this_module' else min(8, alignment)
+    need(type(value['file_alignment']) is int and value['file_alignment'] == alignment)
+    offset = section['offset']
+    failed = ('OFFSET_BEFORE_HEADER' if offset < 64 else 'FILE_RANGE' if offset + section['size'] > value['file_bytes']
+              else 'FILE_OFFSET_ALIGNMENT' if offset % alignment else None)
+    need(failed is not None and type(value['failed_check']) is str and value['failed_check'] == failed)
+    return value
+
+
 def validate_output_fact(value, version=4):
-    need(type(version) is int and version in (4, 5, 6, 7) and type(value) is dict)
+    need(type(version) is int and version in (4, 5, 6, 7, 8) and type(value) is dict)
+    if version == 8:
+        need(set(value) == {'call_boundary', 'predicate', 'section_geometry', 'rela_table'} and
+             type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
+             type(value['predicate']) is str and value['predicate'] == 'CHECK_011')
+        validate_section_geometry_fact(value['section_geometry'])
+        if value['rela_table'] is not None:
+            need(value['section_geometry']['role'] == 'module')
+            validate_rela_table_fact(value['rela_table'])
+        return value
     if version == 7:
         need(set(value) == {'call_boundary', 'predicate', 'symbol_range', 'rela_table'} and
              type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
@@ -318,8 +375,8 @@ def validate_inner_group(group):
         return group
     need(pin is not None)
     row = group['diagnostic']
-    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7))
-    need(set(row) == INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5, 6, 7) else set()))
+    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8))
+    need(set(row) == INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5, 6, 7, 8) else set()))
     need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
     need(type(row['phase']) is str and row['phase'] in INNER_PHASES and type(row['command']) is str and row['command'] in INNER_COMMANDS)
     need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -345,7 +402,7 @@ def validate_inner_group(group):
     if row['schema_version'] == 3:
         validate_compiler_fact(row['compiler_failure'])
         need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and row['command'] == 'KERNEL' and (row['attempt'] == 'ISSUED') and (row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']}))
-    if row['schema_version'] in (4, 5, 6, 7):
+    if row['schema_version'] in (4, 5, 6, 7, 8):
         validate_output_fact(row['output_failure'], row['schema_version'])
         need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
              row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and

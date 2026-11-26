@@ -56,6 +56,15 @@ effective Image size. Ordinary exports retain their section bounds. The
 linker fixture establishes the layout behavior. Identifying the rejected
 symbol from the hosted artifact and native pair qualification remain open.
 
+Run [45726872408](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45726872408)
+passed the baseline compile, Image projection, and embedded configuration
+checks. The verifier then refused an ELF section in a relocatable module at
+`CHECK_011`. The receipt does not identify the section. The candidate did not
+start. The pinned GNU linker reproduced allocated module sections whose file
+offsets were eight-byte aligned and whose declared destination alignments were
+32 or 64 bytes. The verifier now separates those constraints for copied module
+sections and keeps raw descriptor, symbol table, and RELA reads aligned.
+
 On November 25, the pinned public mirror returned HTTP 404 for 210 of 501
 producer input files. This included the bubblewrap, jbigkit and libtiff
 archive/signature pairs. Eight extension archive/signature pairs were
@@ -330,6 +339,11 @@ retains the RELA census when available. Only fixed linker anchor names and
 fixed section classes are exposed. Other symbol names are represented by
 SHA-256 digests. A later scan error leaves the first failure intact and
 marks the count incomplete.
+
+For `CHECK_011`, worker diagnostic version 8 records the first failed file
+geometry check and bounded section facts. It includes the module ordinal when
+applicable. It retains the earlier verified Image RELA census on module
+failures, and uses a fixed section label or a name digest.
 
 `phase` remains the current lifecycle phase, including cleanup. The separate
 `first_failed_phase` and `failure_reason` describe the first failure observed by

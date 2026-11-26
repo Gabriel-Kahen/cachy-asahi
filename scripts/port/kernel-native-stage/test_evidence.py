@@ -429,5 +429,42 @@ class RelocationValidatorParity(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     validate(altered, 7)
 
+    def test_section_geometry_validates_the_exact_conjunct_in_all_readers(self):
+        import inner_result
+        validators = (inner_result._output_fact, evidence.validate_output_fact, self.receiver().validate_output_fact)
+        name = '.gnu.linkonce.this_module'
+        section = {'name_class': name, 'name_sha256': hashlib.sha256(name.encode()).hexdigest(),
+                   'index': 3, 'type': 1, 'flags': 3, 'addr': 0, 'offset': 105, 'size': 128,
+                   'align': 64}
+        fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_011', 'rela_table': None,
+                'section_geometry': {'role': 'module', 'elf_type': 1, 'module_ordinal': 3,
+                                     'file_bytes': 1024, 'file_alignment': 8, 'section': section,
+                                     'failed_check': 'FILE_OFFSET_ALIGNMENT'}}
+        census = {'entries': 1, 'types': [[1027, 1, 1, 1]], 'overflow': [0, 0, 0]}
+        linked = copy.deepcopy(fact)
+        linked['section_geometry'].update(role='arm64-image-reference', elf_type=3,
+                                          module_ordinal=None, file_alignment=64)
+        mutations = (
+            lambda row: row.update(predicate='OTHER'),
+            lambda row: row['section_geometry'].update(module_ordinal=4096),
+            lambda row: row['section_geometry'].update(file_alignment=64),
+            lambda row: row['section_geometry'].update(file_bytes=100),
+            lambda row: row['section_geometry']['section'].update(offset=104),
+            lambda row: row['section_geometry']['section'].update(align=24),
+            lambda row: row['section_geometry']['section'].update(name_class='OTHER'),
+            lambda row: row['section_geometry']['section'].update(raw_path='private'),
+        )
+        for validate in validators:
+            self.assertEqual(validate(copy.deepcopy(fact), 8), fact)
+            self.assertEqual(validate(dict(fact, rela_table=census), 8), dict(fact, rela_table=census))
+            self.assertEqual(validate(linked, 8), linked)
+            with self.assertRaises(ValueError):
+                validate(dict(linked, rela_table=census), 8)
+            for mutate in mutations:
+                altered = copy.deepcopy(fact)
+                mutate(altered)
+                with self.assertRaises(ValueError):
+                    validate(altered, 8)
+
 
 if __name__ == '__main__': unittest.main()
