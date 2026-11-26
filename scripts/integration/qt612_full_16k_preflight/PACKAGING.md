@@ -14,8 +14,7 @@ The refused guest retained its HOLD result and logs, then powered down.
 Its launcher returned 1, and both post-scope observations confirmed that
 the owned container and scope had retired. The failure trap ran while the
 worker streams were redirected, hiding its UART marker. The corrected
-launcher emits the HOLD marker after restoring those streams. Packaging
-acceptance, signing, installation and rollback remain open.
+launcher emits the HOLD marker after restoring those streams.
 
 The package-only recipe projection checks the two known tool pairs, and
 copies each versioned alias to its own inode when CMake created a hardlink.
@@ -24,6 +23,23 @@ the regular installed notice policy copy and verifies the original policy
 digest. The unchanged checker passed a copy of the retired payload with
 those two corrections applied. Its original hardlink and notice checks
 remain in force.
+
+The second package guest completed on November 26. It passed the ordinary
+recipe smoke check and assembled a 13,718,524-byte Qtbase 6.12.0-2 archive.
+The guest powered down naturally, the filesystem check passed, and the
+independent reader verified the original archive and packaging records.
+Both retirement observations found the container and scope absent. A
+disposable TEST key signed the recovered archive. Independent local GPG
+verification accepted that signature and rejected the separate mismatched
+signature. The signed installed lifecycle remains open.
+
+| Retained package evidence | SHA-256 |
+| --- | --- |
+| Exact archive | `0c6ad9610086bfb7b2a88f9cb8794b88d2432dd53436fbc18eec808af01ea315` |
+| Independent readback | `e9687edfeefd14607b770574b8267269ceffab48bc43f966eb4f29ffaf38f59a` |
+| Post-scope observation | `d02e3780c8db2eff3f6c3bd7a6368f43bffde95f11a918e69bb8a66b7fac20e7` |
+| Archive handoff | `fa3f6a0783d7d137ec15b3036d6c0f37145ac60753df8c3a4ec5fd857dfebafb` |
+| TEST signing and verification | `f1822d6260a6b48aa46281ae006df12c2191a50cfda4cc55448f1bf329798a41` |
 
 ## Assemble from the completed build
 

@@ -58,9 +58,21 @@ python3 -I -B "$lane/package_handoff.py" \
 ```
 
 The output gives the exact archive and `packaging_receipt` pins for the
-separately admitted signing and installed selection. The owner still
-supplies signed media, the payload and provider maps, and the distinct
-main and signature-refusal guests.
+separately admitted signing and installed selection. Use its original
+handoff to derive the package payload and Q3 provider maps before launch.
+
+```sh
+python3 -I -B "$lane/selection_maps.py" --stage "$PRIVATE_STAGE" --plan-sha256 "$PLAN_SHA" \
+  --archive "$ARCHIVE" --handoff "$PACKAGE_HANDOFF" --handoff-sha256 "$PACKAGE_HANDOFF_SHA"
+```
+
+The reader hashes the finalized archive and original Q3 scratch. It resolves
+the 18 Qt libraries, offscreen plugin, Wayland server and interpreter using
+archive and Q3 ELF metadata. Each non-Qt provider is bound to its original
+ALPM owner, version and file digest. Use independently reviewed supplementary
+SONAME roots with `--supplementary-roots` and its separate SHA-256 when the
+consumer loads providers outside that static closure. The output is unissued.
+The installed guest compares its actual provider set with the selected map.
 
 At each installed stage, confirm the exact new inventory, database consistency,
 all package-owned files and symlink leaves, and the 40 runtime dependencies.
@@ -78,10 +90,11 @@ guest's existing loader and restore checks illustrate the independent receipts.
 [Installed loader and restore example](../llhttp_overlay583/guest.py)
 
 The preflight emits unissued data and consumer source. It performs no ALPM,
-signature or VM operations. Package assembly, signed installation, loader
-checks and restoration remain unrun. An official Qt provider replacement needs
-a separate admitted image, current trusted rollback archive and its own
-consumer requirements.
+signature or VM operations. A separate TEST signature covers the archive
+recovered from the retired package guest. Installed loader checks and
+restoration remain open.
+An official Qt provider replacement needs a separate admitted image, a
+current trusted rollback archive and its own consumer requirements.
 
 ## Guest supervisor callbacks
 

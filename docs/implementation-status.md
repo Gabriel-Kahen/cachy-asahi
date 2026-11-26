@@ -33,8 +33,11 @@ behavior and performance remain open.
 emulated AArch64 guest with 16 KiB pages. Independent readback verified 18
 shared libraries, 1,216 distinct Ninja timing and command tuples, and an
 idle target after the build. The scope and container both retired. The
-separate packaging and installed lifecycle remain open.
+separate package guest assembled a verified Qtbase 6.12.0-2 archive, and the
+disposable TEST signature passed offline verification. The installed
+lifecycle remains open.
 [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
+· [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
 
 Track current engineering follow-ups in
 [GitHub Issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues).

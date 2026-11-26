@@ -39,9 +39,11 @@ only the Fish package and exercised staging, comparison and withdrawal.
   identifies the exact historical build inputs still needed for Perl and Python.
 - Qtbase `all` completed in the replacement 8 GiB emulated AArch64 guest
   with 16 KiB pages. Independent readback verified 18 linked libraries and
-  1,216 distinct Ninja timing and command tuples. The complete build is
-  ready for separate archive assembly and the TEST-signed installed trials.
+  1,216 distinct Ninja timing and command tuples. A separate guest produced
+  the verified Qtbase 6.12.0-2 archive. The TEST-signed installed lifecycle
+  remains open.
   [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
+  · [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
 - The virtual desktop successor requires a terminal event after guest
   cleanup, bounded UART EOF, and outer-reader verification before accepting
   frames. The latest retained-input trial authenticated all 45 tooling objects,
