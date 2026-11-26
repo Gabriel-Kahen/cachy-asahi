@@ -4,9 +4,11 @@
 
 import argparse
 import ast
+import os
 from pathlib import Path
 import re
 from runpy import run_path
+import stat
 import sys
 from types import SimpleNamespace
 
@@ -164,17 +166,49 @@ def make_plan(raw, nonce, baseline, files):
                 official_provider_replacement="OUT_OF_SCOPE", physical_M2="NOT_RUN")
 
 
+def stage_plan(output, plan, inventory, files):
+    output = Path(output)
+    T.need(output.is_absolute() and output.resolve() == output and not output.is_relative_to(ROOT)
+           and not os.path.lexists(output), "Fresh private staging directory outside the repository required")
+    parent = T.ordinary(output.parent).stat()
+    T.need(stat.S_ISDIR(parent.st_mode) and parent.st_uid == os.getuid() and not parent.st_mode & 0o022,
+           "Owned nonshared staging parent required")
+    consumer = {"CMakeLists.txt": consumer_cmake(files["SmokeCMakeLists.txt"]), "smoke.cpp": files["smoke.cpp"]}
+    T.need({name: T.pin(body) for name, body in consumer.items()} == plan["consumer"]["files"]
+           and T.pin(inventory) == Q3_INVENTORY, "Exact Q3 inventory and consumer source required")
+    bodies = {"inputs/expected356.lock": inventory,
+              "inputs/loader_probe.py": T.read(Path(__file__).with_name("loader_probe.py"), cap=128 << 10),
+              "work/pacman.conf": CONFIG.encode()}
+    bodies |= {"inputs/consumer/" + name: body for name, body in consumer.items()}
+    bodies["inputs/PLAN.json"] = T.encoded(plan)
+    output.mkdir(mode=0o700)
+    output.chmod(0o700)
+    for name in ("inputs", "inputs/consumer", "work"):
+        directory = output / name
+        directory.mkdir(mode=0o755)
+        directory.chmod(0o755)
+    # Write the plan last so a partial stage cannot be mistaken for the completed one.
+    for name, body in bodies.items():
+        path = output / name
+        with path.open("xb") as stream:
+            stream.write(body)
+        path.chmod(0o444)
+    return dict(status="PASS_UNISSUED_INSTALLED_INPUTS_ONLY", authority=None,
+                files={name: T.pin(body) for name, body in bodies.items()}, installation="NOT_RUN")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--emit-consumer-cmake", action="store_true")
     for name in ("q3-inventory", "q3-scratch", "q3-terminal"):
         parser.add_argument("--" + name, type=Path)
     parser.add_argument("--nonce")
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     try:
         files = recipe_inputs()
         if args.emit_consumer_cmake:
-            T.need(not any((args.q3_inventory, args.q3_scratch, args.q3_terminal, args.nonce)),
+            T.need(not any((args.q3_inventory, args.q3_scratch, args.q3_terminal, args.nonce, args.output)),
                    "Select either the plan or deterministic installed consumer source")
             sys.stdout.buffer.write(consumer_cmake(files["SmokeCMakeLists.txt"]))
             return
@@ -186,7 +220,9 @@ def main():
                 "scratch": T.read(args.q3_scratch, Q3_SCRATCH, cap=Q3_SCRATCH["bytes"], collect=False)}
         baseline = {key: {"path": str(path), **pins[key]} for key, path in (
             ("inventory", args.q3_inventory), ("scratch", args.q3_scratch), ("terminal", args.q3_terminal))}
-        sys.stdout.buffer.write(T.encoded(make_plan(raw, args.nonce, baseline, files)))
+        plan = make_plan(raw, args.nonce, baseline, files)
+        result = plan if args.output is None else stage_plan(args.output, plan, raw, files)
+        sys.stdout.buffer.write(T.encoded(result))
     except (OSError, ValueError, TypeError, KeyError) as error:
         sys.exit(f"Qtbase installed-trial preflight refused: {error}")
 

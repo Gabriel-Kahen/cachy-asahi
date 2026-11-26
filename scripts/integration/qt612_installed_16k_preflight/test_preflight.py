@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: MIT
 """Pure controls for the unissued installed Qtbase source plan."""
 
+import os
 from pathlib import Path
 from runpy import run_path
+import stat
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -48,6 +51,29 @@ class Preflight(unittest.TestCase):
         self.assertIn("\nSigLevel = Required TrustedOnly\n", config)
         self.assertIn("\nLocalFileSigLevel = Required TrustedOnly\n", config)
         self.assertTrue(plan["package"]["signature"].endswith(".pkg.tar.xz.sig"))
+
+    def test_stage_matches_the_guest_input_names_and_refuses_overwrite(self):
+        plan = self.plan()
+        with TemporaryDirectory() as parent, patch.dict(G, Q3_INVENTORY=F.T.pin(self.raw)):
+            output = Path(parent) / "staged"
+            previous = os.umask(0o077)
+            try:
+                receipt = F.stage_plan(output, plan, self.raw, self.files)
+            finally:
+                os.umask(previous)
+            actual = {path.relative_to(output).as_posix(): F.T.pin(path.read_bytes())
+                      for path in output.rglob("*") if path.is_file()}
+            self.assertEqual(actual, receipt["files"])
+            self.assertEqual(receipt["status"], "PASS_UNISSUED_INSTALLED_INPUTS_ONLY")
+            self.assertIsNone(receipt["authority"])
+            self.assertEqual(stat.S_IMODE(output.stat().st_mode), 0o700)
+            for name in ("inputs", "inputs/consumer", "work"):
+                self.assertEqual(stat.S_IMODE((output / name).stat().st_mode), 0o755)
+            self.assertEqual((output / "inputs/PLAN.json").read_bytes(), F.T.encoded(plan))
+            self.assertEqual(set(actual), {"inputs/PLAN.json", "inputs/expected356.lock", "inputs/loader_probe.py",
+                                          "inputs/consumer/CMakeLists.txt", "inputs/consumer/smoke.cpp", "work/pacman.conf"})
+            with self.assertRaisesRegex(ValueError, "Fresh private staging"):
+                F.stage_plan(output, plan, self.raw, self.files)
 
     def test_exact_provider_version_and_original_payload_interfaces(self):
         plan = self.plan()

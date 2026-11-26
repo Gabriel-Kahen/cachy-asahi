@@ -18,6 +18,13 @@ python3 -I -B "$lane/preflight.py" --emit-consumer-cmake > "$PRIVATE_CONSUMER/CM
 python3 -I -B -Werror::ResourceWarning "$lane/test_preflight.py"
 ```
 
+Add `--output "$PRIVATE_STAGE"` to the first command to stage the exact
+plan and original inventory, both consumer sources, and the loader probe
+under `inputs/`. The command places the emitted ALPM configuration at
+`work/pacman.conf` and prints the six file pins. Use a fresh path under an
+owned private directory. The original Q3 inputs are inspected before
+staging and stay in their original locations.
+
 Set the consumer's `smoke.cpp` to the exact pinned source shipped with the
 GUI-server recipe. The projected CMake consumer discovers Qt 6.12.0 under
 `/usr`, checks the actual imported public and private targets and scanner,
@@ -38,6 +45,22 @@ unchanged stopped local-database snapshot. Do not use production trust or copy
 secret keys into the guest.
 [Public signature verifier](../../port/qt612-gui-native-v1/trust.py)
 · [Stopped ALPM database snapshot](../../install/overlay583_trial/trial.py)
+
+After the package scope has retired, join its independent offline readback,
+post-scope observation, original actor report and naturally retired fsck
+receipt to the separately recovered exact unsigned archive.
+
+```sh
+python3 -I -B "$lane/package_handoff.py" \
+  --archive "$ARCHIVE" --actor "$PACKAGE_ACTOR_RESULT" \
+  --retirement "$PACKAGE_RETIREMENT" --retirement-sha256 "$PACKAGE_RETIREMENT_SHA256" \
+  --readback "$PACKAGE_READBACK" --readback-sha256 "$PACKAGE_READBACK_SHA256"
+```
+
+The output gives the exact archive and `packaging_receipt` pins for the
+separately admitted signing and installed selection. The owner still
+supplies signed media, the payload and provider maps, and the distinct
+main and signature-refusal guests.
 
 At each installed stage, confirm the exact new inventory, database consistency,
 all package-owned files and symlink leaves, and the 40 runtime dependencies.
