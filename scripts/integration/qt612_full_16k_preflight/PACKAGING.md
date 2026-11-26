@@ -108,7 +108,9 @@ template. Its output retains an unissued media record. The
 allocations, original QEMU exit and result filesystem. The
 [package site](package_site.py) reuses the full-build owner's container
 inspection, attach, CID recovery and retirement logic in a separate
-scope. The original source and full-build scope keep their pins.
+scope. It accepts a completed full-build overlay of up to 8 GiB as a
+read-only backing. The fresh writable packaging child retains its 4 GiB
+file limit. The original source and full-build scope keep their pins.
 
 ```sh
 python3 -I -B "$lane/package_media.py" --output "$MEDIA" --stage "$STAGE" \
