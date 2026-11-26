@@ -228,5 +228,43 @@ class Owned(unittest.TestCase):
             (root / "protect.list").write_text("/different\n")
             self.assertNotEqual(subprocess.run(command, capture_output=True, timeout=6).returncode, 0)
 
+    def test_installed_pid1_cleans_up_and_requests_forced_shutdown_once(self):
+        shell = r"""
+source "$1"
+clone=$2
+mounted=(/fixture/input /fixture/result /fixture/scratch)
+terminal=PASS
+umount() { printf 'umount %s\n' "$*"; [[ $3 != "$failure" ]]; }
+sync() { printf 'sync\n'; }
+poweroff() { printf 'unexpected poweroff\n'; return 127; }
+function /usr/bin/systemctl {
+    printf 'systemctl %s\n' "$*"
+    return "$shutdown_status"
+}
+sleep() { printf 'wait %s\n' "$*"; exit 0; }
+[[ $(type -t /usr/bin/systemctl) == function ]]
+failure=$3
+shutdown_status=$4
+trap installed_finish EXIT
+"""
+        for failure, shutdown_status, terminal in (("", "0", "PASS"), ("/fixture/result", "1", "HOLD")):
+            with self.subTest(terminal=terminal):
+                result = subprocess.run(
+                    ["/usr/bin/bash", "--noprofile", "--norc", "-c", shell, "fixture",
+                     str(HERE / "owned-guest-init.sh"), NONCE, failure, shutdown_status],
+                    capture_output=True, text=True, timeout=6,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.splitlines(), [
+                    "umount -n -- /fixture/scratch",
+                    "umount -n -- /fixture/result",
+                    "umount -n -- /fixture/input",
+                    f"QTBASE_INSTALLED16K_TERMINAL {NONCE} {terminal}",
+                    "sync",
+                    "systemctl --force --force poweroff",
+                    "wait 60",
+                ])
+
+
 if __name__ == "__main__":
     unittest.main()

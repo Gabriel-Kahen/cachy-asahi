@@ -28,7 +28,8 @@ installed_finish() {
         printf 'QTBASE_INSTALLED16K_TERMINAL %s %s\n' "$clone" "$terminal"
     fi
     sync
-    poweroff -f
+    /usr/bin/systemctl --force --force poweroff || :
+    while :; do sleep 60; done
 }
 
 read_cmdline() {
