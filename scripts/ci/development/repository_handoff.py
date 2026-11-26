@@ -45,6 +45,23 @@ CODES = {'grant-refused', 'source-refused', 'callback-refused', 'initial-failed'
 BASELINE_STAGES = ('provenance', 'staging', 'base-result')
 BASELINE_ROLES = ('collect-base', 'receive-base', 'consume-provenance')
 BASELINE_CHILD_ERRORS = ('OS_ERROR', 'VALUE_ERROR', 'TYPE_ERROR', 'OTHER')
+CLASS_STATE_STAGES = {
+    ('public_receiver','before'):'PUBLIC_RECEIVER_BEFORE',
+    ('public_receiver','callback'):'PUBLIC_RECEIVER_CALLBACK',
+    ('public_receiver','after'):'PUBLIC_RECEIVER_AFTER',
+    ('authority_provider','before'):'AUTHORITY_PROVIDER_BEFORE',
+    ('authority_provider','callback'):'AUTHORITY_PROVIDER_CALLBACK',
+    ('authority_provider','after'):'AUTHORITY_PROVIDER_AFTER',
+}
+CLASS_STATE_ROLES = {
+    ('scripts/ci/development/repository_handoff.py','Session'):'SESSION',
+    ('scripts/ci/development/repository_handoff.py','Sources'):'SOURCES',
+    ('scripts/ci/development/repository_authority.py','RootCallbacks'):'ROOT_CALLBACKS',
+    ('scripts/ci/integration.py','Controller'):'ORIGINAL_CONTROLLER',
+    ('scripts/port/repository-native-handoff/supervisor.py','RoleSupervisor'):'ROLE_SUPERVISOR',
+}
+CLASS_STATE_CHECKS = ('SCOPE','MODULE','CLASS_BINDING','METHOD_WRAPPER','METHOD_IDENTITY',
+    'METHOD_DEFAULTS','SLOTS','SLOT_DESCRIPTOR','INSTANCE_DICT','INSTANCE_FIELDS','CLASS_FIELDS')
 STATUS_FIELDS = {'schema_version','purpose','status','initial_exit_code','callback_entered',
     'input_acceptance','restage','cleanup','cancelled','error_code','hardware_validation',
     'production_trust','stable_promotion','development_only','selected_for_release','original_B_continuity',
@@ -56,7 +73,7 @@ class Refused(ValueError):
     pass
 
 
-def need(value, reason):
+def need(value, reason, *, class_check=None):
     if not value:
         error = Refused(reason)
         frame = sys._getframe(1)
@@ -77,6 +94,21 @@ def need(value, reason):
             'Session.observe_native_consumer':'NATIVE_FRAME', 'remove_private':'OWNED_CLEANUP',
         }.get(frame.f_code.co_qualname, 'OTHER') if frame.f_globals is globals() else 'OTHER'
         error._source_refusal_site = site
+        if site == 'CLASS_STATE' and class_check in CLASS_STATE_CHECKS:
+            try:
+                locals_ = frame.f_locals
+                cls, path = type(locals_['value']), locals_['path']
+                role = CLASS_STATE_ROLES.get((path,cls.__name__),'OTHER') if type(cls) is type and type(path) is str else 'OTHER'
+                stage, caller = 'OTHER', frame.f_back
+                for _ in range(16):
+                    if caller is None:break
+                    if caller.f_globals is globals() and caller.f_code is returned_file.__code__:
+                        local = caller.f_locals
+                        stage = CLASS_STATE_STAGES.get((local['role'],local['class_check_when']),'OTHER')
+                        break
+                    caller = caller.f_back
+                error._class_state_refusal = {'stage':stage,'class_role':role,'check':class_check}
+            except BaseException:pass  # Optional attribution cannot replace the refusal.
         raise error
 
 
@@ -295,15 +327,16 @@ class Sources:
     def class_state(self, value, path, module, *, scope=None):
         """Exact captured class/method/descriptor state, including declared slots."""
         scope = self.root if scope is None else scope
-        need(scope == self.root or scope == self.original_root and path in self.original_rows,'callback-refused')
+        need(scope == self.root or scope == self.original_root and path in self.original_rows,
+             'callback-refused',class_check='SCOPE')
         need(type(module) is types.ModuleType and module.__file__ == str(scope/path)
-             and path in self.raw, 'callback-refused')
+             and path in self.raw, 'callback-refused',class_check='MODULE')
         cls = type(value)
         declarations = [node for node in ast.parse(self.raw[path]).body
                         if isinstance(node, ast.ClassDef) and node.name == cls.__name__]
         need(len(declarations) == 1 and not declarations[0].bases and cls.__bases__ == (object,)
              and module.__dict__.get(cls.__name__) is cls and cls.__module__ == module.__name__
-             and cls.__qualname__ == cls.__name__, 'callback-refused')
+             and cls.__qualname__ == cls.__name__, 'callback-refused',class_check='CLASS_BINDING')
         declaration = declarations[0]
         methods = {node.name:node for node in declaration.body if isinstance(node,ast.FunctionDef)}
         compiled = {code.co_qualname:code for code in code_objects(
@@ -344,42 +377,44 @@ class Sources:
                      function.__code__.co_freevars == ('func',) and function.__closure__ is not None
                      and len(function.__closure__) == 1 and
                      function.__closure__[0].cell_contents is getattr(function,'__wrapped__',None)
-                     and function.__defaults__ is None and function.__kwdefaults__ is None,'callback-refused')
+                     and function.__defaults__ is None and function.__kwdefaults__ is None,
+                     'callback-refused',class_check='METHOD_WRAPPER')
                 function = function.__wrapped__
             need(type(function) is types.FunctionType and function.__globals__ is module.__dict__
                  and function.__code__ == compiled.get(cls.__name__+'.'+name)
-                 and function.__qualname__ == cls.__name__+'.'+name and not function.__closure__,'callback-refused')
+                 and function.__qualname__ == cls.__name__+'.'+name and not function.__closure__,
+                 'callback-refused',class_check='METHOD_IDENTITY')
             expected = tuple(default(item) for item in node.args.defaults) or None
             keyword = {key.arg:default(item) for key,item in zip(node.args.kwonlyargs,node.args.kw_defaults)
                        if item is not None} or None
             need(type(function.__defaults__) is type(expected) and function.__defaults__ == expected and
                  function.__kwdefaults__ == keyword and encoded(function.__defaults__) == encoded(expected)
-                 and encoded(function.__kwdefaults__) == encoded(keyword),'callback-refused')
+                 and encoded(function.__kwdefaults__) == encoded(keyword),'callback-refused',class_check='METHOD_DEFAULTS')
         slots = [node for node in declaration.body if isinstance(node,ast.Assign) and
                  any(isinstance(target,ast.Name) and target.id == '__slots__' for target in node.targets)]
         boilerplate = {'__module__','__doc__','__dict__','__weakref__','__firstlineno__','__static_attributes__'}
         if slots:
-            need(len(slots) == 1,'callback-refused')
+            need(len(slots) == 1,'callback-refused',class_check='SLOTS')
             names = ast.literal_eval(slots[0].value)
             need(type(names) is tuple and len(set(names)) == len(names) and
                  all(type(name) is str and name not in ('__dict__','__weakref__') for name in names)
-                 and vars(cls).get('__slots__') == names and '__dict__' not in vars(cls),'callback-refused')
+                 and vars(cls).get('__slots__') == names and '__dict__' not in vars(cls),'callback-refused',class_check='SLOTS')
             for name in names:
                 descriptor = vars(cls).get(name)
                 need(type(descriptor) is types.MemberDescriptorType and descriptor.__objclass__ is cls
-                     and descriptor.__name__ == name,'callback-refused')
+                     and descriptor.__name__ == name,'callback-refused',class_check='SLOT_DESCRIPTOR')
             state = {name:vars(cls)[name].__get__(value,cls) for name in names}
             allowed = set(methods)|boilerplate|set(names)|{'__slots__'}
         else:
-            need('__slots__' not in vars(cls),'callback-refused')
+            need('__slots__' not in vars(cls),'callback-refused',class_check='SLOTS')
             state = object.__getattribute__(value,'__dict__')
-            need(type(state) is dict,'callback-refused')
+            need(type(state) is dict,'callback-refused',class_check='INSTANCE_DICT')
             fields = {node.attr for node in ast.walk(declaration) if isinstance(node,ast.Attribute)
                       and isinstance(node.value,ast.Name) and node.value.id == 'self'
                       and isinstance(node.ctx,ast.Store)}
-            need(set(state) <= fields,'callback-refused')
+            need(set(state) <= fields,'callback-refused',class_check='INSTANCE_FIELDS')
             allowed = set(methods)|boilerplate
-        need(set(vars(cls)) <= allowed,'callback-refused')
+        need(set(vars(cls)) <= allowed,'callback-refused',class_check='CLASS_FIELDS')
         return dict(state)
 
     def graph_function(self, function, module, compiled=None, *, callsite='OTHER'):
@@ -1324,9 +1359,12 @@ def authority_state(sources,callback,deadline):
 
 
 def returned_file(sources, role, callback, args, *, deadline):
+    class_check_when = 'before'
     sources.callback(role, callback, deadline)
     authority_state(sources,callback,deadline)
+    class_check_when = 'callback'
     value = callback(*args, deadline=deadline)
+    class_check_when = 'after'
     sources.callback(role, callback, deadline)
     authority_state(sources,callback,deadline)
     need(type(value) is dict and set(value) == {'path', 'sha256'} and
@@ -1617,6 +1655,9 @@ class Session:
         self.startup_failure = {'phase':self.startup_phase,'kind':kind,'site':site,
             'object_clause':vars(error).get('_graph_object_clause','OTHER') if type(error) is Refused else 'OTHER',
             'object_callsite':vars(error).get('_graph_object_callsite','OTHER') if type(error) is Refused else 'OTHER'}
+        if self.startup_phase == 'original-returned' and self.native_hook_entered is True and site == 'CLASS_STATE' and type(error) is Refused:
+            attribution = vars(error).get('_class_state_refusal')
+            if type(attribution) is dict:self.startup_failure['class_state'] = dict(attribution)
         if (self.startup_phase == 'native-hook' and self.native_hook_entered is True
                 and self.operation == 'baseline-failed' and type(self.baseline_phase) is str
                 and self.baseline_phase in BASELINE_STAGES + BASELINE_ROLES):
@@ -1660,7 +1701,7 @@ class Session:
         failure = self.startup_failure
         need(type(self.startup_phase) is str and self.startup_phase in phases and
              type(self.native_hook_entered) is bool and type(failure) is dict and
-             set(failure) in (fields, fields | {'baseline'}) and
+             set(failure) in (fields, fields | {'baseline'}, fields | {'class_state'}) and
              all(type(failure[key]) is str for key in fields) and
              failure['phase'] in phases and failure['kind'] in kinds and failure['site'] in sites and
              failure['object_clause'] in ('FUNCTION_TYPE','MODULE_TYPE','GLOBALS','OTHER') and
@@ -1683,6 +1724,17 @@ class Session:
                   and baseline['phase'] in BASELINE_ROLES), 'status-persistence-failed')
             category = baseline['child_error'] if status['cleanup'] == 'PASS' and not status['cancelled'] else None
             result.update(schema_version=3, baseline={'phase':baseline['phase'],'child_error':category})
+        if 'class_state' in failure:
+            refusal = failure['class_state']
+            need(failure['phase'] == 'original-returned' and self.native_hook_entered and
+                 failure['kind'] == 'SOURCE_REFUSAL' and failure['site'] == 'CLASS_STATE' and
+                 status['error_code'] == 'callback-refused' and
+                 type(refusal) is dict and set(refusal) == {'stage','class_role','check'} and
+                 all(type(value) is str for value in refusal.values()) and
+                 (refusal['stage'] == 'OTHER' or refusal['stage'] in CLASS_STATE_STAGES.values()) and
+                 (refusal['class_role'] == 'OTHER' or refusal['class_role'] in CLASS_STATE_ROLES.values()) and
+                 refusal['check'] in CLASS_STATE_CHECKS, 'status-persistence-failed')
+            result.update(schema_version=4,class_state=dict(refusal))
         return result
 
     def emit_startup_refusal(self, deadline):

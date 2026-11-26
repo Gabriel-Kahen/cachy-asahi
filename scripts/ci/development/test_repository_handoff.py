@@ -1357,6 +1357,53 @@ class StartupRefusalModels(unittest.TestCase):
                 self.assertEqual(session.startup_projection()['baseline'],{'phase':'receive-base','child_error':None})
         with patch.dict(session.startup_failure['baseline'],child_error='SECRET'),self.assertRaises(adapter.Refused):
             session.startup_projection()
+    def test_post_return_class_state_marker_uses_closed_stage_role_and_check(self):
+        import contextlib,io
+        session = self.session
+        source = 'scripts/ci/development/repository_handoff.py'
+        observations = [('public_receiver','before','PUBLIC_RECEIVER_BEFORE'),
+                        ('public_receiver','callback','PUBLIC_RECEIVER_CALLBACK'),
+                        ('public_receiver','after','PUBLIC_RECEIVER_AFTER'),
+                        ('authority_provider','before','AUTHORITY_PROVIDER_BEFORE'),
+                        ('authority_provider','callback','AUTHORITY_PROVIDER_CALLBACK'),
+                        ('authority_provider','after','AUTHORITY_PROVIDER_AFTER')]
+        for role,when,stage in observations:
+            with self.subTest(stage=stage):
+                session.startup_failure = None
+                session.startup_phase, session.native_hook_entered = 'original-returned', True
+                calls = []
+                def refused():
+                    with patch.object(session,'private_fixture','SECRET',create=True):
+                        self.sources.class_state(session,source,adapter)
+                def verify(sources,callback,deadline):
+                    if when == 'before' or (when == 'after' and calls):refused()
+                def invoke(**kwargs):
+                    calls.append(True)
+                    if when == 'callback':refused()
+                with patch.object(adapter,'authority_state',verify),patch.object(adapter.Sources,'callback'):
+                    with self.assertRaises(adapter.Refused) as caught:
+                        adapter.returned_file(self.sources,role,invoke,(),deadline=self.end)
+                self.assertEqual(calls,[] if when == 'before' else [True])
+                session.startup_failed(caught.exception)
+                session.startup_failed(SystemExit(99))
+                session.result.update(status='FAIL',error_code='callback-refused',cleanup='PASS')
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):session.emit_startup_refusal(self.end)
+                candidate = output.getvalue()
+                value = json.loads(candidate.removeprefix('MAINTAINED_COMPOSED_STARTUP_REFUSAL='))
+                self.assertEqual(value['schema_version'],4)
+                self.assertEqual(value['site'],'CLASS_STATE')
+                self.assertEqual(value['class_state'],{'stage':stage,'class_role':'SESSION','check':'INSTANCE_FIELDS'})
+                self.assertNotIn('SECRET',candidate)
+                self.assertNotIn(str(self.root),candidate)
+                self.assertLessEqual(len(candidate),1024)
+        for field in ('stage','class_role','check'):
+            with patch.dict(session.startup_failure['class_state'],**{field:'SECRET'}),self.assertRaises(adapter.Refused):
+                session.startup_projection()
+        session.startup_failure = None
+        session.startup_phase = 'native-hook'
+        session.startup_failed(caught.exception)
+        self.assertEqual(session.startup_projection()['schema_version'],2)
     def test_internal_closed_source_site_and_sticky_first_observation(self):
         try:self.sources.graph_function(lambda:None,None,callsite='DECLARED')
         except adapter.Refused as error:
@@ -1477,13 +1524,13 @@ class OptionalDiagnosticPublicationCorrection(unittest.TestCase):
     def test_compound_interrupt_replacement_fault_old_red_new_green(self):
         from contextlib import ExitStack,nullcontext
         corrected_raw=PATH.read_text()
-        self.assertEqual(hashlib.sha256(corrected_raw.encode()).hexdigest(),'92300bac6bf6fbdf869a63f12d8509213167207f8f11046bd8ab2a0c99212341')
+        self.assertEqual(hashlib.sha256(corrected_raw.encode()).hexdigest(),'8bd7d948751449f28a530b5686478ae9dc127fb41b836f09f6d83b112dc10452')
         # Counterfactual of this pinned Source: reverse only the optional publication branch.
         new_branch="                try:publish_status(self.output/'status',self.result,replace=True)\n                except BaseException:\n                    pass  # Optional re-publication cannot replace the first failure.\n"
         old_branch="                publish_status(self.output/'status',self.result,replace=True)\n"
         self.assertEqual(corrected_raw.count(new_branch),1)
         old_raw=corrected_raw.replace(new_branch,old_branch,1).encode()
-        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'d6c42178221208d3490f9dee5854eb391005d15fc1060633da1a72464abd4c4e')
+        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'779d5e8ef27ec7915c9207d443e00ff8b9e2c30f8c8919717631fae244834954')
         old=types.ModuleType('frozen_optional_diagnostic_old');old.__file__=str(PATH)
         exec(compile(old_raw,str(PATH),'exec'),old.__dict__)
         for late_type in (OSError,KeyboardInterrupt,SystemExit):

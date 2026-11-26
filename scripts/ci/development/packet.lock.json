@@ -1802,7 +1802,7 @@
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "92300bac6bf6fbdf869a63f12d8509213167207f8f11046bd8ab2a0c99212341"
+      "sha256": "8bd7d948751449f28a530b5686478ae9dc127fb41b836f09f6d83b112dc10452"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -1830,7 +1830,7 @@
     },
     "scripts/ci/development/test_repository_handoff.py": {
       "mode": 420,
-      "sha256": "c38134f2f63ae177f6f97345914b69379dd432acc89c3f60e6be18ecc6f49183"
+      "sha256": "cc5c022bb5ef2a98dd4797bc28aa761e0bad34e912ac34f234e9ff7542a657dd"
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
