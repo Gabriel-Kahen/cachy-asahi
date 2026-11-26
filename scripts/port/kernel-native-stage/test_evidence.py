@@ -510,5 +510,41 @@ class RelocationValidatorParity(unittest.TestCase):
                 corrected = output(dict(altered, file_alignment=16))
                 self.assertEqual(validate(corrected, 9), corrected)
 
+    def test_output_fault_requires_a_closed_shape_and_the_original_boundary(self):
+        import inner_result
+        receiver = self.receiver()
+        expected = {'nonce': 'd' * 32, 'action': 'baseline',
+                    'contract_sha256': '3' * 64, 'worker_sha256': '4' * 64}
+        row = inner_result.initial(expected)
+        inner_result.issued(row, 'KERNEL')
+        inner_result.returned(row, 0)
+        inner_result.phase(row, 'OUTPUTS')
+        error = UnicodeDecodeError('ascii', b'\xff', 0, 1, 'private')
+        inner_result.failure(row, error)
+        inner_result.output_fault(row, error, 'MODULE_INFO')
+        raw = json.dumps({'status': 'FAIL', 'action': 'baseline', 'nonce': expected['nonce'],
+                          'cancelled': False, 'inner_diagnostic': row}).encode()
+        group = inner_result.capture(raw, expected)
+        validators = (inner_result.validate_group, evidence.validate_inner_group, receiver.child_validate_inner_group)
+        mutations = (
+            lambda r: r.update(schema_version=9),
+            lambda r: r['output_failure'].update(call_boundary='CONFIG_DELTA'),
+            lambda r: r['output_failure'].update(stage='MODULE_INFO/private'),
+            lambda r: r['output_failure'].update(stage=['MODULE_INFO']),
+            lambda r: r['output_failure'].update(fault='UnicodeDecodeError'),
+            lambda r: r['output_failure'].update(raw='private'),
+            lambda r: r['output_failure'].pop('stage'),
+            lambda r: r['first_failure'].update(error_kind='DATA_REFUSAL'),
+            lambda r: r['first_failure'].update(phase='SOURCE'),
+            lambda r: r['natural_return'].update(code=1),
+        )
+        for validate in validators:
+            self.assertEqual(validate(group), group)
+            for mutate in mutations:
+                altered = copy.deepcopy(group)
+                mutate(altered['diagnostic'])
+                with self.assertRaises(ValueError):
+                    validate(altered)
+
 
 if __name__ == '__main__': unittest.main()

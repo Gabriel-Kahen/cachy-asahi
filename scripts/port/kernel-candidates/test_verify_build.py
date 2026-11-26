@@ -149,7 +149,7 @@ class BuildChecks(unittest.TestCase):
         mock = patch.object(verifier,'source_evidence',return_value=IDENTITIES)
         mock.start(); self.addCleanup(mock.stop)
 
-    def outputs(self, build_name='build', *, first_depends=''):
+    def outputs(self, build_name='build', *, first_depends='', first_metadata=()):
         build = self.root / build_name; build.mkdir()
         (build / '.config').write_text(self.text)
         release = '7.1.13-ARCH-cachy-asahi-kernel-c01'
@@ -171,7 +171,8 @@ class BuildChecks(unittest.TestCase):
             depends = first_depends if index == 0 else ''
             modinfo = b'\0'.join((b'name=' + modname.encode(),
                                  b'vermagic=' + (release + ' SMP preempt mod_unload aarch64').encode(),
-                                 b'license=GPL', b'depends=' + depends.encode())) + b'\0'
+                                 b'license=GPL', b'depends=' + depends.encode(),
+                                 *(first_metadata if index == 0 else ()))) + b'\0'
             path = build / name; path.parent.mkdir(parents=True,exist_ok=True)
             path.write_bytes(elf_bytes(b'\x1f\x20\x03\xd5' * 4,module=True,modinfo=modinfo,export='module_export_' + str(index)))
             symvers.append('0x00000000\tmodule_export_' + str(index) + '\t' + name[:-3] + '\tEXPORT_SYMBOL_GPL\tAPPLE\n')
@@ -204,6 +205,29 @@ class BuildChecks(unittest.TestCase):
         self.assertEqual(len(result['modules']),3)
         self.assertEqual(result['export_count'],4)
         self.assertEqual(set(result['embedded_config_sha256'].values()),{hashlib.sha256(self.text.encode()).hexdigest()})
+
+    def test_module_display_metadata_accepts_utf8_and_formatting(self):
+        build = self.outputs(first_metadata=(
+            'author=Martin Povišer'.encode(), 'description=Driver – audio\n\tparameters'.encode(),
+            b'parm=debug:0=off\n\t1=on',
+        ))
+        checkpoints = []
+        result = verifier.verify_outputs(build, self.source, self.expected, checkpoint=checkpoints.append)
+        self.assertEqual(result['status'], 'BUILD_OUTPUT_STRUCTURE_VERIFIED')
+        module_checks = ['MODULE_ELF', 'MODULE_INFO', 'DIGESTS'] * len(result['modules'])
+        self.assertEqual(checkpoints, ['SOURCE', 'CONFIG', 'RELEASE', 'IMAGE', 'INVENTORY', 'SYMBOLS', 'VMLINUX',
+                                       *module_checks, 'APPLE_DTBS', 'DIGESTS'])
+
+    def test_module_metadata_refuses_invalid_text_and_non_ascii_structural_fields(self):
+        for index, entry in enumerate((b'author=invalid\xff', b'description=skip\x1b',
+                                       b'parm=debug:line\rbreak', b'license=GPL\t',
+                                       'licensé=GPL'.encode(), 'license=é'.encode(), 'alias=é'.encode())):
+            build = self.outputs(f'build-{index}', first_metadata=(entry,))
+            checkpoints = []
+            with self.subTest(entry=entry), self.assertRaisesRegex(ValueError, '^module metadata text invalid$') as caught:
+                verifier.verify_outputs(build, self.source, self.expected, checkpoint=checkpoints.append)
+            self.assertIs(type(caught.exception), ValueError)
+            self.assertEqual(checkpoints[-1], 'MODULE_INFO')
 
     def test_image_end_in_the_pinned_post_bss_reserve_and_export_bounds(self):
         build = self.outputs()

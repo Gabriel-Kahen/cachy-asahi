@@ -9,7 +9,7 @@ import subprocess
 import tempfile
 import unittest
 import types
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 import common
 import worker
@@ -381,13 +381,82 @@ class RelocationWorkerBoundary(unittest.TestCase):
             with self.assertRaises(ValueError) as caught:
                 worker.verify_output_structure(verifier,'build','source','config',report)
             self.assertIs(caught.exception,error)
-            verifier.verify_outputs.assert_called_once_with('build','source','config')
+            verifier.verify_outputs.assert_called_once_with('build','source','config',checkpoint=ANY)
             self.assertEqual(row['first_failure'],{'phase':'OUTPUTS','command':'KERNEL','error_kind':'DATA_REFUSAL'})
             self.assertEqual(row['natural_return'],{'kind':'RETURNED','code':0})
             if invalid:
                 self.assertTrue(row['write_failed']);self.assertIsNone(error.__cause__)
             else:
                 self.assertEqual(row['schema_version'],5);self.assertFalse(row['write_failed'])
+
+
+class OutputFaultWorkerBoundary(unittest.TestCase):
+    def report(self):
+        row = inner_result.initial(BINDING)
+        inner_result.phase(row, 'KERNEL')
+        inner_result.issued(row, 'KERNEL')
+        inner_result.returned(row, 0)
+        inner_result.phase(row, 'OUTPUTS')
+        return {'inner_diagnostic': row}
+
+    def test_decode_fault_uses_the_latest_checkpoint_and_keeps_the_original_exception(self):
+        report = self.report()
+        row = report['inner_diagnostic']
+        original = UnicodeDecodeError('ascii', b'private-data\xff', 12, 13, 'private reason')
+        original.__cause__ = cause = RuntimeError('private cause')
+
+        def verify(build, source, config, *, checkpoint):
+            checkpoint('MODULE_ELF')
+            checkpoint('MODULE_INFO')
+            raise original
+
+        verifier = MagicMock()
+        verifier.verify_outputs.side_effect = verify
+        with self.assertRaises(UnicodeDecodeError) as caught:
+            worker.verify_output_structure(verifier, 'build', 'source', 'config', report)
+        verifier.verify_outputs.assert_called_once_with('build', 'source', 'config', checkpoint=ANY)
+        self.assertIs(caught.exception, original)
+        self.assertIs(caught.exception.__cause__, cause)
+        self.assertEqual(row['first_failure'], {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'OTHER'})
+        self.assertEqual(row['output_failure'],
+                         {'call_boundary': 'VERIFY_OUTPUTS', 'stage': 'MODULE_INFO', 'fault': 'UNREADABLE_TEXT'})
+        self.assertNotIn('private', json.dumps(row))
+
+    def test_default_checkpoint_and_success(self):
+        verifier = MagicMock()
+        report = self.report()
+        row = report['inner_diagnostic']
+        output = object()
+        verifier.verify_outputs.return_value = output
+        self.assertIs(worker.verify_output_structure(verifier, 'build', 'source', 'config', report), output)
+        self.assertIsNone(row['first_failure'])
+        verifier.verify_outputs.side_effect = KeyError('private key')
+        with self.assertRaises(KeyError):
+            worker.verify_output_structure(verifier, 'build', 'source', 'config', report)
+        self.assertEqual(row['output_failure'],
+                         {'call_boundary': 'VERIFY_OUTPUTS', 'stage': 'SOURCE', 'fault': 'LOOKUP'})
+
+    def test_known_errors_controls_and_an_earlier_failure_are_left_to_existing_handling(self):
+        for fault in (OSError('private'), ImportError('private'), Cancelled(15), KeyboardInterrupt(), SystemExit(1)):
+            report = self.report()
+            before = copy.deepcopy(report)
+            verifier = MagicMock()
+            verifier.verify_outputs.side_effect = fault
+            with self.assertRaises(type(fault)) as caught:
+                worker.verify_output_structure(verifier, 'build', 'source', 'config', report)
+            self.assertIs(caught.exception, fault)
+            self.assertEqual(report, before)
+        report = self.report()
+        row = report['inner_diagnostic']
+        inner_result.phase(row, 'KERNEL')
+        inner_result.failure(row, RuntimeError('earlier fault'))
+        inner_result.phase(row, 'OUTPUTS')
+        before = copy.deepcopy(report)
+        verifier = MagicMock()
+        verifier.verify_outputs.side_effect = KeyError('later fault')
+        with self.assertRaises(KeyError):
+            worker.verify_output_structure(verifier, 'build', 'source', 'config', report)
+        self.assertEqual(report, before)
 
 
 if __name__ == '__main__':

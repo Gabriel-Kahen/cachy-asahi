@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import struct
 import unittest
 
 import inner_result as diag
@@ -90,6 +91,43 @@ class InnerResult(unittest.TestCase):
             with self.subTest(expected=expected, cls=type(error).__name__):
                 row = self.row(); diag.failure(row, error); self.assertEqual(expected, row['first_failure']['error_kind'])
                 self.assertEqual(expected == 'CANCELLED', row['cancelled']); diag.validate(row)
+
+    def test_closed_output_fault_buckets_survive_authenticated_capture(self):
+        class DecodeSubclass(UnicodeDecodeError):
+            pass
+
+        cases = (
+            (UnicodeDecodeError('ascii', b'\xff', 0, 1, 'private'), 'UNREADABLE_TEXT'),
+            (DecodeSubclass('ascii', b'\xff', 0, 1, 'private'), 'OTHER'),
+            (IndexError('private'), 'LOOKUP'),
+            (StopIteration('private'), 'ITERATOR_EXHAUSTED'),
+            (TypeError('private'), 'TYPE'),
+            (struct.error('private'), 'STRUCT_DECODE'),
+            (OverflowError('private'), 'ARITHMETIC'),
+            (MemoryError('private'), 'RESOURCE'),
+            (RuntimeError('private'), 'OTHER'),
+        )
+        for error, expected in cases:
+            with self.subTest(fault=expected):
+                row = self.row()
+                diag.phase(row, 'KERNEL')
+                diag.issued(row, 'KERNEL')
+                diag.returned(row, 0)
+                diag.phase(row, 'OUTPUTS')
+                diag.failure(row, error)
+                diag.output_fault(row, error, 'VMLINUX')
+                diag.phase(row, 'FINALIZATION')
+                diag.failure(row, OSError('private cleanup'), cleanup=True)
+                group = diag.capture(self.report(row), BINDING)
+                self.assertEqual(group['availability'], 'VERIFIED')
+                diag.validate_group(group)
+                projected = group['diagnostic']
+                self.assertEqual(projected['schema_version'], 10)
+                self.assertEqual(projected['first_failure']['error_kind'], 'OTHER')
+                self.assertEqual(projected['cleanup_failure']['error_kind'], 'IO')
+                self.assertEqual(projected['output_failure'], {
+                    'call_boundary': 'VERIFY_OUTPUTS', 'stage': 'VMLINUX', 'fault': expected})
+                self.assertNotIn('private', json.dumps(group))
 
     def test_capture_authenticates_and_redacts(self):
         row = self.row(); diag.phase(row, 'TOOLS'); diag.issued(row, 'TOOL_17'); diag.returned(row, 1)

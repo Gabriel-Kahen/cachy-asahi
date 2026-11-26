@@ -330,8 +330,20 @@ def validate_section_geometry_fact(value, version):
     return value
 
 
+OUTPUT_FAULT_STAGES = frozenset(('SOURCE', 'CONFIG', 'RELEASE', 'IMAGE', 'INVENTORY',
+                                 'SYMBOLS', 'VMLINUX', 'MODULE_ELF', 'MODULE_INFO', 'APPLE_DTBS', 'DIGESTS'))
+OUTPUT_FAULT_KINDS = frozenset(('UNREADABLE_TEXT', 'LOOKUP', 'ITERATOR_EXHAUSTED', 'TYPE',
+                                'STRUCT_DECODE', 'ARITHMETIC', 'RESOURCE', 'OTHER'))
+
+
 def validate_output_fact(value, version=4):
-    need(type(version) is int and version in (4, 5, 6, 7, 8, 9) and type(value) is dict)
+    need(type(version) is int and version in (4, 5, 6, 7, 8, 9, 10) and type(value) is dict)
+    if version == 10:
+        need(set(value) == {'call_boundary', 'stage', 'fault'} and
+             type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
+             type(value['stage']) is str and value['stage'] in OUTPUT_FAULT_STAGES and
+             type(value['fault']) is str and value['fault'] in OUTPUT_FAULT_KINDS)
+        return value
     if version in (8, 9):
         need(set(value) == {'call_boundary', 'predicate', 'section_geometry', 'rela_table'} and
              type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
@@ -379,8 +391,8 @@ def validate_inner_group(group):
         return group
     need(pin is not None)
     row = group['diagnostic']
-    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8, 9))
-    need(set(row) == INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5, 6, 7, 8, 9) else set()))
+    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+    need(set(row) == INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5, 6, 7, 8, 9, 10) else set()))
     need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
     need(type(row['phase']) is str and row['phase'] in INNER_PHASES and type(row['command']) is str and row['command'] in INNER_COMMANDS)
     need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -406,9 +418,10 @@ def validate_inner_group(group):
     if row['schema_version'] == 3:
         validate_compiler_fact(row['compiler_failure'])
         need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and row['command'] == 'KERNEL' and (row['attempt'] == 'ISSUED') and (row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']}))
-    if row['schema_version'] in (4, 5, 6, 7, 8, 9):
+    if row['schema_version'] in (4, 5, 6, 7, 8, 9, 10):
         validate_output_fact(row['output_failure'], row['schema_version'])
-        need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
+        kind = 'OTHER' if row['schema_version'] == 10 else 'DATA_REFUSAL'
+        need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': kind} and
              row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
              row['natural_return'] == {'kind': 'RETURNED', 'code': 0})
     need(len(json.dumps(row, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()) <= 2048)

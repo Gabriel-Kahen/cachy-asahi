@@ -4,6 +4,7 @@ import hashlib
 import json
 import math
 import re
+import struct
 
 from runtime import Cancelled
 
@@ -519,8 +520,28 @@ def _section_geometry_fact(value, version):
     return value
 
 
+OUTPUT_FAULT_STAGES = frozenset(('SOURCE', 'CONFIG', 'RELEASE', 'IMAGE', 'INVENTORY',
+                                 'SYMBOLS', 'VMLINUX', 'MODULE_ELF', 'MODULE_INFO', 'APPLE_DTBS', 'DIGESTS'))
+OUTPUT_FAULT_TYPES = (
+    (UnicodeDecodeError, 'UNREADABLE_TEXT'),
+    (KeyError, 'LOOKUP'), (IndexError, 'LOOKUP'), (NameError, 'LOOKUP'),
+    (StopIteration, 'ITERATOR_EXHAUSTED'),
+    (TypeError, 'TYPE'), (AttributeError, 'TYPE'),
+    (struct.error, 'STRUCT_DECODE'),
+    (ZeroDivisionError, 'ARITHMETIC'), (OverflowError, 'ARITHMETIC'), (FloatingPointError, 'ARITHMETIC'),
+    (MemoryError, 'RESOURCE'), (RecursionError, 'RESOURCE'),
+)
+OUTPUT_FAULT_KINDS = frozenset(kind for _, kind in OUTPUT_FAULT_TYPES) | {'OTHER'}
+
+
 def _output_fact(value, version=4):
-    _need(type(version) is int and version in (4, 5, 6, 7, 8, 9) and type(value) is dict)
+    _need(type(version) is int and version in (4, 5, 6, 7, 8, 9, 10) and type(value) is dict)
+    if version == 10:
+        _need(set(value) == {'call_boundary', 'stage', 'fault'} and
+             type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
+             type(value['stage']) is str and value['stage'] in OUTPUT_FAULT_STAGES and
+             type(value['fault']) is str and value['fault'] in OUTPUT_FAULT_KINDS)
+        return value
     if version in (8, 9):
         _need(set(value) == {'call_boundary', 'predicate', 'section_geometry', 'rela_table'} and
              type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
@@ -597,8 +618,23 @@ def output_failure(row, error):
     return row
 
 
+def output_fault(row, error, stage):
+    """Project the class of an otherwise uncategorized output exception."""
+    if (row['schema_version'] != 1 or row['first_failure'] != {
+            'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'OTHER'} or
+            row['attempt'] != 'ISSUED' or row['natural_return'] != {'kind': 'RETURNED', 'code': 0} or
+            _kind(error) != 'OTHER'):
+        return row
+    fault = next((kind for cls, kind in OUTPUT_FAULT_TYPES if type(error) is cls), 'OTHER')
+    detail = {'call_boundary': 'VERIFY_OUTPUTS', 'stage': stage, 'fault': fault}
+    candidate = dict(row, schema_version=10, output_failure=detail)
+    validate(candidate)
+    row.update(schema_version=10, output_failure=detail)
+    return row
+
+
 def _keys(row, public=False):
-    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8, 9))
+    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
     version = row['schema_version']
     extra = {'output_failure'} if version >= 4 else {2: {'config_failure'}, 3: {'compiler_failure'}}.get(version, set())
     return (PUBLIC_KEYS if public else KEYS) | extra
@@ -655,7 +691,7 @@ def invalidate(row):
 
 
 def _body(row):
-    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8, 9))
+    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
     _need(type(row['phase']) is str and row['phase'] in PHASES)
     _need(type(row['command']) is str and row['command'] in COMMANDS)
     _need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -685,9 +721,10 @@ def _body(row):
         _need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
               row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']})
-    if row['schema_version'] in (4, 5, 6, 7, 8, 9):
+    if row['schema_version'] in (4, 5, 6, 7, 8, 9, 10):
         _output_fact(row['output_failure'], row['schema_version'])
-        _need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
+        kind = 'OTHER' if row['schema_version'] == 10 else 'DATA_REFUSAL'
+        _need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': kind} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
               row['natural_return'] == {'kind': 'RETURNED', 'code': 0})
     _need(len(_encoded(row)) <= LIMIT)

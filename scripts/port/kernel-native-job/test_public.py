@@ -1013,11 +1013,13 @@ class RelocationPublicTests(unittest.TestCase):
             if saved is None:sys.modules.pop('runtime',None)
             else:sys.modules['runtime']=saved
         binding={'nonce':'a'*32,'action':'baseline','contract_sha256':'b'*64,'worker_sha256':'c'*64}
-        for version in (5, 6, 7, 8, 9):
+        for version in (5, 6, 7, 8, 9, 10):
             row = diag.initial(binding)
             diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL'); diag.returned(row, 0)
             diag.phase(row, 'OUTPUTS')
-            if version in (8, 9):
+            if version == 10:
+                error = UnicodeDecodeError('ascii', b'private-bytes\xff', 13, 14, 'private reason')
+            elif version in (8, 9):
                 error = ValueError('ELF section file geometry invalid')
                 error.section_geometry = {'role': 'module', 'elf_type': 1, 'module_ordinal': 17,
                     'file_bytes': 1024, 'file_alignment': 32 if version == 8 else 8,
@@ -1052,6 +1054,8 @@ class RelocationPublicTests(unittest.TestCase):
                 row.update(schema_version=8, output_failure={
                     'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_011',
                     'section_geometry': error.section_geometry, 'rela_table': error.rela_table})
+            elif version == 10:
+                diag.output_fault(row, error, 'MODULE_INFO')
             else:
                 diag.output_failure(row, error)
             self.assertEqual(row['schema_version'], version)
@@ -1064,6 +1068,7 @@ class RelocationPublicTests(unittest.TestCase):
                 result = public.project(encoded(value), COMMIT, PIN, outcome)
                 self.assertEqual(result['kernel_child']['diagnostics']['inner']['baseline'], group)
                 self.assertEqual((result['status'], result['baseline'], result['candidate']), ('FAIL', 'FAIL', 'NOT RUN'))
+                self.assertNotIn('private reason', json.dumps(result))
             bad = copy.deepcopy(value)
             bad['kernel_child']['diagnostics']['inner']['baseline']['diagnostic']['schema_version'] = 4
             with self.assertRaises(ValueError):

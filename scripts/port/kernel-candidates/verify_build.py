@@ -724,21 +724,25 @@ def image_efi_header(path, header, settings, effective_size):
     harness.need(ranges[0][1] <= ranges[1][0] and executable, 'EFI section overlap/entry invalid')
 
 
-def verify_outputs(build, source, expected_config=None):
+def verify_outputs(build, source, expected_config=None, *, checkpoint=lambda _: None):
+    checkpoint('SOURCE')
     source_link_check = source_links(source)
     identities = source_evidence(source)
+    checkpoint('CONFIG')
     harness.regular(build / '.config', LIMIT_CONFIG)
     cfg = (build / '.config').read_bytes()
     settings = config_bytes(cfg)
     harness.need(settings.get('CONFIG_MODULES') == settings.get('CONFIG_IKCONFIG') == 'y' and settings.get('CONFIG_CPU_BIG_ENDIAN', 'n') == 'n',
                  'built-in IKCONFIG and little-endian module-enabled kernel required')
     comparison = verify_config(expected_config, build / '.config') if expected_config is not None else None
+    checkpoint('RELEASE')
     release_path = build / 'include/config/kernel.release'; harness.regular(release_path, 256)
     release_raw = release_path.read_text()
     harness.need(re.fullmatch(r'7\.1\.13[-A-Za-z0-9._+]*\n', release_raw), 'bounded source-version kernel.release required')
     release = release_raw[:-1]
     uts = build / 'include/generated/utsrelease.h'; harness.regular(uts, 512)
     harness.need(uts.read_text() == '#define UTS_RELEASE "' + release + '"\n', 'UTS_RELEASE differs from kernel.release')
+    checkpoint('IMAGE')
     image, elf = build / 'arch/arm64/boot/Image', build / 'vmlinux'
     harness.regular(image, 256 * 1024**2)
     with image.open('rb') as stream:
@@ -750,14 +754,17 @@ def verify_outputs(build, source, expected_config=None):
     harness.need(struct.unpack_from('<I', header, 4)[0] & 0xfc000000 == 0x14000000, 'Image entry branch required')
     image_efi_header(image, header, settings, size)
     image_config = embedded_config(image, cfg)
+    checkpoint('INVENTORY')
     order, module_bytes = module_inventory(build)
     required = {path for key, path in APPLE_MODULES.items() if settings.get(key) == 'm'}
     harness.need(required <= {name[:-2] + '.ko' for name in order}, 'configured Apple audio modules missing')
     owners = {'vmlinux'} | {name[:-2] for name in order}
+    checkpoint('SYMBOLS')
     exports = symvers(build, owners, settings)
     by_owner = {owner: set() for owner in owners}
     for symbol, owner in exports:
         by_owner[owner].add(symbol)
+    checkpoint('VMLINUX')
     with ELF(elf, 3 if settings.get('CONFIG_RELOCATABLE') == 'y' else 2, 4 * 1024**3,
              artifact_role='arm64-image-reference') as reader:
         definitions = reader.definitions(by_owner['vmlinux'] | {'_text', '_end'}, image_end=reader.entry + size)
@@ -772,22 +779,31 @@ def verify_outputs(build, source, expected_config=None):
         module_stems = {Path(name).stem for name in order}
         harness.need(len({stem.replace('-', '_') for stem in module_stems}) == len(order), 'ambiguous module names')
         for ordinal, name in enumerate(order):
+            checkpoint('MODULE_ELF')
             path = build / (name[:-2] + '.ko')
             with ELF(path, 1, 1024**3, module_ordinal=ordinal) as reader:
                 definitions = reader.definitions(by_owner[name[:-2]] | {'__this_module'})
                 harness.need(reader.by_name.get('.text', {}).get('flags', 0) & 4 and
                              reader.by_name.get('.gnu.linkonce.this_module', {}).get('flags', 0) & 3 == 3 and
                              definitions['__this_module']['section'] == reader.by_name['.gnu.linkonce.this_module']['index'], 'actual module code/descriptor required')
+                checkpoint('MODULE_INFO')
                 raw = reader.section_bytes('.modinfo', LIMIT_CONFIG)
                 harness.need(raw and raw[-1] == 0, 'terminated module metadata required')
                 info = {}
                 for row in raw.split(b'\0'):
                     if not row:
                         continue
-                    harness.need(b'=' in row, 'module metadata key/value required')
-                    key, value = row.decode('ascii').split('=', 1)
-                    harness.need(re.fullmatch(r'[A-Za-z0-9_]+', key) and all(32 <= ord(c) < 127 for c in value), 'module metadata text invalid')
-                    info.setdefault(key, []).append(value)
+                    key, separator, payload = row.partition(b'=')
+                    harness.need(separator, 'module metadata key/value required')
+                    harness.need(re.fullmatch(rb'[A-Za-z0-9_]+', key), 'module metadata text invalid')
+                    display = key in (b'author', b'description', b'parm')
+                    try:
+                        value = payload.decode('utf-8' if display else 'ascii')
+                    except UnicodeDecodeError:
+                        raise ValueError('module metadata text invalid') from None
+                    harness.need(value.isprintable() or (display and value.replace('\t', '').replace('\n', '').isprintable()),
+                                 'module metadata text invalid')
+                    info.setdefault(key.decode('ascii'), []).append(value)
                 stem = Path(name).stem
                 expected_name = stem.replace('-', '_')
                 harness.need(info.get('vermagic') == [expected_magic] and info.get('name') == [expected_name] and
@@ -797,8 +813,11 @@ def verify_outputs(build, source, expected_config=None):
                 providers = set(depends)
                 harness.need(len(providers) == len(depends) and stem not in providers and providers <= module_stems,
                              'module dependencies outside actual inventory')
+            checkpoint('DIGESTS')
             modules[name[:-2] + '.ko'] = {'sha256': harness.digest(path), 'bytes': path.stat().st_size, 'name': expected_name, 'vermagic': expected_magic}
+        checkpoint('APPLE_DTBS')
         dtbs = {name: verify_dtb(build / 'arch/arm64/boot/dts/apple' / name, identity) for name, identity in identities.items()}
+        checkpoint('DIGESTS')
         return {'status': 'BUILD_OUTPUT_STRUCTURE_VERIFIED', 'source_commit': SOURCE_COMMIT, 'source_evidence_sha256': SOURCE_PINS, 'source_links': source_link_check,
                 'image_sha256': relation['sha256'], 'image_effective_bytes': size, 'image_flags': flags, 'image_elf_relation': relation,
                 'vmlinux_sha256': harness.digest(elf), 'elf_loads': loads, 'apple_dtbs': dtbs,

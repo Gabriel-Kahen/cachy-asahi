@@ -110,6 +110,21 @@ Cleanup passed and all six original Docker images were preserved.
 [Pinned linker layout](https://gnu.googlesource.com/binutils-gdb/+/155188ea10a7/bfd/elf.c#6888)
 · [ELF section address alignment](https://gabi.xinuos.com/elf/03-sheader.html#section-header-table-entry)
 
+Run [45774638440](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45774638440)
+again passed acquisition, provisioning, the compiler probe and the baseline
+build command. Its output verifier stopped with an unclassified exception.
+The candidate did not start. Cleanup passed and all six initial Docker images
+were preserved. The published receipt does not identify the exception.
+
+The output verifier treated all `.modinfo` text as unformatted ASCII. Enabled
+modules in the pinned source include UTF-8 author text and help strings with
+tabs and line breaks. The verifier now accepts printable UTF-8, tabs and line
+feeds in `author`, `description` and `parm`. It keeps ASCII keys and structural
+metadata, and gives malformed display text a bounded refusal. A new output
+diagnostic reports an unclassified exception's verification stage and a fixed
+fault category.
+[Pinned Apple SIO module](https://github.com/AsahiLinux/linux/blob/94fb23346d522edf53722357c426a3e58030beea/drivers/dma/apple-sio.c#L940)
+
 For private SSH intake, dispatch with `retained_inputs=true` and
 `retained_transport=ssh`. The authenticated intake step shallow-fetches
 three exact refs from the private `Gabriel-Kahen/cachy-asahi-ci-inputs`
@@ -390,6 +405,11 @@ applicable. It retains the earlier verified Image RELA census on module
 failures, and uses a fixed section label or a name digest. Version 9 uses the
 updated `.debug_aranges` geometry rule. Historical version 8 retains its
 original file-alignment rule.
+
+Worker diagnostic version 10 reports a fixed fault category and verification
+stage for unexpected output-verification exceptions after a successful build
+command. It retains the original first failure. Raw exceptions, source text,
+filenames and traceback details stay outside the public record.
 
 `phase` remains the current lifecycle phase, including cleanup. The separate
 `first_failed_phase` and `failure_reason` describe the first failure observed by

@@ -213,15 +213,26 @@ def configuration_delta(verifier, before_path, after_path, policy, report):
 
 
 def verify_output_structure(verifier, build, source, config_path, report):
-    """Same verifier call; record only an exact ValueError on the failure path."""
+    """Record a bounded fact for a first failure at the output verifier."""
+    stage = 'SOURCE'
+
+    def checkpoint(next_stage):
+        nonlocal stage
+        stage = next_stage
+
     try:
-        return verifier.verify_outputs(build, source, config_path)
-    except ValueError as first:
-        if type(first) is not ValueError:
-            raise
+        return verifier.verify_outputs(build, source, config_path, checkpoint=checkpoint)
+    except Exception as first:
+        if type(first) is ValueError:
+            detail, args = inner_result.output_failure, (first,)
+        else:
+            row = report.get('inner_diagnostic')
+            if row is None or row['first_failure'] is not None or isinstance(first, (ImportError, OSError)):
+                raise
+            detail, args = inner_result.output_fault, (first, stage)
         controls = []
         observe_failure(report, first, False, controls)
-        observe(report, inner_result.output_failure, first, deferred=controls)
+        observe(report, detail, *args, deferred=controls)
         if controls:
             prior = first.__cause__
             first.__cause__ = BaseExceptionGroup('output diagnostic controls',

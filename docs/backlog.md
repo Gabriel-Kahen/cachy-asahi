@@ -26,10 +26,13 @@ only the Fish package and exercised staging, comparison and withdrawal.
   module dependency verification. The verifier now matches the provider
   basenames Kbuild actually writes. The refreshed run passed intake with
   230 retained files and compiled the baseline. The verifier then refused
-  `.debug_aranges` file alignment. The pinned linker reproduced the layout,
-  and the verifier now accepts that section form. The candidate comparison
-  and boot remain open.
-  [Refreshed hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45766930508)
+  `.debug_aranges` file alignment. The pinned linker reproduced that layout.
+  The next build returned zero and output verification stopped with an
+  unclassified exception. Source review found a separate ASCII-only parser
+  defect on UTF-8 module author strings. The candidate comparison and boot
+  remain open.
+  [Module geometry run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45766930508)
+  · [Latest verifier result](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45774638440)
   · [Verifier and diagnostics](workstreams/kernel-native-job.md)
 - Updater 4.4.2-3 passed its native AArch64 build pair and all 15 Check and
   refusal cases after signed installation in a disposable container. Separate
