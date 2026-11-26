@@ -80,9 +80,20 @@ On November 25, the pinned public mirror returned HTTP 404 for 210 of 501
 producer input files. This included the bubblewrap, jbigkit and libtiff
 archive/signature pairs. Eight extension archive/signature pairs were
 also unavailable: clang, compiler-rt, libgit2, libxslt, lld, llvm, rust and
-rust-src. The SSH route covers these 226 files. Remaining inputs still come
-from the original locked URLs and must pass the original byte and signature
-checks. [Kernel dependency pins](../../scripts/port/kernel-native-stage/dependencies.json)
+rust-src. On November 26, the remaining public route also returned HTTP 404
+for the locked `gtk-update-icon-cache` and `libinput` archive/signature pairs.
+The retained copies match all four original byte and signature checks.
+The SSH route covers 230 files. The other inputs come from the original
+locked URLs and pass the existing byte and signature checks.
+[Kernel dependency pins](../../scripts/port/kernel-native-stage/dependencies.json)
+
+Runs [45765124377](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45765124377)
+and [45765742023](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45765742023)
+both stopped in the producer before either kernel build. The producer exited
+1 first and the acquisition child was cancelled. Both runs verified
+preservation of all six original Docker images. Run-owned absence remained
+unverified, and the published receipts could not identify the producer's
+exact cause.
 
 For private SSH intake, dispatch with `retained_inputs=true` and
 `retained_transport=ssh`. The authenticated intake step shallow-fetches
@@ -93,7 +104,7 @@ regular-blob inventory.
 | Branch | Commit | Tree | Files |
 | --- | --- | --- | --- |
 | `native623-r1` | `b429266444c82238783044301ceb0f8d08bbf3f6` | `a8f1cd41e3aadeee9a25bc3b96e14c823de870aa` | 6 base, 16 extension |
-| `native623-base-r1` | `3ac0b845b13b9a8f1da4fc9ec90ac627a6f0da0c` | `e3f619a2bb8a287cd0aaa7d1975d8d392cb8786e` | 22 additional base |
+| `native623-base-r2` | `6d2e0ee29159be52744c1fd8b8109dbce7f09c93` | `af22c8f7619135a3bc6a22f6f7d7e12723cbc1d8` | 26 additional base |
 | `native349-r1` | `9d9e1ab7ce694e33238ec1152bef72270d4bf91f` | `cc6298d8dbbb5b0dd522de76b7140306d83bfe7a` | 182 base, one manifest |
 
 The SSH step pins GitHub's Ed25519 host key and the fingerprint of the existing
@@ -327,14 +338,21 @@ performance stays NOT MEASURED and release selection stays false.
 
 ## Closed failure diagnostics
 
-Historical schema version 3 has exactly 25 top-level keys: the previous 24 fields
-plus `daemon_baseline`. Current schema 4 adds only `kernel_child`, for 26 keys.
-The projector retains the exact schema-3 validation/outcome semantics for
-historical records; schema 4 additionally requires bound verified child
-diagnostics and an actual zero child return for PASS. Versions 1/2 and
-missing/extra fields are refused. Historical evidence is retained unchanged. The
+Historical schema version 3 has exactly 25 top-level keys. Current schema 4
+adds `kernel_child` and permits bounded diagnostic fields for parallel,
+acquisition and producer failures. The projector retains the schema-3
+validation and outcome semantics. Schema 4 requires bound verified child
+diagnostics and an actual zero child return for PASS. Versions 1 and 2 and
+unknown fields are refused. Historical evidence is retained unchanged. The
 16 KiB public-record bound, source/packet binding and actual native-step outcome
 gate are unchanged. Diagnostics grant no execution or hardware acceptance.
+
+For a producer-first exit 1, the diagnostic verifies the terminal result
+against the observed producer command and its final output. It compares
+the private acquisition receipt with all 501 locked inputs and reports
+only the phase, acquisition state and counts for HTTP 404, other HTTP,
+transport and other failures. The first failure and cleanup status retain
+their original meaning.
 
 When the ET_DYN Image RELA table has been scanned and output verification
 fails, worker diagnostic version 6 adds a numeric census. It reports the
