@@ -336,9 +336,12 @@ jobs:
           python3 -I -B -Werror::ResourceWarning "$lane/test_prepare.py"
           python3 -I -B -Werror::ResourceWarning "$lane/test_rehearsal.py"
           python3 -I -B -Werror::ResourceWarning scripts/integration/qt612_rootfs_trust_check/test_check.py
-      - name: Check maintained JBIG and TIFF input and lifecycle controls
+      - name: Check JBIG and TIFF input and lifecycle controls
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
-        run: python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/project-libraries-native -p 'test_maintained_*.py'
+        run: |
+          lane=scripts/ci/project-libraries-native
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane" -p 'test_build622.py'
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane" -p 'test_maintained_*.py'
       - name: Check offline Qtbase continuation and full-target preflight
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |

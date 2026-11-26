@@ -16,6 +16,8 @@ from preflight import INPUTS_PIN, PRODUCER, ROOT, producer_blob
 
 CANDIDATE = "a7c2a30fb37934cad320d982b7d2ab2413dab2a7"
 CANDIDATE_TREE = "8cf292a311f6abccbb6de51963fd4751b13bcd5c"
+# 6835cdf1 changed only the guide inside the qualified recipe tree.
+CANDIDATE_TREES = frozenset((CANDIDATE_TREE, "441815470dc9434c9b4f314f57cb2521f19e9520"))
 PROJECT = ROOT / "scripts/build/project-libraries"
 # Exact bodies whose pinned primary routes returned 404 on 2026-11-25.
 # Every size and digest comes from the r12 lock, including the kernel body.
@@ -81,7 +83,8 @@ def bind_candidate():
     oid = command(["git", "rev-parse", f"HEAD:{folder}"], cwd=ROOT).stdout.decode().strip()
     status = command(["git", "status", "--porcelain=v1", "--untracked-files=all", "--", str(folder)],
                      cwd=ROOT).stdout
-    require(oid == CANDIDATE_TREE and not status, "exact clean #622 candidate tree")
+    require(oid in CANDIDATE_TREES and not status, "exact clean #622 candidate tree")
+    return oid
 
 
 def stage_producer(scratch):
@@ -174,7 +177,7 @@ def export_retained(cache, pins, output):
 
 
 def prepare_inputs(args, scratch, report):
-    bind_candidate()
+    recipe_tree = bind_candidate()
     root, inputs, native, entry, core = stage_producer(scratch)
     sys.path.insert(0, str(PROJECT))
     import baseline
@@ -240,7 +243,7 @@ def prepare_inputs(args, scratch, report):
         filename = f"{package}-reviewed-inputs.json"
         require((scratch / "recipes" / filename).read_bytes() ==
                 (scratch / "recipes-recheck" / filename).read_bytes(), "reviewed recipe hash maps agree")
-    report["recipe_tree"] = CANDIDATE_TREE
+    report["recipe_tree"] = recipe_tree
     report["recipe_materializations"] = {"runs": 2, "pinned_files": first["files_count"],
                                          "plan_sha256": first["plan_sha256"]}
     report["retained"] = {name: {key: base_pins[name][key] for key in ("bytes", "sha256")}

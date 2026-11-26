@@ -18,8 +18,8 @@
       "sha256": "c4de7e4c2eebc7a0fb510377480c19eee873bd65ab965ad6ed04ac0aa7aada79"
     },
     "scripts/release/export_repository.py": {
-      "bytes": 15980,
-      "sha256": "f895d751e1ce1077da02cb5086ecec97d27a3eb92a5606b5c292fb9d8e0efce9"
+      "bytes": 16045,
+      "sha256": "40565ef0a7c7c23b6b7fbcc4b3ed66703a9c7bb724f8df8229ec16758534126c"
     },
     "scripts/release/offline_kit.py": {
       "bytes": 14796,
@@ -35,6 +35,6 @@
     }
   },
   "license": "MIT; existing project LICENSE",
-  "revision": "86eb404b249fca6523d0ff08be6407ff85158997",
+  "revision": "a60dff6a24cf6c128ac5e58db852e54ab29e607e",
   "schema_version": 1
 }

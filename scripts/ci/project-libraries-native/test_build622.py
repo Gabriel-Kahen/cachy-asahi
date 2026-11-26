@@ -18,6 +18,20 @@ import migration622
 
 
 class IntakeTests(unittest.TestCase):
+    def test_candidate_accepts_two_reviewed_recipe_trees(self):
+        for tree in ("8cf292a311f6abccbb6de51963fd4751b13bcd5c", "441815470dc9434c9b4f314f57cb2521f19e9520"):
+            with self.subTest(tree=tree), patch.object(inputs622, "command", side_effect=(
+                subprocess.CompletedProcess([], 0, (tree + "\n").encode()), subprocess.CompletedProcess([], 0, b""),
+            )):
+                self.assertEqual(inputs622.bind_candidate(), tree)
+
+    def test_candidate_refuses_wrong_tree_or_dirty_recipe_bytes(self):
+        for tree, status in (("0" * 40, b""), ("441815470dc9434c9b4f314f57cb2521f19e9520", b" M README.md\n")):
+            with self.subTest(tree=tree, status=status), patch.object(inputs622, "command", side_effect=(
+                subprocess.CompletedProcess([], 0, (tree + "\n").encode()), subprocess.CompletedProcess([], 0, status),
+            )), self.assertRaisesRegex(ValueError, "exact clean #622 candidate tree"):
+                inputs622.bind_candidate()
+
     def test_wrong_cache_bytes_refuse_without_any_endpoint_or_public_fallback(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

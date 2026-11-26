@@ -61,6 +61,10 @@ jobs:
             directory: scripts/client
             pattern: test_endpoint_v2.py
             minimum: 10
+          - suite: recovery-producer
+            directory: scripts/release
+            pattern: test_recover_repository.py
+            minimum: 27
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
