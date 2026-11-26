@@ -1258,14 +1258,15 @@ class EarlyEntryModels(unittest.TestCase):
         def monotonic():events.append('entry');return self.entry
         def parser(*args,**kwargs):events.append('parser');return factory(*args,**kwargs)
         for mode in controller.packet.COMPOSED_MODES:
-            with patch.object(controller.time,'monotonic',side_effect=monotonic), \
+            events.clear()
+            with self.subTest(mode=mode), patch.object(controller.time,'monotonic',side_effect=monotonic), \
                  patch.object(controller,'argparse',SimpleNamespace(ArgumentParser=parser)), \
                  patch.object(controller,'composed_main',return_value=7) as dispatch:
                 self.assertEqual(controller.main(self.cli(mode,self.early)),7)
-            self.assertEqual(dispatch.call_args.kwargs,{'entry':self.entry})
-            self.assertIs(type(dispatch.call_args.args[0].controller_entry_monotonic),float)
-            self.assertEqual(dispatch.call_args.args[0].controller_entry_monotonic,self.early)
-        self.assertEqual(events,['entry','parser','entry','parser'])
+                self.assertEqual(dispatch.call_args.kwargs,{'entry':self.entry})
+                self.assertIs(type(dispatch.call_args.args[0].controller_entry_monotonic),float)
+                self.assertEqual(dispatch.call_args.args[0].controller_entry_monotonic,self.early)
+                self.assertEqual(events,['entry','parser'])
 
     def test_legacy_explicit_flag_refuses_before_any_packet_read(self):
         for early in (self.early,'nan','inf'):
