@@ -53,6 +53,14 @@ Heritage object, and no Wayback availability at the signed build dates.
 The exact Common Crawl retry returned HTTP 503, so that archive remains
 inconclusive. The signed Perl and Python forward recipe gaps remain open.
 
+On November 26, the October Common Crawl index returned no captures for
+either exact workunit URL. The November query API still returned HTTP 503.
+A bounded lookup of the published November index found neither URL in the
+range covering both keys. The original final PKGBUILDs, or the original
+workunits and verbatim `makepkg -g` output, are still needed.
+[Crawl dates](https://index.commoncrawl.org/collinfo.json)
+· [Published index format](https://commoncrawl.org/cdxj-index)
+
 | Later recovery evidence | SHA-256 |
 | --- | --- |
 | Recovery pack and public archive audit | `0532e40a9f7cdb79922019e147fc56094604019e83e6211384e8351a0e4ffe9f` |

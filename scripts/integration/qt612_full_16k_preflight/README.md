@@ -286,8 +286,9 @@ ceiling for a fresh child, preserves the original backing chain and
 raises the minimum host disk admission to 12.125 GiB. For a cap above
 4 GiB the disposable actor sets an exact kernel limit and verifies
 that the owned QEMU process inherited it. The original runtime retains
-its process custody and allocation watches. This path is unissued
-and requires a fresh selection scoped to the exact replacement capsule.
+its process custody and allocation watches. The 8 GiB successor was
+separately selected and launched. Full-target completion and independent
+retirement remain unverified.
 
 The [packaging and installed 16 KiB handoff](PACKAGING.md) selects the
 completed overlay and pinned dependencies, projects the corrected Qtbase
