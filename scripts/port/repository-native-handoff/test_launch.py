@@ -19,9 +19,7 @@ ROOT = Path(__file__).resolve().parents[3]
 spec = importlib.util.spec_from_file_location('handoff_launch', Path(__file__).with_name('launch.py'))
 launch = importlib.util.module_from_spec(spec); spec.loader.exec_module(launch)
 CID = 'c' * 64
-# Synthetic current-runner fixture binding; production remains frozen at49c87.
-FIXTURE_RUNNER = 'f860ff970093c7aac0788571d36ab32f1617e2dc9b2a703e42e16782f10a7641'
-FROZEN_RUNNER = '49c87f41bbb2fe1288251f16019f12aaeabb98d81ff5339387873e88e903b940'
+PREVIOUS_RUNNER_PIN = '49c87f41bbb2fe1288251f16019f12aaeabb98d81ff5339387873e88e903b940'
 
 
 def response(raw=b'', code=0):
@@ -109,15 +107,13 @@ class LaunchTests(unittest.TestCase):
         self.output = self.root/'out'; self.private = self.root/'private'
         for path in (self.inputs, self.runner, self.output, self.private): path.mkdir(mode=0o700)
         shutil.copyfile(ROOT/'scripts/integration/repository.py', self.runner/'repository.py')
-        self.assertEqual(launch.digest((self.runner/'repository.py').read_bytes()), FIXTURE_RUNNER)
-        self.assertEqual(launch.ORIGINAL_PIN, FROZEN_RUNNER)
-        self.enterContext(mock.patch.object(launch, 'ORIGINAL_PIN', FIXTURE_RUNNER))
         (self.runner/'producer.py').write_bytes(b'# MODELED observer bytes\n')
         self.pin = launch.digest((self.runner/'producer.py').read_bytes())
         self.contract = {'schema_version': 1, 'purpose': 'disposable-generic-repository-test',
             'execution': 'native-aarch64-disposable-docker', 'allow_system_mutation': True, 'daemon_arch': 'aarch64',
             'nonce': 'a'*32, 'image_id': 'sha256:'+'b'*64, 'source_commit': 'd'*40,
-            'script_sha256': launch.ORIGINAL_PIN, 'upgrade_kind': 'synthetic-changed-package-fixtures', 'baseline': [], 'upgrade': []}
+            'script_sha256': launch.digest((self.runner/'repository.py').read_bytes()),
+            'upgrade_kind': 'synthetic-changed-package-fixtures', 'baseline': [], 'upgrade': []}
         (self.inputs/'manifest.json').write_bytes(launch.encoded(self.contract))
         self.command = ['docker', 'run', '--name', 'cachy-asahi-repository-'+'a'*32, '--pull=never', '--platform=linux/arm64',
             '--user', '0:0', '--network=none', '--cgroupns=private', '--cap-drop=ALL', '--security-opt=no-new-privileges',
@@ -137,6 +133,10 @@ class LaunchTests(unittest.TestCase):
                        checkpoint_handler=ack, producer_pin=self.pin)
         options.update(kwargs)
         return launch.run_repository(self.command,self.root/'container.log',self.private,lambda *_:None,**options)
+
+    def test_launcher_admits_the_reviewed_checkout_runner_without_pin_overrides(self):
+        expected = launch.validate_command(self.command, self.contract)
+        self.assertEqual(expected['binds']['/runner'], self.runner)
 
     def test_modeled_success_registers_before_start_and_strips_frames(self):
         receipt = self.execute(); self.assertEqual(receipt['status'],'PASS'); self.assertTrue(receipt['absence_verified'])
@@ -162,8 +162,8 @@ class LaunchTests(unittest.TestCase):
         with self.assertRaises(launch.Refused):self.execute()
         self.assertFalse(self.transport.calls)
 
-    def test_mixed_frozen_manifest_and_current_fixture_runner_refuse_before_transport(self):
-        self.contract['script_sha256'] = FROZEN_RUNNER
+    def test_previous_runner_pin_with_current_bytes_refuses_before_transport(self):
+        self.contract['script_sha256'] = PREVIOUS_RUNNER_PIN
         (self.inputs/'manifest.json').write_bytes(launch.encoded(self.contract))
         index = self.command.index('--inputs-sha256') + 1
         self.command[index] = launch.digest((self.inputs/'manifest.json').read_bytes())

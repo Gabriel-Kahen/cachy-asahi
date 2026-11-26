@@ -21,9 +21,6 @@ producer = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(producer)
 ROOT = Path(__file__).resolve().parents[3]
 NONCE = 'a' * 32
-# Only these explicitly modeled tests bind the current public fixture bytes.
-FIXTURE_RUNNER = 'f860ff970093c7aac0788571d36ab32f1617e2dc9b2a703e42e16782f10a7641'
-FROZEN_RUNNER = '49c87f41bbb2fe1288251f16019f12aaeabb98d81ff5339387873e88e903b940'
 
 
 class ModeledProtocol:
@@ -134,9 +131,7 @@ class ModelTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(prefix='MODELED-handoff-producer-'); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         source = (ROOT / 'scripts/integration/repository.py').read_bytes()
-        self.assertEqual(producer.digest(source), FIXTURE_RUNNER)
-        self.assertEqual(producer.SOURCE_SHA256, FROZEN_RUNNER)
-        self.enterContext(mock.patch.object(producer, 'SOURCE_SHA256', FIXTURE_RUNNER))
+        self.assertEqual(producer.digest(source), producer.SOURCE_SHA256)
         self.original = types.ModuleType('frozen_repository_functions_only')
         self.original.__file__ = str(ROOT / 'scripts/integration/repository.py')
         exec(compile(source, self.original.__file__, 'exec'), self.original.__dict__)
@@ -345,9 +340,6 @@ class GuardAndReadTests(unittest.TestCase):
         # Replaces only the compiled module's main with an explicit model. No
         # guard-positive frozen worker, GPG, Docker or native actor is executed.
         original_argv = sys.argv
-        self.assertEqual(producer.digest((ROOT/'scripts/integration/repository.py').read_bytes()), FIXTURE_RUNNER)
-        self.assertEqual(producer.SOURCE_SHA256, FROZEN_RUNNER)
-        self.enterContext(mock.patch.object(producer, 'SOURCE_SHA256', FIXTURE_RUNNER))
         for after_write in (False, True):
             with self.subTest(after_write=after_write), tempfile.TemporaryDirectory() as directory:
                 terminal = Path(directory)/'MODELED-private-original-result.json'
@@ -370,10 +362,11 @@ class GuardAndReadTests(unittest.TestCase):
     def test_real_frozen_main_guard_refuses_before_mutating_worker(self):
         original_argv = sys.argv
         protocol = ModeledProtocol()
-        with mock.patch('subprocess.run', side_effect=AssertionError('no actual actor commands')):
-            with self.assertRaises(Exception):
+        with mock.patch('subprocess.run', side_effect=AssertionError('no actual actor commands')) as commands:
+            with self.assertRaisesRegex(Exception, 'explicit disposable repository-test contract required'):
                 producer.observe(ROOT / 'scripts/integration/repository.py', protocol, nonce=NONCE,
                     deadline=time.monotonic() + 10, argv=['--inputs', '/not-present-contract', '--inputs-sha256', 'f' * 64])
+        commands.assert_not_called()
         self.assertIs(sys.argv, original_argv);self.assertEqual(protocol.frames, [])
 
     def test_source_pin_refused_before_compile_and_signal_handlers(self):
