@@ -20,6 +20,11 @@ These are examples, not a configured endpoint or an instruction to modify a runn
 
 `stage` verifies all supplied hashes, parses package archives without executing recipes/hooks, checks the complete dependency transaction, signs each package and both repository databases, and creates a signed `release.json`. `repo-add` embeds the matching package signatures; database names, versions, architectures, filenames, hashes and relations are compared back to the artifacts. Verification repeats those checks and checks the exact file set and managed symlinks. Staging permits clearly labeled native/cross/emulated/synthetic results and an absent project license so blocked work remains inspectable. Staging conveys no installation approval.
 
+After a `SIGTERM` during staging, check for the release under `staging/ID`.
+If it exists, run `verify` on that ID. If it is absent, retry staging with the
+original inputs. The CLI removes its temporary staging tree during shutdown and
+preserves a release that already reached the final rename.
+
 `promote` verifies and freezes the staged bytes and validated gate object, checks every required gate, signs a separate promotion record, retains a copy under `stable/ID`, and switches `stable/current` by local atomic symlink replacement. It never uploads or publishes. Downgrades of a package present in the preceding selection are rejected.
 
 `verify` requires the signed bundle's release ID to match the requested ID in either channel. Each observed package archive digest must match the signed file map and the digest recorded for its build provenance. In the stable channel, verification also binds the signed promotion record to that release ID and manifest, then rechecks the gates. There is no boolean approval override.
