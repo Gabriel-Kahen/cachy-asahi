@@ -1135,6 +1135,15 @@ jobs:
       - name: Check outer Zsh readiness facts with bounded real PTY controls
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci -p test_zsh_substring_readiness_wrapper.py -v
+      - name: Check composed entry, source downloads and repository handoff
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        run: |
+          python3 -B -m unittest discover -s scripts/ci/development -p test_controller.py -k DirectEntryTests -k EarlyEntryModels
+          python3 -B -m unittest discover -s scripts/ci/development -p test_base_stages.py -k fetch
+          python3 -B -m unittest discover -s scripts/port/repository-native-handoff
+      - name: Check offline updater guest admission and transaction observations
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        run: python3 -I -B -Werror scripts/ci/updater-full-update/test_guest.py
       - name: Check opt-in Zsh substring module without changing user bindings
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         run: |
