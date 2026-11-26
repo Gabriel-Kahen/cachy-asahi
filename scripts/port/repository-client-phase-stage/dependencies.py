@@ -10,8 +10,8 @@ import sys
 import types
 
 ROOT = Path(__file__).resolve().parents[3]
-COLLECTOR_MAP_SHA256 = '01a546a8aeb888f310f2756161b958ea91e683bdd8594cf0a149811709c92303'
-COLLECTOR = {'base.py': '8d2ddab845707722c859e830273ccb28a014a6c5aeb85424b35951ce70277f1d', 'common.py': '02398b4008f06947fe3dfe8e95c45e0f77cf8627ecff258a7c64128314665a15', 'crypto.py': 'a3568741238738646593b2c972589f4ae92381611c88dea1c1c234c0e59a46f0', 'entry.py': '5889e0358bd0a04122e6cfcb061337f1dc415b064ba92f46ae47893a5747e0c8', 'orchestrator.py': '6dd32b5615f5b90dacd9be56e63912b0cf14f6d5cdfa29c29939f6207d42f579', 'provenance.py': '42d18ff6cfa68d7d0a704d0612cbf505f8652b5c24bf6ae69d833b43c08ad02b', 'worker.py': '9a513a59da3cbb58d54c236759e3299072e14194e4d297df911072daa241b060'}
+COLLECTOR_MAP_SHA256 = 'a80bf55bf3b33ac77820ecfa2976cd9fe0cb52fd1e346e8bd60e16bb82219341'
+COLLECTOR = {'base.py': 'fd6faba78af6de430e8a42ab7faa79e03dbb85614b754735290c29a0495ab2e0', 'common.py': '02398b4008f06947fe3dfe8e95c45e0f77cf8627ecff258a7c64128314665a15', 'crypto.py': 'a3568741238738646593b2c972589f4ae92381611c88dea1c1c234c0e59a46f0', 'entry.py': '5889e0358bd0a04122e6cfcb061337f1dc415b064ba92f46ae47893a5747e0c8', 'orchestrator.py': '6dd32b5615f5b90dacd9be56e63912b0cf14f6d5cdfa29c29939f6207d42f579', 'provenance.py': '42d18ff6cfa68d7d0a704d0612cbf505f8652b5c24bf6ae69d833b43c08ad02b', 'worker.py': '9a513a59da3cbb58d54c236759e3299072e14194e4d297df911072daa241b060'}
 PREDECESSORS = {'scripts/port/repository-client-stage/gate.py': '8804ee0273079f3d1cfdbd97f4c4f3e5ffcd6403ab3231ad8660d99d074359fd', 'scripts/port/repository-client-stage/adapter.py': 'a6e710baf7874bc84d3393b73445d0f586da1b8e00ce1568b061fbc2f769306a', 'scripts/release/release.py': '750a214003cbc921ab53c4e818feb8bb9d82876285b03816e109fc34d2a88d32', 'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7'}
 PREDECESSOR_MODES = {name: (0o755 if name == 'scripts/release/release.py' else 0o644)
                      for name in PREDECESSORS}

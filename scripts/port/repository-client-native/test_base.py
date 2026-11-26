@@ -57,6 +57,25 @@ class BaseParserTests(unittest.TestCase):
         self.records[self.first]['files'] = b'%FILES%\n\n'
         self.assertEqual(base.parse_local(self.records, self.lock)['packages'][0]['files'], [])
 
+    def test_zero_byte_alpm_files_record_matches_query_omission(self):
+        self.records[self.first]['files'] = b''
+        result = base.parse_local(self.records, self.lock)
+        self.assertEqual(result['packages'][0]['files'], [])
+        self.assertEqual(result['local_records'][self.first + '/files'],
+                         {'sha256': base.digest(b''), 'bytes': 0})
+        listing = ''.join(f'base-{i:03d} /{path}\n' for i in range(1, 341)
+                          for path in ('usr/', 'usr/bin/', f'usr/bin/base-{i:03d}')).encode()
+        base.validate_queries(result, self.records, self.lock, listing)
+        for extra in (b'base-000 (no files)\n', b'base-000 /usr/bin/unowned\n'):
+            with self.subTest(extra=extra), self.assertRaisesRegex(base.Refused, 'pacman -Ql differs'):
+                base.validate_queries(result, self.records, self.lock, listing + extra)
+
+    def test_nonempty_files_record_requires_files_section(self):
+        for raw in (b'\n', b'%BACKUP%\n\n'):
+            with self.subTest(raw=raw), self.assertRaisesRegex(base.Refused, 'missing FILES section'):
+                self.records[self.first]['files'] = raw
+                base.parse_local(self.records, self.lock)
+
     def test_wrong_package_count(self):
         for change in ('missing', 'extra'):
             with self.subTest(change=change):

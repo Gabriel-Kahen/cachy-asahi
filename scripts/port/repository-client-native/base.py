@@ -85,6 +85,14 @@ def sections(raw, allowed):
     return result
 
 
+def file_sections(raw):
+    files = sections(raw, {'FILES', 'BACKUP'})
+    # ALPM writes a zero-byte files record for a package with no owned entries.
+    need('FILES' in files or raw == b'', 'missing FILES section')
+    files.setdefault('FILES', [])
+    return files
+
+
 def inventory(raw):
     rows = text(raw, 256 * 1024).splitlines(keepends=True)
     need(len(rows) == COUNT and rows == sorted(rows), 'exact sorted 341-package lock required')
@@ -132,8 +140,7 @@ def parse_local(records, lock):
              and name not in names, 'local package/lock mismatch')
         need(arch in {'aarch64', 'any'}, 'non-ARM base architecture')
         names.add(name)
-        files = sections(record['files'], {'FILES', 'BACKUP'})
-        need('FILES' in files, 'missing FILES section')
+        files = file_sections(record['files'])
         paths = []
         for value in files['FILES']:
             item, directory = canonical_file(value, name)
@@ -256,7 +263,7 @@ def validate_queries(base, records, query, listing):
     expected_paths = set()
     for dirname, record in records.items():
         name = sections(record['desc'], DESC_FIELDS)['NAME'][0]
-        for path in sections(record['files'], {'FILES', 'BACKUP'})['FILES']:
+        for path in file_sections(record['files'])['FILES']:
             canonical_file(path, name)
             expected_paths.add(name + ' /' + path)
     actual = text(listing, COMMAND_LIMIT).splitlines()
