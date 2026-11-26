@@ -491,7 +491,8 @@ def stage(args, root, key, env):
         if spec.get("project_license"):
             text_field(spec["project_license"], "spdx")
             shutil.copyfile(file_ref(base_dir, spec["project_license"]), out / "project-license.txt")
-        source_associations(out, {'packages': packages, 'files': payload_files(out)}, spec)
+        if 'source_delivery' in spec:
+            source_associations(out, {'packages': packages, 'files': payload_files(out)}, spec)
         for p in packages:
             sign(out / "repo" / p["filename"], key, env)
         add_database(out / "repo" / f"{repo}.db.tar.gz",

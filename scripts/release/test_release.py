@@ -407,7 +407,9 @@ class ReleaseTests(unittest.TestCase):
                       (self.directory / 'evidence/fixture-package-review.txt').read_bytes())
 
     def test_signed_stage_and_verify(self):
-        result = self.stage()
+        with mock.patch.object(r, "payload_files", wraps=r.payload_files) as payload:
+            result = self.stage()
+        self.assertEqual(payload.call_count, 2)
         self.assertEqual(result["status"], "local-staging")
         self.assertEqual(result["source_delivery"], "NOT_DECLARED")
         self.assertFalse(result["source_completeness_accepted"])
