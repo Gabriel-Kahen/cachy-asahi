@@ -38,27 +38,46 @@ class Controls(unittest.TestCase):
    elif kind=='file':m.__file__='/foreign/local_transaction.py'
    elif kind=='defaults':m.relative.__defaults__=('a',)
    with self.subTest(kind=kind),self.assertRaises(ValueError):R.bind_installer(NEW,m,read)
- def scan(self,api,root,mode='refuse',deadline=None):
+ def scan(self,api,root,mode='refuse',deadline=None,*,capacity=None):
   events=[];base=api.Limits(deadline=time.monotonic()+60 if deadline is None else deadline,max_nodes=256,max_bytes=1048576,max_file_bytes=65536)
   class Limits:
    def __getattr__(self,k):return getattr(base,k)
    def tick(self):events.append(('tick',));base.tick()
   methods=('open','close','read','fstat','stat','fstatvfs','scandir','readlink','dup','getxattr','listxattr');originals={n:getattr(os,n)for n in methods};manager=__import__('contextlib').ExitStack()
   def wrap(n):
-   def call(*a,**kw):events.append((n,a,tuple(sorted(kw.items()))));return originals[n](*a,**kw)
+   def call(*a,**kw):
+    events.append((n,a,tuple(sorted(kw.items()))))
+    result=originals[n](*a,**kw)
+    # Keep the real syscall and its trace. Only the projected capacity depends on other host activity.
+    return capacity if n=='fstatvfs' and capacity is not None else result
    return call
   with manager:
    for n in methods:manager.enter_context(patch.object(os,n,wrap(n)))
    value=api.observe(root,limits=Limits(),hardlinks=mode,shape_examples=4)
   return value,events
  def test_genuine_small_tree_full_output_syscall_order_and_ticks(self):
+  capacity=types.SimpleNamespace(f_bavail=23,f_frsize=4096,f_files=101,f_favail=37)
   with tempfile.TemporaryDirectory()as td:
    tree=Path(td)/'tree';(tree/'usr/lib/é').mkdir(parents=True);(tree/'usr/lib/é/a.so').write_bytes(b'payload\0'*100);(tree/'usr/lib/.hidden').write_bytes(b'');(tree/'usr/lib/back\\slash').write_bytes(b'x');(tree/'usr/lib/surrogate-\udcff').write_bytes(b'surrogate');(tree/'usr/lib/link').symlink_to('é/a.so')
    for mode in('refuse','generic-development-internal'):
-    roots=self.roots();old=fresh(B.FRESH_QUERY).query_api(NEW,roots,Path.read_bytes);new=fresh(A.FRESH_QUERY).query_api(NEW,roots,Path.read_bytes);before,oldcalls=self.scan(old,tree,mode);after,newcalls=self.scan(new,tree,mode);self.assertEqual(before,after);self.assertEqual(oldcalls,newcalls);self.assertTrue(before['complete']);self.assertEqual(before['nodes']['usr/lib/é/a.so']['sha256'],hashlib.sha256(b'payload\0'*100).hexdigest())
+    roots=self.roots();old=fresh(B.FRESH_QUERY).query_api(NEW,roots,Path.read_bytes);new=fresh(A.FRESH_QUERY).query_api(NEW,roots,Path.read_bytes)
+    before,oldcalls=self.scan(old,tree,mode,capacity=capacity)
+    after,newcalls=self.scan(new,tree,mode,capacity=capacity)
+    self.assertEqual(before,after);self.assertEqual(oldcalls,newcalls);self.assertTrue(before['complete'])
+    self.assertEqual([call[0] for call in oldcalls].count('fstatvfs'),1)
+    footprint=before['footprint']
+    self.assertEqual(footprint['filesystem_free_bytes'],23*4096)
+    self.assertEqual(footprint['filesystem_free_inodes'],37)
+    self.assertTrue(footprint['filesystem_inode_counts_known'])
+    self.assertEqual(footprint['filesystem_inode_source'],'statvfs')
+    self.assertEqual(footprint['filesystem_free_bytes_source'],'statvfs-f_bavail')
+    self.assertEqual(before['nodes']['usr/lib/é/a.so']['sha256'],hashlib.sha256(b'payload\0'*100).hexdigest())
    (tree/'escape').symlink_to('../../outside');os.link(tree/'usr/lib/é/a.so',tree/'hard')
    for mode in('refuse','generic-development-internal'):
-    roots=self.roots();old=fresh(B.FRESH_QUERY).query_api(NEW,roots,Path.read_bytes);new=fresh(A.FRESH_QUERY).query_api(NEW,roots,Path.read_bytes);before,oldcalls=self.scan(old,tree,mode);after,newcalls=self.scan(new,tree,mode);self.assertEqual(before,after);self.assertEqual(oldcalls,newcalls);self.assertFalse(before['eligible'])
+    roots=self.roots();old=fresh(B.FRESH_QUERY).query_api(NEW,roots,Path.read_bytes);new=fresh(A.FRESH_QUERY).query_api(NEW,roots,Path.read_bytes)
+    before,oldcalls=self.scan(old,tree,mode,capacity=capacity)
+    after,newcalls=self.scan(new,tree,mode,capacity=capacity)
+    self.assertEqual(before,after);self.assertEqual(oldcalls,newcalls);self.assertFalse(before['eligible'])
  def test_deadline_and_live_path_refusals_held(self):
   with tempfile.TemporaryDirectory()as td:
    root=Path(td);(root/'data').write_bytes(b'x');roots=self.roots();old=fresh(B.FRESH_QUERY).query_api(NEW,roots,Path.read_bytes);new=fresh(A.FRESH_QUERY).query_api(NEW,roots,Path.read_bytes)
