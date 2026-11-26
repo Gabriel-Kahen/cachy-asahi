@@ -55,7 +55,9 @@ removal within the retention budget. The three public evidence frames and
 their manifest entries matched the emitted hashes and byte counts.
 [Job log and public frames](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45715088356/job/139559003037)
 
-This run qualifies the native build and signed disposable installation and
-Check for this exact revision. The real update transaction, 16 KiB runtime
-execution, and physical M2 lifecycle are still open. Production publication
-remains unaccepted.
+This run qualifies the native build, signed disposable installation and
+installed Check for this exact revision. A later generic AArch64 QEMU trial
+with 16 KiB pages exercised a TEST-signed upgrade and a separate
+package-signature refusal. Supported Asahi upgrade and recovery, physical M2
+validation and production publication remain open.
+[Signed upgrade and refusal](updater-q3-emulated-arm16k-20261126.md)
