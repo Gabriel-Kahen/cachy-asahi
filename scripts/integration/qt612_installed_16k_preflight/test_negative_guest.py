@@ -17,6 +17,9 @@ ORIGINAL, TAMPERED = bytes((194, 1, 1)), bytes((194, 1, 2))
 CERTIFICATE = bytes((198, 1, 1, 205, 1, 1, 194, 1, 1))
 LOCK = b"model 1-1\n"
 DATABASE = b'{"unchanged":"model"}\n'
+KEY_LIST = f"pub:::::100:300:\nuid:::::::::Qt TEST:\nfpr:::::::::{FPR}:\n".encode()
+BAD_SIGNATURE = (f"[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED {FPR} 0\n"
+                 f"[GNUPG:] BADSIG {FPR[-16:]} Qt TEST\n[GNUPG:] FAILURE gpg-exit 33554433\n").encode()
 DIAGNOSTICS = {
     "tampered_signature": b"error: invalid or corrupted package (PGP signature)\n",
     "unknown_key": b"error: required key missing from keyring\n",
@@ -47,11 +50,14 @@ class NegativeGuest(unittest.TestCase):
         result = dict(exit_code=0, stdout=b"", stderr=b"", natural=True, group_empty=True, overflow=False)
         if role.startswith("inventory-"):
             result["stdout"] = LOCK
-        if role == "test-certificate":
-            result["stdout"] = f"pub:::::100:300:\nuid:::::::::Qt TEST:\nfpr:::::::::{FPR}:\n".encode()
+        if role in {"test-certificate", "imported-keyring"}:
+            result["stdout"] = KEY_LIST
+        if role == "tampered-signature-gpg":
+            result.update(exit_code=1, stdout=BAD_SIGNATURE)
         if role == "signature-refusal":
             result.update(exit_code=1, stderr=DIAGNOSTICS[self.case])
         result |= self.overrides.get(role, {})
+        (self.commands / (role + ".stdout")).write_bytes(result["stdout"])
         (self.commands / (role + ".stderr")).write_bytes(result["stderr"])
         return result
 
@@ -102,8 +108,48 @@ class NegativeGuest(unittest.TestCase):
 
     def test_tampered_signature_uses_exact_current_test_trust(self):
         self.verify_refusal("tampered_signature")
-        self.assertEqual(self.roles(), ["inventory-before", "test-certificate", "key-import", "key-trust",
+        self.assertEqual(self.roles(), ["inventory-before", "keyring-before", "test-certificate", "key-import",
+                                       "imported-keyring", "tampered-signature-gpg", "key-trust",
                                        "signature-refusal", "inventory-after", "trust-retirement"])
+        verify = self.call.call_args_list[self.roles().index("tampered-signature-gpg")]
+        self.assertEqual(verify.args, ("tampered-signature-gpg", W.SIGNATURE_VERIFY))
+        self.assertEqual((self.commands / "tampered-signature-gpg.stdout").read_bytes(), BAD_SIGNATURE)
+
+    def tampered_trial_refuses_before_pacman(self, error_pattern):
+        with self.assertRaisesRegex(ValueError, error_pattern):
+            self.execute("tampered_signature")
+        self.assertNotIn("signature-refusal", self.roles())
+        self.assertNotIn("key-trust", self.roles())
+        self.assertEqual(self.roles()[-1], "trust-retirement")
+        self.assertFalse((self.output / "result.json").exists())
+
+    def test_different_valid_signature_stops_before_pacman(self):
+        good = BAD_SIGNATURE.replace(b"BADSIG", b"GOODSIG")
+        self.overrides["tampered-signature-gpg"] = dict(exit_code=0, stdout=good)
+        self.tampered_trial_refuses_before_pacman("tampered-signature-gpg")
+        self.assertEqual((self.commands / "tampered-signature-gpg.stdout").read_bytes(), good)
+
+    def test_unavailable_signature_check_stops_before_pacman(self):
+        self.overrides["tampered-signature-gpg"] = dict(stdout=b"[GNUPG:] NEWSIG\n[GNUPG:] NO_PUBKEY AAAA\n")
+        self.tampered_trial_refuses_before_pacman("BADSIG")
+
+    def test_wrong_key_signature_check_stops_before_pacman(self):
+        self.overrides["tampered-signature-gpg"] = dict(stdout=BAD_SIGNATURE.replace(FPR.encode(), b"A" * 40))
+        self.tampered_trial_refuses_before_pacman("BADSIG")
+
+    def test_tampered_case_refuses_a_different_imported_key(self):
+        self.overrides["imported-keyring"] = dict(stdout=KEY_LIST.replace(FPR.encode(), b"A" * 40))
+        self.tampered_trial_refuses_before_pacman("public signing-only")
+        self.assertNotIn("tampered-signature-gpg", self.roles())
+
+    def test_gpg_status_rejects_ambiguous_or_contradictory_output(self):
+        key = self.selection["key"]
+        W.verify_bad_signature(BAD_SIGNATURE, key)
+        for raw in (BAD_SIGNATURE + BAD_SIGNATURE, BAD_SIGNATURE + b"[GNUPG:] ERRSIG AAAA\n",
+                    BAD_SIGNATURE.replace(FPR[-16:].encode() + b" Qt", b"A" * 16 + b" Qt"),
+                    BAD_SIGNATURE + b"[GNUPG:] VALIDSIG " + FPR.encode() + b"\n"):
+            with self.subTest(raw=raw), self.assertRaisesRegex(ValueError, "BADSIG"):
+                W.verify_bad_signature(raw, key)
 
     def test_unknown_key_reuses_original_signature_and_proves_empty_trust(self):
         self.verify_refusal("unknown_key")

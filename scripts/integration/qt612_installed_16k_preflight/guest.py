@@ -139,10 +139,19 @@ class Runner:
             *(f"{key}={env[key]}" for key in sorted(env)), *argv]
 
     def __call__(self, role, argv, *, timeout, stdin, env):
+        if role == "key-trust":
+            T.need(argv == W.GPG + ["--import-ownertrust"]
+                   and type(stdin) is bytes and re.fullmatch(rb"[0-9A-F]{40}:6:\n", stdin),
+                   "Exact public TEST ownertrust input and command required")
+        else:
+            T.need(stdin is None, "Only key-trust may receive command input")
         wrapped = self.command_argv(role, argv, env)
         cutoff = self.deadline if role == "trust-retirement" else self.deadline - CLEANUP_SECONDS
         with TemporaryFile(dir=self.output) as source:
             if stdin is not None:
+                path = self.output / "key-trust.stdin"
+                with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "wb") as evidence:
+                    evidence.write(stdin)
                 source.write(stdin)
                 source.seek(0)
             result = self.runtime.command(wrapped, self.output, role, seconds=timeout, deadline=cutoff,
@@ -236,23 +245,23 @@ def execute_negative(plan_raw, plan_sha, inventory, selection_raw, selection_sha
         return pin
 
     def empty_keyring(point):
-        listing = W.command(run, f"keyring-{point}", W.GPG + ["--with-colons", "--list-keys"])["stdout"]
-        T.need(all(line.startswith(b"tru:") for line in listing.splitlines()),
-               "Unknown-key clone must have an empty disposable keyring")
+        listing = W.command(run, f"keyring-{point}", W.KEYRING_LIST)["stdout"]
+        W.verify_empty_keyring(listing)
 
     primary = None
     try:
         inventory_before = inventory_at("before")
         before = retain_database(commands.parent, "before")
+        empty_keyring("before")
         if tampered:
-            shown = W.command(run, "test-certificate", W.GPG + ["--with-colons", "--show-keys", "--", P.CERT])["stdout"]
-            observed = W.F.test_key(T, shown, key["fingerprint"], now)
-            T.need(observed == {name: key[name] for name in ("fingerprint", "created", "expires")},
-                   "Exact selected public TEST certificate required")
+            shown = W.command(run, "test-certificate", W.CERTIFICATE_SHOW)["stdout"]
+            W.verify_test_certificate(shown, key, now)
             W.command(run, "key-import", W.GPG + ["--import", "--", P.CERT])
+            listing = W.command(run, "imported-keyring", W.KEYRING_LIST)["stdout"]
+            W.verify_test_certificate(listing, key, now)
+            checked = W.command(run, "tampered-signature-gpg", W.SIGNATURE_VERIFY, accepted=(1,))["stdout"]
+            W.verify_bad_signature(checked, key)
             W.command(run, "key-trust", W.GPG + ["--import-ownertrust"], data=(key["fingerprint"] + ":6:\n").encode())
-        else:
-            empty_keyring("before")
         refusal = W.command(run, "signature-refusal", argv, accepted=(1,), timeout=240)
         after = retain_database(commands.parent, "after")
         inventory_after = inventory_at("after")

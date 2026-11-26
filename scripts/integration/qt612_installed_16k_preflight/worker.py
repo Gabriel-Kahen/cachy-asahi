@@ -19,6 +19,9 @@ L = SimpleNamespace(**run_path(str(P.PROJECT / "llhttp_overlay583/operands.py"))
 F = SimpleNamespace(**run_path(str(P.PROJECT / "fish_config_overlay583/guest.py")))
 GPGDIR = P.WORK + "/gnupg"
 GPG = ["/usr/bin/gpg", "--batch", "--no-options", "--homedir", GPGDIR]
+CERTIFICATE_SHOW = GPG + ["--with-colons", "--show-keys", "--", P.CERT]
+KEYRING_LIST = GPG + ["--with-colons", "--list-keys"]
+SIGNATURE_VERIFY = GPG + ["--status-fd", "1", "--verify", "--", P.ARCHIVE + ".sig", P.ARCHIVE]
 RETIRE = ["/usr/bin/gpgconf", "--homedir", GPGDIR, "--kill", "all"]
 NORMAL_ENV = {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "GNUPGHOME": GPGDIR}
 MAX_STREAMS = 8 << 20
@@ -169,6 +172,41 @@ def check_signed_inputs(expected, config_raw, input_pins, certificate_raw, signa
            "Only the exact public TEST certificate and detached signature may enter the guest")
 
 
+def verify_empty_keyring(raw):
+    T.need(type(raw) is bytes and len(raw) <= MAX_STREAMS
+           and all(line.startswith(b"tru:") for line in raw.splitlines()),
+           "Expected an empty disposable keyring")
+
+
+def verify_test_certificate(raw, key, now):
+    T.need(type(raw) is bytes and 0 < len(raw) <= MAX_STREAMS, "Bounded original TEST key listing required")
+    observed = F.test_key(T, raw, key["fingerprint"], now)
+    T.need(observed == {name: key[name] for name in ("fingerprint", "created", "expires")},
+           "Exact selected public TEST certificate required")
+
+
+def verify_bad_signature(raw, key):
+    """Require one cryptographic failure with the current imported primary key."""
+    prefix = b"[GNUPG:] "
+    T.need(type(raw) is bytes and 0 < len(raw) <= MAX_STREAMS, "Bounded original GPG verification status required")
+    lines = raw.splitlines()
+    T.need(len(lines) <= 64 and all(line.startswith(prefix) for line in lines),
+           "Expected original GPG machine status")
+    records = [line[len(prefix):].split(None, 2) for line in lines]
+    T.need(all(row for row in records), "Expected nonempty GPG status records")
+    tags = [row[0] for row in records]
+    considered = [row[1:] for row in records if row[0] == b"KEY_CONSIDERED"]
+    bad = [row for row in records if row[0] == b"BADSIG"]
+    fingerprint = key["fingerprint"].encode("ascii")
+    unavailable = {b"ERRSIG", b"NO_PUBKEY", b"NODATA", b"UNEXPECTED", b"ERROR",
+                   b"EXPSIG", b"EXPKEYSIG", b"REVKEYSIG", b"KEYEXPIRED", b"SIGEXPIRED", b"KEYREVOKED"}
+    T.need(tags.count(b"NEWSIG") == 1 and considered
+           and all(row == [fingerprint, b"0"] for row in considered)
+           and len(bad) == 1 and len(bad[0]) == 3 and bad[0][1] in (fingerprint, fingerprint[-16:])
+           and not (unavailable | {b"GOODSIG", b"VALIDSIG"}) & set(tags),
+           "Expected GPG BADSIG from the exact selected TEST key")
+
+
 def exercise(plan_raw, plan_sha, inventory, selection_raw, selection_sha, *, now, config_raw, input_pins,
              certificate_raw, signature_raw, verify_boundary, run, observe):
     """Exercise model or admitted-guest callbacks. Neither callback is supplied here."""
@@ -213,10 +251,10 @@ def exercise(plan_raw, plan_sha, inventory, selection_raw, selection_sha, *, now
     baseline = check_stage(before)
     primary = None
     try:
-        shown = call("test-certificate", GPG + ["--with-colons", "--show-keys", "--", P.CERT])
-        F.test_key(T, shown, key["fingerprint"], now)
+        shown = call("test-certificate", CERTIFICATE_SHOW)
+        verify_test_certificate(shown, key, now)
         call("key-import", GPG + ["--import", "--", P.CERT])
-        checked = call("signature", GPG + ["--status-fd", "1", "--verify", "--", P.ARCHIVE + ".sig", P.ARCHIVE])
+        checked = call("signature", SIGNATURE_VERIFY)
         T.need(L.signed(checked, key), "Exact current selected TEST signature required")
         call("key-trust", GPG + ["--import-ownertrust"], data=(key["fingerprint"] + ":6:\n").encode())
         T.need(call("base-dependencies", manager["installed_dependency_preflight"]) == b"", "Q3 dependencies not satisfied")

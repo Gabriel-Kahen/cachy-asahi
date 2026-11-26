@@ -36,13 +36,45 @@ class GuestRunner(unittest.TestCase):
             output = Path(temp)
             runner = G.Runner(runtime, output, time.monotonic() + 45, {})
             argv = ["/usr/bin/python3", "-I", "-B", "-c",
-                    "import sys; sys.stdout.buffer.write(sys.stdin.buffer.read()); print('stderr', file=sys.stderr); sys.exit(127)"]
-            row = runner("installed-official-version", argv, timeout=10, stdin=b"mock exact dependency\n", env=W.NORMAL_ENV)
+                    "import sys; assert sys.stdin.buffer.read() == b''; "
+                    "print('mock exact dependency'); print('stderr', file=sys.stderr); sys.exit(127)"]
+            row = runner("installed-official-version", argv, timeout=10, stdin=None, env=W.NORMAL_ENV)
             self.assertEqual(row, dict(exit_code=127, stdout=b"mock exact dependency\n", stderr=b"stderr\n",
                                        natural=True, group_empty=True, overflow=False))
             self.assertEqual((output / "installed-official-version.stdout").read_bytes(), row["stdout"])
             self.assertEqual((output / "installed-official-version.stderr").read_bytes(), row["stderr"])
             self.assertEqual(runtime.receipt(output / "installed-official-version.json")["group_census"], "EMPTY_TWICE")
+
+    def test_only_exact_ownertrust_command_retains_and_receives_input(self):
+        fake = Mock()
+        with TemporaryDirectory() as temp:
+            output = Path(temp)
+            runner = G.Runner(fake, output, 300, {})
+            argv = W.GPG + ["--import-ownertrust"]
+            ownertrust = b"A" * 40 + b":6:\n"
+            saved = output / "key-trust.stdin"
+            for invalid in (None, ownertrust.lower(), ownertrust + b"\n", ownertrust.replace(b":6:", b":5:")):
+                with self.subTest(invalid=invalid), self.assertRaisesRegex(ValueError, "public TEST ownertrust"):
+                    runner("key-trust", argv, timeout=10, stdin=invalid, env=W.NORMAL_ENV)
+            with self.assertRaisesRegex(ValueError, "public TEST ownertrust"):
+                runner("key-trust", W.GPG + ["--list-keys"], timeout=10, stdin=ownertrust, env=W.NORMAL_ENV)
+            with self.assertRaisesRegex(ValueError, "Only key-trust"):
+                runner("key-import", W.GPG + ["--import"], timeout=10, stdin=b"", env=W.NORMAL_ENV)
+            fake.command.assert_not_called()
+            self.assertFalse(saved.exists())
+
+            def run(wrapped, root, role, *, input_file, **kwargs):
+                self.assertEqual((root, role), (output, "key-trust"))
+                self.assertEqual(saved.read_bytes(), input_file.read())
+                self.assertEqual(saved.stat().st_mode & 0o777, 0o600)
+                fake.receipt.return_value = {"argv": wrapped, "exit": 0}
+                return SimpleNamespace(returncode=0, stdout=b"", stderr=b"")
+
+            fake.command.side_effect = run
+            fake._retired.return_value = True
+            runner("key-trust", argv, timeout=10, stdin=ownertrust, env=W.NORMAL_ENV)
+            fake.receipt.assert_called_once_with(output / "key-trust.json")
+            self.assertEqual(saved.read_bytes(), ownertrust)
 
     def test_deadline_reserves_existing_cleanup_and_original_receipt_required(self):
         fake = Mock()

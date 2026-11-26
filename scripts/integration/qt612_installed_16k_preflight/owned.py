@@ -18,7 +18,7 @@ CASES = ("main", "tampered_signature", "unknown_key")
 CLAIM = "installed-trial.claim"
 MEDIA_NAME = "MEDIA.UNISSUED.json"
 MEDIA_KIND = "QTBASE16K_INSTALLED_MEDIA_UNISSUED_V1"
-AUTH_KIND = "ROOT_QTBASE16K_INSTALLED_OWNER_V1"
+AUTH_KIND = "ROOT_QTBASE16K_INSTALLED_OWNER_V2"
 ROLE_FLAG = "CACHY_ASAHI_QTBASE16K_INSTALLED_ACTOR"
 RESULT_KIND = "QTBASE16K_INSTALLED_ACTOR_RESULT_V1"
 HOST_KIND = "QTBASE16K_INSTALLED_HOST_RETIREMENT_V1"
@@ -107,13 +107,16 @@ def load_media(raw, media_sha):
     return media
 
 
-def read_authority(raw, digest, media, media_sha, *, now=None):
+def read_authority(raw, digest, media, media_sha, *, site_sha=None, now=None):
     authority = C.json_body(raw, canonical=True)
     start, end = authority["created_utc"], authority["expires_utc"]
+    selected_site = authority["site_sha256"]
     expected = dict(kind=AUTH_KIND, issuer="Root", approved=True, scope=P.SCOPE,
                     case=media["case"], clone=media["clone"], media_sha256=media_sha,
-                    created_utc=start, expires_utc=end)
+                    site_sha256=selected_site, created_utc=start, expires_utc=end)
     C.need(C.pin(raw)["sha256"] == digest and C.wire(expected) == raw
+           and type(selected_site) is str and C.SHA.fullmatch(selected_site)
+           and (site_sha is None or selected_site == site_sha)
            and type(start) is type(end) is int and 0 < end - start <= 3600
            and (now is None or start <= now < end), "Current exact installed guest authority required")
     return authority
