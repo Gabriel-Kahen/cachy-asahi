@@ -418,6 +418,47 @@ with mock.patch.object(e.r, "gates_check", side_effect=lambda *args: e.r.load(ar
         self.assertEqual(calls, 2)
         self.assertEqual(self.snapshot(self.endpoint), before)
 
+    def test_retry_syncs_retained_generation_before_selecting(self):
+        self.promote()
+        first = self.export()
+        self.promote("fixture-2")
+        planned = self.export(False)
+        generations = self.endpoint / "generations"
+        retained = generations / planned["generation"]
+        current = self.endpoint / "current"
+        real_sync, real_select = e.sync_directory, e.select
+
+        def fail_generation_sync(path):
+            if path == generations:
+                self.assertTrue(retained.is_dir())
+                raise OSError("injected generations sync failure after rename")
+            real_sync(path)
+
+        with mock.patch.object(e, "sync_directory", side_effect=fail_generation_sync):
+            with self.assertRaisesRegex(OSError, "^injected generations sync failure after rename$"):
+                self.export()
+        self.assertEqual(os.readlink(current), first["selection"])
+        self.assertEqual(e.generation_plan(retained), planned["plan"])
+
+        events = []
+
+        def record_sync(path):
+            if path == generations:
+                events.append("sync generations")
+            real_sync(path)
+
+        def record_selection(endpoint, target):
+            events.append("select current")
+            return real_select(endpoint, target)
+
+        with (mock.patch.object(e, "sync_directory", side_effect=record_sync),
+              mock.patch.object(e, "select", side_effect=record_selection),
+              mock.patch.object(e, "copy_file", side_effect=AssertionError("retained generation copied again"))):
+            result = self.export()
+        self.assertEqual(events, ["sync generations", "select current"])
+        self.assertEqual(os.readlink(current), f"generations/{planned['generation']}")
+        self.assertFalse(result["durability_uncertain"])
+
     def test_post_commit_sync_failure_reports_materialized_uncertainty(self):
         self.promote()
         original = e.sync_directory

@@ -339,7 +339,8 @@ def materialize(root, endpoint, key, env, previous, plan, sources, recheck, appl
             for parent, directories, names in os.walk(staging, topdown=False):
                 sync_directory(Path(parent))
             os.rename(staging, destination)
-            sync_directory(generations)
+    # A retained generation may come from an interrupted directory sync.
+    sync_directory(generations)
     r.require(endpoint_state(endpoint) == previous, "endpoint selection changed during export")
     recheck()
     target = "generations/" + ident
