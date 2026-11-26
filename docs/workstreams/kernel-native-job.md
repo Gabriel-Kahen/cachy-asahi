@@ -83,8 +83,8 @@ also unavailable: clang, compiler-rt, libgit2, libxslt, lld, llvm, rust and
 rust-src. On November 26, the remaining public route also returned HTTP 404
 for the locked `gtk-update-icon-cache` and `libinput` archive/signature pairs.
 The retained copies match all four original byte and signature checks.
-The SSH route covers 230 files. The other inputs come from the original
-locked URLs and pass the existing byte and signature checks.
+The SSH route covers 230 files. The other inputs use the original locked
+URLs and must pass the existing byte and signature checks.
 [Kernel dependency pins](../../scripts/port/kernel-native-stage/dependencies.json)
 
 Runs [45765124377](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45765124377)
@@ -94,6 +94,21 @@ both stopped in the producer before either kernel build. The producer exited
 preservation of all six original Docker images. Run-owned absence remained
 unverified, and the published receipts could not identify the producer's
 exact cause.
+
+Run [45766930508](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45766930508)
+passed retained input intake, producer, acquisition, provisioning and the
+compiler probe. The baseline build command returned zero. The verifier refused
+module 150 at `CHECK_011` and the candidate did not start. The section name
+digest matches `.debug_aranges`. The section was an unallocated `ET_REL`
+`SHT_PROGBITS`, with 192 bytes at file offset 1,336 and declared alignment 16.
+The pinned GNU AArch64 linker reproduced that exact geometry with `ld -r`.
+Its relocatable section layout caps file alignment at eight bytes while
+carrying the declared address alignment in the section header. The verifier
+now accepts this exact nonallocated section form and still checks its file
+range and overlaps. The earlier 28,857-entry Image RELA census was retained.
+Cleanup passed and all six original Docker images were preserved.
+[Pinned linker layout](https://gnu.googlesource.com/binutils-gdb/+/155188ea10a7/bfd/elf.c#6888)
+· [ELF section address alignment](https://gabi.xinuos.com/elf/03-sheader.html#section-header-table-entry)
 
 For private SSH intake, dispatch with `retained_inputs=true` and
 `retained_transport=ssh`. The authenticated intake step shallow-fetches
@@ -372,7 +387,9 @@ marks the count incomplete.
 For `CHECK_011`, worker diagnostic version 8 records the first failed file
 geometry check and bounded section facts. It includes the module ordinal when
 applicable. It retains the earlier verified Image RELA census on module
-failures, and uses a fixed section label or a name digest.
+failures, and uses a fixed section label or a name digest. Version 9 uses the
+updated `.debug_aranges` geometry rule. Historical version 8 retains its
+original file-alignment rule.
 
 `phase` remains the current lifecycle phase, including cleanup. The separate
 `first_failed_phase` and `failure_reason` describe the first failure observed by
@@ -386,7 +403,7 @@ and other exceptions use the current operation's fixed fallback.
 | --- | --- |
 | `NONE` | `NONE` |
 | `preflight` | `PREFLIGHT_REJECTED`, `HOST_CAPABILITIES`, `HOST_MEMORY_RESERVE`, `HOST_DISK_RESERVE`, `HOST_TOOL_UNAVAILABLE`, `CANCELLED` |
-| `source` | `SOURCE_REJECTED`, `DOCKER_REJECTED`, `DAEMON_OCCUPIED` (historical fallback), `DAEMON_CONTAINERS_PRESENT`, `DAEMON_BASELINE_UNVERIFIED`, `PRODUCER_TIME_RESERVE`, `CANCELLED` |
+| `source` | `SOURCE_REJECTED`, `DOCKER_REJECTED`, `DAEMON_OCCUPIED` (historical fallback), `DAEMON_CONTAINERS_PRESENT`, `DAEMON_BASELINE_UNVERIFIED`, `RETAINED_INPUTS_REJECTED`, `PRODUCER_TIME_RESERVE`, `CANCELLED` |
 | `parallel` | `PRODUCER_EXIT`, `ACQUISITION_EXIT`, `BOTH_CHILDREN_EXIT`, `PARALLEL_TIMEOUT`, `PARALLEL_OUTPUT_BOUND`, `PARALLEL_RUN_FAILED`, `CANCELLED` |
 | `producer` | `PRODUCER_RECEIPT_REJECTED`, `PRODUCER_BASELINE_ID_COLLISION`, `DAEMON_BASELINE_CHANGED`, `DAEMON_BASELINE_UNVERIFIED`, `CANCELLED` |
 | `acquisition` | `ACQUISITION_RECEIPT_REJECTED`, `CANCELLED` |

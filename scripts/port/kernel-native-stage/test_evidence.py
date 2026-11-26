@@ -455,16 +455,60 @@ class RelocationValidatorParity(unittest.TestCase):
             lambda row: row['section_geometry']['section'].update(raw_path='private'),
         )
         for validate in validators:
-            self.assertEqual(validate(copy.deepcopy(fact), 8), fact)
-            self.assertEqual(validate(dict(fact, rela_table=census), 8), dict(fact, rela_table=census))
-            self.assertEqual(validate(linked, 8), linked)
-            with self.assertRaises(ValueError):
-                validate(dict(linked, rela_table=census), 8)
-            for mutate in mutations:
-                altered = copy.deepcopy(fact)
-                mutate(altered)
+            for version in (8, 9):
+                self.assertEqual(validate(copy.deepcopy(fact), version), fact)
+                self.assertEqual(validate(dict(fact, rela_table=census), version), dict(fact, rela_table=census))
+                self.assertEqual(validate(linked, version), linked)
                 with self.assertRaises(ValueError):
-                    validate(altered, 8)
+                    validate(dict(linked, rela_table=census), version)
+                for mutate in mutations:
+                    altered = copy.deepcopy(fact)
+                    mutate(altered)
+                    with self.assertRaises(ValueError):
+                        validate(altered, version)
+
+    def test_debug_aranges_geometry_preserves_v8_and_checks_v9_in_all_readers(self):
+        import inner_result
+        validators = (inner_result._output_fact, evidence.validate_output_fact, self.receiver().validate_output_fact)
+        section = {'name_class': 'OTHER', 'name_sha256': hashlib.sha256(b'.debug_aranges').hexdigest(),
+                   'index': 23, 'type': 1, 'flags': 0, 'addr': 0, 'offset': 1336, 'size': 192, 'align': 16}
+        historic = {'role': 'module', 'elf_type': 1, 'module_ordinal': 17, 'file_bytes': 2048,
+                    'file_alignment': 16, 'section': section, 'failed_check': 'FILE_OFFSET_ALIGNMENT'}
+
+        def output(geometry):
+            return {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_011',
+                    'section_geometry': geometry, 'rela_table': None}
+
+        invalid_offset = dict(section, offset=1337)
+        current = dict(historic, file_alignment=8, section=invalid_offset)
+        smaller = dict(current, file_alignment=4, section=dict(invalid_offset, align=4))
+        range_failure = dict(current, file_bytes=1460, failed_check='FILE_RANGE')
+        header_failure = dict(current, file_bytes=64, section=dict(invalid_offset, offset=63),
+                              failed_check='OFFSET_BEFORE_HEADER')
+        unchanged_alignment = (
+            dict(current, section=dict(invalid_offset, name_sha256=hashlib.sha256(b'.debug_info').hexdigest())),
+            dict(current, section=dict(invalid_offset, type=3)),
+            dict(current, section=dict(invalid_offset, flags=0x800)),
+            dict(current, section=dict(invalid_offset, addr=16)),
+            dict(current, elf_type=3, role='arm64-image-reference', module_ordinal=None),
+        )
+        for validate in validators:
+            self.assertEqual(validate(output(historic), 8), output(historic))
+            with self.assertRaises(ValueError):
+                validate(output(historic), 9)
+            with self.assertRaises(ValueError):
+                validate(output(dict(historic, file_alignment=8)), 9)
+            with self.assertRaises(ValueError):
+                validate(output(current), 8)
+            for accepted in (current, smaller, range_failure, header_failure):
+                self.assertEqual(validate(output(accepted), 9), output(accepted))
+            with self.assertRaises(ValueError):
+                validate(output(dict(range_failure, failed_check='FILE_OFFSET_ALIGNMENT')), 9)
+            for altered in unchanged_alignment:
+                with self.assertRaises(ValueError):
+                    validate(output(altered), 9)
+                corrected = output(dict(altered, file_alignment=16))
+                self.assertEqual(validate(corrected, 9), corrected)
 
 
 if __name__ == '__main__': unittest.main()

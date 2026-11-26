@@ -467,7 +467,7 @@ def _symbol_range_fact(value):
     return value
 
 
-def _section_geometry_fact(value):
+def _section_geometry_fact(value, version):
     _need(type(value) is dict and set(value) == {'role', 'elf_type', 'module_ordinal', 'file_bytes',
          'file_alignment', 'failed_check', 'section'})
     role, kind = value['role'], value['elf_type']
@@ -507,6 +507,10 @@ def _section_geometry_fact(value):
           label not in ('.BTF', '.BTF.base', '.BTF_ids', '__versions',
                           '__version_ext_crcs', '__version_ext_names')):
         alignment = 8 if label == '.gnu.linkonce.this_module' else min(8, alignment)
+    elif (version == 9 and kind == 1 and section['type'] == 1 and section['flags'] == section['addr'] == 0 and
+          pin == 'ea1ec77780a280e197f73e929b6dc4489b21665565cb19e9905d63955b066afd'):
+        # The hashed .debug_aranges name keeps the public name class closed.
+        alignment = min(8, alignment)
     _need(type(value['file_alignment']) is int and value['file_alignment'] == alignment)
     offset = section['offset']
     failed = ('OFFSET_BEFORE_HEADER' if offset < 64 else 'FILE_RANGE' if offset + section['size'] > value['file_bytes']
@@ -516,12 +520,12 @@ def _section_geometry_fact(value):
 
 
 def _output_fact(value, version=4):
-    _need(type(version) is int and version in (4, 5, 6, 7, 8) and type(value) is dict)
-    if version == 8:
+    _need(type(version) is int and version in (4, 5, 6, 7, 8, 9) and type(value) is dict)
+    if version in (8, 9):
         _need(set(value) == {'call_boundary', 'predicate', 'section_geometry', 'rela_table'} and
              type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
              type(value['predicate']) is str and value['predicate'] == 'CHECK_011')
-        _section_geometry_fact(value['section_geometry'])
+        _section_geometry_fact(value['section_geometry'], version)
         if value['rela_table'] is not None:
             _need(value['section_geometry']['role'] == 'module')
             _rela_table_fact(value['rela_table'])
@@ -582,11 +586,11 @@ def output_failure(row, error):
         detail['symbol_range'] = json.loads(_encoded(symbols))
         version = 7
     if predicate == 'CHECK_011' and 'section_geometry' in error.__dict__:
-        geometry = _section_geometry_fact(error.__dict__['section_geometry'])
+        version = 9
+        geometry = _section_geometry_fact(error.__dict__['section_geometry'], version)
         detail.pop('relocation', None)
         detail.setdefault('rela_table', None)
         detail['section_geometry'] = json.loads(_encoded(geometry))
-        version = 8
     candidate = dict(row, schema_version=version, output_failure=detail)
     validate(candidate)
     row.update(schema_version=version, output_failure=detail)
@@ -594,8 +598,9 @@ def output_failure(row, error):
 
 
 def _keys(row, public=False):
-    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8))
-    extra = {2: {'config_failure'}, 3: {'compiler_failure'}, 4: {'output_failure'}, 5: {'output_failure'}, 6: {'output_failure'}, 7: {'output_failure'}, 8: {'output_failure'}}.get(row['schema_version'], set())
+    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8, 9))
+    version = row['schema_version']
+    extra = {'output_failure'} if version >= 4 else {2: {'config_failure'}, 3: {'compiler_failure'}}.get(version, set())
     return (PUBLIC_KEYS if public else KEYS) | extra
 
 
@@ -650,7 +655,7 @@ def invalidate(row):
 
 
 def _body(row):
-    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8))
+    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8, 9))
     _need(type(row['phase']) is str and row['phase'] in PHASES)
     _need(type(row['command']) is str and row['command'] in COMMANDS)
     _need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -680,7 +685,7 @@ def _body(row):
         _need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
               row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']})
-    if row['schema_version'] in (4, 5, 6, 7, 8):
+    if row['schema_version'] in (4, 5, 6, 7, 8, 9):
         _output_fact(row['output_failure'], row['schema_version'])
         _need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and

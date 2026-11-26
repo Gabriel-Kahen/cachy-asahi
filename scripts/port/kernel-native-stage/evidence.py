@@ -278,7 +278,7 @@ def validate_symbol_range_fact(value):
     return value
 
 
-def validate_section_geometry_fact(value):
+def validate_section_geometry_fact(value, version):
     need(type(value) is dict and set(value) == {'role', 'elf_type', 'module_ordinal', 'file_bytes',
          'file_alignment', 'failed_check', 'section'})
     role, kind = value['role'], value['elf_type']
@@ -318,6 +318,10 @@ def validate_section_geometry_fact(value):
           label not in ('.BTF', '.BTF.base', '.BTF_ids', '__versions',
                           '__version_ext_crcs', '__version_ext_names')):
         alignment = 8 if label == '.gnu.linkonce.this_module' else min(8, alignment)
+    elif (version == 9 and kind == 1 and section['type'] == 1 and section['flags'] == section['addr'] == 0 and
+          pin == 'ea1ec77780a280e197f73e929b6dc4489b21665565cb19e9905d63955b066afd'):
+        # The hashed .debug_aranges name keeps the public name class closed.
+        alignment = min(8, alignment)
     need(type(value['file_alignment']) is int and value['file_alignment'] == alignment)
     offset = section['offset']
     failed = ('OFFSET_BEFORE_HEADER' if offset < 64 else 'FILE_RANGE' if offset + section['size'] > value['file_bytes']
@@ -327,12 +331,12 @@ def validate_section_geometry_fact(value):
 
 
 def validate_output_fact(value, version=4):
-    need(type(version) is int and version in (4, 5, 6, 7, 8) and type(value) is dict)
-    if version == 8:
+    need(type(version) is int and version in (4, 5, 6, 7, 8, 9) and type(value) is dict)
+    if version in (8, 9):
         need(set(value) == {'call_boundary', 'predicate', 'section_geometry', 'rela_table'} and
              type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS' and
              type(value['predicate']) is str and value['predicate'] == 'CHECK_011')
-        validate_section_geometry_fact(value['section_geometry'])
+        validate_section_geometry_fact(value['section_geometry'], version)
         if value['rela_table'] is not None:
             need(value['section_geometry']['role'] == 'module')
             validate_rela_table_fact(value['rela_table'])
@@ -375,8 +379,8 @@ def validate_inner_group(group):
         return group
     need(pin is not None)
     row = group['diagnostic']
-    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8))
-    need(set(row) == INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5, 6, 7, 8) else set()))
+    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5, 6, 7, 8, 9))
+    need(set(row) == INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5, 6, 7, 8, 9) else set()))
     need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
     need(type(row['phase']) is str and row['phase'] in INNER_PHASES and type(row['command']) is str and row['command'] in INNER_COMMANDS)
     need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -402,7 +406,7 @@ def validate_inner_group(group):
     if row['schema_version'] == 3:
         validate_compiler_fact(row['compiler_failure'])
         need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and row['command'] == 'KERNEL' and (row['attempt'] == 'ISSUED') and (row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']}))
-    if row['schema_version'] in (4, 5, 6, 7, 8):
+    if row['schema_version'] in (4, 5, 6, 7, 8, 9):
         validate_output_fact(row['output_failure'], row['schema_version'])
         need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
              row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and

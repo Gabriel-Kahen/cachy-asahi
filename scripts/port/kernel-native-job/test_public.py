@@ -1013,17 +1013,19 @@ class RelocationPublicTests(unittest.TestCase):
             if saved is None:sys.modules.pop('runtime',None)
             else:sys.modules['runtime']=saved
         binding={'nonce':'a'*32,'action':'baseline','contract_sha256':'b'*64,'worker_sha256':'c'*64}
-        for version in (5, 6, 7, 8):
+        for version in (5, 6, 7, 8, 9):
             row = diag.initial(binding)
             diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL'); diag.returned(row, 0)
             diag.phase(row, 'OUTPUTS')
-            if version == 8:
+            if version in (8, 9):
                 error = ValueError('ELF section file geometry invalid')
                 error.section_geometry = {'role': 'module', 'elf_type': 1, 'module_ordinal': 17,
-                    'file_bytes': 1024, 'file_alignment': 8, 'failed_check': 'FILE_OFFSET_ALIGNMENT',
-                    'section': {'index': 3, 'type': 1, 'flags': 6, 'addr': 0, 'offset': 105,
-                                'size': 128, 'align': 32, 'name_class': '.text',
-                                'name_sha256': hashlib.sha256(b'.text').hexdigest()}}
+                    'file_bytes': 1024, 'file_alignment': 32 if version == 8 else 8,
+                    'failed_check': 'FILE_OFFSET_ALIGNMENT',
+                    'section': {'index': 3, 'type': 1, 'flags': 0, 'addr': 0,
+                                'offset': 104 if version == 8 else 105,
+                                'size': 128, 'align': 32, 'name_class': 'OTHER',
+                                'name_sha256': hashlib.sha256(b'.debug_aranges').hexdigest()}}
                 error.rela_table = {'entries': 1, 'types': [[1027, 1, 1, 0]], 'overflow': [0, 0, 0]}
             elif version == 7:
                 error = ValueError('defined symbol outside allocated section')
@@ -1045,7 +1047,13 @@ class RelocationPublicTests(unittest.TestCase):
                 error.relocation_failure['info'] = (1 << 32) | 1027
                 error.rela_table = {'entries': 1, 'types': [[1027, 1, 1, 0]], 'overflow': [0, 0, 0]}
             diag.failure(row, error)
-            diag.output_failure(row, error)
+            if version == 8:
+                # A retained v8 report uses the historical declared alignment.
+                row.update(schema_version=8, output_failure={
+                    'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_011',
+                    'section_geometry': error.section_geometry, 'rela_table': error.rela_table})
+            else:
+                diag.output_failure(row, error)
             self.assertEqual(row['schema_version'], version)
             report = {'action': 'baseline', 'nonce': binding['nonce'], 'status': 'FAIL',
                       'cancelled': False, 'inner_diagnostic': row}

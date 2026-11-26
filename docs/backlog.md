@@ -22,10 +22,12 @@ only the Fish package and exercised staging, comparison and withdrawal.
   [Native build and lifecycle evidence](validation/project-libraries-native-20261125.md)
 - Kernel [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) passed
   baseline compilation, Image relocation and byte projection, and embedded
-  configuration checks. The latest completed baseline build was refused at
+  configuration checks. An earlier baseline build was refused at
   module dependency verification. The verifier now matches the provider
   basenames Kbuild actually writes. The refreshed run passed intake with
-  230 retained files and entered the build step. The candidate comparison
+  230 retained files and compiled the baseline. The verifier then refused
+  `.debug_aranges` file alignment. The pinned linker reproduced the layout,
+  and the verifier now accepts that section form. The candidate comparison
   and boot remain open.
   [Refreshed hosted run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45766930508)
   · [Verifier and diagnostics](workstreams/kernel-native-job.md)

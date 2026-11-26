@@ -33,7 +33,7 @@ def fdt(identity):
     return struct.pack('>10I', 0xd00dfeed, strings + len(names), 56, strings, 40, 17, 16, 0, len(names), len(body)) + b'\0' * 16 + body + names
 
 
-def elf_bytes(text, module=False, modinfo=b'', export='kernel_export'):
+def elf_bytes(text, module=False, modinfo=b'', export='kernel_export', extra_sections=()):
     # Real ELF encodings, synthetic code/data: no execution or build claim.
     sections = [('','',0,0,0,0,0,0), ('.text',text,1,6,0 if module else TEXT_ADDR,16,0,0)]
     if module:
@@ -52,6 +52,7 @@ def elf_bytes(text, module=False, modinfo=b'', export='kernel_export'):
     sections += [('.symtab',bytes(symbols),2,0,0,8,24,symindex + 1), ('.strtab',strings,3,0,0,1,0,0)]
     if module:
         sections += [('.rela.text',struct.pack('<QQq',0,0,0),4,0,0,8,24,symindex)]
+    sections.extend(extra_sections)
     names = b'\0'
     for row in sections[1:]:
         names += row[0].encode() + b'\0'
@@ -305,6 +306,34 @@ class BuildChecks(unittest.TestCase):
         path.write_bytes(raw)
         with self.assertRaisesRegex(ValueError, 'overlapping ELF section/header file ranges'):
             verifier.ELF(path, 1, 1024**3)
+
+    def test_unallocated_dwarf_aranges_uses_pinned_linker_file_alignment(self):
+        raw = bytearray(elf_bytes(bytes(632), module=True, extra_sections=(
+            ('.debug_aranges', bytes(192), 1, 0, 0, 8, 0, 0),
+        )))
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        header = shoff + 7 * 64
+        offset = struct.unpack_from('<Q', raw, header + 24)[0]
+        self.assertEqual(offset, 1336)
+        struct.pack_into('<Q', raw, header + 48, 16)
+        path = self.root / 'module.ko'
+        path.write_bytes(raw)
+        with verifier.ELF(path, 1, 1024**3, module_ordinal=150) as reader:
+            self.assertEqual(reader.by_name['.debug_aranges']['align'], 16)
+        for field, replacement, reason in ((8, 0x800, 'FILE_OFFSET_ALIGNMENT'),
+                                            (16, 16, 'FILE_OFFSET_ALIGNMENT'),
+                                            (24, offset + 1, 'FILE_OFFSET_ALIGNMENT'),
+                                            (32, len(raw), 'FILE_RANGE')):
+            changed = bytearray(raw)
+            struct.pack_into('<Q', changed, header + field, replacement)
+            path.write_bytes(changed)
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, 'ELF section file geometry invalid') as caught:
+                verifier.ELF(path, 1, 1024**3, module_ordinal=150)
+            self.assertEqual(caught.exception.section_geometry['failed_check'], reason)
+        path.write_bytes(raw.replace(b'.debug_aranges\0', b'.debug_fixture\0', 1))
+        with self.assertRaisesRegex(ValueError, 'ELF section file geometry invalid') as caught:
+            verifier.ELF(path, 1, 1024**3, module_ordinal=150)
+        self.assertEqual(caught.exception.section_geometry['file_alignment'], 16)
 
     def test_linked_image_keeps_declared_section_file_alignment(self):
         raw = bytearray(elf_bytes(b'owned_instruction_fixture' * 4))

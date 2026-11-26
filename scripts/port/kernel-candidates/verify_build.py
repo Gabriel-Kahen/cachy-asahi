@@ -348,6 +348,10 @@ class ELF:
         alignment = max(1, section['align'])
         if self.elf_type == 1 and section['type'] in (2, 4):
             return max(8, alignment)
+        if (self.elf_type == 1 and section['type'] == 1 and section['flags'] == 0 and
+                section['addr'] == 0 and section['name'] == '.debug_aranges'):
+            # The pinned linker can emit this DWARF section at an eight-byte file boundary.
+            return min(8, alignment)
         # Pinned GNU ld -r can pack allocated PROGBITS at eight-byte file
         # boundaries. Linux applies sh_addralign when allocating the copy.
         # Keep declared file alignment for non-PROGBITS and raw metadata.
