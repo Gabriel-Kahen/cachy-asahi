@@ -21,9 +21,9 @@
       "sha256": "67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4"
     },
     "docs/workstreams/kernel-native-job.md": {
-      "bytes": 27878,
+      "bytes": 28709,
       "mode": 420,
-      "sha256": "3da9dbf68e243a979e4b73f17dd2ce52d88b6a8aaa9ae9de374096e97670edfd"
+      "sha256": "079978c4eeb43a1bce633dd1214103dac1061f204654ada3fba0d7e9d29f3358"
     },
     "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "bytes": 1811,
