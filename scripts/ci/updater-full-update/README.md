@@ -113,3 +113,102 @@ and the 15-inch M2 Air (`apple,j415`) for actual Asahi boot, update and
 recovery, graphics, audio and speaker safety, sleep, and desktop/session
 behavior. A measured generic guest can qualify the finite software
 transaction. [Acceptance matrix](../../../docs/acceptance.md) · [Baseline capture](../../../docs/baseline.md)
+
+## Owned guest adapter
+
+`guest.py` is the post-bootstrap workload for a separately admitted QEMU
+`virt` guest. It requires measured AArch64/16,384-byte pages, loopback-only
+networking, read-only `/updater-input`, and exactly one
+`cachy_updater16k=<plan-sha256>` kernel argument issued by the owner. The
+plan is a JSON object with kind `cachy-asahi-updater16k-disposable-v1`,
+integer `valid_from` and `expires` epochs spanning at most one day, the
+single current TEST signer fingerprint, and the exact relative path to
+SHA-256 map declared in `guest.FILES`. The owner must verify actual guest
+UTC before importing fresh trust. The adapter checks plan validity again.
+
+Prepare the guest with the following selected inputs:
+
+- A fresh owned boot and scratch root with the Q3 356-package versions.
+  The selected seed is 829,367,415 bytes with SHA-256
+  `42a4eeaa038994ffd31fa173256ef2f0ef511358eeb41b9ea1f8626391b9b319`.
+  The generic control Image is 9,019,400 bytes with SHA-256
+  `36066ded2f5721fd9bb257cebb2e4cb32084f45c3717f4d7a45430fe3cdcc494`.
+  The 6,925-byte `q3.lock` SHA-256 is
+  `e2a4da7903e6de26b0ee37758ad424439f83196fa6a3b0bdffa501f35a02d0b9`.
+  Boot authority also needs the exact generic kernel config, pinned guest
+  worker, read-only input media, a fresh nonce, and reviewed resource and
+  retirement bounds.
+- An authenticated before-lock with the five fixed runtime versions,
+  the qualified installed updater, the old inert fixture, and the
+  selected signed sudo package. Use the existing signed bootstrap and
+  verifier to stage them. Place the exact qualified archive and separately
+  issued detached TEST signature on media as `updater.pkg` and
+  `updater.pkg.sig`. The adapter compares the installed Bash entry, library
+  files, and policy executable to that archive before calling the CLI.
+- A root-owned, public-only `/updater-trust` (0700) containing just the
+  selected TEST key for the signed fixture repository. Use ordinary files
+  for `fixture.db`, `fixture.db.sig`, the sole package, and its detached
+  signature. The package must match the historical two-file inert archive.
+  Bind the exact existing hook names, success policy and pre/post
+  observations, and the protected refusal policy and observation in the
+  read-only plan. UID 1000 must be able to read the policy files and traverse
+  the input directory. The qualified helper evaluates these synthetic policy
+  inputs. The root-owned configuration forces required signatures and
+  checks the sole fixture version, archive digest and URL in the real preview.
+- A separately reviewed guest sudo mount and root-owned sudoers file
+  containing exactly `guest.SUDOERS`, with no additional rules. The adapter
+  checks setuid support and the literal rule. The installed updater runs as
+  UID/GID 1000. Its scoped shim records the CLI's sudo request and delegates
+  only the single approved update to real sudo. News, service discovery and
+  other maintenance actions are inert in this fixture.
+
+The retained Q3 seed, Image, public trust and inventory are inputs to a
+reconstruction. The signed pairs for its 165→349→356 transition and a
+current scoped md4c TEST signature are needed to recreate that exact root.
+The original 1,610,612,736-byte warm boot disk pinned by the owner
+(`f30fa96283042b12229b455fe33918facb83a0650a8e7849fcaab493dda366cb`)
+is absent at its recorded location. The frozen Q3 guest also mounts the
+working chroot `nosuid` and therefore cannot supply this sudo boundary.
+Reuse the Q3 owner and signed ALPM phases through the verified 356 lock
+and retired bootstrap trust in a separately approved sibling profile.
+Place the pinned worker read-only at `/updater-code/guest.py` and call it
+with `/usr/bin/python -I -B` inside the admitted disposable root. The
+owner must admit the updater terminal receipt and dispose of the guest.
+The existing RTC-disabled Image also leaves the live-clock proof for
+fresh TEST trust to the selected owner.
+[Q3 guest setup](../../integration/qt612_base_16k_rehearsal/guest-init.sh) · [Owned controller](../../install/overlay583_trial/controller.py)
+
+The adapter runs the unconfigured and protected refusals first. It
+compares the local database, complete inventory, inert payload, and
+pending records before allowing the positive case. The positive case
+requires one sudo upgrade request, one real ALPM upgrade, unchanged
+nonfixture database entries, expected payload bytes and an intact local
+database. A HOLD retains the observed local database version directories
+and case exits for owner readback, including a refusal after an actual
+commit.
+After a command timeout, the adapter leaves scratch intact and defers
+database observation until the owner has stopped the guest.
+The adapter removes its private updater state. The owner must preserve the
+read-only baseline, dispose of the mutated scratch copy, retire the TEST
+trust and independently attest guest and resource retirement.
+
+```sh
+python3 -I -B -Werror scripts/ci/updater-full-update/test_guest.py
+```
+
+## Exact archive retention
+
+The current authenticated native pair is the reproduction route. It
+requires a non-root native Linux AArch64 coordinator with local ARM Docker,
+the reviewed 354-package builder lock and the retained signed build input
+selection. The guest's 356 lock belongs to consumption. Run 45715088356
+retired both original archives, and the workflow only exports guarded
+receipts. A separately admitted build should copy one original archive
+into fresh private handoff custody after the authenticated comparison and
+before stage cleanup. Preserve the original filename and compressed bytes.
+Check both archives against the qualified package digest and reviewed
+metadata, cap the retained regular file at 64 MiB, and rehash the copy.
+Expose the single archive to the guest preparer only after successful
+cleanup and recovery. Issue its disposable TEST signature separately
+against the unchanged bytes. The existing public evidence path remains
+the run's receipt channel. [Native pair adapter](../../../packages/tools/cachy-asahi-update/updater-native.py) · [Stage cleanup](../../port/updater-native-stage/stage.py)
