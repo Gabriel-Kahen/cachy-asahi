@@ -34,6 +34,14 @@ at zero fuzz to run the Check entry test. It verifies the patched-source ledger 
 executes the full source Check entry in a scratch profile, with an inert
 checkupdates command in addition to the optional command fixtures.
 
+The current dispatch seal binds the revised recipe checker. The predecessor
+seal and package checkpoint remain available at commit
+`db7acf84f8e3205b5812c101480d9d3bcafcd544`, with SHA-256s
+`e745cd8bfc44df327be5523718b53b33668b3497583fcba995cd31cb41ab34ef` and
+`0736114291b4c1f37773867d2d1ac7fbe7362e0f0cecac47b37ad25d55b99341`,
+respectively. The revised seal has native build and installed Check status
+**NOT RUN**.
+
 ## Native execution prerequisite and invocation
 
 The same-job controller can prepare the capsule after both private native builds

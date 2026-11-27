@@ -6,6 +6,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tarfile
@@ -37,6 +38,25 @@ class SourceTests(unittest.TestCase):
         for raw in (b'unrelated', b'old old'):
             with self.subTest(raw=raw), self.assertRaisesRegex(ValueError, 'exact historical'):
                 prepare.replace(raw, b'old', b'new')
+
+    def test_mixed_adapter_and_checker_bytes_refuse(self):
+        adapter = prepare.PACKAGE + 'updater-native.py'
+        names = (prepare.PACKAGE + 'PKGBUILD', adapter, prepare.CHECKER)
+        originals = {name: (prepare.ROOT / name).read_bytes() for name in names}
+        with tempfile.TemporaryDirectory(prefix='optional-source-pair-') as work:
+            root = Path(work)
+            for name in names:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(originals[name])
+            with patch.object(prepare, 'ROOT', root):
+                for name in (adapter, prepare.CHECKER):
+                    with self.subTest(name=name):
+                        path = root / name
+                        path.write_bytes(originals[name] + b'\n# different source revision\n')
+                        with self.assertRaisesRegex(ValueError, 'input digest differs: ' + re.escape(path.name)):
+                            prepare.preflight()
+                        path.write_bytes(originals[name])
 
     def test_historical_blob_substitution_refuses(self):
         with tempfile.TemporaryDirectory(prefix='optional-historical-') as work:

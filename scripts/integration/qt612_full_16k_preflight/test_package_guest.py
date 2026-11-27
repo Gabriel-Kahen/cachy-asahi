@@ -85,6 +85,16 @@ class PackageGuest(unittest.TestCase):
                 path.chmod(0o444)
             plan = {"staging_files": {name: W.pin(body) for name, body in bodies.items()}}
             self.assertEqual(W.stage_files(root, plan), bodies)
+            checker = root / "package_checks.py"
+            checker.chmod(0o600)
+            unreviewed = bodies[checker.name] + b"\n# unreviewed checker\n"
+            checker.write_bytes(unreviewed)
+            checker.chmod(0o444)
+            with self.assertRaisesRegex(ValueError, "exact normal package validator"):
+                W.stage_files(root, {"staging_files": plan["staging_files"] | {checker.name: W.pin(unreviewed)}})
+            checker.chmod(0o600)
+            checker.write_bytes(bodies[checker.name])
+            checker.chmod(0o444)
             changed = root / "recipe/input-2"
             changed.chmod(0o600)
             changed.write_bytes(b"changed")

@@ -20,7 +20,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 PACKAGE = 'packages/tools/cachy-asahi-update/'
 INSTALLED_HELPER = 'scripts/ci/updater-optional-check/prepare.py'
-READY_SHA = 'e745cd8bfc44df327be5523718b53b33668b3497583fcba995cd31cb41ab34ef'
+READY_SHA = 'f3ab58f63614625d94e858e893514efede050c27a05ec4a0aebdf07698655789'
 BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_seconds':910,
           'freeze_seconds':120, 'retained_seed_seconds':90, 'native_seconds':5400,
           'runtime_intake_seconds':60, 'installed_prepare_seconds':60, 'installed_check_seconds':380,

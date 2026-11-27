@@ -149,6 +149,16 @@ class PackageTests(unittest.TestCase):
         refused = self.invoke('recipe-check', recipe, expected=1)
         self.assertTrue(any('protected platform' in e for e in refused['recipes'][0]['errors']))
 
+        metadata = checked['recipes'][0]['metadata']
+        (recipe.parent / '.SRCINFO').write_text(''.join(
+            f'{key} = {value}\n' for key, values in metadata.items() for value in values))
+        recipe.unlink()
+        report = self.invoke('recipe-check', recipe, expected=1)['recipes'][0]
+        self.assertEqual(report['status'], 'fail')
+        self.assertIn('recipe must be a regular file: PKGBUILD', report['errors'])
+        self.assertEqual(report['metadata'], {})
+        self.assertNotIn('PKGBUILD', report['input_sha256'])
+
     def consistency_inputs(self):
         recipe = self.workspace / 'literal/PKGBUILD'
         recipe.parent.mkdir()
@@ -188,7 +198,7 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(result['status'], 'INPUT_ERROR')
         self.assertFalse((self.workspace / 'SHOULD_NOT_RUN').exists())
 
-    def test_consistency_imports_adjacent_checker_and_freezes_legacy_modules(self):
+    def test_consistency_imports_adjacent_checker_and_records_legacy_basis(self):
         recipe, _ = self.consistency_inputs()
         poison = "from pathlib import Path\nPath('IMPORTED_USER_CODE').write_text('bad')\nraise RuntimeError('workspace code')\n"
         (self.workspace / 'recipe_metadata_consistency.py').write_text(poison)
@@ -198,10 +208,17 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(result['status'], 'MATCH_MODELED_LITERAL_DECLARATIONS')
         self.assertFalse((self.workspace / 'IMPORTED_USER_CODE').exists())
         self.assertEqual(PROVENANCE['frozen_build_tools_basis']['version'], '0.1.1-1')
-        self.assertTrue(PROVENANCE['frozen_build_tools_basis']['six_modules_byte_held'])
+        self.assertEqual(PROVENANCE['frozen_build_tools_basis']['changed_modules'], ['package_checks.py'])
+        self.assertFalse(PROVENANCE['frozen_build_tools_basis']['six_modules_byte_held'])
         self.assertEqual(len(PROVENANCE['trusted_code']), 7)
 
     def test_exact_installed_code_paths_pins_modes_and_no_hooks(self):
+        srcinfo = dict(line.strip().split(' = ', 1)
+                       for line in (PKG / '.SRCINFO').read_text().splitlines() if line.strip())
+        self.assertEqual(f"{srcinfo['pkgver']}-{srcinfo['pkgrel']}", '0.2.0-2')
+        self.assertEqual(PROVENANCE['version'], '0.2.0-2')
+        installed_provenance = self.prefix / 'usr/share/doc/cachy-asahi-build-tools/source-provenance.json'
+        self.assertEqual(json.loads(installed_provenance.read_bytes()), PROVENANCE)
         installed = {str(p.relative_to(self.prefix)) for p in self.prefix.rglob('*') if p.is_file()}
         expected = {'usr/bin/cachy-asahi-build-tools',
                     'usr/share/doc/cachy-asahi-build-tools/README.md',

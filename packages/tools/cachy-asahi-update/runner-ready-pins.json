@@ -89,7 +89,7 @@
   "raw_retention_max_seconds": 7200,
   "root_files_sha256": {
     "scripts/build/build.py": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45",
-    "scripts/checks/package_checks.py": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a",
+    "scripts/checks/package_checks.py": "306ea3dfa1ce4eb14796c0526a8ca9086043bdcb8e6698c0993d640d076f19cd",
     "scripts/ci/inputs.lock.json": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
     "scripts/ci/integration_export.py": "1ae8aded5ab461b280ca1ff82047f6766d58efacf7a09c83dc84515ac7d2216c",
     "scripts/ci/native_arm.py": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba",
@@ -99,5 +99,5 @@
   },
   "schema_version": 1,
   "scope": "source/materializer/native adapter/public projector immutable dispatch map",
-  "superseded_checkpoint_sha256": "82599e5a878db8ce032cccb899e7330276dc494cbf08d4d0599ab2066c78807b"
+  "superseded_checkpoint_sha256": "0736114291b4c1f37773867d2d1ac7fbe7362e0f0cecac47b37ad25d55b99341"
 }

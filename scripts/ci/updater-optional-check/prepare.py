@@ -20,7 +20,7 @@ BUILDER_SHA = '5c72ffef2fadecc631861ef12ab7f48e083694a402d0428a395da64fa592dcee'
 PKGBUILD_SHA = '6e8b65f396510d59a1196949b062bad924ea0af4e38b58b4dfe0e47f74e16d60'
 ADAPTER_SHA = '0b65eb3ce5eea5e537dbcf4bfe9da41a662f5ce5690cbac5c3f7a8b03d2d285b'
 CHECKER = 'scripts/checks/package_checks.py'
-CHECKER_SHA = '314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a'
+CHECKER_SHA = '306ea3dfa1ce4eb14796c0526a8ca9086043bdcb8e6698c0993d640d076f19cd'
 # Worker provenance indexes the retained source closure. Match the public evidence reader.
 PROVENANCE_LIMIT = 4 * 1024**2
 RESULT_LIMIT = 16 * 1024

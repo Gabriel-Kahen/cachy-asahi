@@ -18,9 +18,11 @@ G = SimpleNamespace(**run_path(str(HERE / "test_package_guest.py")))
 D = SimpleNamespace(**run_path(str(HERE / "test_full_readback.py")))
 E, W, C = R.E, R.W, R.C
 PLAN, SELECTION = C.pin(b"plan"), C.pin(b"selection")
+HISTORICAL_SOURCE = {"package_checks.py": b"historical checker model", "package_guest.py": b"historical worker model"}
+HISTORICAL_PINS = tuple(W.pair(body) for body in HISTORICAL_SOURCE.values())
 
 
-def boot_fixture(complete_bytes=G.PIN["bytes"]):
+def boot_fixture(complete_bytes=G.PIN["bytes"], *, source=None):
     g, full, files, plan = G.fixture()
     files |= {name: b"fixture" for name in ["metadata-projection.json",
                                           *(f"recipe/operand-{index}" for index in range(13))]}
@@ -28,6 +30,8 @@ def boot_fixture(complete_bytes=G.PIN["bytes"]):
               "full_guest.py": (HERE / "full_guest.py").read_bytes(),
               "guest_link.py": G.GUEST_LINK.read_bytes(),
               "package_checks.py": (HERE.parents[2] / "scripts/checks/package_checks.py").read_bytes()}
+    if source is not None:
+        files.update(source)
     deps = files["configure-dependencies.list"].decode().splitlines()
     plan["worker"] = W.worker_contract(g, full, deps, files, plan["worker"]["completed_build"])
     plan |= dict(staging_files={name: C.pin(body) for name, body in files.items()},
@@ -80,6 +84,18 @@ def pass_fixture():
 
 
 class Execution(unittest.TestCase):
+    def test_historical_and_mixed_sources_cannot_boot(self):
+        with patch.dict(E.validate_package_inputs.__globals__, HISTORICAL_SOURCE_PINS=HISTORICAL_PINS):
+            for source in (HISTORICAL_SOURCE, *({name: body} for name, body in HISTORICAL_SOURCE.items())):
+                with self.subTest(source=sorted(source)):
+                    _, _, files, raw, issue = boot_fixture(source=source)
+                    issue_sha = C.pin(issue)["sha256"]
+                    with self.assertRaisesRegex(ValueError, "reviewed package worker and normal archive validator"):
+                        E.boot_bundle(raw, files, issue, issue_sha, 1100)
+                    if source != HISTORICAL_SOURCE:
+                        with self.assertRaisesRegex(ValueError, "reviewed package worker and normal archive validator"):
+                            E.validate_package_inputs(raw, files, issue, issue_sha, 1100, historical_readback=True)
+
     def test_role_accepts_the_eight_gib_readonly_predecessor(self):
         def role_with(size):
             g, full, files, raw, issue = boot_fixture(size)
@@ -241,8 +257,9 @@ class OfflineReadback(unittest.TestCase):
                     R.retained(disk, G.DIGEST, D.UUID, caps, False)
 
     def test_historical_pin_readback_does_not_issue_or_claim_retirement(self):
-        g, full, staged, plan, selection = boot_fixture()
+        g, full, staged, plan, selection = boot_fixture(source=HISTORICAL_SOURCE)
         with (TemporaryDirectory() as temp, patch.object(W, "module", side_effect=[full, g]),
+              patch.dict(E.validate_package_inputs.__globals__, HISTORICAL_SOURCE_PINS=HISTORICAL_PINS),
               patch.object(D.FIXTURE["R"], "RESULT_BYTES", 64 << 10), patch.object(E, "RESULT_BYTES", 64 << 10),
               patch.object(E, "evidence_caps", return_value={W.ARCHIVE: (1, 100)})):
             root = Path(temp)

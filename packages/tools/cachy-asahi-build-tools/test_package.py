@@ -149,7 +149,23 @@ class PackageTests(unittest.TestCase):
         refused = self.invoke('recipe-check', recipe, expected=1)
         self.assertTrue(any('protected platform' in e for e in refused['recipes'][0]['errors']))
 
+        metadata = checked['recipes'][0]['metadata']
+        (recipe.parent / '.SRCINFO').write_text(''.join(
+            f'{key} = {value}\n' for key, values in metadata.items() for value in values))
+        recipe.unlink()
+        report = self.invoke('recipe-check', recipe, expected=1)['recipes'][0]
+        self.assertEqual(report['status'], 'fail')
+        self.assertIn('recipe must be a regular file: PKGBUILD', report['errors'])
+        self.assertEqual(report['metadata'], {})
+        self.assertNotIn('PKGBUILD', report['input_sha256'])
+
     def test_exact_installed_code_paths_pins_modes_and_no_hooks(self):
+        srcinfo = dict(line.strip().split(' = ', 1)
+                       for line in (PKG / '.SRCINFO').read_text().splitlines() if line.strip())
+        self.assertEqual(f"{srcinfo['pkgver']}-{srcinfo['pkgrel']}", '0.1.1-2')
+        self.assertEqual(PROVENANCE['version'], '0.1.1-2')
+        installed_provenance = self.prefix / 'usr/share/doc/cachy-asahi-build-tools/source-provenance.json'
+        self.assertEqual(json.loads(installed_provenance.read_bytes()), PROVENANCE)
         installed = {str(p.relative_to(self.prefix)) for p in self.prefix.rglob('*') if p.is_file()}
         expected = {'usr/bin/cachy-asahi-build-tools',
                     'usr/share/doc/cachy-asahi-build-tools/README.md',

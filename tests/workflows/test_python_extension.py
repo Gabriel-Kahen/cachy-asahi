@@ -74,6 +74,14 @@ class PythonExtensionTest(unittest.TestCase):
         self.assertIn(b'#include <Python.h>', files['extension.c'])
         self.assertIn(b'PyInit_cachy_extension', files['extension.c'])
 
+    def test_archive_checker_drift_is_refused_before_loading(self):
+        name = 'scripts/checks/package_checks.py'
+        path = self.base / name
+        path.parent.mkdir(parents=True)
+        path.write_bytes((ROOT / name).read_bytes() + b'\nraise AssertionError("unreviewed checker executed")\n')
+        with mock.patch.object(P, 'ROOT', self.base), self.assertRaisesRegex(ValueError, 'reviewed dependency pin differs'):
+            P.load_pinned(name)
+
     def test_explicit_executable_selection(self):
         self.assertIsNone(P.selected_executable(None))
         self.assertIsNone(P.selected_executable(str(self.base / 'missing')))

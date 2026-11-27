@@ -23,6 +23,11 @@ QEMU_SECONDS = 3600
 ATTACH_SECONDS = 3900
 SERIAL_CAP = 1 << 20
 COMMON_INIT_PIN = C.file_pin(12843, "cd7a48f5cd16011501508ff2bf99fd724e1f11ba9725cb2a000fd7bfd87fc9f8")
+# Prior V1 checker and worker as a pair for passive evidence readback.
+HISTORICAL_SOURCE_PINS = (
+    (19289, "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"),
+    (23000, "37a23f3f42974248b3530cd8387c439e051a5c92fc902b117ab8ee9a49a2f082"),
+)
 TERMINAL = b"QTBASE_PACKAGE16K_TERMINAL"
 PHASES = ("boot", "storage", "package", "retain", "cleanup")
 CHAIN = ("/out/overlay.qcow2", "/inputs/complete.qcow2", "/inputs/gui.qcow2", "/inputs/core.qcow2", "/inputs/scratch.raw")
@@ -76,19 +81,27 @@ def staged_inputs(staged, plan):
     return files
 
 
-def boot_bundle(plan_raw, files, authority_raw, authority_sha, now):
+def validate_package_inputs(plan_raw, files, authority_raw, authority_sha, now, *, historical_readback=False):
     plan = C.json_body(plan_raw, canonical=True)
     plan_pin, selection_pin = C.pin(plan_raw), C.pin(authority_raw)
     C.need(selection_pin["sha256"] == authority_sha, "Exact external package selection pin required")
     issued = W.selection(authority_raw, plan, plan_pin["sha256"], now)
-    C.need(W.pair(files["package_checks.py"]) == W.PACKAGE_CHECKER_PIN
-           and files["package_guest.py"] == C.read(HERE / "package_guest.py", 128 * 1024)[0],
+    checker_pin = W.pair(files["package_checks.py"])
+    worker = files["package_guest.py"]
+    current = checker_pin == W.PACKAGE_CHECKER_PIN and worker == C.read(HERE / "package_guest.py", 128 * 1024)[0]
+    historical = historical_readback and (checker_pin, W.pair(worker)) == HISTORICAL_SOURCE_PINS
+    C.need(current or historical,
            "Expected the reviewed package worker and normal archive validator")
     full = W.module(files["full_guest.py"], Path("full_guest.py"), W.FULL_GUEST_PIN)
     guest = W.module(files["guest_link.py"], Path("guest_link.py"), full.SIDECAR_PIN)
     W.validate_stage_plan(plan, guest, full, files)
     C.need(plan["staging_files"] == {name: C.pin(body) for name, body in files.items()},
            "Selected boot payload differs from the staged plan")
+    return plan, issued
+
+
+def boot_bundle(plan_raw, files, authority_raw, authority_sha, now):
+    plan, issued = validate_package_inputs(plan_raw, files, authority_raw, authority_sha, now)
     boot = {"CAPS.tsv": caps_bytes(plan),
             "guest-init.sh": C.read(HERE / "package-guest-init.sh", 128 * 1024)[0],
             "full-guest-init.sh": C.read(HERE / "full-guest-init.sh", 128 * 1024, COMMON_INIT_PIN)[0],

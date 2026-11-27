@@ -170,6 +170,11 @@ receipts and the unsigned archive pin. It reads the archive hash without
 extracting the archive. A host retirement receipt and clean fsck remain
 separate requirements for subsequent signing.
 
+New staging and boot media use the revised package checker and its current
+guest worker. The passive reader also accepts the previous exact checker and
+worker together when verifying retained V1 evidence. Both paths verify the
+staged files against the independently pinned plan and selection.
+
 The worker checks the exact completed build's 18 library bodies and
 aliases, final Ninja log, configuration and local recipe inputs before
 and after the sequence. It reuses the original Q3 signature and build

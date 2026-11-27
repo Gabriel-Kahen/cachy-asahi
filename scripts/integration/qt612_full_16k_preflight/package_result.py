@@ -122,7 +122,8 @@ def readback(staged, plan_sha, selection, selection_sha, serial, serial_sha, res
     files = E.staged_inputs(staged, plan)
     # Validate the historical selection at issuance. Passive readback does not renew its validity.
     issued = C.json_body(authority, canonical=True)
-    plan, _, _ = E.boot_bundle(plan_raw, files, authority, selection_sha, issued["created_utc"])
+    plan, _ = E.validate_package_inputs(plan_raw, files, authority, selection_sha, issued["created_utc"],
+                                        historical_readback=True)
     raw, serial_pin = C.external(serial, E.SERIAL_CAP, serial_sha)
     outcome = E.terminal(raw, plan["nonce"])
     pins, evidence = retained(result, result_sha, E.P.result_uuid(plan["nonce"]), E.evidence_caps(plan),
