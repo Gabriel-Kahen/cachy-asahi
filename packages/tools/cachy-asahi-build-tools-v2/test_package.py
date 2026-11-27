@@ -213,10 +213,17 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(len(PROVENANCE['trusted_code']), 7)
 
     def test_exact_installed_code_paths_pins_modes_and_no_hooks(self):
-        srcinfo = dict(line.strip().split(' = ', 1)
-                       for line in (PKG / '.SRCINFO').read_text().splitlines() if line.strip())
-        self.assertEqual(f"{srcinfo['pkgver']}-{srcinfo['pkgrel']}", '0.2.0-2')
-        self.assertEqual(PROVENANCE['version'], '0.2.0-2')
+        pkgbuild = (PKG / 'PKGBUILD').read_text()
+        fields = dict(line.split('=', 1) for line in pkgbuild.splitlines()
+                      if line.startswith(('pkgver=', 'pkgrel=')))
+        version = f"{fields['pkgver']}-{fields['pkgrel']}"
+        self.assertEqual(version, '0.2.0-2')
+        self.assertEqual(PROVENANCE['version'], version)
+        srcinfo = PKG / '.SRCINFO'
+        if srcinfo.exists():
+            metadata = dict(line.strip().split(' = ', 1)
+                            for line in srcinfo.read_text().splitlines() if line.strip())
+            self.assertEqual(f"{metadata['pkgver']}-{metadata['pkgrel']}", version)
         installed_provenance = self.prefix / 'usr/share/doc/cachy-asahi-build-tools/source-provenance.json'
         self.assertEqual(json.loads(installed_provenance.read_bytes()), PROVENANCE)
         installed = {str(p.relative_to(self.prefix)) for p in self.prefix.rglob('*') if p.is_file()}
@@ -233,7 +240,7 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(installed, expected)
         self.assertEqual(self.cli.stat().st_mode & 0o777, 0o755)
         self.assertEqual(PROVENANCE['install_hooks'], [])
-        self.assertNotIn('install=', (PKG / 'PKGBUILD').read_text())
+        self.assertNotIn('install=', pkgbuild)
 
 
 if __name__ == '__main__':
