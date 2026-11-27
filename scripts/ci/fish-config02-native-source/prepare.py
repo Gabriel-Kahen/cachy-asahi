@@ -9,6 +9,9 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent
 s=importlib.util.spec_from_file_location('fish02_contract',HERE/'contract.py');C=importlib.util.module_from_spec(s);s.loader.exec_module(C)
 LOCAL=('README.md','contract.py','entry.py','finish_pair.py','profile.json','expected349.lock','reviewed-inputs.json','admission.TEMPLATE.json','runtime.TEMPLATE.json')
+CHECKER = 'runtime/scripts/checks/package_checks.py'
+HELD_CHECKER = ('scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/'
+                'scripts/ci/llhttp-reference-native-source/base/' + CHECKER)
 
 
 def construct(root,output):
@@ -16,7 +19,8 @@ def construct(root,output):
     profile=C.load(HERE/'profile.json');C.need(all(v is None for v in profile['actual'].values()),'prospective actual selectors remain null')
     bodies={C.PREFIX+'/'+n:C.read(HERE/n)for n in LOCAL};bodies[C.WORKFLOW]=C.read(root/C.WORKFLOW)
     for name,row in profile['held_inputs'].items():
-        body=C.read(root/row['source_path']);C.need(C.pin(body)=={n:row[n]for n in('bytes','sha256')},'exact Main held input: '+name)
+        source = HELD_CHECKER if name == CHECKER else row['source_path']
+        body=C.read(root/source);C.need(C.pin(body)=={n:row[n]for n in('bytes','sha256')},'exact Main held input: '+name)
         target=C.PREFIX+'/'+name
         C.need(target not in bodies or bodies[target]==body,'duplicate Source leaf differs');bodies[target]=body
     license=C.read(root/'LICENSE');C.need(C.pin(license)==C.pin(bodies[C.PREFIX+'/recipe/LICENSE']),'same exact original MIT license');bodies['LICENSE']=license

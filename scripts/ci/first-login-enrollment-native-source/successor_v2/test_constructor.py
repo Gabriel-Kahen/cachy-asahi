@@ -3,6 +3,7 @@
 import hashlib
 import json
 from pathlib import Path
+import runpy
 import subprocess
 import sys
 import tempfile
@@ -10,13 +11,14 @@ import unittest
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[3]
 SHA=hashlib.sha256((HERE/'profile.json').read_bytes()).hexdigest()
+stage_inputs=runpy.run_path(str(HERE/'source_fixture.py'))['stage_inputs']
 class Controls(unittest.TestCase):
  def run_cli(self,*args,home):
   return subprocess.run([sys.executable,'-I','-B',str(HERE/'prepare.py'),*map(str,args)],cwd=home,env={'PATH':'/usr/bin:/bin','HOME':str(home),'LC_ALL':'C.UTF-8','PYTHONDONTWRITEBYTECODE':'1'},capture_output=True,timeout=15)
  def test_actual_source_cli_and_fresh_no_replace(self):
   with tempfile.TemporaryDirectory(prefix='current-onboarding-constructor-DATA-')as name:
    home=Path(name);out=home/'source'
-   argv=['--root',ROOT,'--profile-sha256',SHA,'--output',out]
+   argv=['--root',stage_inputs(home/'inputs'),'--profile-sha256',SHA,'--output',out]
    result=self.run_cli(*argv,home=home);self.assertEqual(result.returncode,0,result.stderr.decode());report=json.loads(result.stdout)
    lock=json.loads((out/'source.lock.json').read_bytes());self.assertEqual(report['files'],59);self.assertEqual(report['status'],'STAGED_CURRENT_SOURCE_ONLY_NOT_NATIVE_READY')
    self.assertTrue(all(v is None for v in lock['actual'].values()))

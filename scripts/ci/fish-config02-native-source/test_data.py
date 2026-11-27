@@ -82,7 +82,9 @@ class Controls(unittest.TestCase):
             base=out/C.PREFIX
             self.assertEqual(len(list((base/'recipe').iterdir())),6)
             profile=C.load(HERE/'profile.json')
-            for name,row in profile['held_inputs'].items():self.assertEqual((base/name).read_bytes(),(ROOT/row['source_path']).read_bytes())
+            for name,row in profile['held_inputs'].items():
+                source = P.HELD_CHECKER if name == P.CHECKER else row['source_path']
+                self.assertEqual((base/name).read_bytes(), (ROOT/source).read_bytes())
             self.assertEqual((base/'finish_pair.py').read_bytes(),(HERE/'finish_pair.py').read_bytes())
             self.assertEqual(len((base/'expected349.lock').read_text().splitlines()),349)
             for line in ('fish 4.9.3-1','coreutils 9.12-2','python 3.14.8-1'):self.assertIn(line,(base/'expected349.lock').read_text().splitlines())
@@ -90,6 +92,14 @@ class Controls(unittest.TestCase):
 
     def test_constructor_tamper_missing_alias_and_reuse_refusals(self):
         with tempfile.TemporaryDirectory()as temporary:
+            read = P.C.read
+            def altered_checker(path, *args, **kwargs):
+                body = read(path, *args, **kwargs)
+                return body[:-1] + b'X' if path == ROOT/P.HELD_CHECKER else body
+            refused = Path(temporary) / 'refused'
+            with patch.object(P.C, 'read', side_effect=altered_checker), self.assertRaisesRegex(ValueError, 'exact Main held input: runtime/scripts/checks/package_checks.py'):
+                P.construct(ROOT, refused)
+            self.assertFalse(refused.exists())
             out=Path(temporary)/'Source';report=P.construct(ROOT,out);path=out/C.PREFIX/'recipe/config.fish';original=path.read_bytes()
             path.write_bytes(original+b'changed')
             with self.assertRaises(ValueError):C.verify_source(out,report['source_map']['sha256'])
