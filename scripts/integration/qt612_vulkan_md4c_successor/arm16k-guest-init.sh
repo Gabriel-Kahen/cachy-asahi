@@ -8,7 +8,7 @@ export PATH=/usr/bin:/bin LC_ALL=C TZ=UTC
 readonly MEDIA=/qt-successor ROOT=/qtwork/root EXPORT=/qtexport
 readonly WORK_UUID=ed56022f-4e82-f6e3-fbde-502489347154
 readonly EVIDENCE=/qt-successor-evidence ARCHIVE=qtbase-everywhere-src-6.12.0.tar.xz
-readonly PACKAGE=cachy-asahi-qt612-gui-server-source-reference-6.12.0-3-aarch64.pkg.tar.xz
+readonly PACKAGE=cachy-asahi-qt612-gui-server-source-reference-6.12.0-4-aarch64.pkg.tar.xz
 readonly -a SETUP_FILES=(before.lock after.lock gpgv.log alpm.log package-check.log)
 readonly -a BUILD_FILES=(build.log dependencies.log features.txt profile.json graph.sha256 CMakeCache.txt build.ninja rules.ninja)
 readonly -a FULL_FILES=(stage-contract.json vulkan-md4c-elf.json archive.sha256 "$PACKAGE")

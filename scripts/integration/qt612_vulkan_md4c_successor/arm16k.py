@@ -97,9 +97,13 @@ def limits(mode):
                 serial_bytes=16 << 20, qemu_seconds=qemu_seconds, guest_seconds=qemu_seconds - 180)
 
 
+def host_available_memory():
+    return int(re.search(r"^MemAvailable:\s+(\d+) kB$", Path("/proc/meminfo").read_text(),
+                         re.MULTILINE)[1]) * 1024
+
+
 def capacity(path, budget):
-    available = int(re.search(r"^MemAvailable:\s+(\d+) kB$", Path("/proc/meminfo").read_text(),
-                              re.MULTILINE)[1]) * 1024
+    available = host_available_memory()
     cpus = len(os.sched_getaffinity(0))
     cgroup = Path("/sys/fs/cgroup") / Path(Path("/proc/self/cgroup").read_text().strip()[4:])
     for scope in (cgroup, *cgroup.parents):
@@ -118,6 +122,30 @@ def capacity(path, budget):
          and disk >= budget["overlay_bytes"] + budget["result_bytes"] + budget["host_disk_reserve_bytes"] + (128 << 20)
          and cpus >= budget["vcpus"], "Current host memory, disk or CPUs cannot cover the build envelope")
     return dict(available_bytes=available, free_bytes=disk, eligible_cpus=cpus)
+
+
+def memory_guard(check_cancel, reserve):
+    next_check = 0.0
+    pressured_since = None
+
+    def observe():
+        nonlocal next_check, pressured_since
+        check_cancel()
+        now = time.monotonic()
+        if now < next_check:
+            return
+        next_check = now + 5
+        full = next(line for line in Path("/proc/pressure/memory").read_text().splitlines()
+                    if line.startswith("full "))
+        avg10 = float(full.split()[1].split("=", 1)[1])
+        if host_available_memory() >= reserve and avg10 < 10:
+            pressured_since = None
+        elif pressured_since is None:
+            pressured_since = now
+        else:
+            need(now - pressured_since < 20, "Sustained host memory pressure stopped this Qt build")
+
+    return observe
 
 
 def make_boot(original, target, folder, staged, nonce):
@@ -448,7 +476,8 @@ def start(args):
             attach_dispatched = True
             attach_exit, reason = capture_process(docker.argv("container", "start", "-a", cid), log_path,
                                                   ATTACH_LOG_BYTES, budget["qemu_seconds"] + 420,
-                                                  check_cancel, env=ENV)
+                                                  memory_guard(check_cancel, budget["host_memory_reserve_bytes"]),
+                                                  env=ENV)
             need(reason is None, reason)
             state = inspect(docker, cid, name, plan, mounts, entry)
             need(state["Status"] == "exited" and state["Running"] is False, "Actor did not exit")

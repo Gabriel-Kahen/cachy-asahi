@@ -25,6 +25,11 @@ TRANSACTION = {
     "md4c-0.6.0-2-aarch64.pkg.tar.xz",
     "vulkan-headers-1:1.4.363.0-1-any.pkg.tar.xz",
 }
+PARITY_RECIPE = {"bytes": 4460, "sha256": "0fc98bc3f5556b96012efa230d97f5eace3046c0f42984f9fc562040a7af0364"}
+PARITY_BASE_PACKAGES = {
+    "at-spi2-core-2.62.1-1-aarch64.pkg.tar.xz": (b"at-spi2-core", b"2.62.1-1"),
+    "libcups-2:2.4.20-1-aarch64.pkg.tar.xz": (b"libcups", b"2:2.4.20-1"),
+}
 ENV = {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "TZ": "UTC"}
 
 
@@ -173,16 +178,20 @@ def authenticate(evidence, q3, boot, kernel, config, backing, stage):
             originals = pool.submit(original_media, boot, kernel, config, backing, closure)
             statuses = list(pool.map(lambda row: verify_signature(row, key_home, key), rows))
             media = originals.result()
-        recipe = run_path(str(HERE / "prepare.py"))["prepare"](payload / "recipe")
-        recipe_pin = closure["staged_recipe"]
-        verify(payload / "recipe" / "SUCCESSOR.UNISSUED.json", recipe_pin)
-        need(recipe["qt_source"] == q3_files[SOURCE_NAME] and recipe["official_inputs"]["fingerprint"] == FINGERPRINT,
-             "Regenerated recipe source or signer differs")
-        for row in packages:
-            name = row["filename"]
-            if name not in TRANSACTION:
-                continue
-            selected = recipe["official_inputs"][name]
+        recipe = run_path(str(HERE / "prepare_parity.py"))["prepare_parity"](payload / "recipe")
+        recipe_pin = verify(payload / "recipe" / "PARITY.UNISSUED.json", PARITY_RECIPE)
+        need(recipe["qt_source"] == q3_files[SOURCE_NAME] and recipe["official_inputs"]["fingerprint"] == FINGERPRINT
+             and recipe["base_recipe_sha256"] == closure["staged_recipe"]["sha256"],
+             "Regenerated parity recipe source, signer or basis differs")
+        by_name = {row["filename"]: row for row in packages}
+        for filename, (name, version) in PARITY_BASE_PACKAGES.items():
+            row, selected = by_name[filename], recipe["official_inputs"][filename]
+            need(row["phase"] == "alpm-base" and before.get(name) == after.get(name) == version
+                 and pin(row["archive"]["bytes"], row["archive"]["sha256"]) == pin(selected["bytes"], selected["sha256"])
+                 and pin(row["signature"]["bytes"], row["signature"]["sha256"]) == selected["signature"],
+                 f"Parity dependency is outside the signed baseline: {filename}")
+        for name in sorted(TRANSACTION):
+            row, selected = by_name[name], recipe["official_inputs"][name]
             for field, filename, expected in (
                 ("archive", name, pin(selected["bytes"], selected["sha256"])),
                 ("signature", name + ".sig", selected["signature"]),

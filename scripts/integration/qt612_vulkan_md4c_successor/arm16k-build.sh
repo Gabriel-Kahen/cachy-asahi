@@ -6,7 +6,7 @@ umask 077
 export PATH=/usr/bin:/bin LC_ALL=C TZ=UTC
 readonly MEDIA=/qtmedia RECIPE=/qt-successor EVIDENCE=/qt-successor-evidence
 readonly OFFICIAL=68B3537F39A313B3E574D06777193F152BDBE6A6
-readonly PACKAGE=cachy-asahi-qt612-gui-server-source-reference-6.12.0-3-aarch64.pkg.tar.xz
+readonly PACKAGE=cachy-asahi-qt612-gui-server-source-reference-6.12.0-4-aarch64.pkg.tar.xz
 readonly MD4C=md4c-0.6.0-2-aarch64.pkg.tar.xz VULKAN=vulkan-headers-1:1.4.363.0-1-any.pkg.tar.xz
 readonly ARCHIVE=qtbase-everywhere-src-6.12.0.tar.xz
 

@@ -23,11 +23,11 @@ ROOT = HERE.parents[2]
 C = SimpleNamespace(**run_path(str(HERE.parent / "qt612_base_16k_link_preflight/readback.py")))
 MIB = 1 << 20
 PACKAGE = "cachy-asahi-qt612-gui-server-source-reference"
-VERSION = "6.12.0-3"
+VERSION = "6.12.0-4"
 ARCHIVE = f"{PACKAGE}-{VERSION}-aarch64.pkg.tar.xz"
 BEFORE = C.file_pin(6925, "e2a4da7903e6de26b0ee37758ad424439f83196fa6a3b0bdffa501f35a02d0b9")
 AFTER = C.file_pin(6954, "cd7f0f45ee485edc315e27370e954ba11ab3f5e6168a2653c40220a698c102a1")
-RECIPE = C.file_pin(3524, "b3b46a27d6bb5e93bf411de9a23bf238c36230f268206af09637c9d66f0ce41a")
+RECIPE = C.file_pin(4460, "0fc98bc3f5556b96012efa230d97f5eace3046c0f42984f9fc562040a7af0364")
 BUILD_EPOCH = "1792021458"
 SIGNER = b"68B3537F39A313B3E574D06777193F152BDBE6A6"
 STAGES = {"boot", "storage", "setup", "build", "retain", "cleanup", "configured", "complete"}
@@ -83,10 +83,11 @@ def serial_state(body, nonce):
 
 
 def recipe_inputs(path):
-    raw, _ = C.read(path / "SUCCESSOR.UNISSUED.json", RECIPE["bytes"], RECIPE)
+    raw, _ = C.read(path / "PARITY.UNISSUED.json", RECIPE["bytes"], RECIPE)
     receipt = C.json_body(raw, canonical=True)
     files = {name: C.read(path / name, 128 << 10, receipt["files"][name])[0]
              for name in (".SRCINFO", "configure.cmake", "source-notices.json")}
+    C.need(receipt["artifact_version"] == VERSION, "Staged recipe version differs")
     return receipt, files
 
 
@@ -320,6 +321,9 @@ def archive_contents(raw, files, recipe, staged):
     plugins = {"usr/lib/qt6/plugins/" + name for name in stage.PLUGINS}
     C.need(all(name in elf and nodes[name][1] & 0o111 for name in set(stage.TOOLS) | plugins)
            and all(elf[name]["type"] == 3 for name in plugins), "Expected final executable Qt tools and shared plugins")
+    parity = run_path(str(HERE / "check_parity.py"))
+    parity["check_parity"]({"files": {name: {"mode": row[1]} for name, row in nodes.items() if row[0] == "file"},
+                            "elf": elf})
     server = stage.server_feature_export(server_bodies, {name: C.pin(body) for name, body in server_bodies.items()})
     C.need(server == staged_contract["server_feature_export"],
            "Final archive Wayland server export differs from staging")
@@ -488,7 +492,8 @@ def readback(capsule, plan_sha, launch_sha, recipe_path=None):
            and plan["mode"] in {"configure", "full"}
            and plan["base_revision"] == "cbc877a35f40aba98aeb53cbcfebd7d18422e5ec", "Unexpected successor plan")
     recipe, staged = recipe_inputs(recipe_path or capsule / "recipe")
-    C.need(all(plan["payload"]["recipe/" + name] == C.pin(body) for name, body in staged.items()),
+    C.need(plan["inputs"]["recipe"] == plan["payload"]["recipe/PARITY.UNISSUED.json"] == RECIPE
+           and all(plan["payload"]["recipe/" + name] == C.pin(body) for name, body in staged.items()),
            "Recipe data does not bind the sealed boot payload")
     launch, launch_pin, started_pin, actor, markers, host_pass = host_receipts(capsule, plan, plan_sha, launch_sha)
     guest_pass = markers[0] is not None and markers[0][0] == "PASS"

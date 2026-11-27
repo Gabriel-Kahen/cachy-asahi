@@ -27,6 +27,18 @@ NONCE = "a" * 32
 NAME = "caa-qtbase-successor16k-" + NONCE
 
 
+class MemoryGuardTests(unittest.TestCase):
+    def test_sustained_pressure_triggers_owned_retirement(self):
+        with patch.object(LAUNCHER["time"], "monotonic", side_effect=(0, 5, 10, 15, 20, 25, 30, 35)), \
+             patch.object(Path, "read_text", return_value="full avg10=1.00 avg60=1.00 total=1"), \
+             patch.dict(LAUNCHER, host_available_memory=iter((0, 0, 3, 0, 0, 0, 0, 0)).__next__):
+            observe = LAUNCHER["memory_guard"](lambda: None, 2)
+            for _ in range(7):
+                observe()
+            with self.assertRaisesRegex(ValueError, "Sustained host memory pressure"):
+                observe()
+
+
 class Model:
     def __init__(self, capsule):
         self.capsule = capsule
