@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Select the reviewed current checker under the historical packet policy."""
 from pathlib import Path
+import re
 from types import ModuleType
 
 import packet
@@ -28,4 +29,5 @@ def preview(root):
 
 def verify(root, manifest_path, manifest_sha, commit, runner, output):
     packet.need(manifest_path == root / MANIFEST, 'packet-v2-path')
+    packet.need(type(manifest_sha) is str and re.fullmatch(r'[0-9a-f]{64}', manifest_sha), 'packet-pin')
     return _policy().verify(root, manifest_path, manifest_sha, commit, runner, output)

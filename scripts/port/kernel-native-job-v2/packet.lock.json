@@ -476,9 +476,9 @@
       "sha256": "3cc6631797d804086686e88ddd2240455561420430bedb4ea6e4ce9eade9c53f"
     },
     "scripts/port/kernel-native-job/packet_v2.py": {
-      "bytes": 1197,
+      "bytes": 1312,
       "mode": 420,
-      "sha256": "4a5abeb8e8355af69a7f851be32c0122ffd8df33abe82f2cdd70dcef878245fe"
+      "sha256": "fa9342ceb76acf9575d474a760decee59e362b79b937c6daa30a4dfb76aa4d9d"
     },
     "scripts/port/kernel-native-job/public.py": {
       "bytes": 58959,
@@ -511,9 +511,9 @@
       "sha256": "f161855457de7fd1406b590c5d8559b22e39f52be38b1c60563fb80a15715068"
     },
     "scripts/port/kernel-native-job/test_packet_v2.py": {
-      "bytes": 2195,
+      "bytes": 5076,
       "mode": 420,
-      "sha256": "51e0ca003003447f8014f1c5586b0379f772c2fefcca4c893a175bcf1dfb4a88"
+      "sha256": "0b9293c3e4085b49a4c0f35cf618b4c0f38d3bb703631349765b7f828651929b"
     },
     "scripts/port/kernel-native-job/test_public.py": {
       "bytes": 74865,
