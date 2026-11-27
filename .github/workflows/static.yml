@@ -375,6 +375,10 @@ jobs:
                       test_readback.py test_controller.py test_launch.py test_receipt.py; do
             python3 -I -B -Werror::ResourceWarning "$lane/$test"
           done
+          lane=scripts/integration/jbig_tiff_asahi629
+          for test in test_inputs.py test_jpeg_recipe.py test_runtime.py test_lane.py; do
+            python3 -I -B -Werror::ResourceWarning "$lane/$test"
+          done
       - name: Check explicit lock and ordered suspend without a desktop session
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
