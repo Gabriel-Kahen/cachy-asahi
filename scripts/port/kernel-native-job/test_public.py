@@ -606,6 +606,7 @@ class BootstrapTests(unittest.TestCase):
             path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes((ROOT / name).read_bytes() if name in
                             {self.ns['PUBLIC'], self.ns['JOB'], 'scripts/port/kernel-native-job/packet.py',
+                             'scripts/port/kernel-native-job/packet_v2.py',
                              'scripts/port/kernel-native-job/runtime.py', 'scripts/port/kernel-native-job/intake.py'} else
                              (name + '\n').encode())
             path.chmod(0o755 if name == self.ns['JOB'] else 0o644)
@@ -613,6 +614,7 @@ class BootstrapTests(unittest.TestCase):
                     'sha256': hashlib.sha256((self.root / name).read_bytes()).hexdigest(),
                     'mode': stat.S_IMODE((self.root / name).stat().st_mode)} for name in self.ns['REQUIRED']}
         self.packet = self.root / self.ns['PACKET']
+        self.packet.parent.mkdir()
         self.write_packet()
         self.git('init', '-q'); self.git('add', '.')
         self.git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-q', '-m', 'fixture')
@@ -638,6 +640,12 @@ class BootstrapTests(unittest.TestCase):
         captured = self.source()
         self.assertEqual(set(captured), self.ns['REQUIRED'])
         self.assertEqual(captured[self.ns['PUBLIC']], (self.root / self.ns['PUBLIC']).read_bytes())
+
+    def test_legacy_packet_cannot_supply_current_preflight(self):
+        legacy = self.root / 'scripts/port/kernel-native-job/packet.lock.json'
+        self.packet.rename(legacy)
+        with self.assertRaises(FileNotFoundError):
+            self.source()
 
     def test_live_source_byte_and_mode_changes_refused(self):
         path = self.root / self.ns['PUBLIC']; data = path.read_bytes()
@@ -723,7 +731,7 @@ class BootstrapTests(unittest.TestCase):
     def test_timestamp_valid_root_caches_cannot_execute_in_clean_bootstrap(self):
         marker = self.root / 'malicious-cache-executed'
         cache_bytes = {}
-        for name in ('intake', 'packet', 'runtime', 'public'):
+        for name in ('intake', 'packet', 'packet_v2', 'runtime', 'public'):
             source = self.root / f'scripts/port/kernel-native-job/{name}.py'
             info = source.stat()
             code = compile(f'from pathlib import Path\nPath({str(marker)!r}).write_text("EXECUTED")\nraise SystemExit(97)\n', str(source), 'exec')
@@ -802,6 +810,8 @@ class BootstrapTests(unittest.TestCase):
         self.assertIn("exec(compile(captured[PUBLIC]", text)
         self.assertIn('"$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/job.py"', text)
         self.assertIn("stream.write('KERNEL_JOB_BOOTSTRAP_SOURCE='", text)
+        self.assertIn("stream.write('KERNEL_JOB_PACKET_PATH=' + str(root / PACKET)", text)
+        self.assertIn('--packet "$KERNEL_JOB_PACKET_PATH"', text)
 
 
 

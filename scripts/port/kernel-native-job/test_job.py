@@ -274,6 +274,19 @@ class JobContracts(unittest.TestCase):
         for item in self.patches: item.start(); self.addCleanup(item.stop)
         return fake, phases
 
+    def test_successor_packet_path_selects_reviewed_verifier_before_native_work(self):
+        import packet_v2
+
+        self.args.packet = self.root / packet_v2.MANIFEST
+        docker, _ = self.controller_fixture()
+        with patch.object(packet_v2, 'verify', side_effect=ValueError('unreviewed checker')) as verify:
+            self.assertEqual(job.execute(self.args), 1)
+        self.assertEqual(verify.call_args.args[:4],
+                         (self.root, self.args.packet, self.args.packet_sha256, self.args.source_commit))
+        job.packet.verify.assert_not_called()
+        docker.info.assert_not_called()
+        self.failure_receipts('source', 'SOURCE_REJECTED')
+
     def failure_receipts(self, phase, reason, cancelled=False):
         public_record = job.packet.load(self.args.output / 'public/status.json')
         private_record = job.packet.load(self.args.output / 'private/result.json')

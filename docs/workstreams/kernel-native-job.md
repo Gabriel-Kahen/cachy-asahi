@@ -188,10 +188,20 @@ and mode 0644 or 0755. Private receipts may use mode 0600.
 The [kernel recipe lock](../../scripts/port/kernel-native-job/recipes.lock.json)
 tracks the current Hyprland, Setup, Fish and Zsh source. The
 [stage lock](../../scripts/port/kernel-native-stage/stage.lock.json) binds
-the same inputs, recipe lock and inventory. Run `packet.preview(root)` to
-reproduce the [job packet](../../scripts/port/kernel-native-job/packet.lock.json)
-before review. The workflow requires its independently reviewed SHA-256 at
-dispatch.
+the same inputs, recipe lock and inventory. The
+[historical packet](../../scripts/port/kernel-native-job/packet.lock.json)
+and its verifier are retained for the original qualification and the #622
+producer binding. To replay the historical workflow, use its original
+matching checkout, workflow revision and packet SHA-256.
+
+The current workflow uses the
+[successor packet](../../scripts/port/kernel-native-job-v2/packet.lock.json).
+`packet_v2.preview(root)` reproduces its source map for review. It uses the
+historical policy with the exact current package checker pinned independently.
+The workflow and runtime both require the successor packet path. For a new
+dispatch, independently review the successor SHA-256 and pass it as
+`packet_sha256` on the matching committed workflow revision. The successor
+source check does not establish a native result.
 
 Before executing repository code, an inline standard-library bootstrap captures
 and authenticates the packet and every source row, compares actual Git blobs and

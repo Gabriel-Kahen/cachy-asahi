@@ -1,0 +1,660 @@
+{
+  "files": {
+    ".github/workflows/native-arm-kernel.yml": {
+      "bytes": 15526,
+      "mode": 420,
+      "sha256": "2fc97ce614ce70d52c4bbc58f4dad245298f4bffaeb69701a5a76c17571807f7"
+    },
+    "AGENTS.md": {
+      "bytes": 1334,
+      "mode": 420,
+      "sha256": "a95eaf775ac935ebdfe6b9c89aad9382639671aecdaab91503e1453d4782a056"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "docs/repository-enrollment.md": {
+      "bytes": 10984,
+      "mode": 420,
+      "sha256": "67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4"
+    },
+    "docs/workstreams/kernel-native-job.md": {
+      "bytes": 32946,
+      "mode": 420,
+      "sha256": "dac4d285af0c76f32b6f272211a9657fe3c5d2443b3d69d042091fb0a5e989f5"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
+      "bytes": 1811,
+      "mode": 420,
+      "sha256": "5b49b6d13f829c280dea38757586a0627c9af9e81e2fdbeb8398a9e80700828a"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/NOTICE": {
+      "bytes": 1406,
+      "mode": 420,
+      "sha256": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/PKGBUILD": {
+      "bytes": 2486,
+      "mode": 420,
+      "sha256": "350b2920c55b2ddd7201adb9a949947e6d083f42eb75497e878097f1411917d5"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/README.md": {
+      "bytes": 8751,
+      "mode": 420,
+      "sha256": "68f112074e0366b372e3261fea77480992537a43b3341cbd2bac49eb5a651163"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/cachy-asahi-screenshot": {
+      "bytes": 11854,
+      "mode": 493,
+      "sha256": "7dc01c020275f2d482f326bad0592e59bde140ba9cc349849ac5916e883e7c7d"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/hyprland.lua": {
+      "bytes": 2875,
+      "mode": 420,
+      "sha256": "f75aebb1111123dc86c7f1a85e00bff0320edef6e6f071e28370fbabd6a40a6a"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/mako.conf": {
+      "bytes": 100,
+      "mode": 420,
+      "sha256": "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/waybar.css": {
+      "bytes": 257,
+      "mode": 420,
+      "sha256": "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/waybar.json": {
+      "bytes": 436,
+      "mode": 420,
+      "sha256": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0"
+    },
+    "packages/settings/cachy-asahi-setup/.SRCINFO": {
+      "bytes": 1937,
+      "mode": 420,
+      "sha256": "ea17df86f974ac13bd3a697815d57d6eaba85a77cd1803a6f504afca78d7cbbe"
+    },
+    "packages/settings/cachy-asahi-setup/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/settings/cachy-asahi-setup/NOTICE": {
+      "bytes": 970,
+      "mode": 420,
+      "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018"
+    },
+    "packages/settings/cachy-asahi-setup/PKGBUILD": {
+      "bytes": 4432,
+      "mode": 420,
+      "sha256": "f8e39e09e5ab8c18949f0290a76fc314f54fc6e4d1ac5564682b082e92dd3c7a"
+    },
+    "packages/settings/cachy-asahi-setup/README.md": {
+      "bytes": 17214,
+      "mode": 420,
+      "sha256": "4a595bf8930422c390efe99aa3926210c694257e3bd169daeedb1ed6d9936ddd"
+    },
+    "packages/settings/cachy-asahi-setup/cachy-asahi-repository": {
+      "bytes": 19778,
+      "mode": 420,
+      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+    },
+    "packages/settings/cachy-asahi-setup/cachy-asahi-setup": {
+      "bytes": 43967,
+      "mode": 420,
+      "sha256": "d33c87447afdc4dfebd55efb4ca9c8882ee1b091f9727390db1fd002c05f7817"
+    },
+    "packages/settings/cachy-asahi-setup/check-packaged.py": {
+      "bytes": 7628,
+      "mode": 420,
+      "sha256": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6"
+    },
+    "packages/settings/cachy-asahi-setup/check-sync.py": {
+      "bytes": 4256,
+      "mode": 420,
+      "sha256": "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/artifact-check-1.json": {
+      "bytes": 55897,
+      "mode": 420,
+      "sha256": "f39576fe7d072cc964479d8b4477e547ef885a69f55b42b85fdbafc84f95226f"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/artifact-check-2.json": {
+      "bytes": 55897,
+      "mode": 420,
+      "sha256": "c6fa3a00eda45aca371b651e37634600cde621d53c8e1081c66f141273b41808"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/host-build-1-BUILDINFO.txt": {
+      "bytes": 52355,
+      "mode": 420,
+      "sha256": "d027509d0d0bc7c74b293d781c36001df48427a726f9e0778730e9fa554b7346"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/host-build-1-PKGINFO.txt": {
+      "bytes": 578,
+      "mode": 420,
+      "sha256": "c02a9e4ac9e0d305b97fe63a6e6124446154dafdc4195254c1cac30b17e8761e"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/host-build-1.txt": {
+      "bytes": 1503,
+      "mode": 420,
+      "sha256": "52b0a5112c6f23fa04567b6d60a50bd80d087f8691e9c066e91ddca8cd902923"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/host-build-2-BUILDINFO.txt": {
+      "bytes": 52355,
+      "mode": 420,
+      "sha256": "e5e6c09c8f6bf62064c0200046d22a0e3b9611d57e199dc835c30e8bd55778d9"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/host-build-2-PKGINFO.txt": {
+      "bytes": 578,
+      "mode": 420,
+      "sha256": "d04e52761ae002dd63fc6a684a073d68da2e994fa6dd90395039e861070e3dae"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/host-build-2.txt": {
+      "bytes": 1451,
+      "mode": 420,
+      "sha256": "c744d661c373fab100ec930c50e4fe42f70c2ab319b37490e98124ef9e6d4a0e"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/old-c7d-regression-reproducer.json": {
+      "bytes": 1575,
+      "mode": 420,
+      "sha256": "0a8be1068e9c98e31fe07816065422cad6d59e10828cceda1967bea01a956a11"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/packaged-cli-smoke.json": {
+      "bytes": 5282,
+      "mode": 420,
+      "sha256": "b42c30a6469ea52d0b129c22aaac337081a0c7052736412cd640796d59e3495e"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/packaged-regressions-1.json": {
+      "bytes": 808,
+      "mode": 420,
+      "sha256": "d449d77dfc618dcc3a042d2e80884f1d9dd6c0a9beee11edafdd97846412b6a5"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/packaged-regressions-2.json": {
+      "bytes": 808,
+      "mode": 420,
+      "sha256": "d449d77dfc618dcc3a042d2e80884f1d9dd6c0a9beee11edafdd97846412b6a5"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/prepare-drift-refusal.txt": {
+      "bytes": 863,
+      "mode": 420,
+      "sha256": "37701db28f3eef8d78855fc97130dc5b34737b689564d66775924bdc3a913edd"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/recipe-check.json": {
+      "bytes": 4424,
+      "mode": 420,
+      "sha256": "c03666a59699d36af0ecdba565c65fcba2be2a9b7f5b3f867f42f58714400b29"
+    },
+    "packages/settings/cachy-asahi-setup/evidence/superseded-c7d-host-validation.json": {
+      "bytes": 2706,
+      "mode": 420,
+      "sha256": "1c4c1522612bb9f35c11745889d5cedabad6ea89b312f7812bbd65951d537ee3"
+    },
+    "packages/settings/cachy-asahi-setup/host-validation.json": {
+      "bytes": 3210,
+      "mode": 420,
+      "sha256": "e64e15a48b1636216c1419074ba7ae3280bddd42c5db76b7954a3da882f7766c"
+    },
+    "packages/settings/cachy-asahi-setup/repository-enrollment.md": {
+      "bytes": 10984,
+      "mode": 420,
+      "sha256": "67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4"
+    },
+    "packages/settings/cachy-asahi-setup/runtime-dependency-observation.json": {
+      "bytes": 484,
+      "mode": 420,
+      "sha256": "0f2382d15eb1c07c94826b1467492b248576350a43b96550cf23b94e018fa74c"
+    },
+    "packages/settings/cachy-asahi-setup/source-provenance.json": {
+      "bytes": 1925,
+      "mode": 420,
+      "sha256": "ad4c1e07e4140eb79ca9dd236dff8a32bcbaa2cffdd65c9e05b5ab6dc73d7e67"
+    },
+    "packages/settings/cachy-asahi-setup/test-sync.py": {
+      "bytes": 8042,
+      "mode": 420,
+      "sha256": "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3"
+    },
+    "packages/shells/cachy-asahi-fish-config/.SRCINFO": {
+      "bytes": 660,
+      "mode": 420,
+      "sha256": "eceab58745cd0235718cc71ddce312d6faa4eb23df0a724f3900c2f673b21416"
+    },
+    "packages/shells/cachy-asahi-fish-config/.gitignore": {
+      "bytes": 101,
+      "mode": 420,
+      "sha256": "fe48a6c62c3b98bfd773529a7fd8a2ba2c505b0932d1376c822d821126623c5c"
+    },
+    "packages/shells/cachy-asahi-fish-config/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/shells/cachy-asahi-fish-config/NOTICE": {
+      "bytes": 557,
+      "mode": 420,
+      "sha256": "19eb85ed65396056e59782ddf80fb5285ee26cad5ddf77ccb378936a2d5601c9"
+    },
+    "packages/shells/cachy-asahi-fish-config/PKGBUILD": {
+      "bytes": 1069,
+      "mode": 420,
+      "sha256": "0a8a0a7edbf13fb814bdab8584e16207208221d1fa1bc2db9dfa8159ba64fff5"
+    },
+    "packages/shells/cachy-asahi-fish-config/README.md": {
+      "bytes": 5508,
+      "mode": 420,
+      "sha256": "0189d2b3abe7146ce49b03b75a8ba6f49524194a181aaa6b837a76626525d6b0"
+    },
+    "packages/shells/cachy-asahi-fish-config/arm-dependency-audit.json": {
+      "bytes": 3963,
+      "mode": 420,
+      "sha256": "70c4f30683a3f70bee3b7fe86598b59e0db01c753e2a1a2636cff8c85cc1765d"
+    },
+    "packages/shells/cachy-asahi-fish-config/check-config.py": {
+      "bytes": 3034,
+      "mode": 420,
+      "sha256": "8dca732bd86f93e3b125b9575b172adfe3a80aa7f830924cdea328bf81b94c49"
+    },
+    "packages/shells/cachy-asahi-fish-config/config.fish": {
+      "bytes": 931,
+      "mode": 420,
+      "sha256": "d26d8826c8a7e096a55d0a4b3eee8e67013d6c9b201971e89ca32e273c0847aa"
+    },
+    "packages/shells/cachy-asahi-fish-config/evidence/host-0.1.0-2-old-config-negative.log": {
+      "bytes": 1350,
+      "mode": 420,
+      "sha256": "65db6e6063767e023fd41b0247af1ec175d2eb365e1c0e32b9c7bde35c21cf69"
+    },
+    "packages/shells/cachy-asahi-fish-config/evidence/host-0.1.0-2.log": {
+      "bytes": 1314,
+      "mode": 420,
+      "sha256": "d8f88bc8c12750fecab64607f01d18d86271e4e648bf6eab9ecc04db8e65cc6c"
+    },
+    "packages/shells/cachy-asahi-fish-config/evidence/host-build-1.BUILDINFO": {
+      "bytes": 52365,
+      "mode": 420,
+      "sha256": "080d91a9f57905a06f85df994b9d124c9fa707f880a95e04fd19b49b1d9fe2a3"
+    },
+    "packages/shells/cachy-asahi-fish-config/evidence/host-build-1.PKGINFO": {
+      "bytes": 364,
+      "mode": 420,
+      "sha256": "86968ab0e100931aa0e3458ea7940dbe402a4114cac063262f3ad43d8e4fc75e"
+    },
+    "packages/shells/cachy-asahi-fish-config/evidence/host-build-2.BUILDINFO": {
+      "bytes": 52365,
+      "mode": 420,
+      "sha256": "824d68cf8a98b489883562cbb094c82304c320e0ee67daf718a46e1cb63e1890"
+    },
+    "packages/shells/cachy-asahi-fish-config/evidence/host-build-2.PKGINFO": {
+      "bytes": 364,
+      "mode": 420,
+      "sha256": "f6cc29b1d0f787cae53e9473688bb67de82c7afac8226d2d5c89b8cc01474004"
+    },
+    "packages/shells/cachy-asahi-fish-config/evidence/makepkg-host-1.log": {
+      "bytes": 1026,
+      "mode": 420,
+      "sha256": "e3e97f0dd05fecabcdd28f16cb5e1b9d57853708bd667ffde683cf3ed0a5f76e"
+    },
+    "packages/shells/cachy-asahi-fish-config/evidence/makepkg-host-2.log": {
+      "bytes": 1026,
+      "mode": 420,
+      "sha256": "e3290261826439933092938825d3086f8dc315d0ce2ad90fc69882df0e0fb6b0"
+    },
+    "packages/shells/cachy-asahi-fish-config/host-validation.json": {
+      "bytes": 3571,
+      "mode": 420,
+      "sha256": "b0ce5882f96929057840ab3675cd28c784139812493877dfc3d4a4066045db2a"
+    },
+    "packages/shells/cachy-asahi-fish-config/runtime-dependency-observation.json": {
+      "bytes": 20978,
+      "mode": 420,
+      "sha256": "eef8a925e0f07882f9b587e418c0362fe2784742a31c5a5bead9adc0d44ca5f1"
+    },
+    "packages/shells/cachy-asahi-fish-config/upstream-audit.json": {
+      "bytes": 2254,
+      "mode": 420,
+      "sha256": "7fa40f3a83a3933b3eebeab7394026029e41f15d52042e74d0cb893ce30a5c62"
+    },
+    "packages/shells/cachy-asahi-zsh-config/.SRCINFO": {
+      "bytes": 607,
+      "mode": 420,
+      "sha256": "efb12bb5e6afbf584f1feb58a3fc057877faa3e9f0a4a452e9554eefd524bfdd"
+    },
+    "packages/shells/cachy-asahi-zsh-config/.gitignore": {
+      "bytes": 109,
+      "mode": 420,
+      "sha256": "c808688d038d6010547ce65a9f0f2ffebab19c1cc64d794c0415d2f9bb9c5ec9"
+    },
+    "packages/shells/cachy-asahi-zsh-config/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/shells/cachy-asahi-zsh-config/NOTICE": {
+      "bytes": 778,
+      "mode": 420,
+      "sha256": "20f1a90870566d337745019d5c465db48e14a566df3222c48a3320dc441e4de8"
+    },
+    "packages/shells/cachy-asahi-zsh-config/PKGBUILD": {
+      "bytes": 1012,
+      "mode": 420,
+      "sha256": "a0d86c532654f01edac764ad39d1173bb981a13752ad0216ea49907cd49b53e1"
+    },
+    "packages/shells/cachy-asahi-zsh-config/README.md": {
+      "bytes": 9326,
+      "mode": 420,
+      "sha256": "bad66c7f1190c63ba323800a21a1b2463e67d59736e046bf8db53e0df9cdcf65"
+    },
+    "packages/shells/cachy-asahi-zsh-config/check-config.py": {
+      "bytes": 2288,
+      "mode": 420,
+      "sha256": "e8f03737d19528bb36f2d4b72cf945ae32c284175b7fbc517196c91248965b2c"
+    },
+    "packages/shells/cachy-asahi-zsh-config/config.zsh": {
+      "bytes": 702,
+      "mode": 420,
+      "sha256": "7639b938dca689c445b64cc307148e2d3f85c5399d51c8ce69072dcf835baa6f"
+    },
+    "packages/shells/cachy-asahi-zsh-config/dependency-observation.json": {
+      "bytes": 27754,
+      "mode": 420,
+      "sha256": "bacbdde71fe07a084396508c940e6fa83fc06d995be8c9f7efc079552bffbfe7"
+    },
+    "packages/shells/cachy-asahi-zsh-config/evidence/host-build-1.BUILDINFO": {
+      "bytes": 52347,
+      "mode": 420,
+      "sha256": "0a93cea628ad8906ebd9c2117bafa8d74c6e00db32bccb37f167d98c71d048bb"
+    },
+    "packages/shells/cachy-asahi-zsh-config/evidence/host-build-1.log": {
+      "bytes": 1006,
+      "mode": 420,
+      "sha256": "ea4a124c7b83cdaeaad68e04eed91d30883897958cfbb2d42a31477e9eefb762"
+    },
+    "packages/shells/cachy-asahi-zsh-config/evidence/host-build-2.BUILDINFO": {
+      "bytes": 52347,
+      "mode": 420,
+      "sha256": "16a4892a3d73fc60ae595ea5c3587b222c32c0d8ec7a89ebdb9599a2532f8a9c"
+    },
+    "packages/shells/cachy-asahi-zsh-config/evidence/host-build-2.log": {
+      "bytes": 1006,
+      "mode": 420,
+      "sha256": "6faa57f5fc9284da4bfcea58cd754c89d2dcab049b9b6d54ea1fab35bdf37e12"
+    },
+    "packages/shells/cachy-asahi-zsh-config/excluded-source-license-observation.json": {
+      "bytes": 11744,
+      "mode": 420,
+      "sha256": "dc231bde74452bfe97c3c7aa1734779fd04b74e48da14525f431ef915a266e5d"
+    },
+    "packages/shells/cachy-asahi-zsh-config/host-validation.json": {
+      "bytes": 5063,
+      "mode": 420,
+      "sha256": "06e50efb9debfe11a0c7af6d88e8172e844c2c2a3870454c0e222ba97f8cdcb2"
+    },
+    "packages/shells/cachy-asahi-zsh-config/upstream-audit.json": {
+      "bytes": 1728,
+      "mode": 420,
+      "sha256": "279045f29953cd5a0bdcd6087ae97ed4f2df6f0b49746e4f0a7a66a75f60802d"
+    },
+    "packages/shells/cachy-asahi-zsh-config/usage.md": {
+      "bytes": 1644,
+      "mode": 420,
+      "sha256": "19a9df455ad2c42b01eb184bdfb0b14402fe372e397fa91cc0ee28dd766bb65d"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "mode": 420,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "mode": 420,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "mode": 420,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 19390,
+      "mode": 420,
+      "sha256": "306ea3dfa1ce4eb14796c0526a8ca9086043bdcb8e6698c0993d640d076f19cd"
+    },
+    "scripts/ci/commit_image.py": {
+      "bytes": 9274,
+      "mode": 420,
+      "sha256": "716e9aac5bd472e58da53e5def54a169f01b2c8bc7ac1fbae849f68532cf8a5c"
+    },
+    "scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "scripts/ci/native349-pinned-input-carrier/expected-files.json": {
+      "bytes": 71079,
+      "mode": 420,
+      "sha256": "1564360abf5695b19c132de971750311ab017189dd7b11b38b969d5445faf70b"
+    },
+    "scripts/ci/native_arm.py": {
+      "bytes": 28877,
+      "mode": 420,
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
+    },
+    "scripts/port/kernel-candidates/candidate.json": {
+      "bytes": 6442,
+      "mode": 420,
+      "sha256": "d26f691006a24f76db11f2f353e0ec10d93425ce2b6f8970a446b7bd34c98617"
+    },
+    "scripts/port/kernel-candidates/harness.py": {
+      "bytes": 16957,
+      "mode": 493,
+      "sha256": "f2d6fc62d28b0c189469ca7cf8293f10c574ecd0459c33c013bf1a271b8a5ebf"
+    },
+    "scripts/port/kernel-candidates/verify_build.py": {
+      "bytes": 57845,
+      "mode": 493,
+      "sha256": "7306ebf4e7ca54b49128882d8c730c3ee7e6249ea676fed2b6970a0679379057"
+    },
+    "scripts/port/kernel-native-job/intake.py": {
+      "bytes": 16912,
+      "mode": 420,
+      "sha256": "45a0cbc3c9ae27f0438ed8dde87f2b0d46faec54c5931f160e63ee17cfe726ce"
+    },
+    "scripts/port/kernel-native-job/job.py": {
+      "bytes": 57732,
+      "mode": 493,
+      "sha256": "40d4e44a6bda5c93ef91dceebeadc66c3420955d2b3f44c7d48da727c07f159e"
+    },
+    "scripts/port/kernel-native-job/packet.py": {
+      "bytes": 12800,
+      "mode": 420,
+      "sha256": "3cc6631797d804086686e88ddd2240455561420430bedb4ea6e4ce9eade9c53f"
+    },
+    "scripts/port/kernel-native-job/packet_v2.py": {
+      "bytes": 1197,
+      "mode": 420,
+      "sha256": "4a5abeb8e8355af69a7f851be32c0122ffd8df33abe82f2cdd70dcef878245fe"
+    },
+    "scripts/port/kernel-native-job/public.py": {
+      "bytes": 58959,
+      "mode": 420,
+      "sha256": "e9a89e126f2f6e3392c2db02cdd0cedb3e593ff1475a039b845bb2b169bb80ae"
+    },
+    "scripts/port/kernel-native-job/recipes.lock.json": {
+      "bytes": 7520,
+      "mode": 420,
+      "sha256": "56c53699b1c9a493798a071a537ae17d5b892ffa9618ca99a3465985a51fcef8"
+    },
+    "scripts/port/kernel-native-job/runtime.py": {
+      "bytes": 11544,
+      "mode": 420,
+      "sha256": "185daf192d5435d9616952ddc9176b01318a7543f47433c2f8be5514e996bf0e"
+    },
+    "scripts/port/kernel-native-job/test_intake.py": {
+      "bytes": 13517,
+      "mode": 420,
+      "sha256": "f561fbed6e0ad14aa0bf5d9b5bbdd0d353d52a31271da412d0d1adb1efb9caac"
+    },
+    "scripts/port/kernel-native-job/test_job.py": {
+      "bytes": 104936,
+      "mode": 420,
+      "sha256": "287ff3e644fb2c9bd99335b2ca4bfce150230c3de3e2a516329483e3437bc554"
+    },
+    "scripts/port/kernel-native-job/test_packet.py": {
+      "bytes": 20802,
+      "mode": 420,
+      "sha256": "f161855457de7fd1406b590c5d8559b22e39f52be38b1c60563fb80a15715068"
+    },
+    "scripts/port/kernel-native-job/test_packet_v2.py": {
+      "bytes": 2195,
+      "mode": 420,
+      "sha256": "51e0ca003003447f8014f1c5586b0379f772c2fefcca4c893a175bcf1dfb4a88"
+    },
+    "scripts/port/kernel-native-job/test_public.py": {
+      "bytes": 74865,
+      "mode": 420,
+      "sha256": "480363036bab0455b074647ab89d1f9317d41e1739fbc62f31bf52ad06c59357"
+    },
+    "scripts/port/kernel-native-job/test_runtime.py": {
+      "bytes": 13019,
+      "mode": 420,
+      "sha256": "57decb9b81727d5348e0089fac4f48dfe25ee32f01fb283f3eede79e3fe8ef00"
+    },
+    "scripts/port/kernel-native-stage/acquisition.py": {
+      "bytes": 20341,
+      "mode": 493,
+      "sha256": "c481e5f942d3ed1363e8ca6e917387b4a6fa18298ffd59de23283e287f8ff3f8"
+    },
+    "scripts/port/kernel-native-stage/broker.py": {
+      "bytes": 31620,
+      "mode": 420,
+      "sha256": "370a6036d7c268267c31fa40dd08b159b70dba6e7ccd693b46b92df512725fe7"
+    },
+    "scripts/port/kernel-native-stage/common.py": {
+      "bytes": 4392,
+      "mode": 420,
+      "sha256": "b91e7cd7e5b8d9044688e76b0730401a6ffe9d04df9720429d0b5acf864ef2e5"
+    },
+    "scripts/port/kernel-native-stage/dependencies.json": {
+      "bytes": 37780,
+      "mode": 420,
+      "sha256": "aa5f5580f10256f5749bbc86ec0abc0420981d935f37e84672298fa38d72cfe4"
+    },
+    "scripts/port/kernel-native-stage/dependency_audit.py": {
+      "bytes": 11740,
+      "mode": 493,
+      "sha256": "c6f639be6e7e9da08933f23f18aa3185bad64dc75fab036e7057dad0e258fd05"
+    },
+    "scripts/port/kernel-native-stage/embedded-config.txt": {
+      "bytes": 240677,
+      "mode": 420,
+      "sha256": "ae1d4ce855bd435b62c8fb213cbcf2d4eefd47b62274792c4a6bf299848b3876"
+    },
+    "scripts/port/kernel-native-stage/evidence.py": {
+      "bytes": 45918,
+      "mode": 420,
+      "sha256": "59f2500ad3c1e7ed38ff2a2bff5a4ec4cabf3036e76f1d953db23e6d8437fd38"
+    },
+    "scripts/port/kernel-native-stage/image.py": {
+      "bytes": 15700,
+      "mode": 420,
+      "sha256": "3bfd0c1b78d28a4575f9e38c3d6a326da9cc4dae4952cf8f6db21843c6304730"
+    },
+    "scripts/port/kernel-native-stage/inner_result.py": {
+      "bytes": 51458,
+      "mode": 420,
+      "sha256": "7be67a2e0788008690c22080789f7797b3d4bb2a8f03686798288bbad69db1dc"
+    },
+    "scripts/port/kernel-native-stage/regression.py": {
+      "bytes": 23648,
+      "mode": 493,
+      "sha256": "23f2b7fd17e34ab268e4468071b2ef52e9f4703c11dff1d6297594a11934a59b"
+    },
+    "scripts/port/kernel-native-stage/runtime.py": {
+      "bytes": 8100,
+      "mode": 420,
+      "sha256": "6d733a1c70fb2dc37723527bd19a5947e77b354f2a5b0bdfec7c5c96f2de74e4"
+    },
+    "scripts/port/kernel-native-stage/stage.lock.json": {
+      "bytes": 5596,
+      "mode": 420,
+      "sha256": "dbc2681bc42971f5214070a08d67e76c36bdb714979c762d0e56e15e0071d584"
+    },
+    "scripts/port/kernel-native-stage/stage.py": {
+      "bytes": 26791,
+      "mode": 493,
+      "sha256": "d43025bae2d6287acc5df7c46263c95418631c90c824ebfe89305bba2644a3af"
+    },
+    "scripts/port/kernel-native-stage/test_acquisition.py": {
+      "bytes": 16463,
+      "mode": 420,
+      "sha256": "f829d4b09644fb24f0a66f06088d1f8774671e86d91b6bf9a4a5d07867907eef"
+    },
+    "scripts/port/kernel-native-stage/test_broker.py": {
+      "bytes": 46110,
+      "mode": 420,
+      "sha256": "a82e38e0362793962e9a9a73613dd2028545e05d07e21ba8fb1113e224c16248"
+    },
+    "scripts/port/kernel-native-stage/test_dependency_audit.py": {
+      "bytes": 2752,
+      "mode": 420,
+      "sha256": "f04251d08135424a30cb522adb28b3712303452d371d34782e7763841db82362"
+    },
+    "scripts/port/kernel-native-stage/test_evidence.py": {
+      "bytes": 34349,
+      "mode": 420,
+      "sha256": "eee506348b153a600309df040ca98fcff9b14ab06b5f401ff3a6ae45f766d93c"
+    },
+    "scripts/port/kernel-native-stage/test_image.py": {
+      "bytes": 31199,
+      "mode": 420,
+      "sha256": "57a3bdf419dbc9b473f9909d48c2efaaeafd9b151090a82d14f14eeb6ab9378f"
+    },
+    "scripts/port/kernel-native-stage/test_inner_result.py": {
+      "bytes": 17489,
+      "mode": 420,
+      "sha256": "d981624e11a5d80e38c75a7d72d189fc7701c7da818d28412709aed561976574"
+    },
+    "scripts/port/kernel-native-stage/test_regression.py": {
+      "bytes": 11216,
+      "mode": 420,
+      "sha256": "fb18d186aa1c4f2026fe772db99a438966e04725eaad3904bbd000fdffbaae38"
+    },
+    "scripts/port/kernel-native-stage/test_stage.py": {
+      "bytes": 21201,
+      "mode": 420,
+      "sha256": "d5f85ba5217e617759ac8e73c5a83ce625549e6ab9864c1f0e3ea3aee236e5ce"
+    },
+    "scripts/port/kernel-native-stage/test_stage_inner.py": {
+      "bytes": 11205,
+      "mode": 420,
+      "sha256": "0a8acb85e398a4aa875ce4b38877181d07f5a3bb7e39eb02ec5021cc5400c71a"
+    },
+    "scripts/port/kernel-native-stage/test_worker.py": {
+      "bytes": 28957,
+      "mode": 420,
+      "sha256": "1284d56632dc8978dd52da61138f6401d6445361b1f732f2db2c07d3d9147525"
+    },
+    "scripts/port/kernel-native-stage/worker.py": {
+      "bytes": 25493,
+      "mode": 493,
+      "sha256": "0c7c72343f0102c76a3f77e769e4ca2c29ad976322a34ee30d51746139e23b7b"
+    },
+    "scripts/repository/enroll.py": {
+      "bytes": 19778,
+      "mode": 420,
+      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+    },
+    "scripts/setup/setup.py": {
+      "bytes": 43967,
+      "mode": 420,
+      "sha256": "d33c87447afdc4dfebd55efb4ca9c8882ee1b091f9727390db1fd002c05f7817"
+    }
+  },
+  "schema_version": 1
+}

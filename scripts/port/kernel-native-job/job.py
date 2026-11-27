@@ -770,7 +770,9 @@ def work(args, terminal, start):
         status['phase'] = 'source'
         context = ('source', 'SOURCE_REJECTED')
         snapshot = private / 'source'
-        evidence['source'] = packet.verify(root, args.packet, args.packet_sha256, args.source_commit, setup, snapshot)
+        import packet_v2
+        verify = packet_v2.verify if args.packet == root / packet_v2.MANIFEST else packet.verify
+        evidence['source'] = verify(root, args.packet, args.packet_sha256, args.source_commit, setup, snapshot)
         context = ('source', 'DOCKER_REJECTED')
         docker = Docker(args); evidence['daemon'] = docker.info(setup)
         context = ('source', 'DAEMON_BASELINE_UNVERIFIED')

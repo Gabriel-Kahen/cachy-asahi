@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       packet_sha256:
-        description: Externally reviewed SHA-256 of the complete kernel native job packet.lock.json
+        description: Externally reviewed SHA-256 of scripts/port/kernel-native-job-v2/packet.lock.json
         required: true
         type: string
       retained_inputs:
@@ -47,13 +47,15 @@ jobs:
           from pathlib import Path
 
           WORKFLOW = '.github/workflows/native-arm-kernel.yml'
-          PACKET = 'scripts/port/kernel-native-job/packet.lock.json'
+          PACKET = 'scripts/port/kernel-native-job-v2/packet.lock.json'
           JOB = 'scripts/port/kernel-native-job/job.py'
           PUBLIC = 'scripts/port/kernel-native-job/public.py'
           REQUIRED = {WORKFLOW, JOB, PUBLIC, 'scripts/ci/native_arm.py',
+                      'scripts/checks/package_checks.py',
                       'scripts/ci/native349-pinned-input-carrier/expected-files.json',
                       'scripts/port/kernel-native-job/intake.py',
                       'scripts/port/kernel-native-job/packet.py',
+                      'scripts/port/kernel-native-job/packet_v2.py',
                       'scripts/port/kernel-native-job/runtime.py',
                       'scripts/ci/inputs.lock.json',
                       'scripts/port/kernel-native-job/recipes.lock.json',
@@ -226,6 +228,7 @@ jobs:
               with open(os.environ['GITHUB_ENV'], 'a') as stream:
                   stream.write('KERNEL_DOCKER_SHA256=' + docker_pin + '\n')
                   stream.write('KERNEL_JOB_BOOTSTRAP_SOURCE=' + str(snapshot) + '\n')
+                  stream.write('KERNEL_JOB_PACKET_PATH=' + str(root / PACKET) + '\n')
               print('KERNEL_PREFLIGHT_PASS')
 
           if __name__ == '__main__':
@@ -258,7 +261,7 @@ jobs:
         run: |
           exec /usr/bin/python3 -I -B "$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/job.py" --execute-native \
             --source-root "$GITHUB_WORKSPACE" --source-commit "$GITHUB_SHA" \
-            --packet "$GITHUB_WORKSPACE/scripts/port/kernel-native-job/packet.lock.json" \
+            --packet "$KERNEL_JOB_PACKET_PATH" \
             --packet-sha256 "$KERNEL_JOB_PACKET_SHA256" \
             --output "$GITHUB_WORKSPACE/artifacts/kernel-native-job/job-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
             --docker-binary /usr/bin/docker --docker-sha256 "$KERNEL_DOCKER_SHA256" \
