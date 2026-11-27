@@ -9,7 +9,7 @@ import stat
 import capsule as C
 import privacy_diagnostics as privacy
 
-PRODUCERS = {'native/build_tools_alpm_v2.py': '8a071d7755d2dd311550d096bfc0dd8183582b288a46ad46adef20c5ede813bd', 'native/build_tools_tools_v2.py': '2978acabbb2dce2e075e0bfb0f8515e15dccac1e39bc9fa5c3a8e1ac316d5f84', 'native/build_tools_guest_v2.py': '3396c811551ae2272c4f0b11af3907f1efc39b8275adc2e0dc039a4e14883dd4', 'native/build_tools_probe_v2.py': 'a63de05cbd02af8c59849353dc73eaac7389a28c54c912b6bd7845fd62f29354', 'native/build-tools-contract-v2.json': '87db7214a738af7bbd30d72cc0e1e95c789c61995fd0e1397477c9694a95d91d'}
+PRODUCERS = {'native/build-tools-contract-v2.json': '6fd06e992e862b3773d90e27a6485d401f444d31144349f3ccf1d3a38269dc40', 'native/build_tools_alpm_v2.py': '481492779496315b47190f7d33e9172f7c7d7851b24679ac1ff8411ee05c2b72', 'native/build_tools_guest_v2.py': '3396c811551ae2272c4f0b11af3907f1efc39b8275adc2e0dc039a4e14883dd4', 'native/build_tools_probe_v2.py': 'a9486ff0ecacd6d1958de6555ef8fde5b70ed8f33dceb5f862a8a77ebb891cc5', 'native/build_tools_tools_v2.py': '8f4c4175a7811e6cee6ecbc38ce5dc48bd765edf0f8e242e90e5c6b29cfd51fb'}
 
 HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
  'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}

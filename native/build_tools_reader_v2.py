@@ -368,7 +368,7 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
                 actor_exit=row.get('exit'), container=container)
 
 
-PRODUCERS = {'native/build_tools_alpm_v2.py': '8a071d7755d2dd311550d096bfc0dd8183582b288a46ad46adef20c5ede813bd', 'native/build_tools_tools_v2.py': '2978acabbb2dce2e075e0bfb0f8515e15dccac1e39bc9fa5c3a8e1ac316d5f84', 'native/build_tools_guest_v2.py': '3396c811551ae2272c4f0b11af3907f1efc39b8275adc2e0dc039a4e14883dd4', 'native/build_tools_probe_v2.py': 'a63de05cbd02af8c59849353dc73eaac7389a28c54c912b6bd7845fd62f29354', 'native/build-tools-contract-v2.json': '87db7214a738af7bbd30d72cc0e1e95c789c61995fd0e1397477c9694a95d91d'}
+PRODUCERS = {'native/build-tools-contract-v2.json': '6fd06e992e862b3773d90e27a6485d401f444d31144349f3ccf1d3a38269dc40', 'native/build_tools_alpm_v2.py': '481492779496315b47190f7d33e9172f7c7d7851b24679ac1ff8411ee05c2b72', 'native/build_tools_guest_v2.py': '3396c811551ae2272c4f0b11af3907f1efc39b8275adc2e0dc039a4e14883dd4', 'native/build_tools_probe_v2.py': 'a9486ff0ecacd6d1958de6555ef8fde5b70ed8f33dceb5f862a8a77ebb891cc5', 'native/build_tools_tools_v2.py': '8f4c4175a7811e6cee6ecbc38ce5dc48bd765edf0f8e242e90e5c6b29cfd51fb'}
 
 PASS = 'PASS_BUILD_TOOLS_NATIVE_ALPM_COMPONENT'
 OPERATION = 'build-tools-alpm-v2'
@@ -738,8 +738,9 @@ def build_tools_contract():
     value = json.loads(raw)
     need(value.get('schema') == 1 and value.get('operation') == OPERATION
          and type(value.get('actual')) is dict and set(value['actual']) == {'source','ref','run','job','artifact'} and all(item is None for item in value['actual'].values())
-         and value.get('recipe', {}).get('version') == '0.2.0-1'
-         and len(value['recipe'].get('payload_files', {})) == 12 and len(value['recipe'].get('source_files', {})) == 16, 'exact unexecuted build_tools source contract')
+         and value.get('recipe', {}).get('version') == '0.1.1-2'
+         and len(value['recipe'].get('payload_files', {})) == 11 and len(value['recipe'].get('source_files', {})) == 15
+         and value['recipe'].get('expected_test_count') == 8 and value['recipe'].get('expected_test_names') == ['test_exact_installed_code_paths_pins_modes_and_no_hooks', 'test_missing_and_tampered_local_archive_refuse_without_objects', 'test_moved_package_import_verify_and_both_real_recipe_preflights', 'test_only_five_offline_commands_and_isolated_invocation_are_supported', 'test_poisoned_object_is_preserved_without_network_repair', 'test_recipe_shell_code_is_read_only_data_and_drift_refuses', 'test_user_workspace_python_and_environment_cannot_select_trusted_code', 'test_versioned_recipe_check_and_preflight_use_the_packaged_parser_without_srcinfo'], 'exact unexecuted build_tools source contract')
     return value
 
 
@@ -800,11 +801,11 @@ def build_tools_check_result(raw):
         m=re.fullmatch(r'(test_[A-Za-z0-9_]+) \(__main__\.PackageTests\.(test_[A-Za-z0-9_]+)\) \.\.\. ok',line)
         if m:
             need(m[1]==m[2],'exact unittest method identity');rows.append(m[1])
-    expected=['test_consistency_imports_adjacent_checker_and_freezes_legacy_modules', 'test_exact_installed_code_paths_pins_modes_and_no_hooks', 'test_installed_consistency_match_stale_mismatch_and_explicit_metadata', 'test_installed_consistency_unsupported_shell_and_missing_metadata_never_match', 'test_missing_and_tampered_local_archive_refuse_without_objects', 'test_moved_package_import_verify_and_both_real_recipe_preflights', 'test_only_six_offline_commands_and_isolated_invocation_are_supported', 'test_poisoned_object_is_preserved_without_network_repair', 'test_recipe_shell_code_is_read_only_data_and_drift_refuses', 'test_user_workspace_python_and_environment_cannot_select_trusted_code', 'test_versioned_recipe_check_and_preflight_use_the_packaged_parser_without_srcinfo']
-    need(rows==expected and len(rows)==len(set(rows))==11,'all eleven actual package checks exactly once and in order')
-    need(len(re.findall(r'^Ran 11 tests in [0-9]+(?:\.[0-9]+)?s$',text,re.M))==1 and text.splitlines().count('OK')==1
-         and not any(word in text for word in('FAILED (','ERROR:','skipped=','expected failures=')),'eleven positive tests without skip/failure')
-    return dict(status='PASS_ACTUAL_BUILD_TOOLS_PACKAGE_CHECKS',tests=11,names=rows,scope='OWN_PACKAGE_STAGE_MOVED_OFFLINE_METADATA_ONLY',namespace_acceptance='NOT_ESTABLISHED')
+    expected=['test_exact_installed_code_paths_pins_modes_and_no_hooks', 'test_missing_and_tampered_local_archive_refuse_without_objects', 'test_moved_package_import_verify_and_both_real_recipe_preflights', 'test_only_five_offline_commands_and_isolated_invocation_are_supported', 'test_poisoned_object_is_preserved_without_network_repair', 'test_recipe_shell_code_is_read_only_data_and_drift_refuses', 'test_user_workspace_python_and_environment_cannot_select_trusted_code', 'test_versioned_recipe_check_and_preflight_use_the_packaged_parser_without_srcinfo']
+    need(rows==expected and len(rows)==len(set(rows))==8,'all named package checks exactly once and in order')
+    need(len(re.findall(r'^Ran 8 tests in [0-9]+(?:\.[0-9]+)?s$',text,re.M))==1 and text.splitlines().count('OK')==1
+         and not any(word in text for word in('FAILED (','ERROR:','skipped=','expected failures=')),'all required positive tests without skip/failure')
+    return dict(status='PASS_ACTUAL_BUILD_TOOLS_PACKAGE_CHECKS',tests=8,names=rows,scope='OWN_PACKAGE_STAGE_MOVED_OFFLINE_METADATA_ONLY',namespace_acceptance='NOT_ESTABLISHED')
 
 
 def build_tools_check_output(raw):
@@ -819,16 +820,16 @@ def build_tools_build_pair(view, prefix, report, contract, selected, map_sha256)
     need(type(builds) is dict and set(builds) == {'a', 'b'} and type(comparison) is dict, 'two separate actual native builds/comparison required')
     need(comparison.get('status') == 'PASS_EXACT_NATIVE_BUILD_PAIR'
          and comparison.get('equality') == {key: True for key in ('archive', 'payload', 'pkginfo', 'buildinfo', 'mtree')}
-         and comparison.get('source_map_sha256') == map_sha256 and comparison.get('payload_files') == 12
+         and comparison.get('source_map_sha256') == map_sha256 and comparison.get('payload_files') == 11
          and comparison.get('base_inventory_count') == 349
          and comparison.get('pkgbuild_sha256') == recipe['source_files']['PKGBUILD']['sha256'], 'exact native build-pair/provenance comparison required')
     expected = recipe['payload_files']; indexes = []; decoded = {}; archives = {}; identities = []
     fixed = Path(contract['invocation']['source']).parent; slot = fixed / 'build-current'
     for label in ('a', 'b'):
         build = builds[label]; archive = build.get('archive'); directory = build.get('build_directory')
-        need(build.get('version') == '0.2.0-1' and build.get('recipe_sha256') == recipe['source_files']['PKGBUILD']['sha256']
-             and build.get('check_invoked') is True and build.get('check_tests') == recipe['expected_test_count'] == 11
-             and build.get('check_policy') == 'POSITIVE_CHECK_NO_NOCHECK', 'exact recipe and positive17 makepkg checks required')
+        need(build.get('version') == '0.1.1-2' and build.get('recipe_sha256') == recipe['source_files']['PKGBUILD']['sha256']
+             and build.get('check_invoked') is True and build.get('check_tests') == recipe['expected_test_count'] == 8
+             and build.get('check_policy') == 'POSITIVE_CHECK_NO_NOCHECK', 'exact recipe and positive makepkg checks required')
         need(type(directory) is dict and directory.get('logical') == str(slot) and directory.get('retained') == str(fixed/'build-inputs'/label)
              and directory.get('initial_files') == sorted(recipe['source_files']) and type(directory.get('identity')) is dict
              and set(directory['identity']) == {'device', 'inode'}
@@ -845,7 +846,7 @@ def build_tools_build_pair(view, prefix, report, contract, selected, map_sha256)
                   '/usr/bin/makepkg', '--cleanbuild', '--nodeps', '--nosign', '--noconfirm', '--config',
                   str(Path(contract['invocation']['source']) / contract['makepkg_config']['path'])]
         need(argv == wanted and command.get('cwd') == str(slot) and command['expected'] == 0
-             and build_tools_check_output(raw) and build.get('check_result') == pin((json.dumps(build_tools_check_result(raw), sort_keys=True, indent=2, allow_nan=False) + '\n').encode()), 'ordinary separate clean builds must run actual17 check() controls')
+             and build_tools_check_output(raw) and build.get('check_result') == pin((json.dumps(build_tools_check_result(raw), sort_keys=True, indent=2, allow_nan=False) + '\n').encode()), 'ordinary separate clean builds must run the exact named check() controls')
         decode_index, decode = selected('archive-' + label)
         need(decode['argv'] == ['/usr/bin/zstd', '-dc', str(fixed/'build-inputs'/label/recipe['archive'])]
              and decode['expected'] == 0 and decode_index > indexes[-1], 'raw actual archive decoder command required')
@@ -866,11 +867,11 @@ def build_tools_build_pair(view, prefix, report, contract, selected, map_sha256)
                 else:
                     need(name in expected and member.mode == expected[name]['mode'] and pin(body) == {key: expected[name][key] for key in ('bytes', 'sha256')}, 'exact source-bound payload bytes/mode')
                     payload[name] = dict(mode=member.mode, **pin(body))
-        need(set(payload) == set(expected) and directories == ancestors and set(metadata) == {'.PKGINFO', '.BUILDINFO', '.MTREE'}, 'complete seventeen-file archive namespace required')
+        need(set(payload) == set(expected) and directories == ancestors and set(metadata) == {'.PKGINFO', '.BUILDINFO', '.MTREE'}, 'complete source-bound archive namespace required')
         info = build_tools_metadata(metadata['.PKGINFO']); provenance = build_tools_metadata(metadata['.BUILDINFO'])
-        need(info.get('pkgname') == ['cachy-asahi-build-tools'] and info.get('pkgver') == ['0.2.0-1'] and info.get('arch') == ['any']
+        need(info.get('pkgname') == ['cachy-asahi-build-tools'] and info.get('pkgver') == ['0.1.1-2'] and info.get('arch') == ['any']
              and info.get('license') == ['MIT'] and info.get('depend') == ['python>=3.12'] and info.get('checkdepend', []) == [], 'exact package identity and runtime dependency metadata')
-        need(provenance.get('pkgname') == ['cachy-asahi-build-tools'] and provenance.get('pkgver') == ['0.2.0-1'] and provenance.get('pkgarch') == ['any']
+        need(provenance.get('pkgname') == ['cachy-asahi-build-tools'] and provenance.get('pkgver') == ['0.1.1-2'] and provenance.get('pkgarch') == ['any']
              and provenance.get('pkgbuild_sha256sum') == [recipe['source_files']['PKGBUILD']['sha256']]
              and sorted(provenance.get('installed', [])) == contract['buildinfo_installed'] and len(provenance.get('installed', [])) == 349
              and 'check' in provenance.get('buildenv', []) and '!check' not in provenance.get('buildenv', []), 'full349 build provenance and checks required')
@@ -1103,7 +1104,7 @@ def retained_build_tools_alpm(view, files, guest, map_sha256):
     need(not report.get('namespace_observations')and not report.get('namespace_observation_failures'), 'failure-only prerequisite DATA cannot qualify positive native evidence')
     need(type(report) is dict and type(report.get('schema_version')) is int and report['schema_version'] == 1
          and report.get('operation') == OPERATION and report.get('status') == PASS and report.get('source_map_sha256') == map_sha256
-         and report.get('version') == '0.2.0-1' and report.get('contract') == pin(read(Path(__file__).resolve().with_name('build-tools-contract-v2.json')))
+         and report.get('version') == '0.1.1-2' and report.get('contract') == pin(read(Path(__file__).resolve().with_name('build-tools-contract-v2.json')))
          and view.load(prefix + 'result.json') == report, 'same-map exact actual build_tools component result required')
     need(report.get('stages') == ['build-a', 'build-b', 'compare', 'sign', 'install', 'commands-system', 'commands-moved', 'remove', 'restore', 'cleanup'],
          'complete ordered build_tools lifecycle stages required')
@@ -1115,18 +1116,18 @@ def retained_build_tools_alpm(view, files, guest, map_sha256):
     need(pin(base) == {key: contract['expected349'][key] for key in ('bytes', 'sha256')} and len(base.splitlines()) == 349, 'exact retained349 baseline required')
     inventory = report.get('inventory'); indexes = {}
     need(type(inventory) is dict and set(inventory) == {'baseline', 'installed', 'removed'}, 'complete349/350/349 inventory map required')
-    for key, version, count in [('baseline', None, 349), ('installed', '0.2.0-1', 350), ('removed', None, 349)]:
+    for key, version, count in [('baseline', None, 349), ('installed', '0.1.1-2', 350), ('removed', None, 349)]:
         rows = base.splitlines(keepends=True)
-        if version is not None: rows.append(b'cachy-asahi-build-tools 0.2.0-1\n')
+        if version is not None: rows.append(b'cachy-asahi-build-tools 0.1.1-2\n')
         expected = pin(b''.join(sorted(rows))); row = inventory[key]; index, command = selected(key + '-inventory'); indexes[key] = index
         need(type(row) is dict and type(row.get('count')) is int and row['count'] == count and row.get('version') == version
              and {k: row.get(k) for k in ('bytes', 'sha256')} == expected and command['argv'] == ['/usr/bin/pacman', '-Q']
              and pin(b''.join(sorted(view.read(prefix + command['log']).splitlines(keepends=True)))) == expected, 'exact raw ALPM inventory must restore')
     need(guest.get('packages') == pin(base), 'guest exact349 baseline required')
     payload = report.get('payloads', {}).get('installed')
-    need(payload == dict(version='0.2.0-1', count=12, verified=True, stale_absent=True,
+    need(payload == dict(version='0.1.1-2', count=11, verified=True, stale_absent=True,
                          files={name:{key:item[key] for key in ('bytes','sha256','mode')} for name,item in recipe['payload_files'].items()})
-         and payload.get('verified') is True, 'actual ALPM installed seventeen-file source-bound payload required')
+         and payload.get('verified') is True, 'actual ALPM source-bound installed payload required')
     signatures = report.get('signatures')
     need(type(signatures) is dict and set(signatures) == {'a', 'b'}, 'both actual native archive signatures required')
     verify_indexes = []; signers = set()
@@ -1182,7 +1183,7 @@ def retained_build_tools_alpm(view, files, guest, map_sha256):
         need(command['argv'][:4] == ['/usr/bin/pacman', '--config', config_path, '-Qoq'] and len(command['argv']) == 5
              and view.read(prefix + command['log']).strip() == b'cachy-asahi-build-tools', 'actual ALPM file ownership query required')
         owners.append(command['argv'][4].removeprefix('/'))
-    need(sorted(owners) == sorted(recipe['payload_files']), 'all seventeen payload leaves require actual ALPM ownership joins')
+    need(sorted(owners) == sorted(recipe['payload_files']), 'all payload leaves require actual ALPM ownership joins')
     _, command = selected('owned-files-cachy-asahi-build-tools'); names = view.read(prefix + command['log']).decode().splitlines()
     need(command['argv'] == ['/usr/bin/pacman', '--config', config_path, '-Qlq', 'cachy-asahi-build-tools'] and len(names) == len(set(names))
          and all(name.startswith('/') and '..' not in Path(name).parts and name.rstrip('/') == Path(name.rstrip('/')).as_posix() for name in names)
@@ -1212,9 +1213,9 @@ def retained_build_tools_alpm(view, files, guest, map_sha256):
              'complete exact no-autostart absence after each TEST retirement')
     native = report.get('native')
     need(type(native) is dict and native.get('architecture') == 'aarch64' and type(native.get('page_bytes')) is int and native['page_bytes'] == guest.get('page_size')
-         and native['page_bytes'] > 0 and native.get('execution') == 'OWNED_IMAGE_BUILD_STAGE' and native.get('physical_M2') == 'NOT_RUN' and native.get('release') == 'NOT_ADMITTED',
+         and native['page_bytes'] == 4096 and native.get('execution') == 'OWNED_IMAGE_BUILD_STAGE' and native.get('physical_M2') == 'NOT_RUN' and native.get('release') == 'NOT_ADMITTED',
          'actual native image-stage identity without M2/release inference')
-    return dict(status='MATCHED_BUILD_TOOLS_ALPM_COMPONENT_DATA_ONLY', version='0.2.0-1',
+    return dict(status='MATCHED_BUILD_TOOLS_ALPM_COMPONENT_DATA_ONLY', version='0.1.1-2',
                 native='NOT_ADMITTED', native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
 
 
@@ -1226,12 +1227,12 @@ def build_tools_business(view, prefix, report, selected, fixed, installed_index,
     last=installed_index
     for label,home in(('system',fixed/'user-data/system'),('moved',fixed/'user-data/relocated')):
         value=business[label];work=home/'workflow';fixtures=home/'fixtures';cli='/usr/bin/cachy-asahi-build-tools'if label=='system'else str(fixed/'user-data/moved-prefix/usr/bin/cachy-asahi-build-tools')
-        need(type(value)is dict and value.get('status')=='PASS_BUILD_TOOLS_FINITE_INSTALLED_PROBE'and value.get('version')=='0.2.0-1'and value.get('scope')==value.get('label')==label
+        need(type(value)is dict and value.get('status')=='PASS_BUILD_TOOLS_FINITE_INSTALLED_PROBE'and value.get('version')=='0.1.1-2'and value.get('scope')==value.get('label')==label
              and value.get('cli')==cli and value.get('fixture_root')==str(fixtures)and value.get('work_root')==str(work)
-             and type(value.get('controls'))is int and value['controls']==9 and type(value.get('commands_covered'))is int and value['commands_covered']==6
+             and type(value.get('controls'))is int and value['controls']==6 and type(value.get('commands_covered'))is int and value['commands_covered']==5
              and value.get('source_execution')=='FORBIDDEN'and value.get('namespace_acceptance')=='NOT_ESTABLISHED'
              and value.get('native_build')==value.get('alpm_installation')=='NOT_ESTABLISHED_BY_PROBE'and value.get('hardware')=='NOT_RUN'and value.get('release')=='NOT_ADMITTED','exact new package probe contract; no namespace/native/hardware inference')
-        payload=contract['recipe']['payload_files'];need(value.get('installed')==dict(files=12,payload=payload),'exact12 installed/moved payload identity')
+        payload=contract['recipe']['payload_files'];need(value.get('installed')==dict(files=11,payload=payload),'exact installed/moved payload identity')
         fixture=dict(files=14,archive={k:contract['trusted_fixture'][k]for k in('bytes','sha256')});need(value.get('fixture')==fixture and value.get('source_fixture')==fixture['archive'],'exact original retained fixture pin')
         need(type(value.get('steps'))is dict and set(value['steps'])==set(B.STEPS)and type(value.get('reports'))is dict and set(value['reports'])==set(B.STEPS),'every fixed original command role')
         source_commands=[];positions=[]
@@ -1241,7 +1242,7 @@ def build_tools_business(view, prefix, report, selected, fixed, installed_index,
             argv=['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','HOME='+str(work),'PATH=/usr/bin:/bin','PYTHONDONTWRITEBYTECODE=1',cli,*arguments]
             need(command['argv']==argv and command.get('cwd')==str(work)and command['expected']==expected and pin(raw)==value['reports'][key],'exact ordinary-user argv/cwd/exit/raw-SHA join')
             B.validate_result(key,json.loads(raw),contract,work);source_commands.append(dict(step=key,argv=argv,expected=expected,stdout=pin(raw)))
-        need(source_commands==value.get('commands')and len(source_commands)==9 and last<min(positions)and positions==sorted(set(positions))and max(positions)<remove_index,'all original probes ordered after install and before remove')
+        need(source_commands==value.get('commands')and len(source_commands)==6 and last<min(positions)and positions==sorted(set(positions))and max(positions)<remove_index,'all original probes ordered after install and before remove')
         last=max(positions)
 
 
@@ -1545,7 +1546,7 @@ def validate(capsule_path, expected):
     need(runner['kernel']['machine'] in ('aarch64', 'arm64') and runner['docker_server_arch'] in ('aarch64', 'arm64')
          and runner['commit'] == binding['source'] and runner['run_id'] == binding['run']
          and runner['docker_endpoint'] in ('unix:///var/run/docker.sock', 'unix:///run/docker.sock')
-         and type(runner['page_size']) is int and runner['page_size'] > 0, 'actual native host/local daemon provenance')
+         and type(runner['page_size']) is int and runner['page_size'] == 4096, 'actual native host/local daemon provenance')
     before = view.load('consumer-inspect.json'); after = view.load('consumer-after.json')
     for row in (before, after):
         need(row['Id'] == receipt['consumer']['container'], 'retained exact consumer ID')
