@@ -85,6 +85,36 @@ class StageTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(b"export_qt_evidence /trial-work/qt-replacement-evidence", (root / "guest-init.sh").read_bytes())
 
+    def test_stages_parity_archive_and_detached_signature_only_at_the_selected_names(self):
+        P = S["P"]
+        old = P["PROJECT_NAME"]
+        body = b"new parity archive"
+        profile = dict(kind=P["PARITY_KIND"], official_version=P["VERSION"], project_version=P["PARITY_PROJECT_VERSION"],
+                       recipe=P["PARITY_RECIPE"], test_review=self.review,
+                       **{name: C.pin(name.encode()) for name in P["PARITY_INPUT_CAPS"]})
+        profile["project_archive"] = C.pin(body)
+        name = P["project_name"](profile)
+        paths = {key: path for key, path in self.paths.items() if key not in {old, old + ".sig"}}
+        paths[name] = self.root / name
+        paths[name].write_bytes(body)
+        paths[name + ".sig"] = self.paths[old + ".sig"]
+        with self.assertRaisesRegex(ValueError, "Exact pinned Qt media input set"):
+            self.stage(profile=profile)
+        with self.assertRaisesRegex(ValueError, "Qt TEST review differs"):
+            self.stage(profile=profile, media_paths=paths,
+                       project_review=self.review | {"certificate": C.pin(b"substitute")})
+        paths[name].write_bytes(body[::-1])
+        with self.assertRaisesRegex(ValueError, "Exact original file pin"):
+            self.stage(profile=profile, media_paths=paths)
+        paths[name].write_bytes(body)
+        report = self.stage(profile=profile, media_paths=paths)
+        root = Path(report["path"])
+        plan = C.json_body((root / "code/plan.json").read_bytes(), canonical=True)
+        self.assertEqual(P["plan_profile"](plan["qt_replacement"]), profile)
+        self.assertEqual(plan["qt_media"]["qt-replacement/" + name], profile["project_archive"])
+        self.assertEqual(plan["qt_media"]["qt-replacement/" + name + ".sig"], self.review["signature"])
+        self.assertNotIn("qt-replacement/" + old, plan["qt_media"])
+
     def test_refuses_unexpected_or_rebound_selection_before_publishing(self):
         wrong_code = self.addon | {"unexpected.py": C.pin(b"unreviewed")}
         first = next(iter(self.addon))

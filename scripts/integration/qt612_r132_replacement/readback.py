@@ -32,6 +32,7 @@ W = run_path(str(Path(__file__).with_name("weston_run.py")))
 C, A, need = P["C"], P["A"], P["need"]
 OFFICIAL, PROJECT, VERSION = (P[name] for name in ("OFFICIAL", "PROJECT", "VERSION"))
 KIND = "QT612_ASAHI629_REPLACEMENT_RECEIPT_V1"
+PARITY_KIND = "QT612_ASAHI629_PARITY_SCOPED_RECEIPT_V1"
 PHASES = ("baseline", "replacement", "restoration")
 EVENTS = (
     "inputs-verified", "baseline", "trust-verified", "replacement-applied", "replacement",
@@ -42,6 +43,14 @@ ORIGINALS = P["PINS"] | {
     "r132_config": A["CONFIG"],
     "r132_transport": C.file_pin(197340, "08a1f949794b085158608c9577476574514fa963a8168554ca523c2242f35178"),
 }
+
+
+def originals(profile):
+    if profile is None:
+        return ORIGINALS
+    return {role: ORIGINALS[role] for role in ("r132_kernel", "r132_config", "r132_transport")} | P["profile_pins"](profile)
+
+
 EVIDENCE = {
     **{f"{phase}.lock": 64 << 10 for phase in PHASES},
     **{f"{phase}-platform.json": 2 << 20 for phase in PHASES},
@@ -174,7 +183,7 @@ def journal_rows(raw):
     return rows
 
 
-def journal(raw, times, nonce):
+def journal(raw, times, nonce, *, profile_pin=None):
     rows = journal_rows(raw)
     for row in rows:
         del row["phase"]
@@ -187,7 +196,10 @@ def journal(raw, times, nonce):
     need(all(observed_times[phase] == times[event] for phase, event in JOURNAL_EVENTS.items()),
          "Guest transaction timestamps differ from outer chronology")
     observed = dict(zip(JOURNAL_PHASES, rows, strict=True))
-    need(observed["entry"] == dict(kind=JOURNAL_KIND, nonce=nonce), "Guest journal nonce differs from receipt")
+    entry = dict(kind=JOURNAL_KIND, nonce=nonce)
+    if profile_pin is not None:
+        entry["parity_profile"] = profile_pin
+    need(observed["entry"] == entry, "Guest journal nonce differs from receipt or the parity profile differs")
     need(observed["probe"] == dict(status="PASS", error=None)
          and observed["terminal"] == dict(kind=JOURNAL_KIND, status="PASS_QT629_PROVIDER_ROUND_TRIP",
                                           last_verified="restoration", failure_phase=None, error=None),
@@ -195,14 +207,14 @@ def journal(raw, times, nonce):
     return observed
 
 
-def transactions(trust, raw, times, nonce, *, project_version=VERSION, project_archive=None):
+def transactions(trust, raw, times, nonce, *, project_version=VERSION, project_archive=None, profile_pin=None):
     versions = P["provider_versions"](project_version)
     legacy_archive = ORIGINALS["project_archive"]
     if project_version == VERSION:
         need(project_archive is None or project_archive == legacy_archive, "Expected the original V1 project archive")
         project_archive = legacy_archive
     else:
-        need(C.check_pin(project_archive, 16 << 20) and project_archive["bytes"] > 0
+        need(C.check_pin(project_archive, P["ARCHIVE_CAP"]) and project_archive["bytes"] > 0
              and project_archive not in (legacy_archive, ORIGINALS["official_archive"]),
              "Expected a distinct independently selected parity project archive")
     fields(trust, "policy test_certificate test_fingerprint test_not_before test_not_after", "trust")
@@ -217,7 +229,7 @@ def transactions(trust, raw, times, nonce, *, project_version=VERSION, project_a
          and trust["test_certificate"] != ORIGINALS["alarm_public_key"]
          and type(before) is type(after) is int and 0 < before <= verified <= restored < after,
          "Separate current TEST trust required")
-    rows = journal(raw["transaction.jsonl"], times, nonce)
+    rows = journal(raw["transaction.jsonl"], times, nonce, profile_pin=profile_pin)
     reason = rows["baseline"]["install_reason"]
     need(type(reason) is int and reason in (0, 1), "Expected supported original provider install reason")
     for phase in PHASES:
@@ -417,21 +429,36 @@ def retirement(row, nonce):
     ], "QEMU and outer container must be observed absent twice")
 
 
-def readback(bundle, receipt_sha256):
+def readback(bundle, receipt_sha256, *, profile=None):
+    selected_pins = originals(profile)
+    profile_pin = None if profile is None else C.pin(C.wire(profile))
+    version = VERSION if profile is None else profile["project_version"]
+    kind = KIND if profile is None else PARITY_KIND
     receipt_raw, receipt_pin = C.external(bundle / "receipt.json", 128 << 10, receipt_sha256)
+    names = "kind nonce original_inputs evidence chronology phases trust retirement"
     receipt = fields(C.json_body(receipt_raw, canonical=True),
-                     "kind nonce original_inputs evidence chronology phases trust retirement", "receipt")
-    need(receipt["kind"] == KIND and type(receipt["nonce"]) is str and NONCE.fullmatch(receipt["nonce"]),
+                     names if profile is None else names + " parity_profile", "receipt")
+    need(receipt["kind"] == kind and type(receipt["nonce"]) is str and NONCE.fullmatch(receipt["nonce"])
+         and receipt.get("parity_profile") == profile_pin,
          "Expected scoped Qt replacement receipt and run nonce")
-    need(receipt["original_inputs"] == ORIGINALS, "Original R132, Asahi629 or Qt input pins differ")
+    need(receipt["original_inputs"] == selected_pins, "Original R132, Asahi629 or Qt input pins differ")
     collect = {"rollback_lock", "rollback_result", "owned_terminal", "r132_config"}
-    originals = {role: C.read(bundle / "inputs" / role, pin["bytes"], pin, collect=role in collect)[0]
-                 for role, pin in ORIGINALS.items()}
-    need(b"CONFIG_ARM64_16K_PAGES=y" in originals["r132_config"].splitlines()
-         and b"CONFIG_RTC_DRV_PL031=y" in originals["r132_config"].splitlines(),
+    if profile is not None:
+        collect |= {"build_plan", "build_receipt", "parity_recipe", "abi_comparison", "alpm_prepare"}
+    inputs = bundle / "inputs"
+    bodies = {role: C.read(inputs / role, pin["bytes"], pin, collect=role in collect)[0]
+              for role, pin in selected_pins.items()}
+    if profile is not None:
+        P["verify_parity_build"](profile, *(bodies[name] for name in ("build_plan", "build_receipt", "parity_recipe")))
+        metadata = {role: P["archive_metadata"](role + "_archive", inputs / (role + "_archive"), owner,
+                                               profile=profile)[0]
+                    for role, owner in (("project", PROJECT), ("official", OFFICIAL))}
+        P["verify_audit"](C.json_body(bodies["abi_comparison"]), bodies["alpm_prepare"], metadata, profile=profile)
+    need(b"CONFIG_ARM64_16K_PAGES=y" in bodies["r132_config"].splitlines()
+         and b"CONFIG_RTC_DRV_PL031=y" in bodies["r132_config"].splitlines(),
          "Expected R132 ARM16K kernel with the built-in PL031 clock")
-    predecessor = C.json_body(originals["rollback_result"])
-    terminal = C.json_body(originals["owned_terminal"])
+    predecessor = C.json_body(bodies["rollback_result"])
+    terminal = C.json_body(bodies["owned_terminal"])
     P["verify_predecessor"](predecessor, terminal)
     need(receipt["nonce"] != predecessor["nonce"], "Qt replacement must use a fresh run nonce")
     evidence = fields(receipt["evidence"], " ".join(EVIDENCE), "evidence")
@@ -439,27 +466,40 @@ def readback(bundle, receipt_sha256):
     need(all(raw[name] for name in EVIDENCE), "Empty Qt replacement evidence")
     times = chronology(receipt["chronology"])
     phases = fields(receipt["phases"], " ".join(PHASES), "phase")
-    untouched = inventories(phases, raw, originals["rollback_lock"])
+    untouched = inventories(phases, raw, bodies["rollback_lock"], project_version=version)
     platform = protected(phases, raw, predecessor)
-    transactions(receipt["trust"], raw, times, receipt["nonce"])
+    if profile is not None:
+        reviewed = receipt["trust"]
+        P["choose_review"](profile, dict(
+            fingerprint=reviewed["test_fingerprint"], certificate=C.pin(raw["test-certificate.gpg"]),
+            signature=C.pin(raw["test-signature.sig"]), not_before=reviewed["test_not_before"],
+            not_after=reviewed["test_not_after"]))
+    transactions(receipt["trust"], raw, times, receipt["nonce"], project_version=version,
+                 project_archive=selected_pins["project_archive"], profile_pin=profile_pin)
     nonce = receipt["nonce"]
     clients = runtime_probes(raw["vendor-runtime-probes.json"], nonce, "vendor") | runtime_probes(
         raw["runtime-probes.json"], nonce, "replacement")
     weston_presentations(raw[W["REPORT_NAME"]], raw[W["LOG_NAME"]], nonce, clients)
     retirement(receipt["retirement"], receipt["nonce"])
-    return dict(status="CONSISTENT_EXPORTED_QT612_ASAHI629_RECEIPT", receipt=receipt_pin,
+    result = dict(status="CONSISTENT_EXPORTED_QT612_ASAHI629_RECEIPT", receipt=receipt_pin,
                 nonce=receipt["nonce"], predecessor_nonce=predecessor["nonce"], untouched_rows=628,
                 untouched_lock=untouched, restored_lock=phases["restoration"]["lock"], platform=platform)
+    if profile_pin is not None:
+        result.update(status="CONSISTENT_EXPORTED_QT612_ASAHI629_PARITY_SCOPED_RECEIPT", parity_profile=profile_pin)
+    return result
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--receipt-sha256", required=True)
+    parser.add_argument("--profile", type=Path)
+    parser.add_argument("--profile-sha256")
     args = parser.parse_args()
     try:
         sys.addaudithook(C.audit_fence)
-        sys.stdout.buffer.write(C.wire(readback(args.bundle, args.receipt_sha256)))
+        profile = P["load_profile"](args.profile, args.profile_sha256)
+        sys.stdout.buffer.write(C.wire(readback(args.bundle, args.receipt_sha256, profile=profile)))
     except (KeyError, OSError, RecursionError, TypeError, ValueError) as error:
         sys.exit(f"Qt629 readback refused: {error}")
 

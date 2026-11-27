@@ -166,13 +166,14 @@ def guest_init(body):
         b"export_qt_evidence /trial-work/qt-replacement-evidence /trial-export/qt-replacement-evidence\n"))
 
 
-def reviewed_media(paths, review):
+def reviewed_media(paths, review, *, profile=None):
+    P["choose_review"](profile, review)
     need(type(review) is dict and review.keys() == {"fingerprint", "certificate", "signature", "not_before", "not_after"}
          and type(review["fingerprint"]) is str and re.fullmatch(r"[0-9A-F]{40}", review["fingerprint"])
          and type(review["not_before"]) is type(review["not_after"]) is int
          and 0 < review["not_before"] < review["not_after"], "Exact reviewed Qt TEST selection required")
-    original = P["PINS"]
-    official, project = P["OFFICIAL_NAME"], P["PROJECT_NAME"]
+    original = P["profile_pins"](profile)
+    official, project = P["OFFICIAL_NAME"], P["project_name"](profile)
     expected = {
         "rollback.lock": original["rollback_lock"], "result.json": original["rollback_result"],
         official: original["official_archive"], official + ".sig": original["official_signature"],
@@ -189,11 +190,12 @@ def reviewed_media(paths, review):
     return bodies, pins
 
 
-def verify_qt_test(directory, review):
+def verify_qt_test(directory, review, *, profile=None):
     """Verify the exact selected archive and detached signature using public data only."""
     tx = run_path(str(HERE / "transaction.py"))
     review = tx["checked_review"](review)
-    archive = directory / P["PROJECT_NAME"]
+    P["choose_review"](profile, review)
+    archive = directory / P["project_name"](profile)
     with tempfile.TemporaryDirectory(prefix="qt629-test-verify-") as folder:
         keyring = Path(folder)
         certificate, body = tx["certificate"](directory / "test-certificate.gpg", review, keyring)
@@ -201,7 +203,7 @@ def verify_qt_test(directory, review):
                    "--homedir", folder, "--import"]
         imported = subprocess.run(command, env=tx["A"]["ENV"], input=body, capture_output=True, timeout=30)
         need(imported.returncode == 0, "Could not import the reviewed Qt TEST public certificate")
-        verification = dict(archive=P["PINS"]["project_archive"], signature=review["signature"],
+        verification = dict(archive=P["profile_pins"](profile)["project_archive"], signature=review["signature"],
                             fingerprint=review["fingerprint"])
         detached, status = tx["signature"](archive, tx["PROJECT"], verification, keyring)
     created, expires = E["R"]["signature_status"](status, review["fingerprint"])
@@ -212,7 +214,7 @@ def verify_qt_test(directory, review):
 
 
 def stage(*, retained_source, retained_init, qt_source, qt_source_pins, baseline_plan,
-          project_review, media_paths, wayland_socket, output, weston=None):
+          project_review, media_paths, wayland_socket, output, weston=None, profile=None):
     """Publish an isolated stage and return the exact new input-tree manifest delta."""
     base_pins = {name: C.file_pin(size, sha256) for name, (_, size, sha256) in BASE.items()}
     need(type(baseline_plan) is dict and baseline_plan.keys() == {"kind", "nonce", "code", "manifest", "media"}
@@ -228,7 +230,7 @@ def stage(*, retained_source, retained_init, qt_source, qt_source_pins, baseline
             for name, (relative, _, _) in BASE.items()}
     qt = {name: C.read(qt_source / name, MAX_SOURCE, pin)[0] for name, pin in qt_source_pins.items()}
     need(all(qt.values()), "Empty Qt source is not a boot worker")
-    media, qt_media = reviewed_media(media_paths, project_review)
+    media, qt_media = reviewed_media(media_paths, project_review, profile=profile)
     if weston is not None:
         need(type(weston) is dict and weston.keys() == {WESTON_ARCHIVE, WESTON_ARCHIVE + ".sig"}
              and WESTON_SOURCES <= qt_source_pins.keys() and wayland_socket == "/run/qt629-wl/wayland-0",
@@ -247,6 +249,8 @@ def stage(*, retained_source, retained_init, qt_source, qt_source_pins, baseline
     code = {name: C.pin(body) for name, body in code_bodies.items()}
     plan = baseline_plan | {"code": code, "qt_media": qt_media,
                             "qt_replacement": {"project_review": project_review, "wayland_socket": wayland_socket}}
+    if profile is not None:
+        plan["qt_replacement"]["parity_profile"] = profile
     plan_bytes = C.wire(plan)
     need(len(plan_bytes) <= MAX_PLAN, "Extended guest plan exceeds the boot size limit")
     init = guest_init(C.read(retained_init, PID1["bytes"], PID1)[0])
@@ -275,7 +279,7 @@ def stage(*, retained_source, retained_init, qt_source, qt_source_pins, baseline
                 files={name: C.pin(body) for name, body in files.items()})
 
 
-def checkpoint_observations(asahi, qt, *, held):
+def checkpoint_observations(asahi, qt, *, held, profile=None):
     if "result.json" not in asahi:
         need(held, "Completed Qt result requires the Asahi owner result")
         return None, None
@@ -304,6 +308,10 @@ def checkpoint_observations(asahi, qt, *, held):
              and (probe is None and held or probe is not None and C.pin(probe) == pinned),
              "Checkpoint runtime evidence pin differs from the stopped disk")
         if checkpoint["transaction"] is not None and qt.get("transaction.jsonl"):
+            if profile is not None:
+                entry = C.json_body(qt["transaction.jsonl"].splitlines()[0])
+                need(entry.get("parity_profile") == C.pin(C.wire(profile)),
+                     "Stopped guest journal differs from the selected parity profile")
             last = C.json_body(qt["transaction.jsonl"].splitlines()[-1])
             when, phase = last.pop("at_ns"), last.pop("phase")
             need(phase == "terminal" and last == checkpoint["transaction"] and type(when) is int
@@ -317,7 +325,7 @@ def checkpoint_observations(asahi, qt, *, held):
 
 
 def export_result(disk_path, disk_pin, bundle, *, held, originals=None, test_inputs=None, asahi_bundle=None,
-                  expected_nonce=None):
+                  expected_nonce=None, profile=None):
     """Validate both result namespaces, then publish separate inert readback bundles."""
     need(type(held) is bool, "Expected explicit outer hold observation")
     before = C.identity(disk_path.lstat())
@@ -346,8 +354,9 @@ def export_result(disk_path, disk_pin, bundle, *, held, originals=None, test_inp
             asahi[name] = body
         need(C.identity(os.fstat(disk.fd)) == before, "Stopped result disk changed during Asahi evidence check")
     need(C.identity(disk_path.lstat()) == before, "Stopped result disk pathname changed")
-    checkpoint, stamp = checkpoint_observations(asahi, qt, held=held)
-    original_bodies, test_bodies = E["reviewed_bodies"](originals, test_inputs)
+    profile_arg = {"profile": profile} if profile is not None else {}
+    checkpoint, stamp = checkpoint_observations(asahi, qt, held=held, **profile_arg)
+    original_bodies, test_bodies = E["reviewed_bodies"](originals, test_inputs, **profile_arg)
     need(all(qt[name] == test_bodies[name] for name in qt.keys() & test_bodies.keys()),
          "Guest evidence differs from reviewed TEST operand")
     evidence = test_bodies | qt

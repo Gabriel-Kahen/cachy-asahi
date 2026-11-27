@@ -235,6 +235,78 @@ class ReadbackTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "ALPM log differs"):
             R["transactions"](*transaction, project_version=parity, project_archive=project_archive)
 
+    def test_public_parity_readback_requires_same_profile_archive_and_test_operands(self):
+        parity = P["PARITY_PROJECT_VERSION"]
+        receipt, inputs, raw = fixture(project_version=parity)
+        del inputs["recovery_seal"]
+        inputs["parity_recipe"] = b"inert parity recipe\n"
+        recipe = C.pin(inputs["parity_recipe"])
+        archive = C.pin(inputs["project_archive"])
+        profile_globals = P["checked_profile"].__globals__
+        self.enterContext(patch.dict(profile_globals, PARITY_RECIPE=recipe))
+        inputs["build_plan"] = C.wire(dict(kind="QTBASE_SUCCESSOR16K_PLAN_V1", mode="full", nonce=PRIOR,
+            inputs={"recipe": recipe}, payload={"recipe/PARITY.UNISSUED.json": recipe}))
+        artifact = f"{PROJECT}-{parity}-aarch64.pkg.tar.xz"
+        delta = dict(added_files=[str(i) for i in range(31)], removed=[], metadata_changed=[],
+                     qt_dynamic_exports={str(i): {} for i in range(18)})
+        guest = dict(evidence={artifact: archive}, archive=dict(path_delta=delta, atspi_bridge_abi={"PASS": True}),
+                     worker=dict(architecture="aarch64", page_size=16384, nonce=PRIOR, phase="complete", status="PASS"))
+        inputs["build_receipt"] = C.wire(dict(kind="QTBASE_SUCCESSOR16K_INDEPENDENT_READBACK_V1",
+            status="PASS_UNSIGNED_EMULATED_AARCH64_16K_PACKAGE", mode="full", nonce=PRIOR,
+            plan=C.pin(inputs["build_plan"]), originals_unchanged=True, container_retired=[True, True],
+            container_exit=0, qemu_exit=0, guest=guest))
+        metadata = {"project": {"PROVIDES": [OFFICIAL], "CONFLICTS": [OFFICIAL]},
+                    "official": {"PROVIDES": [], "CONFLICTS": []}}
+        solves = {name: {"tests": {"whole": [0, [], []]}} for name in metadata}
+        objects = {str(i): dict(strong_qt_symbols=1, missing_project=[], missing_project_versions=[],
+                               missing_project_unversioned=[]) for i in range(145)}
+        objects["0"]["strong_qt_symbols"] = 18661 - 144
+        inputs["abi_comparison"] = C.wire(dict(
+            inputs=dict(project=archive, official=C.pin(inputs["official_archive"]),
+                        rollback629=C.pin(inputs["rollback_lock"])),
+            locks={"exact629": 629}, metadata=metadata | {"solves": {"629": solves}},
+            abi={"consumers": {"inert": {"objects": objects}}}))
+        inputs["alpm_prepare"] = (
+            f"629 official to project, accept\nconflict: add {PROJECT}, remove {OFFICIAL}, initial answer 0\n"
+            f"prepare: 0 ok\n{PROJECT} {parity}\n{OFFICIAL} {VERSION}\n"
+            f"629 project to official, accept\nconflict: add {OFFICIAL}, remove {PROJECT}, initial answer 0\n"
+            f"prepare: 0 ok\n{OFFICIAL} {VERSION}\n{PROJECT} {parity}\n").encode()
+        profile = dict(kind=P["PARITY_KIND"], official_version=VERSION, project_version=parity, recipe=recipe,
+                       **{name: C.pin(inputs[name]) for name in P["PARITY_INPUT_CAPS"]})
+        profile["test_review"] = dict(fingerprint=TEST, certificate=C.pin(raw["test-certificate.gpg"]),
+                                      signature=C.pin(raw["test-signature.sig"]),
+                                      not_before=NOW - 60, not_after=NOW + 600)
+        profile_pin = C.pin(C.wire(profile))
+        rows = [C.json_body(line) for line in raw["transaction.jsonl"].splitlines()]
+        rows[0]["parity_profile"] = profile_pin
+        raw["transaction.jsonl"] = jsonl(rows)
+        receipt.update(kind=R["PARITY_KIND"], parity_profile=profile_pin,
+                       original_inputs={name: C.pin(body) for name, body in inputs.items()},
+                       evidence={name: C.pin(body) for name, body in raw.items()})
+        (self.bundle / "inputs/recovery_seal").unlink()
+        for name, body in inputs.items():
+            (self.bundle / "inputs" / name).write_bytes(body)
+        for name, body in raw.items():
+            (self.bundle / name).write_bytes(body)
+        self.receipt = receipt
+        self.enterContext(patch.dict(P, archive_metadata=lambda role, *_a, **_k: (metadata[role.removesuffix("_archive")], None)))
+
+        def check(selected=profile):
+            body = C.wire(self.receipt)
+            (self.bundle / "receipt.json").write_bytes(body)
+            return R["readback"](self.bundle, C.pin(body)["sha256"], profile=selected)
+
+        self.assertEqual(check()["status"], "CONSISTENT_EXPORTED_QT612_ASAHI629_PARITY_SCOPED_RECEIPT")
+        with self.assertRaisesRegex(ValueError, "Unexpected receipt fields"):
+            check(None)
+        with self.assertRaisesRegex(ValueError, "Prior Qt evidence"):
+            check(profile | {"project_archive": R["ORIGINALS"]["project_archive"]})
+        with self.assertRaisesRegex(ValueError, "parity pin required for project_archive"):
+            check(profile | {"project_archive": C.pin(b"")})
+        self.change_evidence("test-signature.sig", b"foreign detached signature")
+        with self.assertRaisesRegex(ValueError, "Qt TEST review differs"):
+            check()
+
     def change_evidence(self, name, body):
         (self.bundle / name).write_bytes(body)
         self.receipt["evidence"][name] = C.pin(body)

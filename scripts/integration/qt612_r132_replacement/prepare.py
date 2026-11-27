@@ -6,6 +6,7 @@ import argparse
 import io
 import lzma
 from pathlib import Path
+import re
 from runpy import run_path
 import subprocess
 import sys
@@ -38,6 +39,14 @@ PINS = {
     "abi_comparison": C.file_pin(252319, "44de3677704545315fc1955acebeb24e22c7d03829c371061369effbc6044171"),
     "alpm_prepare": C.file_pin(1520, "66c08476ffcdb2714a6e0e2d69f7240eb2482abc6291686c9d490bdd6e36e5b7"),
 }
+HANDOFF_KIND = "QT612_R132_REPLACEMENT_INPUT_HANDOFF_UNISSUED_V1"
+PARITY_HANDOFF_KIND = "QT612_ASAHI629_PARITY_HANDOFF_UNISSUED_V1"
+PARITY_KIND = "QT612_ASAHI629_REVIEWED_PARITY_PROFILE_V1"
+PARITY_RECIPE = C.file_pin(4460, "0fc98bc3f5556b96012efa230d97f5eace3046c0f42984f9fc562040a7af0364")
+PROFILE_CAP = 16 << 10
+ARCHIVE_CAP = 16 << 20
+PARITY_INPUT_CAPS = dict(project_archive=ARCHIVE_CAP, build_plan=128 << 10, build_receipt=2 << 20,
+                         abi_comparison=2 << 20, alpm_prepare=128 << 10)
 FIELDS = dict(NAME="pkgname", VERSION="pkgver", ARCH="arch", DEPENDS="depend",
               PROVIDES="provides", CONFLICTS="conflict", REPLACES="replaces")
 OWNED_SUCCESS = "PASS_ASAHI629_OFFLINE_FORWARD_AND_DECLARED_REVERSE_ONLY"
@@ -52,6 +61,99 @@ def read(role, path):
         return C.read(path, PINS[role]["bytes"], PINS[role])[0]
     except (OSError, ValueError) as error:
         raise ValueError(f"{role}: {path}: {error}") from error
+
+
+def test_review(review):
+    need(type(review) is dict and review.keys() == {"fingerprint", "signature", "certificate", "not_before", "not_after"},
+         "Exact Qt TEST certificate and signature review required")
+    fingerprint, before, after = (review[name] for name in ("fingerprint", "not_before", "not_after"))
+    need(type(fingerprint) is str and re.fullmatch(r"[0-9A-F]{40}", fingerprint)
+         and fingerprint != A["FINGERPRINT"] and type(before) is type(after) is int and 0 < before < after,
+         "Separate finite Qt TEST certificate required")
+    for name, cap in (("signature", 64 << 10), ("certificate", 128 << 10)):
+        pin = review[name]
+        need(C.check_pin(pin, cap) and pin["bytes"] > 0, "Exact Qt TEST pin required for " + name)
+    return review
+
+
+def checked_profile(profile):
+    need(type(profile) is dict and profile.keys() == PARITY_INPUT_CAPS.keys() | {
+        "kind", "official_version", "project_version", "recipe", "test_review",
+    } and profile["kind"] == PARITY_KIND and profile["official_version"] == VERSION
+         and profile["project_version"] == PARITY_PROJECT_VERSION and profile["recipe"] == PARITY_RECIPE,
+         "Exact reviewed Qt629 parity profile required")
+    for name, cap in PARITY_INPUT_CAPS.items():
+        pin = profile[name]
+        need(C.check_pin(pin, cap) and pin["bytes"] > 0, "Exact parity pin required for " + name)
+    need(all(profile[name] != PINS[name] for name in ("project_archive", "abi_comparison", "alpm_prepare"))
+         and profile["project_archive"] != PINS["official_archive"], "Prior Qt evidence cannot select a parity candidate")
+    review = test_review(profile["test_review"])
+    need(review["certificate"] != PINS["alarm_public_key"] and review["signature"] != PINS["official_signature"],
+         "Parity TEST operands must be distinct from the official trust inputs")
+    return profile
+
+
+def load_profile(path, digest):
+    if path is None and digest is None:
+        return None
+    need(path is not None and type(digest) is str and re.fullmatch(r"[0-9a-f]{64}", digest),
+         "Parity profile path and independent SHA-256 are required together")
+    return checked_profile(C.json_body(C.external(path, PROFILE_CAP, digest)[0], canonical=True))
+
+
+def profile_pins(profile):
+    if profile is None:
+        return PINS
+    checked_profile(profile)
+    return {key: pin for key, pin in PINS.items() if key != "recovery_seal"} | {
+        name: profile[name] for name in PARITY_INPUT_CAPS
+    } | {"parity_recipe": profile["recipe"]}
+
+
+def project_name(profile):
+    return PROJECT_NAME if profile is None else f"{PROJECT}-{checked_profile(profile)['project_version']}-aarch64.pkg.tar.xz"
+
+
+def choose_review(profile, review):
+    if profile is not None:
+        need(checked_profile(profile)["test_review"] == review, "Qt TEST review differs from the selected parity profile")
+    return review
+
+
+def plan_profile(addon):
+    fields = {"project_review", "wayland_socket"}
+    need(type(addon) is dict and addon.keys() in (fields, fields | {"parity_profile"}),
+         "Exact Qt checkpoint plan fields required")
+    if "parity_profile" in addon:
+        profile = checked_profile(addon["parity_profile"])
+        choose_review(profile, addon["project_review"])
+        return profile
+    return None
+
+
+def verify_parity_build(profile, plan_raw, receipt_raw, recipe_raw):
+    need((C.pin(plan_raw), C.pin(receipt_raw), C.pin(recipe_raw)) ==
+         (profile["build_plan"], profile["build_receipt"], profile["recipe"]), "Parity build evidence pins differ")
+    plan, receipt = (C.json_body(body, canonical=True) for body in (plan_raw, receipt_raw))
+    need(plan["kind"] == "QTBASE_SUCCESSOR16K_PLAN_V1" and plan["mode"] == "full"
+         and plan["inputs"]["recipe"] == plan["payload"]["recipe/PARITY.UNISSUED.json"] == profile["recipe"]
+         and receipt["kind"] == "QTBASE_SUCCESSOR16K_INDEPENDENT_READBACK_V1"
+         and receipt["status"] == "PASS_UNSIGNED_EMULATED_AARCH64_16K_PACKAGE" and receipt["mode"] == "full"
+         and receipt["nonce"] == plan["nonce"] and receipt["plan"] == profile["build_plan"]
+         and receipt["originals_unchanged"] is True and receipt["container_retired"] == [True, True]
+         and type(receipt["container_exit"]) is type(receipt["qemu_exit"]) is int
+         and receipt["container_exit"] == receipt["qemu_exit"] == 0,
+         "Expected accepted full retired ARM16K parity build")
+    guest = receipt["guest"]
+    archive = guest["archive"]
+    worker = guest["worker"]
+    delta = archive["path_delta"]
+    need(guest["evidence"][project_name(profile)] == profile["project_archive"]
+         and worker["architecture"] == "aarch64" and worker["page_size"] == 16384
+         and worker["nonce"] == receipt["nonce"] and worker["phase"] == "complete" and worker["status"] == "PASS"
+         and len(set(delta["added_files"])) == 31 and delta["removed"] == delta["metadata_changed"] == []
+         and len(delta["qt_dynamic_exports"]) == 18 and bool(archive["atspi_bridge_abi"]),
+         "Expected exact parity archive, package inventory and ABI observations")
 
 
 def provider_versions(project_version=VERSION):
@@ -79,9 +181,10 @@ def project(body, *, project_version=VERSION):
     return replacement, restored
 
 
-def archive_metadata(role, path, owner):
+def archive_metadata(role, path, owner, *, profile=None):
+    version = VERSION if profile is None or owner == OFFICIAL else profile["project_version"]
     try:
-        with A["opened"](path, PINS[role]) as stream:
+        with A["opened"](path, profile_pins(profile)[role]) as stream:
             raw = M["expand_archive"](stream)
     except (OSError, ValueError) as error:
         raise ValueError(f"{role}: {path}: {error}") from error
@@ -98,7 +201,7 @@ def archive_metadata(role, path, owner):
         body = archive.extractfile(entries[0]).read()
     parsed = PKG.metadata(body.decode("utf-8"))
     metadata = {field: parsed.get(name, []) for field, name in FIELDS.items()}
-    need(metadata["NAME"] == [owner] and metadata["VERSION"] == [VERSION] and metadata["ARCH"] == ["aarch64"]
+    need(metadata["NAME"] == [owner] and metadata["VERSION"] == [version] and metadata["ARCH"] == ["aarch64"]
          and not metadata["REPLACES"], f"{role}: package identity or replacement metadata differs")
     return metadata, C.pin(body)
 
@@ -125,8 +228,10 @@ def verify_predecessor(result, terminal):
          "Expected the exact successful, retired Asahi629 rollback result")
 
 
-def verify_audit(comparison, transcript, metadata):
-    bound = dict(project=PINS["project_archive"], official=PINS["official_archive"], rollback629=PINS["rollback_lock"])
+def verify_audit(comparison, transcript, metadata, *, profile=None):
+    pins = profile_pins(profile)
+    versions = provider_versions(profile["project_version"] if profile is not None else VERSION)
+    bound = dict(project=pins["project_archive"], official=pins["official_archive"], rollback629=pins["rollback_lock"])
     need(all(comparison["inputs"][role] == pin for role, pin in bound.items())
          and comparison["locks"]["exact629"] == COUNT, "ABI audit refers to different inputs")
     for role, observed in metadata.items():
@@ -147,7 +252,7 @@ def verify_audit(comparison, transcript, metadata):
                  and not elf["missing_project_unversioned"] for elf in objects), "Incomplete Qt consumer ABI audit")
     for route, add, remove in (("official to project", PROJECT, OFFICIAL), ("project to official", OFFICIAL, PROJECT)):
         transaction = (f"629 {route}, accept\nconflict: add {add}, remove {remove}, initial answer 0\n"
-                       f"prepare: 0 ok\n{add} {VERSION}\n{remove} {VERSION}\n").encode("ascii")
+                       f"prepare: 0 ok\n{add} {versions[add]}\n{remove} {versions[remove]}\n").encode("ascii")
         need(transcript.count(transaction) == 1, f"Missing exact prepare-only transaction for {route}")
     return dict(consumer_elfs=len(objects), versioned_references=count, alpm="PREPARE_ONLY")
 
@@ -171,41 +276,61 @@ def step(before, after, remove, add, archive, *, project_version=VERSION):
                 add=[dict(name=add, version=versions[add], archive_input=archive)])
 
 
-def handoff(recovery, official_archive, rollback_evidence, terminal, public_key, audit):
+def handoff(recovery, official_archive, rollback_evidence, terminal, public_key, audit, *, profile=None):
     need(official_archive.name == OFFICIAL_NAME, f"Expected the exact official archive name {OFFICIAL_NAME}")
-    paths = dict(project_archive=recovery / PROJECT_NAME, recovery_seal=recovery / "recovery.SEAL.json",
+    paths = dict(project_archive=recovery / project_name(profile),
                  official_archive=official_archive, official_signature=official_archive.with_name(OFFICIAL_NAME + ".sig"),
                  alarm_public_key=public_key, rollback_lock=rollback_evidence / "rollback.lock",
                  rollback_result=rollback_evidence / "result.json", owned_terminal=terminal,
                  abi_comparison=audit / "comparison.json", alpm_prepare=audit / "alpm-prepare.txt")
-    data = {name: read(name, path) for name, path in paths.items() if not name.endswith("_archive")}
-    verify_recovery(C.json_body(data["recovery_seal"]))
+    pins = profile_pins(profile)
+    if profile is None:
+        paths["recovery_seal"] = recovery / "recovery.SEAL.json"
+    else:
+        paths.update(build_plan=recovery / "plan.json", build_receipt=recovery / "build-readback.json",
+                     parity_recipe=recovery / "PARITY.UNISSUED.json")
+    data = {name: C.read(path, pins[name]["bytes"], pins[name])[0]
+            for name, path in paths.items() if not name.endswith("_archive")}
+    if profile is None:
+        verify_recovery(C.json_body(data["recovery_seal"]))
+    else:
+        verify_parity_build(profile, data["build_plan"], data["build_receipt"], data["parity_recipe"])
     result = C.json_body(data["rollback_result"])
     verify_predecessor(result, C.json_body(data["owned_terminal"]))
     baseline = data["rollback_lock"]
-    replacement, restored = project(baseline)
+    version = VERSION if profile is None else profile["project_version"]
+    replacement, restored = project(baseline, project_version=version)
     signature = verify_official(paths, data["alarm_public_key"])
     metadata, info = {}, {}
     for role, owner in (("project", PROJECT), ("official", OFFICIAL)):
         key = role + "_archive"
-        metadata[role], info[role] = archive_metadata(key, paths[key], owner)
-    audit_report = verify_audit(C.json_body(data["abi_comparison"]), data["alpm_prepare"], metadata)
-    return dict(kind="QT612_R132_REPLACEMENT_INPUT_HANDOFF_UNISSUED_V1",
+        metadata[role], info[role] = archive_metadata(key, paths[key], owner, profile=profile)
+    audit_report = verify_audit(C.json_body(data["abi_comparison"]), data["alpm_prepare"], metadata, profile=profile)
+    record = dict(kind=HANDOFF_KIND if profile is None else PARITY_HANDOFF_KIND,
                 authority=None, candidate_signature=None,
                 target=dict(inventory="ASAHI629_ROLLBACK", packages=COUNT, nonce=result["nonce"]),
-                inputs={name: reference(name, path) for name, path in paths.items()},
+                inputs={name: dict(path=str(path), **pins[name]) for name, path in paths.items()},
                 pkginfo=info, official_signature=signature, prior_audit=audit_report,
-                projection=dict(replacement=step(baseline, replacement, OFFICIAL, PROJECT, "project_archive"),
-                                restoration=step(replacement, restored, PROJECT, OFFICIAL, "official_archive"),
+                projection=dict(replacement=step(baseline, replacement, OFFICIAL, PROJECT, "project_archive",
+                                                 project_version=version),
+                                restoration=step(replacement, restored, PROJECT, OFFICIAL, "official_archive",
+                                                 project_version=version),
                                 byte_exact_restoration=True))
+    if profile is not None:
+        record["parity_profile"] = C.pin(C.wire(profile))
+    return record
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("recovery", "official-archive", "rollback-evidence", "terminal", "public-key", "audit"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--profile", type=Path)
+    parser.add_argument("--profile-sha256")
     try:
-        sys.stdout.buffer.write(C.wire(handoff(**vars(parser.parse_args()))))
+        args = vars(parser.parse_args())
+        args["profile"] = load_profile(args.pop("profile"), args.pop("profile_sha256"))
+        sys.stdout.buffer.write(C.wire(handoff(**args)))
     except (KeyError, OSError, ValueError, lzma.LZMAError, tarfile.TarError, subprocess.SubprocessError) as error:
         sys.exit(f"Qt629 handoff refused: {error}")
 

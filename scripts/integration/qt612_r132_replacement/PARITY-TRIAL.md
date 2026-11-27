@@ -22,8 +22,48 @@ protected boot and mount entries.
 signature-required ALPM loads, conflict answers, prepared add/remove lists
 and checkpoint locks. `readback.py` can independently verify those locks,
 the journal's prepare rows and the four package actions at the mixed versions.
-These controls have inert coverage. The current controller, guest entry and
-public receipt reader still admit the original V1 operands only.
+These controls have inert coverage. The parity handoff, staged plan, guest
+journal and stopped receipt bind one independently reviewed profile. The
+historical V1 route retains its original input roles and receipt schema.
+
+## Inputs to supply after an accepted build
+
+Create a canonical JSON profile using `C.wire` from `prepare.py`. Preserve
+the exact allowed fields below. Every pin is an object with integer
+`bytes` and lowercase hexadecimal `sha256`.
+
+| Field | Required value |
+| --- | --- |
+| `kind` | `QT612_ASAHI629_REVIEWED_PARITY_PROFILE_V1` |
+| `official_version` | `6.12.0-3` |
+| `project_version` | `6.12.0-4` |
+| `recipe` | 4,460 bytes and SHA-256 `0fc98bc3f5556b96012efa230d97f5eace3046c0f42984f9fc562040a7af0364` |
+| `project_archive` | Pinned unsigned `-4` archive exported by independent ARM16K build readback |
+| `build_plan` | Original sealed ARM16K full-build `plan.json` |
+| `build_receipt` | Canonical independent full-build readback stdout saved as `build-readback.json` |
+| `abi_comparison` | Fresh signed-629 consumer audit saved as `comparison.json`, binding the `-4` archive, official archive and rollback lock |
+| `alpm_prepare` | Fresh mixed-version forward and reverse prepare-only transcript saved as `alpm-prepare.txt` |
+| `test_review` | `signature` and `certificate` pins, uppercase 40-hex primary `fingerprint`, and integer UNIX `not_before` and `not_after` for the fresh TEST certificate |
+
+For `prepare.py` use the same arguments as for the historical handoff, with
+`--profile` and `--profile-sha256`. In `--recovery`, retain the new
+archive under its full package filename next to `plan.json`,
+`build-readback.json` and `PARITY.UNISSUED.json`. In `--audit`, supply
+`comparison.json` and `alpm-prepare.txt`. Keep the existing official archive,
+original adjacent ALARM signature, ALARM public key and Asahi629 rollback
+operands.
+
+For `controller.py`, add `--profile`, `--profile-sha256`,
+`--test-signature`, `--test-certificate`, `--reviewed-source-pins` and
+`--reviewed-source-pins-sha256` to the retained controller arguments,
+including the reviewed Weston intake path and digest. The reviewed source
+pins file is the canonical path-to-pin map from
+`controller.source_selection(qt_source)` after review of the selected
+checkout. The launch authority continues to select the exact new preparation
+digest using the existing launch contract. No authority is issued by
+preparation. The new receipt kind is `QT612_ASAHI629_PARITY_SCOPED_RECEIPT_V1`.
+Read it with `readback.py --bundle`, `--receipt-sha256`, `--profile` and
+`--profile-sha256` using the separately retained reviewed profile.
 
 ## Seal the candidate archive
 
@@ -59,9 +99,9 @@ public receipt reader still admit the original V1 operands only.
 
 ## Stage and independently verify a fresh trial
 
-1. In `prepare.py`, add a distinct parity handoff kind and review the
-   exact candidate archive, new build seal, ABI comparison and prepare-only
-   transcript. Check the official version and original archive, adjacent
+1. In `prepare.py`, the parity handoff reviews the exact candidate archive,
+   new build seal, ABI comparison and prepare-only transcript. It checks the
+   official version and original archive, adjacent
    ALARM signature, certificate, rollback lock, retired predecessor and
    R132 pins against the existing records. Check the candidate's own
    `.PKGINFO` for the project name, version, AArch64, explicit conflict and
@@ -76,16 +116,16 @@ public receipt reader still admit the original V1 operands only.
    launch allowance. Keep the official identical ALARM-signed reversal
    operand. Verify both archive/signature pairs before the first commit and
    require `Required TrustedOnly` in libalpm.
-3. In `controller.py`, `host_stage.py`, `launch.py` and `guest_entry.py`,
+3. `controller.py`, `host_stage.py`, `launch.py` and `guest_entry.py`
    carry the same reviewed parity profile from the handoff into the guest
-   plan. Build the exact media allowlist from its two archive names and
+   plan. They build the exact media allowlist from its two archive names and
    adjacent signatures. Verify the named project archive and signature
    together at host staging, launch derivation and guest intake. Bind the
    profile and source closure in a fresh unissued preparation and separately
    issued launch authority. Use a fresh nonce, writable clone, result disk,
    isolated keyrings, and output directory. Pass the validated project
    version to both the transaction's backend and its checkpoint projection.
-4. In `export.py`, `receipt.py` and `readback.py`, add a distinct parity
+4. `export.py`, `receipt.py` and `readback.py` use a distinct parity
    receipt kind and exact role set that bind the selected profile, both
    archive/signature identities, the new build and ABI evidence, three
    observed inventory locks, both ALPM commit boundaries, and the stopped
@@ -93,9 +133,10 @@ public receipt reader still admit the original V1 operands only.
    inputs to the independently selected profile before validating the
    mixed-version journal, exact `pacman.log` actions and byte-identical
    official restoration. Keep the V1 schema and historical packet intact.
-5. Run the existing ordinary-user vendor/project offscreen and Weston
-   software checks, then rerun them after restoration and retain distinct
-   phase evidence. To claim runtime parity, add bounded ordinary-user
+5. This scoped receipt covers the existing ordinary-user vendor/project
+   offscreen and Weston software checks and the inventory reversal. Before
+   broader runtime parity acceptance, rerun those checks after restoration
+   and retain distinct phase evidence. Add bounded ordinary-user
    probes for the Hyprland screen-sharing picker's portal and AT-SPI roles
    and focus, a private CUPS queue that receives a print job, and a
    rendered XWayland frame with the forced EGL integration plugin. Also

@@ -261,20 +261,7 @@ def signature(path, owner, verification, keyring):
 
 
 def checked_review(project_review):
-    need(type(project_review) is dict and set(project_review) == {
-        "fingerprint", "signature", "certificate", "not_before", "not_after",
-    }, "Exact Qt TEST certificate and signature review required")
-    fingerprint = project_review["fingerprint"]
-    before, after = project_review["not_before"], project_review["not_after"]
-    need(type(fingerprint) is str and FINGERPRINT.fullmatch(fingerprint) and fingerprint != A["FINGERPRINT"]
-         and type(before) is type(after) is int and 0 < before < after, "Separate finite Qt TEST certificate required")
-    for name, maximum in (("signature", 64 << 10), ("certificate", 128 << 10)):
-        selected = project_review[name]
-        need(type(selected) is dict and set(selected) == {"bytes", "sha256"}
-             and type(selected["bytes"]) is int and 0 < selected["bytes"] <= maximum
-             and type(selected["sha256"]) is str and re.fullmatch(r"[0-9a-f]{64}", selected["sha256"]),
-             "Exact Qt TEST pin required for " + name)
-    return project_review
+    return P["test_review"](project_review)
 
 
 def checked_nonce(nonce, predecessor):
@@ -401,7 +388,8 @@ class Journal:
         self.record(phase, inventory=pin(raw), install_reason=reason, platform=pin(platform))
 
 
-def _run(backend, journal, baseline, probe, platform, platform_pin, nonce, *, project_version=VERSION):
+def _run(backend, journal, baseline, probe, platform, platform_pin, nonce, *, project_version=VERSION,
+         profile_pin=None):
     replacement, restored = P["project"](baseline, project_version=project_version)
     phase, known = "baseline", None
 
@@ -431,7 +419,10 @@ def _run(backend, journal, baseline, probe, platform, platform_pin, nonce, *, pr
         observe(label, incoming, after, reason)
         known = label
 
-    journal.record("entry", kind=RECEIPT, nonce=nonce)
+    entry = dict(kind=RECEIPT, nonce=nonce)
+    if profile_pin is not None:
+        entry["parity_profile"] = profile_pin
+    journal.record("entry", **entry)
     try:
         reason = observe("baseline", OFFICIAL, baseline)
         known = "baseline"
@@ -465,7 +456,7 @@ def _run(backend, journal, baseline, probe, platform, platform_pin, nonce, *, pr
     return result
 
 
-def run(project_review, probe, platform, *, nonce):
+def run(project_review, probe, platform, *, nonce, profile=None):
     """Run inside the owned 16 KiB guest with its prepared public keyring.
 
     Media supplies `qt-replacement/` with the retained `rollback.lock` and
@@ -494,17 +485,23 @@ def run(project_review, probe, platform, *, nonce):
     need(all(path.is_dir() and path.resolve() == path for path in (media, *trust_homes.values())),
          "Expected the isolated Qt media and public keyrings")
     checked_review(project_review)
+    P["choose_review"](profile, project_review)
+    pins = P["profile_pins"](profile)
+    version = VERSION if profile is None else profile["project_version"]
     baseline = P["read"]("rollback_lock", media / "rollback.lock")
     retained = P["C"].json_body(P["read"]("rollback_result", media / "result.json"))
     checked_nonce(nonce, retained["nonce"])
     platform_pin = retained["platform"]["rollback"]
-    paths = {OFFICIAL: media / P["OFFICIAL_NAME"], PROJECT: media / P["PROJECT_NAME"]}
+    paths = {OFFICIAL: media / P["OFFICIAL_NAME"], PROJECT: media / P["project_name"](profile)}
     verification = {
         OFFICIAL: dict(archive=P["PINS"]["official_archive"], signature=P["PINS"]["official_signature"],
                        fingerprint=A["FINGERPRINT"]),
-        PROJECT: dict(archive=P["PINS"]["project_archive"], signature=project_review["signature"],
+        PROJECT: dict(archive=pins["project_archive"], signature=project_review["signature"],
                       fingerprint=project_review["fingerprint"]),
     }
     evidence.mkdir(mode=0o700)
-    backend = Backend(paths, verification, trust_homes, evidence / "pacman.log", media / "test-certificate.gpg", project_review)
-    return _run(backend, Journal(evidence), baseline, probe, platform, platform_pin, nonce)
+    backend = Backend(paths, verification, trust_homes, evidence / "pacman.log", media / "test-certificate.gpg",
+                      project_review, project_version=version)
+    profile_pin = None if profile is None else pin(P["C"].wire(profile))
+    return _run(backend, Journal(evidence), baseline, probe, platform, platform_pin, nonce,
+                project_version=version, profile_pin=profile_pin)

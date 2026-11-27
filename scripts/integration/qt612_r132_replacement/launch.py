@@ -70,6 +70,10 @@ def selected(path, digest):
     return row, pin
 
 
+def parity_profile(packet):
+    return M["P"]["checked_profile"](packet["parity_profile"]) if "parity_profile" in packet else None
+
+
 def prepared(authority, path, stage, source, *, current=True):
     ref = authority["preparation"]
     raw, _ = C.read(path, CAP, C.file_pin(ref["bytes"], ref["sha256"]))
@@ -90,8 +94,11 @@ def prepared(authority, path, stage, source, *, current=True):
         C.read(source / name, CAP, expected, collect=False)
     plan_body, _ = C.read(stage / "code/plan.json", H["MAX_PLAN"], pins["plan"])
     plan = C.json_body(plan_body, canonical=True)
+    profile = parity_profile(packet)
+    need(M["P"]["plan_profile"](plan["qt_replacement"]) == profile,
+         "Staged Qt profile differs from the reviewed preparation")
     base = {name: C.file_pin(size, digest) for name, (_, size, digest) in H["BASE"].items()}
-    media_names = M["FIXED_MEDIA"].keys() | M["TEST_MEDIA"] | M["WESTON_MEDIA"]
+    media_names = M["fixed_media"](profile).keys() | M["test_media"](profile) | M["WESTON_MEDIA"]
     overlay = {"code/" + name: pin for name, pin in plan["code"].items()} | {
         "inputs/" + name: pin for name, pin in plan["qt_media"].items()} | {"code/plan.json": pins["plan"]}
     need(plan["kind"] == H["KIND"] and plan["nonce"] == authority["nonce"]
@@ -114,7 +121,7 @@ def prepared(authority, path, stage, source, *, current=True):
     preview = plan["media"]["keys"]["preview-test"]
     need(review["fingerprint"] != preview["fingerprint"]
          and plan["qt_media"]["qt-replacement/test-certificate.gpg"] == review["certificate"]
-         and plan["qt_media"]["qt-replacement/" + M["P"]["PROJECT_NAME"] + ".sig"] == review["signature"],
+         and plan["qt_media"]["qt-replacement/" + M["P"]["project_name"](profile) + ".sig"] == review["signature"],
          "Exact distinct Qt TEST selection required")
     need(not current or all(item["not_before"] <= now and now + 5820 < item["not_after"] for item in (preview, review)),
          "Current trust windows must cover the retained run allowance")
@@ -144,7 +151,9 @@ def verify_derivation(legacy, packet, plan):
     need(all(plan["code"][name] == pin for name, pin in expected.items())
          and C.pin(legacy_init) == H["PID1"] and C.pin(H["guest_init"](legacy_init)) == packet["staged"]["init"],
          "Selected Qt worker or PID 1 does not derive from the frozen runner")
-    known = {"qt-replacement/" + leaf: R["ORIGINALS"][role] for leaf, role in M["FIXED_MEDIA"].items()}
+    profile = parity_profile(packet)
+    originals = R["originals"](profile)
+    known = {"qt-replacement/" + leaf: originals[role] for leaf, role in M["fixed_media"](profile).items()}
     known.update({"qt-replacement/" + leaf: C.file_pin(row["bytes"], row["sha256"])
                   for leaf, row in packet["display"]["media"].items()})
     need(all(plan["qt_media"][name] == pin for name, pin in known.items()), "Fixed guest media selection differs")
@@ -158,6 +167,8 @@ def actor(authority_path, digest):
     legacy["C"].actor_boundary(ACTOR_PATHS | {"authority": authority_path, "preparation": PREPARED, "stage": STAGE})
     packet, plan = prepared(authority, PREPARED, STAGE, Path("/src"))
     verify_derivation(legacy, packet, plan)
+    profile = parity_profile(packet)
+    profile_arg = {"profile": profile} if profile is not None else {}
     nonce = authority["nonce"]
     actual, base_plan = legacy["binding"](**ACTOR_PATHS, nonce=nonce, issuer="Root",
                                          media_digest=packet["preview"]["manifest"]["sha256"],
@@ -179,7 +190,7 @@ def actor(authority_path, digest):
         if held:
             M["require_result_uuid"](disk, pin, nonce)
         H["export_result"](disk, pin, ACTOR_OUT / "actor-qt", held=held, asahi_bundle=destination,
-                           expected_nonce=nonce)
+                           expected_nonce=nonce, **profile_arg)
 
     def stage_pid1():
         return C.read(STAGE / "guest-init.sh", CAP, stage["init"])[0]
@@ -435,19 +446,23 @@ def export_after_retirement(out, nonce, packet, stage, cid, state, absence, held
     observation = out / "stopped-result.json"
     stopped_pin = M["put"](observation, C.wire(observed))
     originals = {name: Path(row["path"]) for name, row in packet["originals"].items()}
+    profile = parity_profile(packet)
+    profile_arg = {"profile": profile} if profile is not None else {}
     media = packet["staged"]["files"]
-    inputs = {"test-certificate.gpg": "test-certificate.gpg", "test-signature.sig": M["P"]["PROJECT_NAME"] + ".sig"}
+    inputs = {"test-certificate.gpg": "test-certificate.gpg",
+              "test-signature.sig": M["P"]["project_name"](profile) + ".sig"}
     test_inputs = {name: (stage / leaf, media[leaf]) for name, operand in inputs.items()
                    for leaf in ("inputs/qt-replacement/" + operand,)}
     bundle = out / "qt-evidence"
     if not held:
         return ASSEMBLER["assemble"](disk_path=disk, observation=observation, observation_sha=stopped_pin["sha256"],
-                                     nonce=nonce, bundle=bundle, originals=originals, test_inputs=test_inputs)
+                                     nonce=nonce, bundle=bundle, originals=originals, test_inputs=test_inputs,
+                                     **profile_arg)
     selection = out / "result-export-selection.json"
     pin = M["put"](selection, C.wire(stopped))
     exported = M["export_stopped"](disk_path=disk, disk_pin=disk_pin, retirement=selection,
                                    retirement_sha=pin["sha256"], nonce=nonce, bundle=bundle, originals=originals,
-                                   test_inputs=test_inputs, asahi_bundle=out / "asahi-evidence")
+                                   test_inputs=test_inputs, asahi_bundle=out / "asahi-evidence", **profile_arg)
     return dict(stopped_observation=stopped_pin, **exported)
 
 
@@ -461,10 +476,16 @@ def owner(authority_path, digest):
     prep = Path(authority["preparation"]["path"])
     stage = prep.parent / "stage"
     packet, plan = prepared(authority, prep, stage, paths["source"])
+    parity = parity_profile(packet)
+    parity_arg = {"profile": parity} if parity is not None else {}
     need(paths["source"] == HERE.parents[2] and Path(packet["originals"]["owned_terminal"]["path"]).parent == paths["retained"],
          "Run from the selected source and canonical retained owner")
     legacy, preceding, _ = M["retained_controller"](paths["retained"])
     verify_derivation(legacy, packet, plan)
+    if parity is not None:
+        originals = packet["originals"]
+        need(M["records"]({name: Path(row["path"]) for name, row in originals.items()}, R["originals"](parity))
+             == originals, "Selected parity originals changed before launch")
     preview = Path(packet["preview"]["path"])
     legacy["O"].rehash(legacy["T"], preview, plan["media"])
     control, refs = legacy["control_refs"](paths["control"], preceding["control"]["receipt"]["sha256"])
@@ -481,7 +502,7 @@ def owner(authority_path, digest):
     review = plan["qt_replacement"]["project_review"]
     prior_keys = {key["fingerprint"] for key in plan["media"]["keys"].values()} | legacy["O"].HISTORICAL_TEST
     need(review["fingerprint"] not in prior_keys, "Qt TEST signer must be separate from the Asahi629 keys")
-    qt_test = H["verify_qt_test"](stage / "inputs/qt-replacement", review)
+    qt_test = H["verify_qt_test"](stage / "inputs/qt-replacement", review, **parity_arg)
     args = actor_args(digest)
     docker = Docker()
     name, labels = name_labels(nonce)

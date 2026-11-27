@@ -102,14 +102,13 @@ def modules(T, G, selected, observed):
 
 def media(T, O, tx, fixture, weston, selected, observed):
     addon = selected["qt_replacement"]
-    T.need(type(addon) is dict and set(addon) == {"project_review", "wayland_socket"},
-           "Exact Qt checkpoint plan fields required")
+    p = tx.P
+    profile = p["plan_profile"](addon)
     review = tx.checked_review(addon["project_review"])
     wayland = addon["wayland_socket"]
     T.need(wayland is None or wayland == weston.SOCKET, "Expected the exact selected guest Weston socket")
-    p = tx.P
-    fixed = p["PINS"]
-    official, candidate = p["OFFICIAL_NAME"], p["PROJECT_NAME"]
+    fixed = p["profile_pins"](profile)
+    official, candidate = p["OFFICIAL_NAME"], p["project_name"](profile)
     files = {
         "rollback.lock": fixed["rollback_lock"], "result.json": fixed["rollback_result"],
         official: fixed["official_archive"], official + ".sig": fixed["official_signature"],
@@ -250,6 +249,7 @@ def run_checkpoint(T, O, G, selected):
     observed = {}
     tx, runtime, fixture, weston = modules(T, G, selected, observed)
     folder, review, socket = media(T, O, tx, fixture, weston, selected, observed)
+    profile = tx.P["plan_profile"](selected["qt_replacement"])
     retained = T.decode(T.read(folder / "result.json", tx.P["PINS"]["rollback_result"], cap=64 << 10,
                                observed=observed))
     tx.checked_nonce(nonce, retained["nonce"])
@@ -267,7 +267,7 @@ def run_checkpoint(T, O, G, selected):
     def transact(compositor):
         return tx.run(project_review=review,
                       probe=lambda: runtime.run(nonce=nonce, wayland_socket=socket, weston=compositor),
-                      platform=platform, nonce=nonce)
+                      platform=platform, nonce=nonce, **({"profile": profile} if profile is not None else {}))
 
     mask = os.umask(0o077)
     try:

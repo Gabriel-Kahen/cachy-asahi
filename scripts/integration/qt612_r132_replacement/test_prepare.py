@@ -21,6 +21,25 @@ def inventory(provider):
 
 
 class HandoffTests(unittest.TestCase):
+    def test_profile_requires_independent_digest_and_complete_actual_input_pins(self):
+        review = dict(fingerprint="C" * 40, signature=C.pin(b"new signature"),
+                      certificate=C.pin(b"new certificate"), not_before=100, not_after=200)
+        profile = dict(kind=P["PARITY_KIND"], official_version=VERSION, project_version=P["PARITY_PROJECT_VERSION"],
+                       recipe=P["PARITY_RECIPE"], test_review=review,
+                       **{name: C.pin(name.encode()) for name in P["PARITY_INPUT_CAPS"]})
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "review.json"
+            body = C.wire(profile)
+            path.write_bytes(body)
+            self.assertEqual(P["load_profile"](path, C.pin(body)["sha256"]), profile)
+            with self.assertRaisesRegex(ValueError, "independent SHA-256"):
+                P["load_profile"](path, None)
+            with self.assertRaisesRegex(ValueError, "External digest differs"):
+                P["load_profile"](path, C.pin(b"wrong")["sha256"])
+            for name in ("project_archive", "build_receipt", "test_review"):
+                with self.subTest(name=name), self.assertRaisesRegex(ValueError, "Exact reviewed Qt629 parity profile"):
+                    P["checked_profile"]({key: value for key, value in profile.items() if key != name})
+
     def test_projected_swap_touches_one_package_and_restores_exact_bytes(self):
         baseline = inventory(OWNERS[0])
         replacement, restored = P["project"](baseline)

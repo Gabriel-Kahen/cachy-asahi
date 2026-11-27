@@ -116,7 +116,11 @@ class CheckpointTests(unittest.TestCase):
         fixed["alarm_public_key"] = T.pin(QT_ALARM)
         self.enterContext(patch.dict(E["media"].__globals__, ASAHI629_ALARM=T.pin(BASE_ALARM)))
         self.tx = SimpleNamespace(
-            P=dict(OFFICIAL_NAME="official.pkg", PROJECT_NAME="project.pkg", PINS=fixed, verify_official=Mock()),
+            P=dict(OFFICIAL_NAME="official.pkg", PROJECT_NAME="project.pkg", PINS=fixed, verify_official=Mock(),
+                   plan_profile=X.P["plan_profile"],
+                   profile_pins=lambda profile: fixed if profile is None else fixed | {
+                       "project_archive": profile["project_archive"]},
+                   project_name=lambda profile: "project.pkg" if profile is None else X.P["project_name"](profile)),
             A=dict(FINGERPRINT=ALARM), PROJECT="project-qt", PASS="test actor pass",
             checked_review=X.checked_review, checked_nonce=X.checked_nonce,
             certificate=Mock(return_value=(REVIEW, files["test-certificate.gpg"])),
@@ -155,6 +159,24 @@ class CheckpointTests(unittest.TestCase):
         archive.write_bytes(b"officiaL body")
         with self.assertRaisesRegex(ValueError, "Changed pinned bytes"):
             self.media(self.plan, {})
+
+    def test_parity_media_requires_new_archive_identity_and_matching_test_review(self):
+        P = X.P
+        profile = dict(kind=P["PARITY_KIND"], official_version=P["VERSION"], project_version=P["PARITY_PROJECT_VERSION"],
+                       recipe=P["PARITY_RECIPE"], test_review=REVIEW,
+                       **{name: T.pin(name.encode()) for name in P["PARITY_INPUT_CAPS"]})
+        profile["project_archive"] = T.pin((self.folder / "project.pkg").read_bytes())
+        addon = self.plan["qt_replacement"] | {"parity_profile": profile}
+        plan = self.plan | {"qt_replacement": addon}
+        with self.assertRaisesRegex(ValueError, "Exact Qt read-only media members"):
+            self.media(plan, {})
+        name = P["project_name"](profile)
+        (self.folder / "project.pkg").rename(self.folder / name)
+        (self.folder / "project.pkg.sig").rename(self.folder / (name + ".sig"))
+        self.assertEqual(self.media(plan, {}), (self.folder, REVIEW, None))
+        changed = addon | {"project_review": REVIEW | {"signature": T.pin(b"wrong signature")}}
+        with self.assertRaisesRegex(ValueError, "Qt TEST review differs"):
+            self.media(self.plan | {"qt_replacement": changed}, {})
 
     def test_base_armored_and_qt_binary_certificate_pins_cannot_substitute_for_each_other(self):
         self.media(self.plan, {})

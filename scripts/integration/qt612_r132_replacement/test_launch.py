@@ -83,6 +83,15 @@ class LaunchSelectionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "retained run allowance"):
                 L["prepared"](authority, ref, stage, repo)
             self.assertEqual(L["prepared"](authority, ref, stage, repo, current=False), (packet, plan))
+        P = M["P"]
+        parity = dict(kind=P["PARITY_KIND"], official_version=P["VERSION"], project_version=P["PARITY_PROJECT_VERSION"],
+                      recipe=P["PARITY_RECIPE"], test_review=review,
+                      **{name: C.pin(name.encode()) for name in P["PARITY_INPUT_CAPS"]})
+        changed = self.root / "parity-preparation.json"
+        pin = M["put"](changed, C.wire(packet | {"parity_profile": parity}))
+        selected = authority | {"preparation": dict(path=str(changed), **pin)}
+        with self.assertRaisesRegex(ValueError, "Staged Qt profile differs"):
+            L["prepared"](selected, changed, stage, repo, current=False)
 
     def test_runner_hooks_replace_names_without_modifying_legacy_globals(self):
         namespace = {"init_bytes": lambda: b"old", "copy_transport": lambda: {"old": True}}

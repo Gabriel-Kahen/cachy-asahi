@@ -43,11 +43,11 @@ def stopped(path, digest, nonce):
     return row, observation
 
 
-def receipt(qt, asahi, exported, observed):
+def receipt(qt, asahi, exported, observed, *, profile=None):
     nonce = observed["nonce"]
     need(exported["result_disk"] == observed["disk"] and exported["actor_directory_present"] is True
          and exported["missing_actor_files"] == exported["missing_asahi_files"] == []
-         and exported["original_inputs"] == R["ORIGINALS"], "Complete exact stopped export required")
+         and exported["original_inputs"] == R["originals"](profile), "Complete exact stopped export required")
     evidence = exported["evidence"]
     need(evidence.keys() == R["EVIDENCE"].keys(), "Complete Qt receipt evidence required")
 
@@ -78,24 +78,28 @@ def receipt(qt, asahi, exported, observed):
     trust = dict(policy=guest_trust["policy"], test_certificate=certificate["pin"],
                  test_fingerprint=certificate["fingerprint"], test_not_before=certificate["not_before"],
                  test_not_after=certificate["not_after"])
-    return C.wire(dict(kind=R["KIND"], nonce=nonce, original_inputs=exported["original_inputs"], evidence=evidence,
-                       chronology=chronology, phases=phases, trust=trust, retirement=observed["retirement"]))
+    record = dict(kind=R["KIND"], nonce=nonce, original_inputs=exported["original_inputs"], evidence=evidence,
+                  chronology=chronology, phases=phases, trust=trust, retirement=observed["retirement"])
+    if profile is not None:
+        record.update(kind=R["PARITY_KIND"], parity_profile=C.pin(C.wire(profile)))
+    return C.wire(record)
 
 
-def assemble(*, disk_path, observation, observation_sha, nonce, bundle, originals, test_inputs):
+def assemble(*, disk_path, observation, observation_sha, nonce, bundle, originals, test_inputs, profile=None):
     """Reopen the exact stopped carrier and publish a verified, no-replace bundle."""
     observed, selected = stopped(observation, observation_sha, nonce)
     need(originals is not None and test_inputs is not None, "Selected original and TEST operands required")
+    profile_arg = {"profile": profile} if profile is not None else {}
     with E["output_parent"](bundle) as parent, TemporaryDirectory(prefix=".qt629-receipt.", dir=bundle.parent) as folder:
         staging = Path(folder)
         qt, asahi = staging / "qt", staging / "asahi"
         exported = H["export_result"](disk_path, observed["disk"], qt, held=False, originals=originals,
-                                      test_inputs=test_inputs, asahi_bundle=asahi)
-        body = receipt(qt, asahi, exported, observed)
+                                      test_inputs=test_inputs, asahi_bundle=asahi, **profile_arg)
+        body = receipt(qt, asahi, exported, observed, **profile_arg)
         pin = C.pin(body)
         with E["directory"](qt) as directory:
             E["write_bodies"](directory, {"receipt.json": body})
-        verified = R["readback"](qt, pin["sha256"])
+        verified = R["readback"](qt, pin["sha256"], **profile_arg)
         with E["directory"](staging) as source:
             E["publish"](parent, "qt", bundle.name, source_parent=source)
         os.fsync(parent)

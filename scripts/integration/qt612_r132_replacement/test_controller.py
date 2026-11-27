@@ -114,7 +114,7 @@ class PackTests(unittest.TestCase):
         if include_display:
             names |= S["WESTON_MEDIA"]
         payload |= {"inputs/qt-replacement/" + name: b"synthetic input" for name in names}
-        plan = self.base | {"qt_replacement": {"wayland_socket": S["DISPLAY_SOCKET"]},
+        plan = self.base | {"qt_replacement": {"wayland_socket": S["DISPLAY_SOCKET"], "project_review": {}},
                             "code": {name.removeprefix("code/"): C.pin(body) for name, body in payload.items()
                                      if name.startswith("code/")},
                             "qt_media": {name.removeprefix("inputs/"): C.pin(body) for name, body in payload.items()

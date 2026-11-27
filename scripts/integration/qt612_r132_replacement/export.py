@@ -114,10 +114,10 @@ def actor_bodies(disk_path, disk_pin, *, expected_nonce=None):
     return present, bodies
 
 
-def reviewed_bodies(originals, test_inputs):
+def reviewed_bodies(originals, test_inputs, *, profile=None):
     original_bodies, test_bodies = {}, {}
+    expected = R["originals"](profile)
     if originals is not None:
-        expected = R["ORIGINALS"]
         need(originals.keys() == expected.keys(), "Exact original input roles required")
         original_bodies = {role: C.read(originals[role], pin["bytes"], pin)[0] for role, pin in expected.items()}
     if test_inputs is not None:
@@ -125,6 +125,9 @@ def reviewed_bodies(originals, test_inputs):
         for name, (path, pin) in test_inputs.items():
             cap = R["EVIDENCE"][name]
             need(C.check_pin(pin, cap) and pin["bytes"] > 0, f"Expected reviewed TEST operand pin: {name}")
+            if profile is not None:
+                role = "signature" if name == TEST_SIGNATURE else "certificate"
+                need(pin == profile["test_review"][role], f"TEST operand differs from the parity profile: {name}")
             test_bodies[name] = C.read(path, cap, pin)[0]
     return original_bodies, test_bodies
 
@@ -191,10 +194,10 @@ def write_bundle(bundle, evidence, originals):
         os.fsync(parent)
 
 
-def export(disk_path, disk_pin, bundle, *, originals=None, test_inputs=None, expected_nonce=None):
+def export(disk_path, disk_pin, bundle, *, originals=None, test_inputs=None, expected_nonce=None, profile=None):
     """Collect bounded evidence and publish it atomically at a new bundle path."""
     present, guest = actor_bodies(disk_path, disk_pin, expected_nonce=expected_nonce)
-    original_bodies, test_bodies = reviewed_bodies(originals, test_inputs)
+    original_bodies, test_bodies = reviewed_bodies(originals, test_inputs, profile=profile)
     for name in guest.keys() & test_bodies.keys():
         need(guest[name] == test_bodies[name], f"Guest evidence differs from reviewed TEST operand: {name}")
     bodies = test_bodies | guest

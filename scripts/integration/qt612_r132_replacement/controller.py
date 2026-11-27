@@ -31,6 +31,7 @@ KIND = "QT629_CONTROLLER_PREPARATION_UNISSUED_V1"
 DRAFT = "QT629_GUEST_PLAN_DRAFT_UNISSUED_V1"
 STOPPED = "QT629_STOPPED_RESULT_OBSERVATION_V1"
 SOURCE_CAP = 128 << 10
+MAX_PROFILE_SOURCE = 64 << 10
 PREPARATION = "controller.UNISSUED.json"
 FIXED_MEDIA = {
     "rollback.lock": "rollback_lock",
@@ -46,6 +47,16 @@ WESTON_MEDIA = {WESTON_ARCHIVE, WESTON_ARCHIVE + ".sig"}
 WESTON_SOURCE = H["LANE"] + "weston_fixture.py"
 DISPLAY = "weston-15.0.1-3-headless-pixman"
 DISPLAY_SOCKET = "/run/qt629-wl/wayland-0"
+
+
+def fixed_media(profile):
+    return {leaf: role for leaf, role in FIXED_MEDIA.items() if role != "project_archive"} | {
+        P["project_name"](profile): "project_archive",
+    }
+
+
+def test_media(profile):
+    return {P["project_name"](profile) + ".sig", "test-certificate.gpg"}
 
 
 def records(paths, pins):
@@ -71,18 +82,32 @@ def source_selection(source):
     return {name: C.read(source / name, SOURCE_CAP, collect=False)[1] for name in sorted(paths)}
 
 
-def selected_originals(handoff, digest, r132):
+def selected_originals(handoff, digest, r132, *, profile=None):
     raw, pin = C.external(handoff, 32 << 10, digest)
     value = C.json_body(raw, canonical=True)
-    need(value["kind"] == "QT612_R132_REPLACEMENT_INPUT_HANDOFF_UNISSUED_V1"
+    pins = P["profile_pins"](profile)
+    all_pins = R["originals"](profile)
+    kind = P["HANDOFF_KIND"] if profile is None else P["PARITY_HANDOFF_KIND"]
+    need(value["kind"] == kind
          and value["authority"] is value["candidate_signature"] is None
-         and value["inputs"].keys() == P["PINS"].keys(), "Expected exact unissued Qt provider handoff")
-    need(all(row == dict(path=row["path"], **P["PINS"][role]) for role, row in value["inputs"].items()),
+         and value["inputs"].keys() == pins.keys()
+         and ("parity_profile" not in value if profile is None else
+              value.get("parity_profile") == C.pin(C.wire(profile))), "Expected exact unissued Qt provider handoff")
+    need(all(row == dict(path=row["path"], **pins[role]) for role, row in value["inputs"].items()),
          "Qt handoff operand pins differ")
-    need(type(r132) is dict and r132.keys() == R["ORIGINALS"].keys() - P["PINS"].keys(),
+    need(type(r132) is dict and r132.keys() == all_pins.keys() - pins.keys(),
          "Exact retained R132 input role set required")
     paths = {role: Path(row["path"]) for role, row in value["inputs"].items()} | r132
-    originals = records(paths, R["ORIGINALS"])
+    originals = records(paths, all_pins)
+    if profile is not None:
+        P["verify_parity_build"](profile, *(C.read(paths[name], pins[name]["bytes"], pins[name])[0]
+                                          for name in ("build_plan", "build_receipt", "parity_recipe")))
+        metadata = {role: P["archive_metadata"](role + "_archive", paths[role + "_archive"], owner,
+                                               profile=profile)[0]
+                    for role, owner in (("project", P["PROJECT"]), ("official", P["OFFICIAL"]))}
+        comparison = C.read(paths["abi_comparison"], pins["abi_comparison"]["bytes"], pins["abi_comparison"])[0]
+        transcript = C.read(paths["alpm_prepare"], pins["alpm_prepare"]["bytes"], pins["alpm_prepare"])[0]
+        P["verify_audit"](C.json_body(comparison), transcript, metadata, profile=profile)
     result = C.json_body(C.read(paths["rollback_result"], 64 << 10, P["PINS"]["rollback_result"])[0])
     terminal = C.json_body(C.read(paths["owned_terminal"], 64 << 10, P["PINS"]["owned_terminal"])[0])
     P["verify_predecessor"](result, terminal)
@@ -159,10 +184,11 @@ def preview_stage(run, worker_paths, base, qt_source, qt_pins, originals, displa
 
 def prepare(*, run, preview, handoff, handoff_sha, qt_source, r132, output,
             test_review=None, test_paths=None, wayland_socket=None, reviewed_source_pins=None,
-            weston_receipt=None, weston_receipt_sha=None):
+            weston_receipt=None, weston_receipt_sha=None, profile=None):
     """Create a fresh private packet and return its unissued preparation pin."""
     legacy, retained, authority_pin = retained_controller(run)
-    originals, handoff_pin, predecessor = selected_originals(handoff, handoff_sha, r132)
+    profile_arg = {} if profile is None else {"profile": P["checked_profile"](profile)}
+    originals, handoff_pin, predecessor = selected_originals(handoff, handoff_sha, r132, **profile_arg)
     need(retained["nonce"] == predecessor, "Retained Asahi and Qt precursor nonces differ")
     worker_paths, worker_pins = legacy["selection"]()
     raw, preview_pin = C.read(preview / "manifest.json", H["MAX_PLAN"])
@@ -177,12 +203,14 @@ def prepare(*, run, preview, handoff, handoff_sha, qt_source, r132, output,
     need(nonce != predecessor, "Fresh Qt trial nonce required")
     base = dict(kind=H["KIND"], nonce=nonce, code=worker_pins, manifest=preview_pin, media=media)
     selected = any(value is not None for value in (test_review, test_paths, wayland_socket, reviewed_source_pins))
+    need(profile is None or selected, "Parity preparation requires a complete reviewed stage")
     if selected:
         need(all(value is not None for value in (test_review, test_paths, wayland_socket, reviewed_source_pins))
              and qt_pins == reviewed_source_pins and preview_current and wayland_socket == DISPLAY_SOCKET
              and display["intake_receipt"] is not None and H["WESTON_SOURCES"] <= qt_pins.keys(),
              "A fully selected stage requires current Preview trust, reviewed source, Qt TEST inputs and display")
-        need(type(test_paths) is dict and test_paths.keys() == TEST_MEDIA, "Exact Qt TEST operand paths required")
+        P["choose_review"](profile, test_review)
+        need(type(test_paths) is dict and test_paths.keys() == test_media(profile), "Exact Qt TEST operand paths required")
         need(test_review["not_before"] <= now and now + legacy["O"].TRUST_ALLOWANCE < test_review["not_after"],
              "The selected Qt TEST lifetime does not cover the retained preparation allowance")
     need(output.is_absolute() and output.parent.resolve(strict=True) == output.parent,
@@ -191,11 +219,11 @@ def prepare(*, run, preview, handoff, handoff_sha, qt_source, r132, output,
     try:
         root = output / "stage"
         if selected:
-            paths = {leaf: Path(originals[role]["path"]) for leaf, role in FIXED_MEDIA.items()} | test_paths
+            paths = {leaf: Path(originals[role]["path"]) for leaf, role in fixed_media(profile).items()} | test_paths
             staged = H["stage"](retained_source=run / "source", retained_init=run / "output/asahi629/init.readback",
                                 qt_source=qt_source, qt_source_pins=reviewed_source_pins, baseline_plan=base,
                                 project_review=test_review, media_paths=paths, wayland_socket=wayland_socket, output=root,
-                                weston=display["media"])
+                                weston=display["media"], **profile_arg)
         else:
             staged = preview_stage(run, worker_paths, base, qt_source, qt_pins, originals, display, root)
         source = {name: C.read(HERE / name, SOURCE_CAP, collect=False)[1]
@@ -212,6 +240,8 @@ def prepare(*, run, preview, handoff, handoff_sha, qt_source, r132, output,
                               ([] if display["intake_receipt"] else ["reviewed Weston fixture intake"]) +
                               ["Weston guest supervisor and runtime evidence integration"],
                       execution="NOT RUN")
+        if profile is not None:
+            record["parity_profile"] = profile
         pin = put(output / PREPARATION, C.wire(record))
     except BaseException:
         shutil.rmtree(output)
@@ -225,6 +255,7 @@ def pack_inputs(legacy, preview, base_plan, root, stage_root, staged, *, display
          and staged["path"] == str(stage_root), "Expected the selected complete staged guest fragment")
     raw, _ = C.read(stage_root / "code/plan.json", H["MAX_PLAN"], staged["plan"])
     plan = C.json_body(raw, canonical=True)
+    profile = P["plan_profile"](plan["qt_replacement"])
     need(plan.keys() == base_plan.keys() | {"qt_media", "qt_replacement"}
          and all(plan[name] == value for name, value in base_plan.items() if name != "code"),
          "Qt boot plan differs from the base input scope")
@@ -232,7 +263,8 @@ def pack_inputs(legacy, preview, base_plan, root, stage_root, staged, *, display
         "inputs/" + name: pin for name, pin in plan["qt_media"].items()} | {"code/plan.json": staged["plan"]}
     need(overlay == staged["files"] and plan["code"]["asahi-guest.py"] == staged["worker"]
          and plan["code"].keys() == base_plan["code"].keys() | H["GUEST_ENTRY"]["SOURCES"] | H["WESTON_SOURCES"]
-         and plan["qt_media"].keys() == {"qt-replacement/" + name for name in FIXED_MEDIA.keys() | TEST_MEDIA | WESTON_MEDIA}
+         and plan["qt_media"].keys() == {"qt-replacement/" + name for name in fixed_media(profile).keys() |
+                                        test_media(profile) | WESTON_MEDIA}
          and not os.path.lexists(root), "Staged guest pins, file allowlist or fresh packed tree differ")
     need(display["fixture"] == DISPLAY and display["package_inventory"] == 629
          and display["intake_receipt"] is not None and display["source"] is not None
@@ -296,13 +328,14 @@ def require_result_uuid(path, pin, nonce):
 
 
 def export_stopped(*, disk_path, disk_pin, retirement, retirement_sha, nonce, bundle,
-                   originals=None, test_inputs=None, asahi_bundle=None):
+                   originals=None, test_inputs=None, asahi_bundle=None, profile=None):
     """Owning controller hook after QEMU and the outer container retire."""
     held, receipt = stopped(retirement, retirement_sha, nonce, disk_pin)
     if held:
         require_result_uuid(disk_path, disk_pin, nonce)
     result = H["export_result"](disk_path, disk_pin, bundle, held=held, originals=originals,
-                                test_inputs=test_inputs, asahi_bundle=asahi_bundle, expected_nonce=nonce)
+                                test_inputs=test_inputs, asahi_bundle=asahi_bundle, expected_nonce=nonce,
+                                **({"profile": profile} if profile is not None else {}))
     return dict(held=held, retirement=receipt, **result)
 
 
@@ -313,9 +346,29 @@ def main():
     parser.add_argument("--handoff-sha", required=True)
     parser.add_argument("--weston-receipt", type=Path)
     parser.add_argument("--weston-receipt-sha")
+    parser.add_argument("--profile", type=Path)
+    parser.add_argument("--profile-sha256")
+    parser.add_argument("--test-signature", type=Path)
+    parser.add_argument("--test-certificate", type=Path)
+    parser.add_argument("--reviewed-source-pins", type=Path)
+    parser.add_argument("--reviewed-source-pins-sha256")
     args = vars(parser.parse_args())
     try:
         args["r132"] = {name: args.pop(name) for name in ("r132_kernel", "r132_config", "r132_transport")}
+        profile = P["load_profile"](args.pop("profile"), args.pop("profile_sha256"))
+        signature, certificate, source_pins, source_sha = (
+            args.pop(name) for name in ("test_signature", "test_certificate",
+                                        "reviewed_source_pins", "reviewed_source_pins_sha256"))
+        if profile is None:
+            need(all(value is None for value in (signature, certificate, source_pins, source_sha)),
+                 "Parity staging operands require an independently selected profile")
+        else:
+            need(all(value is not None for value in (signature, certificate, source_pins, source_sha))
+                 and C.SHA.fullmatch(source_sha), "Exact reviewed parity TEST and source inputs required")
+            raw = C.external(source_pins, MAX_PROFILE_SOURCE, source_sha)[0]
+            args.update(profile=profile, test_review=profile["test_review"], wayland_socket=DISPLAY_SOCKET,
+                        test_paths={P["project_name"](profile) + ".sig": signature, "test-certificate.gpg": certificate},
+                        reviewed_source_pins=C.json_body(raw, canonical=True))
         report = prepare(**args)
         sys.stdout.buffer.write(C.wire(report))
     except (OSError, ValueError, KeyError, TypeError) as error:
