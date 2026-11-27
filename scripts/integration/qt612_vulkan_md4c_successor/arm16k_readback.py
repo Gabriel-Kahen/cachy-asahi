@@ -3,6 +3,8 @@
 """Read the retired Qtbase successor VM and package without mounting an image."""
 
 import argparse
+from decimal import Decimal
+import gzip
 import hashlib
 import io
 import lzma
@@ -15,6 +17,7 @@ import stat
 import struct
 import sys
 import tarfile
+from tempfile import NamedTemporaryFile
 from types import SimpleNamespace
 
 
@@ -26,6 +29,7 @@ DEFAULT_PROFILE, PROFILES = AUTH["DEFAULT_PROFILE"], AUTH["PROFILES"]
 MIB = 1 << 20
 PACKAGE = "cachy-asahi-qt612-gui-server-source-reference"
 VERSION = PROFILES[DEFAULT_PROFILE]["version"]
+BASE_ARCHIVE = C.file_pin(14172388, "6420f8ee8d8ebc106072c9bedb111c6b2dd780eb4e4629bceec4dc71a2b774c4")
 BEFORE = C.file_pin(6925, "e2a4da7903e6de26b0ee37758ad424439f83196fa6a3b0bdffa501f35a02d0b9")
 AFTER = C.file_pin(6954, "cd7f0f45ee485edc315e27370e954ba11ab3f5e6168a2653c40220a698c102a1")
 BUILD_EPOCH = "1792021458"
@@ -160,18 +164,37 @@ def graph_checks(pins, files, profile):
     return {name: cache[name][1] for name in FEATURES}
 
 
-def gui_abi(body):
+def readelf(body, *flags):
     bounded = run_path(str(HERE.parent / "lifecycle.py"))["bounded_process"]
-    with os.fdopen(os.memfd_create("qtbase-successor-QtGui", os.MFD_CLOEXEC), "wb") as stream:
+    with os.fdopen(os.memfd_create("qtbase-parity-elf", os.MFD_CLOEXEC), "wb") as stream:
         stream.write(body)
         stream.flush()
-        result = bounded(["/usr/bin/readelf", "--wide", "--dynamic", "--dyn-syms", "--relocs",
-                          f"/proc/{os.getpid()}/fd/{stream.fileno()}"], timeout=30,
-                         stdout_limit=16 * MIB, stderr_limit=8192,
+        result = bounded(["/usr/bin/readelf", "--wide", *flags, f"/proc/{os.getpid()}/fd/{stream.fileno()}"],
+                         timeout=30, stdout_limit=16 * MIB, stderr_limit=8192,
                          env={"LC_ALL": "C", "PATH": "/usr/bin:/bin"})
     C.need(result["returncode"] == 0 and result["reason"] == "exit" and result["cleanup"]["reaped"]
-           and not result["stderr"], "Bounded independent QtGui ELF readelf failed")
-    return run_path(str(HERE / "check_gui.py"))["check_readback"](result["stdout"].decode("ascii"))
+           and not result["stderr"], "Bounded independent Qt ELF readelf failed")
+    return result["stdout"].decode("ascii")
+
+
+def gui_abi(body):
+    return run_path(str(HERE / "check_gui.py"))["check_readback"](
+        readelf(body, "--dynamic", "--dyn-syms", "--relocs"))
+
+
+def dynamic_symbols(body):
+    exports, imports = set(), set()
+    for line in readelf(body, "--dyn-syms").splitlines():
+        fields = line.split()
+        if len(fields) < 8 or not re.fullmatch(r"\d+:", fields[0]):
+            continue
+        _, _, _, _, binding, visibility, section, name, *_ = fields
+        if section == "UND" and binding == "GLOBAL":
+            imports.add(name)
+        elif section != "UND" and binding in {"GLOBAL", "WEAK", "UNIQUE"} and visibility in {"DEFAULT", "PROTECTED"}:
+            exports.add(name)
+    C.need(exports, "A Qt library has no visible dynamic symbols")
+    return exports, imports
 
 
 def package_metadata(controls, sourceinfo, inventory, recipe, payload_bytes, parse, *, version=VERSION):
@@ -236,7 +259,88 @@ def payload_contract(stage, packaged, staged_contract):
            "Final archive lacks required Qt development files")
 
 
-def archive_contents(raw, files, recipe, staged, *, profile=DEFAULT_PROFILE):
+def mtree_fields(member, body):
+    kind = "file" if member.isfile() else "dir" if member.isdir() else "link"
+    record = dict(type=kind, mode=f"{member.mode:o}", uid=str(member.uid), gid=str(member.gid),
+                  time=Decimal(str(member.mtime)).normalize().to_eng_string())
+    if kind == "file":
+        record.update(size=str(len(body)), sha256digest=hashlib.sha256(body).hexdigest())
+    elif kind == "link":
+        record["link"] = member.linkname
+    return record
+
+
+def verify_mtree(compressed, inventory):
+    with gzip.GzipFile(fileobj=io.BytesIO(compressed)) as stream:
+        text = stream.read((8 << 20) + 1)
+    C.need(len(text) <= 8 << 20 and text.startswith(b"#mtree\n"), "Invalid or oversized package MTREE")
+    defaults, observed = {}, {}
+    for row in text.decode("utf-8").splitlines()[1:]:
+        fields = row.split()
+        C.need(fields and fields[0] != "/unset", "Unexpected MTREE record")
+        name, *items = fields
+        pairs = [item.split("=", 1) for item in items]
+        values = dict(pairs)
+        C.need(len(values) == len(pairs), "Duplicate MTREE attributes")
+        if name == "/set":
+            C.need(values.keys() <= {"mode", "type", "uid", "gid"}, "Unexpected MTREE defaults")
+            defaults.update(values)
+            continue
+        C.need(name.startswith("./") and name[2:] not in observed and re.fullmatch(r"[0-9]{1,12}(?:\.[0-9]{1,9})?", values.get("time", "")),
+               f"Invalid or repeated MTREE path: {name}")
+        values["time"] = Decimal(values["time"]).normalize().to_eng_string()
+        if "link" in values:
+            values["link"] = re.sub(r"\\([0-7]{3})", lambda m: chr(int(m[1], 8)), values["link"])
+        name = re.sub(r"\\([0-7]{3})", lambda m: chr(int(m[1], 8)), name[2:])
+        C.need(name not in observed and inventory.get(name) == defaults | values,
+               f"MTREE metadata disagrees with archive bytes: {name}")
+        observed[name] = defaults | values
+    C.need(observed == inventory, "MTREE path census differs from the final archive")
+    return observed
+
+
+def parity_delta(baseline, candidate, maps, expected, symbols):
+    old, abi = {}, {}
+    expanded = maps.expand_archive(io.BytesIO(baseline))
+    with tarfile.open(fileobj=io.BytesIO(expanded), mode="r:") as archive:
+        for member in archive:
+            name = maps.PKG.clean_name(member.name)
+            if name in maps.CONTROLS | {"."}:
+                continue
+            C.need(name not in old and (member.isfile() or member.isdir() or member.issym()),
+                   "Unexpected reference archive path")
+            old[name] = ("file" if member.isfile() else "directory" if member.isdir() else "symlink",
+                         member.mode, member.linkname if member.issym() else None)
+            if name in symbols:
+                prior, _ = dynamic_symbols(archive.extractfile(member).read())
+                current, _ = symbols[name]
+                C.need(prior <= current, f"Project Qt export lost in {name}: {sorted(prior - current)[:20]}")
+                abi[name] = dict(retained_exports=len(prior), new_exports=sorted(current - prior))
+    C.need(abi.keys() == symbols.keys(), "Reference Qt dynamic symbol census differs")
+    new = {name: row for name, row in candidate.items() if name not in maps.CONTROLS | {"."}}
+    added, removed = new.keys() - old.keys(), old.keys() - new.keys()
+    changed = {name for name in old.keys() & new.keys() if old[name] != new[name]}
+    expected_dir = "usr/lib/qt6/plugins/printsupport"
+    C.need(added == expected | {expected_dir} and not removed and not changed
+           and new[expected_dir] == ("directory", 0o755, None) and all(new[name][0] == "file" for name in expected),
+           f"Unexpected parity path delta (extra {sorted(added - expected - {expected_dir})}, "
+           f"missing {sorted(expected - added)}, removed {sorted(removed)}, changed {sorted(changed)})")
+    return dict(added_files=sorted(expected), added_directories=[expected_dir], removed=[], metadata_changed=[],
+                baseline_nodes=len(old), candidate_nodes=len(new), qt_dynamic_exports=abi)
+
+
+def atspi_bridge_abi(symbols):
+    constructor = "_ZN20QSpiAccessibleBridgeC1Ev"
+    exported = f"{constructor}@@Qt_6_PRIVATE_API"
+    imported = f"{constructor}@Qt_6_PRIVATE_API"
+    gui_exports = symbols["usr/lib/libQt6Gui.so.6.12.0"][0]
+    consumers = ["libQt6WaylandClient.so.6.12.0", "libQt6XcbQpa.so.6.12.0"]
+    C.need(exported in gui_exports and all(imported in symbols["usr/lib/" + name][1] for name in consumers),
+           "AT-SPI bridge ABI absent from QtGui or its Wayland/XCB consumers")
+    return dict(qtgui_export=exported, consumers=consumers)
+
+
+def archive_contents(raw, files, recipe, staged, *, profile=DEFAULT_PROFILE, baseline=None):
     maps = SimpleNamespace(**run_path(str(HERE.parent / "qt612_installed_16k_preflight/selection_maps.py")))
     stage = SimpleNamespace(**run_path(str(ROOT / "packages/port/qt612-gui-server-source-reference/check_stage.py")))
     expanded = maps.expand_archive(io.BytesIO(raw))
@@ -244,6 +348,8 @@ def archive_contents(raw, files, recipe, staged, *, profile=DEFAULT_PROFILE):
     library_roots = {f"usr/lib/libQt6{module}.so" for module in (*stage.MODULES, *stage.PRIVATE_MODULES)}
     staged_contract = C.json_body(files["stage-contract.json"])
     libraries, links, controls, nodes, notices, server_bodies, elf = {}, {}, {}, {}, {}, {}, {}
+    inventory, symbols = {}, {}
+    is_parity = profile == "parity"
     payload_bytes = 0
     notice_root = stage.NOTICE_ROOT + "/"
     abi = None
@@ -261,6 +367,8 @@ def archive_contents(raw, files, recipe, staged, *, profile=DEFAULT_PROFILE):
                 C.need(member.isfile() and member.mode == 0o644 and 0 < member.size <= 4 * MIB,
                        "Invalid package control file")
                 controls[name] = archive.extractfile(member).read()
+                if is_parity and name != ".MTREE":
+                    inventory[name] = mtree_fields(member, controls[name])
                 continue
             C.need((name == "." and nodes[name] == ("directory", 0o755, None)) or stage.owned(name),
                    f"Package member escapes Qt ownership: {name}")
@@ -275,6 +383,8 @@ def archive_contents(raw, files, recipe, staged, *, profile=DEFAULT_PROFILE):
                        f"Unexpected or escaping package link: {name}")
             body = archive.extractfile(member).read() if member.isfile() else b""
             payload_bytes += len(body)
+            if is_parity and name != ".":
+                inventory[name] = mtree_fields(member, body)
             if body.startswith(b"\x7fELF"):
                 observed = stage.elf_info(body)
                 elf[name] = observed
@@ -303,6 +413,8 @@ def archive_contents(raw, files, recipe, staged, *, profile=DEFAULT_PROFILE):
                 C.need(observed and observed["type"] == 3 and observed["soname"] == Path(root).name + ".6"
                        and observed["interpreter"] in (None, interpreter), f"Wrong Qt shared library loader metadata: {name}")
                 libraries[name] = C.pin(body)
+                if is_parity and baseline is not None:
+                    symbols[name] = dynamic_symbols(body)
                 if root.endswith("/libQt6Gui.so"):
                     abi = gui_abi(body)
             if name.startswith(notice_root) and member.isfile():
@@ -323,17 +435,23 @@ def archive_contents(raw, files, recipe, staged, *, profile=DEFAULT_PROFILE):
     plugins = {"usr/lib/qt6/plugins/" + name for name in stage.PLUGINS}
     C.need(all(name in elf and nodes[name][1] & 0o111 for name in set(stage.TOOLS) | plugins)
            and all(elf[name]["type"] == 3 for name in plugins), "Expected final executable Qt tools and shared plugins")
-    if profile == "parity":
-        parity = run_path(str(HERE / "check_parity.py"))
-        parity["check_parity"]({"files": {name: {"mode": row[1]} for name, row in nodes.items() if row[0] == "file"},
-                                "elf": elf})
     server = stage.server_feature_export(server_bodies, {name: C.pin(body) for name, body in server_bodies.items()})
     C.need(server == staged_contract["server_feature_export"],
            "Final archive Wayland server export differs from staging")
     package_metadata(controls, staged[".SRCINFO"], files["after.lock"], recipe, payload_bytes, maps.PKG.metadata,
                      version=PROFILES[profile]["version"])
-    return dict(libraries=libraries, gui_abi=abi, source_notices=len(notices), elf_objects=len(elf),
-                controls={name: C.pin(body) for name, body in controls.items()})
+    report = dict(libraries=libraries, gui_abi=abi, source_notices=len(notices), elf_objects=len(elf),
+                  controls={name: C.pin(body) for name, body in controls.items()})
+    if is_parity:
+        parity = run_path(str(HERE / "check_parity.py"))
+        parity["check_parity"]({"files": {name: {"mode": row[1]} for name, row in nodes.items() if row[0] == "file"},
+                                "elf": elf})
+        verify_mtree(controls[".MTREE"], inventory)
+        report["mtree"] = dict(entries=len(inventory), inventory=C.pin(C.wire(inventory)))
+        if baseline is not None:
+            report["path_delta"] = parity_delta(baseline, nodes, maps, parity["ADDED_FILES"], symbols)
+            report["atspi_bridge_abi"] = atspi_bridge_abi(symbols)
+    return report
 
 
 def result_files(path, plan, result_pin, load_archive, *, profile=DEFAULT_PROFILE):
@@ -398,7 +516,7 @@ def stage_checks(body, staged):
            "Original stage-contract result differs")
 
 
-def guest_checks(plan, pins, files, markers, recipe, staged, host_pass, *, profile=DEFAULT_PROFILE):
+def guest_checks(plan, pins, files, markers, recipe, staged, host_pass, *, profile=DEFAULT_PROFILE, baseline=None):
     terminal, setup_serial, config_serial = markers
     passed = terminal is not None and terminal[0] == "PASS"
     errors, features = {}, None
@@ -438,7 +556,7 @@ def guest_checks(plan, pins, files, markers, recipe, staged, host_pass, *, profi
         C.need(files["build.log"].splitlines().count(SMOKE) == 1, "Original makepkg smoke result absent")
         digest_list(files["archive.sha256"], {archive: pins[archive]})
         stage_checks(files["stage-contract.json"], staged)
-        report["archive"] = archive_contents(files[archive], files, recipe, staged, profile=profile)
+        report["archive"] = archive_contents(files[archive], files, recipe, staged, profile=profile, baseline=baseline)
         return report, "PASS_UNSIGNED_EMULATED_AARCH64_16K_PACKAGE"
     return report, "PASS_EMULATED_AARCH64_16K_CONFIGURE"
 
@@ -492,13 +610,17 @@ def host_receipts(capsule, plan, plan_sha, launch_sha):
     return launch, launch_pin, started_pin, actor, serial, host_pass
 
 
-def readback(capsule, plan_sha, launch_sha, recipe_path=None, *, profile=DEFAULT_PROFILE):
+def readback(capsule, plan_sha, launch_sha, recipe_path=None, *, profile=DEFAULT_PROFILE,
+             baseline_path=None, export=None):
     raw, plan_pin = C.external(capsule / "plan.json", 128 << 10, plan_sha)
     plan = C.json_body(raw, canonical=True)
     C.need(plan["kind"] == "QTBASE_SUCCESSOR16K_PLAN_V1" and C.NONCE.fullmatch(plan["nonce"])
            and plan["mode"] in {"configure", "full"}
            and plan["base_revision"] == "cbc877a35f40aba98aeb53cbcfebd7d18422e5ec", "Unexpected successor plan")
     AUTH["check_plan_profile"](plan, profile, historical=True)
+    C.need(baseline_path is None or (profile == "parity" and plan["mode"] == "full"),
+           "Archive comparison requires the full parity profile")
+    C.need(export is None or baseline_path is not None, "Archive export requires the pinned parity baseline")
     recipe, staged = recipe_inputs(recipe_path or capsule / "recipe", profile=profile)
     C.need(all(plan["payload"]["recipe/" + name] == pin for name, pin in recipe["files"].items()),
            "Recipe data does not bind the sealed boot payload")
@@ -509,10 +631,23 @@ def readback(capsule, plan_sha, launch_sha, recipe_path=None, *, profile=DEFAULT
     launch, launch_pin, started_pin, actor, markers, host_pass = host_receipts(capsule, plan, plan_sha, launch_sha)
     guest_pass = markers[0] is not None and markers[0][0] == "PASS"
     try:
+        baseline = C.read(baseline_path, BASE_ARCHIVE["bytes"], BASE_ARCHIVE)[0] if baseline_path else None
         pins, files = result_files(capsule / "run/result.raw", plan, launch["files"]["result.raw"],
                                    load_archive=guest_pass and host_pass and plan["mode"] == "full", profile=profile)
-        guest, status = guest_checks(plan, pins, files, markers, recipe, staged, host_pass, profile=profile)
-    except (OSError, KeyError, ValueError, UnicodeError) as error:
+        guest, status = guest_checks(plan, pins, files, markers, recipe, staged, host_pass,
+                                     profile=profile, baseline=baseline)
+        if export is not None:
+            C.need(guest_pass and host_pass and status == "PASS_UNSIGNED_EMULATED_AARCH64_16K_PACKAGE"
+                   and baseline is not None
+                   and {"mtree", "path_delta", "atspi_bridge_abi"} <= guest["archive"].keys(),
+                   "Archive export requires a full PASS with the pinned parity path and ABI comparison")
+            with NamedTemporaryFile(prefix=f".{export.name}.", dir=export.parent) as stream:
+                stream.write(files[AUTH["archive_name"](profile)])
+                stream.flush()
+                os.fchmod(stream.fileno(), 0o444)
+                os.fsync(stream.fileno())
+                os.link(stream.name, export)
+    except (OSError, EOFError, KeyError, ValueError, UnicodeError) as error:
         if guest_pass or isinstance(error, ResultPinError):
             raise
         status = "HOLD"
@@ -532,14 +667,17 @@ def main():
     parser.add_argument("--capsule", type=Path, required=True)
     parser.add_argument("--recipe", type=Path)
     parser.add_argument("--profile", choices=PROFILES, default=DEFAULT_PROFILE)
+    parser.add_argument("--baseline", type=Path)
+    parser.add_argument("--export-archive", type=Path)
     parser.add_argument("--plan-sha256", required=True)
     parser.add_argument("--launch-sha256", required=True)
     args = parser.parse_args()
     try:
-        report = readback(args.capsule, args.plan_sha256, args.launch_sha256, args.recipe, profile=args.profile)
+        report = readback(args.capsule, args.plan_sha256, args.launch_sha256, args.recipe, profile=args.profile,
+                          baseline_path=args.baseline, export=args.export_archive)
         sys.stdout.buffer.write(C.wire(report))
         return 2 if report["status"] == "HOLD" else 0
-    except (OSError, KeyError, TypeError, ValueError, lzma.LZMAError, tarfile.TarError) as error:
+    except (OSError, EOFError, KeyError, TypeError, ValueError, lzma.LZMAError, tarfile.TarError) as error:
         print(f"Qtbase ARM16K successor readback refused: {error}", file=sys.stderr)
         return 1
 

@@ -80,14 +80,52 @@ new graph contains the QtGui bridge objects, both plugin targets, and normal
 CUPS and EGL link inputs. All 40 projected runtime dependency expressions passed `pacman -T`
 on the copied Asahi629 project database. The source checks did not compile Qt.
 
-The build and replacement controllers currently bind 6.12.0-3. To schedule
-6.12.0-4, bind the new recipe receipt, signed dependency pins, guest artifact
-names, independent stage/archive checks, and updated replacement lock.
-Build in a fresh offline AArch64 16 KiB guest with normal dependency resolution
-and the existing serial makepkg policy. Compare the result to both audited
-archives for package ownership, SONAMEs, dependency resolution, and the
-retained Vulkan/md4c ABI. Confirm the QtGui AT-SPI bridge and both new plugins
-in the actual archive before TEST signing.
+Select the parity recipe and its signed Q3 closure explicitly. The launcher
+uses a 6 GiB guest, an 8 GiB no-swap container and a 10 GiB child disk cap.
+Sustained host memory pressure triggers owned container retirement. Use the paths and offline
+serial build procedure in [the build runbook](README.md).
+
+```sh
+python3 -I -B -Werror arm16k.py prepare --profile parity --mode full \
+  --evidence "$CLOSURE" --q3 "$Q3_INPUTS" --boot "$Q3_BOOT" \
+  --kernel "$KERNEL_IMAGE" --config "$KERNEL_CONFIG" --backing "$Q3_SCRATCH" \
+  --docker "$PINNED_ROOTLESS_DOCKER" --output "$CAPSULE"
+
+python3 -I -B -Werror arm16k.py start --capsule "$CAPSULE" --plan-sha256 "$PLAN_SHA"
+```
+
+Keep the plan digest printed by prepare and the launch digest printed by
+start. The profile for start comes from the sealed plan.
+
+After retirement, compare the package to the pinned prior project archive.
+The reader validates the control files, all MTREE records against the tar
+payload, all 18 Qt library export sets, the AT-SPI constructor and both
+consumers, plugin linkage, and the exact added paths. It exports only a
+package that passed the full comparison.
+
+```sh
+python3 -I -B -Werror arm16k_readback.py --profile parity --capsule "$CAPSULE" \
+  --plan-sha256 "$PLAN_SHA" --launch-sha256 "$LAUNCH_SHA" \
+  --baseline "$HELD_PROJECT_ARCHIVE" --export-archive "$NEW_ARCHIVE"
+```
+
+The successful readback JSON has kind
+`QTBASE_SUCCESSOR16K_INDEPENDENT_READBACK_V1` and status
+`PASS_UNSIGNED_EMULATED_AARCH64_16K_PACKAGE`. Keep the original JSON bytes
+with the exported package. Newly sealed plans supply top-level `profile`
+(`parity`) and `source_sha256`. Historical parity plans predate those fields.
+The controller can bind these records under `guest.archive`.
+
+| Field | Value |
+| --- | --- |
+| `libraries` | `{bytes, sha256}` for each of the 18 `usr/lib/libQt6*.so.6.12.0` real library paths |
+| `mtree` | `entries` and an `inventory` `{bytes, sha256}` pin of the verified MTREE inventory |
+| `path_delta` | `added_files` (the sorted 31 paths from the [stage checker](check_parity.py)), `added_directories` (`["usr/lib/qt6/plugins/printsupport"]`), `removed` and `metadata_changed` (both `[]`), `baseline_nodes`, `candidate_nodes`, and `qt_dynamic_exports` (the same 18 library paths, each with a `retained_exports` count and sorted `new_exports`) |
+| `atspi_bridge_abi` | `qtgui_export` is `_ZN20QSpiAccessibleBridgeC1Ev@@Qt_6_PRIVATE_API` and `consumers` is `["libQt6WaylandClient.so.6.12.0", "libQt6XcbQpa.so.6.12.0"]`. Both import `_ZN20QSpiAccessibleBridgeC1Ev@Qt_6_PRIVATE_API`. |
+
+These fields describe the unsigned build. The Asahi629 replacement
+controller requires its own package and lock binding before a TEST-signed
+installation.
 
 In Asahi629, run the existing official/project software rendering checks,
 then exercise the new paths as an ordinary user. Query real accessible roles

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Exercise the independent successor reader with inert evidence."""
 
+import gzip
 import io
 import os
 from pathlib import Path
@@ -11,7 +12,7 @@ import tarfile
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 
 R = run_path(str(Path(__file__).with_name("arm16k_readback.py")))
@@ -19,6 +20,18 @@ C = R["C"]
 STAGE = SimpleNamespace(**run_path(str(R["ROOT"] / "packages/port/qt612-gui-server-source-reference/check_stage.py")))
 PARSE = run_path(str(R["ROOT"] / "scripts/checks/package_checks.py"))["metadata"]
 NONCE = "12345678" * 4
+PARITY = run_path(str(Path(__file__).with_name("check_parity.py")))
+
+
+def plan_for_recipe(profile, recipe):
+    auth = R["AUTH"]
+    selected = auth["PROFILES"][profile]
+    source = auth["SOURCE_NAME"]
+    return dict(kind="QTBASE_SUCCESSOR16K_PLAN_V1", nonce=NONCE, mode="full",
+                base_revision="cbc877a35f40aba98aeb53cbcfebd7d18422e5ec",
+                inputs={"recipe": selected["recipe"], "source": {"path": "/held/qt", **recipe["qt_source"]}},
+                payload={"recipe/" + selected["receipt"]: selected["recipe"], source: recipe["qt_source"]}
+                | {"recipe/" + name: pin for name, pin in recipe["files"].items()})
 
 
 class ReadbackTests(unittest.TestCase):
@@ -39,11 +52,7 @@ class ReadbackTests(unittest.TestCase):
                             R["recipe_inputs"](recipe_path)
                         self.assertEqual(R["recipe_inputs"](recipe_path, profile=profile)[0], recipe)
                     source = auth["SOURCE_NAME"]
-                    plan = dict(kind="QTBASE_SUCCESSOR16K_PLAN_V1", nonce=NONCE, mode="full",
-                                base_revision="cbc877a35f40aba98aeb53cbcfebd7d18422e5ec",
-                                inputs={"recipe": selected["recipe"], "source": {"path": "/held/qt", **recipe["qt_source"]}},
-                                payload={"recipe/" + selected["receipt"]: selected["recipe"], source: recipe["qt_source"]}
-                                | {"recipe/" + name: pin for name, pin in recipe["files"].items()})
+                    plan = plan_for_recipe(profile, recipe)
                     plan_path = root / "plan.json"
 
                     def check(candidate, **options):
@@ -67,6 +76,9 @@ class ReadbackTests(unittest.TestCase):
                         if profile == "parity":
                             with self.assertRaisesRegex(ValueError, "Unexpected sealed build profile"):
                                 check(plan)
+                        else:
+                            with self.assertRaisesRegex(ValueError, "full parity profile"):
+                                check(plan, baseline_path=root / "baseline")
                         changed = plan | {"payload": plan["payload"] | {source: C.pin(b"other source")}}
                         changed["source_sha256"] = auth["source_sha256"](changed)
                         with self.assertRaisesRegex(ValueError, "Upstream Qt archive"):
@@ -74,6 +86,65 @@ class ReadbackTests(unittest.TestCase):
                         del plan["source_sha256"]
                         with self.assertRaisesRegex(ValueError, "source digest differs"):
                             check(plan, profile=profile)
+
+    def test_export_requires_pinned_baseline_and_complete_parity_result(self):
+        auth = R["AUTH"]
+        readback = R["readback"]
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            recipe = run_path(str(Path(__file__).with_name("prepare_parity.py")))["prepare_parity"](root / "recipe")
+            plan = plan_for_recipe("parity", recipe)
+            plan.update(profile="parity", launcher=C.pin(b"launcher"), actor=C.pin(b"actor"))
+            plan["source_sha256"] = auth["source_sha256"](plan)
+            raw = C.wire(plan)
+            (root / "plan.json").write_bytes(raw)
+            plan_sha = C.pin(raw)["sha256"]
+            baseline, output = root / "baseline.pkg.tar.xz", root / "export.pkg.tar.xz"
+            baseline_body = b"pinned baseline fixture"
+            baseline.write_bytes(baseline_body)
+            archive_body = b"unsigned parity fixture"
+            archive = auth["archive_name"]("parity")
+            launch = dict(files={"result.raw": C.pin(b"result")}, originals_unchanged=True,
+                          container_absent=[True, True], container_exit=0, qemu_exit=0, error=None)
+            receipt = {"archive": {"mtree": {}, "path_delta": {}, "atspi_bridge_abi": {}}}
+            passed = "PASS_UNSIGNED_EMULATED_AARCH64_16K_PACKAGE"
+            host = Mock(return_value=(launch, {}, {}, {}, (("PASS", "complete"), True, True), True))
+            evidence = Mock(return_value=({}, {archive: archive_body}))
+            guest = Mock(return_value=(receipt, passed))
+            with patch.dict(readback.__globals__, BASE_ARCHIVE=C.pin(baseline_body), host_receipts=host,
+                            result_files=evidence, guest_checks=guest):
+                with self.assertRaisesRegex(ValueError, "requires the pinned parity baseline"):
+                    readback(root, plan_sha, "fixture", profile="parity", export=output)
+                host.assert_not_called()
+                baseline.write_bytes(b"X" + baseline_body[1:])
+                with self.assertRaisesRegex(ValueError, "Exact original file pin"):
+                    readback(root, plan_sha, "fixture", profile="parity", baseline_path=baseline, export=output)
+                evidence.assert_not_called()
+                self.assertFalse(output.exists())
+                baseline.write_bytes(baseline_body)
+                with self.subTest("missing ABI check"):
+                    guest.return_value = ({"archive": {"mtree": {}, "path_delta": {}}}, passed)
+                    with self.assertRaisesRegex(ValueError, "full PASS"):
+                        readback(root, plan_sha, "fixture", profile="parity", baseline_path=baseline, export=output)
+                    self.assertFalse(output.exists())
+                guest.return_value = (receipt, passed)
+                with self.subTest("host did not pass"):
+                    successful_host = host.return_value
+                    host.return_value = (*successful_host[:-1], False)
+                    with self.assertRaisesRegex(ValueError, "full PASS"):
+                        readback(root, plan_sha, "fixture", profile="parity", baseline_path=baseline, export=output)
+                    self.assertFalse(evidence.call_args.kwargs["load_archive"])
+                    self.assertFalse(output.exists())
+                    host.return_value = successful_host
+                report = readback(root, plan_sha, "fixture", profile="parity", baseline_path=baseline, export=output)
+                self.assertEqual(report["guest"], receipt)
+                self.assertEqual(report["source_sha256"], plan["source_sha256"])
+                self.assertEqual(guest.call_args.kwargs, {"profile": "parity", "baseline": baseline_body})
+                self.assertEqual(output.read_bytes(), archive_body)
+                self.assertEqual(output.stat().st_mode & 0o777, 0o444)
+                with self.assertRaises(FileExistsError):
+                    readback(root, plan_sha, "fixture", profile="parity", baseline_path=baseline, export=output)
+                self.assertEqual(output.read_bytes(), archive_body)
 
     def test_checkpoint_and_terminal_are_ordered_and_nonce_bound(self):
         state = R["serial_state"]
@@ -195,6 +266,77 @@ class ResultCarrierTests(unittest.TestCase):
 
 
 class ArchiveTests(unittest.TestCase):
+    def test_parity_delta_requires_exact_paths_and_all_library_exports(self):
+        maps = SimpleNamespace(**run_path(str(R["HERE"].parent / "qt612_installed_16k_preflight/selection_maps.py")))
+        maps.expand_archive = lambda stream: stream.read()
+        libraries = {f"usr/lib/libQt6{module}.so.6.12.0" for module in (*STAGE.MODULES, *STAGE.PRIVATE_MODULES)}
+        added = PARITY["ADDED_FILES"]
+        self.assertEqual((len(added), len(libraries)), (31, 18))
+        baseline = io.BytesIO()
+        prior_files = libraries | {"usr/lib/qt6/held"}
+        with tarfile.open(fileobj=baseline, mode="w:") as archive:
+            for name in sorted(prior_files):
+                member = tarfile.TarInfo(name)
+                member.size = 1
+                archive.addfile(member, io.BytesIO(b"x"))
+        candidate = dict.fromkeys(prior_files | added, ("file", 0o644, None))
+        candidate["usr/lib/qt6/plugins/printsupport"] = ("directory", 0o755, None)
+        symbols = dict.fromkeys(libraries, ({"old@@Qt_6", "new@@Qt_6"}, set()))
+        compare = R["parity_delta"]
+        with patch.dict(compare.__globals__, dynamic_symbols=lambda _: ({"old@@Qt_6"}, set())):
+            result = compare(baseline.getvalue(), candidate, maps, added, symbols)
+            self.assertEqual(result["added_files"], sorted(added))
+            self.assertEqual(result["added_directories"], ["usr/lib/qt6/plugins/printsupport"])
+            self.assertEqual(result["removed"], [])
+            self.assertEqual(result["metadata_changed"], [])
+            self.assertEqual(result["qt_dynamic_exports"], dict.fromkeys(libraries, {
+                "retained_exports": 1, "new_exports": ["new@@Qt_6"]}))
+            with self.assertRaisesRegex(ValueError, "Unexpected parity path delta"):
+                compare(baseline.getvalue(), candidate | {"usr/lib/qt6/extra": ("file", 0o644, None)},
+                        maps, added, symbols)
+            changed = symbols | {min(libraries): ({"new@@Qt_6"}, set())}
+            with self.assertRaisesRegex(ValueError, "Project Qt export lost"):
+                compare(baseline.getvalue(), candidate, maps, added, changed)
+
+    def test_atspi_receipt_requires_versioned_export_and_both_imports(self):
+        gui = "usr/lib/libQt6Gui.so.6.12.0"
+        consumers = ["libQt6WaylandClient.so.6.12.0", "libQt6XcbQpa.so.6.12.0"]
+        constructor = "_ZN20QSpiAccessibleBridgeC1Ev"
+        exported = constructor + "@@Qt_6_PRIVATE_API"
+        imported = constructor + "@Qt_6_PRIVATE_API"
+        symbols = {gui: ({exported}, set())} | {
+            "usr/lib/" + name: ({"other"}, {imported}) for name in consumers}
+        check = R["atspi_bridge_abi"]
+        self.assertEqual(check(symbols), {"qtgui_export": exported, "consumers": consumers})
+        for name in symbols:
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, "AT-SPI bridge ABI absent"):
+                check(symbols | {name: ({constructor}, {constructor})})
+
+    def test_mtree_binds_effective_metadata_content_and_exact_census(self):
+        path = "usr/lib/qt6/example"
+        raw = b"payload"
+        member = tarfile.TarInfo(path)
+        member.mode, member.mtime = 0o644, 1234567890
+        expected = {path: R["mtree_fields"](member, raw)}
+        text = ("#mtree\n/set type=file uid=0 gid=0 mode=644\n"
+                f"./{path} time={member.mtime}.0 size={len(raw)} sha256digest={C.pin(raw)['sha256']}\n")
+        check = R["verify_mtree"]
+        self.assertEqual(check(gzip.compress(text.encode()), expected), expected)
+        for bad in (text.replace("mode=644", "mode=755"), text.replace("size=7", "size=8"),
+                    text + text.splitlines()[-1] + "\n", text.replace(".0 size=", ".1 size=")):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                check(gzip.compress(bad.encode()), expected)
+        with self.assertRaisesRegex(ValueError, "census differs"):
+            check(gzip.compress(text.encode()), expected | {"usr/lib/qt6/missing": {}})
+
+    def test_versioned_export_and_import_names_are_distinct(self):
+        readelf = (" 1: 0000000000000000 0 FUNC GLOBAL DEFAULT UND import@Qt_6_PRIVATE_API (2)\n"
+                   " 2: 0000000000001234 8 FUNC GLOBAL DEFAULT  13 export@@Qt_6_PRIVATE_API\n"
+                   " 3: 0000000000001234 8 FUNC LOCAL  DEFAULT  13 hidden\n")
+        with patch.dict(R["dynamic_symbols"].__globals__, readelf=lambda *_: readelf):
+            self.assertEqual(R["dynamic_symbols"](b"fixture"),
+                             ({"export@@Qt_6_PRIVATE_API"}, {"import@Qt_6_PRIVATE_API"}))
+
     def test_tar_controls_cannot_be_nonordinary_or_wrong_mode(self):
         for kind, mode in ((tarfile.REGTYPE, 0o600), (tarfile.SYMTYPE, 0o644)):
             with self.subTest(kind=kind, mode=mode):
