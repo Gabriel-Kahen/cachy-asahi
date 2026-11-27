@@ -2,11 +2,13 @@
 # SPDX-License-Identifier: MIT
 """Run the successor VM inside its offline rootless container."""
 
+from contextlib import contextmanager
 import hashlib
 import json
 import os
 from pathlib import Path
 import resource
+import selectors
 import signal
 import stat
 import subprocess
@@ -44,6 +46,77 @@ def command(tool, *args):
                           stdin=subprocess.DEVNULL, timeout=60, check=True).stdout
 
 
+@contextmanager
+def cancellation():
+    interrupted = None
+
+    def remember(number, _frame):
+        nonlocal interrupted
+        interrupted = number
+
+    def check():
+        if interrupted is not None:
+            raise InterruptedError(f"Received signal {interrupted}")
+
+    handlers = {number: signal.signal(number, remember) for number in (signal.SIGINT, signal.SIGTERM)}
+    try:
+        yield check
+    finally:
+        for number, handler in handlers.items():
+            signal.signal(number, handler)
+
+
+def reap(process):
+    for signum in (signal.SIGTERM, signal.SIGKILL):
+        if process.returncode is None:
+            try:
+                os.killpg(process.pid, signum)
+            except ProcessLookupError:
+                pass
+        try:
+            process.wait(timeout=15)
+            return
+        except subprocess.TimeoutExpired:
+            if signum == signal.SIGKILL:
+                raise
+
+
+def capture_process(argv, path, limit, timeout, observe, *, env=None):
+    """Stream combined output to a finite live file and reap the owned process."""
+    deadline = time.monotonic() + timeout
+    with path.open("xb", buffering=0) as log, selectors.DefaultSelector() as selector:
+        process = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, start_new_session=True, env=env)
+        remaining = limit
+        reason = None
+        try:
+            selector.register(process.stdout, selectors.EVENT_READ)
+            while selector.get_map() or process.poll() is None:
+                observe()
+                wait = deadline - time.monotonic()
+                need(wait > 0, f"{path.name} deadline expired")
+                if not selector.select(min(wait, 0.5)):
+                    continue
+                chunk = os.read(process.stdout.fileno(), min(64 << 10, remaining + 1))
+                if not chunk:
+                    selector.unregister(process.stdout)
+                    continue
+                written = min(len(chunk), remaining)
+                need(log.write(chunk[:written]) == written, f"Short write to {path.name}")
+                remaining -= written
+                need(written == len(chunk), f"{path.name} exceeded its byte ceiling")
+            observe()
+            need(time.monotonic() <= deadline, f"{path.name} deadline expired")
+        except (OSError, ValueError) as error:
+            reason = str(error)
+        finally:
+            try:
+                reap(process)
+            finally:
+                process.stdout.close()
+        return process.returncode, reason
+
+
 def inspect_chain(path, fresh=False):
     chain = json.loads(command("qemu-img", "info", "--output=json", "--backing-chain", path))
     need(len(chain) == 2, "Expected exactly one disposable child and one raw backing")
@@ -79,54 +152,38 @@ def run(plan):
     command("qemu-img", "create", "-q", "-f", "qcow2", "-F", "raw", "-b",
             "/inputs/scratch.raw", overlay)
     initial = inspect_chain(overlay, fresh=True)
-    deadline = time.monotonic() + limits["qemu_seconds"]
-    previous = deadline - limits["qemu_seconds"]
+    started = time.monotonic()
     peak_overlay = overlay.stat().st_size
-    lowest_free = os.statvfs(OUT).f_bavail * os.statvfs(OUT).f_frsize
-
-    def stop(signum, _frame):
-        raise InterruptedError(f"Actor interrupted by signal {signum}")
-
-    signal.signal(signal.SIGTERM, stop)
-    signal.signal(signal.SIGINT, stop)
+    usage = os.statvfs(OUT)
+    lowest_free = usage.f_bavail * usage.f_frsize
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
     cap = limits["overlay_bytes"]
     resource.setrlimit(resource.RLIMIT_FSIZE, (cap, cap))
-    reason = None
-    with (OUT / "serial.log").open("xb") as serial:
-        proc = subprocess.Popen(plan["qemu_argv"], stdin=subprocess.DEVNULL,
-                                stdout=serial, stderr=subprocess.STDOUT, start_new_session=True)
-        try:
-            while proc.poll() is None:
-                time.sleep(0.5)
-                usage = os.statvfs(OUT)
-                lowest_free = min(lowest_free, usage.f_bavail * usage.f_frsize)
-                peak_overlay = max(peak_overlay, overlay.stat().st_size)
-                need(lowest_free >= limits["host_disk_reserve_bytes"], "Host disk reserve exhausted")
-                need(serial.tell() <= limits["serial_bytes"], "Serial capture exceeded its ceiling")
-                need(result.stat().st_size == limits["result_bytes"], "Result disk size changed")
-                need(time.monotonic() < deadline, "QEMU deadline expired")
-        except (OSError, ValueError) as error:
-            reason = str(error)
-        finally:
-            if proc.poll() is None:
-                os.killpg(proc.pid, signal.SIGTERM)
-                try:
-                    proc.wait(timeout=15)
-                except subprocess.TimeoutExpired:
-                    os.killpg(proc.pid, signal.SIGKILL)
-                    proc.wait(timeout=15)
+    with cancellation() as check_cancel:
+        def observe():
+            nonlocal peak_overlay, lowest_free
+            check_cancel()
+            usage = os.statvfs(OUT)
+            lowest_free = min(lowest_free, usage.f_bavail * usage.f_frsize)
+            peak_overlay = max(peak_overlay, overlay.stat().st_size)
+            need(lowest_free >= limits["host_disk_reserve_bytes"], "Host disk reserve exhausted")
+            need(peak_overlay <= cap, "Overlay size exceeded its ceiling")
+            need(result.stat().st_size == limits["result_bytes"], "Result disk size changed")
+
+        observe()
+        exit_code, reason = capture_process(plan["qemu_argv"], OUT / "serial.log", limits["serial_bytes"],
+                                            limits["qemu_seconds"], observe)
 
     fsck = subprocess.run([TOOL_ROOT / "e2fsck", "-fn", result], capture_output=True, timeout=60)
     (OUT / "result-fsck.log").write_bytes(fsck.stdout + fsck.stderr)
     final = inspect_chain(overlay)
-    actor = dict(kind="QTBASE_SUCCESSOR16K_ACTOR_V1", nonce=plan["nonce"], qemu_exit=proc.returncode,
-                 process_reaped=True, error=reason, elapsed_seconds=round(time.monotonic() - previous, 3),
+    actor = dict(kind="QTBASE_SUCCESSOR16K_ACTOR_V1", nonce=plan["nonce"], qemu_exit=exit_code,
+                 process_reaped=True, error=reason, elapsed_seconds=round(time.monotonic() - started, 3),
                  peak_overlay_bytes=max(peak_overlay, overlay.stat().st_size), lowest_host_free_bytes=lowest_free,
                  memory_peak_bytes=int((CGROUP / "memory.peak").read_text()),
                  initial_chain=initial, final_chain=final, fsck_exit=fsck.returncode)
     (OUT / "actor.json").write_text(json.dumps(actor, sort_keys=True) + "\n")
-    return 0 if proc.returncode == fsck.returncode == 0 and reason is None else 2
+    return 0 if exit_code == fsck.returncode == 0 and reason is None else 2
 
 
 if __name__ == "__main__":

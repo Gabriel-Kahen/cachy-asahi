@@ -11,12 +11,11 @@ import re
 import runpy
 import secrets
 import shutil
-import signal
 import stat
 import struct
 import subprocess
 import sys
-from tempfile import TemporaryDirectory
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 import time
 
 
@@ -27,7 +26,9 @@ C = runpy.run_path(str(HERE.parent / "qt612_md4c_compile/prepare.py"))
 A = runpy.run_path(str(HERE / "arm16k_actor.py"))
 AUTH = runpy.run_path(str(HERE / "arm16k_inputs.py"))
 need, pin = A["need"], A["pin"]
+capture_process, cancellation = A["capture_process"], A["cancellation"]
 GIB = 1 << 30
+ATTACH_LOG_BYTES = 2 << 20
 BOOTS = "boot.raw"
 KERNEL = "Image"
 SCRATCH = "scratch.raw"
@@ -36,6 +37,8 @@ RESULT_LABEL = "QT16K_SUCC"
 DOCKER_PIN = dict(bytes=44217952, sha256="e966e0e6ea215b74fdbee17fbe7ed8bff15b65930bfc8e131652ceae4ed0210e")
 IMAGE = C["QEMU_ACTOR_IMAGE"]
 ROLE_LABEL = "org.cachy-asahi.qtbase-successor16k.nonce"
+CONTAINER_ID = re.compile(r"[0-9a-f]{64}")
+LAUNCH_ERRORS = (KeyError, OSError, TypeError, ValueError, subprocess.SubprocessError)
 TOOLS = {
     "qemu-img": dict(bytes=2567104, sha256="2139b2c8d5a9f28dbef2c5cdb663ce842648105fa76720ec691f8f5cddc8b002"),
     "qemu-system-aarch64": dict(bytes=34622584,
@@ -59,6 +62,17 @@ def put(path, body):
 
 def wire(data):
     return (json.dumps(data, sort_keys=True, indent=2, allow_nan=False) + "\n").encode()
+
+
+def write_receipt(path, data):
+    body = wire(data)
+    with NamedTemporaryFile(prefix=f".{path.name}.", dir=path.parent) as file:
+        file.write(body)
+        file.flush()
+        os.fchmod(file.fileno(), 0o444)
+        os.fsync(file.fileno())
+        os.link(file.name, path)
+    return hashlib.sha256(body).hexdigest()
 
 
 def canonical_path(path):
@@ -251,21 +265,23 @@ class Docker:
         return result
 
 
-def host_identity(row, cid, name, plan):
+def owned_container(docker, cid, name, nonce, entry):
+    rows = json.loads(docker.call("container", "inspect", cid).stdout)
+    need(type(rows) is list and len(rows) == 1, "Expected a single owned container record")
+    row = rows[0]
+    labels = row["Config"]["Labels"]
     need(row["Id"] == cid and row["Name"] == "/" + name and row["Image"] == IMAGE
-         and row["Config"]["Labels"].get(ROLE_LABEL) == plan["nonce"],
+         and type(labels) is dict and labels.get(ROLE_LABEL) == nonce
+         and row["Path"] == "/usr/bin/python3" and row["Args"] == entry,
          "Docker container identity differs")
+    return row
 
 
 def inspect(docker, cid, name, plan, mounts, entry):
-    rows = json.loads(docker.call("container", "inspect", cid).stdout)
-    need(len(rows) == 1, "Expected a single owned container record")
-    row = rows[0]
-    host_identity(row, cid, name, plan)
+    row = owned_container(docker, cid, name, plan["nonce"], entry)
     host, cfg = row["HostConfig"], row["Config"]
     budget = plan["limits"]
-    need(row["Path"] == "/usr/bin/python3" and row["Args"] == entry
-         and host["NetworkMode"] == "none" and host["ReadonlyRootfs"] and not host["Privileged"]
+    need(type(host) is dict and host["NetworkMode"] == "none" and host["ReadonlyRootfs"] and not host["Privileged"]
          and host["CapDrop"] == ["ALL"] and host["PidsLimit"] == 256
          and host["Memory"] == host["MemorySwap"] == budget["container_bytes"]
          and host["NanoCpus"] == budget["vcpus"] * 10**9 and host["CgroupnsMode"] == "private"
@@ -295,6 +311,80 @@ def original_media(plan):
     return observed
 
 
+def container_id(body):
+    token = body.decode("ascii").removesuffix("\n")
+    need(CONTAINER_ID.fullmatch(token), "Expected exactly one full container ID")
+    return token
+
+
+def read_cid(path):
+    flags = os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW | os.O_CLOEXEC
+    try:
+        fd = os.open(path, flags)
+    except FileNotFoundError:
+        return None
+    with os.fdopen(fd, "rb") as stream:
+        info = os.fstat(stream.fileno())
+        need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_size <= 65,
+             "Expected a bounded original CID file")
+        body = stream.read(66)
+    return None if re.fullmatch(rb"[0-9a-f]{0,63}\n?", body) else container_id(body)
+
+
+def census(docker, *filters):
+    options = [word for item in filters for word in ("--filter", item)]
+    body = docker.call("container", "ls", "-a", "--no-trunc", *options, "--format", "{{.ID}}").stdout
+    return container_id(body) if body else None
+
+
+def retire(docker, cid, cid_path, name, nonce, entry, attach_dispatched):
+    """Find and retire only the capsule's actor, even if create lost its reply."""
+    for attempt in range(2):
+        try:
+            if cid is None:
+                for _ in range(4):
+                    cid = census(docker, f"name=^/{name}$", f"label={ROLE_LABEL}={nonce}")
+                    if cid is not None:
+                        break
+                    time.sleep(0.2)
+                cid = cid or read_cid(cid_path)
+                need(cid is not None, "No owned CID found after create dispatch")
+            found = census(docker, "id=" + cid)
+            need(found in (None, cid), "Retirement census returned a foreign CID")
+            if found:
+                state = owned_container(docker, cid, name, nonce, entry)["State"]
+                need(type(state["Running"]) is bool, "Expected an exact owned container state")
+                need((state["Status"] == "created" and state["Running"] is False) or attach_dispatched,
+                     "Actor entered an unexpected state before attach")
+                if state["Running"]:
+                    docker.call("container", "stop", "--time=20", cid)
+                removed = docker.call("container", "rm", cid)
+                need(container_id(removed.stdout) == cid, "Retirement ID differs")
+            for _ in range(2):
+                need(census(docker, "id=" + cid) is None, "Retired container is still present")
+                time.sleep(0.2)
+            return cid, [True, True], None
+        except LAUNCH_ERRORS as error:
+            if attempt == 1:
+                return cid, [], str(error)
+
+
+def publish_launch(root, launch):
+    try:
+        digest = write_receipt(root / "launch.json", launch)
+    except OSError as error:
+        launch["error"] = "; ".join(filter(None, (launch["error"], f"Terminal receipt: {error}")))
+        try:
+            digest = write_receipt(root / "launch.hold.json", launch)
+            print(json.dumps(dict(hold_sha256=digest, error=launch["error"]), sort_keys=True))
+        except OSError as fallback:
+            print(json.dumps(dict(launch=launch, receipt_error=str(fallback)), sort_keys=True), file=sys.stderr)
+        return False
+    print(json.dumps(dict(launch_sha256=digest, container_exit=launch["container_exit"],
+                          qemu_exit=launch["qemu_exit"], error=launch["error"]), sort_keys=True))
+    return True
+
+
 def start(args):
     root = canonical_path(args.capsule)
     need(root.stat().st_uid == os.getuid() and stat.S_IMODE(root.stat().st_mode) == 0o700,
@@ -319,8 +409,6 @@ def start(args):
     ready = capacity(root, budget)
     docker = Docker(plan["docker"])
     out = root / "run"
-    out.mkdir(mode=0o700)
-    C["clone"](media / "result.template", out / "result.raw")
     backing = canonical_path(Path(plan["inputs"]["originals"]["backing"]["path"]))
     mounts = [(str(media / BOOTS), "/inputs/boot.raw", False), (str(media / KERNEL), "/inputs/Image", False),
               (str(backing), "/inputs/scratch.raw", False), (str(media / "actor.py"), "/actor.py", False),
@@ -328,69 +416,77 @@ def start(args):
     name, label = "caa-qtbase-successor16k-" + nonce, ROLE_LABEL + "=" + nonce
     mem = budget["container_bytes"]
     entry = ["-I", "-B", "/actor.py", digest]
-    ci = docker.call("container", "create", "--name", name, "--label", label, "--pull=never",
-                     "--read-only", "--network=none", "--cap-drop=ALL", "--security-opt=no-new-privileges",
-                     "--restart=no", "--no-healthcheck", "--cgroupns=private", "--ipc=private",
-                     "--pids-limit=256", "--cpus=4", f"--memory={mem}", f"--memory-swap={mem}",
-                     "--log-driver=json-file", "--log-opt=max-size=2m", "--log-opt=max-file=1",
-                     *mount_flags(mounts), "--entrypoint=/usr/bin/python3", IMAGE, *entry)
-    cid = ci.stdout.decode("ascii").strip()
-    need(re.fullmatch("[0-9a-f]{64}", cid), "Container create did not report an exact ID")
-    started = time.time()
-    put(root / "launch.started.json", wire(dict(cid=cid, name=name, nonce=nonce, started=started,
-                                                plan_sha256=digest, capacity=ready)))
-    exit_code = None
-    absence = []
-    state = None
-    error = None
+    cid_path, log_path = root / "launch.cid", root / "container.log"
+    cid = exit_code = state = unchanged = attach_log = None
+    create_dispatched = attach_dispatched = False
+    absence, errors = [], []
+    observed, actor = {}, {}
+    with cancellation() as check_cancel:
+        check_cancel()
+        out.mkdir(mode=0o700)
+        started = time.time()
+        try:
+            C["clone"](media / "result.template", out / "result.raw")
+            check_cancel()
+            create_dispatched = True
+            ci = docker.call("container", "create", "--name", name, "--label", label, "--cidfile", str(cid_path),
+                             "--pull=never", "--read-only", "--network=none", "--cap-drop=ALL",
+                             "--security-opt=no-new-privileges", "--restart=no", "--no-healthcheck",
+                             "--cgroupns=private", "--ipc=private", "--pids-limit=256", "--cpus=4",
+                             f"--memory={mem}", f"--memory-swap={mem}",
+                             "--log-driver=json-file", "--log-opt=max-size=2m", "--log-opt=max-file=1",
+                             *mount_flags(mounts), "--entrypoint=/usr/bin/python3", IMAGE, *entry)
+            reported = container_id(ci.stdout)
+            need(read_cid(cid_path) == reported, "Create stdout and CID file differ")
+            cid = reported
+            write_receipt(root / "launch.started.json", dict(cid=cid, name=name, nonce=nonce, started=started,
+                                                            plan_sha256=digest, capacity=ready))
+            created = inspect(docker, cid, name, plan, mounts, entry)
+            need(created["Status"] == "created" and created["Running"] is False,
+                 "Selected actor already started")
+            check_cancel()
+            attach_dispatched = True
+            attach_exit, reason = capture_process(docker.argv("container", "start", "-a", cid), log_path,
+                                                  ATTACH_LOG_BYTES, budget["qemu_seconds"] + 420,
+                                                  check_cancel, env=ENV)
+            need(reason is None, reason)
+            state = inspect(docker, cid, name, plan, mounts, entry)
+            need(state["Status"] == "exited" and state["Running"] is False, "Actor did not exit")
+            exit_code = state["ExitCode"]
+            need(attach_exit == exit_code, "Attach receipt and actor exit status differ")
+        except LAUNCH_ERRORS as error:
+            errors.append(str(error))
+        finally:
+            if create_dispatched:
+                cid, absence, recovery = retire(docker, cid, cid_path, name, nonce, entry, attach_dispatched)
+                if recovery is not None:
+                    errors.append(f"Retirement: {recovery}")
+        try:
+            unchanged = (originals == original_media(plan)
+                         and plan["media"] == {name: pin(media / name) for name in (BOOTS, KERNEL)})
+            need(unchanged, "Read-only input media changed")
+        except LAUNCH_ERRORS as error:
+            errors.append(f"Input recheck: {error}")
+        try:
+            attach_log = pin(log_path) if log_path.is_file() else None
+            observed = {p.name: pin(p) for p in out.iterdir()}
+            if "actor.json" in observed:
+                candidate = json.loads((out / "actor.json").read_bytes())
+                need(type(candidate) is dict, "Expected an actor receipt object")
+                actor = candidate
+            if not errors:
+                check_cancel()
+        except LAUNCH_ERRORS as error:
+            errors.append(str(error))
 
-    def interrupted(signum, _frame):
-        raise InterruptedError(f"Launcher received signal {signum}")
-
-    signal.signal(signal.SIGTERM, interrupted)
-    signal.signal(signal.SIGINT, interrupted)
-    try:
-        need(inspect(docker, cid, name, plan, mounts, entry)["Status"] == "created",
-             "Selected actor already started")
-        with (root / "container.log").open("xb") as log:
-            attach = subprocess.run(docker.argv("container", "start", "-a", cid), env=ENV,
-                                    stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT,
-                                    timeout=budget["qemu_seconds"] + 420)
-        state = inspect(docker, cid, name, plan, mounts, entry)
-        need(state["Status"] == "exited" and state["Running"] is False, "Actor did not exit")
-        exit_code = state["ExitCode"]
-        need(attach.returncode == exit_code, "Attach receipt and actor exit status differ")
-    except (OSError, ValueError, subprocess.SubprocessError) as exc:
-        error = str(exc)
-    finally:
-        found = docker.call("container", "inspect", cid, check=False)
-        need(found.returncode == 0, "The owned actor could not be located for retirement")
-        row = json.loads(found.stdout)[0]
-        host_identity(row, cid, name, plan)
-        if row["State"]["Running"]:
-            docker.call("container", "stop", "--time=20", cid)
-        need(docker.call("container", "rm", cid).stdout.decode().strip() == cid, "Retirement ID differs")
-        for _ in range(2):
-            found = docker.call("container", "ls", "-a", "--no-trunc", "--filter", "id=" + cid, "--format", "{{.ID}}")
-            need(not found.stdout, "Retired container is still present")
-            absence.append(True)
-            time.sleep(0.2)
-
-    unchanged = originals == original_media(plan)
-    need(unchanged and plan["media"] == {name: pin(media / name) for name in (BOOTS, KERNEL)},
-         "Read-only input media changed")
-    observed = {p.name: pin(p) for p in out.iterdir()}
-    actor = json.loads((out / "actor.json").read_bytes()) if "actor.json" in observed else {}
-    attach_log = pin(root / "container.log") if (root / "container.log").is_file() else None
+    retirement = "RETIRED" if absence else "UNVERIFIED" if create_dispatched else "NOT_DISPATCHED"
     launch = dict(kind="QTBASE_SUCCESSOR16K_LAUNCH_V1", nonce=nonce, plan_sha256=digest, cid=cid,
                   started=started, completed=time.time(), container_exit=exit_code, container_state=state,
                   qemu_exit=actor.get("qemu_exit"), process_reaped=actor.get("process_reaped", False),
-                  container_absent=absence, originals_unchanged=unchanged, error=error, files=observed,
-                  attach_log=attach_log)
-    put(root / "launch.json", wire(launch))
-    print(json.dumps(dict(launch_sha256=pin(root / "launch.json")["sha256"], container_exit=exit_code,
-                          qemu_exit=launch["qemu_exit"], error=error), sort_keys=True))
-    return 0 if exit_code == launch["qemu_exit"] == 0 and error is None and launch["process_reaped"] else 2
+                  container_absent=absence, originals_unchanged=unchanged, error="; ".join(errors) or None,
+                  files=observed, attach_log=attach_log, retirement=retirement)
+    published = publish_launch(root, launch)
+    return 0 if published and exit_code == launch["qemu_exit"] == 0 and not errors and launch["process_reaped"] else 2
 
 
 def main():

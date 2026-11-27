@@ -87,7 +87,15 @@ fresh run directory and prints the launch digest after retiring its own
 container and rehashing the input media. Keep those digests for independent
 readback. The start command can run in a dedicated user service for the
 duration. `run/serial.log` records setup, configure, compilation and the
-guest terminal.
+guest terminal, with a 16 MiB limit. `container.log` captures Docker attach
+output outside the VM output mount, with a 2 MiB limit.
+
+The `run/` directory claims the capsule for one attempt. If creation or
+attach fails after the claim, the launcher checks the owned container identity
+before retiring it and records the result in `launch.json`. An uncertain
+retirement is marked `UNVERIFIED`. If the terminal receipt cannot be written,
+the launcher tries `launch.hold.json` and reports to stderr if both writes
+fail.
 
 The rootless container and QEMU have networking disabled and use only
 file-backed virtual storage. The container has an 8 GiB no-swap limit and
@@ -104,12 +112,13 @@ graph, and the original build transcript. Independent readback opens the
 result filesystem without mounting it and inspects the archive and QtGui.
 The archive remains a local test artifact.
 
-The source projection, authenticated-input guards and independent reader
-have separate local tests.
+The source projection, authenticated-input guards, launcher and independent
+reader have separate local tests.
 
 ```sh
 python3 -I -B -Werror test_successor.py
 python3 -I -B -Werror test_arm16k_inputs.py
+python3 -I -B -Werror test_arm16k_launch.py
 python3 -I -B -Werror test_arm16k_readback.py
 bash -n arm16k-guest-init.sh
 bash -n arm16k-build.sh
