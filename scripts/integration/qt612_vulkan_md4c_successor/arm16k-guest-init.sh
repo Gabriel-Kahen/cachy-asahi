@@ -142,6 +142,19 @@ builder_absent() {
     return 0
 }
 
+same_bytes() {
+    local expected actual
+    # The read-only boot filesystem carries sha256sum for manifest verification.
+    expected=$(sha256sum < "$1") || return 1
+    actual=$(sha256sum) || return 1
+    [[ $expected =~ ^[0-9a-f]{64}'  -'$ && $actual == "$expected" ]]
+}
+
+final_inventory_matches() {
+    timeout 60 chroot "$ROOT" /usr/bin/env -i PATH=/usr/bin:/bin /usr/bin/pacman -Q |
+        sort | same_bytes "$ROOT$EVIDENCE/setup/after.lock"
+}
+
 retain() {
     local phase_dir=$1 state=$2 name src dst size cap problem=0
     shift 2
@@ -165,7 +178,7 @@ retain() {
             continue
         fi
         if [[ -e $dst || -L $dst ]]; then
-            [[ -f $dst && ! -L $dst ]] && cmp -s -- "$src" "$dst" || problem=1
+            [[ -f $dst && ! -L $dst ]] && same_bytes "$src" < "$dst" || problem=1
         else
             install -m 600 -- "$src" "$dst" || problem=1
         fi
@@ -269,8 +282,7 @@ main() {
     timeout --kill-after=15s "$remaining" chroot --userspec=1000:1000 --groups=1000 "$ROOT" \
         /usr/bin/env -i PATH=/usr/bin:/bin /usr/bin/bash /qtmedia/arm16k-build.sh build "$mode" "$nonce" </dev/null
     builder_absent
-    timeout 60 chroot "$ROOT" /usr/bin/env -i PATH=/usr/bin:/bin /usr/bin/pacman -Q |
-        sort | cmp -- "$ROOT$EVIDENCE/setup/after.lock" -
+    final_inventory_matches
     if [[ $mode == full ]]; then phase=complete; else phase=configured; fi
     finish PASS
 }
