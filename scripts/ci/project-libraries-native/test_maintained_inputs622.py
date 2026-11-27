@@ -4,7 +4,6 @@ import hashlib
 import json
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import tempfile
 import unittest
@@ -12,10 +11,6 @@ from unittest.mock import patch
 
 import maintained_inputs622 as maintained
 from inputs622 import load
-
-
-HELD_CHECKER = (maintained.ROOT / "scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source"
-                / "scripts/ci/llhttp-reference-native-source/base/runtime" / maintained.CHECKER)
 
 
 class MaintainedInputs(unittest.TestCase):
@@ -29,24 +24,8 @@ class MaintainedInputs(unittest.TestCase):
         self.inputs = self.packet.load(maintained.ROOT / maintained.INPUTS, self.binding["input_lock_sha256"])
         self.pins = maintained.transport_pins(self.inputs)
 
-    def producer_fixture(self):
-        # Project the historical checker at its original path for this inert replay.
-        inputs = self.root / "producer-fixture"
-        files = set(self.packet.HELPERS) | {
-            maintained.KERNEL_PACKET + ".lock.json", maintained.INPUTS, self.packet.RECIPES_LOCK,
-        }
-        for name in files:
-            source = HELD_CHECKER if name == maintained.CHECKER else maintained.ROOT / name
-            target = inputs / name
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source, target, follow_symlinks=False)
-        for directory in self.packet.RECIPE_BASES:
-            shutil.copytree(maintained.ROOT / directory, inputs / directory, symlinks=True)
-        return inputs
-
     def prepared(self):
-        with patch.object(maintained, "ROOT", self.producer_fixture()):
-            source = maintained.stage_producer(self.root, self.binding, self.packet)
+        source = maintained.stage_producer(self.root, self.binding, self.packet)
         return maintained.PreparedMaintained(source, self.root / "alarm-cache", self.root / "extension",
                                              self.root / "expected341.lock", self.root / "expected346.lock",
                                              self.root / "recipes")
@@ -61,17 +40,26 @@ class MaintainedInputs(unittest.TestCase):
         self.assertEqual(len(files), 89)
         self.assertIn(maintained.PRODUCER, files)
         self.assertIn(self.packet.RECIPES_LOCK, files)
+        self.assertNotIn(maintained.HELD_CHECKER, files)
         self.assertFalse(any(name.startswith(self.packet.KERNEL) for name in files))
         self.assertEqual(self.packet.capture(item.producer_source / maintained.CHECKER),
-                         self.packet.capture(HELD_CHECKER))
+                         self.packet.capture(maintained.ROOT / maintained.HELD_CHECKER))
 
     def test_producer_rejects_same_size_checker_drift(self):
-        fixture = self.producer_fixture()
-        checker = fixture / maintained.CHECKER
-        body = checker.read_bytes()
+        held = maintained.ROOT / maintained.HELD_CHECKER
+        capture = self.packet.capture
+        body, mode = capture(held)
+        checker = self.root / "drifted-checker.py"
         checker.write_bytes(bytes([body[0] ^ 1]) + body[1:])
-        with patch.object(maintained, "ROOT", fixture), self.assertRaisesRegex(ValueError, "producer byte/mode pin"):
-            maintained.stage_producer(self.root, self.binding, self.packet)
+        checker.chmod(mode)
+
+        def capture_with_drift(path):
+            return capture(checker if path == held else path)
+
+        with patch.object(self.packet, "capture", side_effect=capture_with_drift) as read:
+            with self.assertRaisesRegex(ValueError, "producer byte/mode pin"):
+                maintained.stage_producer(self.root, self.binding, self.packet)
+            read.assert_any_call(held)
 
     def test_exact_tiff_extension_inventory(self):
         base = self.packet.read(maintained.ROOT / maintained.BASE_LOCK)

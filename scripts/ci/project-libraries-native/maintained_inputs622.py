@@ -20,6 +20,8 @@ KERNEL_RUNTIME = "scripts/port/kernel-native-job/runtime.py"
 INPUTS = "scripts/ci/inputs.lock.json"
 PRODUCER = "scripts/ci/native_arm.py"
 CHECKER = "scripts/checks/package_checks.py"
+HELD_CHECKER = ("scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/"
+                "scripts/ci/llhttp-reference-native-source/base/runtime/" + CHECKER)
 BASE_LOCK = "scripts/ci/maintained-native/locks/builder-successor.lock"
 PACMAN_CONFIG = (b"[options]\nArchitecture = aarch64\nSigLevel = Required\n"
                  b"LocalFileSigLevel = Required\nHookDir = /builder-disabled-hooks\n")
@@ -92,7 +94,7 @@ def stage_producer(scratch, contract, packet):
     output = scratch / "maintained-producer-source"
     output.mkdir(mode=0o700)
     for name in sorted(selected):
-        source = ROOT / packet.relative(name)
+        source = ROOT / packet.relative(HELD_CHECKER if name == CHECKER else name)
         raw, mode = packet.capture(source)
         require(packet.row(raw, mode) == manifest[name], "maintained producer byte/mode pin")
         target = output / name
