@@ -7,7 +7,7 @@ from pathlib import Path
 import stat
 
 NAME='cachy-asahi-build-tools'
-VERSION='0.2.0-1'
+VERSION='0.2.0-2'
 STEPS=('cache-init','import-local','cache-verify','recipe-check','preflight-baseline','preflight-lto','consistency-match','consistency-mismatch','consistency-unsupported')
 MATCH_RECIPE=b"pkgname=sample\npkgver=1\npkgrel=1\narch=('any')\npackage() {\n    touch SHOULD_NOT_RUN\n}\n"
 UNSUPPORTED_RECIPE=MATCH_RECIPE.replace(b'pkgver=1',b'pkgver="$(touch SHOULD_NOT_RUN)"')
@@ -61,6 +61,7 @@ def validate_result(key,value,policy,work):
 
 def validate_cli(cli,policy):
     cli=Path(cli);need(cli.name==NAME and cli.parent.name=='bin'and cli.parent.parent.name=='usr','fixed installed or whole moved prefix')
+    need(policy['recipe']['version']==VERSION,'exact installed probe version')
     prefix=cli.parents[2];expected=policy['recipe']['payload_files']
     for name,row in expected.items():
         path=prefix/name;need(data_pin(read(path,1024**2))=={k:row[k]for k in('bytes','sha256')}and stat.S_IMODE(path.stat().st_mode)==row['mode'],'every exact12 installed/moved payload byte/mode')

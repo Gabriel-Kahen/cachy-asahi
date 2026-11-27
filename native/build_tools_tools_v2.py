@@ -19,14 +19,45 @@ import tarfile
 
 OPERATION = 'build-tools-alpm-v2'
 NAME = 'cachy-asahi-build-tools'
-VERSION = '0.2.0-1'
+VERSION = '0.2.0-2'
 PREFIX = Path('/opt/native-build-tools-alpm-v2')
 SOURCE = PREFIX / 'source'
 STORE = PREFIX / 'evidence'
 STAGES = ('build-a', 'build-b', 'compare', 'sign', 'install', 'commands-system',
           'commands-moved', 'remove', 'restore', 'cleanup')
 SOURCE_ARCHIVE = 'check-inputs.tar.gz'
-SOURCE_FILES = frozenset(('.SRCINFO', 'LICENSE', 'NOTICE', 'PKGBUILD', 'README.md', 'cachy-asahi-build-tools', 'check-inputs.tar.gz', 'import_source.py', 'package_checks.py', 'preflight.py', 'recipe_metadata_consistency.py', 'source-provenance.json', 'source_cache.py', 'source_delivery.py', 'source_materials.py', 'test_package.py'))
+SOURCE_FILES = frozenset((
+    '.SRCINFO',
+    'LICENSE',
+    'NOTICE',
+    'PKGBUILD',
+    'README.md',
+    'cachy-asahi-build-tools',
+    'check-inputs.tar.gz',
+    'import_source.py',
+    'package_checks.py',
+    'preflight.py',
+    'recipe_metadata_consistency.py',
+    'source-provenance.json',
+    'source_cache.py',
+    'source_delivery.py',
+    'source_materials.py',
+    'test_package.py',
+))
+TEST_NAMES = (
+    'test_consistency_imports_adjacent_checker_and_records_legacy_basis',
+    'test_exact_installed_code_paths_pins_modes_and_no_hooks',
+    'test_installed_consistency_match_stale_mismatch_and_explicit_metadata',
+    'test_installed_consistency_unsupported_shell_and_missing_metadata_never_match',
+    'test_missing_and_tampered_local_archive_refuse_without_objects',
+    'test_moved_package_import_verify_and_both_real_recipe_preflights',
+    'test_only_six_offline_commands_and_isolated_invocation_are_supported',
+    'test_poisoned_object_is_preserved_without_network_repair',
+    'test_recipe_shell_code_is_read_only_data_and_drift_refuses',
+    'test_user_workspace_python_and_environment_cannot_select_trusted_code',
+    'test_versioned_recipe_check_and_preflight_use_the_packaged_parser_without_srcinfo',
+)
+PAYLOAD_COUNT = 12
 SOURCE_ARCHIVE_SHA256 = '112fa3eb9c18245ad95ea874f66c4943dc2678b0927e63a6ac705ff398e6ac72'
 MAX_FILE = 16 * 1024**2
 MAX_TOTAL = 128 * 1024**2
@@ -108,20 +139,21 @@ def source_policy(root):
          'unexecuted source-tools source contract identity')
     recipe = policy['recipe']
     need(recipe['archive'] == NAME + '-' + VERSION + '-any.pkg.tar.zst'
-         and recipe['expected_test_count'] == 11 and type(recipe['expected_test_count']) is int
-         and set(recipe['source_files']) == SOURCE_FILES and len(recipe['payload_files']) == 12,
+         and recipe.get('version') == VERSION and recipe['expected_test_count'] == len(TEST_NAMES)
+         and type(recipe['expected_test_count']) is int and recipe.get('expected_test_names') == list(TEST_NAMES)
+         and set(recipe['source_files']) == SOURCE_FILES and len(recipe['payload_files']) == PAYLOAD_COUNT,
          'exact frozen recipe and finite payload')
     for name, item in recipe['source_files'].items():
         need(Path(name).name == name and _pin_row(item, 4*1024**2), 'flat pinned frozen recipe source')
     need(recipe['source_files'][SOURCE_ARCHIVE]['sha256'] == SOURCE_ARCHIVE_SHA256,
-         'exact0.2.0 pinned check-inputs archive required')
+         'exact pinned check-inputs archive required')
     for name, item in recipe['payload_files'].items():
         need(name.startswith('usr/') and Path(name).as_posix() == name and '..' not in Path(name).parts
-             and _pin_row(item), 'pinned 17-file package payload')
+             and _pin_row(item), 'pinned finite package payload')
     bundle = policy['bundle']
-    need(bundle['path'] == 'native/build-tools-sources-v2.tar' and bundle['members'] == 16
+    need(bundle['path'] == 'native/build-tools-sources-v2.tar' and bundle['members'] == len(SOURCE_FILES)
          and type(bundle['bytes']) is int and 0 < bundle['bytes'] <= bundle['max_bytes'] <= 4*1024**2,
-         'finite 13-member source delivery')
+         'finite exact recipe source delivery')
     base = ordinary(root / 'native/expected349.lock')
     need(data_pin(base) == {key: policy['expected349'][key] for key in ('bytes', 'sha256')}
          and len(base.splitlines()) == 349, 'exact genuine349 lock')
@@ -154,7 +186,7 @@ def recipe_members(root, policy):
             body = archive.extractfile(member).read()
             need(data_pin(body) == {key: item[key] for key in ('bytes', 'sha256')}, 'source member checksum')
             result[member.name] = body
-    need(set(result) == set(expected) and len(result) == 16, 'complete 13-file recipe bundle')
+    need(set(result) == set(expected) and len(result) == len(SOURCE_FILES), 'complete exact recipe bundle')
     return result
 
 
@@ -244,8 +276,8 @@ def check_payload(root, policy, run, pacman):
     files = {name.lstrip('/') for name in listed if not name.endswith('/')}
     directories = {name.lstrip('/').rstrip('/') for name in listed if name.endswith('/')}
     ancestors = {str(parent) for name in expected for parent in Path(name).parents if str(parent) != '.'}
-    need(files == set(expected) and directories == ancestors, 'exact ALPM 17-file and ancestor directory ownership')
-    return dict(version=VERSION, count=12, verified=True, stale_absent=True,
+    need(files == set(expected) and directories == ancestors, 'exact ALPM payload and ancestor directory ownership')
+    return dict(version=VERSION, count=PAYLOAD_COUNT, verified=True, stale_absent=True,
                 files={name: {key: item[key] for key in ('bytes', 'sha256', 'mode')} for name, item in expected.items()})
 
 
@@ -322,7 +354,7 @@ def compare_archives(run, archives, policy, source_map_hash):
     data = decoded['a']
     return dict(status='PASS_EXACT_NATIVE_BUILD_PAIR', archive=data_pin(archive_bodies['a']), builds=builds,
                 equality=dict(archive=True, payload=True, pkginfo=True, buildinfo=True, mtree=True),
-                payload_files=12, base_inventory_count=349, source_map_sha256=source_map_hash,
+                payload_files=PAYLOAD_COUNT, base_inventory_count=349, source_map_sha256=source_map_hash,
                 pkgbuild_sha256=policy['recipe']['source_files']['PKGBUILD']['sha256'],
                 pkginfo_text=data['metadata']['.PKGINFO'].decode(), buildinfo_text=data['metadata']['.BUILDINFO'].decode(),
                 mtree_base64=base64.b64encode(data['metadata']['.MTREE']).decode('ascii'))
@@ -363,7 +395,7 @@ def fixture_members(raw, policy):
 
 
 def business(run, cli, root, uid, gid, label, source=SOURCE, policy=None):
-    """Six actual offline commands; nine bounded observations, no namespace claim."""
+    """Run the release-pinned offline commands and bounded observations."""
     from build_tools_probe_v2 import probe
     root,source=Path(root),Path(source)
     need(label in('system','moved')and not os.path.lexists(root),'fresh finite probe scope')
@@ -375,6 +407,6 @@ def business(run, cli, root, uid, gid, label, source=SOURCE, policy=None):
     work=root/'workflow';work.mkdir(mode=0o700);_own_tree(root,uid,gid)
     def command(step,argv,expected=0,cwd=work):return run(label+'-'+step,argv,expected,cwd=cwd)
     result=probe(Path(cli),root/'fixtures',work,command,policy)
-    need(result['controls']==9 and result['commands_covered']==6,'all six commands/nine original observations')
+    need(result['controls']==9 and result['commands_covered']==6,'all release-specific commands and observations')
     result['steps']={key:label+'-'+step for key,step in result['steps'].items()}
     return dict(result,cli=str(cli),label=label,fixture_root=str(root/'fixtures'),work_root=str(work),source_fixture=data_pin(raw),fixture_snapshot=snapshot_receipt(root),release='NOT_ADMITTED')

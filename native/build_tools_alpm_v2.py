@@ -95,11 +95,11 @@ def check_result(raw):
         m=re.fullmatch(r'(test_[A-Za-z0-9_]+) \(__main__\.PackageTests\.(test_[A-Za-z0-9_]+)\) \.\.\. ok',line)
         if m:
             need(m[1]==m[2],'exact unittest method identity');rows.append(m[1])
-    expected=['test_consistency_imports_adjacent_checker_and_freezes_legacy_modules', 'test_exact_installed_code_paths_pins_modes_and_no_hooks', 'test_installed_consistency_match_stale_mismatch_and_explicit_metadata', 'test_installed_consistency_unsupported_shell_and_missing_metadata_never_match', 'test_missing_and_tampered_local_archive_refuse_without_objects', 'test_moved_package_import_verify_and_both_real_recipe_preflights', 'test_only_six_offline_commands_and_isolated_invocation_are_supported', 'test_poisoned_object_is_preserved_without_network_repair', 'test_recipe_shell_code_is_read_only_data_and_drift_refuses', 'test_user_workspace_python_and_environment_cannot_select_trusted_code', 'test_versioned_recipe_check_and_preflight_use_the_packaged_parser_without_srcinfo']
-    need(rows==expected and len(rows)==len(set(rows))==11,'all eleven actual package checks exactly once and in order')
-    need(len(re.findall(r'^Ran 11 tests in [0-9]+(?:\.[0-9]+)?s$',text,re.M))==1 and text.splitlines().count('OK')==1
-         and not any(word in text for word in('FAILED (','ERROR:','skipped=','expected failures=')),'eleven positive tests without skip/failure')
-    return dict(status='PASS_ACTUAL_BUILD_TOOLS_PACKAGE_CHECKS',tests=11,names=rows,scope='OWN_PACKAGE_STAGE_MOVED_OFFLINE_METADATA_ONLY',namespace_acceptance='NOT_ESTABLISHED')
+    expected=list(T.TEST_NAMES)
+    need(rows==expected and len(rows)==len(set(rows))==len(expected),'all expected package checks exactly once and in order')
+    need(len(re.findall(rf'^Ran {len(expected)} tests in [0-9]+(?:\.[0-9]+)?s$',text,re.M))==1 and text.splitlines().count('OK')==1
+         and not any(word in text for word in('FAILED (','ERROR:','skipped=','expected failures=')),'positive package checks without skip or failure')
+    return dict(status='PASS_ACTUAL_BUILD_TOOLS_PACKAGE_CHECKS',tests=len(rows),names=rows,scope='OWN_PACKAGE_STAGE_MOVED_OFFLINE_METADATA_ONLY',namespace_acceptance='NOT_ESTABLISHED')
 
 
 def retain_first_failure(scope,report):
@@ -149,7 +149,7 @@ def build_pair(run,source,recipes,policy,alarm,report):
    argv=['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','HOME='+str(slot),'PKGDEST='+str(slot),'SRCDEST='+str(slot),'BUILDDIR='+str(slot),'SOURCE_DATE_EPOCH='+policy['build_pair']['source_date_epoch'],'PACKAGER='+policy['build_pair']['packager'],'/usr/bin/makepkg','--cleanbuild','--nodeps','--nosign','--noconfirm','--config',str(config)]
    raw=run('build-'+label,argv,cwd=slot);item['check_invoked']=b'Starting check()' in raw
    check=check_result(raw);need(item['check_invoked'],'actual positive original check() required')
-   item['check_tests']=11;item['check_result']=T.data_pin(T.encoded(check));archive=slot/policy['recipe']['archive']
+   item['check_tests']=check['tests'];item['check_result']=T.data_pin(T.encoded(check));archive=slot/policy['recipe']['archive']
    need(archive.is_file() and not archive.is_symlink(),'actual built archive')
    item['archive']=dict(filename=archive.name,**T.pin(archive));result[label]=directory/archive.name;report['stages'].append('build-'+label)
   except BaseException as error:
@@ -255,9 +255,10 @@ def inside(source,map_hash):
  work=None;commands=None;primary=None;pacman=None;baseline=None;baseline_reasons=None;phase='initialize'
  save_result(scope,report)
  try:
+  need(report['native']['page_bytes']==4096,'actual native 4 KiB image build stage required')
   policy,base=T.source_policy(source)
   need(Path('/builder-packages.lock').read_bytes()==base,'exact genuine191 base349 image')
-  need(all(not os.path.lexists('/'+name) for name in policy['recipe']['payload_files']),'17 payload paths initially absent')
+  need(all(not os.path.lexists('/'+name) for name in policy['recipe']['payload_files']),'all pinned payload paths initially absent')
   work=Path(tempfile.mkdtemp(prefix='build-tools-test-',dir='/tmp'));work.chmod(0o700)
   signing,trust=work/'signing',work/'trust'
   for home in (signing,trust,work/'command-home'):home.mkdir(mode=0o700)
