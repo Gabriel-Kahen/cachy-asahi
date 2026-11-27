@@ -40,3 +40,10 @@ provider. Each step changes one package name and preserves the other 628
 rows. The final projected inventory must reproduce the baseline lock
 byte for byte. The JSON carries no authority or candidate signature.
 The handoff describes input verification and inventory projection.
+
+The offline audit checked 18,661 Qt Base references in 145 retained
+AArch64 consumer objects. The retained baseline lacks optional provider
+packages for Quick Vector Image, `svgtoqml`, `qv4l2` and `pinentry-qt`.
+The candidate archive also omits 22 official plugins. A separate signed
+trial needs ordinary-user Qt Quick, Wayland and Vulkan runtime checks,
+followed by restoration and readback of the official provider.

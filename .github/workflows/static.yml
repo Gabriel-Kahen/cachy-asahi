@@ -369,6 +369,8 @@ jobs:
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane"
           lane=scripts/integration/qt612_vulkan_md4c_successor
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane"
+          lane=scripts/integration/qt612_r132_replacement
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane"
       - name: Check explicit lock and ordered suspend without a desktop session
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
