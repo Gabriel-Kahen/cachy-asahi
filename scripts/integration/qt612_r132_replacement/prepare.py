@@ -3,7 +3,9 @@
 """Verify and describe unissued Qt provider replacement inputs for Asahi629."""
 
 import argparse
+import hashlib
 import io
+import json
 import lzma
 from pathlib import Path
 import re
@@ -47,6 +49,32 @@ PROFILE_CAP = 16 << 10
 ARCHIVE_CAP = 16 << 20
 PARITY_INPUT_CAPS = dict(project_archive=ARCHIVE_CAP, build_plan=128 << 10, build_receipt=2 << 20,
                          abi_comparison=2 << 20, alpm_prepare=128 << 10)
+# Match the parity producer's checked package path and ABI report.
+PARITY_PRINT_DIRECTORY = "usr/lib/qt6/plugins/printsupport"
+PARITY_ADDED_FILES = frozenset({
+    *("usr/include/qt6/QtGui/6.12.0/QtGui/private/" + name + ".h" for name in (
+        "atspiadaptor_p", "bus_interface_p", "cache_adaptor_p", "dbusconnection_p",
+        "deviceeventcontroller_adaptor_p", "properties_interface_p", "qspi_constant_mappings_p",
+        "qspi_struct_marshallers_p", "qspiaccessiblebridge_p", "qspiapplicationadaptor_p",
+        "qspidbuscache_p", "qspimatchrulematcher_p", "socket_interface_p",
+    )),
+    *("usr/include/qt6/QtPrintSupport/6.12.0/QtPrintSupport/private/" + name + ".h"
+      for name in ("qcups_p", "qcupsjobwidget_p")),
+    *(f"usr/lib/cmake/{target}{suffix}.cmake" for target in (
+        "Qt6Gui/Qt6QXcbEglIntegrationPlugin", "Qt6PrintSupport/Qt6QCupsPrinterSupportPlugin",
+    ) for suffix in ("AdditionalTargetInfo", "Config", "ConfigVersion", "ConfigVersionImpl",
+                     "Targets-release", "Targets", "TargetsPrecheck")),
+    PARITY_PRINT_DIRECTORY + "/libcupsprintersupport.so",
+    "usr/lib/qt6/plugins/xcbglintegrations/libqxcb-egl-integration.so",
+})
+PARITY_LIBRARIES = frozenset(f"usr/lib/libQt6{name}.so.6.12.0" for name in (
+    "Core", "Concurrent", "DBus", "Gui", "Network", "OpenGL", "OpenGLWidgets", "PrintSupport", "Sql",
+    "Test", "Widgets", "Xml", "WaylandClient", "XcbQpa", "EglFSDeviceIntegration", "EglFsKmsGbmSupport",
+    "EglFsKmsSupport", "WlShellIntegration",
+))
+PARITY_QTGUI = "usr/lib/libQt6Gui.so.6.12.0"
+PARITY_ATSPI_EXPORT = "_ZN20QSpiAccessibleBridgeC1Ev@@Qt_6_PRIVATE_API"
+PARITY_ATSPI_CONSUMERS = ("libQt6WaylandClient.so.6.12.0", "libQt6XcbQpa.so.6.12.0")
 FIELDS = dict(NAME="pkgname", VERSION="pkgver", ARCH="arch", DEPENDS="depend",
               PROVIDES="provides", CONFLICTS="conflict", REPLACES="replaces")
 OWNED_SUCCESS = "PASS_ASAHI629_OFFLINE_FORWARD_AND_DECLARED_REVERSE_ONLY"
@@ -144,16 +172,33 @@ def verify_parity_build(profile, plan_raw, receipt_raw, recipe_raw):
          and type(receipt["container_exit"]) is type(receipt["qemu_exit"]) is int
          and receipt["container_exit"] == receipt["qemu_exit"] == 0,
          "Expected accepted full retired ARM16K parity build")
+    provenance = {"profile", "source_sha256"}
+    if provenance & (plan.keys() | receipt.keys()):
+        selected = {name: plan[name] for name in ("profile", "payload", "launcher", "actor")}
+        source = json.dumps(selected, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("ascii")
+        need(plan["profile"] == receipt.get("profile") == "parity"
+             and plan.get("source_sha256") == receipt.get("source_sha256") == hashlib.sha256(source).hexdigest(),
+             "Parity build binder source or profile differs")
     guest = receipt["guest"]
     archive = guest["archive"]
     worker = guest["worker"]
     delta = archive["path_delta"]
     need(guest["evidence"][project_name(profile)] == profile["project_archive"]
          and worker["architecture"] == "aarch64" and worker["page_size"] == 16384
-         and worker["nonce"] == receipt["nonce"] and worker["phase"] == "complete" and worker["status"] == "PASS"
-         and len(set(delta["added_files"])) == 31 and delta["removed"] == delta["metadata_changed"] == []
-         and len(delta["qt_dynamic_exports"]) == 18 and bool(archive["atspi_bridge_abi"]),
-         "Expected exact parity archive, package inventory and ABI observations")
+         and worker["nonce"] == receipt["nonce"] and worker["phase"] == "complete" and worker["status"] == "PASS",
+         "Expected exact parity archive and complete ARM16K worker")
+    need(delta["added_files"] == sorted(PARITY_ADDED_FILES)
+         and delta["added_directories"] == [PARITY_PRINT_DIRECTORY]
+         and delta["removed"] == delta["metadata_changed"] == [],
+         "Parity archive path delta differs from the 31 reviewed files")
+    exports = delta["qt_dynamic_exports"]
+    need(type(archive["libraries"]) is dict and archive["libraries"].keys() == PARITY_LIBRARIES
+         and type(exports) is dict and exports.keys() == PARITY_LIBRARIES,
+         "Parity archive library identities differ")
+    need(archive["atspi_bridge_abi"] == dict(qtgui_export=PARITY_ATSPI_EXPORT, consumers=list(PARITY_ATSPI_CONSUMERS))
+         and type(exports[PARITY_QTGUI]["new_exports"]) is list
+         and PARITY_ATSPI_EXPORT in exports[PARITY_QTGUI]["new_exports"],
+         "Parity AT-SPI symbol or consumer identities differ")
 
 
 def provider_versions(project_version=VERSION):

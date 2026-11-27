@@ -78,12 +78,12 @@ class ReceiptTests(unittest.TestCase):
                     retirement=self.expected["retirement"] | {"nonce": nonce},
                     host_times={name: self.times[name] for name in M["HOST_TIMES"]})
 
-    def assemble(self, disk, row, *, nonce=NONCE, digest=None):
+    def assemble(self, disk, row, *, nonce=NONCE, digest=None, **selection):
         body = C.wire(row)
         self.observation.write_bytes(body)
         return M["assemble"](disk_path=disk, observation=self.observation, nonce=nonce,
                              observation_sha=digest or C.pin(body)["sha256"], bundle=self.bundle,
-                             originals=self.originals, test_inputs=self.test_inputs)
+                             originals=self.originals, test_inputs=self.test_inputs, **selection)
 
     def assert_unpublished(self):
         self.assertFalse(self.bundle.exists())
@@ -100,6 +100,46 @@ class ReceiptTests(unittest.TestCase):
         self.assertEqual(R["readback"](self.bundle, report["receipt"]["sha256"])["untouched_rows"], 628)
         self.assertEqual(C.identity(disk.lstat()), before)
         self.assertEqual(C.read(disk, E["RESULT_BYTES"], collect=False)[1], pin)
+
+    def test_parity_publication_joins_exact_plan_and_retired_disk_records(self):
+        profile = {"test_review": {"signature": self.test_inputs["test-signature.sig"][1],
+                                   "certificate": self.test_inputs["test-certificate.gpg"][1]}}
+        rows = [C.json_body(line) for line in self.raw["transaction.jsonl"].splitlines()]
+        rows[0]["parity_profile"] = C.pin(C.wire(profile))
+        self.raw["transaction.jsonl"] = F["jsonl"](rows)
+        plan = self.root / "selected-plan.json"
+        body = C.wire({"nonce": NONCE, "synthetic_staged_plan": True})
+        plan.write_bytes(body)
+        plan_pin = C.pin(body)
+        disk, pin = self.make_disk(plan=plan_pin)
+        row = self.observed(pin)
+        with self.assertRaisesRegex(ValueError, "profile and staged guest plan required together"):
+            self.assemble(disk, row, profile=profile)
+        with self.assertRaisesRegex(ValueError, "Exact selected staged guest plan pin required"):
+            self.assemble(disk, row, profile=profile, guest_plan=(plan, None))
+        self.assert_unpublished()
+
+        def inspect(bundle, digest, *, profile):
+            self.assertEqual(C.pin(C.wire(profile)), rows[0]["parity_profile"])
+            receipt = C.json_body(C.external(bundle / "receipt.json", 128 << 10, digest)[0], canonical=True)
+            self.assertEqual(receipt["guest_plan"], C.pin((bundle / "guest-plan.json").read_bytes()))
+            self.assertEqual(receipt["stopped_observation"], C.pin((bundle / "stopped-observation.json").read_bytes()))
+            result = (bundle / "asahi-owner-result.json").read_bytes()
+            self.assertEqual(receipt["asahi_owner"], C.pin(result))
+            self.assertEqual(C.json_body(result)["plan"], receipt["guest_plan"])
+            self.assertEqual(receipt["stopped_disk"], pin)
+            return receipt
+
+        with patch.dict(R, originals=lambda _: self.expected["original_inputs"], readback=inspect):
+            rebound = self.root / "rebound-plan.json"
+            rebound_body = C.wire({"nonce": NONCE, "synthetic_staged_plan": False})
+            rebound.write_bytes(rebound_body)
+            with self.assertRaisesRegex(ValueError, "Stopped Asahi owner result does not bind"):
+                self.assemble(disk, row, profile=profile, guest_plan=(rebound, C.pin(rebound_body)))
+            self.assert_unpublished()
+            result = self.assemble(disk, row, profile=profile, guest_plan=(plan, plan_pin))
+        self.assertEqual(result["readback"]["guest_plan"], plan_pin)
+        self.assertEqual(result["readback"]["kind"], R["PARITY_KIND"])
 
     def test_rejects_rebound_outer_nonce_for_exact_foreign_disk(self):
         disk, pin = self.make_disk()

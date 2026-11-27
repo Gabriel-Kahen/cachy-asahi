@@ -22,28 +22,16 @@ H = run_path(str(Path(__file__).with_name("host_stage.py")))
 E = H["E"]
 R = E["R"]
 C, need = R["C"], R["need"]
-STOPPED = "QT629_STOPPED_RESULT_OBSERVATION_V1"
-HOST_TIMES = ("inputs-verified", "vm-exited", "absence-first", "absence-second")
+STOPPED = R["STOPPED_KIND"]
+HOST_TIMES = R["HOST_TIMES"]
 
 
 def stopped(path, digest, nonce):
     raw, observation = C.external(path, 128 << 10, digest)
-    row = R["fields"](C.json_body(raw, canonical=True), "kind nonce disk held retirement host_times",
-                      "stopped result observation")
-    need(row["kind"] == STOPPED and type(nonce) is str and R["NONCE"].fullmatch(nonce) and row["nonce"] == nonce,
-         "Stopped result observation differs from the selected run nonce")
-    need(row["held"] is False, "Held result cannot supply a completed receipt")
-    disk = row["disk"]
-    need(C.check_pin(disk, E["RESULT_BYTES"]) and disk["bytes"] == E["RESULT_BYTES"],
-         "Expected the independently pinned stopped result disk")
-    R["retirement"](row["retirement"], nonce)
-    times = R["fields"](row["host_times"], " ".join(HOST_TIMES), "host chronology")
-    need(all(type(stamp) is int and 0 < stamp < 2**63 for stamp in times.values()),
-         "Exact independently observed host nanoseconds required")
-    return row, observation
+    return R["stopped_observation"](C.json_body(raw, canonical=True), nonce), observation
 
 
-def receipt(qt, asahi, exported, observed, *, profile=None):
+def receipt(qt, asahi, exported, observed, *, profile=None, provenance=None):
     nonce = observed["nonce"]
     need(exported["result_disk"] == observed["disk"] and exported["actor_directory_present"] is True
          and exported["missing_actor_files"] == exported["missing_asahi_files"] == []
@@ -81,25 +69,43 @@ def receipt(qt, asahi, exported, observed, *, profile=None):
     record = dict(kind=R["KIND"], nonce=nonce, original_inputs=exported["original_inputs"], evidence=evidence,
                   chronology=chronology, phases=phases, trust=trust, retirement=observed["retirement"])
     if profile is not None:
-        record.update(kind=R["PARITY_KIND"], parity_profile=C.pin(C.wire(profile)))
+        need(type(provenance) is dict and provenance.keys() == R["PARITY_EVIDENCE"].keys()
+             and provenance["asahi_owner"] == C.pin(owner_raw) and owner["plan"] == provenance["guest_plan"],
+             "Stopped Asahi owner result does not bind the staged guest plan")
+        record.update(provenance, kind=R["PARITY_KIND"], parity_profile=C.pin(C.wire(profile)),
+                      stopped_disk=observed["disk"])
     return C.wire(record)
 
 
-def assemble(*, disk_path, observation, observation_sha, nonce, bundle, originals, test_inputs, profile=None):
+def assemble(*, disk_path, observation, observation_sha, nonce, bundle, originals, test_inputs, profile=None,
+             guest_plan=None):
     """Reopen the exact stopped carrier and publish a verified, no-replace bundle."""
     observed, selected = stopped(observation, observation_sha, nonce)
     need(originals is not None and test_inputs is not None, "Selected original and TEST operands required")
+    need((profile is None) == (guest_plan is None), "Selected parity profile and staged guest plan required together")
+    if profile is not None:
+        path, selected_plan = guest_plan
+        cap = R["PARITY_EVIDENCE"]["guest_plan"][1]
+        need(C.check_pin(selected_plan, cap) and selected_plan["bytes"] > 0, "Exact selected staged guest plan pin required")
+        plan_body, plan_pin = C.read(path, cap, selected_plan)
     profile_arg = {"profile": profile} if profile is not None else {}
     with E["output_parent"](bundle) as parent, TemporaryDirectory(prefix=".qt629-receipt.", dir=bundle.parent) as folder:
         staging = Path(folder)
         qt, asahi = staging / "qt", staging / "asahi"
         exported = H["export_result"](disk_path, observed["disk"], qt, held=False, originals=originals,
                                       test_inputs=test_inputs, asahi_bundle=asahi, **profile_arg)
+        records = {}
+        if profile is not None:
+            owner_pin = exported["asahi"]["result.json"]
+            owner, _ = C.read(asahi / "result.json", R["PARITY_EVIDENCE"]["asahi_owner"][1], owner_pin)
+            evidence = {"guest_plan": plan_body, "stopped_observation": C.wire(observed), "asahi_owner": owner}
+            profile_arg["provenance"] = dict(guest_plan=plan_pin, stopped_observation=selected, asahi_owner=owner_pin)
+            records = {R["PARITY_EVIDENCE"][role][0]: raw for role, raw in evidence.items()}
         body = receipt(qt, asahi, exported, observed, **profile_arg)
         pin = C.pin(body)
         with E["directory"](qt) as directory:
-            E["write_bodies"](directory, {"receipt.json": body})
-        verified = R["readback"](qt, pin["sha256"], **profile_arg)
+            E["write_bodies"](directory, records | {"receipt.json": body})
+        verified = R["readback"](qt, pin["sha256"], profile=profile)
         with E["directory"](staging) as source:
             E["publish"](parent, "qt", bundle.name, source_parent=source)
         os.fsync(parent)

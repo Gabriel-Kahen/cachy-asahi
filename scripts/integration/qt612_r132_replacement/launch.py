@@ -455,6 +455,8 @@ def export_after_retirement(out, nonce, packet, stage, cid, state, absence, held
                    for leaf in ("inputs/qt-replacement/" + operand,)}
     bundle = out / "qt-evidence"
     if not held:
+        if profile is not None:
+            profile_arg["guest_plan"] = stage / "code/plan.json", packet["staged"]["plan"]
         return ASSEMBLER["assemble"](disk_path=disk, observation=observation, observation_sha=stopped_pin["sha256"],
                                      nonce=nonce, bundle=bundle, originals=originals, test_inputs=test_inputs,
                                      **profile_arg)

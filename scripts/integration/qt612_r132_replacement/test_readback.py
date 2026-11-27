@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: MIT
 """Synthetic evidence and tampering controls for the Qt629 receipt reader."""
 
+import copy
+import hashlib
 from itertools import count
 import json
 from pathlib import Path
@@ -247,9 +249,13 @@ class ReadbackTests(unittest.TestCase):
         inputs["build_plan"] = C.wire(dict(kind="QTBASE_SUCCESSOR16K_PLAN_V1", mode="full", nonce=PRIOR,
             inputs={"recipe": recipe}, payload={"recipe/PARITY.UNISSUED.json": recipe}))
         artifact = f"{PROJECT}-{parity}-aarch64.pkg.tar.xz"
-        delta = dict(added_files=[str(i) for i in range(31)], removed=[], metadata_changed=[],
-                     qt_dynamic_exports={str(i): {} for i in range(18)})
-        guest = dict(evidence={artifact: archive}, archive=dict(path_delta=delta, atspi_bridge_abi={"PASS": True}),
+        exports = {name: {"new_exports": []} for name in P["PARITY_LIBRARIES"]}
+        exports[P["PARITY_QTGUI"]]["new_exports"] = [P["PARITY_ATSPI_EXPORT"]]
+        delta = dict(added_files=sorted(P["PARITY_ADDED_FILES"]), added_directories=[P["PARITY_PRINT_DIRECTORY"]],
+                     removed=[], metadata_changed=[], qt_dynamic_exports=exports)
+        bridge = dict(qtgui_export=P["PARITY_ATSPI_EXPORT"], consumers=list(P["PARITY_ATSPI_CONSUMERS"]))
+        guest = dict(evidence={artifact: archive}, archive=dict(
+            path_delta=delta, atspi_bridge_abi=bridge, libraries={name: C.pin(name.encode()) for name in exports}),
                      worker=dict(architecture="aarch64", page_size=16384, nonce=PRIOR, phase="complete", status="PASS"))
         inputs["build_receipt"] = C.wire(dict(kind="QTBASE_SUCCESSOR16K_INDEPENDENT_READBACK_V1",
             status="PASS_UNSIGNED_EMULATED_AARCH64_16K_PACKAGE", mode="full", nonce=PRIOR,
@@ -280,8 +286,42 @@ class ReadbackTests(unittest.TestCase):
         rows = [C.json_body(line) for line in raw["transaction.jsonl"].splitlines()]
         rows[0]["parity_profile"] = profile_pin
         raw["transaction.jsonl"] = jsonl(rows)
+        originals = {name: C.pin(body) for name, body in inputs.items()}
+        W_fixture = W["F"]
+        media = {
+            P["OFFICIAL_NAME"]: originals["official_archive"],
+            P["OFFICIAL_NAME"] + ".sig": originals["official_signature"],
+            artifact: archive,
+            artifact + ".sig": profile["test_review"]["signature"],
+            "test-certificate.gpg": profile["test_review"]["certificate"],
+            "alarm-public-key.gpg": originals["alarm_public_key"],
+            "rollback.lock": originals["rollback_lock"],
+            "result.json": originals["rollback_result"],
+            W_fixture["ARCHIVE"]: W_fixture["PINS"]["archive"],
+            W_fixture["ARCHIVE"] + ".sig": W_fixture["PINS"]["signature"],
+        }
+        base_media = {"files": {}}
+        plan = dict(kind="ASAHI629_EXACT_GUEST_PLAN_V1", nonce=NONCE, code={}, media=base_media,
+                    manifest=C.pin(C.wire(base_media)), qt_media={"qt-replacement/" + name: pin for name, pin in media.items()},
+                    qt_replacement=dict(parity_profile=profile, project_review=profile["test_review"], wayland_socket=W["SOCKET"]))
+        plan_pin = C.pin(C.wire(plan))
+        times = R["chronology"](receipt["chronology"])
+        terminal = {name: value for name, value in rows[-1].items() if name not in ("phase", "at_ns")}
+        owner = dict(status=P["PASS629"], nonce=NONCE, plan=plan_pin,
+                     inventory={"rollback": originals["rollback_lock"]},
+                     platform={"rollback": receipt["phases"]["baseline"]["platform"]},
+                     trust_retired_at_ns=times["trust-retired"],
+                     qt_checkpoint=dict(nonce=NONCE, transaction=terminal, runtime_probe=C.pin(raw["runtime-probes.json"])))
+        disk = C.file_pin(R["RESULT_BYTES"], "d" * 64)
+        stopped = dict(kind=R["STOPPED_KIND"], nonce=NONCE, disk=disk, held=False, retirement=receipt["retirement"],
+                       host_times={name: times[name] for name in R["HOST_TIMES"]})
+        provenance = {"guest_plan": plan, "stopped_observation": stopped, "asahi_owner": owner}
+        for role, value in provenance.items():
+            body = C.wire(value)
+            (self.bundle / R["PARITY_EVIDENCE"][role][0]).write_bytes(body)
+            receipt[role] = C.pin(body)
         receipt.update(kind=R["PARITY_KIND"], parity_profile=profile_pin,
-                       original_inputs={name: C.pin(body) for name, body in inputs.items()},
+                       stopped_disk=disk, original_inputs=originals,
                        evidence={name: C.pin(body) for name, body in raw.items()})
         (self.bundle / "inputs/recovery_seal").unlink()
         for name, body in inputs.items():
@@ -296,16 +336,66 @@ class ReadbackTests(unittest.TestCase):
             (self.bundle / "receipt.json").write_bytes(body)
             return R["readback"](self.bundle, C.pin(body)["sha256"], profile=selected)
 
-        self.assertEqual(check()["status"], "CONSISTENT_EXPORTED_QT612_ASAHI629_PARITY_SCOPED_RECEIPT")
+        checked = check()
+        self.assertEqual(checked["status"], "CONSISTENT_EXPORTED_QT612_ASAHI629_PARITY_SCOPED_RECEIPT")
+        self.assertEqual(checked["guest_plan"], plan_pin)
+        self.assertEqual(checked["stopped_disk"], disk)
         with self.assertRaisesRegex(ValueError, "Unexpected receipt fields"):
             check(None)
         with self.assertRaisesRegex(ValueError, "Prior Qt evidence"):
             check(profile | {"project_archive": R["ORIGINALS"]["project_archive"]})
         with self.assertRaisesRegex(ValueError, "parity pin required for project_archive"):
             check(profile | {"project_archive": C.pin(b"")})
+        self.receipt["stopped_disk"] = C.file_pin(R["RESULT_BYTES"], "f" * 64)
+        with self.assertRaisesRegex(ValueError, "Stopped disk, chronology or retirement differs"):
+            check()
+        self.receipt["stopped_disk"] = disk
+        plan_path = self.bundle / R["PARITY_EVIDENCE"]["guest_plan"][0]
+        forged = C.wire(plan | {"code": {"asahi-guest.py": C.pin(b"different guest worker")}})
+        plan_path.write_bytes(forged)
+        self.receipt["guest_plan"] = C.pin(forged)
+        with self.assertRaisesRegex(ValueError, "Stopped Asahi owner result does not bind"):
+            check()
+        self.receipt["guest_plan"] = None
+        with self.assertRaisesRegex(ValueError, "Exact bundled parity pin required for guest_plan"):
+            check()
+        plan_path.write_bytes(C.wire(plan))
+        self.receipt["guest_plan"] = plan_pin
         self.change_evidence("test-signature.sig", b"foreign detached signature")
         with self.assertRaisesRegex(ValueError, "Qt TEST review differs"):
             check()
+
+        build_plan = C.json_body(inputs["build_plan"])
+        build_receipt = C.json_body(inputs["build_receipt"])
+
+        def verify(report, sealed=build_plan):
+            plan_body = C.wire(sealed)
+            body = C.wire(report | {"plan": C.pin(plan_body)})
+            pins = profile | {"build_receipt": C.pin(body), "build_plan": C.pin(plan_body)}
+            P["verify_parity_build"](pins, plan_body, body, inputs["parity_recipe"])
+
+        for field, wrong, error in (
+            ("added_files", sorted((P["PARITY_ADDED_FILES"] - {min(P["PARITY_ADDED_FILES"])}) | {"wrong path"}),
+             "path delta differs"),
+            ("qt_dynamic_exports", {str(i): {} for i in range(18)}, "library identities differ"),
+            ("added_directories", ["wrong directory"], "path delta differs"),
+        ):
+            report = copy.deepcopy(build_receipt)
+            report["guest"]["archive"]["path_delta"][field] = wrong
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, error):
+                verify(report)
+        for wrong in (bridge | {"qtgui_export": "wrong@Qt_6_PRIVATE_API"},
+                      bridge | {"consumers": ["libQt6WaylandClient.so.6.12.0", "wrong.so"]}):
+            report = copy.deepcopy(build_receipt)
+            report["guest"]["archive"]["atspi_bridge_abi"] = wrong
+            with self.subTest(bridge=wrong), self.assertRaisesRegex(ValueError, "AT-SPI symbol or consumer"):
+                verify(report)
+        selected = dict(profile="parity", payload=build_plan["payload"], launcher=C.pin(b"launcher"), actor=C.pin(b"actor"))
+        source = hashlib.sha256(json.dumps(selected, sort_keys=True, separators=(",", ":")).encode("ascii")).hexdigest()
+        sealed = build_plan | selected | {"source_sha256": source}
+        verify(build_receipt | {"profile": "parity", "source_sha256": source}, sealed)
+        with self.assertRaisesRegex(ValueError, "binder source or profile differs"):
+            verify(build_receipt | {"profile": "parity", "source_sha256": "0" * 64}, sealed)
 
     def change_evidence(self, name, body):
         (self.bundle / name).write_bytes(body)

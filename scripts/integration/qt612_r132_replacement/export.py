@@ -29,7 +29,7 @@ import stat
 
 R = run_path(str(Path(__file__).with_name("readback.py")))
 C, need = R["C"], R["need"]
-RESULT_BYTES = 64 << 20
+RESULT_BYTES = R["RESULT_BYTES"]
 MAX_NODE_BYTES = 14 << 20
 ACTOR_DIR = "qt-replacement-evidence"
 TEST_SIGNATURE = "test-signature.sig"

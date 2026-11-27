@@ -33,6 +33,14 @@ C, A, need = P["C"], P["A"], P["need"]
 OFFICIAL, PROJECT, VERSION = (P[name] for name in ("OFFICIAL", "PROJECT", "VERSION"))
 KIND = "QT612_ASAHI629_REPLACEMENT_RECEIPT_V1"
 PARITY_KIND = "QT612_ASAHI629_PARITY_SCOPED_RECEIPT_V1"
+STOPPED_KIND = "QT629_STOPPED_RESULT_OBSERVATION_V1"
+HOST_TIMES = ("inputs-verified", "vm-exited", "absence-first", "absence-second")
+RESULT_BYTES = 64 << 20
+PARITY_EVIDENCE = {
+    "guest_plan": ("guest-plan.json", 512 << 10),
+    "stopped_observation": ("stopped-observation.json", 128 << 10),
+    "asahi_owner": ("asahi-owner-result.json", 128 << 10),
+}
 PHASES = ("baseline", "replacement", "restoration")
 EVENTS = (
     "inputs-verified", "baseline", "trust-verified", "replacement-applied", "replacement",
@@ -279,6 +287,7 @@ def transactions(trust, raw, times, nonce, *, project_version=VERSION, project_a
             need(match, "Malformed ALPM package action")
             actions.append(match.groups())
     need(actions == expected_actions, "ALPM log differs from the two one-package swaps")
+    return rows
 
 
 def probe_arguments(step):
@@ -429,6 +438,61 @@ def retirement(row, nonce):
     ], "QEMU and outer container must be observed absent twice")
 
 
+def stopped_observation(row, nonce):
+    row = fields(row, "kind nonce disk held retirement host_times", "stopped result observation")
+    need(row["kind"] == STOPPED_KIND and type(nonce) is str and NONCE.fullmatch(nonce) and row["nonce"] == nonce,
+         "Stopped result observation differs from the selected run nonce")
+    need(row["held"] is False, "Held result cannot supply a completed receipt")
+    disk = row["disk"]
+    need(C.check_pin(disk, RESULT_BYTES) and disk["bytes"] == RESULT_BYTES,
+         "Expected the independently pinned stopped result disk")
+    retirement(row["retirement"], nonce)
+    times = fields(row["host_times"], " ".join(HOST_TIMES), "host chronology")
+    need(all(type(stamp) is int and 0 < stamp < 2**63 for stamp in times.values()),
+         "Exact independently observed host nanoseconds required")
+    return row
+
+
+def parity_provenance(bundle, receipt, profile, phases, raw, times, transaction):
+    bodies = {}
+    for role, (file, cap) in PARITY_EVIDENCE.items():
+        pin = receipt[role]
+        need(C.check_pin(pin, cap) and pin["bytes"] > 0, f"Exact bundled parity pin required for {role}")
+        bodies[role] = C.json_body(C.read(bundle / file, cap, pin)[0], canonical=True)
+    nonce = receipt["nonce"]
+    stopped = stopped_observation(bodies["stopped_observation"], nonce)
+    need(receipt["stopped_disk"] == stopped["disk"] and receipt["retirement"] == stopped["retirement"]
+         and stopped["host_times"] == {name: times[name] for name in HOST_TIMES},
+         "Stopped disk, chronology or retirement differs from the published parity receipt")
+    plan = fields(bodies["guest_plan"], "kind nonce code manifest media qt_media qt_replacement", "staged guest plan")
+    need(plan["kind"] == "ASAHI629_EXACT_GUEST_PLAN_V1" and plan["nonce"] == nonce
+         and plan["manifest"] == C.pin(C.wire(plan["media"]))
+         and P["plan_profile"](plan["qt_replacement"]) == profile
+         and plan["qt_replacement"]["wayland_socket"] == W["SOCKET"],
+         "Staged guest plan differs from the selected parity profile or nonce")
+    prefix = "qt-replacement/"
+    project = P["project_name"](profile)
+    pins = receipt["original_inputs"]
+    review = profile["test_review"]
+    expected = {
+        P["OFFICIAL_NAME"]: pins["official_archive"], P["OFFICIAL_NAME"] + ".sig": pins["official_signature"],
+        project: pins["project_archive"], project + ".sig": review["signature"],
+        "test-certificate.gpg": review["certificate"], "alarm-public-key.gpg": pins["alarm_public_key"],
+        "rollback.lock": pins["rollback_lock"], "result.json": pins["rollback_result"],
+        W["F"]["ARCHIVE"]: W["F"]["PINS"]["archive"], W["F"]["ARCHIVE"] + ".sig": W["F"]["PINS"]["signature"],
+    }
+    need(plan["qt_media"] == {prefix + name: pin for name, pin in expected.items()},
+         "Staged guest plan media differs from the reviewed parity inputs")
+    owner = bodies["asahi_owner"]
+    need(owner["nonce"] == nonce and owner["status"] == P["PASS629"] and owner["plan"] == receipt["guest_plan"]
+         and owner["inventory"]["rollback"] == phases["baseline"]["lock"]
+         and owner["platform"]["rollback"] == phases["baseline"]["platform"]
+         and owner["trust_retired_at_ns"] == times["trust-retired"]
+         and owner["qt_checkpoint"] == dict(nonce=nonce, transaction=transaction["terminal"],
+                                             runtime_probe=C.pin(raw["runtime-probes.json"])),
+         "Stopped Asahi owner result does not bind the staged guest plan and Qt checkpoint")
+
+
 def readback(bundle, receipt_sha256, *, profile=None):
     selected_pins = originals(profile)
     profile_pin = None if profile is None else C.pin(C.wire(profile))
@@ -436,8 +500,10 @@ def readback(bundle, receipt_sha256, *, profile=None):
     kind = KIND if profile is None else PARITY_KIND
     receipt_raw, receipt_pin = C.external(bundle / "receipt.json", 128 << 10, receipt_sha256)
     names = "kind nonce original_inputs evidence chronology phases trust retirement"
+    if profile is not None:
+        names += " parity_profile stopped_disk " + " ".join(PARITY_EVIDENCE)
     receipt = fields(C.json_body(receipt_raw, canonical=True),
-                     names if profile is None else names + " parity_profile", "receipt")
+                     names, "receipt")
     need(receipt["kind"] == kind and type(receipt["nonce"]) is str and NONCE.fullmatch(receipt["nonce"])
          and receipt.get("parity_profile") == profile_pin,
          "Expected scoped Qt replacement receipt and run nonce")
@@ -474,8 +540,10 @@ def readback(bundle, receipt_sha256, *, profile=None):
             fingerprint=reviewed["test_fingerprint"], certificate=C.pin(raw["test-certificate.gpg"]),
             signature=C.pin(raw["test-signature.sig"]), not_before=reviewed["test_not_before"],
             not_after=reviewed["test_not_after"]))
-    transactions(receipt["trust"], raw, times, receipt["nonce"], project_version=version,
-                 project_archive=selected_pins["project_archive"], profile_pin=profile_pin)
+    transaction = transactions(receipt["trust"], raw, times, receipt["nonce"], project_version=version,
+                               project_archive=selected_pins["project_archive"], profile_pin=profile_pin)
+    if profile is not None:
+        parity_provenance(bundle, receipt, profile, phases, raw, times, transaction)
     nonce = receipt["nonce"]
     clients = runtime_probes(raw["vendor-runtime-probes.json"], nonce, "vendor") | runtime_probes(
         raw["runtime-probes.json"], nonce, "replacement")
@@ -485,7 +553,8 @@ def readback(bundle, receipt_sha256, *, profile=None):
                 nonce=receipt["nonce"], predecessor_nonce=predecessor["nonce"], untouched_rows=628,
                 untouched_lock=untouched, restored_lock=phases["restoration"]["lock"], platform=platform)
     if profile_pin is not None:
-        result.update(status="CONSISTENT_EXPORTED_QT612_ASAHI629_PARITY_SCOPED_RECEIPT", parity_profile=profile_pin)
+        result.update(status="CONSISTENT_EXPORTED_QT612_ASAHI629_PARITY_SCOPED_RECEIPT", parity_profile=profile_pin,
+                      guest_plan=receipt["guest_plan"], stopped_disk=receipt["stopped_disk"])
     return result
 
 

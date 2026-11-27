@@ -64,6 +64,12 @@ digest using the existing launch contract. No authority is issued by
 preparation. The new receipt kind is `QT612_ASAHI629_PARITY_SCOPED_RECEIPT_V1`.
 Read it with `readback.py --bundle`, `--receipt-sha256`, `--profile` and
 `--profile-sha256` using the separately retained reviewed profile.
+The parity receipt adds the `guest_plan`, `stopped_disk`,
+`stopped_observation` and `asahi_owner` pins. Public readback checks the
+original plan, observation and owner JSON bodies. The owner must identify
+the same plan and nonce, baseline lock, protected state, trust retirement
+time and completed Qt journal. The stopped observation supplies the
+digest of the result disk reviewed by the exporter.
 
 ## Seal the candidate archive
 
@@ -87,6 +93,11 @@ Read it with `readback.py --bundle`, `--receipt-sha256`, `--profile` and
    content hashes, QtGui AT-SPI bridge, CUPS and XCB EGL plugin linkage,
    retained Vulkan/md4c checks, and all 31 expected added paths. Bind the
    result to the new recipe, build nonce and natural retirement receipt.
+   Use the archive audit report with `path_delta`, `libraries` and
+   `atspi_bridge_abi`. The replacement reader checks the exact producer
+   identities from `cf754dfff`. For the explicit binder schema from
+   `ff67fa744`, it also recomputes the source digest over the profile,
+   payload, launcher and actor pins and requires it in the build report.
    Keep the historical recovery seal with the earlier archive.
 3. Compare the exact candidate to both audited 6.12.0-3 archives. Require
    normal dependency resolution and the forward and reverse prepare-only
