@@ -45,10 +45,10 @@
   },
   "scripts/ci/expanded-development-composition/source-pins.json": {
     "bytes": 2784,
-    "sha256": "876b1124e79a9b2dc777520c215fa5b45f1250d8ba408bb27f8ae9ea847c8fea"
+    "sha256": "ccd7129f85a14e14aa59736f57957b8c09cb16ffa512021567cce95ce77199b9"
   },
   "scripts/ci/expanded-development-composition/test_source.py": {
-    "bytes": 19854,
-    "sha256": "a55d4c49664a5d5068cc1351344cde1e618195c7adc548256ed073806a0c63e3"
+    "bytes": 19776,
+    "sha256": "abc03fba0ff4843650f0f007eca9b04403c0230a65cd3eca65c0657f26df12d3"
   }
 }

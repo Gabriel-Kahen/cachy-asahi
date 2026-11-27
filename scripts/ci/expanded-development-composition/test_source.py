@@ -63,9 +63,9 @@ class Inputs(unittest.TestCase):
                 bang_source=ROOT,combined_source=ROOT)
             def revision(path):
                 return self.policy['script_source'] if Path(path)==checkout else self.policy['bang_source']
-            # Isolate checkout layout: index bytes are checked normally. Archive acceptance
-            # has its own real fourteen-archive test; proposed code is not integrated yet.
-            with patch.object(C,'verify_self'),patch.object(inputs,'retained',return_value=self.index['packages']) as inspect:
+            # Verify the current code closure and index here. Archive acceptance
+            # has its own real fourteen-archive test.
+            with patch.object(inputs,'retained',return_value=self.index['packages']) as inspect:
                 with patch.object(runner,'revision',side_effect=revision):
                     _,bundle,rows=runner.check(args)
                 self.assertEqual(bundle,checkout);self.assertEqual(set(rows),C.SCRIPTS)

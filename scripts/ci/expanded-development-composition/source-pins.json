@@ -12,8 +12,8 @@
     "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
   },
   "scripts/checks/package_checks.py": {
-    "bytes": 19289,
-    "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a"
+    "bytes": 19390,
+    "sha256": "306ea3dfa1ce4eb14796c0526a8ca9086043bdcb8e6698c0993d640d076f19cd"
   },
   "scripts/ci/full-composition-installer-vm/producer.py": {
     "bytes": 19096,
