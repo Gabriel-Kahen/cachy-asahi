@@ -79,6 +79,12 @@ python3 -I -B -Werror arm16k_readback.py \
   --capsule "$NEW_CAPSULE" --plan-sha256 "$PLAN_SHA" --launch-sha256 "$LAUNCH_SHA"
 ```
 
+The default `successor` profile builds and reads the original 6.12.0-3
+package. For the parity candidate, pass `--profile parity` to both
+`prepare` and `arm16k_readback.py`. Start uses the profile sealed in the
+plan. New plans record a digest of the exact staged boot payload, launcher
+and actor. Keep the separate plan and launch digests for readback.
+
 Run from this directory with absolute paths. The closure directory holds
 `closure.UNISSUED.json`, `expected357.lock`, the public certificate and the
 archive pairs. The original package pairs and signed seed resolve through

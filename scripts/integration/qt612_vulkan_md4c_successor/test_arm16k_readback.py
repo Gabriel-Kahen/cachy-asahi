@@ -22,6 +22,59 @@ NONCE = "12345678" * 4
 
 
 class ReadbackTests(unittest.TestCase):
+    def test_profiled_and_historical_plans_bind_selected_recipe_and_upstream(self):
+        auth = R["AUTH"]
+        here = Path(__file__).resolve().parent
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            for profile, selected in auth["PROFILES"].items():
+                with self.subTest(profile=profile):
+                    recipe_path = root / profile
+                    generate = selected["generator"]
+                    recipe = run_path(str(here / (generate + ".py")))[generate](recipe_path)
+                    if profile == auth["DEFAULT_PROFILE"]:
+                        self.assertEqual(R["recipe_inputs"](recipe_path)[0], recipe)
+                    else:
+                        with self.assertRaises(FileNotFoundError):
+                            R["recipe_inputs"](recipe_path)
+                        self.assertEqual(R["recipe_inputs"](recipe_path, profile=profile)[0], recipe)
+                    source = auth["SOURCE_NAME"]
+                    plan = dict(kind="QTBASE_SUCCESSOR16K_PLAN_V1", nonce=NONCE, mode="full",
+                                base_revision="cbc877a35f40aba98aeb53cbcfebd7d18422e5ec",
+                                inputs={"recipe": selected["recipe"], "source": {"path": "/held/qt", **recipe["qt_source"]}},
+                                payload={"recipe/" + selected["receipt"]: selected["recipe"], source: recipe["qt_source"]}
+                                | {"recipe/" + name: pin for name, pin in recipe["files"].items()})
+                    plan_path = root / "plan.json"
+
+                    def check(candidate, **options):
+                        body = C.wire(candidate)
+                        plan_path.write_bytes(body)
+                        return R["readback"](root, C.pin(body)["sha256"], "fixture", recipe_path, **options)
+
+                    def stop_at_host(*_):
+                        raise RuntimeError("verified plan reached host readback")
+
+                    with patch.dict(R["readback"].__globals__, host_receipts=stop_at_host):
+                        with self.assertRaisesRegex(ValueError, "source digest required"):
+                            check(plan, profile=profile)
+                        # Historical evidence carries only the original recorded revision and exact recipe pin.
+                        with self.assertRaisesRegex(RuntimeError, "verified plan"):
+                            check(plan | {"source_revision": "a" * 40}, profile=profile)
+                        plan.update(profile=profile, launcher=C.pin(b"launcher"), actor=C.pin(b"actor"))
+                        plan["source_sha256"] = auth["source_sha256"](plan)
+                        with self.assertRaisesRegex(RuntimeError, "verified plan"):
+                            check(plan, profile=profile)
+                        if profile == "parity":
+                            with self.assertRaisesRegex(ValueError, "Unexpected sealed build profile"):
+                                check(plan)
+                        changed = plan | {"payload": plan["payload"] | {source: C.pin(b"other source")}}
+                        changed["source_sha256"] = auth["source_sha256"](changed)
+                        with self.assertRaisesRegex(ValueError, "Upstream Qt archive"):
+                            check(changed, profile=profile)
+                        del plan["source_sha256"]
+                        with self.assertRaisesRegex(ValueError, "source digest differs"):
+                            check(plan, profile=profile)
+
     def test_checkpoint_and_terminal_are_ordered_and_nonce_bound(self):
         state = R["serial_state"]
         setup = f"QTBASE_SUCCESSOR16K_SETUP {NONCE}\r\n"
@@ -72,6 +125,7 @@ class ResultCarrierTests(unittest.TestCase):
         self.pin = C.pin(self.raw)
         self.plan = {"limits": {"result_bytes": len(image)}, "result_uuid": NONCE}
         self.parsed = False
+        self.evidence = {}
         self.during_inventory = lambda: None
         test = self
 
@@ -96,7 +150,7 @@ class ResultCarrierTests(unittest.TestCase):
                 test.during_inventory()
                 directory = dict(type="directory", uid=0, gid=0, xattrs=[])
                 return dict(nodes={".": directory | {"mode": 0o755},
-                                   "lost+found": directory | {"mode": 0o700}})
+                                   "lost+found": directory | {"mode": 0o700}} | test.evidence)
 
         stub = patch.object(C, "ext4_reader", return_value=Reader)
         stub.start()
@@ -108,6 +162,20 @@ class ResultCarrierTests(unittest.TestCase):
     def test_parser_consumes_the_held_verified_carrier(self):
         self.assertEqual(self.read(), ({}, {}))
         self.assertTrue(self.parsed)
+
+    def test_each_profile_reads_only_its_archive_name(self):
+        auth = R["AUTH"]
+        for profile, other in (("successor", "parity"), ("parity", "successor")):
+            with self.subTest(profile=profile):
+                archive = auth["archive_name"](profile)
+                pin = C.pin(b"fixture archive")
+                self.evidence = {"evidence/" + archive: dict(type="file", links=1, uid=0, gid=0, mode=0o600,
+                                                             xattrs=[], size=pin["bytes"], sha256=pin["sha256"])}
+                read = R["result_files"]
+                self.assertEqual(read(self.path, self.plan, self.pin, load_archive=False, profile=profile),
+                                 ({archive: pin}, {}))
+                with self.assertRaisesRegex(ValueError, "result namespace"):
+                    read(self.path, self.plan, self.pin, load_archive=False, profile=other)
 
     def test_same_geometry_replacement_refused_before_inventory(self):
         replacement = self.path.with_suffix(".new")

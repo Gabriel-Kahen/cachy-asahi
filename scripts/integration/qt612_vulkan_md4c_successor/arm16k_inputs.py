@@ -25,7 +25,17 @@ TRANSACTION = {
     "md4c-0.6.0-2-aarch64.pkg.tar.xz",
     "vulkan-headers-1:1.4.363.0-1-any.pkg.tar.xz",
 }
-PARITY_RECIPE = {"bytes": 4460, "sha256": "0fc98bc3f5556b96012efa230d97f5eace3046c0f42984f9fc562040a7af0364"}
+DEFAULT_PROFILE = "successor"
+PROFILES = {
+    DEFAULT_PROFILE: dict(
+        version="6.12.0-3", receipt="SUCCESSOR.UNISSUED.json", generator="prepare",
+        recipe={"bytes": 3524, "sha256": "b3b46a27d6bb5e93bf411de9a23bf238c36230f268206af09637c9d66f0ce41a"},
+    ),
+    "parity": dict(
+        version="6.12.0-4", receipt="PARITY.UNISSUED.json", generator="prepare_parity",
+        recipe={"bytes": 4460, "sha256": "0fc98bc3f5556b96012efa230d97f5eace3046c0f42984f9fc562040a7af0364"},
+    ),
+}
 PARITY_BASE_PACKAGES = {
     "at-spi2-core-2.62.1-1-aarch64.pkg.tar.xz": (b"at-spi2-core", b"2.62.1-1"),
     "libcups-2:2.4.20-1-aarch64.pkg.tar.xz": (b"libcups", b"2:2.4.20-1"),
@@ -51,6 +61,31 @@ REFUSAL = re.compile(rb"^(EXPSIG|EXPKEYSIG|KEYEXPIRED|SIGEXPIRED|REVKEYSIG|BADSI
 def need(condition, message):
     if not condition:
         raise ValueError(message)
+
+
+def archive_name(profile):
+    version = PROFILES[profile]["version"]
+    return f"cachy-asahi-qt612-gui-server-source-reference-{version}-aarch64.pkg.tar.xz"
+
+
+def source_sha256(plan):
+    # Pins cover the exact boot payload, including the staged recipe and guest scripts.
+    selected = {name: plan[name] for name in ("profile", "payload", "launcher", "actor")}
+    body = json.dumps(selected, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("ascii")
+    return hashlib.sha256(body).hexdigest()
+
+
+def check_plan_profile(plan, profile, *, historical=False):
+    need(type(profile) is str and profile in PROFILES, "Unexpected sealed build profile")
+    selected = PROFILES[profile]
+    if historical and "profile" not in plan and "source_sha256" not in plan:
+        revision = plan.get("source_revision")
+        need(type(revision) is str and re.fullmatch(r"[0-9a-f]{40}", revision), "Sealed build source digest required")
+    else:
+        need(plan.get("profile") == profile, "Unexpected sealed build profile")
+        need(plan.get("source_sha256") == source_sha256(plan), "Sealed build source digest differs")
+    need(plan["inputs"]["recipe"] == plan["payload"].get("recipe/" + selected["receipt"]) == selected["recipe"],
+         "Recipe receipt does not bind the selected build profile")
 
 
 def metadata(info):
@@ -137,8 +172,9 @@ def original_media(boot, kernel, config, backing, closure):
         ("boot", boot, boot_pin), ("kernel", kernel, KERNEL), ("config", config, CONFIG), ("backing", backing, raw))}
 
 
-def authenticate(evidence, q3, boot, kernel, config, backing, stage):
+def authenticate(evidence, q3, boot, kernel, config, backing, stage, *, profile=DEFAULT_PROFILE):
     """Verify exact original files and stage the two-package update route."""
+    selected = PROFILES[profile]
     parent = stage.parent
     info = parent.stat()
     need(parent.is_absolute() and parent.resolve(strict=True) == parent and stat.S_ISDIR(info.st_mode)
@@ -178,23 +214,29 @@ def authenticate(evidence, q3, boot, kernel, config, backing, stage):
             originals = pool.submit(original_media, boot, kernel, config, backing, closure)
             statuses = list(pool.map(lambda row: verify_signature(row, key_home, key), rows))
             media = originals.result()
-        recipe = run_path(str(HERE / "prepare_parity.py"))["prepare_parity"](payload / "recipe")
-        recipe_pin = verify(payload / "recipe" / "PARITY.UNISSUED.json", PARITY_RECIPE)
+        generator = selected["generator"]
+        recipe = run_path(str(HERE / (generator + ".py")))[generator](payload / "recipe")
+        recipe_pin = verify(payload / "recipe" / selected["receipt"], selected["recipe"])
         need(recipe["qt_source"] == q3_files[SOURCE_NAME] and recipe["official_inputs"]["fingerprint"] == FINGERPRINT
-             and recipe["base_recipe_sha256"] == closure["staged_recipe"]["sha256"],
-             "Regenerated parity recipe source, signer or basis differs")
+             and recipe["artifact_version"] == selected["version"],
+             "Regenerated recipe source, signer or version differs")
         by_name = {row["filename"]: row for row in packages}
-        for filename, (name, version) in PARITY_BASE_PACKAGES.items():
-            row, selected = by_name[filename], recipe["official_inputs"][filename]
-            need(row["phase"] == "alpm-base" and before.get(name) == after.get(name) == version
-                 and pin(row["archive"]["bytes"], row["archive"]["sha256"]) == pin(selected["bytes"], selected["sha256"])
-                 and pin(row["signature"]["bytes"], row["signature"]["sha256"]) == selected["signature"],
-                 f"Parity dependency is outside the signed baseline: {filename}")
+        if profile == "parity":
+            need(recipe["base_recipe_sha256"] == closure["staged_recipe"]["sha256"], "Parity recipe basis differs")
+            for filename, (name, version) in PARITY_BASE_PACKAGES.items():
+                row, dependency = by_name[filename], recipe["official_inputs"][filename]
+                need(row["phase"] == "alpm-base" and before.get(name) == after.get(name) == version
+                     and pin(row["archive"]["bytes"], row["archive"]["sha256"]) ==
+                     pin(dependency["bytes"], dependency["sha256"])
+                     and pin(row["signature"]["bytes"], row["signature"]["sha256"]) == dependency["signature"],
+                     f"Parity dependency is outside the signed baseline: {filename}")
+        else:
+            need(recipe_pin == closure["staged_recipe"], "Original successor recipe differs")
         for name in sorted(TRANSACTION):
-            row, selected = by_name[name], recipe["official_inputs"][name]
+            row, dependency = by_name[name], recipe["official_inputs"][name]
             for field, filename, expected in (
-                ("archive", name, pin(selected["bytes"], selected["sha256"])),
-                ("signature", name + ".sig", selected["signature"]),
+                ("archive", name, pin(dependency["bytes"], dependency["sha256"])),
+                ("signature", name + ".sig", dependency["signature"]),
             ):
                 ref = row[field]
                 need(expected == pin(ref["bytes"], ref["sha256"]), f"Recipe and closure differ: {filename}")
@@ -221,6 +263,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     for argument in ("evidence", "q3", "boot", "kernel", "config", "backing", "stage"):
         parser.add_argument("--" + argument, required=True, type=Path)
+    parser.add_argument("--profile", choices=PROFILES, default=DEFAULT_PROFILE)
     try:
         print(json.dumps(authenticate(**vars(parser.parse_args())), sort_keys=True, indent=2))
     except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:

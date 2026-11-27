@@ -21,13 +21,13 @@ from types import SimpleNamespace
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 C = SimpleNamespace(**run_path(str(HERE.parent / "qt612_base_16k_link_preflight/readback.py")))
+AUTH = run_path(str(HERE / "arm16k_inputs.py"))
+DEFAULT_PROFILE, PROFILES = AUTH["DEFAULT_PROFILE"], AUTH["PROFILES"]
 MIB = 1 << 20
 PACKAGE = "cachy-asahi-qt612-gui-server-source-reference"
-VERSION = "6.12.0-4"
-ARCHIVE = f"{PACKAGE}-{VERSION}-aarch64.pkg.tar.xz"
+VERSION = PROFILES[DEFAULT_PROFILE]["version"]
 BEFORE = C.file_pin(6925, "e2a4da7903e6de26b0ee37758ad424439f83196fa6a3b0bdffa501f35a02d0b9")
 AFTER = C.file_pin(6954, "cd7f0f45ee485edc315e27370e954ba11ab3f5e6168a2653c40220a698c102a1")
-RECIPE = C.file_pin(4460, "0fc98bc3f5556b96012efa230d97f5eace3046c0f42984f9fc562040a7af0364")
 BUILD_EPOCH = "1792021458"
 SIGNER = b"68B3537F39A313B3E574D06777193F152BDBE6A6"
 STAGES = {"boot", "storage", "setup", "build", "retain", "cleanup", "configured", "complete"}
@@ -36,7 +36,7 @@ SETUP = {"before.lock": 32 << 10, "after.lock": 32 << 10, "alpm.log": MIB, "gpgv
 GRAPH = {"CMakeCache.txt": 2 * MIB, "build.ninja": 32 * MIB, "rules.ninja": 2 * MIB}
 CONFIGURED = GRAPH | {"features.txt": 64 << 10, "graph.sha256": 4096, "profile.json": 4096}
 FULL = {"stage-contract.json": 8 * MIB, "vulkan-md4c-elf.json": 4096,
-        "archive.sha256": 4096, ARCHIVE: 512 * MIB}
+        "archive.sha256": 4096}
 CAPS = SETUP | CONFIGURED | FULL | {"result.json": 4096, "build.log": 64 * MIB, "dependencies.log": 64 << 10}
 NAMESPACE = {".", "lost+found", "evidence"}
 SMOKE = b"PASS_QT612_GUI_SERVER_OFFSCREEN_AND_LOCAL_DISPLAY_API_ONLY"
@@ -82,12 +82,14 @@ def serial_state(body, nonce):
     return terminal, prefixes[0] in positions, prefixes[1] in positions
 
 
-def recipe_inputs(path):
-    raw, _ = C.read(path / "PARITY.UNISSUED.json", RECIPE["bytes"], RECIPE)
+def recipe_inputs(path, *, profile=DEFAULT_PROFILE):
+    selected = PROFILES[profile]
+    expected = selected["recipe"]
+    raw, _ = C.read(path / selected["receipt"], expected["bytes"], expected)
     receipt = C.json_body(raw, canonical=True)
     files = {name: C.read(path / name, 128 << 10, receipt["files"][name])[0]
              for name in (".SRCINFO", "configure.cmake", "source-notices.json")}
-    C.need(receipt["artifact_version"] == VERSION, "Staged recipe version differs")
+    C.need(receipt["artifact_version"] == selected["version"], "Staged recipe version differs")
     return receipt, files
 
 
@@ -172,10 +174,10 @@ def gui_abi(body):
     return run_path(str(HERE / "check_gui.py"))["check_readback"](result["stdout"].decode("ascii"))
 
 
-def package_metadata(controls, sourceinfo, inventory, recipe, payload_bytes, parse):
+def package_metadata(controls, sourceinfo, inventory, recipe, payload_bytes, parse, *, version=VERSION):
     package, build = (parse(controls[name].decode("utf-8")) for name in (".PKGINFO", ".BUILDINFO"))
     expected = parse(sourceinfo.decode("utf-8"))
-    common = dict(pkgname=[PACKAGE], pkgbase=[PACKAGE], pkgver=[VERSION], builddate=[BUILD_EPOCH])
+    common = dict(pkgname=[PACKAGE], pkgbase=[PACKAGE], pkgver=[version], builddate=[BUILD_EPOCH])
     relations = {"depends": "depend", "makedepends": "makedepend", "checkdepends": "checkdepend",
                  "optdepends": "optdepend", "provides": "provides", "conflicts": "conflict",
                  "license": "license", "groups": "group", "replaces": "replaces", "backup": "backup"}
@@ -234,7 +236,7 @@ def payload_contract(stage, packaged, staged_contract):
            "Final archive lacks required Qt development files")
 
 
-def archive_contents(raw, files, recipe, staged):
+def archive_contents(raw, files, recipe, staged, *, profile=DEFAULT_PROFILE):
     maps = SimpleNamespace(**run_path(str(HERE.parent / "qt612_installed_16k_preflight/selection_maps.py")))
     stage = SimpleNamespace(**run_path(str(ROOT / "packages/port/qt612-gui-server-source-reference/check_stage.py")))
     expanded = maps.expand_archive(io.BytesIO(raw))
@@ -321,18 +323,22 @@ def archive_contents(raw, files, recipe, staged):
     plugins = {"usr/lib/qt6/plugins/" + name for name in stage.PLUGINS}
     C.need(all(name in elf and nodes[name][1] & 0o111 for name in set(stage.TOOLS) | plugins)
            and all(elf[name]["type"] == 3 for name in plugins), "Expected final executable Qt tools and shared plugins")
-    parity = run_path(str(HERE / "check_parity.py"))
-    parity["check_parity"]({"files": {name: {"mode": row[1]} for name, row in nodes.items() if row[0] == "file"},
-                            "elf": elf})
+    if profile == "parity":
+        parity = run_path(str(HERE / "check_parity.py"))
+        parity["check_parity"]({"files": {name: {"mode": row[1]} for name, row in nodes.items() if row[0] == "file"},
+                                "elf": elf})
     server = stage.server_feature_export(server_bodies, {name: C.pin(body) for name, body in server_bodies.items()})
     C.need(server == staged_contract["server_feature_export"],
            "Final archive Wayland server export differs from staging")
-    package_metadata(controls, staged[".SRCINFO"], files["after.lock"], recipe, payload_bytes, maps.PKG.metadata)
+    package_metadata(controls, staged[".SRCINFO"], files["after.lock"], recipe, payload_bytes, maps.PKG.metadata,
+                     version=PROFILES[profile]["version"])
     return dict(libraries=libraries, gui_abi=abi, source_notices=len(notices), elf_objects=len(elf),
                 controls={name: C.pin(body) for name, body in controls.items()})
 
 
-def result_files(path, plan, result_pin, load_archive):
+def result_files(path, plan, result_pin, load_archive, *, profile=DEFAULT_PROFILE):
+    archive = AUTH["archive_name"](profile)
+    caps = CAPS | {archive: 512 * MIB}
     C.need(C.check_pin(result_pin, 4 << 30) and result_pin["bytes"] == plan["limits"]["result_bytes"]
            and result_pin["bytes"] > 0, "Exact planned result size required")
     original = path.lstat()
@@ -340,7 +346,7 @@ def result_files(path, plan, result_pin, load_archive):
     C.need(path.is_absolute() and path.resolve(strict=True) == path and stat.S_ISREG(original.st_mode)
            and original.st_nlink == 1 and original.st_size == result_pin["bytes"],
            "Exact planned result size required")
-    with C.ext4_reader()(path, max_nodes=len(CAPS) + len(NAMESPACE), max_file_bytes=max(CAPS.values())) as fs:
+    with C.ext4_reader()(path, max_nodes=len(caps) + len(NAMESPACE), max_file_bytes=max(caps.values())) as fs:
         C.need(C.identity(os.fstat(fs.fd)) == before, "Result carrier changed at open")
         # The ext4 reader uses pread. Hash its already-held descriptor before
         # reading the inventory, rather than verifying and reopening the path.
@@ -355,7 +361,7 @@ def result_files(path, plan, result_pin, load_archive):
                "Expected clean successor result ext4 with the planned label and UUID")
         nodes = fs.inventory()["nodes"]
         leaves = nodes.keys() - NAMESPACE
-        C.need({".", "lost+found"} <= nodes.keys() and leaves <= {"evidence/" + name for name in CAPS},
+        C.need({".", "lost+found"} <= nodes.keys() and leaves <= {"evidence/" + name for name in caps},
                "Unexpected successor result namespace")
         for name in NAMESPACE & nodes.keys():
             row = nodes[name]
@@ -365,10 +371,10 @@ def result_files(path, plan, result_pin, load_archive):
         for leaf in sorted(leaves):
             name, row = leaf.removeprefix("evidence/"), nodes[leaf]
             C.need(row["type"] == "file" and row["links"] == 1 and row["uid"] == row["gid"] == 0
-                   and row["mode"] == 0o600 and not row["xattrs"] and 0 <= row["size"] <= CAPS[name],
+                   and row["mode"] == 0o600 and not row["xattrs"] and 0 <= row["size"] <= caps[name],
                    f"Unexpected result file metadata: {name}")
             pins[name] = C.file_pin(row["size"], row["sha256"])
-            if name != ARCHIVE or load_archive:
+            if name != archive or load_archive:
                 inode, body = fs.inode(row["inode"])
                 files[name] = b"".join(fs.chunks(inode, body))
                 C.need(C.pin(files[name]) == pins[name], f"Result file changed during readback: {name}")
@@ -392,7 +398,7 @@ def stage_checks(body, staged):
            "Original stage-contract result differs")
 
 
-def guest_checks(plan, pins, files, markers, recipe, staged, host_pass):
+def guest_checks(plan, pins, files, markers, recipe, staged, host_pass, *, profile=DEFAULT_PROFILE):
     terminal, setup_serial, config_serial = markers
     passed = terminal is not None and terminal[0] == "PASS"
     errors, features = {}, None
@@ -419,8 +425,9 @@ def guest_checks(plan, pins, files, markers, recipe, staged, host_pass):
     mode = plan["mode"]
     phase = {"configure": "configured", "full": "complete"}[mode]
     expected = SETUP.keys() | CONFIGURED.keys() | {"result.json", "build.log", "dependencies.log"}
+    archive = AUTH["archive_name"](profile)
     if mode == "full":
-        expected |= FULL.keys()
+        expected |= FULL.keys() | {archive}
     C.need(not errors, f"Guest PASS has invalid evidence: {errors}")
     C.need(host_pass and terminal == ("PASS", phase) and setup_serial and config_serial
            and setup_verified and features is not None and worker == dict(status="PASS", phase=phase, nonce=plan["nonce"], mode=mode,
@@ -429,9 +436,9 @@ def guest_checks(plan, pins, files, markers, recipe, staged, host_pass):
            "Guest PASS lacks complete matching host and guest evidence")
     if mode == "full":
         C.need(files["build.log"].splitlines().count(SMOKE) == 1, "Original makepkg smoke result absent")
-        digest_list(files["archive.sha256"], {ARCHIVE: pins[ARCHIVE]})
+        digest_list(files["archive.sha256"], {archive: pins[archive]})
         stage_checks(files["stage-contract.json"], staged)
-        report["archive"] = archive_contents(files[ARCHIVE], files, recipe, staged)
+        report["archive"] = archive_contents(files[archive], files, recipe, staged, profile=profile)
         return report, "PASS_UNSIGNED_EMULATED_AARCH64_16K_PACKAGE"
     return report, "PASS_EMULATED_AARCH64_16K_CONFIGURE"
 
@@ -485,45 +492,51 @@ def host_receipts(capsule, plan, plan_sha, launch_sha):
     return launch, launch_pin, started_pin, actor, serial, host_pass
 
 
-def readback(capsule, plan_sha, launch_sha, recipe_path=None):
+def readback(capsule, plan_sha, launch_sha, recipe_path=None, *, profile=DEFAULT_PROFILE):
     raw, plan_pin = C.external(capsule / "plan.json", 128 << 10, plan_sha)
     plan = C.json_body(raw, canonical=True)
     C.need(plan["kind"] == "QTBASE_SUCCESSOR16K_PLAN_V1" and C.NONCE.fullmatch(plan["nonce"])
            and plan["mode"] in {"configure", "full"}
            and plan["base_revision"] == "cbc877a35f40aba98aeb53cbcfebd7d18422e5ec", "Unexpected successor plan")
-    recipe, staged = recipe_inputs(recipe_path or capsule / "recipe")
-    C.need(plan["inputs"]["recipe"] == plan["payload"]["recipe/PARITY.UNISSUED.json"] == RECIPE
-           and all(plan["payload"]["recipe/" + name] == C.pin(body) for name, body in staged.items()),
+    AUTH["check_plan_profile"](plan, profile, historical=True)
+    recipe, staged = recipe_inputs(recipe_path or capsule / "recipe", profile=profile)
+    C.need(all(plan["payload"]["recipe/" + name] == pin for name, pin in recipe["files"].items()),
            "Recipe data does not bind the sealed boot payload")
+    upstream = AUTH["SOURCE_NAME"]
+    source = plan["inputs"]["source"]
+    C.need({key: source[key] for key in ("bytes", "sha256")} == plan["payload"][upstream] == recipe["qt_source"],
+           "Upstream Qt archive does not bind the selected recipe")
     launch, launch_pin, started_pin, actor, markers, host_pass = host_receipts(capsule, plan, plan_sha, launch_sha)
     guest_pass = markers[0] is not None and markers[0][0] == "PASS"
     try:
         pins, files = result_files(capsule / "run/result.raw", plan, launch["files"]["result.raw"],
-                                   load_archive=guest_pass and host_pass and plan["mode"] == "full")
-        guest, status = guest_checks(plan, pins, files, markers, recipe, staged, host_pass)
+                                   load_archive=guest_pass and host_pass and plan["mode"] == "full", profile=profile)
+        guest, status = guest_checks(plan, pins, files, markers, recipe, staged, host_pass, profile=profile)
     except (OSError, KeyError, ValueError, UnicodeError) as error:
         if guest_pass or isinstance(error, ResultPinError):
             raise
         status = "HOLD"
         guest = dict(terminal=markers[0], setup_reported=markers[1], configured_reported=markers[2],
                      readback_error=str(error))
+    provenance = {name: plan[name] for name in ("profile", "source_sha256")} if "source_sha256" in plan else {}
     return dict(kind="QTBASE_SUCCESSOR16K_INDEPENDENT_READBACK_V1", status=status,
                 nonce=plan["nonce"], mode=plan["mode"], plan=plan_pin, launch=launch_pin, start=started_pin,
                 originals_unchanged=launch["originals_unchanged"], container_retired=launch["container_absent"],
                 container_exit=launch["container_exit"], qemu_exit=launch["qemu_exit"], host_error=launch["error"],
                 actor=actor, run_files=launch["files"], guest=guest,
-                signing="NOT_RUN", installation="NOT_RUN", hardware="NOT_RUN")
+                signing="NOT_RUN", installation="NOT_RUN", hardware="NOT_RUN", **provenance)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--capsule", type=Path, required=True)
     parser.add_argument("--recipe", type=Path)
+    parser.add_argument("--profile", choices=PROFILES, default=DEFAULT_PROFILE)
     parser.add_argument("--plan-sha256", required=True)
     parser.add_argument("--launch-sha256", required=True)
     args = parser.parse_args()
     try:
-        report = readback(args.capsule, args.plan_sha256, args.launch_sha256, args.recipe)
+        report = readback(args.capsule, args.plan_sha256, args.launch_sha256, args.recipe, profile=args.profile)
         sys.stdout.buffer.write(C.wire(report))
         return 2 if report["status"] == "HOLD" else 0
     except (OSError, KeyError, TypeError, ValueError, lzma.LZMAError, tarfile.TarError) as error:

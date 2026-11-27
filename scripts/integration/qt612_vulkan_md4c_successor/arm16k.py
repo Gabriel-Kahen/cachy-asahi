@@ -25,6 +25,7 @@ BASE = "cbc877a35f40aba98aeb53cbcfebd7d18422e5ec"
 C = runpy.run_path(str(HERE.parent / "qt612_md4c_compile/prepare.py"))
 A = runpy.run_path(str(HERE / "arm16k_actor.py"))
 AUTH = runpy.run_path(str(HERE / "arm16k_inputs.py"))
+DEFAULT_PROFILE, PROFILES = AUTH["DEFAULT_PROFILE"], AUTH["PROFILES"]
 need, pin = A["need"], A["pin"]
 capture_process, cancellation = A["capture_process"], A["cancellation"]
 GIB = 1 << 30
@@ -205,8 +206,16 @@ def qemu_args(nonce, manifest, mode, budget):
     return args
 
 
+def guest_source(body, profile):
+    original = b"readonly PACKAGE=" + AUTH["archive_name"](DEFAULT_PROFILE).encode("ascii") + b"\n"
+    selected = b"readonly PACKAGE=" + AUTH["archive_name"](profile).encode("ascii") + b"\n"
+    need(body.count(original) == 1, "Unexpected guest archive name declaration")
+    return body.replace(original, selected)
+
+
 def prepare(args):
     output = canonical_path(args.output)
+    profile = args.profile
     budget = limits(args.mode)
     need(not output.exists() and output.parent.is_dir() and not output.is_relative_to(ROOT),
          "Choose a fresh private capsule path outside the source checkout")
@@ -222,10 +231,10 @@ def prepare(args):
     with TemporaryDirectory(prefix="prepare-", dir=output) as temporary:
         work = Path(temporary)
         staged = work / "stage"
-        inputs = AUTH["authenticate"](*(chosen[name] for name in
-                                        ("evidence", "q3", "boot", "kernel", "config", "backing")), staged)
+        inputs = AUTH["authenticate"](chosen["evidence"], chosen["q3"], chosen["boot"], chosen["kernel"],
+                                      chosen["config"], chosen["backing"], staged, profile=profile)
         for source, filename in GUEST_SOURCES.items():
-            put(staged / filename, (HERE / source).read_bytes())
+            put(staged / filename, guest_source((HERE / source).read_bytes(), profile))
         manifest = C["checksums"]({p.relative_to(staged).as_posix(): pin(p)["sha256"]
                                   for p in staged.rglob("*") if p.is_file()})
         put(staged / "manifest.sha256", manifest)
@@ -250,15 +259,15 @@ def prepare(args):
         need(pin(chosen[name]) == {key: inputs["originals"][name][key] for key in ("bytes", "sha256")},
              f"Original media changed during staging: {name}")
     endpoint = f"/run/user/{os.getuid()}/docker.sock"
-    revision = subprocess.run(["/usr/bin/git", "-C", ROOT, "rev-parse", "HEAD"], env=ENV, check=True,
-                              capture_output=True, text=True, timeout=5).stdout.strip()
-    plan = dict(kind="QTBASE_SUCCESSOR16K_PLAN_V1", base_revision=BASE, source_revision=revision,
+    plan = dict(kind="QTBASE_SUCCESSOR16K_PLAN_V1", base_revision=BASE, profile=profile,
                 launcher=pin(Path(__file__)), actor=pin(media / "actor.py"),
                 nonce=nonce, mode=args.mode, limits=budget, runner_image=IMAGE, tools=TOOLS,
                 docker=dict(path=str(chosen["docker"]), socket=endpoint, **DOCKER_PIN),
                 inputs=inputs, media={name: pin(media / name) for name in (BOOTS, KERNEL)},
                 result_uuid=uuid, result_template=pin(result), payload=payload,
                 qemu_argv=qemu_args(nonce, payload["manifest.sha256"]["sha256"], args.mode, budget))
+    plan["source_sha256"] = AUTH["source_sha256"](plan)
+    AUTH["check_plan_profile"](plan, profile)
     put(output / "plan.json", wire(plan))
     print(json.dumps(dict(capsule=str(output), plan_sha256=pin(output / "plan.json")["sha256"],
                           status="SEALED_OFFLINE_SUCCESSOR16K"), sort_keys=True))
@@ -431,6 +440,8 @@ def start(args):
          and plan["result_uuid"] == C["result_uuid"](nonce)
          and plan["qemu_argv"] == qemu_args(nonce, plan["payload"]["manifest.sha256"]["sha256"], plan["mode"], budget),
          "Unexpected successor plan configuration")
+    profile = plan.get("profile")
+    AUTH["check_plan_profile"](plan, profile)
     need(plan["media"] == {name: pin(media / name) for name in (BOOTS, KERNEL)}
          and plan["result_template"] == pin(media / "result.template"), "Prepared media differs")
     originals = original_media(plan)
@@ -474,10 +485,11 @@ def start(args):
                  "Selected actor already started")
             check_cancel()
             attach_dispatched = True
+            observe = check_cancel
+            if profile == "parity":
+                observe = memory_guard(check_cancel, budget["host_memory_reserve_bytes"])
             attach_exit, reason = capture_process(docker.argv("container", "start", "-a", cid), log_path,
-                                                  ATTACH_LOG_BYTES, budget["qemu_seconds"] + 420,
-                                                  memory_guard(check_cancel, budget["host_memory_reserve_bytes"]),
-                                                  env=ENV)
+                                                  ATTACH_LOG_BYTES, budget["qemu_seconds"] + 420, observe, env=ENV)
             need(reason is None, reason)
             state = inspect(docker, cid, name, plan, mounts, entry)
             need(state["Status"] == "exited" and state["Running"] is False, "Actor did not exit")
@@ -525,6 +537,7 @@ def main():
     for name in ("evidence", "q3", "boot", "kernel", "config", "backing", "docker", "output"):
         seal.add_argument("--" + name, type=Path, required=True)
     seal.add_argument("--mode", choices=("full", "configure"), default="full")
+    seal.add_argument("--profile", choices=PROFILES, default=DEFAULT_PROFILE)
     launch = sub.add_parser("start")
     launch.add_argument("--capsule", type=Path, required=True)
     launch.add_argument("--plan-sha256", required=True)

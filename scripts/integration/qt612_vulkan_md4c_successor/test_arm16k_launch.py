@@ -27,6 +27,21 @@ NONCE = "a" * 32
 NAME = "caa-qtbase-successor16k-" + NONCE
 
 
+class GuestSourceTests(unittest.TestCase):
+    def test_default_scripts_are_unchanged_and_parity_changes_only_the_archive(self):
+        source = LAUNCHER["guest_source"]
+        profiles = LAUNCHER["AUTH"]
+        successor = profiles["archive_name"]("successor").encode()
+        parity = profiles["archive_name"]("parity").encode()
+        for name in LAUNCHER["GUEST_SOURCES"]:
+            with self.subTest(name=name):
+                body = (HERE / name).read_bytes()
+                self.assertEqual(source(body, "successor"), body)
+                self.assertEqual(source(body, "parity"), body.replace(successor, parity))
+                with self.assertRaisesRegex(ValueError, "archive name declaration"):
+                    source(body.replace(successor, parity), "parity")
+
+
 class MemoryGuardTests(unittest.TestCase):
     def test_sustained_pressure_triggers_owned_retirement(self):
         with patch.object(LAUNCHER["time"], "monotonic", side_effect=(0, 5, 10, 15, 20, 25, 30, 35)), \
@@ -134,15 +149,20 @@ class LaunchTests(unittest.TestCase):
         manifest = "0" * 64
         mode = "full"
         budget = LAUNCHER["limits"](mode)
-        plan = dict(kind="QTBASE_SUCCESSOR16K_PLAN_V1", base_revision=LAUNCHER["BASE"], mode=mode, limits=budget,
+        auth = LAUNCHER["AUTH"]
+        profile = auth["DEFAULT_PROFILE"]
+        selected = auth["PROFILES"][profile]
+        plan = dict(profile=profile, kind="QTBASE_SUCCESSOR16K_PLAN_V1", base_revision=LAUNCHER["BASE"], mode=mode, limits=budget,
                     launcher=pin(HERE / "arm16k.py"), actor=pin(media / "actor.py"), runner_image=LAUNCHER["IMAGE"],
                     tools=LAUNCHER["TOOLS"], nonce=NONCE, result_uuid=LAUNCHER["C"]["result_uuid"](NONCE),
                     qemu_argv=LAUNCHER["qemu_args"](NONCE, manifest, mode, budget),
-                    payload={"manifest.sha256": {"sha256": manifest}},
+                    payload={"manifest.sha256": {"sha256": manifest}, "recipe/" + selected["receipt"]: selected["recipe"]},
                     media={name: pin(media / name) for name in ("boot.raw", "Image")},
                     result_template=pin(media / "result.template"),
-                    inputs={"originals": {"backing": {"path": str(self.backing), **self.backing_pin}}},
+                    inputs={"originals": {"backing": {"path": str(self.backing), **self.backing_pin}},
+                            "recipe": selected["recipe"]},
                     docker={})
+        plan["source_sha256"] = auth["source_sha256"](plan)
         raw = LAUNCHER["wire"](plan)
         (self.root / "plan.json").write_bytes(raw)
         self.args = SimpleNamespace(capsule=self.root, plan_sha256=hashlib.sha256(raw).hexdigest())
@@ -168,6 +188,43 @@ class LaunchTests(unittest.TestCase):
         self.assertEqual(report["container_absent"], [True, True])
         self.assertEqual(self.model.calls[-3][1:3], ("rm", CID))
         self.assertTrue(all(("id=" + CID) in call for call in self.model.calls[-2:]))
+
+    def test_changed_source_pins_refused_even_with_new_plan_digest(self):
+        path = self.root / "plan.json"
+        plan = json.loads(path.read_bytes())
+        plan["payload"]["guest-init.sh"] = {"bytes": 1, "sha256": "f" * 64}
+        updated = LAUNCHER["wire"](plan)
+        path.write_bytes(updated)
+        self.args.plan_sha256 = hashlib.sha256(updated).hexdigest()
+        with self.assertRaisesRegex(ValueError, "source digest differs"):
+            START(self.args)
+        self.assertEqual(self.model.calls, [])
+        self.assertFalse((self.root / "run").exists())
+
+    def test_launch_uses_explicit_parity_plan_and_its_pressure_guard(self):
+        path = self.root / "plan.json"
+        plan = json.loads(path.read_bytes())
+        auth = LAUNCHER["AUTH"]
+        profiles = auth["PROFILES"]
+        selected = profiles["parity"]
+        del plan["payload"]["recipe/" + profiles["successor"]["receipt"]]
+        plan["profile"] = "parity"
+        plan["payload"]["recipe/" + selected["receipt"]] = selected["recipe"]
+        plan["inputs"]["recipe"] = selected["recipe"]
+        plan["source_sha256"] = auth["source_sha256"](plan)
+        raw = LAUNCHER["wire"](plan)
+        path.write_bytes(raw)
+        self.args.plan_sha256 = hashlib.sha256(raw).hexdigest()
+        guards = []
+
+        def memory_guard(check, reserve):
+            guards.append(reserve)
+            return check
+
+        with patch.dict(LAUNCHER, memory_guard=memory_guard):
+            self.assertEqual(START(self.args), 0)
+        self.assertEqual(guards, [plan["limits"]["host_memory_reserve_bytes"]])
+        self.assert_retired(self.receipt())
 
     def test_success_preserves_one_use_and_readonly_mounts(self):
         self.assertEqual(START(self.args), 0)
