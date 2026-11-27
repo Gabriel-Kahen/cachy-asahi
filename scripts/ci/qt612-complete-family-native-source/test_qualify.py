@@ -242,14 +242,16 @@ class Controls(unittest.TestCase):
             Q.finalize_result(dict(status='MODEL_ONLY'), expected=expected,
                 provenance_raw=[raw], observed={}, c=C)
 
-    def test_current_normal_package_report_matches_generic_inspector_MODEL(self):
+    def test_held_normal_package_report_matches_generic_inspector_MODEL(self):
         path, row, inputs = self.model_archive()
         row['filename'] = path.name
         framework = HERE.parents[2]
         name = 'scripts/checks/package_checks.py'
-        raw = C.M.stream(framework/name, LOCK['framework_files'][name], {}, collect=True)
-        scope = dict(__name__='current_normal_package_checks_MODEL', __file__=str(framework/name))
-        exec(compile(raw, str(framework/name), 'exec'), scope)
+        held = (framework/'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
+                /'scripts/ci/llhttp-reference-native-source/base/runtime'/name)
+        raw = C.M.stream(held, LOCK['framework_files'][name], {}, collect=True)
+        scope = dict(__name__='held_normal_package_checks_MODEL', __file__=str(held))
+        exec(compile(raw, str(held), 'exec'), scope)
         report = scope['package'](path)
         self.assertEqual(report['status'], 'artifact-static-pass')
         self.assertEqual(report['errors'], [])
@@ -259,7 +261,7 @@ class Controls(unittest.TestCase):
             bad = dict(report, **{key: value})
             with self.subTest(key=key), self.assertRaisesRegex(ValueError, 'ACTUAL_NORMAL_PACKAGE_VALIDATION_SCHEMA'):
                 Q.validate_validation(actual, bad, row=row, recipe_inputs=inputs, c=C)
-        # Execute the actual current compare function with an explicit MODEL
+        # Execute the pinned compare function with an explicit MODEL
         # verify seam; this checks its schema, never a genuine native pair.
         compare_name = 'scripts/build/compare_v2.py'
         compare_raw = C.M.stream(framework/compare_name, LOCK['framework_files'][compare_name], {}, collect=True)
