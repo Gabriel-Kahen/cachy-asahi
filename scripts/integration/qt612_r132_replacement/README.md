@@ -47,3 +47,50 @@ packages for Quick Vector Image, `svgtoqml`, `qv4l2` and `pinentry-qt`.
 The candidate archive also omits 22 official plugins. A separate signed
 trial needs ordinary-user Qt Quick, Wayland and Vulkan runtime checks,
 followed by restoration and readback of the official provider.
+
+## Scoped transaction source, November 27
+
+The subsequent source lane prepares a **new disposable trial** on the exact
+Asahi629 rollback checkpoint. `transaction.py` uses libalpm's ordinary
+signature, dependency and conflict handling, admits only the selected Qt
+provider conflict, and records both commits and three installed inventories.
+`guest_entry.py` binds the selected boot nonce and separate Asahi629 and Qt
+public-certificate byte pins before the first commit. A failed runtime probe
+still calls the official-provider restoration. An ambiguous commit or failed
+readback requires discarding that writable clone.
+
+The optional Weston 15.0.1-3 input is an ALARM-signed, scratch-only test
+fixture; it is not added to Pacman's 629-package database. The ordinary-user
+Qt probes use its headless Pixman output and the guest's pinned Lavapipe ICD.
+`weston_run.py` supervises the compositor, and `readback.py` requires bounded
+server-side Wayland configure, buffer-commit and frame-callback evidence
+joined to each Qt client's nonce, PID and process start. This establishes a
+software presentation path in generic AArch64/16 KiB QEMU, not accelerated
+Asahi graphics or M2 hardware behavior. See the
+[guest display plan](../../../docs/workstreams/qt629-wayland-guest-plan.md).
+
+`host_stage.py`, `controller.py` and `export.py` stage copies of the pinned
+Asahi629 worker, preserve PASS and HOLD evidence, and export only allowlisted
+files from a stopped disposable disk. `launch.py` binds a separately issued
+root selection to those staged bytes and observes the owned container and
+QEMU retirement. `receipt.py` only publishes a completed receipt when the
+stopped disk nonce, guest journal, host timestamps, restoration and
+independent readback agree. The previously completed Asahi629 run and its
+receipts remain unchanged. A prepared controller packet is **unissued**: it
+needs a fresh scoped TEST certificate and detached candidate signature,
+exact source-pin refresh after integration, a separately issued boot plan,
+an actual guest run, and independent terminal readback. No Qt replacement
+install or reversal is claimed from the source tests.
+
+Run the source tests in separate processes because another Qt lane has a
+same-named test module:
+
+```sh
+lane=scripts/integration/qt612_r132_replacement
+for test in test_prepare.py test_transaction.py test_readback.py \
+            test_runtime_probes.py test_guest_entry.py test_export.py \
+            test_host_stage.py test_weston_fixture.py test_weston_run.py \
+            test_controller.py test_receipt.py test_launch.py; do
+  python3 -I -B -Werror::ResourceWarning "$lane/$test"
+done
+```
