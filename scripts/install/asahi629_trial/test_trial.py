@@ -139,6 +139,53 @@ class RunnerTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "reread and retired"):
                 R.control_refs(root, T.pin(raw)["sha256"])
 
+    def test_alpm_action_log_keeps_multiword_versions_in_both_phases(self):
+        old = {name: versions[0] for name, versions in O.REVERSED.items()}
+        new = {name: versions[1] for name, versions in O.REVERSED.items()}
+        installed = {"cachy-asahi-first-login": "0.1.0-3"}
+        raw = b"""[2026-11-18T06:16:34+0000] [ALPM] upgraded perl (5.42.2-2 -> 5.42.3-1)
+[2026-11-18T06:17:09+0000] [ALPM] upgraded python (3.14.7-1 -> 3.14.8-1)
+[2026-11-18T06:18:53+0000] [ALPM] upgraded networkmanager (1.58.1-1 -> 1.58.1-2)
+[2026-11-18T06:18:54+0000] [ALPM] installed cachy-asahi-first-login (0.1.0-3)
+[2026-11-18T06:19:52+0000] [ALPM] downgraded networkmanager (1.58.1-2 -> 1.58.1-1)
+[2026-11-18T06:19:59+0000] [ALPM] downgraded perl (5.42.3-1 -> 5.42.2-2)
+[2026-11-18T06:20:06+0000] [ALPM] downgraded python (3.14.8-1 -> 3.14.7-1)
+"""
+        self.assertEqual(G.log_actions(T, old, new | installed, old | installed, raw, completed=True)["entries"], 7)
+        with self.assertRaisesRegex(ValueError, "inverse changes"):
+            G.log_actions(T, old, new | installed, old | installed,
+                          raw.replace(b"5.42.3-1 -> 5.42.2-2", b"5.42.3-1 -> 5.42.1-2"), completed=True)
+
+    def test_cold_boot_evidence_excludes_credentials_and_partial_packets(self):
+        with tempfile.TemporaryDirectory(prefix="asahi629-cold-boot-hold-") as temp:
+            root = Path(temp)
+            with self.assertRaisesRegex(ValueError, "credential-free"):
+                R.cold_boot_refs(root, "0" * 64, root, {}, {})
+            receipt = root / R.COLD_BOOT_RECEIPT
+            receipt.write_bytes(T.encoded({"status": "HOLD"}))
+            for relative in R.COLD_BOOT_FILES.values():
+                path = root / relative
+                path.parent.mkdir(exist_ok=True)
+                path.write_bytes(b"fixture")
+            with self.assertRaisesRegex(ValueError, "independent cold boot PASS"):
+                R.cold_boot_refs(root, T.pin(receipt.read_bytes())["sha256"], root, {}, {})
+            (root / "credentials.json").write_bytes(b"unexpected")
+            with self.assertRaisesRegex(ValueError, "credential-free"):
+                R.cold_boot_refs(root, T.pin(receipt.read_bytes())["sha256"], root, {}, {})
+
+    def test_r132_rtc_must_be_current_and_seed_the_guest(self):
+        with tempfile.TemporaryDirectory(prefix="asahi629-rtc-") as temp:
+            root = Path(temp)
+            (root / "name").write_text("rtc-pl031 9010000.pl031\n")
+            (root / "hctosys").write_text("1\n")
+            (root / "since_epoch").write_text("1795749000\n")
+            G.check_rtc(T, root, 1795749002)
+            with self.assertRaisesRegex(ValueError, "RTC must seed"):
+                G.check_rtc(T, root, 1795749010)
+            (root / "hctosys").write_text("0\n")
+            with self.assertRaisesRegex(ValueError, "RTC must seed"):
+                G.check_rtc(T, root, 1795749002)
+
     @unittest.skipUnless(all(os.environ.get(name) for name in (
         "ASAHI629_CONTROL", "ASAHI629_CONTROL_SHA256"
     )), "independent cold control was not supplied")
@@ -151,6 +198,22 @@ class RunnerTests(unittest.TestCase):
         self.assertNotEqual(files["baseline"]["sha256"], C.REFERENCES["baseline"][1])
         with self.assertRaisesRegex(ValueError, "reread and retired"):
             R.control_refs(root, "0" * 64)
+
+    @unittest.skipUnless(all(os.environ.get(name) for name in (
+        "ASAHI629_CONTROL", "ASAHI629_CONTROL_SHA256", "ASAHI629_CONTROL_BOOT",
+        "ASAHI629_CONTROL_BOOT_SHA256", "ASAHI629_TRANSACTION_KERNEL",
+    )), "independent cold boot and transaction kernel were not supplied")
+    def test_reopen_independent_cold_boot_and_distinct_r132_kernel(self):
+        control = Path(os.environ["ASAHI629_CONTROL"])
+        boot = Path(os.environ["ASAHI629_CONTROL_BOOT"])
+        digest = os.environ["ASAHI629_CONTROL_BOOT_SHA256"]
+        assembly, references = R.control_refs(control, os.environ["ASAHI629_CONTROL_SHA256"])
+        selected = R.cold_boot_refs(boot, digest, control, assembly, references)
+        self.assertEqual(selected["receipt"]["sha256"], digest)
+        transaction = R.transaction_kernel_refs(Path(os.environ["ASAHI629_TRANSACTION_KERNEL"]))
+        self.assertNotEqual(transaction["transaction_kernel"], references["kernel"])
+        with self.assertRaisesRegex(ValueError, "independent cold boot PASS"):
+            R.cold_boot_refs(boot, digest, control, assembly, references | {"baseline": T.pin(b"unrelated cold root")})
 
     def test_retirement_checks_process_absence_and_keeps_only_evidence(self):
         with tempfile.TemporaryDirectory(prefix="asahi629-retire-") as temp:

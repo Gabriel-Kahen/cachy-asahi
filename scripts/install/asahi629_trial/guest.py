@@ -230,6 +230,14 @@ def check_mounts(T, O, lines):
                "Unexpected isolated guest filesystem or mount flags: " + str(path))
 
 
+def check_rtc(T, root, now):
+    stamp = (root / "since_epoch").read_text().strip()
+    T.need((root / "name").read_text().strip() == "rtc-pl031 9010000.pl031"
+           and (root / "hctosys").read_text().strip() == "1" and EPOCH.fullmatch(stamp)
+           and abs(int(stamp) - now) <= 3,
+           "The R132 PL031 RTC must seed current guest UTC before any signature or package operation")
+
+
 def execute(T, O, selected):
     manifest = selected["media"]
     evidence = O.WORK / "evidence"
@@ -426,6 +434,7 @@ def boot(plan_sha, worker_sha):
            and not any(O.WORK.iterdir()), "Control, media, clone and fresh temporary trust must be separate")
     manifest = T.read(O.IN / "manifest.json", plan["manifest"], cap=512 * 1024)
     T.need(manifest == T.encoded(plan["media"]), "Reviewed 629 media and guest plan disagree")
+    check_rtc(T, Path("/sys/class/rtc/rtc0"), int(time.time()))
     return execute(T, O, plan)
 
 

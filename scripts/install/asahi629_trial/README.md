@@ -1,8 +1,10 @@
 # Offline Asahi 629-package rehearsal
 
 The runner uses the original Asahi Minimal seed on a disposable 16 GiB
-clone. A separately reviewed cold generic AArch64 control boots with 16 KiB
-pages and no NIC. The guest checks the initial 261 package versions, applies
+clone. It requires the separate 16 KiB AArch64 serial PAM boot receipt for
+the same cold control. The transaction boots that cold control with the
+previously exercised R132 generic kernel and its built-in PL031 clock. The
+guest checks the initial 261 package versions, applies
 371 local operands, then reverses NetworkManager, Perl and Python. Both final
 locks contain 629 packages, including all five Overlay Preview 1 packages
 and vendor Qt6 Base 6.12.0-3.
@@ -69,10 +71,25 @@ original whole 3,680,501,760-byte ext4 image. If using the retained compressed
 copy, unpack it into private storage and check the raw digest
 `76f95dae6180bc4a45ffdeaccec26681d75b2207b90062064fcd2a845adbf9db`.
 
+Supply the separate boot evidence in a read-only directory with just
+`independent-boot-qualification.json`, `stopped-source-readback.json`,
+`boot/report.json`, `boot/serial.redacted.log`, and
+`boot/qemu-retirement.json`. The boot receipt binds the same cold raw and
+prepared bytes and records normal PAM logout and QMP retirement.
+
+Supply the R132 generic transaction `Image` and `config` in a separate
+read-only directory. The cold control boot kernel lacks an RTC. The
+[R132 transaction kernel](../../../docs/validation/asahi626-maintenance-emulated-arm16k-20261118.md)
+uses built-in PL031 and seeds guest UTC before the TEST signatures are
+checked. The runner also checks guest verification time against the actual
+host QEMU window.
+
 ```sh
 python3 -I -B "$trial" bind \
   --staging "$staging" --seed "$seed" --control "$cold_control" \
   --control-receipt-sha256 "$cold_receipt_digest" \
+  --control-boot "$cold_boot" --control-boot-receipt-sha256 "$cold_boot_receipt_digest" \
+  --transaction-kernel "$r132_kernel" \
   --output "$new_private_output" --nonce "$fresh_32_hex_nonce" \
   --media-digest "$media_digest"
 ```
@@ -101,5 +118,8 @@ Set `ASAHI629_PREFLIGHT`, `ASAHI629_OWNERSHIP` and
 the staged archive and provenance pins using deliberately unusable TEST
 fixture bytes and deletes its temporary stage. Set `ASAHI629_CONTROL` and
 `ASAHI629_CONTROL_SHA256` to reopen the independent cold-control evidence.
+Set `ASAHI629_CONTROL_BOOT`, `ASAHI629_CONTROL_BOOT_SHA256` and
+`ASAHI629_TRANSACTION_KERNEL` to check the joined cold boot evidence and
+distinct R132 kernel pins.
 The simulated guest tests exercise both transactions, refusal before either
 apply, and cleanup evidence.

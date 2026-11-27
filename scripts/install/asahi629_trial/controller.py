@@ -5,6 +5,7 @@
 import argparse
 from base64 import b64decode
 import importlib.util
+from itertools import islice
 import os
 from pathlib import Path
 import re
@@ -18,6 +19,8 @@ REPO = HERE.parents[2]
 BASE = HERE.parent / "overlay583_trial"
 MAINTENANCE = HERE.parent / "asahi_maintenance_trial"
 COLD_ORIGIN = REPO / "scripts/integration/arm16k_systemd_tcg_guest/validation.json"
+COLD_BOOT_CONTROLLER = COLD_ORIGIN.with_name("boot.py")
+COLD_BOOT_HELPER = COLD_ORIGIN.parent / "frozen/reference_controller.py"
 COLD_SOURCE = "b623a99825270a77c57ce7a347504c9220833202"
 COLD_TOOL_PARENT = "sha256:c6bd2d0ed8c437a74b3e1713b7bfcb023b7446f1abe3c0d27a6a5b4fd734f925"
 COLD_SIGNER = "68B3537F39A313B3E574D06777193F152BDBE6A6"
@@ -25,6 +28,14 @@ COLD_LOCK = dict(bytes=1996, sha256="dcc7bbdfeb3c242ffad6ead9378a75e4a2355d5e67c
 CONTROL_NAMES = {"baseline": "guest.raw", "kernel": "Image", "config": "kernel.config"}
 CONTROL_STATUS = "PASS_COLD_GENERIC_111_ASSEMBLED_NOT_BOOTED"
 CONTROL_FILES = Path("verified-candidate")
+COLD_BOOT_STATUS = "PASS_EMULATED_ARM16K_SYSTEMD_SERIAL_PAM_SESSION_ONLY"
+COLD_BOOT_RECEIPT = "independent-boot-qualification.json"
+COLD_BOOT_FILES = {
+    "controller_report": Path("boot/report.json"),
+    "serial_redacted": Path("boot/serial.redacted.log"),
+    "qemu_retirement": Path("boot/qemu-retirement.json"),
+    "embedded_tool_source": Path("stopped-source-readback.json"),
+}
 COLD_CATALOGS = {
     "core.db": "aec62efbfb59d300204f936a633a59d3c89d6a7e7f94852b8f621b61a253afae",
     "extra.db": "1b4caf18e4a57ba10f201c7b19892bb55a37283c2b0369b39cc6c4f6b654151d",
@@ -119,7 +130,8 @@ def selection():
 def source_pins():
     paths, _ = selection()
     extra = {*paths.values(), HERE / "controller.py", MAINTENANCE / "controller.py",
-             MAINTENANCE / "operands.py", MAINTENANCE / "bootstrap.py", COLD_ORIGIN, CANCEL_SOURCE}
+             MAINTENANCE / "operands.py", MAINTENANCE / "bootstrap.py", COLD_ORIGIN, COLD_BOOT_CONTROLLER,
+             COLD_BOOT_HELPER, CANCEL_SOURCE}
     return C.source_pins() | {
         str(path.relative_to(REPO)): T.read(path, cap=128 * 1024, collect=False) for path in extra
     }
@@ -141,17 +153,18 @@ def init_bytes():
 def check_retired(row):
     T.need(row["cleanup_errors"] == [] and all(row[key] is True for key in (
         "cleanup_ownership_verified", "owned_container_removed", "owned_container_absence_verified"))
-        and re.fullmatch("[a-f0-9]{64}", row["container_id"]), "Independent cold assembly container retirement required")
+        and re.fullmatch("[a-f0-9]{64}", row["container_id"]), "Independent cold-control container retirement required")
+
+
+def pin_for(row, relative):
+    source = Path(row["path"])
+    T.need(source.is_absolute() and ".." not in source.parts and source.parts[-len(relative.parts):] == relative.parts,
+           "Unexpected cold readback path: " + str(relative))
+    return {key: row[key] for key in ("bytes", "sha256")}
 
 
 def control_refs(root, expected_digest):
     """Join the relocated cold control to its independent readback and original assembly."""
-    def pin_for(row, relative):
-        source = Path(row["path"])
-        T.need(source.is_absolute() and ".." not in source.parts and source.parts[-len(relative.parts):] == relative.parts,
-               "Unexpected cold readback path: " + str(relative))
-        return {key: row[key] for key in ("bytes", "sha256")}
-
     historical = T.decode(T.read(COLD_ORIGIN, cap=128 * 1024))
     raw = T.read(root / "independent-readback-PASS.json", cap=128 * 1024)
     readback = T.decode(raw)
@@ -244,23 +257,99 @@ def control_refs(root, expected_digest):
                 manifest=manifest_pin, database=db_pin, ext4=check_pin), references
 
 
-def binding(*, staging, seed, control, output, nonce, media_digest, control_receipt_sha256, issuer=None):
+def cold_boot_refs(root, expected_digest, control, assembly, references):
+    """Require the separately observed login and retirement for these cold bytes."""
+    files = {Path(COLD_BOOT_RECEIPT), *COLD_BOOT_FILES.values()}
+    directories = {Path("boot")}
+    nodes = {path.relative_to(root): path for path in islice(root.rglob("*"), len(files | directories) + 1)}
+    T.need(set(nodes) == files | directories and all(not path.is_symlink() and
+           (path.is_dir() if name in directories else path.is_file()) for name, path in nodes.items()),
+           "Exact credential-free cold boot evidence directory required")
+    raw = T.read(root / COLD_BOOT_RECEIPT, cap=32 * 1024)
+    proof = T.decode(raw)
+    receipt = T.pin(raw)
+    T.need(receipt["sha256"] == expected_digest and T.encoded(proof) == raw
+           and set(proof) == {"status", "cold_base", "prepared", "controller", "controller_exit", "actor_toolbox",
+                              "historical_warm_raw_reproduced", "no_package_transaction", "signing",
+                              "owned_container_absent_twice", "original_and_selected_readonly_operands_rehashed",
+                              *COLD_BOOT_FILES}
+           and proof["status"] == COLD_BOOT_STATUS and type(proof["controller_exit"]) is int
+           and proof["controller_exit"] == 0 and proof["historical_warm_raw_reproduced"] is False
+           and proof["signing"] == "NOT RUN" and all(proof[key] is True for key in (
+               "no_package_transaction", "owned_container_absent_twice", "original_and_selected_readonly_operands_rehashed"))
+           and pin_for(proof["cold_base"], CONTROL_FILES / "guest.raw") == references["baseline"]
+           and pin_for(proof["prepared"], CONTROL_FILES / "prepared.json") == assembly["prepared"],
+           "Exact independent cold boot PASS for the selected disk and preparation required")
+    origin = T.decode(T.read(COLD_ORIGIN, cap=128 * 1024))
+    controller = pin_for(proof["controller"], COLD_BOOT_CONTROLLER.relative_to(REPO))
+    T.need(proof["actor_toolbox"] == origin["tool_image_id"]
+           and controller["sha256"] == origin["source_pins"]["boot.py"],
+           "Original bounded cold boot controller and toolbox required")
+    T.read(COLD_BOOT_CONTROLLER, controller, cap=128 * 1024)
+    pins = {key: pin_for(proof[key], relative) for key, relative in COLD_BOOT_FILES.items()}
+    bodies = {key: T.read(root / relative, pins[key], cap=1024 * 1024)
+              for key, relative in COLD_BOOT_FILES.items()}
+    report = T.decode(bodies["controller_report"])
+    retirement = T.decode(bodies["qemu_retirement"])
+    check_retired(report)
+    T.need(report["status"] == COLD_BOOT_STATUS and report["image_id"] == proof["actor_toolbox"]
+           and report["normal_PAM_logout_observed"] is True and report["QMP_quit_requested"] is True
+           and report["guest_shutdown"] == "NOT QUALIFIED; QMP emulator quit after logout"
+           and all(report[key] == "NOT RUN" for key in ("M2", "native_ARM", "release"))
+           and report["QEMU_retirement"] == retirement and type(retirement["exit"]) is int
+           and retirement["exit"] == 0 and retirement["passed"] is True and retirement["reaped"] is True
+           and retirement["group_census"] == "EMPTY_TWICE" and retirement["ownership"] == "REAPED"
+           and retirement["output_complete"] is True and retirement["timeout"] is False
+           and retirement["error"] is None and not retirement["signals"] and not retirement["actor_cancelled"]
+           and report["runtime"] == dict(NetworkMode="none", ReadonlyRootfs=True, CapDrop=["ALL"], CapAdd=None,
+                                         Privileged=False, Devices=[], Memory=3 * 1024**3,
+                                         NanoCpus=2_000_000_000, PidsLimit=256),
+           "Exact offline cold boot and clean QEMU/PAM retirement required")
+    audits = T.decode(bodies["embedded_tool_source"])
+    expected = {"vm_actor.py": "vm_actor.py", "owned_process.py": "frozen/owned_process.py"}
+    T.need(set(audits) == set(expected), "Complete cold boot source readback required")
+    for name, row in audits.items():
+        check_retired(row)
+        T.need(row["absence_twice"] is True and row["embedded_source"]["sha256"] == origin["source_pins"][expected[name]],
+               "Cold boot embedded source or retirement differs")
+    T.need(len({report["container_id"], *(row["container_id"] for row in audits.values())}) == 3,
+           "Cold boot and stopped source-audit owners must be separate")
+    prepared = T.decode(T.read(control / CONTROL_FILES / "prepared.json", assembly["prepared"], cap=128 * 1024))
+    T.need(module(COLD_BOOT_CONTROLLER).parse_session(bodies["serial_redacted"], prepared["nonce"]) == report["session"],
+           "Original cold guest login proof differs")
+    return dict(receipt=receipt, controller=controller, **pins)
+
+
+def transaction_kernel_refs(root):
+    """Select the RTC-capable generic kernel used by the successful R132 trial."""
+    return {"transaction_" + name: C.pinned(root / leaf, C.REFERENCES[name])
+            for name, leaf in (("kernel", "Image"), ("config", "config"))}
+
+
+def binding(*, staging, seed, control, control_boot, transaction_kernel, output, nonce, media_digest, control_receipt_sha256,
+            control_boot_receipt_sha256, issuer=None):
     paths = {key: C.absolute(value) for key, value in
-             dict(staging=staging, seed=seed, control=control, output=output).items()}
+             dict(staging=staging, seed=seed, control=control, control_boot=control_boot,
+                  transaction_kernel=transaction_kernel, output=output).items()}
     T.need(re.fullmatch("[a-f0-9]{32}", nonce) and T.HEX.fullmatch(media_digest)
-           and T.HEX.fullmatch(control_receipt_sha256) and issuer in (None, "Root"), "Exact scope pins required")
-    disjoint(paths["output"], [paths[key] for key in ("staging", "seed", "control")])
+           and T.HEX.fullmatch(control_receipt_sha256) and T.HEX.fullmatch(control_boot_receipt_sha256)
+           and issuer in (None, "Root"), "Exact scope pins required")
+    disjoint(paths["output"], [path for key, path in paths.items() if key != "output"])
     raw = T.read(paths["staging"] / "manifest.json", cap=O.PLAN_LIMIT)
     value = T.decode(raw)
     media = T.pin(raw)
     T.need(media["sha256"] == media_digest and T.encoded(value) == raw, "Exact staged 629 manifest required")
     control_provenance, references = control_refs(paths["control"], control_receipt_sha256)
+    boot_provenance = cold_boot_refs(paths["control_boot"], control_boot_receipt_sha256,
+                                    paths["control"], control_provenance, references)
+    references.update(transaction_kernel_refs(paths["transaction_kernel"]))
     O.rehash(T, paths["staging"], value)
     references["seed"] = T.read(paths["seed"], O.SEED, cap=O.SEED["bytes"], collect=False)
     _, files = selection()
     plan = dict(kind=G.BOOT, nonce=nonce, code=files, manifest=media, media=value)
     data = dict(kind=KIND, issuer=issuer, approval_status="UNAPPROVED", nonce=nonce, actor_image=C.ACTOR_IMAGE,
                 paths={key: str(path) for key, path in paths.items()}, media=media, control=control_provenance,
+                control_boot=boot_provenance,
                 plan=T.pin(T.encoded(plan)), init=T.pin(init_bytes()), references=references,
                 source=source_pins(), tools=tool_pins())
     O.check_current_trust(T, value, int(time.time()))
@@ -385,6 +474,7 @@ class Controller(C.Controller):
         actual, plan = binding(**self.paths, nonce=self.authority["nonce"],
                                media_digest=self.authority["media"]["sha256"],
                                control_receipt_sha256=self.authority["control"]["receipt"]["sha256"],
+                               control_boot_receipt_sha256=self.authority["control_boot"]["receipt"]["sha256"],
                                issuer="Root")
         T.need(actual == self.authority, "Exact independently issued 629 authority required")
         headroom = O.SIZE + C.INPUT_SIZE + 2 * actual["references"]["baseline"]["bytes"] + C.RESERVE
@@ -399,6 +489,7 @@ class Controller(C.Controller):
             self.out.mkdir(mode=0o700)
             report = dict(status=HOLD, approval_status="UNAPPROVED", Root_acceptance=None, nonce=nonce, claim=claim,
                           authority_sha256=authority_digest, generic_control=actual["control"],
+                          generic_control_boot=actual["control_boot"],
                           seed=actual["references"]["seed"], physical_installation="NOT RUN", M2="NOT RUN")
             try:
                 report["host_project_trust"] = self.verify_preview_test(plan["media"])
@@ -468,7 +559,8 @@ class Controller(C.Controller):
         refs = actual["references"]
         control = self.paths["control"]
         candidate = control / CONTROL_FILES
-        C.checked_copy(candidate / "Image", out / "Image", refs["kernel"])
+        kernel = self.paths["transaction_kernel"]
+        C.checked_copy(kernel / "Image", out / "Image", refs["transaction_kernel"])
         clone = out / "reference.raw"
         self.command("clone-control-root", "cp",
                      ["--sparse=always", "--reflink=never", candidate / "guest.raw", clone], 180, deadline)
@@ -505,10 +597,12 @@ class Controller(C.Controller):
             stream.truncate(O.SIZE)
         before = {name: T.read(out / name, cap=C.INPUT_SIZE, collect=False) for name in ("Image", "boot.raw", "inputs.raw")}
 
-        G.current_test(T, plan["media"]["keys"]["preview-test"], int(time.time()), remaining=G.TIMEOUT)
+        host_before = int(time.time())
+        G.current_test(T, plan["media"]["keys"]["preview-test"], host_before, remaining=G.TIMEOUT)
         argv = C.qemu_argv(out, nonce, part, actual["plan"]["sha256"], plan["code"]["asahi-guest.py"]["sha256"])
         self.runtime.command(argv, out, "qemu", seconds=G.TIMEOUT, deadline=time.monotonic() + G.TIMEOUT,
                              watched_tree=(out, 24 * 1024**3, C.RESERVE))
+        host_after = int(time.time())
         process = self.runtime.receipt(out / "qemu.json")
         T.need(self.runtime.natural(process) and process["argv"] == argv, "Natural owned QEMU retirement required")
         self.require_absent_twice(nonce)
@@ -519,6 +613,11 @@ class Controller(C.Controller):
         T.need(control_refs(control, actual["control"]["receipt"]["sha256"])
                == (actual["control"], {name: refs[name] for name in CONTROL_NAMES}),
                "Original cold control provenance or bytes changed")
+        T.need(cold_boot_refs(self.paths["control_boot"], actual["control_boot"]["receipt"]["sha256"],
+                              control, actual["control"], refs) == actual["control_boot"],
+               "Original independent cold boot evidence changed")
+        T.need(transaction_kernel_refs(kernel) == {name: refs[name] for name in ("transaction_kernel", "transaction_config")},
+               "Original R132 RTC kernel or config changed")
         T.read(self.paths["seed"], refs["seed"], cap=O.SEED["bytes"], collect=False)
         T.need(source_pins() == actual["source"] and tool_pins() == actual["tools"],
                "Selected reviewed source or tool bytes changed")
@@ -527,8 +626,13 @@ class Controller(C.Controller):
         evidence = out / "evidence"
         export(self.reader, result, evidence, held=held)
         report = review(evidence, plan, held=held)
+        if not held:
+            times = T.decode(T.read(evidence / "trust.json", report["trust"], cap=128 * 1024))["time"]
+            T.need(host_before - 3 <= times["entry"] <= times["seal"] <= host_after + 3,
+                   "Guest TEST verification time is outside the observed host QEMU window")
         report.update(qemu=T.read(out / "qemu.json", cap=128 * 1024, collect=False), serial=T.pin(serial),
-                      result_disk=T.read(result, cap=C.RESULT_SIZE, collect=False), originals_verified=True)
+                      result_disk=T.read(result, cap=C.RESULT_SIZE, collect=False), originals_verified=True,
+                      host_realtime=dict(before=host_before, after=host_after))
         return report
 
     def retire(self, nonce):
@@ -560,7 +664,8 @@ def main():
                  "test-review-sha256", "test-inputs", "output"):
         pack.add_argument("--" + name, required=True)
     bind = modes.add_parser("bind")
-    for name in ("staging", "seed", "control", "control-receipt-sha256", "output", "nonce", "media-digest"):
+    for name in ("staging", "seed", "control", "control-receipt-sha256", "control-boot", "control-boot-receipt-sha256",
+                 "transaction-kernel", "output", "nonce", "media-digest"):
         bind.add_argument("--" + name, required=True)
     run = modes.add_parser("run")
     run.add_argument("--authority", required=True)
