@@ -46,6 +46,12 @@ only the Fish package and exercised staging, comparison and withdrawal.
   volume missing from the retained seed. Apple firmware, the original
   initramfs and physical recovery remain open.
   [Stock-kernel trial](validation/asahi626-maintenance-emulated-arm16k-20261118.md#direct-stock-kernel-boot-with-an-auxiliary-initramfs)
+- The separate TEST-signed Asahi rehearsal passed in offline emulated
+  AArch64 with 16 KiB pages. Its actual inventories were 261, 629 and
+  629 packages. The reversal restored the original NetworkManager, Perl
+  and Python versions, and the 362 protected boot and mount entries
+  matched across all phases. Composition approval remains open.
+  [629 installation and reversal](workstreams/supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
 - Qtbase `all` completed in the replacement 8 GiB emulated AArch64 guest
   with 16 KiB pages. Independent readback verified 18 linked libraries and
   1,216 distinct Ninja timing and command tuples. A separate guest produced

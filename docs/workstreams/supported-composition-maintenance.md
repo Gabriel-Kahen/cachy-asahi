@@ -226,8 +226,8 @@ project payload leaves and their 21 ancestors against the exact archive
 members, the seed's 261 ALPM file lists and read-only inode lookup. No project
 leaf collided with an existing path, and every shared ancestor was a
 directory. The five project archives contain no package install scripts or
-ALPM hooks. The receipt covers this project path check. The guest trial still
-needs to exercise vendor hooks and validate the resulting filesystem.
+ALPM hooks. The later guest trial covers vendor hooks and the resulting
+filesystem.
 The private `asahi629-ownership-preflight.uk5lcJES/receipt.json` has SHA-256
 `6afb50be120c9bc831184b68c872210776560f0b371f760b6483ebdbf9dae686`.
 
@@ -237,11 +237,10 @@ readback, short of the existing 5,820-second bind and run budget. The synthetic
 staging release was withdrawn and its signing home was removed. The two
 original R132 project TEST certificates are already expired. A stock R132
 rerun needs fresh review and signatures for both original project roles.
-The 629-package trial needs current, reviewed TEST trust and signatures for
-all five selected project archives, a separately bound 629-package guest
-selection, and fresh one-use Root authority. The existing runner selects the
-exact R132 626-package transaction. The 629 preflight remains **HOLD /
-UNAPPROVED**.
+At that point the 629 trial still needed current TEST signatures for all
+five project archives, a separate binding and fresh one-use authority.
+The existing runner selected the exact R132 626-package transaction.
+The 629 preflight recorded **HOLD / UNAPPROVED**.
 
 The retained R132 Asahi Minimal seed was rehashed from its compressed copy.
 The historical generic control disk path was absent at readback. A generic
@@ -267,10 +266,44 @@ that the RTC set the guest clock before accepting current TEST signatures.
 An unissued 767-file transport with five fresh TEST signatures passed
 whole-file verification. Its manifest SHA-256 is
 `ca7589d52396699be5ba923cfbc0907d2f5e3bb41883adb4e9e555e30ba5755c`.
-The signed 629 transaction and reversal await a separate actor run with
-current TEST trust.
+That transport was unissued.
+
+### November 27 offline installation and reversal
+
+The dedicated runner passed with a fresh TEST-only selection on the exact
+Asahi Minimal seed in an offline emulated AArch64 16 KiB guest. The first
+attempt stopped before boot after a private owner script overwrote its
+container name while recording memory statistics. The exact unstarted
+container was verified and retired. The successful retry used a fresh
+binding, nonce and TEST certificate.
+
+All five actual package and preview locks matched the selected locks. The
+forward transaction went from 261 to 629 packages. ALPM recorded 368 new
+installs and three upgrades. The reversal kept 629 packages, including all
+five Preview packages, and changed exactly these versions.
+
+| Package | Forward version | Restored version |
+| --- | --- | --- |
+| NetworkManager | `1.58.1-2` | `1.58.1-1` |
+| Perl | `5.42.3-1` | `5.42.2-2` |
+| Python | `3.14.8-1` | `3.14.7-1` |
+
+All 362 protected boot and mount entries matched across baseline, forward
+and reversal. The runner retained the forward hook's generated initramfs
+and restored the exact original. The guest retired all three trust homes
+and the target submounts. QEMU and the outer actor exited zero, the
+independent observer confirmed both absent twice, and the original inputs
+were reverified. The composition remains **UNAPPROVED**.
+
+| Retained evidence | SHA-256 |
+| --- | --- |
+| Successful one-use transport manifest | `11959697e9dd4dcce85d1d7878504c57bf3a74e22b04649b9c2056028deda89a` |
+| Guest result | `7acb1874ae50cd41910e3bc420e67afbb63147d93140ed7e482faa52e860987b` |
+| ALPM log | `bf5981bbafd2882306e89c556f4e5c665d03d73192f89da770f8a715898bfe51` |
+| Outer terminal receipt | `d32b162c363160e8a7f36794019cbf94b76ba45dcc91b843583660d450c85435` |
 
 The installed stock Asahi kernel lacks the selected PL011 console and the
 original initramfs lacks the VirtIO modules used by the R132 QEMU boot path.
-Boot of the installed kernel and physical M2 recovery remain open.
+Default boot with the stock initramfs, the Apple firmware path, and
+physical M2 recovery remain open.
 [R132 generic guest and stock boot evidence](../validation/asahi626-maintenance-emulated-arm16k-20261118.md)
