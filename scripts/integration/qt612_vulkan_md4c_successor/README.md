@@ -153,3 +153,5 @@ final census and for retaining evidence already on the result disk. The
 original terminal remains HOLD. The source fix passed inert controls,
 and a separately selected signed replacement and restoration remain open.
 [Unissued Qt replacement input handoff](../qt612_r132_replacement/README.md)
+
+[Asahi629 Qtbase 6.12.0-4 parity candidate](PARITY.md)
