@@ -482,6 +482,30 @@ jobs:
                   result = unittest.TextTestRunner(verbosity=2).run(suite)
                   raise SystemExit(not (result.wasSuccessful() and result.testsRun == 25 and not result.skipped))
           PY
+      - name: Check sealed Build Tools source from a shallow checkout
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'source-data' }}
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          export GIT_NO_LAZY_FETCH=1 GIT_TERMINAL_PROMPT=0
+          parent=97a44c4c7cb206704bf76e9fd1f1afb2266278c2
+          package=78c44877d4966fd85a8112cd33daeee3d80137a0
+          # Fetch only commit/tree metadata first. The package commit contains the full repository.
+          git fetch --quiet --depth=1 --filter=blob:none --no-tags --no-recurse-submodules \
+            --no-auto-maintenance --no-write-fetch-head origin "$parent" "$package"
+          blobs="$RUNNER_TEMP/build-tools-arm4k-fixture-blobs"
+          {
+            git ls-tree --full-tree -r --object-only "$parent"
+            git ls-tree --full-tree -r --object-only "$package" -- \
+              packages/tools/cachy-asahi-build-tools packages/tools/cachy-asahi-build-tools-v2 \
+              scripts/checks/package_checks_v2.py manifests/packages.toml
+          } > "$blobs"
+          test "$(wc -l < "$blobs")" -eq 233
+          # Skip commit negotiation so the server sends blobs omitted by the first fetch.
+          LC_ALL=C sort -u "$blobs" | git -c fetch.negotiationAlgorithm=noop fetch --quiet --stdin \
+            --filter=blob:none --no-tags --no-recurse-submodules --no-auto-maintenance --no-write-fetch-head origin
+          python3 -I -B -Werror::ResourceWarning scripts/ci/build-tools-arm4k-r2/test_source.py
       - name: Check corresponding-source data tools
         if: ${{ matrix.shard == 'all' || matrix.shard == 'source-data' }}
         run: |
@@ -506,7 +530,6 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-repro-host-build/test_capacity_profile.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-admission-preparation/test_prepare.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-observable-admission/test_admission_data.py
-          python3 -I -B -Werror::ResourceWarning scripts/ci/build-tools-arm4k-r2/test_source.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-repro-native-source/test_data.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-adapter/test_adapter.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-adapter/test_reader.py
