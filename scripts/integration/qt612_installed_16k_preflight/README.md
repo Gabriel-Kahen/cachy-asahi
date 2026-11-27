@@ -193,9 +193,13 @@ The archived official Qt build lists Vulkan headers
 Those headers and official Qt 6.12 headers also compiled an x86_64 consumer
 object retaining the six affected Qt Quick imports. The probe receipt SHA-256
 is `7b105dcb1da34196eb471e8a4a53340d7a2b8b904410af20dcd27fa48cf5b351`.
-This prepares the source and header inputs for a distinct successor recipe.
-The ARM16K rebuild, generated provider exports and signed migration still
-need evidence. [ALARM Vulkan headers](https://archlinuxarm.org/packages/aarch64/vulkan-headers)
+The [Vulkan and md4c 0.6 successor](../qt612_vulkan_md4c_successor/README.md)
+stages a separate recipe from these inputs. Normal Qt CMake and Ninja linked a host
+QtGui with all six distinct required versioned Vulkan exports and the
+`md_parse` relocation through `libmd4c.so.0`. The five AArch64 objects
+confirm the corresponding source definitions and external import. The full
+ARM16K package build, signed R132 migration and restoration remain open.
+[ALARM Vulkan headers](https://archlinuxarm.org/packages/aarch64/vulkan-headers)
 
 ## Guest supervisor callbacks
 
