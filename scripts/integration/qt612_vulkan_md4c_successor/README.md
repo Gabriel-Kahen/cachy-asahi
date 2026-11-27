@@ -47,12 +47,12 @@ Five cross-compiled AArch64 objects verified the matching source definitions
 and import. The prepared recipe receipt SHA-256 is
 `b3b46a27d6bb5e93bf411de9a23bf238c36230f268206af09637c9d66f0ce41a`.
 
-A normal ARM64 makepkg build needs a fresh isolated 16 KiB environment
-with the exact dependencies in the receipt, including the original signed
-ALARM inputs. The prior Q3 graph and package receipts bind its md4c
-0.5.3-1 input and configured QtGui bytes. The successor needs its own
-configure and full-build evidence, staged package readback, scoped TEST
-signing and a separate R132-equivalent installation and restoration.
+A normal ARM64 makepkg build uses a fresh isolated 16 KiB environment and
+the exact dependencies in the receipt, including the original signed ALARM
+inputs. The prior Q3 graph and package receipts bind its md4c 0.5.3-1 input
+and configured QtGui bytes. The successor uses separately checked inputs and
+receipts. Scoped TEST signing and an R132-equivalent installation and
+restoration are still pending.
 
 ## Offline ARM64 setup and build
 
@@ -119,7 +119,36 @@ reader have separate local tests.
 python3 -I -B -Werror test_successor.py
 python3 -I -B -Werror test_arm16k_inputs.py
 python3 -I -B -Werror test_arm16k_launch.py
+python3 -I -B -Werror test_arm16k_guest_init.py
 python3 -I -B -Werror test_arm16k_readback.py
 bash -n arm16k-guest-init.sh
 bash -n arm16k-build.sh
 ```
+
+## November 27 build and offline package recovery
+
+The emulated AArch64 16 KiB guest completed all 1,869 Ninja steps, ran
+the offscreen and local-display API smoke test, and finished unsigned
+`makepkg` for version 6.12.0-3. The VM and outer container exited zero and
+the container was absent on two checks. The guest recorded **HOLD** after
+its final package census tried to invoke a missing boot-side `cmp`. The
+same missing command prevented normal export of the full evidence.
+
+Offline readback of the retired scratch recovered the archive and full
+build evidence. The final ALPM database matched the pinned 357-package
+lock. The archive passed the hardened payload, package metadata and
+QtGui ABI checks. The makepkg build-directory warnings resolved to
+embedded ELF source-name strings and a `QT_SOURCE_TREE` setting in a
+Qt build-internals helper. Archived imported CMake locations use the
+installation prefix, and the affected Qt libraries use `$ORIGIN` RUNPATH.
+
+| Recovered evidence | SHA-256 |
+| --- | --- |
+| Unsigned AArch64 archive, 14,172,388 bytes | `6420f8ee8d8ebc106072c9bedb111c6b2dd780eb4e4629bceec4dc71a2b774c4` |
+| Original retirement receipt | `85a28dd457799ad65be682abcb98be88d3b699b5518f10725ac7fe8f1462798e` |
+| Independent recovery seal | `0cadd13f3f8d44d0a8ccf180c08176d7703b4f97ff97e73361ba8bf43b793cae` |
+
+The source fix uses the boot filesystem's existing `sha256sum` for the
+final census and for retaining evidence already on the result disk. The
+original terminal remains HOLD. The source fix passed inert controls,
+and a separately selected signed replacement and restoration remain open.

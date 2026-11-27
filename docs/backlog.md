@@ -55,15 +55,17 @@ only the Fish package and exercised staging, comparison and withdrawal.
   signer. On the retained R132 inventory, the project archive's
   `md4c<0.6` requirement is unsatisfied. The installed Qt Quick and Quick
   Widgets binaries also require nine Vulkan symbols absent from that
-  archive. The separately staged Vulkan/md4c 0.6 successor verified the
-  required versioned exports in the host QtGui and compiled the corresponding
-  AArch64 objects. Official provider replacement still needs the full
-  ARM16K package build and an installed lifecycle trial.
+  archive. The Vulkan/md4c 0.6 successor finished its emulated AArch64
+  16 KiB build. Offline recovery verified the unsigned archive, the final
+  357-package build inventory and the required QtGui ABI. The original
+  guest recorded HOLD after a missing boot utility interrupted the normal
+  export. Official provider replacement still needs a signed installed
+  lifecycle trial.
   [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
   · [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
   · [Installed lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
   · [R132 replacement checks](../scripts/integration/qt612_installed_16k_preflight/README.md#official-provider-replacement-on-r132)
-  · [Successor recipe](../scripts/integration/qt612_vulkan_md4c_successor/README.md)
+  · [Successor build and recovery](../scripts/integration/qt612_vulkan_md4c_successor/README.md#november-27-build-and-offline-package-recovery)
 - The virtual desktop successor requires a terminal event after guest
   cleanup, bounded UART EOF, and outer-reader verification before accepting
   frames. The retained-input run `45731218357` authenticated all 45 tooling objects,
