@@ -201,7 +201,7 @@ class LauncherTests(unittest.TestCase):
                         with self.assertRaisesRegex(SystemExit, "non-CPU"):
                             exec(P["VULKAN"], {})
 
-    def test_root_fixtures_readable_under_guest_umask_with_private_workspace_and_evidence(self):
+    def test_root_fixtures_and_qml_directory_readable_only_by_probe_identity(self):
         root = Path(self.enterContext(TemporaryDirectory()))
         probes, evidence = root / "probes", root / "evidence"
         probes.mkdir(mode=0o700)
@@ -217,7 +217,8 @@ class LauncherTests(unittest.TestCase):
             self.assertEqual(mode(control), 0o600)
             with patch.dict(P["Guest"].__init__.__globals__, TARGET=root), patch.object(os, "chown") as chown:
                 P["Guest"](probes)
-            self.assertEqual(mode(probes), 0o711)
+            self.assertEqual(mode(probes), 0o750)
+            chown.assert_any_call(probes, -1, P["USER"])
             for fixture in ("gui.cpp", "quick.cpp", "fixture.qml", "vulkan.py"):
                 self.assertEqual(mode(probes / fixture), 0o444)
             for private in ("work", "run"):

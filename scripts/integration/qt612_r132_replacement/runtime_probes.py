@@ -126,8 +126,14 @@ int main(int argc, char **argv)
     QQuickWindow::setGraphicsApi(api);
     QQuickView view;
     view.setSource(fixture);
-    if (view.status() != QQuickView::Ready || !view.rootObject())
+    if (view.status() != QQuickView::Ready || !view.rootObject()) {
+        std::fprintf(stderr, "QT629_QML_STATUS %d\n", int(view.status()));
+        for (const auto &error : view.errors()) {
+            const QByteArray detail = error.toString().toUtf8();
+            std::fprintf(stderr, "QT629_QML_ERROR %s\n", detail.constData());
+        }
         return fail("qtquick_qml_fixture_did_not_load");
+    }
 
     if (!vulkan) {
         const QImage image = view.grabWindow();
@@ -291,7 +297,6 @@ class Guest:
     def __init__(self, directory):
         self.directory = directory
         self.inner = "/" + directory.relative_to(TARGET).as_posix()
-        directory.chmod(0o711)
         for name, body in (("gui.cpp", GUI), ("quick.cpp", QUICK), ("fixture.qml", QML), ("vulkan.py", VULKAN)):
             source = directory / name
             source.write_text(body, encoding="utf-8")
@@ -300,6 +305,9 @@ class Guest:
             work = directory / name
             work.mkdir(mode=0o700)
             os.chown(work, USER, USER)
+        # Qt QML enumerates this directory to check filename case.
+        os.chown(directory, -1, USER)
+        directory.chmod(0o750)
 
     def command(self, args, timeout, **settings):
         prefix = ["/usr/bin/chroot", str(TARGET), "/usr/bin/setpriv", f"--reuid={USER}", f"--regid={USER}",

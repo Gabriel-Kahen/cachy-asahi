@@ -94,3 +94,21 @@ for test in test_prepare.py test_transaction.py test_readback.py \
   python3 -I -B -Werror::ResourceWarning "$lane/$test"
 done
 ```
+
+## First scoped guest trial, November 27
+
+The first issued trial, nonce `7f2d80f729f2de646cbc59dce53ccb99`, reached
+the vendor Qt runtime control and stopped with `HOLD_QT629_OWNED_LAUNCH`.
+Both Qt Quick probes failed at the QML fixture load before the project provider
+was installed. The official `qt6-base 6.12.0-3` remained installed. The
+stopped disk independently matched the original 629-package rollback lock,
+all 362 protected entries, the nonce-derived ext4 UUID and the published HOLD
+bundle. QEMU and the outer container retired without OOM.
+
+The fixture directory was mode `0711`; Qt's QML loader needs to enumerate it
+to check filename case. A source correction grants directory read/traverse to
+the ordinary probe group while keeping its work and runtime directories
+private, and records QML errors on failure. This correction still needs a
+fresh-nonce guest run. The project Qt install, runtime and reversal remain
+**NOT RUN** in the first trial. The private [HOLD report](/home/gabe/.codex/evidence/qt629-controller-unissued.SABtiFND/output-e709ba2f8/owned-terminal.json)
+records the terminal result.
