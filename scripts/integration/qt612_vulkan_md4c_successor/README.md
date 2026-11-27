@@ -53,3 +53,64 @@ ALARM inputs. The prior Q3 graph and package receipts bind its md4c
 0.5.3-1 input and configured QtGui bytes. The successor needs its own
 configure and full-build evidence, staged package readback, scoped TEST
 signing and a separate R132-equivalent installation and restoration.
+
+## Offline ARM64 setup and build
+
+`arm16k.py prepare` authenticates the 264 retained Arch Linux ARM package
+pairs and signed seed, regenerates the exact recipe, and derives a new boot
+payload from a read-only partitioned Q3 boot image. It verifies the kernel
+configuration selects 16 KiB pages and checks the retained scratch, kernel,
+boot, recipe and archive against their recorded digests. The 356-package Q3
+scratch is used as the read-only backing of a new QCOW2 child. Within the
+child, the setup installs the two original signed md4c and Vulkan header
+archives with a fresh ALARM-only keyring and compares the actual 357-package
+inventory with the pinned lock. The build uses a new source and build path.
+
+```sh
+python3 -I -B -Werror arm16k.py prepare \
+  --evidence "$CLOSURE" --q3 "$Q3_INPUTS" --boot "$Q3_BOOT" \
+  --kernel "$KERNEL_IMAGE" --config "$KERNEL_CONFIG" --backing "$Q3_SCRATCH" \
+  --docker "$PINNED_ROOTLESS_DOCKER" --output "$NEW_CAPSULE" --mode full
+
+python3 -I -B -Werror arm16k.py start \
+  --capsule "$NEW_CAPSULE" --plan-sha256 "$PLAN_SHA"
+
+python3 -I -B -Werror arm16k_readback.py \
+  --capsule "$NEW_CAPSULE" --plan-sha256 "$PLAN_SHA" --launch-sha256 "$LAUNCH_SHA"
+```
+
+Run from this directory with absolute paths. The closure directory holds
+`closure.UNISSUED.json`, `expected357.lock`, the public certificate and the
+archive pairs. The original package pairs and signed seed resolve through
+the pinned private closure. Prepare prints the plan digest. Start claims a
+fresh run directory and prints the launch digest after retiring its own
+container and rehashing the input media. Keep those digests for independent
+readback. The start command can run in a dedicated user service for the
+duration. `run/serial.log` records setup, configure, compilation and the
+guest terminal.
+
+The rootless container and QEMU have networking disabled and use only
+file-backed virtual storage. The container has an 8 GiB no-swap limit and
+a four-CPU quota. QEMU runs with four vCPUs, 6 GiB RAM, a 10 GiB child-file
+limit, a 2 GiB result disk and a 16-hour guest window. The recipe builds with
+one compile job. The host needs 10 GiB available RAM and at least 14.125 GiB
+free on the Btrfs filesystem used for the reflinks. Choose `--mode configure`
+for a dedicated setup and graph check with a shorter deadline.
+
+Full mode invokes the staged recipe with
+`makepkg --noconfirm --nocolor --nosign`. Its result can include an unsigned
+archive, package-stage and QtGui ABI reports, the actual CMake and Ninja
+graph, and the original build transcript. Independent readback opens the
+result filesystem without mounting it and inspects the archive and QtGui.
+The archive remains a local test artifact.
+
+The source projection, authenticated-input guards and independent reader
+have separate local tests.
+
+```sh
+python3 -I -B -Werror test_successor.py
+python3 -I -B -Werror test_arm16k_inputs.py
+python3 -I -B -Werror test_arm16k_readback.py
+bash -n arm16k-guest-init.sh
+bash -n arm16k-build.sh
+```
