@@ -59,8 +59,18 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    advanced to `0.1.1-2` and `0.2.0-2`; unsigned x86_64 host archives and
    source receipts are retained under
    `/home/gabe/.codex/evidence/build-tools-declared-sources-20261127-281lrtcu`.
-   Native ARM builds and installed lifecycles for the new releases remain
-   **NOT RUN**. The prior `-1` native receipts remain historical.
+   Both corrected `-2` releases subsequently passed two byte-identical
+   native ARM4K builds, their 8 or 11 package checks, TEST-signed disposable
+   installation and removal, exact 349 → 350 → 349 inventory restoration and
+   independent reader replay. The exact hosted runs are
+   [0.1.1-2](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46077326937)
+   and [0.2.0-2](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46077329221).
+   Native 16 KiB and physical M2 remain **NOT RUN**; release admission remains
+   **NOT ADMITTED**. The prior `-1` native receipts remain historical. Both
+   package READMEs are frozen inside the qualified archives and describe the
+   pre-run status. This manifest and the exact native receipts record the later
+   qualification; changing the installed README would require a new package
+   build and qualification.
 4. **Requalify the hosted repository handoff after the callback state fix.**
    Run the corrected composed lane on the authenticated retained inputs. The
    prior hosted attempt exercised generic AArch64 QEMU, produced and retired
