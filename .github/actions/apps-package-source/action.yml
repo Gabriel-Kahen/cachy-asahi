@@ -1,5 +1,5 @@
 name: Prepare pinned Apps package inputs
-description: Stage live Apps inputs with the release files pinned by the package checks
+description: Stage live Apps inputs with the held checker and release files
 inputs:
   revision:
     description: Apps package revision to validate
@@ -22,7 +22,7 @@ runs:
                      -o Dir::Etc::sourceparts=- -o Acquire::Retries=2)
         sudo apt-get "${apt_sources[@]}" -o APT::Update::Error-Mode=any update
         sudo apt-get "${apt_sources[@]}" install -y gnupg libarchive-tools pacman-package-manager makepkg
-    - name: Check out the release sources held by the Apps packages
+    - name: Check out the checker and release sources held by the Apps packages
       uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
       with:
         repository: Gabriel-Kahen/cachy-asahi
@@ -31,6 +31,7 @@ runs:
         persist-credentials: false
         sparse-checkout-cone-mode: false
         sparse-checkout: |
+          /scripts/checks/package_checks.py
           /scripts/release/release.py
           /scripts/release/test_release.py
     - name: Stage the package check inputs
@@ -44,12 +45,13 @@ runs:
         cp -a --parents -- LICENSE \
           "packages/tools/cachy-asahi-apps$APPS_REVISION" \
           packages/tools/cachy-asahi-repository-{client-v2,runtime} \
-          scripts/checks/package_checks.py scripts/client/client.py \
+          scripts/client/client.py \
           scripts/release/source_delivery.py "$source"
         if [[ "$APPS_REVISION" == 8 ]]; then
           cp -a --parents -- packages/tools/cachy-asahi-apps7 "$source"
         fi
         # The package checks still verify the hashes of the staged files.
         cd .ci-inputs/apps-package-release
-        cp -a --parents -- scripts/release/{release,test_release}.py "$source"
+        cp -a --parents -- scripts/checks/package_checks.py \
+          scripts/release/{release,test_release}.py "$source"
         printf 'path=%s\n' "$source" >> "$GITHUB_OUTPUT"
