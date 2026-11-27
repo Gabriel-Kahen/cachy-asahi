@@ -173,26 +173,40 @@ def verify_parity_build(profile, plan_raw, receipt_raw, recipe_raw):
          and receipt["container_exit"] == receipt["qemu_exit"] == 0,
          "Expected accepted full retired ARM16K parity build")
     provenance = {"profile", "source_sha256"}
-    if provenance & (plan.keys() | receipt.keys()):
-        selected = {name: plan[name] for name in ("profile", "payload", "launcher", "actor")}
-        source = json.dumps(selected, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("ascii")
-        need(plan["profile"] == receipt.get("profile") == "parity"
-             and plan.get("source_sha256") == receipt.get("source_sha256") == hashlib.sha256(source).hexdigest(),
-             "Parity build binder source or profile differs")
+    source_fields = ("profile", "payload", "launcher", "actor")
+    need(provenance <= receipt.keys() and provenance.union(source_fields) <= plan.keys(),
+         "Explicit parity build binder profile and source digest required in the plan and receipt")
+    selected = {name: plan[name] for name in source_fields}
+    source = json.dumps(selected, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("ascii")
+    need(plan["profile"] == receipt["profile"] == "parity"
+         and plan["source_sha256"] == receipt["source_sha256"] == hashlib.sha256(source).hexdigest(),
+         "Parity build binder source or profile differs")
     guest = receipt["guest"]
     archive = guest["archive"]
     worker = guest["worker"]
     delta = archive["path_delta"]
     need(guest["evidence"][project_name(profile)] == profile["project_archive"]
          and worker["architecture"] == "aarch64" and worker["page_size"] == 16384
-         and worker["nonce"] == receipt["nonce"] and worker["phase"] == "complete" and worker["status"] == "PASS",
+         and worker["nonce"] == receipt["nonce"] and worker["mode"] == "full"
+         and worker["phase"] == "complete" and worker["status"] == "PASS",
          "Expected exact parity archive and complete ARM16K worker")
     need(delta["added_files"] == sorted(PARITY_ADDED_FILES)
          and delta["added_directories"] == [PARITY_PRINT_DIRECTORY]
          and delta["removed"] == delta["metadata_changed"] == [],
          "Parity archive path delta differs from the 31 reviewed files")
+    mtree = archive.get("mtree")
+    mtree_control = archive.get("controls", {}).get(".MTREE")
+    baseline_nodes, candidate_nodes = delta.get("baseline_nodes"), delta.get("candidate_nodes")
+    need(type(baseline_nodes) is type(candidate_nodes) is int and baseline_nodes > 0
+         and candidate_nodes == baseline_nodes + len(PARITY_ADDED_FILES) + 1
+         and type(mtree) is dict and mtree.keys() == {"entries", "inventory"} and type(mtree["entries"]) is int
+         and mtree["entries"] == candidate_nodes + len(M["CONTROLS"] - {".MTREE"})
+         and C.check_pin(mtree["inventory"], M["ARCHIVE_STREAM"]) and mtree["inventory"]["bytes"] > 0
+         and C.check_pin(mtree_control, 4 << 20) and mtree_control["bytes"] > 0,
+         "Parity MTREE inventory and archive control do not bind the reviewed path census")
     exports = delta["qt_dynamic_exports"]
     need(type(archive["libraries"]) is dict and archive["libraries"].keys() == PARITY_LIBRARIES
+         and all(C.check_pin(pin, PKG.MAX_MEMBER) and pin["bytes"] > 0 for pin in archive["libraries"].values())
          and type(exports) is dict and exports.keys() == PARITY_LIBRARIES,
          "Parity archive library identities differ")
     need(archive["atspi_bridge_abi"] == dict(qtgui_export=PARITY_ATSPI_EXPORT, consumers=list(PARITY_ATSPI_CONSUMERS))

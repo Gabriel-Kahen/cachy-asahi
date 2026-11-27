@@ -68,7 +68,8 @@ The parity receipt adds the `guest_plan`, `stopped_disk`,
 `stopped_observation` and `asahi_owner` pins. Public readback checks the
 original plan, observation and owner JSON bodies. The owner must identify
 the same plan and nonce, baseline lock, protected state, trust retirement
-time and completed Qt journal. The stopped observation supplies the
+time and completed Qt journal. Its cleanup digest must match the canonical
+cleanup facts in the stopped observation. The stopped observation supplies the
 digest of the result disk reviewed by the exporter.
 
 ## Seal the candidate archive
@@ -93,11 +94,12 @@ digest of the result disk reviewed by the exporter.
    content hashes, QtGui AT-SPI bridge, CUPS and XCB EGL plugin linkage,
    retained Vulkan/md4c checks, and all 31 expected added paths. Bind the
    result to the new recipe, build nonce and natural retirement receipt.
-   Use the archive audit report with `path_delta`, `libraries` and
-   `atspi_bridge_abi`. The replacement reader checks the exact producer
-   identities from `cf754dfff`. For the explicit binder schema from
-   `ff67fa744`, it also recomputes the source digest over the profile,
-   payload, launcher and actor pins and requires it in the build report.
+   Use the full archive audit report from `162429209eb` with `mtree`,
+   `path_delta`, `libraries` and `atspi_bridge_abi`. The replacement
+   reader requires explicit `profile: parity` and `source_sha256` in both
+   the build plan and the independent readback. It recomputes the source
+   digest over the profile, payload, launcher and actor pins. A historical
+   parity build plan that predates the explicit seal does not qualify.
    Keep the historical recovery seal with the earlier archive.
 3. Compare the exact candidate to both audited 6.12.0-3 archives. Require
    normal dependency resolution and the forward and reverse prepare-only

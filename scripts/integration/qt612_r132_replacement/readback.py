@@ -484,6 +484,10 @@ def parity_provenance(bundle, receipt, profile, phases, raw, times, transaction)
     need(plan["qt_media"] == {prefix + name: pin for name, pin in expected.items()},
          "Staged guest plan media differs from the reviewed parity inputs")
     owner = bodies["asahi_owner"]
+    cleanup = dict(completed=True, target_submounts=stopped["retirement"]["target_submounts"],
+                   keyrings=stopped["retirement"]["keyrings"])
+    need(owner.get("cleanup") == C.pin(C.wire(cleanup)),
+         "Stopped Asahi owner cleanup digest differs from the witnessed trust retirement")
     need(owner["nonce"] == nonce and owner["status"] == P["PASS629"] and owner["plan"] == receipt["guest_plan"]
          and owner["inventory"]["rollback"] == phases["baseline"]["lock"]
          and owner["platform"]["rollback"] == phases["baseline"]["platform"]
