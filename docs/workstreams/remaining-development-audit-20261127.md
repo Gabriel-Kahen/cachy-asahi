@@ -32,6 +32,21 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    Qt and preservation of the other 628 package rows.
    [Recovered build](../../scripts/integration/qt612_vulkan_md4c_successor/README.md#november-27-build-and-offline-package-recovery)
    · [Replacement input handoff](../../scripts/integration/qt612_r132_replacement/README.md)
+
+   Follow-up: the first vendor-control guest held before the swap because
+   Qt's QML loader needed directory enumeration; its stopped disk restored
+   the original Asahi629 lock. The corrected fresh-nonce guest then passed
+   signed one-provider replacement and restoration, ordinary-user vendor and
+   project Core/Gui, Qt Quick, Wayland and Lavapipe/QRhi software probes,
+   independent readback and owned retirement. Its 629-package final lock,
+   628 untouched rows and 362 protected paths matched. There was no
+   post-restoration runtime probe. A follow-up package audit found that the
+   22 omitted plugins do not block the tested default Hyprland software path,
+   but the project configuration disables Qt's AT-SPI bridge and omits native
+   CUPS printing and XWayland EGL fallback. The selected screen-sharing picker
+   still needs a real portal and accessibility check; physical M2 GPU and
+   DRM/KMS remain **NOT RUN**.
+   [Scoped result](../../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27)
 3. **Fix two independently reproduced package preflight defects.** These are
    source work and can proceed alongside the hosted and guest jobs.
    - `recipe-check` returned exit 0 and `static-pass` from a directory with a

@@ -5,7 +5,8 @@ existing offline ARM64/16 KiB Asahi629 guest. Run it and the Qt clients as UID
 and GID 65534, with no supplementary groups. The retained QEMU command, the
 installed Asahi stack and the 629-package lock can all be used as-is. The
 Weston archive signature, required ELF members and relevant upstream paths
-were checked. Guest execution and the signed Qt replacement remain pending.
+were checked. The corrected scoped guest subsequently passed as recorded in
+the [Qt replacement result](../../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27).
 
 ## Exact inputs
 
@@ -16,8 +17,8 @@ were checked. Guest execution and the signed Qt replacement remain pending.
   Wayland 1.26.0-1, Mesa and `vulkan-swrast` 1:26.2.4-1, and the Vulkan
   loader and tools 1.4.363.0-1. Both Qt Base archives carry the Wayland QPA
   plugin. Neither carries Qt Wayland Compositor, and the lock has no Weston,
-  Sway or wlroots package. The recovered project Qt archive still needs the
-  distinct project TEST signature required by the replacement handoff.
+  Sway or wlroots package. The issued trial used a distinct project TEST
+  signature as required by the replacement handoff.
 - Use the retained [Asahi629 launcher](../../scripts/install/asahi629_trial/README.md)
   with QEMU `virt`, TCG, `-display none -nodefaults -nic none` and the original
   four virtio block drives. The R132 transaction `Image` is 9,019,400 bytes with
@@ -162,7 +163,7 @@ seat. [Hyprland 0.56.2 backend selection](https://github.com/hyprwm/Hyprland/blo
   exact vendor provider and match the original inventory and platform
   snapshot before target mounts and trust homes retire.
 
-A future PASS would cover ordinary-user Qt Wayland raster and Qt Quick Vulkan
+The completed PASS covers ordinary-user Qt Wayland raster and Qt Quick Vulkan
 presentation to a memory-backed compositor in offline AArch64/16 KiB QEMU.
 Hyprland, accelerated graphics, the installed Asahi boot path and physical M2
 Air validation require their own evidence.

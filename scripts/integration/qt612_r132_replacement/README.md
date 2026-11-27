@@ -76,11 +76,9 @@ root selection to those staged bytes and observes the owned container and
 QEMU retirement. `receipt.py` only publishes a completed receipt when the
 stopped disk nonce, guest journal, host timestamps, restoration and
 independent readback agree. The previously completed Asahi629 run and its
-receipts remain unchanged. A prepared controller packet is **unissued**: it
-needs a fresh scoped TEST certificate and detached candidate signature,
-exact source-pin refresh after integration, a separately issued boot plan,
-an actual guest run, and independent terminal readback. No Qt replacement
-install or reversal is claimed from the source tests.
+receipts remain unchanged. The initial prepared controller packet was
+**unissued**; source tests alone did not qualify a Qt replacement. The two
+separately issued guest trials and their distinct results are recorded below.
 
 Run the source tests in separate processes because another Qt lane has a
 same-named test module:
@@ -108,7 +106,35 @@ bundle. QEMU and the outer container retired without OOM.
 The fixture directory was mode `0711`; Qt's QML loader needs to enumerate it
 to check filename case. A source correction grants directory read/traverse to
 the ordinary probe group while keeping its work and runtime directories
-private, and records QML errors on failure. This correction still needs a
-fresh-nonce guest run. The project Qt install, runtime and reversal remain
+private, and records QML errors on failure. The project Qt install, runtime
+and reversal remain
 **NOT RUN** in the first trial. The private [HOLD report](/home/gabe/.codex/evidence/qt629-controller-unissued.SABtiFND/output-e709ba2f8/owned-terminal.json)
 records the terminal result.
+
+## Corrected scoped guest trial, November 27
+
+The fresh-nonce retry, `694884aa2634d2bcd09314a64a7c580d`, passed the
+scoped provider replacement and restoration in generic QEMU AArch64 with
+16 KiB pages. The new Qt TEST signature and official ALARM signatures
+verified; libalpm swapped only `qt6-base 6.12.0-3` for the project provider
+of the same version and then restored the official package and its install
+reason. The other 628 rows and 362 protected boot/mount entries matched,
+and the final 629-package lock was byte-identical to baseline. The initial
+Asahi replay was 261 → 629 → 629.
+
+Before and during replacement, respectively, official and project Qt each
+passed ordinary-user Core/Gui offscreen painting, Qt Quick software pixel,
+Wayland raster, Lavapipe Vulkan enumeration and Qt Quick Vulkan/QRhi probes.
+Four PID-bound Weston traces recorded raster and QRhi buffer commits and
+frame callbacks. The stopped result disk, receipt and retirement were
+independently read back; QEMU and the owned container exited 0 and were absent
+twice. See the private [terminal result](/home/gabe/.codex/evidence/qt629-controller-unissued.SABtiFND/output-bbbe41f31/owned-terminal.json)
+and [receipt](/home/gabe/.codex/evidence/qt629-controller-unissued.SABtiFND/output-bbbe41f31/qt-evidence/receipt.json).
+The restored provider had inventory, file and protected-path checks but no
+post-restoration runtime probe. This is software rendering evidence, not
+physical M2, Asahi GPU acceleration or DRM/KMS display qualification.
+A separate package comparison found that this project build disables Qt's
+AT-SPI accessibility bridge and omits native CUPS printing and the XWayland
+EGL fallback. The selected Hyprland screen-sharing picker has not had a real
+portal, accessibility or XWayland session test. Those package-parity gaps
+remain development work despite the scoped guest PASS.

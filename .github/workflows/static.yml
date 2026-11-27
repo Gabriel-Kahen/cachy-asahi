@@ -506,6 +506,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/port/perl5423-repro-host-build/test_capacity_profile.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-admission-preparation/test_prepare.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-observable-admission/test_admission_data.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/build-tools-arm4k-r2/test_source.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-repro-native-source/test_data.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-adapter/test_adapter.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-adapter/test_reader.py
