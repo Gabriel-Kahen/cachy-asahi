@@ -327,6 +327,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/install/overlay583_trial -p test_fish_upgrade.py
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/integration/fish_config_overlay583 -p test_select_candidate.py
           python3 -I -B -Werror::ResourceWarning scripts/install/asahi_maintenance_trial/test_trial.py LocalControls
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/install/asahi629_trial
           python3 -I -B -Werror::ResourceWarning scripts/ci/llhttp-reference-native-source/test_data.py
       - name: Check offline Qtbase configure rehearsal without an actor
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}

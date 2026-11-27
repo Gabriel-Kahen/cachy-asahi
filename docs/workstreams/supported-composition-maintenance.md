@@ -249,6 +249,27 @@ The historical generic control disk path was absent at readback. A generic
 replacement. This setup exercises the filesystem transaction and recovery.
 [Historical control disk pin](../validation/arm16k-warm-second-boot-observation-20261116.md)
 
+### Independent cold control and separate runner
+
+A fresh cold control was assembled from the signed generic ARM64 inputs.
+An independent readback verified the ext4 image and all 111 package
+directories. A disposable snapshot over that exact read-only backing image
+booted in offline QEMU, reported 16 KiB pages and completed serial PAM login
+and logout with systemd, logind and D-Bus active. The raw control SHA-256 is
+`825613f10f54f560f78fdd9829cecd93ef967c26e37d3a6f62dc260ec9028b1c`.
+The private boot qualification receipt SHA-256 is
+`3ca1f670b13a3fb4256c209cd392809fcfda730ef913351c0616d312e6e64bcb`.
+
+The [629 rehearsal runner](../../scripts/install/asahi629_trial/README.md)
+binds that independent boot receipt and the exact 629 transport. The
+transaction uses the R132 generic kernel with PL031 RTC support and checks
+that the RTC set the guest clock before accepting current TEST signatures.
+An unissued 767-file transport with five fresh TEST signatures passed
+whole-file verification. Its manifest SHA-256 is
+`ca7589d52396699be5ba923cfbc0907d2f5e3bb41883adb4e9e555e30ba5755c`.
+The signed 629 transaction and reversal await a separate actor run with
+current TEST trust.
+
 The installed stock Asahi kernel lacks the selected PL011 console and the
 original initramfs lacks the VirtIO modules used by the R132 QEMU boot path.
 Boot of the installed kernel and physical M2 recovery remain open.
