@@ -219,8 +219,10 @@ jobs:
       - name: Install exact Noble security planning version and archive tools
         if: matrix.component == 'security-operation' || matrix.component == 'security-maintenance-package'
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y libarchive-tools libalpm13t64=13.0.2-6ubuntu2 makepkg=6.0.2-6ubuntu2
+          apt_sources=(-o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources
+                       -o Dir::Etc::sourceparts=- -o Acquire::Retries=2)
+          sudo apt-get "${apt_sources[@]}" -o APT::Update::Error-Mode=any update
+          sudo apt-get "${apt_sources[@]}" install --no-install-recommends -y libarchive-tools libalpm13t64=13.0.2-6ubuntu2 makepkg=6.0.2-6ubuntu2
           command -v bsdtar
           command -v vercmp
           test "$(vercmp '1:1.0' '1.0')" -gt 0
@@ -228,8 +230,10 @@ jobs:
       - name: Prepare complete Noble namespace prerequisites for support package
         if: matrix.component == 'support-package' || matrix.component == 'support-package2'
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y bubblewrap
+          apt_sources=(-o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources
+                       -o Dir::Etc::sourceparts=- -o Acquire::Retries=2)
+          sudo apt-get "${apt_sources[@]}" -o APT::Update::Error-Mode=any update
+          sudo apt-get "${apt_sources[@]}" install --no-install-recommends -y bubblewrap
           command -v bwrap
           test -x /usr/bin/python3
           # The corrected fixture preserves real host /lib and optional /lib64; no host-layout mutation.
@@ -280,6 +284,8 @@ jobs:
           set -euo pipefail
           # A stalled mirror previously consumed the entire 15-minute job.
           apt_get=(sudo -n timeout --verbose --kill-after=15s 180s apt-get
+            -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources
+            -o Dir::Etc::sourceparts=-
             -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20
             -o Acquire::Retries=2
           )
