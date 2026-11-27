@@ -99,6 +99,7 @@ with open(sys.argv[1], "ab") as output:
     while chunk := sys.stdin.buffer.read1(64 * 1024):
         remaining = limit - output.tell()
         output.write(chunk[:remaining])
+        output.flush()
         if len(chunk) > remaining:
             raise SystemExit("Build transcript exceeded 64 MiB")
 ' "$output"
@@ -127,7 +128,8 @@ full_build() {
     capture "$output/build.log" makepkg --noconfirm --nocolor --nosign &
     pid=$!
     while kill -0 "$pid" 2>/dev/null; do
-        if (( ! configured )) && grep -Fxq -- "-- Build files have been written to: $RECIPE/src/build" "$output/build.log" &&
+        if (( ! configured )) && [[ -s $output/build.log ]] &&
+            grep -Fxq -- "-- Build files have been written to: $RECIPE/src/build" "$output/build.log" &&
             graph "$output"; then
             printf 'QTBASE_SUCCESSOR16K_CONFIGURED %s\n' "$nonce"
             configured=1
