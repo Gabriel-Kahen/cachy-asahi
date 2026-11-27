@@ -3,6 +3,7 @@
 """Read the retired Qtbase successor VM and package without mounting an image."""
 
 import argparse
+import hashlib
 import io
 import lzma
 import os
@@ -10,6 +11,7 @@ from pathlib import Path, PurePosixPath
 import posixpath
 import re
 from runpy import run_path
+import stat
 import struct
 import sys
 import tarfile
@@ -26,6 +28,7 @@ ARCHIVE = f"{PACKAGE}-{VERSION}-aarch64.pkg.tar.xz"
 BEFORE = C.file_pin(6925, "e2a4da7903e6de26b0ee37758ad424439f83196fa6a3b0bdffa501f35a02d0b9")
 AFTER = C.file_pin(6954, "cd7f0f45ee485edc315e27370e954ba11ab3f5e6168a2653c40220a698c102a1")
 RECIPE = C.file_pin(3524, "b3b46a27d6bb5e93bf411de9a23bf238c36230f268206af09637c9d66f0ce41a")
+BUILD_EPOCH = "1792021458"
 SIGNER = b"68B3537F39A313B3E574D06777193F152BDBE6A6"
 STAGES = {"boot", "storage", "setup", "build", "retain", "cleanup", "configured", "complete"}
 SETUP = {"before.lock": 32 << 10, "after.lock": 32 << 10, "alpm.log": MIB, "gpgv.log": MIB,
@@ -49,6 +52,10 @@ CHECK_MARKERS = {
     b"md4c 0.6.0-2", b"vulkan-headers 1:1.4.363.0-1", b"md4c-pkg-config=0.6.0", b"md4c-dlopen=PASS",
     b"owner=md4c path=/usr/lib/libmd4c.so.0.6.0", b"owner=vulkan-headers path=/usr/include/vulkan/vulkan.h",
 }
+
+
+class ResultPinError(ValueError):
+    """The result carrier does not match its retired launch receipt."""
 
 
 def serial_state(body, nonce):
@@ -164,24 +171,66 @@ def gui_abi(body):
     return run_path(str(HERE / "check_gui.py"))["check_readback"](result["stdout"].decode("ascii"))
 
 
-def package_metadata(controls, sourceinfo, inventory, recipe, parse):
+def package_metadata(controls, sourceinfo, inventory, recipe, payload_bytes, parse):
     package, build = (parse(controls[name].decode("utf-8")) for name in (".PKGINFO", ".BUILDINFO"))
     expected = parse(sourceinfo.decode("utf-8"))
-    C.need(all(table["pkgname"] == table["pkgbase"] == [PACKAGE] and table["pkgver"] == [VERSION]
-               for table in (package, build)) and package["arch"] == build["pkgarch"] == ["aarch64"],
-           "Unexpected successor package identity")
-    C.need(build["format"] == ["2"] and build["pkgbuild_sha256sum"] == [recipe["files"]["PKGBUILD"]["sha256"]]
-           and build["startdir"] == build["builddir"] == ["/qt-successor"]
-           and {"check", "!sign"} <= set(build["buildenv"]) and "sign" not in build["buildenv"]
-           and not (package.keys() & {"replaces", "backup"}), "Unexpected successor package build record")
-    for src_key, pkg_key in (("depends", "depend"), ("provides", "provides"), ("conflicts", "conflict"),
-                             ("license", "license")):
-        C.need(sorted(package[pkg_key]) == sorted(expected[src_key]), f"Archive {pkg_key} differs from SRCINFO")
+    common = dict(pkgname=[PACKAGE], pkgbase=[PACKAGE], pkgver=[VERSION], builddate=[BUILD_EPOCH])
+    relations = {"depends": "depend", "makedepends": "makedepend", "checkdepends": "checkdepend",
+                 "optdepends": "optdepend", "provides": "provides", "conflicts": "conflict",
+                 "license": "license", "groups": "group", "replaces": "replaces", "backup": "backup"}
+    package_fields = common | dict(arch=["aarch64"], xdata=["pkgtype=pkg"], size=[str(payload_bytes)],
+                                   pkgdesc=expected["pkgdesc"], url=expected["url"])
+    for src_key, pkg_key in relations.items():
+        if expected.get(src_key):
+            package_fields[pkg_key] = expected[src_key]
+    C.need(package.keys() == package_fields.keys() | {"packager"}
+           and all(sorted(package[key]) == sorted(values) for key, values in package_fields.items())
+           and len(package["packager"]) == 1 and package["packager"][0],
+           "Archive PKGINFO differs from the exact recipe and final payload")
+    build_fields = common | dict(pkgarch=["aarch64"], format=["2"], packager=package["packager"],
+                                pkgbuild_sha256sum=[recipe["files"]["PKGBUILD"]["sha256"]],
+                                startdir=["/qt-successor"], builddir=["/qt-successor"], buildtool=["makepkg"])
+    C.need(build.keys() == build_fields.keys() | {"buildtoolver", "buildenv", "options", "installed"}
+           and all(build[key] == values for key, values in build_fields.items())
+           and len(build["buildtoolver"]) == 1 and build["buildtoolver"][0],
+           "Unexpected successor package BUILDINFO record")
+    env, options = set(build["buildenv"]), set(build["options"])
+    required = set(expected["options"])
+    opposite = {option[1:] if option.startswith("!") else "!" + option for option in required}
+    C.need({"check", "!sign"} <= env and not {"!check", "sign"} & env
+           and required <= options and not opposite & options
+           and len(env) == len(build["buildenv"]) and len(options) == len(build["options"]),
+           "Unexpected successor package BUILDINFO build options")
     installed = [value.rsplit("-", 1) for value in build["installed"]]
     C.need(all(len(row) == 2 and row[1] in {"any", "aarch64"} for row in installed)
            and sorted(row[0] for row in installed) ==
            sorted(line.replace(" ", "-", 1) for line in inventory.decode("ascii").splitlines()),
            "The final package BUILDINFO differs from the actual 357-package inventory")
+
+
+def development_files(stage):
+    public = {path for module in stage.MODULES for path in (
+        f"usr/include/qt6/Qt{module}/Qt{module}",
+        f"usr/lib/pkgconfig/Qt6{module}.pc",
+        f"usr/lib/cmake/Qt6{module}/Qt6{module}Config.cmake",
+    )}
+    private = {path for module, header in stage.PRIVATE_HEADERS.items() for path in (
+        f"usr/include/qt6/Qt{module}/6.12.0/Qt{module}/private/{header}",
+        f"usr/lib/cmake/Qt6{module}Private/Qt6{module}PrivateConfig.cmake",
+    )}
+    return public | private | {"usr/include/qt6/QtCore/qtcoreversion.h"} | set(stage.SERVER_METADATA)
+
+
+def payload_contract(stage, packaged, staged_contract):
+    expected = {
+        **{name: ("file", row["mode"], None) for name, row in staged_contract["files"].items()},
+        **{name: ("symlink", row["mode"], row["target"]) for name, row in staged_contract["symlinks"].items()},
+        **{name: ("directory", mode, None) for name, mode in staged_contract["directories"].items()},
+    }
+    C.need(len(expected) == sum(len(staged_contract[key]) for key in ("files", "directories", "symlinks"))
+           and packaged == expected, "Final archive path, type, mode or link target differs from staging")
+    C.need(development_files(stage) <= staged_contract["files"].keys(),
+           "Final archive lacks required Qt development files")
 
 
 def archive_contents(raw, files, recipe, staged):
@@ -190,7 +239,9 @@ def archive_contents(raw, files, recipe, staged):
     expanded = maps.expand_archive(io.BytesIO(raw))
     maps.archive_headers(expanded)
     library_roots = {f"usr/lib/libQt6{module}.so" for module in (*stage.MODULES, *stage.PRIVATE_MODULES)}
-    libraries, links, controls, nodes, notices, server_bodies, elf_paths = {}, {}, {}, {}, {}, {}, set()
+    staged_contract = C.json_body(files["stage-contract.json"])
+    libraries, links, controls, nodes, notices, server_bodies, elf = {}, {}, {}, {}, {}, {}, {}
+    payload_bytes = 0
     notice_root = stage.NOTICE_ROOT + "/"
     abi = None
     with tarfile.open(fileobj=io.BytesIO(expanded), mode="r:", encoding="utf-8", errors="strict") as archive:
@@ -200,12 +251,15 @@ def archive_contents(raw, files, recipe, staged):
                    and member.uid == member.gid == 0 and not member.mode & 0o6000 and not member.sparse
                    and 0 <= member.size <= maps.PKG.MAX_MEMBER
                    and (member.isfile() or member.isdir() or member.issym()), f"Unexpected package member: {name}")
-            nodes[name] = member.isdir()
+            kind = "directory" if member.isdir() else "symlink" if member.issym() else "file"
+            nodes[name] = (kind, member.mode, member.linkname if member.issym() else None)
+            C.need(kind == "file" or member.size == 0, f"Non-file package member has data: {name}")
             if name in maps.CONTROLS:
-                C.need(member.isfile() and 0 < member.size <= 4 * MIB, "Invalid package control file")
+                C.need(member.isfile() and member.mode == 0o644 and 0 < member.size <= 4 * MIB,
+                       "Invalid package control file")
                 controls[name] = archive.extractfile(member).read()
                 continue
-            C.need((name == "." and member.isdir()) or stage.owned(name),
+            C.need((name == "." and nodes[name] == ("directory", 0o755, None)) or stage.owned(name),
                    f"Package member escapes Qt ownership: {name}")
             C.need(member.issym() or not member.mode & 0o7022, f"Unsafe package member mode: {name}")
             C.need(not name.startswith("usr/lib/qt6/plugins/platforms/libqvkkhrdisplay"),
@@ -217,11 +271,20 @@ def archive_contents(raw, files, recipe, staged):
                        and dest.startswith("usr/"),
                        f"Unexpected or escaping package link: {name}")
             body = archive.extractfile(member).read() if member.isfile() else b""
+            payload_bytes += len(body)
             if body.startswith(b"\x7fELF"):
                 observed = stage.elf_info(body)
-                elf_paths.add(name)
+                elf[name] = observed
             else:
                 observed = None
+            if member.isfile() and not observed:
+                # makepkg strips both ELF and static archives after package().
+                if name.endswith(".a"):
+                    C.need(body.startswith(b"!<arch>\n"), f"Invalid final static library: {name}")
+                else:
+                    row = staged_contract["files"].get(name, {})
+                    C.need(C.pin(body) == {key: row.get(key) for key in ("bytes", "sha256")},
+                           f"Final non-ELF payload bytes differ from staging: {name}")
             if name in stage.SERVER_METADATA:
                 server_bodies[name] = body
             if re.fullmatch(r"usr/lib/libQt6[^/]+\.so(?:\..+)?", name):
@@ -241,7 +304,8 @@ def archive_contents(raw, files, recipe, staged):
                     abi = gui_abi(body)
             if name.startswith(notice_root) and member.isfile():
                 notices[name.removeprefix(notice_root)] = C.pin(body)["sha256"]
-    C.need(all(nodes.get(str(parent), True) for name in nodes for parent in PurePosixPath(name).parents),
+    C.need(all(nodes.get(str(parent), ("directory", 0, None))[0] == "directory"
+               for name in nodes for parent in PurePosixPath(name).parents),
            "An archive path has a non-directory ancestor")
     C.need(controls.keys() == maps.CONTROLS and libraries.keys() == {root + ".6.12.0" for root in library_roots}
            and links.keys() == {name for root in library_roots for name in (root, root + ".6")},
@@ -250,22 +314,37 @@ def archive_contents(raw, files, recipe, staged):
            "Final archive source notices differ from the exact recipe policy")
     C.need(abi is not None and abi == C.json_body(files["vulkan-md4c-elf.json"]),
            "Final archive QtGui ABI differs from the packaging-stage check")
-    C.need(set(stage.TOOLS) | {"usr/lib/qt6/plugins/" + name for name in stage.PLUGINS} <= elf_paths,
-           "Expected final AArch64 Qt tools and plugins")
+    payload_contract(stage, {name: row for name, row in nodes.items() if name not in maps.CONTROLS | {"."}},
+                     staged_contract)
+    C.need(elf.keys() == staged_contract["elf"].keys(), "Final ELF path census differs from staging")
+    plugins = {"usr/lib/qt6/plugins/" + name for name in stage.PLUGINS}
+    C.need(all(name in elf and nodes[name][1] & 0o111 for name in set(stage.TOOLS) | plugins)
+           and all(elf[name]["type"] == 3 for name in plugins), "Expected final executable Qt tools and shared plugins")
     server = stage.server_feature_export(server_bodies, {name: C.pin(body) for name, body in server_bodies.items()})
-    C.need(server == C.json_body(files["stage-contract.json"])["server_feature_export"],
+    C.need(server == staged_contract["server_feature_export"],
            "Final archive Wayland server export differs from staging")
-    package_metadata(controls, staged[".SRCINFO"], files["after.lock"], recipe, maps.PKG.metadata)
-    return dict(libraries=libraries, gui_abi=abi, source_notices=len(notices), elf_objects=len(elf_paths),
+    package_metadata(controls, staged[".SRCINFO"], files["after.lock"], recipe, payload_bytes, maps.PKG.metadata)
+    return dict(libraries=libraries, gui_abi=abi, source_notices=len(notices), elf_objects=len(elf),
                 controls={name: C.pin(body) for name, body in controls.items()})
 
 
 def result_files(path, plan, result_pin, load_archive):
-    before = C.identity(path.lstat())
-    C.need(result_pin["bytes"] == plan["limits"]["result_bytes"] and 0 < result_pin["bytes"] <= 4 << 30,
+    C.need(C.check_pin(result_pin, 4 << 30) and result_pin["bytes"] == plan["limits"]["result_bytes"]
+           and result_pin["bytes"] > 0, "Exact planned result size required")
+    original = path.lstat()
+    before = C.identity(original)
+    C.need(path.is_absolute() and path.resolve(strict=True) == path and stat.S_ISREG(original.st_mode)
+           and original.st_nlink == 1 and original.st_size == result_pin["bytes"],
            "Exact planned result size required")
     with C.ext4_reader()(path, max_nodes=len(CAPS) + len(NAMESPACE), max_file_bytes=max(CAPS.values())) as fs:
         C.need(C.identity(os.fstat(fs.fd)) == before, "Result carrier changed at open")
+        # The ext4 reader uses pread. Hash its already-held descriptor before
+        # reading the inventory, rather than verifying and reopening the path.
+        with os.fdopen(os.dup(fs.fd), "rb") as stream:
+            if hashlib.file_digest(stream, "sha256").hexdigest() != result_pin["sha256"]:
+                raise ResultPinError("Result carrier digest differs from the retired launch")
+        C.need(C.identity(os.fstat(fs.fd)) == before == C.identity(path.lstat()),
+               "Result carrier changed while hashing")
         sb = fs.read(1024, 1024)
         C.need(struct.unpack_from("<HH", sb, 56) == (0xEF53, 1) and not fs.incompat & 4
                and sb[120:136].rstrip(b"\0") == b"QT16K_SUCC" and fs.uuid == plan["result_uuid"],
@@ -380,8 +459,8 @@ def host_receipts(capsule, plan, plan_sha, launch_sha):
            and {path.name for path in paths.iterdir()} == launch["files"].keys()
            and launch["files"].keys() <= allowed.keys() and "result.raw" in launch["files"],
            "Unexpected original run output namespace")
-    bodies = {name: C.read(paths / name, allowed[name], expected, collect=name not in ("result.raw", "overlay.qcow2"))[0]
-              for name, expected in launch["files"].items()}
+    bodies = {name: C.read(paths / name, allowed[name], expected, collect=name != "overlay.qcow2")[0]
+              for name, expected in launch["files"].items() if name != "result.raw"}
     actor = C.json_body(bodies["actor.json"]) if "actor.json" in bodies else None
     if actor:
         C.need(actor["kind"] == "QTBASE_SUCCESSOR16K_ACTOR_V1" and actor["nonce"] == nonce
@@ -418,7 +497,7 @@ def readback(capsule, plan_sha, launch_sha, recipe_path=None):
                                    load_archive=guest_pass and host_pass and plan["mode"] == "full")
         guest, status = guest_checks(plan, pins, files, markers, recipe, staged, host_pass)
     except (OSError, KeyError, ValueError, UnicodeError) as error:
-        if guest_pass:
+        if guest_pass or isinstance(error, ResultPinError):
             raise
         status = "HOLD"
         guest = dict(terminal=markers[0], setup_reported=markers[1], configured_reported=markers[2],
