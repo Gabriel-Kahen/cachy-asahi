@@ -352,7 +352,7 @@ def start(args):
     try:
         need(inspect(docker, cid, name, plan, mounts, entry)["Status"] == "created",
              "Selected actor already started")
-        with (out / "container.log").open("xb") as log:
+        with (root / "container.log").open("xb") as log:
             attach = subprocess.run(docker.argv("container", "start", "-a", cid), env=ENV,
                                     stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT,
                                     timeout=budget["qemu_seconds"] + 420)
@@ -381,10 +381,12 @@ def start(args):
          "Read-only input media changed")
     observed = {p.name: pin(p) for p in out.iterdir()}
     actor = json.loads((out / "actor.json").read_bytes()) if "actor.json" in observed else {}
+    attach_log = pin(root / "container.log") if (root / "container.log").is_file() else None
     launch = dict(kind="QTBASE_SUCCESSOR16K_LAUNCH_V1", nonce=nonce, plan_sha256=digest, cid=cid,
                   started=started, completed=time.time(), container_exit=exit_code, container_state=state,
                   qemu_exit=actor.get("qemu_exit"), process_reaped=actor.get("process_reaped", False),
-                  container_absent=absence, originals_unchanged=unchanged, error=error, files=observed)
+                  container_absent=absence, originals_unchanged=unchanged, error=error, files=observed,
+                  attach_log=attach_log)
     put(root / "launch.json", wire(launch))
     print(json.dumps(dict(launch_sha256=pin(root / "launch.json")["sha256"], container_exit=exit_code,
                           qemu_exit=launch["qemu_exit"], error=error), sort_keys=True))
