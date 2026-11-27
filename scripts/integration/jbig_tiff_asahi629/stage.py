@@ -115,6 +115,7 @@ def derive(L, base, review):
 
 def host_test(L, folder, review):
     T, G = L.T, L.G
+    I.require_qualified_tiff(folder / I.PROVIDERS[I.PROJECT_TIFF]["filename"])
     now = int(time.time())
     G.current_test(T, review, now, remaining=G.TIMEOUT)
     with tempfile.TemporaryDirectory(prefix="jbig-tiff-preflight-") as path:
@@ -151,6 +152,7 @@ def put(path, body):
 def prepare(L, *, preview, nonce, official_cache, project_jbig, project_tiff, test_inputs, test_review,
             test_review_sha256, output):
     T = L.T
+    I.require_qualified_tiff(project_tiff)
     media, pin = stage_paths(T, preview, nonce)
     L.O.rehash(T, preview, media)
     L.O.check_current_trust(T, media, int(time.time()))

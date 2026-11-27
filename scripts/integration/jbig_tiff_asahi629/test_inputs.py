@@ -25,6 +25,7 @@ Version needs section '.gnu.version_r' contains 2 entries:
 """
 PROJECT_TIFF = """
  0x0000000000000001 (NEEDED)             Shared library: [libjbig.so.2.2]
+ 0x0000000000000001 (NEEDED)             Shared library: [libjpeg.so.8]
  0x000000000000000e (SONAME)             Library soname: [libtiff.so.6]
    18: 0000000000000000    64 FUNC    GLOBAL DEFAULT   14 TIFFOpen@@LIBTIFF_4.0
 """
@@ -132,6 +133,51 @@ class AuditTest(unittest.TestCase):
                 abi(objects | {I["PIPEWIRE"]: PIPEWIRE.replace("libspandsp", "libunrelated")}, PROJECT_TIFF)
             with self.assertRaisesRegex(ValueError, "project TIFF linkage"):
                 abi(objects, PROJECT_TIFF.replace("libjbig.so.2.2", "libjbig.so.2.1"))
+            with self.assertRaisesRegex(ValueError, "project TIFF linkage"):
+                abi(objects, PROJECT_TIFF.replace("libjpeg.so.8", "libjpeg.so.7"))
+            for retired in I["RETIRING_JBIG"]:
+                with self.subTest(retired=retired), self.assertRaisesRegex(ValueError, "direct ELF dependency"):
+                    abi(objects | {"usr/bin/example": TIFF.replace("libanother.so.1", retired)}, PROJECT_TIFF)
+
+    def test_jpeg_correction_requires_new_release_dependency_and_recipe_identity(self):
+        recipe = I["jpeg_recipe"]()
+        metadata = (b"pkgname = cachy-asahi-libtiff\npkgver = 4.7.2-1.2\narch = aarch64\n"
+                    b"depend = libjpeg-turbo\ndepend = libjpeg.so=8-64\n")
+        buildinfo = f'pkgbuild_sha256sum = {recipe["PKGBUILD_PIN"]["sha256"]}\n'.encode()
+        verifier = I["require_qualified_tiff"]
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / "cachy-asahi-libtiff-4.7.2-1.2-aarch64.pkg.tar.xz"
+            with self.assertRaisesRegex(ValueError, "awaits an audited pin"):
+                verifier(path)
+            for info, build, failure in (
+                (metadata, buildinfo, None),
+                (metadata.replace(b"4.7.2-1.2", b"4.7.2-1.1"), buildinfo, "identity"),
+                (metadata.replace(b"8-64", b"7-64"), buildinfo, "exact libjpeg"),
+                (metadata + b"depend = libjpeg.so=8-64\n", buildinfo, "exact libjpeg"),
+                (metadata, b"pkgbuild_sha256sum = wrong\n", "different recipe"),
+            ):
+                with self.subTest(failure=failure):
+                    body = archive((".PKGINFO", info), (".BUILDINFO", build))
+                    path.write_bytes(body)
+                    selection = I["PROVIDERS"] | {I["PROJECT_TIFF"]: dict(
+                        version=recipe["VERSION"], filename=path.name, archive=I["body_pin"](body), signature=None)}
+                    with patch.dict(verifier.__globals__, {"PROVIDERS": selection}):
+                        if failure:
+                            with self.assertRaisesRegex(ValueError, failure):
+                                verifier(path)
+                        else:
+                            self.assertEqual(verifier(path), dict(version=recipe["VERSION"],
+                                                                  dependency=recipe["JPEG_DEPENDENCY"],
+                                                                  recipe=recipe["PKGBUILD_PIN"]))
+
+    def test_selected_jpeg_provider_requires_provision_on_exact_installed_version(self):
+        raw = (b"%NAME%\nlibjpeg-turbo\n\n%VERSION%\n3.2.0-2\n\n"
+               b"%PROVIDES%\nlibjpeg.so=8-64\nlibturbojpeg.so=0-64\n\n")
+        self.assertEqual(I["jpeg_provider"](raw, "libjpeg.so=8-64"),
+                         dict(package="libjpeg-turbo", version="3.2.0-2", provides="libjpeg.so=8-64"))
+        for changed in (raw.replace(b"3.2.0-2", b"3.2.0-3"), raw.replace(b"%PROVIDES%", b"%DEPENDS%")):
+            with self.assertRaisesRegex(ValueError, "provider metadata differs"):
+                I["jpeg_provider"](changed, "libjpeg.so=8-64")
 
     def test_static_census(self):
         refs = [row["tiff_imports"] for row in I["CONSUMERS"].values()]

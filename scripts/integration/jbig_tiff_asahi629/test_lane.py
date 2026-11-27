@@ -12,6 +12,7 @@ HERE = Path(__file__).resolve().parent
 S = SimpleNamespace(**run_path(str(HERE / "stage.py")))
 R = SimpleNamespace(**run_path(str(HERE / "readback.py")))
 OWNER = SimpleNamespace(**run_path(str(HERE / "runner.py")))
+RUNTIME_FIXTURE = run_path(str(HERE / "test_runtime.py"))
 TX = R.TX
 L = S.legacy()
 T = L.T
@@ -86,7 +87,7 @@ class LaneTests(unittest.TestCase):
         def probe(soname):
             calls.append(soname)
             if broken == len(calls):
-                raise RuntimeError("unavailable probe")
+                raise R.RUNTIME.RuntimeFailure({"status": "FAIL", "failure": "unavailable probe", "commands": ["fixture"]})
             return soname
 
         def observe(label, _providers, _reasons, raw):
@@ -114,6 +115,8 @@ class LaneTests(unittest.TestCase):
                 self.assertEqual(len([kind for kind, _ in backend.events if kind == "commit"]), commits)
                 self.assertEqual(backend.actual, b"baseline")
                 self.assertEqual(len(calls), 1 if broken == 1 else 3)
+                label = ("baseline", "replacement", "restoration")[broken - 1]
+                self.assertEqual(result["phases"][label]["runtime"]["commands"], ["fixture"])
 
     def test_ambiguous_commit_discards_clone(self):
         for commit in (1, 2):
@@ -183,16 +186,14 @@ class LaneTests(unittest.TestCase):
             S.ENTRY.check_log(T, log + "\n[ALPM] installed unrelated (1-1)", S.I.OFFICIAL, S.I.PROJECT)
 
     def test_readback_requires_all_seven_direct_loaders_and_pipewire(self):
-        runtime = dict(status="PASS", uid=65534, gid=65534, jbig_soname="2.2", probes=R.RUNTIME.PROBES,
-                       loaders={"/" + path: {"tiff": "/usr/lib/libtiff.so.6", "jbig": "/lib/libjbig.so.2.2"}
-                                for path in S.I.CONSUMERS})
-        runtime["loaders"][R.RUNTIME.PIPEWIRE]["span"] = "/usr/lib/libspandsp.so.2"
+        fixture = RUNTIME_FIXTURE
+        runtime = R.RUNTIME.Probe(fixture["ROOT"], fixture["SCRATCH"], executor=fixture["successful"]).receipt("2.2")
         R.read_runtime(T, runtime, "2.2")
         del runtime["loaders"][R.RUNTIME.PIPEWIRE]["span"]
-        with self.assertRaisesRegex(ValueError, "Unexpected runtime loader"):
+        with self.assertRaisesRegex(ValueError, "Runtime summary differs"):
             R.read_runtime(T, runtime, "2.2")
-        del runtime["loaders"]["/usr/bin/opj_dump"]
-        with self.assertRaisesRegex(ValueError, "checks are incomplete"):
+        runtime["commands"].pop(5)
+        with self.assertRaisesRegex(ValueError, "Unexpected runtime command"):
             R.read_runtime(T, runtime, "2.2")
 
 

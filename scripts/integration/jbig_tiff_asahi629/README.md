@@ -7,7 +7,8 @@ restores both original providers in one inverse transaction, and exercises
 the installed consumers before, during, and after the swap.
 
 The source and passive input checks are available. The signed ARM16K swap
-and runtime remain **NOT RUN**. The earlier [341-package and Minimal206
+and runtime remain **NOT RUN**. Qualification is held pending a built and
+audited JPEG-corrected TIFF archive. The earlier [341-package and Minimal206
 results](../../../docs/validation/project-libraries-native-20261125.md) and
 the [scoped Qt result](../qt612_r132_replacement/README.md) have their own
 inputs and receipts. This lane uses vendor Qt from the original Asahi629
@@ -20,9 +21,10 @@ composition.
 | Original JBIG | `jbigkit 2.1-8`, archive `ecaddb099f4a…` and original ALARM signature `f00be593f9ab…` |
 | Original TIFF | `libtiff 4.7.2-1`, archive `02a5d2d74019…` and original ALARM signature `8dae1efda531…` |
 | Project JBIG | `cachy-asahi-jbigkit 2.2-1.1`, retained archive `98636579a965…` |
-| Project TIFF | `cachy-asahi-libtiff 4.7.2-1.1`, retained emulated rebuild `085e8293b170…` |
+| Historical project TIFF | `cachy-asahi-libtiff 4.7.2-1.1`, retained emulated rebuild `085e8293b170…`, passive evidence |
+| Guest qualification TIFF | `cachy-asahi-libtiff 4.7.2-1.2` source successor, archive pin pending |
 | Rollback checkpoint | 12,346-byte lock `f335e8430a1d…` and 362 protected boot and mount entries `b4d84a4eacba…` |
-| Project checkpoint | 12,374-byte lock `1e69e2ebe1f1d021fe85a1b0a0f0aaddc8897ff142e7783197419bd8f093b9a6` |
+| Historical project checkpoint | 12,374-byte lock `1e69e2ebe1f1d021fe85a1b0a0f0aaddc8897ff142e7783197419bd8f093b9a6` |
 
 [inputs.py](inputs.py) contains the full byte counts and hashes. The original
 archives reside in the retained ALARM cache. The project archives come from
@@ -30,6 +32,27 @@ the earlier Minimal206 work. The TIFF archive is the local 4 KiB emulated
 rebuild with the earlier native receipt's shared-library hashes. The hosted
 maintained 341-package build's distinct archive digests do not select these
 bodies.
+
+The TIFF ELF links `libjpeg.so.8`. The exact Asahi629 seed contains
+`libjpeg-turbo 3.2.0-2` with ALPM provision `libjpeg.so=8-64` and the pinned
+library bytes. The Asahi629 successor adds that dependency and advances
+the release to `4.7.2-1.2`. Prepare the new recipe with
+[jpeg_recipe.py](jpeg_recipe.py) using the exact previously materialized
+TIFF recipe directory.
+
+```sh
+lane=scripts/integration/jbig_tiff_asahi629
+python3 -I -B "$lane/jpeg_recipe.py" \
+  --materialized "$historical_materialized_tiff_source" --output "$fresh_tiff12_source"
+```
+
+After the scheduled build, review the new TIFF archive, provider payloads
+and projected replacement lock. Record all three in `QUALIFICATION_TIFF`
+in [inputs.py](inputs.py) and repeat the passive audit with
+`--qualification`. Staging and guest admission require the new version,
+the exact JPEG dependency in `.PKGINFO`, and the corrected PKGBUILD digest
+in `.BUILDINFO`. The default passive audit still takes the historical
+archive and reproduces its original projection.
 
 The passive audit joins the original completed Asahi629 transport, seed,
 result and terminal receipts. It authenticates seven original ALARM
@@ -45,7 +68,11 @@ objects.
 | `spandsp 0.0.6-7` | `usr/lib/libspandsp.so.2.0.0` |
 
 The eighth pinned ELF is the `pipewire-audio 1:1.6.9-1` BlueZ HFP mSBC
-plugin. Its loader closure goes through SpanDSP, TIFF and JBIG.
+plugin. Its loader closure goes through SpanDSP, TIFF and JBIG. The
+retiring-SONAME assessment covers the seven named direct consumers and
+this plugin. It checks both `libjbig.so.2.1` and `libjbig85.so.2.1` in that
+scope. A full reverse-ELF census of all 629 packages and arbitrary dynamic
+loads remain open.
 
 ```sh
 lane=scripts/integration/jbig_tiff_asahi629
@@ -121,7 +148,7 @@ carries the compact scoped result in `evidence/result.json`.
   dependency install reasons, 362 protected entries, exact consumer
   ownership and bytes, and unchanged ALPM consumer descriptors. It
   verifies the selected provider libraries and symlinks and absence
-  of stale JBIG SONAMEs. An ordinary runtime probe failure at the project
+  of stale provider paths. An ordinary runtime probe failure at the project
   checkpoint still attempts exact restoration and produces a HOLD.
 - Run all eight loader checks and the JBIG C roundtrip, LCMS `tificc`
   conversion, GTK headless TIFF memory-texture pixel check, OpenJPEG
@@ -129,6 +156,9 @@ carries the compact scoped result in `evidence/result.json`.
   and PipeWire plugin load under UID/GID 65534 at all three checkpoints.
   These are the application checks in scope. The PipeWire test requires
   the exact loader chain and resolves the plugin factory entry point.
+  The guest records bounded per-command exit and combined output evidence.
+  Stopped readback replays the command sequence and runtime checks from
+  those bytes.
 - The official `tiffgt` viewer and its exact bytes must be present at the
   original and restored checkpoints. It is deliberately absent from the
   candidate and remains a **package parity gap**, including on this
@@ -155,7 +185,7 @@ python3 -I -B "$lane/readback.py" \
 ## Source controls
 
 ```sh
-for test in test_inputs.py test_runtime.py test_lane.py; do
+for test in test_inputs.py test_jpeg_recipe.py test_runtime.py test_lane.py; do
   python3 -I -B -Werror::ResourceWarning "$lane/$test" || exit
 done
 ```

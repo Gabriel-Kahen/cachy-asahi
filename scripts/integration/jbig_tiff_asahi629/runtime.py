@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: MIT
 """Ordinary-user runtime checks inside the Asahi629 disposable guest."""
 
+import base64
+import hashlib
+import json
 import os
 from pathlib import Path
 import re
@@ -12,11 +15,15 @@ import stat
 import subprocess
 import tempfile
 import time
+import zlib
 
 
 TARGET = Path("/trial-scratch")
 USER = 65534
 MAX_OUTPUT = 32768
+MAX_ARMOR = 16 << 10
+COMMAND_COUNT = 23
+SCRATCH = re.compile(r"/tmp/jbig-tiff629-[a-z0-9_]{8}")
 LOADER = "/usr/lib/ld-linux-aarch64.so.1"
 PIPEWIRE = "/usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-hfp-msbc.so"
 DIRECT = (
@@ -49,12 +56,17 @@ print("PIPEWIRE_MSBC_PLUGIN_LOADED")
 
 
 def execute(argv, seconds):
-    """Capture a finite diagnostic and retire the command group on failure."""
+    """Capture combined raw output, keeping the exit status even on failure."""
     deadline = time.monotonic() + seconds
     output = bytearray()
-    with subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                          stderr=subprocess.STDOUT, start_new_session=True,
-                          env={"PATH": "/usr/bin", "LC_ALL": "C"}, cwd="/", umask=0o077) as proc:
+    problem = None
+    try:
+        proc = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT, start_new_session=True,
+                                env={"PATH": "/usr/bin", "LC_ALL": "C"}, cwd="/", umask=0o077)
+    except OSError:
+        return dict(exit=None, problem="spawn", output=b"", truncated=False)
+    try:
         try:
             with selectors.DefaultSelector() as selector:
                 selector.register(proc.stdout, selectors.EVENT_READ)
@@ -65,21 +77,38 @@ def execute(argv, seconds):
                     data = os.read(proc.stdout.fileno(), 4096)
                     if not data:
                         break
-                    output.extend(data)
-                    if len(output) > MAX_OUTPUT:
-                        raise ValueError("command output cap")
-            proc.wait(timeout=max(0, deadline - time.monotonic()))
-        except (TimeoutError, subprocess.TimeoutExpired, ValueError) as error:
+                    remaining_bytes = MAX_OUTPUT - len(output)
+                    output.extend(data[:remaining_bytes])
+                    if len(data) > remaining_bytes:
+                        problem = "output-cap"
+                        break
+            if problem is None:
+                proc.wait(timeout=max(0, deadline - time.monotonic()))
+        except (TimeoutError, subprocess.TimeoutExpired):
+            problem = "timeout"
+        except OSError:
+            problem = "capture"
+    finally:
+        if problem is not None or proc.returncode is None:
             try:
                 os.killpg(proc.pid, signal.SIGKILL)
             except ProcessLookupError:
                 pass
-            proc.wait(timeout=3)
-            raise RuntimeError(f"{argv[-1]}: {error}") from error
-        result = output.decode("utf-8", "replace")
-        if proc.returncode:
-            raise RuntimeError(f"{argv[-1]}: exit {proc.returncode}: {result[-1600:]}")
-        return result
+            try:
+                proc.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                problem = "unreaped"
+        proc.stdout.close()
+    return dict(exit=proc.returncode, problem=problem, output=bytes(output), truncated=problem is not None)
+
+
+def command_id(argv, seconds):
+    raw = json.dumps([argv, seconds], ensure_ascii=True, separators=(",", ":")).encode("ascii")
+    return hashlib.sha256(raw).hexdigest()
+
+
+def armor(raw):
+    return base64.b64encode(zlib.compress(raw, level=9)).decode("ascii") if raw else ""
 
 
 def require_guest(root):
@@ -113,7 +142,8 @@ def loader_paths(output, soname, *, pipewire=False):
     expected = {"tiff": "libtiff.so.6", "jbig": f"libjbig.so.{soname}"}
     if pipewire:
         expected["span"] = "libspandsp.so.2"
-    if "not found" in output or f"libjbig.so.{'2.1' if soname == '2.2' else '2.2'} " in output:
+    old = re.escape("2.1" if soname == "2.2" else "2.2")
+    if "not found" in output or re.search(rf"^\s*libjbig(?:85)?\.so\.{old}(?:\s|$)", output, re.MULTILINE):
         raise RuntimeError("loader reported an unresolved or stale TIFF/JBIG dependency")
     observed = {}
     for key, library in expected.items():
@@ -127,10 +157,13 @@ def loader_paths(output, soname, *, pipewire=False):
 
 
 class Probe:
-    def __init__(self, root, scratch):
+    def __init__(self, root, scratch, *, executor=execute):
         self.root = root
         self.inner = "/" + scratch.relative_to(root).as_posix()
         self.work = f"{self.inner}/work"
+        self.executor = executor
+        self.commands = []
+        self.armor_bytes = 0
         self.prefix = ["/usr/bin/chroot", str(self.root), "/usr/bin/setpriv", f"--reuid={USER}", f"--regid={USER}",
                        "--clear-groups", "--no-new-privs", "--inh-caps=-all", "--ambient-caps=-all",
                        "--bounding-set=-all", "/usr/bin/env", "-i", "PATH=/usr/bin:/bin", "LC_ALL=C", "TZ=UTC",
@@ -138,8 +171,28 @@ class Probe:
                        f"XDG_RUNTIME_DIR={self.work}", "GTK_A11Y=none", "GSETTINGS_BACKEND=memory",
                        "GIO_USE_VFS=local"]
 
+    def step(self, argv, seconds):
+        outcome = self.executor(argv, seconds)
+        raw = outcome["output"]
+        packed = armor(raw)
+        if len(packed) > MAX_ARMOR - self.armor_bytes:
+            raw = raw[:256]
+            packed = armor(raw)
+            if len(packed) > MAX_ARMOR - self.armor_bytes:
+                raw, packed = b"", ""
+            outcome = outcome | {"problem": outcome["problem"] or "receipt-cap", "output": raw, "truncated": True}
+        self.armor_bytes += len(packed)
+        self.commands.append([command_id(argv, seconds), outcome["exit"], outcome["problem"],
+                              packed, len(raw), outcome["truncated"]])
+        return outcome
+
     def command(self, *args, seconds=20):
-        return execute([*self.prefix, *args], seconds)
+        result = self.step([*self.prefix, *args], seconds)
+        if result["problem"]:
+            raise RuntimeError(f"{args[0]}: {result['problem']}")
+        if result["exit"] != 0:
+            raise RuntimeError(f"{args[0]}: exit {result['exit']}")
+        return result["output"].decode("utf-8", "replace")
 
     def marker(self, marker, *args):
         if self.command(*args).splitlines().count(marker) != 1:
@@ -150,8 +203,13 @@ class Probe:
             path: loader_paths(self.command(LOADER, "--list", path), soname, pipewire=path == PIPEWIRE)
             for path in (*DIRECT, PIPEWIRE)
         }
-        flags = shlex.split(self.command("/usr/bin/pkg-config", "--cflags", "--libs", "gtk4", "libtiff-4",
-                                         "spandsp"))
+        query = self.command("/usr/bin/pkg-config", "--cflags", "--libs", "gtk4", "libtiff-4", "spandsp")
+        try:
+            flags = shlex.split(query)
+        except ValueError as error:
+            raise RuntimeError("invalid pkg-config flags") from error
+        if not flags:
+            raise RuntimeError("missing pkg-config flags")
         compiler = ("/usr/bin/gcc", "-std=c11", "-O0", "-Wall", "-Wextra", "-Werror", "-Wl,-z,now")
         roundtrip = f"{self.work}/roundtrip"
         fixture = f"{self.work}/fixture"
@@ -180,6 +238,23 @@ class Probe:
         self.marker(PROBES["pipewire"], "/usr/bin/python3", "-I", "-B", "-c", PIPEWIRE_PROBE, PIPEWIRE)
         return loaders
 
+    def summarize(self, soname):
+        try:
+            loaders = self.check(soname)
+        except RuntimeError as error:
+            return dict(status="FAIL", failure=str(error), loaders={}, probes={})
+        return dict(status="PASS", failure=None, loaders=loaders, probes=dict(PROBES))
+
+    def receipt(self, soname):
+        summary = self.summarize(soname)
+        return summary | dict(uid=USER, gid=USER, jbig_soname=soname, scratch=self.inner, commands=self.commands)
+
+
+class RuntimeFailure(RuntimeError):
+    def __init__(self, evidence):
+        super().__init__(evidence["failure"])
+        self.runtime_evidence = evidence
+
 
 def run(root, roundtrip_source, fixture_source, *, soname):
     """Return the checkpoint receipt or fail before the transaction can pass."""
@@ -195,5 +270,7 @@ def run(root, roundtrip_source, fixture_source, *, soname):
         work = scratch / "work"
         work.mkdir(mode=0o700)
         os.chown(work, USER, USER)
-        loaders = Probe(root, scratch).check(soname)
-    return dict(status="PASS", uid=USER, gid=USER, jbig_soname=soname, loaders=loaders, probes=dict(PROBES))
+        evidence = Probe(root, scratch).receipt(soname)
+    if evidence["status"] != "PASS":
+        raise RuntimeFailure(evidence)
+    return evidence

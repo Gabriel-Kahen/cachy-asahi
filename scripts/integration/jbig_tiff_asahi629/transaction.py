@@ -282,6 +282,15 @@ def lifecycle(backend, official, project, baseline, replacement, observe, probe,
             phase, state = label + "-commit", None
             commit()
 
+    def exercise(label, soname):
+        try:
+            report["phases"][label]["runtime"] = probe(soname)
+        except Exception as error:
+            evidence = getattr(error, "runtime_evidence", None)
+            if evidence is not None:
+                report["phases"][label]["runtime"] = evidence
+            raise
+
     report.update(phases={}, transactions={}, probe_failure=None, failure=None)
     try:
         report["phases"]["baseline"] = snapshot(official, baseline, "baseline")
@@ -291,12 +300,12 @@ def lifecycle(backend, official, project, baseline, replacement, observe, probe,
         backend.authenticate(official | project)
         report["unsigned_control"] = backend.negative_control(next(iter(project)), baseline)
         phase = "baseline-probe"
-        report["phases"]["baseline"]["runtime"] = probe("2.1")
+        exercise("baseline", "2.1")
         swap(project, official, baseline, "replacement")
         phase = "replacement"
         try:
             report["phases"]["replacement"] = snapshot(project, replacement, "replacement")
-            report["phases"]["replacement"]["runtime"] = probe("2.2")
+            exercise("replacement", "2.2")
         except Exception as error:
             report["probe_failure"] = str(error)[:640]
         # The inverse itself locks and rechecks the exact candidate inventory.
@@ -305,7 +314,7 @@ def lifecycle(backend, official, project, baseline, replacement, observe, probe,
         report["phases"]["restoration"] = snapshot(official, baseline, "restoration")
         state = "restored"
         phase = "restoration-probe"
-        report["phases"]["restoration"]["runtime"] = probe("2.1")
+        exercise("restoration", "2.1")
         current()
         report["status"] = PASS if report["probe_failure"] is None else HOLD_RESTORED
     except Exception as error:

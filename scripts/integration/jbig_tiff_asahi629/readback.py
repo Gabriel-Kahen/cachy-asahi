@@ -2,12 +2,15 @@
 """Independently reopen the bounded Asahi629 pair evidence after guest retirement."""
 
 import argparse
+import base64
 import hashlib
 from pathlib import Path
+import re
 from runpy import run_path
 import tempfile
 from types import SimpleNamespace
 from uuid import UUID
+import zlib
 
 HERE = Path(__file__).resolve().parent
 S = SimpleNamespace(**run_path(str(HERE / "stage.py")))
@@ -17,19 +20,73 @@ STOPPED = "ASAHI629_JBIG_TIFF_STOPPED_V1"
 CHECKPOINT = "ASAHI629_JBIG_TIFF_CHECKPOINT_V1"
 
 
-def read_runtime(T, row, soname):
-    T.need(row.keys() == {"status", "uid", "gid", "jbig_soname", "loaders", "probes"}
-           and row["status"] == "PASS" and row["uid"] == row["gid"] == 65534
-           and row["jbig_soname"] == soname and row["probes"] == RUNTIME.PROBES
-           and set(row["loaders"]) == {"/" + name for name in S.I.CONSUMERS},
-           "Ordinary-user TIFF, GTK, OpenJPEG, SpanDSP and PipeWire checks are incomplete")
-    for name, record in row["loaders"].items():
-        wanted = {"tiff": "libtiff.so.6", "jbig": f"libjbig.so.{soname}"}
-        if name == RUNTIME.PIPEWIRE:
-            wanted["span"] = "libspandsp.so.2"
-        T.need(record.keys() == wanted.keys()
-               and all(record[key] in ("/usr/lib/" + value, "/lib/" + value) for key, value in wanted.items()),
-               "Unexpected runtime loader evidence for " + name)
+def command_output(T, packed, size):
+    if not size:
+        T.need(packed == "", "Empty command output must use the empty encoding")
+        return b""
+    try:
+        compressed = base64.b64decode(packed, validate=True)
+        stream = zlib.decompressobj()
+        raw = stream.decompress(compressed, size + 1)
+    except (ValueError, zlib.error) as error:
+        raise ValueError("Unreadable compressed runtime output") from error
+    T.need(base64.b64encode(compressed).decode("ascii") == packed and len(raw) == size and stream.eof
+           and not stream.unused_data and not stream.unconsumed_tail, "Noncanonical or oversized runtime output")
+    return raw
+
+
+def command_records(T, records):
+    T.need(type(records) is list and 1 <= len(records) <= RUNTIME.COMMAND_COUNT,
+           "Unexpected runtime command count")
+    armor_bytes = 0
+    for record in records:
+        T.need(type(record) is list and len(record) == 6, "Invalid runtime command record")
+        command, exit_code, problem, packed, size, truncated = record
+        T.need(type(command) is str and re.fullmatch(r"[0-9a-f]{64}", command)
+               and (exit_code is None or type(exit_code) is int and -127 <= exit_code <= 255)
+               and problem in (None, "spawn", "timeout", "output-cap", "capture", "unreaped", "receipt-cap")
+               and type(size) is int and 0 <= size <= RUNTIME.MAX_OUTPUT and type(packed) is str
+               and type(truncated) is bool and truncated == (problem not in (None, "spawn"))
+               and (exit_code is None) == (problem in ("spawn", "unreaped"))
+               and (problem != "spawn" or size == 0) and (problem != "receipt-cap" or size <= 256),
+               "Malformed runtime command outcome")
+        armor_bytes += len(packed)
+        T.need(armor_bytes <= RUNTIME.MAX_ARMOR, "Runtime output encoding exceeded its envelope")
+        yield command, dict(exit=exit_code, problem=problem, output=command_output(T, packed, size),
+                            truncated=truncated)
+
+
+class Replay(RUNTIME.Probe):
+    """Provide captured outputs to the pinned workflow without running commands."""
+
+    def __init__(self, T, scratch, records):
+        super().__init__(RUNTIME.TARGET, RUNTIME.TARGET / scratch.lstrip("/"))
+        self.T = T
+        self.records = iter(records)
+
+    def step(self, argv, seconds):
+        command, outcome = next(self.records, (None, None))
+        self.T.need(command == RUNTIME.command_id(argv, seconds), "Unexpected runtime command or deadline")
+        return outcome
+
+
+def read_runtime(T, row, soname, *, held=False):
+    fields = {"status", "uid", "gid", "jbig_soname", "loaders", "probes", "scratch", "commands", "failure"}
+    T.need(type(row) is dict and row.keys() == fields and type(row["uid"]) is type(row["gid"]) is int
+           and row["uid"] == row["gid"] == 65534
+           and row["jbig_soname"] == soname and type(row["scratch"]) is str
+           and RUNTIME.SCRATCH.fullmatch(row["scratch"]),
+           "Ordinary-user runtime identity or scratch path differs")
+    replay = Replay(T, row["scratch"], list(command_records(T, row["commands"])))
+    observed = replay.summarize(soname)
+    T.need(next(replay.records, None) is None, "Runtime transcript has commands after the terminal check")
+    T.need({key: row[key] for key in observed} == observed, "Runtime summary differs from the replayed raw outputs")
+    if observed["status"] == "PASS":
+        T.need(set(observed["loaders"]) == {"/" + name for name in S.I.CONSUMERS}
+               and len(row["commands"]) == RUNTIME.COMMAND_COUNT,
+               "Exact TIFF and PipeWire runtime commands are incomplete")
+    else:
+        T.need(held, "Runtime checks failed in a completed checkpoint")
 
 
 def validate(T, G, result, plan, *, held):
@@ -43,9 +100,24 @@ def validate(T, G, result, plan, *, held):
     if held and row["status"] != TX.PASS:
         T.need(row["status"] in (TX.HOLD_BASELINE, TX.HOLD_DISCARD, TX.HOLD_RESTORED, "HOLD_ASAHI629_JBIG_TIFF_ENTRY"),
                "Unexpected pair status on a held guest")
+        for label, phase in row.get("phases", {}).items():
+            T.need(label in ("baseline", "replacement", "restoration"), "Invalid held runtime checkpoint")
+            if "runtime" in phase:
+                runtime = phase["runtime"]
+                read_runtime(T, runtime, "2.2" if label == "replacement" else "2.1", held=True)
+                if runtime["status"] == "FAIL":
+                    failure = runtime["failure"][:640]
+                    T.need((row["probe_failure"] == failure if label == "replacement"
+                            else row["failure"] == {"phase": label + "-probe", "message": failure}),
+                           "Held runtime failure disagrees with the guest lifecycle")
         return row
     T.need(row["status"] == TX.PASS and row["failure"] is row["probe_failure"] is None
            and row["unsigned_control"] == "package missing required signature", "Pair replacement or unsigned refusal held")
+    recipe = I.jpeg_recipe()
+    T.need(row["candidate_tiff"] == dict(version=recipe["VERSION"], dependency=recipe["JPEG_DEPENDENCY"],
+                                          recipe=recipe["PKGBUILD_PIN"])
+           and row["reverse_jbig_scope"] == "NAMED_OBJECTS_ONLY",
+           "Candidate JPEG-corrected TIFF recipe or named reverse-JBIG scope differs")
     review = plan["jbig_tiff"]["test_review"]
     trust = row["trust"]
     T.need(trust["policy"] == "Required TrustedOnly" and trust["fingerprint"] == review["fingerprint"]
@@ -77,6 +149,8 @@ def validate(T, G, result, plan, *, held):
                and phase["provider_files"] == {path: pin for pkg in providers for path, pin in I.PROVIDER_FILES[pkg].items()}
                and phase["consumers"] == {path: ref["pin"] for path, ref in I.CONSUMERS.items()}
                and phase["consumer_metadata"] == baseline_metadata
+               and phase["jpeg_provider"] == dict(package=I.JPEG_PACKAGE, version=I.JPEG_PROVIDER_VERSION,
+                                                   provides=recipe["JPEG_DEPENDENCY"])
                and phase["tiffgt"] == ("ABSENT_PARITY_GAP" if project else "OFFICIAL"),
                "Wrong installed package files, ownership or protected paths at " + name)
         read_runtime(T, phase["runtime"], "2.2" if project else "2.1")
@@ -123,9 +197,14 @@ def independent(L, stage, disk, observation, sha256):
         evidence = Path(work) / "evidence"
         L.export(reader, disk, evidence, held=observed["held"])
         verified = review(L, evidence, plan, held=observed["held"])
+    checkpoint = verified.get("jbig_tiff_checkpoint")
+    if checkpoint is not None and checkpoint["status"] == TX.PASS:
+        I = S.I
+        tiff = stage / "inputs/jbig-tiff" / I.PROVIDERS[I.PROJECT_TIFF]["filename"]
+        T.need(I.require_qualified_tiff(tiff) == checkpoint["candidate_tiff"],
+               "Reopened staged TIFF archive differs from its runtime evidence")
     T.need(T.identity(disk.lstat()) == original_identity, "Stopped result disk changed during review")
     T.read(disk, observed["disk"], cap=L.C.RESULT_SIZE, collect=False)
-    checkpoint = verified.get("jbig_tiff_checkpoint")
     return dict(kind="ASAHI629_JBIG_TIFF_INDEPENDENT_READBACK_V1", nonce=plan["nonce"], disk=observed["disk"],
                 observation=T.pin(raw), checkpoint=checkpoint, original_asahi=verified["status"])
 

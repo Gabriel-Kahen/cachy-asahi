@@ -12,6 +12,7 @@ import lzma
 import os
 from pathlib import Path
 import re
+from runpy import run_path
 import stat
 import subprocess
 import sys
@@ -32,7 +33,11 @@ ALARM_FINGERPRINT = "68B3537F39A313B3E574D06777193F152BDBE6A6"
 ALARM_KEY = pin(2228, "9403f923eed777ba0896a0b225e1522d3a7625234694c753ae26b27c29672aae")
 ALARM_TRANSPORT_KEY = pin(3098, "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f")
 BASELINE = pin(12346, "f335e8430a1d6f8463e95e16524cf78fc224c24fb31cf8717723370490bae9fa")
-REPLACEMENT = pin(12374, "1e69e2ebe1f1d021fe85a1b0a0f0aaddc8897ff142e7783197419bd8f093b9a6")
+HISTORICAL_REPLACEMENT = pin(12374, "1e69e2ebe1f1d021fe85a1b0a0f0aaddc8897ff142e7783197419bd8f093b9a6")
+# Set only after reviewing the successor archive, provider payloads and projected lock.
+# Required keys are provider (package() row), payloads (path-to-pin map), and replacement (lock pin).
+QUALIFICATION_TIFF = None
+REPLACEMENT = HISTORICAL_REPLACEMENT if QUALIFICATION_TIFF is None else QUALIFICATION_TIFF["replacement"]
 PLATFORM = pin(88933, "b4d84a4eacba5e57264bdaca91b68034e87cbd4d997975c55e1f2da3688218a7")
 ASAHI_RESULT = pin(1954, "7acb1874ae50cd41910e3bc420e67afbb63147d93140ed7e482faa52e860987b")
 ASAHI_TERMINAL = pin(2092, "d32b162c363160e8a7f36794019cbf94b76ba45dcc91b843583660d450c85435")
@@ -43,7 +48,17 @@ ROUNDTRIP_SOURCE = pin(2147, "631664b28853fd1dccd5fdef355cf5626f719147f9b4c78109
 ENV = {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "TZ": "UTC"}
 
 OFFICIAL = {"jbigkit": "2.1-8", "libtiff": "4.7.2-1"}
-PROJECT = {"cachy-asahi-jbigkit": "2.2-1.1", "cachy-asahi-libtiff": "4.7.2-1.1"}
+PROJECT_TIFF = "cachy-asahi-libtiff"
+HISTORICAL_PROJECT = {"cachy-asahi-jbigkit": "2.2-1.1", PROJECT_TIFF: "4.7.2-1.1"}
+RETIRING_JBIG = ("libjbig.so.2.1", "libjbig85.so.2.1")
+JPEG_PACKAGE = "libjpeg-turbo"
+JPEG_PROVIDER_VERSION = "3.2.0-2"
+JPEG_DESCRIPTOR = "var/lib/pacman/local/libjpeg-turbo-3.2.0-2/desc"
+JPEG_PAYLOAD = "usr/lib/libjpeg.so.8.3.2"
+JPEG_PROVIDER_FILES = {
+    JPEG_DESCRIPTOR: pin(480, "9b6993129ba972b10606a6c8618d952c5efe84ebe2d0ac7761dd40b4244e015a"),
+    JPEG_PAYLOAD: pin(526400, "ac27ab464ab783be9cf059ac16ea577427a7bce10406121eb34c34b2031158b3"),
+}
 
 
 def package(name, version, size, digest, signature=None):
@@ -51,18 +66,21 @@ def package(name, version, size, digest, signature=None):
                 archive=pin(size, digest), signature=pin(566, signature) if signature else None)
 
 
-PROVIDERS = {
+HISTORICAL_PROVIDERS = {
     "jbigkit": package("jbigkit", OFFICIAL["jbigkit"], 48816,
                        "ecaddb099f4a1f1bcbc1497fd0f3dc98581552b9eacaa17c5568211c38bec1db",
                        "f00be593f9ab5855f9e450d054e6cacd319ec834ef7fc97c51bcf3be3ebfdb1f"),
     "libtiff": package("libtiff", OFFICIAL["libtiff"], 354480,
                        "02a5d2d74019b39befd6cf63d9bde95a2d16f91b4d0d56939498375e0e491ffd",
                        "8dae1efda531e3ac7db09512cfe0c619eaae6787cc16fdea1315588b4fc340fa"),
-    "cachy-asahi-jbigkit": package("cachy-asahi-jbigkit", PROJECT["cachy-asahi-jbigkit"], 143352,
+    "cachy-asahi-jbigkit": package("cachy-asahi-jbigkit", HISTORICAL_PROJECT["cachy-asahi-jbigkit"], 143352,
                                   "98636579a9653b64987646ab2066fb0e4d9763ae44d52984c7d4677827a2af97"),
-    "cachy-asahi-libtiff": package("cachy-asahi-libtiff", PROJECT["cachy-asahi-libtiff"], 861864,
+    PROJECT_TIFF: package(PROJECT_TIFF, HISTORICAL_PROJECT[PROJECT_TIFF], 861864,
                                   "085e8293b170ef5fa30febd3f7d4079da69b4b104c0e91733a30640e2e3f8875"),
 }
+PROVIDERS = HISTORICAL_PROVIDERS if QUALIFICATION_TIFF is None else (
+    HISTORICAL_PROVIDERS | {PROJECT_TIFF: QUALIFICATION_TIFF["provider"]})
+PROJECT = {name: PROVIDERS[name]["version"] for name in HISTORICAL_PROJECT}
 CONSUMER_ARCHIVES = {
     "lcms2": package("lcms2", "2.19.1-1", 205460,
                      "5f93d01820b4e1a463f3cb11e19916bb3761b4faca20d4e1f0854329ba3f46f8",
@@ -83,7 +101,7 @@ CONSUMER_ARCHIVES = {
 TIFF_LIBRARY = "usr/lib/libtiff.so.6.3.0"
 TIFFXX_LIBRARY = "usr/lib/libtiffxx.so.6.3.0"
 TIFFGT = "usr/bin/tiffgt"
-PROVIDER_FILES = {
+HISTORICAL_PROVIDER_FILES = {
     "jbigkit": {
         "usr/lib/libjbig.so.2.1": pin(49776, "a2e8fac677530e375bd369f1e46fb773e95baa88b6995e5687f6dadf3a0e985d"),
         "usr/lib/libjbig85.so.2.1": pin(18280, "7543b356c4604cccb0aa5eff1f5f7ae5cd665853051419f9b280efd6eda2cf40"),
@@ -97,11 +115,13 @@ PROVIDER_FILES = {
         "usr/lib/libjbig.so.2.2": pin(78608, "6889273144dd76d0e00516a971bac18363e98746dde99a079ae26c2a44d95d6c"),
         "usr/lib/libjbig85.so.2.2": pin(67592, "448c9393e65bd855749d3007d707c9ebf760413e7543cb3aa97378b86bff7479"),
     },
-    "cachy-asahi-libtiff": {
+    PROJECT_TIFF: {
         TIFF_LIBRARY: pin(591976, "1c11df5fcd30e0b8ad285083bff41f7d017670e8f6f94750b70147884141ace4"),
         TIFFXX_LIBRARY: pin(67592, "6f38e390028607be4d3482ae49ba772ba5eceb78554529ce947e79414838bb73"),
     },
 }
+PROVIDER_FILES = HISTORICAL_PROVIDER_FILES if QUALIFICATION_TIFF is None else (
+    HISTORICAL_PROVIDER_FILES | {PROJECT_TIFF: QUALIFICATION_TIFF["payloads"]})
 
 
 def consumer(name, size, digest, imports):
@@ -160,14 +180,15 @@ def inventory(raw):
     return result
 
 
-def project(raw):
+def project(raw, *, historical=False):
     require(body_pin(raw) == BASELINE, "Unexpected rollback lock pin")
+    candidates, target = (HISTORICAL_PROJECT, HISTORICAL_REPLACEMENT) if historical else (PROJECT, REPLACEMENT)
     rows = inventory(raw)
     require(all(rows.get(name) == version for name, version in OFFICIAL.items())
-            and not rows.keys() & PROJECT.keys(), "Unexpected installed pair")
-    replacement = {name: version for name, version in rows.items() if name not in OFFICIAL} | PROJECT
+            and not rows.keys() & candidates.keys(), "Unexpected installed pair")
+    replacement = {name: version for name, version in rows.items() if name not in OFFICIAL} | candidates
     projected = "".join(f"{name} {version}\n" for name, version in sorted(replacement.items())).encode("ascii")
-    require(body_pin(projected) == REPLACEMENT, "Unexpected projected replacement lock")
+    require(body_pin(projected) == target, "Unexpected projected replacement lock")
     return projected, raw
 
 
@@ -233,6 +254,51 @@ def selected_members(body, expected, *, forbidden=()):
     return members
 
 
+def metadata_values(body, key):
+    prefix = key + " = "
+    return [line.removeprefix(prefix) for line in body.decode("utf-8").splitlines() if line.startswith(prefix)]
+
+
+def jpeg_recipe():
+    return run_path(str(Path(__file__).with_name("jpeg_recipe.py")))
+
+
+def jpeg_requirement(metadata, buildinfo, recipe):
+    required = {
+        "pkgname": PROJECT_TIFF,
+        "pkgver": recipe["VERSION"],
+        "arch": "aarch64",
+    }
+    require(all(metadata_values(metadata, key) == [value] for key, value in required.items()),
+            "Unexpected JPEG-corrected TIFF package identity")
+    dependencies = metadata_values(metadata, "depend")
+    require(dependencies.count("libjpeg-turbo") == 1 and dependencies.count(recipe["JPEG_DEPENDENCY"]) == 1,
+            "Qualification requires the exact libjpeg.so=8-64 package dependency")
+    require(metadata_values(buildinfo, "pkgbuild_sha256sum") == [recipe["PKGBUILD_PIN"]["sha256"]],
+            "JPEG-corrected TIFF archive was built from a different recipe")
+    return dict(version=recipe["VERSION"], dependency=recipe["JPEG_DEPENDENCY"], recipe=recipe["PKGBUILD_PIN"])
+
+
+def require_qualified_tiff(path):
+    recipe = jpeg_recipe()
+    row = PROVIDERS[PROJECT_TIFF]
+    require(row["version"] == recipe["VERSION"],
+            "Guest qualification awaits an audited pin for the JPEG-corrected TIFF 4.7.2-1.2 archive")
+    require(path.name == row["filename"], "Unexpected JPEG-corrected TIFF archive name")
+    members = selected_members(read(path, row["archive"]), {".PKGINFO": None, ".BUILDINFO": None})
+    return jpeg_requirement(members[".PKGINFO"], members[".BUILDINFO"], recipe)
+
+
+def jpeg_provider(raw, dependency):
+    marker = b"%PROVIDES%\n"
+    rows = raw.split(b"\n\n")
+    require(b"%NAME%\n" + JPEG_PACKAGE.encode() in rows
+            and b"%VERSION%\n" + JPEG_PROVIDER_VERSION.encode() in rows
+            and sum(block.startswith(marker) and dependency.encode() in block.splitlines()[1:]
+                    for block in rows) == 1, "Asahi629 JPEG provider metadata differs")
+    return dict(package=JPEG_PACKAGE, version=JPEG_PROVIDER_VERSION, provides=dependency)
+
+
 def package_members(path, name, row, members, home, *, forbidden=()):
     require(path.name == row["filename"], f"Unexpected archive name: {path.name}")
     body = read(path, row["archive"])
@@ -241,9 +307,9 @@ def package_members(path, name, row, members, home, *, forbidden=()):
         signature = read(path.with_name(path.name + ".sig"), row["signature"])
         status = verify_alarm(body, signature, home)
     result = selected_members(body, {".PKGINFO": None, **members}, forbidden=forbidden)
-    metadata = result.pop(".PKGINFO").decode("utf-8").splitlines()
+    metadata = result.pop(".PKGINFO")
     for key, value in (("pkgname", name), ("pkgver", row["version"]), ("arch", "aarch64")):
-        require([line for line in metadata if line.startswith(f"{key} = ")] == [f"{key} = {value}"],
+        require(metadata_values(metadata, key) == [value],
                 f"Incorrect {key} in {name}")
     return result, status
 
@@ -279,7 +345,7 @@ def tiff_imports(elf_text):
 def check_abi(blobs, tiff):
     text = elf(tiff)
     needed, _ = tiff_imports(text)
-    require("libjbig.so.2.2" in needed and "libjbig.so.2.1" not in needed
+    require({"libjbig.so.2.2", "libjpeg.so.8"} <= needed and not needed.intersection(RETIRING_JBIG)
             and re.search(r"\(SONAME\).*\[libtiff\.so\.6\]", text), "Unexpected project TIFF linkage")
     exports = set(re.findall(r"^\s*\d+:\s+\w+\s+\d+\s+\S+\s+(?:GLOBAL|WEAK)\s+"
                              r"(?:DEFAULT|PROTECTED)\s+\d+\s+(\S+?)@@?(\S+)$", text, re.MULTILINE))
@@ -310,16 +376,24 @@ def predecessor(result, terminal):
 
 
 def prove_seed(seed, members):
+    jpeg_desc = None
     with opened(seed, ASAHI_SEED) as image:
         fd = image.fileno()
         for name, expected in members.items():
             raw = run(["/usr/bin/debugfs", "-R", f"cat /{name}", f"/proc/self/fd/{fd}"], fd)
             require(body_pin(raw) == expected, f"Seed payload mismatch: {name}")
+            if name == JPEG_DESCRIPTOR:
+                jpeg_desc = raw
+    return jpeg_desc
 
 
-def audit(stage, official_cache, project_jbig, project_tiff, rollback_evidence, terminal, seed, public_key=None):
+def audit(stage, official_cache, project_jbig, project_tiff, rollback_evidence, terminal, seed, public_key=None,
+          *, qualification=False):
     lock = read(rollback_evidence / "rollback.lock", BASELINE)
-    projected, restored = project(lock)
+    projected, restored = project(lock, historical=not qualification)
+    providers = PROVIDERS if qualification else HISTORICAL_PROVIDERS
+    payloads = PROVIDER_FILES if qualification else HISTORICAL_PROVIDER_FILES
+    tiff_metadata = require_qualified_tiff(project_tiff) if qualification else None
     predecessor(json.loads(read(rollback_evidence / "result.json", ASAHI_RESULT)),
                 json.loads(read(terminal, ASAHI_TERMINAL)))
     manifest = json.loads(read(stage / "manifest.json", ASAHI_STAGE))
@@ -333,9 +407,9 @@ def audit(stage, official_cache, project_jbig, project_tiff, rollback_evidence, 
         (home / "alarm.gpg").write_bytes(alarm_key(stage, manifest, public_key))
         for name, path in paths.items():
             members, signers[name] = package_members(
-                path, name, PROVIDERS[name], PROVIDER_FILES[name], home,
-                forbidden=(TIFFGT,) if name == "cachy-asahi-libtiff" else ())
-            if name == "cachy-asahi-libtiff":
+                path, name, providers[name], payloads[name], home,
+                forbidden=(TIFFGT,) if name == PROJECT_TIFF else ())
+            if name == PROJECT_TIFF:
                 project_tiff_body = members[TIFF_LIBRARY]
         for name, spec in CONSUMER_ARCHIVES.items():
             require(rows[name] == spec["version"], f"{name}: wrong exact lock version")
@@ -352,14 +426,17 @@ def audit(stage, official_cache, project_jbig, project_tiff, rollback_evidence, 
             wanted = {member: row["pin"] for member, row in CONSUMERS.items() if row["package"] == name}
             members, signers[name] = package_members(path, name, spec, wanted, home)
             consumers.update(members)
-    prove_seed(seed, PROVIDER_FILES["jbigkit"] | PROVIDER_FILES["libtiff"] |
-               {"usr/bin/tificc": CONSUMERS["usr/bin/tificc"]["pin"]})
+    require(rows[JPEG_PACKAGE] == JPEG_PROVIDER_VERSION, "Unexpected exact Asahi629 JPEG package")
+    jpeg = prove_seed(seed, PROVIDER_FILES["jbigkit"] | PROVIDER_FILES["libtiff"] | JPEG_PROVIDER_FILES |
+                      {"usr/bin/tificc": CONSUMERS["usr/bin/tificc"]["pin"]})
     return dict(kind="ASAHI629_JBIG_TIFF_PASSIVE_AUDIT_V1", authority=None, issued_signatures=None,
                 baseline=BASELINE, replacement=body_pin(projected), restoration=body_pin(restored),
                 platform=PLATFORM, source_transport=ASAHI_STAGE, seed=ASAHI_SEED,
                 predecessor=dict(result=ASAHI_RESULT, terminal=ASAHI_TERMINAL), alarm_key=ALARM_KEY,
-                provider_archives=PROVIDERS, provider_payloads=PROVIDER_FILES,
+                provider_archives=providers, provider_payloads=payloads, qualification_tiff_metadata=tiff_metadata,
                 consumer_archives=CONSUMER_ARCHIVES, verified_alarm_status=signers,
+                retiring_jbig=dict(sonames=RETIRING_JBIG, scope="NAMED_OBJECTS_ONLY", members=sorted(CONSUMERS)),
+                jpeg_provider=jpeg_provider(jpeg, jpeg_recipe()["JPEG_DEPENDENCY"]),
                 consumers=check_abi(consumers, project_tiff_body),
                 package_parity_gap=dict(path=TIFFGT, original=True, candidate=False))
 
@@ -370,6 +447,7 @@ def main():
                  "terminal", "seed"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--public-key", type=Path, help="Pinned dearmored ALARM key. Defaults to the retained transport key.")
+    parser.add_argument("--qualification", action="store_true", help="Require the JPEG-corrected qualification archive.")
     try:
         print(json.dumps(audit(**vars(parser.parse_args())), sort_keys=True))
     except (KeyError, OSError, ValueError, lzma.LZMAError, tarfile.TarError, subprocess.SubprocessError) as error:

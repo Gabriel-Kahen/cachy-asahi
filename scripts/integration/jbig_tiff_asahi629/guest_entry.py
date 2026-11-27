@@ -12,7 +12,8 @@ import time
 CODE = Path("/trial-code/jbig-tiff")
 SCOPE = "jbig-tiff/"
 CERTIFICATE = "test-certificate.gpg"
-SOURCES = frozenset({"inputs.py", "transaction.py", "runtime.py", "consumer_probe.c", "tiff-jbig-roundtrip.c"})
+SOURCES = frozenset({"inputs.py", "jpeg_recipe.py", "transaction.py", "runtime.py", "consumer_probe.c",
+                     "tiff-jbig-roundtrip.c"})
 ENV = {"PATH": "/usr/bin:/bin", "LC_ALL": "C", "TZ": "UTC"}
 POLICY = b"[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\n"
 ALPM_ACTION = re.compile(r"\[ALPM\] (installed|removed|upgraded|reinstalled|downgraded) ([^ ]+) \(([^)]+)\)$")
@@ -105,6 +106,7 @@ def absent(T, path):
 
 def check_links(T, target, soname):
     links = {"libjbig.so": f"libjbig.so.{soname}", "libjbig85.so": f"libjbig85.so.{soname}",
+             "libjpeg.so.8": "libjpeg.so.8.3.2",
              "libtiff.so": "libtiff.so.6", "libtiff.so.6": "libtiff.so.6.3.0",
              "libtiffxx.so": "libtiffxx.so.6", "libtiffxx.so.6": "libtiffxx.so.6.3.0"}
     for name, expected in links.items():
@@ -113,6 +115,7 @@ def check_links(T, target, soname):
 
 def observer(T, O, G, I):
     initial_metadata = {}
+    jpeg_dependency = I.jpeg_recipe()["JPEG_DEPENDENCY"]
 
     def observe(label, providers, reasons, raw):
         project = label == "replacement"
@@ -122,6 +125,10 @@ def observer(T, O, G, I):
         pacman = ["/usr/bin/chroot", str(target), "/usr/bin/pacman", "--color", "never"]
         call([*pacman, "-Dk"])
         call([*pacman, "-Qk", "--", *providers])
+        T.read(target / I.JPEG_PAYLOAD, I.JPEG_PROVIDER_FILES[I.JPEG_PAYLOAD], cap=2 << 20, collect=False)
+        jpeg = I.jpeg_provider(T.read(target / I.JPEG_DESCRIPTOR, I.JPEG_PROVIDER_FILES[I.JPEG_DESCRIPTOR], cap=4096),
+                               jpeg_dependency)
+        call([*pacman, "-T", "--", jpeg["provides"]])
         payloads = {name: T.read(target / name, pin, cap=pin["bytes"], collect=False)
                     for package in providers for name, pin in I.PROVIDER_FILES[package].items()}
         for package in providers:
@@ -152,7 +159,8 @@ def observer(T, O, G, I):
             absent(T, target / "usr/share/doc/cachy-asahi-jbigkit/source/PKGBUILD")
             absent(T, target / "usr/share/cachy-asahi-libtiff/corresponding-source/inventory.json")
         return dict(lock=T.pin(raw), platform=platform, provider_reasons=reasons, provider_files=payloads,
-                    consumers=consumers, consumer_metadata=initial_metadata.copy(), tiffgt="ABSENT_PARITY_GAP" if project else "OFFICIAL")
+                    consumers=consumers, consumer_metadata=initial_metadata.copy(), jpeg_provider=jpeg,
+                    tiffgt="ABSENT_PARITY_GAP" if project else "OFFICIAL")
 
     return observe
 
@@ -196,6 +204,7 @@ def run(T, O, G, selected):
     baseline = T.read(O.IN / "rollback.lock", I.BASELINE, cap=64 << 10)
     replacement, _ = I.project(baseline)
     paths = {name: O.IN / SCOPE / row["filename"] for name, row in I.PROVIDERS.items()}
+    candidate_tiff = I.require_qualified_tiff(paths[I.PROJECT_TIFF])
     log = O.WORK / "jbig-tiff-alpm.log"
     backend = tx.Backend(G.trust_homes(O)["pacman"], log, paths)
 
@@ -209,14 +218,15 @@ def run(T, O, G, selected):
                           lambda soname: runtime.run(O.TARGET, CODE / "tiff-jbig-roundtrip.c",
                                                      CODE / "consumer_probe.c", soname=soname),
                           lambda: authenticate(T, O, G, selected, I, review, paths), current,
-                          dict(kind="ASAHI629_JBIG_TIFF_CHECKPOINT_V1", nonce=nonce))
-    if report["status"] in (tx.PASS, tx.HOLD_RESTORED) and log.is_file():
-        body = T.read(log, cap=32 << 10)
+                          dict(kind="ASAHI629_JBIG_TIFF_CHECKPOINT_V1", nonce=nonce, candidate_tiff=candidate_tiff,
+                               reverse_jbig_scope="NAMED_OBJECTS_ONLY"))
+    if report["status"] in (tx.PASS, tx.HOLD_RESTORED):
         try:
-            report["alpm"] = check_log(T, body.decode("ascii"), I.OFFICIAL, I.PROJECT)
-            report["alpm_log"] = body.decode("ascii")
+            body = T.read(log, cap=32 << 10).decode("ascii")
+            report["alpm"] = check_log(T, body, I.OFFICIAL, I.PROJECT)
+            report["alpm_log"] = body
         except (ValueError, OSError) as error:
             report["status"] = tx.HOLD_DISCARD
-            report["failure"] = dict(phase="alpm-readback", message=str(error)[:640])
+            report["alpm_failure"] = str(error)[:640]
     T.need(len(T.encoded(report)) <= 96 << 10, "Scoped guest evidence exceeded result envelope")
     return report
