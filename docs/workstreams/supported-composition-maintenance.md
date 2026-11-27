@@ -220,6 +220,17 @@ projected locks are under `~/.codex/evidence/asahi629-sign-free-preflight-Bhh1eY
 `archive-and-certificate-preflight.json` has SHA-256
 `0ff4c9cb9679525c3aa982d9bfc06106c208f876ba6c07581fb0c12413e92793`.
 
+An independent ownership preflight rehashed the five project archives,
+369 vendor archives and the original raw Asahi seed. It checked 31 distinct
+project payload leaves and their 21 ancestors against the exact archive
+members, the seed's 261 ALPM file lists and read-only inode lookup. No project
+leaf collided with an existing path, and every shared ancestor was a
+directory. The five project archives contain no package install scripts or
+ALPM hooks. The receipt covers this project path check. The guest trial still
+needs to exercise vendor hooks and validate the resulting filesystem.
+The private `asahi629-ownership-preflight.uk5lcJES/receipt.json` has SHA-256
+`6afb50be120c9bc831184b68c872210776560f0b371f760b6483ebdbf9dae686`.
+
 The staging TEST certificate `3F31C957865CD10AF794C90D177CA1397E0C5806`
 expires November 26 at 19:49:12 UTC. It had 1,019 seconds remaining at the
 readback, short of the existing 5,820-second bind and run budget. The synthetic

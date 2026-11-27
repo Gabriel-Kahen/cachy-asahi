@@ -20,14 +20,17 @@ Qtbase passed dependency installation and configure in emulated 16 KiB AArch64.
 QtCore and QtGui linked, and the QtGui reader verified the dynamic relocation
 to the pinned system md4c provider. The full build, package assembly and
 TEST-signed installed lifecycle passed independent readback and retirement
-on the Q3 baseline. Selection of the supported Asahi composition, official
-Qt provider replacement, installed Asahi kernel boot and recovery, both
+on the Q3 baseline. An offline direct boot of the exact stock Asahi kernel
+with an auxiliary initramfs reached the installed systemd's `basic.target`.
+Selection of the supported Asahi composition, official Qt provider
+replacement, default Asahi boot and recovery, both
 physical M2 Air sizes and production release promotion remain open.
 [Qtbase validation](validation/qtbase612-emulated-arm16k-configure-20261118.md)
 · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md)
 · [QtGui link](validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
 · [Full Qtbase build](../scripts/integration/qt612_full_16k_preflight/README.md)
 · [Installed Qtbase lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
+· [Stock Asahi kernel and installed systemd](validation/asahi626-maintenance-emulated-arm16k-20261118.md#installed-systemd-on-a-disposable-overlay)
 · [Implementation status](implementation-status.md)
 
 ## Five required workstreams
