@@ -16,6 +16,9 @@ HERE = Path(__file__).resolve().parent
 SPEC = importlib.util.spec_from_file_location('retained_ui_audit_under_test', HERE / 'audit.py')
 audit = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(audit)
+CHECKER = 'scripts/checks/package_checks.py'
+HELD_CHECKER = (audit.ROOT / 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
+                / 'scripts/ci/llhttp-reference-native-source/base/runtime' / CHECKER)
 
 
 def elf(alignment=16384):
@@ -31,8 +34,16 @@ class AuditControls(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.config = json.loads((HERE / 'inputs.json').read_text())
-        # Authenticate all inherited reader byte pins before importing those readers.
-        cls.modules = audit.modules(cls.config)
+        temporary = tempfile.TemporaryDirectory(prefix='retained-ui-readers-')
+        cls.addClassCleanup(temporary.cleanup)
+        cls.reader_root = Path(temporary.name)
+        for name, row in cls.config['reader_sources'].items():
+            source = HELD_CHECKER if name == CHECKER else audit.ROOT / name
+            target = cls.reader_root / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(audit.checked_bytes({'path': str(source), **row}))
+        with patch.object(audit, 'ROOT', cls.reader_root):
+            cls.modules = audit.modules(cls.config)
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(prefix='retained-ui-synthetic-')
@@ -63,6 +74,11 @@ class AuditControls(unittest.TestCase):
 
     def inspect(self, members=None):
         return audit.inspect(self.archive(members), self.item, self.modules, self.limits, self.budget)
+
+    def test_geometry_reader_uses_exact_held_checker(self):
+        checker = Path(self.modules['geometry'].__file__)
+        self.assertEqual(checker, self.reader_root / CHECKER)
+        self.assertEqual(checker.read_bytes(), HELD_CHECKER.read_bytes())
 
     def test_snapshot_full_pin_and_same_length_change(self):
         source = self.root / 'source'

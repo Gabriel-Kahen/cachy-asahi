@@ -7,14 +7,15 @@ import tempfile
 import unittest
 
 CI = None  # The fenced driver supplies its already verified helper module.
+SOURCE = None  # Original operands staged under their canonical paths.
 
 
 class Controls(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.D = json.loads((CI.SOURCE / 'builder.lock.json').read_bytes())
-        cls.P = CI.module(CI.SOURCE / 'plan.py', 'minimal206_fixed_plan')
-        cls.E = CI.module(CI.SOURCE / 'export.py', 'minimal206_exact_export')
+        cls.D = json.loads((SOURCE / 'builder.lock.json').read_bytes())
+        cls.P = CI.module(SOURCE / 'plan.py', 'minimal206_fixed_plan')
+        cls.E = CI.module(SOURCE / 'export.py', 'minimal206_exact_export')
         cls.R = cls.P.resolver()
         cls.regenerated, cls.signatures = cls.P.plan(CI.verify_catalogs(CI.HERE / 'catalogs'))
 
@@ -28,7 +29,10 @@ class Controls(unittest.TestCase):
         return self.R.resolve(anchors, view, self.D['roots'], {}, limits=self.R.Limits(max_packages=256, max_edges=4096, max_depth=128, max_seconds=60))
 
     def test_genuine_full_catalog_regeneration_is_byte_identical(self):
-        self.assertEqual(self.P.encoded(self.regenerated), (CI.SOURCE / 'builder.lock.json').read_bytes())
+        checker = self.P.ROOT / CI.CHECKER
+        self.assertNotEqual(checker, CI.ROOT / CI.CHECKER)
+        self.assertEqual(checker.read_bytes(), (CI.ROOT / CI.HELD_CHECKER).read_bytes())
+        self.assertEqual(self.P.encoded(self.regenerated), (SOURCE / 'builder.lock.json').read_bytes())
         self.assertEqual(len(self.regenerated['packages']), 206); self.assertEqual(len(self.regenerated['edges']), 869)
         self.assertEqual(len(self.regenerated['resolver_remaining_review_holds']), 1236)
         self.assertEqual(len(self.regenerated['catalog_unselectable']), 7)
@@ -41,9 +45,9 @@ class Controls(unittest.TestCase):
 
     def test_native_operand_and_expected206_inventory_regenerate_exact(self):
         native = self.E.project(self.regenerated)
-        self.assertEqual(self.E.encoded(native), (CI.SOURCE / 'native-inputs.lock.json').read_bytes())
+        self.assertEqual(self.E.encoded(native), (SOURCE / 'native-inputs.lock.json').read_bytes())
         inventory = ''.join(r['name'] + ' ' + r['version'] + '\n' for r in self.regenerated['packages']).encode()
-        self.assertEqual(inventory, (CI.SOURCE / 'expected206.lock').read_bytes())
+        self.assertEqual(inventory, (SOURCE / 'expected206.lock').read_bytes())
         self.assertEqual(len(native['packages']), 206); self.assertEqual(native['status'], 'UNISSUED_BUILD_ONLY_INPUTS')
         self.assertEqual(native['native_build'], 'NOT RUN'); self.assertEqual(native['installation'], 'NOT RUN')
         self.assertEqual(len(native['rootfs_packages']), 165)
