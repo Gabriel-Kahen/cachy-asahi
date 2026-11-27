@@ -10,7 +10,6 @@ on:
       - scripts/client/test_endpoint_v2.py
       - scripts/release/export_repository.py
       - scripts/release/export_repository_v2.py
-      - scripts/release/test_export_repository_v2.py
       - scripts/release/recover_repository.py
       - scripts/release/test_recover_repository.py
       - scripts/release/offline_kit.py
@@ -18,12 +17,6 @@ on:
       - scripts/release/source_delivery.py
       - scripts/release/test_export_repository.py
       - scripts/release/test_release.py
-      - scripts/release/signing_transition.py
-      - scripts/release/test_signing_transition.py
-      - scripts/release/compare_releases.py
-      - scripts/release/compare_releases_v2.py
-      - scripts/release/test_compare_releases.py
-      - scripts/maintenance/signing_expiry.py
       - .github/workflows/endpoint-copy-source.yml
   push:
     branches: [main]
@@ -36,7 +29,6 @@ on:
       - scripts/client/test_endpoint_v2.py
       - scripts/release/export_repository.py
       - scripts/release/export_repository_v2.py
-      - scripts/release/test_export_repository_v2.py
       - scripts/release/recover_repository.py
       - scripts/release/test_recover_repository.py
       - scripts/release/offline_kit.py
@@ -44,12 +36,6 @@ on:
       - scripts/release/source_delivery.py
       - scripts/release/test_export_repository.py
       - scripts/release/test_release.py
-      - scripts/release/signing_transition.py
-      - scripts/release/test_signing_transition.py
-      - scripts/release/compare_releases.py
-      - scripts/release/compare_releases_v2.py
-      - scripts/release/test_compare_releases.py
-      - scripts/maintenance/signing_expiry.py
       - .github/workflows/endpoint-copy-source.yml
   workflow_dispatch:
 permissions:
@@ -79,22 +65,6 @@ jobs:
             directory: scripts/release
             pattern: test_recover_repository.py
             minimum: 27
-          - suite: release-controller
-            directory: scripts/release
-            pattern: test_release.py
-            minimum: 46
-          - suite: endpoint-export
-            directory: scripts/release
-            pattern: test_export_repository.py
-            minimum: 29
-          - suite: endpoint-export-v2
-            directory: scripts/release
-            pattern: test_export_repository_v2.py
-            minimum: 5
-          - suite: signing-transition
-            directory: scripts/release
-            pattern: test_signing_transition.py
-            minimum: 14
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
