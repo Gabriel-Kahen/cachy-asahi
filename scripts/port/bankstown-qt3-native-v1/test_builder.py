@@ -30,6 +30,9 @@ def fence(event, args):
 sys.addaudithook(fence)
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
+CHECKER = 'scripts/checks/package_checks.py'
+HELD_CHECKER = (ROOT / 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
+                / 'scripts/ci/llhttp-reference-native-source/base/runtime' / CHECKER)
 spec = importlib.util.spec_from_file_location('bankstown_builder_model', HERE / 'builder.py')
 B = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(B)
@@ -101,7 +104,8 @@ class Fixture:
         self.source.mkdir()
         self.materials = {}
         for path in B.HELD:
-            self.add(path, (ROOT / path).read_bytes())
+            source = HELD_CHECKER if path == CHECKER else ROOT / path
+            self.add(path, source.read_bytes())
         for name in ('admission.py', 'profile.py', 'builder.py', 'entry.sh'):
             self.add(B.PREFIX + name, (HERE / name).read_bytes())
         guard = self.materials[B.RECIPE + 'build_guard.py']['sha256']

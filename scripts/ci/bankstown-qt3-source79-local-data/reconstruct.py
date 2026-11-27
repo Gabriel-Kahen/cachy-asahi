@@ -18,6 +18,9 @@ HOSTED = 'scripts/ci/bankstown-qt3-hosted-v1/prepare.py'
 DISPATCH = 'scripts/ci/bankstown-qt3-hosted-v1/prepare_dispatch.py'
 INVENTORY = 'scripts/ci/bankstown-qt3-native-profile-v1/inventory.py'
 READER = 'scripts/ci/bankstown-qt3-hosted-reader-v1/source79/reader.py'
+CHECKER = 'scripts/checks/package_checks.py'
+HELD_CHECKER = ('scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/'
+                'scripts/ci/llhttp-reference-native-source/base/runtime/' + CHECKER)
 
 
 def need(value, message):
@@ -127,7 +130,8 @@ def reconstruct(*, repo, output):
     write(prospective_path, prospective)
     aliases = {'inputs/catalog333.DATA.json':catalog_path,
                'inputs/prospective477.expected.DATA.lock':prospective_path,
-               'inputs/stages/baseline349.expected.lock':baseline_path}
+               'inputs/stages/baseline349.expected.lock':baseline_path,
+               CHECKER:repo/HELD_CHECKER}
     rows = {}
     for member, row in source_map['files'].items():
         path = aliases.get(member, repo/member)
