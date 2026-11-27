@@ -138,3 +138,7 @@ AT-SPI accessibility bridge and omits native CUPS printing and the XWayland
 EGL fallback. The selected Hyprland screen-sharing picker has not had a real
 portal, accessibility or XWayland session test. Those package-parity gaps
 remain development work despite the scoped guest PASS.
+
+The [parity trial design](PARITY-TRIAL.md) specifies the new source, signing,
+versioned lock and receipt bindings for testing the project 6.12.0-4 provider
+against the original official 6.12.0-3 package.

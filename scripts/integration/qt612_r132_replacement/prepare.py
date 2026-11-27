@@ -21,6 +21,7 @@ need = A["need"]
 PROJECT = "cachy-asahi-qt612-gui-server-source-reference"
 OFFICIAL = "qt6-base"
 VERSION = "6.12.0-3"
+PARITY_PROJECT_VERSION = "6.12.0-4"
 COUNT = 629
 PASS629 = "PASS_DISPOSABLE_ASAHI_629_THREE_VERSION_REVERSE"
 OFFICIAL_NAME = f"{OFFICIAL}-{VERSION}-aarch64.pkg.tar.xz"
@@ -53,20 +54,27 @@ def read(role, path):
         raise ValueError(f"{role}: {path}: {error}") from error
 
 
-def projected_swap(body, remove, add):
+def provider_versions(project_version=VERSION):
+    need(type(project_version) is str and project_version in (VERSION, PARITY_PROJECT_VERSION),
+         "Expected an exact Qt project provider version")
+    return {OFFICIAL: VERSION, PROJECT: project_version}
+
+
+def projected_swap(body, remove, add, *, project_version=VERSION):
+    versions = provider_versions(project_version)
+    need({remove, add} == versions.keys(), "Expected the exact official and project Qt providers")
     rows = A["package_inventory"](body, COUNT)
     removed, added = remove.encode("ascii"), add.encode("ascii")
-    version = VERSION.encode("ascii")
-    need(rows.get(removed) == version and added not in rows,
-         f"Expected only the selected installed provider {remove} {VERSION}")
+    need(rows.get(removed) == versions[remove].encode("ascii") and added not in rows,
+         f"Expected only the selected installed provider {remove} {versions[remove]}")
     del rows[removed]
-    rows[added] = version
+    rows[added] = versions[add].encode("ascii")
     return b"".join(name + b" " + release + b"\n" for name, release in sorted(rows.items()))
 
 
-def project(body):
-    replacement = projected_swap(body, OFFICIAL, PROJECT)
-    restored = projected_swap(replacement, PROJECT, OFFICIAL)
+def project(body, *, project_version=VERSION):
+    replacement = projected_swap(body, OFFICIAL, PROJECT, project_version=project_version)
+    restored = projected_swap(replacement, PROJECT, OFFICIAL, project_version=project_version)
     need(restored == body, "Restoration projection differs from original lock bytes")
     return replacement, restored
 
@@ -156,10 +164,11 @@ def verify_official(paths, public_key):
     return dict(fingerprint=A["FINGERPRINT"], status_stream=status)
 
 
-def step(before, after, remove, add, archive):
+def step(before, after, remove, add, archive, *, project_version=VERSION):
+    versions = provider_versions(project_version)
     return dict(before=C.pin(before), after=C.pin(after),
-                remove=[dict(name=remove, version=VERSION)],
-                add=[dict(name=add, version=VERSION, archive_input=archive)])
+                remove=[dict(name=remove, version=versions[remove])],
+                add=[dict(name=add, version=versions[add], archive_input=archive)])
 
 
 def handoff(recovery, official_archive, rollback_evidence, terminal, public_key, audit):

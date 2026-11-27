@@ -28,6 +28,25 @@ class HandoffTests(unittest.TestCase):
         self.assertEqual(restored, baseline)
         self.assertEqual(len(replacement.splitlines()), 629)
 
+    def test_parity_projects_only_the_project_version_and_restores_original_bytes(self):
+        official, candidate = OWNERS
+        baseline = inventory(official)
+        parity = P["PARITY_PROJECT_VERSION"]
+        replacement, restored = P["project"](baseline, project_version=parity)
+        self.assertEqual(set(baseline.splitlines()) - set(replacement.splitlines()),
+                         {f"{official} {VERSION}".encode()})
+        self.assertEqual(set(replacement.splitlines()) - set(baseline.splitlines()),
+                         {f"{candidate} {parity}".encode()})
+        self.assertEqual(restored, baseline)
+        reverse = P["step"](replacement, restored, candidate, official, "official_archive", project_version=parity)
+        self.assertEqual(reverse["remove"], [dict(name=candidate, version=parity)])
+        self.assertEqual(reverse["add"], [dict(name=official, version=VERSION, archive_input="official_archive")])
+        with self.assertRaisesRegex(ValueError, "installed provider"):
+            P["project"](baseline.replace(f"{official} {VERSION}".encode(), f"{official} {parity}".encode()),
+                         project_version=parity)
+        with self.assertRaisesRegex(ValueError, "exact Qt project provider version"):
+            P["project"](baseline, project_version="6.12.0-5")
+
     def test_refuses_wrong_owner_version_duplicate_or_noncanonical_rows(self):
         baseline = inventory(OWNERS[0])
         rows = baseline.splitlines(keepends=True)

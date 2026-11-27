@@ -112,10 +112,11 @@ def weston_fixture(raw):
     return {W["LOG_NAME"]: trace, W["REPORT_NAME"]: C.wire(report)}
 
 
-def fixture():
+def fixture(*, project_version=VERSION):
     """Return canonical receipt data and the original and observed file bodies."""
     lock = (f"{OFFICIAL} {VERSION}\n" + "".join(f"unchanged-{i:04d} 1:2.3-4\n" for i in range(628))).encode()
-    changed, restored = P["project"](lock)
+    changed, restored = P["project"](lock, project_version=project_version)
+    versions = {OFFICIAL: VERSION, PROJECT: project_version}
     fixed = dict(type="file", pin=C.pin(b"fixture"), uid=0, gid=0, mode=0o644, links=1)
     state = {name: fixed for name in ("boot/vmlinuz-linux-asahi", "boot/initramfs-linux-asahi.img",
                                       "etc/fstab", "etc/crypttab")}
@@ -123,6 +124,7 @@ def fixture():
     state.update({f"boot/fixture-{i:03d}": fixed for i in range(357)})
     platform = C.wire(state)
     inputs = {role: ("fixture " + role).encode() for role in R["ORIGINALS"]}
+    inputs["project_archive"] += f" {project_version}".encode()
     inputs["r132_config"] = b"CONFIG_ARM64_16K_PAGES=y\nCONFIG_RTC_DRV_PL031=y\n"
     inputs["rollback_lock"] = lock
     inputs["rollback_result"] = C.wire(dict(
@@ -143,7 +145,7 @@ def fixture():
                 "vendor-runtime-probes.json": runtime_fixture("vendor")})
     raw.update(weston_fixture(raw))
     actions = [("removed", OFFICIAL), ("installed", PROJECT), ("removed", PROJECT), ("installed", OFFICIAL)]
-    raw["pacman.log"] = "".join(f"[2026-11-27T13:30:00+0000] [ALPM] {action} {name} ({VERSION})\n"
+    raw["pacman.log"] = "".join(f"[2026-11-27T13:30:00+0000] [ALPM] {action} {name} ({versions[name]})\n"
                                 for action, name in actions).encode()
     start = NOW * 10**9
     rows = {name: dict(phase=name, at_ns=start + i)
@@ -161,8 +163,9 @@ def fixture():
     for phase in PHASES:
         rows[phase].update(inventory=C.pin(raw[f"{phase}.lock"]), install_reason=1, platform=C.pin(platform))
     for phase, add, remove in (("replacement", PROJECT, OFFICIAL), ("restoration", OFFICIAL, PROJECT)):
-        question = dict(type=4, pair=[[add, VERSION], [remove, VERSION]], accepted=True)
-        rows[f"{phase}-prepare"].update(add={add: VERSION}, remove={remove: VERSION}, questions=[question],
+        added, removed = versions[add], versions[remove]
+        question = dict(type=4, pair=[[add, added], [remove, removed]], accepted=True)
+        rows[f"{phase}-prepare"].update(add={add: added}, remove={remove: removed}, questions=[question],
                                         install_reason=1)
     rows["probe"].update(status="PASS", error=None)
     rows["terminal"].update(kind=R["JOURNAL_KIND"], status="PASS_QT629_PROVIDER_ROUND_TRIP",
@@ -208,6 +211,29 @@ class ReadbackTests(unittest.TestCase):
         body = C.wire(self.receipt)
         (self.bundle / "receipt.json").write_bytes(body)
         return R["readback"](self.bundle, digest or C.pin(body)["sha256"])
+
+    def test_mixed_version_independent_checks_reject_legacy_and_rewritten_actions(self):
+        parity = P["PARITY_PROJECT_VERSION"]
+        receipt, inputs, raw = fixture(project_version=parity)
+        times = R["chronology"](receipt["chronology"])
+        inventory = (receipt["phases"], raw, inputs["rollback_lock"])
+        transaction = (receipt["trust"], raw, times, NONCE)
+        project_archive = C.pin(inputs["project_archive"])
+        self.assertEqual(R["inventories"](*inventory, project_version=parity),
+                         R["inventories"](self.receipt["phases"], self.raw, self.inputs["rollback_lock"]))
+        R["transactions"](*transaction, project_version=parity, project_archive=project_archive)
+        for wrong in (None, C.pin(b""), R["ORIGINALS"]["project_archive"], R["ORIGINALS"]["official_archive"]):
+            with self.subTest(wrong=wrong), self.assertRaisesRegex(ValueError, "distinct independently selected"):
+                R["transactions"](*transaction, project_version=parity, project_archive=wrong)
+        with self.assertRaisesRegex(ValueError, "verified replacement operand"):
+            R["transactions"](*transaction, project_version=parity, project_archive=C.pin(b"wrong archive"))
+        with self.assertRaisesRegex(ValueError, "replacement package lock"):
+            R["inventories"](*inventory)
+        with self.assertRaisesRegex(ValueError, "replacement ALPM prepare"):
+            R["transactions"](*transaction)
+        raw["pacman.log"] = raw["pacman.log"].replace(parity.encode(), VERSION.encode())
+        with self.assertRaisesRegex(ValueError, "ALPM log differs"):
+            R["transactions"](*transaction, project_version=parity, project_archive=project_archive)
 
     def change_evidence(self, name, body):
         (self.bundle / name).write_bytes(body)

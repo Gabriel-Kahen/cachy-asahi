@@ -116,8 +116,8 @@ def chronology(rows):
     return times
 
 
-def inventories(phases, raw, original):
-    expected, restored = P["project"](original)
+def inventories(phases, raw, original, *, project_version=VERSION):
+    expected, restored = P["project"](original, project_version=project_version)
     for phase, lock in zip(PHASES, (original, expected, restored), strict=True):
         row = fields(phases[phase], "lock platform", phase)
         observed = raw[f"{phase}.lock"]
@@ -195,7 +195,16 @@ def journal(raw, times, nonce):
     return observed
 
 
-def transactions(trust, raw, times, nonce):
+def transactions(trust, raw, times, nonce, *, project_version=VERSION, project_archive=None):
+    versions = P["provider_versions"](project_version)
+    legacy_archive = ORIGINALS["project_archive"]
+    if project_version == VERSION:
+        need(project_archive is None or project_archive == legacy_archive, "Expected the original V1 project archive")
+        project_archive = legacy_archive
+    else:
+        need(C.check_pin(project_archive, 16 << 20) and project_archive["bytes"] > 0
+             and project_archive not in (legacy_archive, ORIGINALS["official_archive"]),
+             "Expected a distinct independently selected parity project archive")
     fields(trust, "policy test_certificate test_fingerprint test_not_before test_not_after", "trust")
     candidate = trust["test_fingerprint"]
     before, after = trust["test_not_before"], trust["test_not_after"]
@@ -225,21 +234,22 @@ def transactions(trust, raw, times, nonce):
     signers = reported["signers"]
     fields(signers, f"{OFFICIAL} {PROJECT}", "journal signer")
     operations = (
-        ("replacement", OFFICIAL, PROJECT, "project_archive", C.pin(raw["test-signature.sig"]), candidate),
-        ("restoration", PROJECT, OFFICIAL, "official_archive", ORIGINALS["official_signature"], vendor),
+        ("replacement", OFFICIAL, PROJECT, project_archive, C.pin(raw["test-signature.sig"]), candidate),
+        ("restoration", PROJECT, OFFICIAL, ORIGINALS["official_archive"], ORIGINALS["official_signature"], vendor),
     )
     expected_actions = []
     for phase, remove, add, archive, sig, signer in operations:
         prepared = rows[f"{phase}-prepare"]
-        question = dict(type=4, pair=[[add, VERSION], [remove, VERSION]], accepted=True)
-        need(prepared == dict(add={add: VERSION}, remove={remove: VERSION}, questions=[question],
+        added, removed = versions[add], versions[remove]
+        question = dict(type=4, pair=[[add, added], [remove, removed]], accepted=True)
+        need(prepared == dict(add={add: added}, remove={remove: removed}, questions=[question],
                               install_reason=reason) and type(prepared["install_reason"]) is int
              and type(prepared["questions"][0]["type"]) is int
              and prepared["questions"][0]["accepted"] is True
              and rows[f"{phase}-commit-start"] == rows[f"{phase}-commit-done"] == {},
              f"Exact {phase} ALPM prepare and commit boundary required")
         status = raw[f"{phase}-signature.status"]
-        need(signers[add] == dict(archive=ORIGINALS[archive], signature=sig,
+        need(signers[add] == dict(archive=archive, signature=sig,
                                   fingerprint=signer, status=C.pin(status)),
              f"Exact verified {phase} operand required")
         created, expires = signature_status(status, signer)
@@ -247,8 +257,8 @@ def transactions(trust, raw, times, nonce):
              f"{phase} signature is outside the reported validation window")
         if phase == "replacement":
             need(before <= created, "TEST signature predates the reported certificate")
-        expected_actions.extend(((b"removed", remove.encode(), VERSION.encode()),
-                                 (b"installed", add.encode(), VERSION.encode())))
+        expected_actions.extend(((b"removed", remove.encode(), removed.encode()),
+                                 (b"installed", add.encode(), added.encode())))
     actions = []
     for line in raw["pacman.log"].splitlines():
         if any(b"[ALPM] " + action + b" " in line

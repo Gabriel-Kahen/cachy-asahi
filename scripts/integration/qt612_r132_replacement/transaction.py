@@ -87,7 +87,8 @@ def resolve_conflict(expected, get_identity, questions, question):
 class Alpm:
     """Minimal libalpm 16 adapter for the locally signed, locked package operations."""
 
-    def __init__(self, keyring, log):
+    def __init__(self, keyring, log, *, project_version=VERSION):
+        self.versions = P["provider_versions"](project_version)
         p, i, s = ct.c_void_p, ct.c_int, ct.c_char_p
         lib = ct.CDLL("/usr/lib/libalpm.so.16")
         api = {
@@ -161,7 +162,7 @@ class Alpm:
 
     def local(self, owner):
         package = self._db_get_pkg(self._get_localdb(self.handle), owner.encode("ascii"))
-        need(package and self.identity(package) == (owner, VERSION), "Wrong installed Qt provider")
+        need(package and self.identity(package) == (owner, self.versions[owner]), "Wrong installed Qt provider")
         return package
 
     def reason(self, owner):
@@ -180,7 +181,7 @@ class Alpm:
             owned = True  # Ownership transfers to the transaction on success.
 
         try:
-            need(self.identity(package) == (owner, VERSION) and self._pkg_get_arch(package) == b"aarch64",
+            need(self.identity(package) == (owner, self.versions[owner]) and self._pkg_get_arch(package) == b"aarch64",
                  "Loaded archive does not have the exact Qt package identity")
             yield add
         finally:
@@ -194,7 +195,8 @@ class Alpm:
         @Ask
         def ask(_context, question):
             try:
-                resolve_conflict(((incoming, VERSION), (outgoing, VERSION)), self.identity, questions, question)
+                resolve_conflict(((incoming, self.versions[incoming]), (outgoing, self.versions[outgoing])),
+                                 self.identity, questions, question)
             except Exception:
                 question.contents.answer = 0
                 questions.append(dict(type=-1, pair=None, accepted=False))
@@ -213,7 +215,7 @@ class Alpm:
                 self.ok(self._trans_prepare(self.handle, ct.byref(details)), "prepare Qt provider conflict")
                 add = self.rows(self._trans_get_add(self.handle))
                 remove = self.rows(self._trans_get_remove(self.handle))
-                check_prepared(add, remove, questions, incoming, outgoing)
+                check_prepared(add, remove, questions, incoming, outgoing, project_version=self.versions[PROJECT])
                 need(not self.errors, "ALPM logged an error during preparation")
                 yield dict(add=add, remove=remove, questions=list(questions), install_reason=reason)
             finally:
@@ -229,9 +231,12 @@ class Alpm:
         need(self.reason(owner) == reason, "Installed Qt package reason differs")
 
 
-def check_prepared(add, remove, questions, incoming, outgoing):
-    conflict = dict(type=CONFLICT_PKG, pair=((incoming, VERSION), (outgoing, VERSION)), accepted=True)
-    need(add == {incoming: VERSION} and remove == {outgoing: VERSION} and questions == [conflict],
+def check_prepared(add, remove, questions, incoming, outgoing, *, project_version=VERSION):
+    versions = P["provider_versions"](project_version)
+    need({incoming, outgoing} == versions.keys(), "Expected the exact official and project Qt providers")
+    added, removed = versions[incoming], versions[outgoing]
+    conflict = dict(type=CONFLICT_PKG, pair=((incoming, added), (outgoing, removed)), accepted=True)
+    need(add == {incoming: added} and remove == {outgoing: removed} and questions == [conflict],
          "ALPM must prepare exactly the one approved Qt provider conflict")
 
 
@@ -303,15 +308,16 @@ def certificate(path, review, keyring):
 
 
 class Backend:
-    def __init__(self, paths, verification, trust_homes, log, certificate_path, review):
+    def __init__(self, paths, verification, trust_homes, log, certificate_path, review, *, project_version=VERSION):
         self.paths, self.verification = paths, verification
         self.trust_homes, self.log = trust_homes, log
         self.keyring = trust_homes["pacman"]
         self.certificate_path, self.review = certificate_path, review
+        self.project_version = project_version
 
     @contextmanager
     def open(self):
-        alpm = Alpm(self.keyring, self.log)
+        alpm = Alpm(self.keyring, self.log, project_version=self.project_version)
         try:
             yield alpm
         finally:
@@ -395,8 +401,8 @@ class Journal:
         self.record(phase, inventory=pin(raw), install_reason=reason, platform=pin(platform))
 
 
-def _run(backend, journal, baseline, probe, platform, platform_pin, nonce):
-    replacement, restored = P["project"](baseline)
+def _run(backend, journal, baseline, probe, platform, platform_pin, nonce, *, project_version=VERSION):
+    replacement, restored = P["project"](baseline, project_version=project_version)
     phase, known = "baseline", None
 
     def observe(label, owner, expected, reason=None):
@@ -412,7 +418,8 @@ def _run(backend, journal, baseline, probe, platform, platform_pin, nonce):
         nonlocal phase, known
         phase = label + "-prepare"
         with backend.prepare(incoming, outgoing, before, reason) as (prepared, commit):
-            check_prepared(prepared["add"], prepared["remove"], prepared["questions"], incoming, outgoing)
+            check_prepared(prepared["add"], prepared["remove"], prepared["questions"], incoming, outgoing,
+                           project_version=project_version)
             need(prepared["install_reason"] == reason, "Locked provider installation reason differs")
             journal.record(phase, **prepared)
             phase = label + "-commit-start"

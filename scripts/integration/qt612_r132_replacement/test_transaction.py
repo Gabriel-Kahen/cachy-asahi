@@ -25,20 +25,24 @@ REVIEW = dict(fingerprint=TEST_FINGERPRINT, certificate=PIN(CERTIFICATE), signat
               not_before=100, not_after=200)
 
 
-def inventory(owner):
-    rows = [f"fixture-{i:04d} 1:2-1\n" for i in range(628)] + [f"{owner} {VERSION}\n"]
+def inventory(owner, version=VERSION):
+    rows = [f"fixture-{i:04d} 1:2-1\n" for i in range(628)] + [f"{owner} {version}\n"]
     return "".join(sorted(rows)).encode("ascii")
 
 
-def accepted(incoming, outgoing):
-    return dict(type=T["CONFLICT_PKG"], pair=((incoming, VERSION), (outgoing, VERSION)), accepted=True)
+def accepted(incoming, outgoing, versions=None):
+    if versions is None:
+        versions = {OFFICIAL: VERSION, PROJECT: VERSION}
+    return dict(type=T["CONFLICT_PKG"], pair=((incoming, versions[incoming]), (outgoing, versions[outgoing])),
+                accepted=True)
 
 
 class FakeBackend:
-    def __init__(self, journal, fault=None):
+    def __init__(self, journal, fault=None, *, project_version=VERSION):
         self.journal = journal
         self.fault = fault
         self.raw = inventory(OFFICIAL)
+        self.versions = {OFFICIAL: VERSION, PROJECT: project_version}
         self.reason = 1
         self.commits = []
         self.locked = False
@@ -66,8 +70,8 @@ class FakeBackend:
                 raise ValueError("Locked state differs")
             if incoming == OFFICIAL and self.fault == "restore-prepare":
                 raise ValueError("Official reverse prepare refused")
-            add, remove = {incoming: VERSION}, {outgoing: VERSION}
-            questions = [accepted(incoming, outgoing)]
+            add, remove = {incoming: self.versions[incoming]}, {outgoing: self.versions[outgoing]}
+            questions = [accepted(incoming, outgoing, self.versions)]
             if self.fault == "foreign-removal":
                 remove["fixture-0001"] = "1:2-1"
             if self.fault == "extra-question":
@@ -82,7 +86,7 @@ class FakeBackend:
         row = json.loads(self.journal.path.read_text().splitlines()[-1])
         assert row["phase"] == stage + "-commit-start"
         self.commits.append(owner)
-        self.raw = inventory(owner)
+        self.raw = inventory(owner, self.versions[owner])
         if self.fault == stage + "-commit":
             raise ValueError("Commit failed after reporting the new inventory")
         if self.fault == stage + "-interrupt":
@@ -134,6 +138,24 @@ class TransactionTests(unittest.TestCase):
             self.assertEqual((self.root / (stage + "-platform.json")).read_bytes(), PLATFORM)
         for stage, owner in (("replacement", PROJECT), ("restoration", OFFICIAL)):
             self.assertEqual((self.root / (stage + "-signature.status")).read_bytes(), owner.encode())
+
+    def test_mixed_version_round_trip_and_legacy_project_rejection(self):
+        parity = T["P"]["PARITY_PROJECT_VERSION"]
+        backend = FakeBackend(self.journal, project_version=parity)
+        result = T["_run"](backend, self.journal, inventory(OFFICIAL), lambda: None,
+                           lambda: PLATFORM, PIN(PLATFORM), NONCE, project_version=parity)
+        self.assertEqual(result["status"], T["PASS"])
+        self.assertEqual(backend.commits, [PROJECT, OFFICIAL])
+        rows = {row["phase"]: row for row in self.rows()}
+        self.assertEqual(rows["replacement-prepare"]["questions"][0]["pair"],
+                         [[PROJECT, parity], [OFFICIAL, VERSION]])
+        self.assertEqual(rows["restoration-prepare"]["questions"][0]["pair"],
+                         [[OFFICIAL, VERSION], [PROJECT, parity]])
+        self.assertEqual((self.root / "replacement.lock").read_bytes(), inventory(PROJECT, parity))
+        self.assertEqual((self.root / "restoration.lock").read_bytes(), inventory(OFFICIAL))
+        with self.assertRaisesRegex(ValueError, "one approved Qt provider conflict"):
+            T["check_prepared"]({PROJECT: VERSION}, {OFFICIAL: VERSION}, [accepted(PROJECT, OFFICIAL)],
+                                PROJECT, OFFICIAL, project_version=parity)
 
     def test_both_signatures_are_required_before_the_first_prepare(self):
         self.backend.fault = "trust"
