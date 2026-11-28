@@ -1,7 +1,7 @@
 {
   "code_pins": {
     "packages/tools/cachy-asahi-update/asahi-policy.py": "80cda05980b064a9cb2ad47e5525ddba03dbaefaf350d44d18a27c63ac1ffbaf",
-    "scripts/build/build.py": "3063936c1cd7369a14919e6491b100281d7ada0515ef87f1f176d7bdb4403dca",
+    "scripts/build/build.py": "a90ee5930f600de37d8af2ef0135be3c3d5ff08173207da8e465b60517467ce2",
     "scripts/build/compare.py": "f28a02dd1b19847df8870e2ded18117c39d11e7d62d990b68292e37c11f19d9a",
     "scripts/build/provision.py": "e9c7796a42749f2802e51b568da666752b8793cb5c2fd0a77a9e8947fc8e2fa9",
     "scripts/checks/dependencies.py": "b0ea33dd5db5c54dd36ab7ed0d5123606829ba63294fd6ae0f2a9f988d45bed3",
