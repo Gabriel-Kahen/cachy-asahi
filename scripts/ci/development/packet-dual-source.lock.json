@@ -1932,7 +1932,7 @@
     },
     "scripts/client/stage.py": {
       "mode": 420,
-      "sha256": "fa79ecee43eb2426f421f5aab1d0678fcb0ffeccd8f4f84d8e5af380eda95a20"
+      "sha256": "22a6cde9934c94e1281ff9e6e2439d8ca7e38e44b7ab5bb4c404e7b2419924c2"
     },
     "scripts/client/test_client.py": {
       "mode": 420,
@@ -1940,7 +1940,7 @@
     },
     "scripts/client/test_stage.py": {
       "mode": 420,
-      "sha256": "7c67f2273a72697ee66f5f4fefe4849ceec2598091cab8c3b445c522543f9c80"
+      "sha256": "51e94b55f90bb7225d13418650fcd98eac442c8db012db3bb12fbf0aa423ff6c"
     },
     "scripts/experiments/arm_c01.py": {
       "mode": 420,
