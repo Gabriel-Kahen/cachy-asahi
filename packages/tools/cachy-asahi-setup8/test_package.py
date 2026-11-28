@@ -77,5 +77,26 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(result.returncode, 1)
             self.assertEqual(path.read_bytes(), before)
 
+    def test_checkout_checker_uses_retained_enrollment_witness(self):
+        provenance = json.loads((HERE / 'source-provenance.json').read_bytes())
+        sources = provenance['canonical_sources']
+        with tempfile.TemporaryDirectory(prefix='setup8-checkout-source-') as td:
+            root = Path(td)
+            for name, relative in sources.items():
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes((HERE / name).read_bytes())
+            live = root / 'scripts/repository/enroll.py'
+            live.parent.mkdir(parents=True, exist_ok=True)
+            live.write_bytes(b'# newer checkout enrollment source\n')
+            command = [sys.executable, '-I', '-B', str(HERE / 'check-sync.py'), '--root', str(root)]
+            result = subprocess.run(command, capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            witness = root / sources['cachy-asahi-repository']
+            witness.write_bytes(b'# changed retained source\n')
+            result = subprocess.run(command, capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn(f"canonical source differs: {sources['cachy-asahi-repository']}", result.stderr)
+
 
 if __name__ == '__main__':unittest.main(verbosity=2)

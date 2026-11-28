@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Modeled Source/refusal controls only. No Gtk, guest, image or actor is run."""
-import argparse,ast,contextlib,copy,hashlib,importlib.util,io,json,os,re,shutil,signal,struct,subprocess,sys,tarfile,tempfile,types,unittest
+import argparse,ast,contextlib,copy,hashlib,importlib.util,io,json,os,py_compile,re,shutil,signal,struct,subprocess,sys,tarfile,tempfile,types,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -370,9 +370,35 @@ class NamespaceControls(Fenced):
   payload={'usr/bin/x':{'type':'0','mode':0o644,'uid':0,'gid':0}}
   with self.assertRaises(AssertionError):K.executable(payload,'usr/bin/x')
  def test_secret_packet_is_rejected_without_any_GPG_process(self):
-  module=K.load('UI_inert_public_packet_control',K.ROOT/'scripts/repository/revoke.py')
-  with patch.object(subprocess,'run',side_effect=AssertionError('no process')):
-   with self.assertRaises(ValueError):module.packets(b'\xc5\x01\x00')
+  refs, *_ = K.references()
+  module = K.public_packet_reader(refs)
+  self.assertEqual(module.packets(b'\xc6\x01\x00')[0][:2], (6, b'\x00'))
+  with self.assertRaises(ValueError):
+   module.packets(b'\xc5\x01\x00')
+
+ def test_public_packet_reader_executes_pinned_source_and_refuses_drift(self):
+  work = Path(self.enterContext(tempfile.TemporaryDirectory()))
+  parser = work / 'revoke.py'
+  dependency = work / 'enroll.py'
+  shutil.copyfile(K.ROOT / 'scripts/repository/enroll.py', dependency)
+  source = (K.ROOT / 'scripts/repository/revoke.py').read_bytes()
+  parser.write_bytes(source + b'\nSOURCE_REVISION = "old"\n')
+  timestamp = parser.stat()
+  py_compile.compile(str(parser), doraise=True, invalidation_mode=py_compile.PycInvalidationMode.TIMESTAMP)
+  parser.write_bytes(source + b'\nSOURCE_REVISION = "new"\n')
+  os.utime(parser, ns=(timestamp.st_atime_ns, timestamp.st_mtime_ns))
+  refs = {
+   'public_packets': {'path': str(parser), **K.pin(parser)},
+   'public_packets_dependency': {'path': str(dependency), **K.pin(dependency)},
+  }
+  self.assertEqual(K.public_packet_reader(refs).SOURCE_REVISION, 'new')
+  for path in (parser, dependency):
+   raw = path.read_bytes()
+   with self.subTest(path=path.name):
+    path.write_bytes(b' ' + raw[1:])
+    with self.assertRaisesRegex(ValueError, 'exact finite .*pin required'):
+     K.public_packet_reader(refs)
+    path.write_bytes(raw)
 
 class GLibSuccessorControls(Fenced):
  def fixtures(self):

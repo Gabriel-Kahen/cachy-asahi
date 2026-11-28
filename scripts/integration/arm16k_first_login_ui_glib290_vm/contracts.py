@@ -16,6 +16,28 @@ def pin(path):
 def checked(path,ref):
  if not isinstance(ref,dict)or set(ref)!={'bytes','sha256'}or type(ref['bytes'])is not int or not 0<ref['bytes']<=4*1024**3 or not re.fullmatch('[0-9a-f]{64}',ref.get('sha256',''))or pin(path)!=ref:raise ValueError('exact finite input pin required')
  return Path(path)
+def public_packet_reader(refs):
+ dependency = refs['public_packets_dependency']
+ ref = refs['public_packets']
+ path = Path(ref['path'])
+ if Path(dependency['path']) != path.resolve().with_name('enroll.py'):
+  raise ValueError('public packet reader dependency path differs')
+ checked(dependency['path'], {key: dependency[key] for key in ('bytes', 'sha256')})
+ size = ref['bytes']
+ if type(size) is not int or not 0 < size <= 1024**2:
+  raise ValueError('exact finite public packet reader pin required')
+ with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as stream:
+  info = os.fstat(stream.fileno())
+  if not stat.S_ISREG(info.st_mode) or info.st_size != size:
+   raise ValueError('exact finite public packet reader pin required')
+  raw = stream.read(size + 1)
+ if len(raw) != size or hashlib.sha256(raw).hexdigest() != ref['sha256']:
+  raise ValueError('exact finite public packet reader pin required')
+ spec = importlib.util.spec_from_file_location('UI_public_only_packets', path)
+ module = importlib.util.module_from_spec(spec)
+ # Compile the authenticated read directly. Python -B still allows bytecode reads.
+ exec(compile(raw, str(path), 'exec'), vars(module))
+ return module
 def read(path,maximum=8*1024**2):
  p=Path(path);assert p.is_file()and not p.is_symlink()and p.stat().st_size<=maximum;return json.loads(p.read_text())
 def references():
@@ -141,9 +163,7 @@ def preflight(args,phase='prepare'):
  namespace(manifest,catalog,base)
  validate_edges(manifest,catalog,base,arm)
  for role,row in manifest['trust']['keyrings'].items():assert role in ['official','project']and row['filename']==role+'-public.gpg'and 0<row['pin']['bytes']<=65536 and re.fullmatch('[0-9A-F]{40}',row['primary']);checked(args.materials/row['filename'],row['pin'])
- for key in ['public_packets','public_packets_dependency']:
-  ref=refs[key];checked(ref['path'],{k:ref[k]for k in ['bytes','sha256']})
- packet_reader=load('UI_public_only_packets',Path(refs['public_packets']['path']))
+ packet_reader=public_packet_reader(refs)
  for role,row in manifest['trust']['keyrings'].items():
   path=args.materials/row['filename'];assert path.stat().st_size<=65536;packet_reader.packets(path.read_bytes())
  assert set(manifest['trust']['keyrings'])=={'official','project'}

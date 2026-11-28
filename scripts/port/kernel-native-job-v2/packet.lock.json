@@ -78,7 +78,7 @@
     "packages/settings/cachy-asahi-setup/.SRCINFO": {
       "bytes": 1937,
       "mode": 420,
-      "sha256": "ea17df86f974ac13bd3a697815d57d6eaba85a77cd1803a6f504afca78d7cbbe"
+      "sha256": "e8802c5182975d37ea40bea2d93990dd19eb2712edc7bf486ed7d14f3774dce0"
     },
     "packages/settings/cachy-asahi-setup/LICENSE": {
       "bytes": 1081,
@@ -91,9 +91,9 @@
       "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018"
     },
     "packages/settings/cachy-asahi-setup/PKGBUILD": {
-      "bytes": 4432,
+      "bytes": 4380,
       "mode": 420,
-      "sha256": "f8e39e09e5ab8c18949f0290a76fc314f54fc6e4d1ac5564682b082e92dd3c7a"
+      "sha256": "8b315d064c96cbfe341adb09c13110c62993e3d61915d2313dae8ddcaa8ebabd"
     },
     "packages/settings/cachy-asahi-setup/README.md": {
       "bytes": 17214,
@@ -116,9 +116,9 @@
       "sha256": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6"
     },
     "packages/settings/cachy-asahi-setup/check-sync.py": {
-      "bytes": 4256,
+      "bytes": 4457,
       "mode": 420,
-      "sha256": "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a"
+      "sha256": "9097a0743e0f86827b97da2e5a4e29dca74c787b5c1fa9afe9f4e5b316080138"
     },
     "packages/settings/cachy-asahi-setup/evidence/artifact-check-1.json": {
       "bytes": 55897,
@@ -216,9 +216,9 @@
       "sha256": "ad4c1e07e4140eb79ca9dd236dff8a32bcbaa2cffdd65c9e05b5ab6dc73d7e67"
     },
     "packages/settings/cachy-asahi-setup/test-sync.py": {
-      "bytes": 8042,
+      "bytes": 8298,
       "mode": 420,
-      "sha256": "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3"
+      "sha256": "484fde2423e3c8c7be6faefc824d62e3f9e23eec260363ef7beaf2ebc53f1381"
     },
     "packages/shells/cachy-asahi-fish-config/.SRCINFO": {
       "bytes": 660,
@@ -460,15 +460,20 @@
       "mode": 493,
       "sha256": "7306ebf4e7ca54b49128882d8c730c3ee7e6249ea676fed2b6970a0679379057"
     },
+    "scripts/port/kernel-native-job-v2/setup-producer-source.json": {
+      "bytes": 19576,
+      "mode": 420,
+      "sha256": "466eb04d1c3f7402c04ce8bd311cf141e29d9a59d3b7e1206a2cfa34b89e7366"
+    },
     "scripts/port/kernel-native-job/intake.py": {
       "bytes": 16912,
       "mode": 420,
       "sha256": "45a0cbc3c9ae27f0438ed8dde87f2b0d46faec54c5931f160e63ee17cfe726ce"
     },
     "scripts/port/kernel-native-job/job.py": {
-      "bytes": 57732,
+      "bytes": 58028,
       "mode": 493,
-      "sha256": "40d4e44a6bda5c93ef91dceebeadc66c3420955d2b3f44c7d48da727c07f159e"
+      "sha256": "8025c68dc8d00c89d5148cebf6545b9cd53c9c68dcffd97d760edf51c166fe73"
     },
     "scripts/port/kernel-native-job/packet.py": {
       "bytes": 12800,
@@ -476,9 +481,9 @@
       "sha256": "3cc6631797d804086686e88ddd2240455561420430bedb4ea6e4ce9eade9c53f"
     },
     "scripts/port/kernel-native-job/packet_v2.py": {
-      "bytes": 1312,
+      "bytes": 4069,
       "mode": 420,
-      "sha256": "fa9342ceb76acf9575d474a760decee59e362b79b937c6daa30a4dfb76aa4d9d"
+      "sha256": "4d69abec079102b2f0ad1566961dd3e663a19ca5668cb5d68215f97bbdced68e"
     },
     "scripts/port/kernel-native-job/public.py": {
       "bytes": 58959,
@@ -511,9 +516,9 @@
       "sha256": "f161855457de7fd1406b590c5d8559b22e39f52be38b1c60563fb80a15715068"
     },
     "scripts/port/kernel-native-job/test_packet_v2.py": {
-      "bytes": 5076,
+      "bytes": 7097,
       "mode": 420,
-      "sha256": "0b9293c3e4085b49a4c0f35cf618b4c0f38d3bb703631349765b7f828651929b"
+      "sha256": "e1fa4964d16e7eedb77fcf00de2da7263e9f52970a163fcede9d15c8920317d8"
     },
     "scripts/port/kernel-native-job/test_public.py": {
       "bytes": 74865,
@@ -644,11 +649,6 @@
       "bytes": 25493,
       "mode": 493,
       "sha256": "0c7c72343f0102c76a3f77e769e4ca2c29ad976322a34ee30d51746139e23b7b"
-    },
-    "scripts/repository/enroll.py": {
-      "bytes": 19778,
-      "mode": 420,
-      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
     },
     "scripts/setup/setup.py": {
       "bytes": 43967,

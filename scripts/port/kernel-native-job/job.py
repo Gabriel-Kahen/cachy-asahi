@@ -771,8 +771,13 @@ def work(args, terminal, start):
         context = ('source', 'SOURCE_REJECTED')
         snapshot = private / 'source'
         import packet_v2
-        verify = packet_v2.verify if args.packet == root / packet_v2.MANIFEST else packet.verify
+        current_packet = args.packet == root / packet_v2.MANIFEST
+        verify = packet_v2.verify if current_packet else packet.verify
         evidence['source'] = verify(root, args.packet, args.packet_sha256, args.source_commit, setup, snapshot)
+        producer_source = snapshot
+        if current_packet:
+            producer_source = packet_v2.producer_snapshot(snapshot, private / 'producer-source',
+                                                         evidence['source']['files_map'])
         context = ('source', 'DOCKER_REJECTED')
         docker = Docker(args); evidence['daemon'] = docker.info(setup)
         context = ('source', 'DAEMON_BASELINE_UNVERIFIED')
@@ -786,7 +791,7 @@ def work(args, terminal, start):
             context = ('parallel', 'PARALLEL_RUN_FAILED')
             acquisition_nonce=secrets.token_hex(16)
             # Acquisition requires owned artifact placement relative to its snapshot.
-            commands = [producer_command(snapshot, private), ['/usr/bin/python3', '-I', '-B',
+            commands = [producer_command(producer_source, private), ['/usr/bin/python3', '-I', '-B',
                 str(snapshot / (packet.KERNEL + 'acquisition.py')), '--root', str(snapshot),
                 '--diagnostic-nonce', acquisition_nonce, '--output',
                 str(snapshot / 'artifacts/kernel-native-stage/acquisition')]]

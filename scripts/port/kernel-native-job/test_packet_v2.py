@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Focused checks for the separately sealed current-checker packet."""
+"""Focused checks for the current packet and its frozen producer inputs."""
 import os
 from pathlib import Path
 import subprocess
@@ -30,15 +30,27 @@ class CurrentPacketTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'frozen-producer-drift'):
             packet.preview(ROOT)
 
-    def test_successor_changes_only_checker_and_keeps_independent_frozen_checks(self):
+    def test_successor_checks_current_sources_and_rejects_historical_or_changed_bytes(self):
         policy = packet_v2._policy()
-        self.assertEqual(policy.HELPERS, {**packet.HELPERS, packet_v2.CHECKER: (packet_v2.CHECKER_SHA, 0o644)})
+        helpers = dict(packet.HELPERS)
+        helpers.pop(packet_v2.ENROLL)
+        helpers.update({packet_v2.CHECKER: (packet_v2.CHECKER_SHA, 0o644),
+                        packet_v2.HELD_SETUP: (packet_v2.HELD_SETUP_SHA, 0o644)})
+        self.assertEqual(policy.HELPERS, helpers)
         _, kernel, recipes = policy.closure(ROOT)
         rows = policy.preview(ROOT)['files']
+        self.assertNotIn(packet_v2.ENROLL, rows)
         historical = packet.load(LEGACY, LEGACY_SHA)['files'][packet_v2.CHECKER]
         for bad_checker in (historical, {**rows[packet_v2.CHECKER], 'sha256': '0' * 64}):
             with self.subTest(checker=bad_checker), self.assertRaisesRegex(ValueError, 'frozen-producer-drift'):
                 policy.frozen({**rows, packet_v2.CHECKER: bad_checker}, kernel, recipes)
+        legacy_recipes = packet.load(ROOT / packet.RECIPES_LOCK, packet.RECIPES_SHA)
+        for leaf, digest in packet_v2.SETUP_PINS.items():
+            name = f'{packet_v2.SETUP}/{leaf}'
+            self.assertEqual(rows[name]['sha256'], digest)
+            historical_row = {**rows[name], 'sha256': legacy_recipes[packet_v2.SETUP][leaf]}
+            with self.subTest(recipe=name), self.assertRaisesRegex(ValueError, 'original-recipe-drift'):
+                policy.frozen({**rows, name: historical_row}, kernel, recipes)
 
     def test_successor_refuses_the_historical_manifest_path(self):
         runner = Mock()
@@ -89,3 +101,23 @@ class CurrentPacketTests(unittest.TestCase):
             self.assertEqual({name: packet.row(body, modes[name]) for name, body in captured.items()}, result['files_map'])
             self.assertEqual(packet.capture(output / packet_v2.CHECKER),
                              (captured[packet_v2.CHECKER], modes[packet_v2.CHECKER]))
+
+            producer = Path(temporary) / 'producer-source'
+            self.assertEqual(packet_v2.producer_snapshot(output, producer, result['files_map']), producer)
+            self.assertFalse((output / packet_v2.ENROLL).exists())
+            raw, mode = packet.capture(producer / packet_v2.ENROLL)
+            self.assertEqual((packet.sha(raw), mode), packet.HELPERS[packet_v2.ENROLL])
+            recipes = packet.load(producer / packet.RECIPES_LOCK, packet.RECIPES_SHA)
+            for recipe, expected in recipes.items():
+                self.assertEqual({name: packet.sha(packet.read(producer / recipe / name))
+                                  for name in packet.walk(producer / recipe)}, expected)
+            for leaf in packet_v2.SETUP_PINS:
+                name = f'{packet_v2.SETUP}/{leaf}'
+                self.assertEqual(packet.row(*packet.capture(output / name)), result['files_map'][name])
+
+            recipe = producer / packet_v2.SETUP
+            prepared = subprocess.run(
+                ['/usr/bin/bash', '-ec', 'startdir=$1; srcdir=$1; source "$1/PKGBUILD"; prepare', 'bash', recipe],
+                env=env, capture_output=True, timeout=10,
+            )
+            self.assertEqual(prepared.returncode, 0, prepared.stderr.decode())

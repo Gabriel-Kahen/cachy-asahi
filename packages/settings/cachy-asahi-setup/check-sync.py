@@ -20,7 +20,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", choices=("setup", "repository", "repository-doc"), default="setup",
                         help="select an existing pinned copied source")
-    parser.add_argument("--canonical", type=Path, help="explicit canonical source, including outside the checkout")
+    parser.add_argument("--canonical", type=Path,
+                        help="explicit source witness (defaults to the retained enrollment copy for repository)")
     parser.add_argument("--copy", type=Path, help="packaged source; provenance and LICENSE are read beside it")
     parser.add_argument("--license", type=Path, help="canonical project license; defaults to repository LICENSE")
     args = parser.parse_args()
@@ -59,7 +60,8 @@ def main():
                 raise ValueError(f"invalid provenance {key}")
         if root is None and (args.canonical is None or args.license is None):
             raise ValueError("cannot infer repository root; provide --canonical and --license")
-        canonical = args.canonical or root / name
+        # Setup retains its reviewed enrollment payload across checkout CLI changes.
+        canonical = args.canonical or (here.with_name(packaged_name) if args.source == "repository" else root / name)
         if args.canonical is None and not canonical.resolve().is_relative_to(root):
             raise ValueError("canonical_path resolves outside the repository")
         license_path = args.license or root / "LICENSE"

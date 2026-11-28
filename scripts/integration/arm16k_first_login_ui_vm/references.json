@@ -32,14 +32,14 @@
     "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
   },
   "public_packets": {
-    "bytes": 14784,
+    "bytes": 14929,
     "path": "scripts/repository/revoke.py",
-    "sha256": "8804cf14527341c23bd7ba540c23a08185a10c92f6d405a65f52f277ff6bc44b"
+    "sha256": "8014f03092090b00c1fe389ae2d679fac7804bdc45e85d2140aedd37ed244595"
   },
   "public_packets_dependency": {
-    "bytes": 19778,
+    "bytes": 20142,
     "path": "scripts/repository/enroll.py",
-    "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+    "sha256": "7a9f903610d214bc239c5ac72092c1441aa850a6cc7551c4f670e01e325fa726"
   },
   "schema_version": 1,
   "tool_producer": {
