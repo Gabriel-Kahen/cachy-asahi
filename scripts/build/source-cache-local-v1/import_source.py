@@ -61,32 +61,33 @@ def import_source(cache_path, inputs, checksum, selected, archive, *, seconds=12
                    and path == path.resolve() and not any(p.is_symlink() for p in (path, *path.parents)),
                    'local archive changed during import')
 
-        def stream(destination=None):
+        def stream(consume):
             stable(); os.lseek(source, 0, os.SEEK_SET)
-            digest = hashlib.sha256(); count = 0
+            count = 0
             while True:
                 live(); block = os.read(source, min(c.CHUNK, material['bytes'] - count + 1))
                 if not block:
                     break
                 count += len(block)
                 c.need(count <= material['bytes'], 'local archive exceeds reviewed bytes')
-                digest.update(block)
-                if destination is not None:
-                    c.write_all(destination, block)
+                consume(block)
             stable()
-            c.need((count, digest.hexdigest()) == (material['bytes'], material['sha256']),
-                   'local archive size/checksum mismatch')
-            if destination is not None:
-                os.fsync(destination)
+            c.need(count == material['bytes'], 'local archive size mismatch')
 
         # Always validate the caller's actual local file, even on a cache hit.
-        stream()
+        digest = hashlib.sha256()
+        stream(digest.update)
+        c.need(digest.hexdigest() == material['sha256'], 'local archive checksum mismatch')
         transports = []
 
         def local_transport(actual, destination, remaining):
             c.need(actual == row and type(remaining) in (int, float) and remaining > 0
                    and not transports, 'one exact local archive transport only')
-            transports.append(True); c.private(destination); stream(destination)
+            transports.append(True)
+            c.private(destination)
+            # The cache hashes the staged bytes before publication.
+            stream(lambda block: c.write_all(destination, block))
+            os.fsync(destination)
 
         c.transport = local_transport
         result = c.run(cache_path, inputs, checksum, [selected], offline=False,

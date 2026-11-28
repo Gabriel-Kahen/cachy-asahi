@@ -97,6 +97,20 @@ class ImportTests(unittest.TestCase):
         c.write_all=write
         with patch.object(M,'library',return_value=c),self.assertRaises(ValueError):self.run_import(source)
         self.empty()
+    def test_cache_miss_hashes_the_selected_source_once(self):
+        with patch.object(M, 'hashlib', wraps=hashlib) as local_hash:
+            self.run_import()
+        self.assertEqual(local_hash.sha256.call_count, 1)
+    def test_corrupt_staged_copy_is_refused_before_publication(self):
+        c = M.library(ROOT)
+        write = c.write_all
+        def corrupt(fd, raw):
+            write(fd, bytes([raw[0] ^ 1]) + raw[1:])
+        c.write_all = corrupt
+        with patch.object(M, 'library', return_value=c), \
+             self.assertRaisesRegex(ValueError, 'partial source pin mismatch'):
+            self.run_import()
+        self.empty()
     def test_existing_bad_object_or_provenance_is_preserved(self):
         result=self.run_import();obj=next((self.cache/'objects').iterdir());obj.write_bytes(b'changed')
         with self.assertRaises(ValueError):self.run_import()
