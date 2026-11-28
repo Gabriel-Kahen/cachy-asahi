@@ -400,6 +400,41 @@ class BuilderBoundaryTests(unittest.TestCase):
         calls = self.cleanup([self.result(output=json.dumps([self.live])), self.result()])
         self.assertEqual(calls.call_args_list[-1].args[0], ['docker', 'rm', '-f', self.name])
 
+    def use_captured_entry(self):
+        entry = (m.ROOT / 'scripts/build/container-entry.sh').read_bytes()
+        mount = self.mounts[2]
+        command = self.record['command']
+        at = command.index(f'type=bind,src={mount["Source"]},dst=/builder-entry.sh,readonly')
+        del command[at - 1:at + 1]
+        command[-2:] = ['--entrypoint', '/bin/bash', self.task['image'], '-c',
+                        entry.decode('utf-8'), '/builder-entry.sh']
+        self.live['Mounts'] = [value for value in self.mounts if value != mount]
+        self.live['Config'].update(Entrypoint=['/bin/bash'], Cmd=command[-3:])
+        self.record['entry_script_sha256'] = m.sha(entry)
+        self.save()
+
+    def test_captured_entry_cleanup_removes_the_matching_container(self):
+        self.use_captured_entry()
+        calls = self.cleanup([self.result(output=json.dumps([self.live])), self.result()])
+        self.assertEqual(calls.call_args_list[-1].args[0], ['docker', 'rm', '-f', self.name])
+
+    def test_changed_captured_entry_in_provenance_never_queries_docker(self):
+        self.use_captured_entry()
+        self.record['command'][-2] = '# different inert script'
+        self.save()
+        with patch.object(m.subprocess, 'run') as calls:
+            with self.assertRaisesRegex(ValueError, 'command/image/mount mismatch'):
+                m.Builder().cleanup(self.task, self.output)
+        calls.assert_not_called()
+
+    def test_changed_captured_entry_in_live_container_never_removes_it(self):
+        self.use_captured_entry()
+        self.live['Config']['Cmd'][1] = '# different inert script'
+        with patch.object(m.subprocess, 'run', return_value=self.result(output=json.dumps([self.live]))) as calls:
+            with self.assertRaisesRegex(ValueError, 'live container ownership entry command mismatch'):
+                m.Builder().cleanup(self.task, self.output)
+        self.assertEqual(calls.call_count, 1)
+
     def test_confirmed_absence(self):
         calls = self.cleanup([self.result(1), self.result()])
         self.assertEqual(calls.call_args_list[-1].args[0][:3], ['docker', 'ps', '-aq'])

@@ -318,17 +318,25 @@ class Builder:
             return
         need(type(name) is str and re.fullmatch('cachy-asahi-[0-9a-f]{16}', name), 'invalid owned container identity')
         command = record.get('command', [])
+        mismatch = 'container ownership command/image/mount mismatch'
+        need(type(command) is list and command[:5] == ['docker', 'run', '--rm', '--name', name]
+             and record.get('image') == task['image'], mismatch)
         mounts = {(str(output / 'inputs'), '/inputs', False),
                   (str(output / 'artifacts'), '/out', True),
-                  (str(ROOT / 'scripts/build/container-entry.sh'), '/builder-entry.sh', False),
                   (str(output / 'expected-packages.lock'), '/expected-packages.lock', False)}
+        captured_entry = command[-3] == '-c'
+        if captured_entry:
+            need(command[-6:-2] == ['--entrypoint', '/bin/bash', task['image'], '-c']
+                 and command[-1] == '/builder-entry.sh' and type(command[-2]) is str
+                 and sha(command[-2].encode('utf-8')) == record.get('entry_script_sha256'), mismatch)
+            options = command[:-6]
+        else:
+            need(command[-2:] == [task['image'], '/builder-entry.sh'], mismatch)
+            mounts.add((str(ROOT / 'scripts/build/container-entry.sh'), '/builder-entry.sh', False))
+            options = command[:-2]
         expected_mounts = {'type=bind,src=' + source + ',dst=' + dest + ('' if rw else ',readonly')
                            for source, dest, rw in mounts}
-        need(type(command) is list and len(command) >= 5 and
-             command[:4] == ['docker', 'run', '--rm', '--name'] and command[4] == name and
-             command[-2] == task['image'] and record.get('image') == task['image'] and
-             {command[i + 1] for i, arg in enumerate(command[:-1]) if arg == '--mount'} == expected_mounts,
-             'container ownership command/image/mount mismatch')
+        need({command[i + 1] for i, arg in enumerate(options) if arg == '--mount'} == expected_mounts, mismatch)
         def absent():
             result = subprocess.run(['docker', 'ps', '-aq', '--filter', 'name=^/' + name + '$'],
                                     capture_output=True, timeout=30, text=True)
@@ -340,13 +348,17 @@ class Builder:
         items = decode(result.stdout.encode())
         need(type(items) is list and len(items) == 1, 'owned container inspect identity missing')
         actual = items[0]
+        config = actual.get('Config', {})
+        if captured_entry:
+            need(config.get('Entrypoint') == ['/bin/bash'] and config.get('Cmd') == command[-3:],
+                 'live container ownership entry command mismatch')
         actual_mounts = actual.get('Mounts', [])
         bind_mounts = {(p.get('Source'), p.get('Destination'), p.get('RW'))
                        for p in actual_mounts if p.get('Type') == 'bind'}
         other_mounts_safe = all(p.get('Type') == 'bind' or
                                (p.get('Type') == 'tmpfs' and p.get('Destination') == '/tmp' and p.get('RW') is True)
                                for p in actual_mounts)
-        need(actual.get('Name') == '/' + name and actual.get('Config', {}).get('Image') == task['image'] and
+        need(actual.get('Name') == '/' + name and config.get('Image') == task['image'] and
              bind_mounts == mounts and other_mounts_safe,
              'live container ownership image/mount mismatch')
         removed = subprocess.run(['docker', 'rm', '-f', name], capture_output=True, timeout=30, text=True)

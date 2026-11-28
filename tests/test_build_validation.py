@@ -585,6 +585,53 @@ class ValidationTests(unittest.TestCase):
                 cleanup = [call.args[0] for call in execution.call_args_list if call.args[0][1:3] == ['rm', '-f']]
                 self.assertEqual(cleanup, [['docker', 'rm', '-f', record['clean_environment_id']]])
 
+    def test_docker_handoff_uses_the_recorded_entry_bytes_after_path_changes(self):
+        path = self.recipe()
+        reviewed = self.root / 'reviewed.json'
+        reviewed.write_text(json.dumps(checks.recipe(path)['input_sha256']))
+        lock = self.root / 'packages.lock'
+        lock.write_text('base-devel 1-1\n')
+        image = 'sha256:' + 'c' * 64
+        entry = self.root / 'container-entry.sh'
+        reviewed_entry = ROOT / 'scripts/build/container-entry.sh'
+        original = reviewed_entry.read_bytes()
+
+        for change in ('overwrite', 'replace', 'preauthenticated'):
+            with self.subTest(change=change):
+                if change == 'preauthenticated':
+                    entry.unlink()
+                else:
+                    entry.write_bytes(original)
+                output = self.root / change
+                argv = ['build.py', str(path.parent), '--image', image, '--output', str(output),
+                        '--mode', 'native', '--source-date-epoch', '1', '--expected-packages', str(lock),
+                        '--reviewed-inputs', str(reviewed)]
+
+                def mocked_docker(command, **kwargs):
+                    record = json.loads((output / 'provenance.json').read_text())
+                    self.assertEqual(record['entry_script_sha256'], checks.digest(reviewed_entry))
+                    self.assertEqual(record['command'], command)
+                    replacement = entry.with_suffix('.new') if change == 'replace' else entry
+                    replacement.write_bytes(b'# different inert bytes\n')
+                    if change == 'replace':
+                        replacement.replace(entry)
+                    self.assertFalse(any(',dst=/builder-entry.sh,' in arg for arg in command))
+                    self.assertEqual(command[-6:-2], ['--entrypoint', '/bin/bash', image, '-c'])
+                    self.assertEqual(command[-1], '/builder-entry.sh')
+                    received = command[-2].encode('utf-8')
+                    self.assertEqual(received, original)
+                    return subprocess.CompletedProcess(command, 17)
+
+                with patch.object(sys, 'argv', argv), patch.object(build, '__file__', str(self.root / 'build.py')), \
+                     patch.object(build, 'capture', side_effect=[json.dumps([
+                         dict(Architecture='arm64', Os='linux', Id=image)]), 'aarch64']), \
+                     patch.object(build.subprocess, 'run', side_effect=mocked_docker) as run, \
+                     contextlib.redirect_stderr(io.StringIO()):
+                    entry_script = original if change == 'preauthenticated' else None
+                    self.assertEqual(build.main(entry_script=entry_script), 1)
+                run.assert_called_once()
+                self.assertEqual(json.loads((output / 'provenance.json').read_text())['exit_code'], 17)
+
     def test_copied_evidence_does_not_count_as_second_execution(self):
         first = self.evidence('first', self.archive())
         second = self.root / 'copied'

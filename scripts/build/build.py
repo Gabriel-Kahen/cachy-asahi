@@ -2,6 +2,7 @@
 """Build reviewed recipes in fresh, pinned OCI containers; never install on host."""
 import argparse
 import datetime
+import hashlib
 import json
 import os
 import re
@@ -72,7 +73,8 @@ def bind_artifact(reviewed, report, recipe_hash):
     return errors
 
 
-def main():
+def main(*, entry_script=None):
+    """Build with the checkout entry or bytes supplied by a source-pinning caller."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('recipe', type=Path, help='recipe directory')
     parser.add_argument('--image', required=True, type=image_pin)
@@ -133,8 +135,11 @@ def main():
         evidence['expected_packages_sha256'] = digest(expected_lock)
         artifacts = out / 'artifacts'
         artifacts.mkdir()
-        entry = Path(__file__).with_name('container-entry.sh').resolve()
-        evidence['entry_script_sha256'] = digest(entry)
+        # Use the same captured bytes for provenance and container startup.
+        if entry_script is None:
+            entry_script = Path(__file__).with_name('container-entry.sh').read_bytes()
+        entry = entry_script.decode('utf-8')
+        evidence['entry_script_sha256'] = hashlib.sha256(entry_script).hexdigest()
         name = 'cachy-asahi-' + os.urandom(8).hex()
         command = ['docker', 'run', '--rm', '--name', name, '--pull=never',
                    '--platform', 'linux/arm64', '--user', f'{os.getuid()}:{os.getgid()}',
@@ -144,9 +149,8 @@ def main():
                    '--env', 'CACHY_ASAHI_CONTAINER=1', '--env', f'SOURCE_DATE_EPOCH={args.source_date_epoch}',
                    '--mount', f'type=bind,src={inputs},dst=/inputs,readonly',
                    '--mount', f'type=bind,src={artifacts},dst=/out',
-                   '--mount', f'type=bind,src={entry},dst=/builder-entry.sh,readonly',
                    '--mount', f'type=bind,src={expected_lock},dst=/expected-packages.lock,readonly',
-                   '--entrypoint', '/bin/bash', args.image, '/builder-entry.sh']
+                   '--entrypoint', '/bin/bash', args.image, '-c', entry, '/builder-entry.sh']
         evidence['command'] = command
         evidence['clean_environment_id'] = name
         (out / 'provenance.json').write_text(json.dumps(evidence, indent=2) + '\n')
