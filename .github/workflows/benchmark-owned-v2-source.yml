@@ -40,6 +40,8 @@ jobs:
           python -I -B "$GITHUB_WORKSPACE/scripts/ci/benchmark-owned-v2/check_source.py" --root "$original"
       - name: Test active plan validation with synthetic captures
         run: python -I -B -Werror::ResourceWarning -m unittest discover -s scripts/benchmarks -p test_benchmark_v2_plan.py
+      - name: Test paired trial admission and replay with modeled workloads
+        run: python -I -B -Werror::ResourceWarning -m unittest discover -s scripts/benchmarks -p test_paired_zlib.py -k V2AdmissionTests
       - name: Record exact source-only scope
         run: |
-          echo 'Original source pins, syntax, adapter/owner wiring and twelve declared controls were checked at the historical revision. Active plan validation used synthetic files. Zero workload/lifecycle actors, sensor sampling or process census. Retained private12 controls are not reexecuted here. No native, paired-artifact or performance acceptance.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Original source pins, syntax, adapter/owner wiring and twelve declared controls were checked at the historical revision. Active plan validation and paired trial replay used synthetic files. Zero workload/lifecycle actors, sensor sampling or process census. Retained private12 controls are not reexecuted here. No native, paired-artifact or performance acceptance.' >> "$GITHUB_STEP_SUMMARY"
