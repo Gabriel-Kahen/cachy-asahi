@@ -18,6 +18,8 @@ sys.path.insert(0, str(ROOT / 'scripts' / 'build'))
 import package_checks as checks
 import dependencies
 import compare
+import compare_v2
+import compare_v3
 import build
 import provision
 
@@ -83,9 +85,12 @@ class ValidationTests(unittest.TestCase):
                      'artifacts/generated.SRCINFO', 'artifacts/environment.txt', 'artifacts/config.sha256',
                      'artifacts/makepkg.conf', 'artifacts/pacman.conf'):
             (directory / file_name).write_text('synthetic fixture')
+        for file_name in ('expected-packages.lock', 'artifacts/packages.lock'):
+            (directory / file_name).write_text('base-devel 1-1\n')
         record = {'status': 'built-package-static-pass', 'image': 'digest', 'image_id': 'id',
+                  'exit_code': 0, 'network': 'none', 'nested_namespaces': None,
                   'mode': 'native', 'clean_environment_id': name, 'source_date_epoch': 1, 'recipe_metadata': {'pkgname': ['example'], 'pkgver': ['1'], 'pkgrel': ['1'], 'arch': ['any'], 'license': ['MIT']},
-                  'expected_packages_sha256': 'lock', 'entry_script_sha256': 'entry',
+                  'expected_packages_sha256': checks.digest(directory / 'expected-packages.lock'), 'entry_script_sha256': 'entry',
                   'recipe_inputs': {'PKGBUILD': checks.digest(directory / 'inputs' / 'PKGBUILD')},
                   'artifacts': {artifact.name: checks.digest(dest)},
                   'files': {str(p.relative_to(directory)): checks.digest(p) for p in directory.rglob('*')
@@ -221,6 +226,61 @@ class ValidationTests(unittest.TestCase):
         path.write_text(json.dumps(record))
         with self.assertRaisesRegex(ValueError, 'has not passed'):
             compare.compare(first, second)
+
+    def test_all_comparators_require_successful_exit_and_matching_network(self):
+        artifact = self.archive()
+        first, second = self.evidence('first', artifact), self.evidence('second', artifact)
+        first_path, second_path = (directory / 'provenance.json' for directory in (first, second))
+        original = json.loads(second_path.read_text())
+        for comparator in (compare, compare_v2, compare_v3):
+            with self.subTest(comparator=comparator.__name__):
+                for key, values, error in (
+                    ('exit_code', (1, False, 0.0, '0', None), 'zero build exit code'),
+                    ('network', ('host', None), 'recorded build network'),
+                ):
+                    for value in values:
+                        with self.subTest(key=key, value=value):
+                            bad = dict(original, **{key: value})
+                            if value is None:
+                                bad.pop(key)
+                            second_path.write_text(json.dumps(bad))
+                            with self.assertRaisesRegex(ValueError, error):
+                                comparator.compare(first, second)
+                second_path.write_text(json.dumps(dict(original, network='bridge')))
+                self.assertIn('input mismatch: network', comparator.compare(first, second)['errors'])
+                first_record = json.loads(first_path.read_text())
+                first_path.write_text(json.dumps(dict(first_record, network='bridge')))
+                self.assertEqual(comparator.compare(first, second)['status'], 'contents-reproduced')
+                first_path.write_text(json.dumps(first_record))
+                second_path.write_text(json.dumps(original))
+
+    def test_all_comparators_require_nonempty_bound_inventory(self):
+        artifact = self.archive()
+        first, second = self.evidence('first', artifact), self.evidence('second', artifact)
+        originals = {directory: json.loads((directory / 'provenance.json').read_text())
+                     for directory in (first, second)}
+        for expected_bytes, observed_bytes, claimed, error in (
+            (b'base-devel 1-1\n', b'base-devel 1-1\n', '0' * 64, 'recorded expected package lock checksum differs'),
+            (b'base-devel 1-1\n', b'base-devel 2-1\n', None, 'observed builder package lock differs'),
+            (b'', b'', None, 'expected package lock is empty'),
+            (b'\n  \n', b'\n  \n', None, 'expected package lock is empty'),
+        ):
+            for directory, original in originals.items():
+                expected = directory / 'expected-packages.lock'
+                observed = directory / 'artifacts/packages.lock'
+                expected.write_bytes(expected_bytes)
+                observed.write_bytes(observed_bytes)
+                record = dict(original, expected_packages_sha256=claimed or checks.digest(expected))
+                record['files'] = {
+                    **original['files'],
+                    'expected-packages.lock': checks.digest(expected),
+                    'artifacts/packages.lock': checks.digest(observed),
+                }
+                (directory / 'provenance.json').write_text(json.dumps(record))
+            for comparator in (compare, compare_v2, compare_v3):
+                with self.subTest(comparator=comparator.__name__, error=error, expected=expected_bytes):
+                    with self.assertRaisesRegex(ValueError, error):
+                        comparator.compare(first, second)
 
     def test_unpinned_images_rejected(self):
         for value in ('arm:latest', 'arm@sha256:123', 'image;command'):

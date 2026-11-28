@@ -16,6 +16,12 @@ from unittest.mock import patch
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 BUILD = HERE.parent
+HELD_V2 = (ROOT / 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
+           / 'scripts/ci/llhttp-reference-native-source/base/runtime/scripts/build')
+HISTORICAL_V3 = {
+    'build_v3.py': '9616cbc8ff6ec49f0f0a53ddcc6bdf39fb583d74aaff2c00f9baebf28e5a1159',
+    'compare_v3.py': 'e028251c1e85cfc0a94ff45da44041341c02198cb14b312e21fa404cf1676a86',
+}
 sys.path.insert(0, str(BUILD))
 from nested_userns_v1 import policy as P
 import build_v3 as B
@@ -109,14 +115,21 @@ class Controls(unittest.TestCase):
             for key,item in (('kind','unconfined'),('namespace_qualification','PASS'),('extra',True),('profile',dict(P.PROFILE,sha256='0'*64))):
                 with self.subTest(key=key),self.assertRaises(ValueError):P.verify(out,dict(value,**{key:item}))
 
-    def test_new_builder_and_comparator_exact_v2_inverse(self):
+    def test_historical_builder_and_comparator_exact_v2_inverse(self):
         v=json.loads((HERE/'derivation.json').read_bytes())
         self.assertEqual(v['source'],'522e7cc8d2446416849dc5c1f84642cc46f82a06')
+        self.assertEqual(v['files'].keys(), HISTORICAL_V3.keys())
         for name,row in v['files'].items():
-            raw=(BUILD/name).read_text()
+            parent = (HELD_V2 / row['parent']).read_bytes()
+            self.assertEqual(P.pin(parent), row['parent_pin'])
+            raw = parent.decode()
+            for edit in row['edits']:
+                self.assertEqual(raw.count(edit['before']), 1)
+                raw = raw.replace(edit['before'], edit['after'], 1)
+            self.assertEqual(P.pin(raw.encode())['sha256'], HISTORICAL_V3[name])
             for edit in reversed(row['edits']):
                 self.assertEqual(raw.count(edit['after']),1);raw=raw.replace(edit['after'],edit['before'],1)
-            self.assertEqual(raw.encode(),(BUILD/row['parent']).read_bytes());self.assertEqual(P.pin(raw.encode()),row['parent_pin'])
+            self.assertEqual(raw.encode(), parent)
         self.assertNotIn('namespace_policy',(BUILD/'build_v2.py').read_text())
 
     def test_public522_recipe_exact_inputs_and_selected_namespace_argv(self):
@@ -203,7 +216,7 @@ class Controls(unittest.TestCase):
                     expected.write_text('base-devel 1-1\n')
                     observed.write_text(observed_lock)
                     record = dict(
-                        status='built-package-static-pass', nested_namespaces=None,
+                        status='built-package-static-pass', nested_namespaces=None, exit_code=0, network='none',
                         expected_packages_sha256=claimed_hash or C.digest(expected),
                         recipe_inputs={'PKGBUILD': recipe_hash},
                         recipe_metadata=dict(pkgname=['example'], pkgver=['1'], pkgrel=['1'],
@@ -220,7 +233,7 @@ class Controls(unittest.TestCase):
                             C.verify(out)
 
     def test_comparator_requires_same_default_or_custom_policy(self):
-        a=dict(clean_environment_id='one',image='same',image_id='same',mode='native',source_date_epoch=1,recipe_inputs={'x':'y'},recipe_metadata={'x':'y'},expected_packages_sha256='a',entry_script_sha256='b',nested_namespaces=None)
+        a=dict(clean_environment_id='one',image='same',image_id='same',mode='native',source_date_epoch=1,recipe_inputs={'x':'y'},recipe_metadata={'x':'y'},expected_packages_sha256='a',entry_script_sha256='b',nested_namespaces=None,network='none')
         pkg={'p':dict(members={'usr/x':dict(mode=420,sha256='a')},metadata={'.PKGINFO':{},'.BUILDINFO':{}},sha256='a')}
         for left,right,passed in ((None,None,True),(P.descriptor(P.SERVER),P.descriptor(P.SERVER),True),(None,P.descriptor(P.SERVER),False)):
             x=dict(a,nested_namespaces=left);y=dict(a,clean_environment_id='two',nested_namespaces=right)

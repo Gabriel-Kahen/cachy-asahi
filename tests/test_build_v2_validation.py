@@ -84,9 +84,12 @@ class ValidationTests(unittest.TestCase):
                      'artifacts/generated.SRCINFO', 'artifacts/environment.txt', 'artifacts/config.sha256',
                      'artifacts/makepkg.conf', 'artifacts/pacman.conf'):
             (directory / file_name).write_text('synthetic fixture')
+        for file_name in ('expected-packages.lock', 'artifacts/packages.lock'):
+            (directory / file_name).write_text('base-devel 1-1\n')
         record = {'status': 'built-package-static-pass', 'image': 'digest', 'image_id': 'id',
+                  'exit_code': 0, 'network': 'none',
                   'mode': 'native', 'clean_environment_id': name, 'source_date_epoch': 1, 'recipe_metadata': {'pkgname': ['example'], 'pkgver': ['1'], 'pkgrel': ['1'], 'arch': ['any'], 'license': ['MIT']},
-                  'expected_packages_sha256': 'lock', 'entry_script_sha256': 'entry',
+                  'expected_packages_sha256': checks.digest(directory / 'expected-packages.lock'), 'entry_script_sha256': 'entry',
                   'recipe_inputs': {'PKGBUILD': checks.digest(directory / 'inputs' / 'PKGBUILD')},
                   'artifacts': {artifact.name: checks.digest(dest)},
                   'files': {str(p.relative_to(directory)): checks.digest(p) for p in directory.rglob('*')

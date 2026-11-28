@@ -23,6 +23,8 @@ def module(path,name):
 P=module(HERE/'prepare.py','llhttp_prepare_test')
 D=module(HERE/'owner/data.py','llhttp_data_test')
 F=module(HERE/'base/finish_pair.py','llhttp_finish_test')
+HELD_BASE = (ROOT / 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
+             / P.BASE)
 
 def fence(event,args):
     if event in ('subprocess.Popen','os.system','os.fork','os.forkpty','os.posix_spawn','socket.connect','socket.bind','socket.getaddrinfo'):
@@ -38,6 +40,22 @@ ARCHIVE_ENV='LLHTTP_DATA_ARCHIVE'
 def write(path,value):
     path.parent.mkdir(parents=True,exist_ok=True)
     path.write_bytes(value if isinstance(value,bytes) else P.encoded(value));path.chmod(0o644)
+
+def held_input(name, row):
+    raw = D.read(HELD_BASE / name)
+    P.C.need(D.pin(raw) == {k: row[k] for k in ('bytes', 'sha256')}, 'exact held test operand: ' + name)
+    return raw
+
+def constructor_fixture(root):
+    derivation = D.decode(D.read(HERE / 'derivation.json'))
+    files = {row['source_path'] for row in derivation['files'].values()}
+    files.update((P.WORKFLOW, 'LICENSE', derivation['no_host_apt_seam']['deleted_original_host_prerequisite']['source_path']))
+    for name in files:
+        write(root / name, D.read(ROOT / name))
+    profile = D.decode(D.read(HERE / 'base/profile.json'))
+    for name, row in profile['held_inputs'].items():
+        write(root / row['source_path'], held_input(name, row))
+    return root
 
 def elf_bytes(soname='libllhttp.so.9.3',dependency='libc.so.6',align=65536):
     data=bytearray(768);data[:6]=b'\x7fELF\x02\x01';struct.pack_into('<HH',data,16,3,183);struct.pack_into('<Q',data,32,64);struct.pack_into('<HHH',data,52,64,56,2)
@@ -57,7 +75,8 @@ class SourceControls(unittest.TestCase):
             self.assertEqual(text.encode(),D.read(HERE/name));self.assertEqual(D.pin(text.encode()),row['projected'])
 
     def test_unchanged_build_inverse_and_normal_dependencies(self):
-        profile=D.decode(D.read(HERE/'base/profile.json'));row=profile['held_inputs']['runtime/scripts/build/build_v2.py'];raw=D.read(ROOT/row['source_path']);C=P.C
+        profile=D.decode(D.read(HERE/'base/profile.json'));name='runtime/scripts/build/build_v2.py'
+        row=profile['held_inputs'][name];raw=held_input(name,row);C=P.C
         self.assertEqual(D.pin(raw),{k:row[k] for k in ('bytes','sha256')});projected=C.projected_build(raw).decode()
         for before,after in reversed(C.BUILD_EDITS):self.assertEqual(projected.count(after),1);projected=projected.replace(after,before)
         self.assertEqual(projected.encode(),raw)
@@ -97,7 +116,8 @@ class SourceControls(unittest.TestCase):
         recipe=os.environ.get(RECIPE_ENV);archive=os.environ.get(ARCHIVE_ENV)
         if not(recipe and archive):self.skipTest('set exact external recipe/archive DATA paths')
         with tempfile.TemporaryDirectory(prefix='llhttp-Source-DATA-') as name:
-            root=Path(name).resolve();source=root/'Source';result=P.construct(ROOT,Path(recipe),Path(archive),source)
+            root=Path(name).resolve();framework=constructor_fixture(root/'framework')
+            source=root/'Source';result=P.construct(framework,Path(recipe),Path(archive),source)
             self.assertEqual(result['files'],len([p for p in source.rglob('*') if p.is_file()]));self.assertLess(result['bytes'],2*1024**2);self.assertEqual(result['native_build'],'NOT RUN')
             D.source(source,result['source_map']['sha256'])
             for name,(_, binding) in P.ARTIFACT_BINDINGS.items():
@@ -105,7 +125,7 @@ class SourceControls(unittest.TestCase):
                 self.assertIn(binding.encode(),D.read(operand))
             helper=source/'held-source'/D.BASE_PREFIX/'package_metadata.py'
             self.assertEqual(D.read(helper),D.read(HERE/'base/package_metadata.py'))
-            historical=P.construct(ROOT,Path(recipe),Path(archive),root/'Historical',historical_source=True)
+            historical=P.construct(framework,Path(recipe),Path(archive),root/'Historical',historical_source=True)
             self.assertEqual(historical['files'],62)
             self.assertEqual(historical['source_map'],dict(bytes=13601,
                 sha256='d6240a8a32bd363e75542e3e5896356e24d28e010f99e24edfff380b67afa050'))
@@ -191,11 +211,11 @@ class NativePostconditionControls(unittest.TestCase):
         with self.assertRaises(ValueError):F.elf(bytes(raw))
 
     def test_other_archive_compression_refuses_before_inspection(self):
-        C=P.C;profile=D.decode(D.read(HERE/'base/profile.json'))
-        original=D.read(ROOT/profile['held_inputs']['runtime/scripts/build/compare_v2.py']['source_path'])
+        C=P.C;rows=D.decode(D.read(HERE/'base/profile.json'))['held_inputs']
+        name='runtime/scripts/build/compare_v2.py';original=held_input(name,rows[name])
         projected=C.projected_compare(original).decode();self.assertEqual(projected.replace(C.COMPARE_AFTER,C.COMPARE_BEFORE).encode(),original)
         self.assertLess(projected.index('fixed llhttp XZ-only archive'),projected.index('report = package(item)'))
-        builder=D.read(ROOT/profile['held_inputs']['runtime/scripts/build/build_v2.py']['source_path'])
+        name='runtime/scripts/build/build_v2.py';builder=held_input(name,rows[name])
         text=C.projected_build(builder).decode();tree=ast.parse(text)
         main=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='main')
         attempt=next(n for n in main.body if isinstance(n,ast.Try))

@@ -24,6 +24,10 @@ def verify(path):
         raise ValueError('retained namespace policy absent from evidence closure')
     if record.get('status') != 'built-package-static-pass':
         raise ValueError(f'{path}: build has not passed')
+    if type(record.get('exit_code')) is not int or record['exit_code'] != 0:
+        raise ValueError(f'{path}: zero build exit code required')
+    if record.get('network') not in ('none', 'bridge'):
+        raise ValueError(f'{path}: recorded build network must be none or bridge')
     for key in ('artifacts', 'files', 'recipe_inputs'):
         if not isinstance(record.get(key), dict) or not record[key]:
             raise ValueError(f'{path}: missing {key} evidence')
@@ -41,6 +45,9 @@ def verify(path):
         raise ValueError(f'{path}: recorded expected package lock checksum differs')
     if record['files']['artifacts/packages.lock'] != expected_lock:
         raise ValueError(f'{path}: observed builder package lock differs from expected lock')
+    with (path / 'expected-packages.lock').open('rb') as lock:
+        if not any(block.strip() for block in iter(lambda: lock.read(65536), b'')):
+            raise ValueError(f'{path}: expected package lock is empty')
     actual = {p.name for p in (path / 'artifacts').glob('*.pkg.tar.*') if not p.name.endswith('.sig')}
     if actual != set(record['artifacts']):
         raise ValueError(f'{path}: unexpected/missing artifact set')
@@ -74,7 +81,7 @@ def compare(first, second):
     mismatches = []
     if not left.get('clean_environment_id') or not right.get('clean_environment_id') or left['clean_environment_id'] == right['clean_environment_id']:
         mismatches.append('different recorded clean container IDs required')
-    for key in ('image', 'image_id', 'mode', 'source_date_epoch', 'recipe_inputs',
+    for key in ('image', 'image_id', 'mode', 'network', 'source_date_epoch', 'recipe_inputs',
                 'recipe_metadata', 'expected_packages_sha256', 'entry_script_sha256', 'nested_namespaces'):
         if key not in left or key not in right or left[key] != right[key]:
             mismatches.append(f'input mismatch: {key}')
