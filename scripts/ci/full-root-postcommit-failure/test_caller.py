@@ -8,6 +8,7 @@ import io
 import shutil
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -93,8 +94,15 @@ class FrozenConfigurationControl(unittest.TestCase):
             initializer=ROOT/'scripts/update/aux_initialize.py',initializer_sha256=value['code_pins']['scripts/update/aux_initialize.py'],
             comparator=ROOT/'scripts/ci/full-development-composition/audio_aux.py')
         read=lane.read
+        release=ROOT/'scripts/release/release.py'
+        frozen=os.environ.get('FROZEN_FULL_ROOT_RELEASE_HELPER')
+        release_source=(read(Path(frozen)) if frozen else subprocess.check_output(
+            ['git','-C',str(ROOT),'show','598a3dd77184f74935f71cb07c48c4411b6c44e4:scripts/release/release.py'],
+            timeout=10))
         def projected(path,maximum=1024**2):
             path=Path(path)
+            if path == release:
+                return release_source
             if path.parent==ROOT/'scripts/ci/full-root-postcommit-failure':path=HERE/path.name
             return read(path,maximum)
         with patch.object(lane,'read',side_effect=projected):

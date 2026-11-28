@@ -10,7 +10,7 @@ import sys
 import types
 
 ROOT = Path(__file__).resolve().parents[3]
-COLLECTOR_MAP_SHA256 = '122c49dd921d22a46f280b2940f2d4a7dfdee7e1a1459a5d7a4a4cd6dd9cc581'
+COLLECTOR_MAP_SHA256 = 'c35c2946579e08a803e2522340eac7d559f0aee8b95bd617e301ed2e959678cc'
 COLLECTOR = {
     'entry.py': '5889e0358bd0a04122e6cfcb061337f1dc415b064ba92f46ae47893a5747e0c8',
     'worker.py': '9a513a59da3cbb58d54c236759e3299072e14194e4d297df911072daa241b060',
@@ -18,12 +18,12 @@ COLLECTOR = {
     'base.py': 'fd6faba78af6de430e8a42ab7faa79e03dbb85614b754735290c29a0495ab2e0',
     'provenance.py': '42d18ff6cfa68d7d0a704d0612cbf505f8652b5c24bf6ae69d833b43c08ad02b',
     'crypto.py': 'a3568741238738646593b2c972589f4ae92381611c88dea1c1c234c0e59a46f0',
-    'orchestrator.py': '6bb8c492846e43a4f6aa9a84ebfc9877424f3f9911fd4dcae504c859d812cc91',
+    'orchestrator.py': '7bdddd2d5fdeaadc50820d923ba97905d29f585bd0cba10512d4124c586e5ffa',
 }
 PREDECESSORS = {
     'scripts/port/repository-client-stage/gate.py': 'fa39cfd6b5c1a3718f888d3f9fdb51f5bb8e38a7e57a98d1c4c8c570ea70af1e',
-    'scripts/port/repository-client-stage/adapter.py': 'f6b610cd0f7f788928e257cb2483eed1ec872b175812026c024fbfa8873651bc',
-    'scripts/release/release.py': 'afd2bed6775d435e0a9a4dca62d162b5b32800d9d07dbb2cfc9642ddbcf14e6f',
+    'scripts/port/repository-client-stage/adapter.py': 'af04eed3f1b8ca4c6bce29f5e75b7cee5247ef7bf10c7282b644ffc68ceab2ea',
+    'scripts/release/release.py': '68ffb4b9af09204d56fe12a400b41994a027618adb98314745ecc2a5835ed45c',
     'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7',
 }
 PREDECESSOR_MODES = {name: (0o755 if name == 'scripts/release/release.py' else 0o644)
