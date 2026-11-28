@@ -46,11 +46,39 @@ separate package guest assembled a verified Qtbase 6.12.0-2 archive. The
 exact TEST-signed package passed install, reinstall, removal, fresh install
 and final removal on the 356-package Q3 baseline. Independent readers
 accepted all three cases, including genuine pacman refusals for a tampered
-signature and an unknown signer. Official Qt provider replacement, the
-supported Asahi composition and physical M2 validation remain open.
+signature and an unknown signer.
 [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
 · [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
 · [Installed lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
+
+**November 27, 2026.** The earlier Asahi629 rehearsal passed TEST-signed
+installation and reversal (261 → 629 → 629) in an emulated AArch64 guest
+with 16 KiB pages and the generic R132 kernel. A separate, renewed Preview
+TEST transport passed independent signature and payload verification.
+Guest installation and rollback with the renewed inputs are **NOT RUN**.
+The separate Asahi629 JBIG/TIFF package swap is also **NOT RUN**.
+[Earlier installation and reversal](workstreams/supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
+· [JBIG/TIFF trial status](workstreams/remaining-development-audit-20261127.md#next-engineering-work)
+
+The scoped Qtbase 6.12.0-3 TEST-signed swap on the earlier Asahi629 rollback
+inventory passed replacement, software rendering probes before and during
+replacement, and restoration of the original package and inventory.
+Post-restoration runtime remains **NOT RUN**. The fresh, sealed Qtbase
+6.12.0-4 parity build was still compiling in emulated AArch64 with 16 KiB
+pages at the status check. Archive verification and the mixed-version guest
+swap and restoration remain pending.
+[6.12.0-3 guest trial](../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27)
+· [6.12.0-4 parity trial](../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md)
+
+The 104-workflow pass reported in draft PR #625 applies to `40e7ad1b`.
+At `e9ad4220`, draft PR #626's dedicated registration job verified 265 Git
+source rows and passed 11 cleanup models and 37 receiver controls. The native
+preflight bridge source is integrated at `1db8f7a5`. Trusted launch, peer
+Data issuance, native ABI, guest and installed qualification for that
+preflight remain open.
+[PR #625](https://github.com/Gabriel-Kahen/cachy-asahi/pull/625)
+· [PR #626](https://github.com/Gabriel-Kahen/cachy-asahi/pull/626)
+· [Hosted source registration](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46108010834/job/140865004520)
 
 Track current engineering follow-ups in
 [GitHub Issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues).
@@ -80,9 +108,12 @@ evidence retention steps completed in 64 and 63 seconds.
 · [Earlier R15 export deadline](validation/current606-minimal-emulated-arm16k-r15-20261119.md)
 
 Production repository staging with an approved release signer, stable
-promotion, installed Asahi kernel boot and recovery, both physical M2 Air
-sizes, and final-system performance and power measurements remain open.
-[Release acceptance contract](release/interface.md#stable-gate-envelope-version-1)
+promotion, default Asahi boot and recovery, both physical M2 Air sizes, and
+final-system performance and power measurements remain open. The stock Asahi
+kernel reached installed systemd in a separate emulated boot with an
+auxiliary initramfs.
+[Direct stock-kernel boot](validation/asahi626-maintenance-emulated-arm16k-20261118.md#direct-stock-kernel-boot-with-an-auxiliary-initramfs)
+· [Release acceptance contract](release/interface.md#stable-gate-envelope-version-1)
 
 ## Earlier validation
 
@@ -3476,8 +3507,9 @@ acceptance is granted by their local test counts or source reviews.
 
 - Access to both physical M2 Air reference machines and independent evidence
   for their installation and recovery checks. [Hardware validation](hardware-validation.md)
-- Final supported Asahi composition and platform selection, including installed
-  Asahi kernel boot, coordinated updates, and boot and session recovery.
+- Final supported Asahi composition and platform selection, including default
+  boot with the stock Asahi initramfs, coordinated updates, and boot and
+  session recovery.
   [Asahi maintenance rehearsal](validation/asahi626-maintenance-emulated-arm16k-20261118.md)
 - Corresponding-source and license coverage for the release set. Two of the six
   signed R132 maintenance recipes still need exact build-time bytes.

@@ -1,12 +1,26 @@
 # Offline development release client
 
-Status: implemented and tested locally with synthetic bundles and ephemeral TEST keys; native ARM client execution and production deployment **NOT RUN**. This wrapper adds a signed, expiring, sequenced metadata envelope around an existing release bundle. It is a foundation for R1/R5 repository and maintenance work toward the complete port, not completion of M3/M5/M8/M9 or A06/A08/A12/A15. Envelope schema1 and its target set remain unchanged. The optional source-delivery path below uses the companion release helper and existing evidence transport. Only `scope: development` is supported; stable/production scope is rejected with no override. It never installs packages, fetches a network resource, creates a key, imports a key, changes trust, publishes or satisfies hardware/promotion gates.
+The offline development client adds a signed, expiring, sequenced metadata
+envelope around an existing release bundle. Envelope schema 1 uses
+`scope: development` only. Verification reads local metadata and bundle
+files, and explicit apply writes the local checkpoint. Optional source
+delivery uses the companion release helper. Production deployment and
+physical M2 qualification remain open.
 
 ## Current maintained client route
 
 The examples on this page select `client_v3.py`. It retains the v2 tilde-version support and rechecks the selected private state-directory pathname after verification and temporary-input cleanup, immediately before checkpoint commit. If the directory was removed, replaced, redirected through a symlink, or lost its required ownership/mode during verification, apply refuses before creating a checkpoint. Previously, a renamed directory could receive the checkpoint while its replacement at `--state-dir` remained empty. The inode check does not make pathname changes by the same user after that check impossible; the existing descriptor-relative atomic checkpoint commit and durability reporting remain unchanged.
 
-The opt-in `cachy-asahi-repository-client-v3` package supplies the explicit `cachy-asahi-repository-client` command with this implementation. It requires the unchanged `cachy-asahi-repository-runtime=0.1.0-1` release/source helpers. Substitute that command for `python3 scripts/client/client_v3.py` in the examples when using the reviewed package layout. Package selection remains opt-in; no existing Apps integration is silently redirected. The historical v1/v2 helpers, Runtime package, Apps7–15 recipes, and retained native sources keep their original identities and evidence. Old native results do not validate v3. The new state-binding controls use mocked cryptographic verification and real temporary filesystem operations; native build, installed ALPM lifecycle, actual GPG verification of v3 and hardware checks remain NOT RUN.
+The opt-in `cachy-asahi-repository-client-v3` package supplies
+`cachy-asahi-repository-client` and requires
+`cachy-asahi-repository-runtime=0.1.0-1`. Use that command in place of the
+source CLI when testing the package. The current package recipe is
+0.1.0-2. The earlier 0.1.0-1 package and Runtime1 each produced a
+byte-identical build pair on hosted AArch64 with 4 KiB pages. Together they
+passed a disposable TEST-signed ALPM lifecycle with real installed GPG
+verification. The 0.1.0-2 package and later checkout source changes still
+need native and installed qualification.
+[Exact 0.1.0-1 evidence](../validation/client-v3-runtime-native-20261108.md)
 
 ## Finite interface
 

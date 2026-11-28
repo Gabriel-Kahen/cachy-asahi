@@ -1,6 +1,13 @@
 # Local release CLI and evidence contract
 
-Status: implemented and exercised on x86_64 Linux with **synthetic packages and ephemeral keys**. No real overlay was built, installed, hardware-tested, promoted, or published. The coordinator selected the root MIT license; package licenses still require their own audits. M3 remains incomplete.
+The local CLI tests use synthetic packages and ephemeral keys on x86_64 Linux.
+The November 25 TEST rehearsal staged the actual Preview 1 archives against
+a historical package inventory. [Local signed staging evidence](../validation/b08-b09-signed-staging-20261125.md)
+· [Published unsigned Preview 1](overlay-preview-1.md)
+
+Production publication, stable promotion, and physical M2 acceptance remain
+open. The project uses the root MIT license for original material. Upstream
+packages retain their own license review requirements.
 
 `python3 scripts/release/release.py --help` describes four local operations. Requirements are Python 3.11+, installed `repo-add`, `bsdtar`, `vercmp`, and GnuPG. No dependencies are downloaded or installed by this CLI. Tests use only synthetic local archives. No production key or project identity is generated. Inputs contain no secrets; a signing custodian runs this tool outside untrusted build execution.
 

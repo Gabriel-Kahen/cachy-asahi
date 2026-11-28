@@ -46,32 +46,42 @@ only the Fish package and exercised staging, comparison and withdrawal.
   volume missing from the retained seed. Apple firmware, the original
   initramfs and physical recovery remain open.
   [Stock-kernel trial](validation/asahi626-maintenance-emulated-arm16k-20261118.md#direct-stock-kernel-boot-with-an-auxiliary-initramfs)
-- The separate TEST-signed Asahi rehearsal passed in offline emulated
-  AArch64 with 16 KiB pages. Its actual inventories were 261, 629 and
-  629 packages. The reversal restored the original NetworkManager, Perl
-  and Python versions, and the 362 protected boot and mount entries
-  matched across all phases. Composition approval remains open.
-  [629 installation and reversal](workstreams/supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
-- Qtbase `all` completed in the replacement 8 GiB emulated AArch64 guest
-  with 16 KiB pages. Independent readback verified 18 linked libraries and
-  1,216 distinct Ninja timing and command tuples. A separate guest produced
-  the verified Qtbase 6.12.0-2 archive. Its TEST-signed installed lifecycle
-  passed on the Q3 baseline, including database restoration after both
+- The November 27 TEST-signed Asahi629 Preview rehearsal passed in offline
+  emulated AArch64 with 16 KiB pages. The 261 → 629 → 629 transactions
+  restored the original NetworkManager, Perl and Python versions and
+  preserved all 362 protected boot and mount entries. The refreshed TEST
+  transport passed independent public verification of all 767 payload pins.
+  Installation and rollback using the refreshed transport remain **NOT RUN**.
+  The separate Asahi629 JBIG/TIFF replacement and restoration also remain
+  **NOT RUN**. Composition approval remains open.
+  [November 27 rehearsal](workstreams/supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
+  · [Refreshed inputs and JBIG/TIFF follow-up](workstreams/remaining-development-audit-20261127.md#next-engineering-work)
+- The Q3 Qtbase 6.12 build completed `all` in the replacement 8 GiB emulated
+  AArch64 guest with 16 KiB pages. Independent readback verified 18 linked
+  libraries and 1,216 distinct Ninja timing and command tuples. A separate
+  guest produced the verified Qtbase 6.12.0-2 archive. Its TEST-signed
+  installed lifecycle passed on the Q3 baseline, including database restoration after both
   removals and separate refusals for a tampered signature and an unknown
   signer. On the retained R132 inventory, the project archive's
   `md4c<0.6` requirement is unsatisfied. The installed Qt Quick and Quick
   Widgets binaries also require nine Vulkan symbols absent from that
-  archive. The Vulkan/md4c 0.6 successor finished its emulated AArch64
+  archive. The Vulkan/md4c 0.6 successor, 6.12.0-3, finished its emulated AArch64
   16 KiB build. Offline recovery verified the unsigned archive, the final
   357-package build inventory and the required QtGui ABI. The original
   guest recorded HOLD after a missing boot utility interrupted the normal
-  export. Official provider replacement still needs a signed installed
-  lifecycle trial.
+  export. A separate TEST-signed Asahi629 guest swapped and restored the
+  official provider, including software rendering probes before and during
+  replacement. At the November 27 status check, the 6.12.0-4 parity candidate
+  was still compiling in emulated AArch64 with 16 KiB pages. Package readback,
+  signed installation and restoration, and the added runtime checks
+  remain open for 6.12.0-4.
   [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
   · [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
   · [Installed lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
   · [R132 replacement checks](../scripts/integration/qt612_installed_16k_preflight/README.md#official-provider-replacement-on-r132)
   · [Successor build and recovery](../scripts/integration/qt612_vulkan_md4c_successor/README.md#november-27-build-and-offline-package-recovery)
+  · [6.12.0-3 scoped replacement](../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27)
+  · [6.12.0-4 parity candidate](../scripts/integration/qt612_vulkan_md4c_successor/PARITY.md)
 - The virtual desktop successor requires a terminal event after guest
   cleanup, bounded UART EOF, and outer-reader verification before accepting
   frames. The retained-input run `45731218357` authenticated all 45 tooling objects,
