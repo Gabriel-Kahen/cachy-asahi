@@ -187,9 +187,16 @@ jobs:
           test "$(git -C "$KERNEL_PACKET_V2_REPLAY" rev-parse HEAD)" = c9f11142e061c163e6df4bcf5cf474e608ef711d
           /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s "$KERNEL_PACKET_V2_REPLAY/scripts/port/kernel-native-job" -p test_packet_v2.py
           # Some source-fixture cases need retained private input and report a skip here.
-          for suite in kernel-candidates kernel-native-stage kernel-native-job; do
+          for suite in kernel-candidates kernel-native-stage; do
             /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s "scripts/port/$suite" -p 'test_*.py'
           done
+          # The sealed packet's acceptance suite ran above. Use the HOLD and Setup
+          # controls for the live checkout, alongside all other current job tests.
+          for test in scripts/port/kernel-native-job/test_*.py; do
+            if [ "${test##*/}" = test_packet_v2.py ]; then continue; fi
+            /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/port/kernel-native-job -p "${test##*/}"
+          done
+          /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/port/kernel-native-job-v2 -p test_current_hold.py
       - uses: ./.github/actions/apps-package-source
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         id: apps7-source
