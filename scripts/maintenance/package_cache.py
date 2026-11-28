@@ -31,6 +31,7 @@ ARCHIVE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._+:-]*\.pkg\.tar\.(?:gz|xz|zst)\Z")
 FULL_VERSION = re.compile(r"(?:[0-9]+:)?[^:/\s\x00-\x1f\x7f-]+-[0-9]+(?:\.[0-9]+)?\Z")
 SHA = re.compile(r"[0-9a-f]{64}\Z")
 MAX_FILES, MAX_ARCHIVE = 4096, 2 * 1024**3
+MAX_DECODED_ARCHIVE = 8 * 1024**3
 
 
 class Error(ValueError):
@@ -140,15 +141,50 @@ def archive_metadata(stream, filename):
         return tar_metadata(decoder)
 
 
-def tar_metadata(stream):
+def tar_metadata(decoder):
     deadline, total, names, found = time.monotonic() + 30, 0, set(), None
-    with tarfile.open(fileobj=stream, mode='r|') as archive:
+    limit = MAX_DECODED_ARCHIVE
+    end_seen = False
+
+    class BoundedDecodedStream:
+        remaining = limit
+
+        def read(self, size):
+            need(time.monotonic() < deadline, 'archive inspection deadline')
+            block = decoder.read(min(size, self.remaining + 1))
+            self.remaining -= len(block)
+            need(self.remaining >= 0 and time.monotonic() < deadline, 'decoded archive inspection bound')
+            return block
+
+    class CheckedHeader(tarfile.TarInfo):
+        @classmethod
+        def fromtarfile(cls, archive):
+            nonlocal end_seen
+            try:
+                return super().fromtarfile(archive)
+            except tarfile.EOFHeaderError:
+                end_seen = True
+                raise
+
+        def _proc_pax(self, archive):
+            need(0 <= self.size <= 1024**2, 'extended header byte bound')
+            return super()._proc_pax(archive)
+
+        def _proc_gnulong(self, archive):
+            need(0 <= self.size <= 1024**2, 'extended header byte bound')
+            return super()._proc_gnulong(archive)
+
+    with tarfile.open(fileobj=BoundedDecodedStream(), mode='r|', tarinfo=CheckedHeader) as archive:
         for member in archive:
+            # The reader bounds decompressor output; the next header offset
+            # also bounds the declared member extent before reading its body.
+            need(max(archive.fileobj.tell(), archive.offset) <= limit, 'decoded tar member position bound')
             name = member.name.removeprefix('./').rstrip('/')
             if name in ('', '.') and member.isdir():continue
             need(name and not name.startswith('/') and '..' not in Path(name).parts and name not in names, 'unsafe/duplicate archive member')
+            need(member.size >= 0, 'invalid archive member size')
             names.add(name);total += member.size
-            need(len(names) <= 65536 and total <= 8 * 1024**3 and time.monotonic() < deadline, 'archive inspection bound')
+            need(len(names) <= 65536 and total <= limit and time.monotonic() < deadline, 'archive inspection bound')
             if member.isfile():
                 need(name != '.PKGINFO' or member.size <= 1024**2, 'package metadata exceeds bound')
                 source = archive.extractfile(member);data = bytearray() if name == '.PKGINFO' else None
@@ -156,9 +192,16 @@ def tar_metadata(stream):
                     need(time.monotonic() < deadline, 'archive inspection deadline')
                     if data is not None:data.extend(block)
                 if data is not None:found = bytes(data)
-    while block := stream.read(1024**2):
-        total += len(block)
-        need(total <= 8 * 1024**3 and time.monotonic() < deadline, 'compression trailer bound')
+        # TarFile.next() also returns None for EOF or an invalid header. Read
+        # through its buffer to prove the second zero block and compression EOF.
+        need(end_seen, 'missing tar end marker')
+        tail_start = archive.fileobj.tell()
+        while block := archive.fileobj.read(1024**2):
+            need(archive.fileobj.tell() <= limit, 'decoded tar padding position bound')
+            need(block.count(b'\0') == len(block), 'nonzero bytes after tar end marker')
+        end = archive.fileobj.tell()
+        need(end - tail_start >= tarfile.BLOCKSIZE and end % tarfile.BLOCKSIZE == 0,
+             'incomplete tar end marker or padding')
     need(found is not None, 'package metadata missing')
     fields = {}
     for line in found.decode().splitlines():

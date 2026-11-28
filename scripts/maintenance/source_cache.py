@@ -202,9 +202,17 @@ def transport(row, fd, seconds):
 
 
 def publish(partials, name, target, key):
-    # link is atomic and fails if *any* destination already exists.
-    os.link(name, key, src_dir_fd=partials, dst_dir_fd=target, follow_symlinks=False)
-    os.unlink(name, dir_fd=partials)
+    import ctypes
+
+    # Move the single link atomically and preserve any existing destination.
+    rename = getattr(ctypes.CDLL(None, use_errno=True), 'renameat2', None)
+    need(rename is not None, 'Linux renameat2 required for no-replace cache publication')
+    rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+    rename.restype = ctypes.c_int
+    rename_noreplace = 1
+    if rename(partials, os.fsencode(name), target, os.fsencode(key), rename_noreplace):
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error), key)
     os.fsync(target); os.fsync(partials)
 
 

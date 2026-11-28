@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Temporary real package archives only; never touch the host ALPM/cache directories."""
 import copy
+import gzip
 import hashlib
 import importlib.util
 import io
@@ -83,6 +84,65 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(row['action'],'unknown')
         with self.assertRaises(c.ApplyError):self.apply(plan,[self.archives[2].name])
         self.assertEqual(self.archives[2].read_bytes(),raw)
+
+    def test_incomplete_tar_cannot_count_toward_retention_or_be_deleted(self):
+        newest, oldest = self.archives[5], self.archives[2]
+        raw = gzip.decompress(newest.read_bytes())
+        with tarfile.open(fileobj=io.BytesIO(raw), mode='r:') as archive:
+            archive.getmembers()
+            end = archive.offset
+        block = tarfile.BLOCKSIZE
+        bad_tails = {
+            'absent': b'',
+            'single zero block': bytes(block),
+            'partial second block': bytes(2 * block - 1),
+            'unaligned padding': bytes(2 * block + 1),
+            'invalid header': b'x' * block + bytes(2 * block),
+            'trailing bytes within tar buffer': bytes(2 * block) + b'x' + bytes(block - 1),
+        }
+        for kind, tail in bad_tails.items():
+            with self.subTest(kind=kind):
+                newest.write_bytes(gzip.compress(raw[:end] + tail))
+                plan = self.preview()
+                actions = {row['filename']: row['action'] for row in plan['entries']}
+                self.assertEqual(actions[newest.name], 'unknown')
+                self.assertEqual(actions[oldest.name], 'retained')
+                before = self.snapshot()
+                for path in (newest, oldest):
+                    with self.assertRaises(c.ApplyError):
+                        self.apply(plan, [path.name])
+                self.assertEqual(self.snapshot(), before)
+
+        newest.write_bytes(gzip.compress(raw[:end] + bytes(2 * block)))
+        oldest_raw = gzip.decompress(oldest.read_bytes())
+        oldest.write_bytes(gzip.compress(oldest_raw[:end]))
+        plan = self.preview()
+        actions = {row['filename']: row['action'] for row in plan['entries']}
+        self.assertEqual(actions[newest.name], 'retained')
+        self.assertEqual(actions[oldest.name], 'unknown')
+        self.assertEqual(actions[self.duplicate.name], 'candidate')
+        with self.assertRaises(c.ApplyError):
+            self.apply(plan, [oldest.name])
+
+    def test_decoded_bound_counts_compressed_zero_tail(self):
+        path = self.archives[5]
+        raw = gzip.decompress(path.read_bytes())
+        # Exercise the production bound with a small ceiling and real gzip.
+        with mock.patch.object(c, 'MAX_DECODED_ARCHIVE', len(raw)):
+            rows = {row['filename']: row for row in self.preview()['entries']}
+            self.assertEqual(rows[path.name]['action'], 'retained')
+            for extra in (tarfile.BLOCKSIZE, 256 * 1024):
+                with self.subTest(extra=extra):
+                    compressed = gzip.compress(raw + bytes(extra))
+                    self.assertLess(len(compressed), len(raw))
+                    path.write_bytes(compressed)
+                    plan = self.preview()
+                    rows = {row['filename']: row for row in plan['entries']}
+                    self.assertEqual(rows[path.name]['action'], 'unknown')
+                    self.assertEqual(rows[self.archives[2].name]['action'], 'retained')
+                    with self.assertRaises(c.ApplyError):
+                        self.apply(plan, [path.name])
+                    self.assertEqual(path.read_bytes(), compressed)
 
     def test_all_duplicates_of_a_protected_version_are_kept(self):
         duplicate=self.package(1,suffix='xz',payload=b'another copy of rollback version')
