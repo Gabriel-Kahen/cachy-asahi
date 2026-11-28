@@ -1,0 +1,194 @@
+diff --git a/scripts/install/first_login.py b/scripts/install/first_login.py
+index e982539f5..6f4be4be8 100644
+--- a/scripts/install/first_login.py
++++ b/scripts/install/first_login.py
+@@ -9,6 +9,7 @@ import argparse
+ import json
+ import os
+ from pathlib import Path
++import re
+ import shlex
+ import subprocess
+ import sys
+@@ -39,7 +40,7 @@ def freeze_paths(args):
+     return selected
+
+
+-def helper_command(args, operation, components=(), apply=False):
++def helper_command(args, operation, components=(), apply=False, *, expected_journal=None):
+     command = [str(args.setup_helper), operation]
+     if components:
+         command += ['--components', *components]
+@@ -49,6 +50,8 @@ def helper_command(args, operation, components=(), apply=False):
+             command += ['--' + option.replace('_', '-'), str(value)]
+     if apply:
+         command.append('--apply')
++    if expected_journal is not None:
++        command += ['--expected-journal', expected_journal]
+     return command
+
+
+@@ -68,7 +71,7 @@ def invoke(command):
+     return data, process.returncode
+
+
+-def followup(args, operation, components=(), apply=False):
++def followup(args, operation, components=(), apply=False, *, expected_journal=None):
+     command = [sys.executable, '-I', '-B', str(Path(__file__).resolve()), operation,
+                '--setup-helper', str(args.setup_helper)]
+     if components:
+@@ -79,6 +82,8 @@ def followup(args, operation, components=(), apply=False):
+             command += ['--' + option.replace('_', '-'), str(value)]
+     if apply:
+         command.append('--apply')
++    if expected_journal is not None:
++        command += ['--expected-journal', expected_journal]
+     return shlex.join(command)
+
+
+@@ -99,14 +104,24 @@ def status(args, components, run):
+     return data, code
+
+
+-def operation(args, name, components, apply, run):
+-    data, code = run(helper_command(args, name, components, apply))
++def operation(args, name, components, apply, run, *, expected_journal=None):
++    data, code = run(helper_command(args, name, components, apply, expected_journal=expected_journal))
++    if (expected_journal is not None and data.get('operation') == name and data.get('mode') == 'read-only'
++            and data.get('journal_changed') is True and data.get('actions') == [] and code == 2):
++        return data, code
+     if (data.get('operation') != name or data.get('mode') != ('applied' if apply else 'preview')
+             or not isinstance(data.get('actions'), list)):
+         raise Error('Setup operation returned an incompatible report; inspect the helper separately.')
+     return data, code
+
+
++def changed_journal(args, report):
++    report.pop('setup_result', None)
++    report.update(status='attention-required', mode='read-only',
++                  next=['The pending journal changed. Inspect again before continuing.', followup(args, 'inspect')])
++    return report, 2
++
++
+ def execute(args, run=invoke, executable=os.access):
+     args = freeze_paths(args)
+     if args.apply and args.operation == 'inspect':
+@@ -115,9 +130,12 @@ def execute(args, run=invoke, executable=os.access):
+         raise Error('Choose explicit components from inspect before activation.')
+     if args.operation != 'activate' and args.components:
+         raise Error('Component selection belongs to activate; recovery replays the original transaction.')
++    if args.expected_journal is not None and args.operation != 'recover':
++        raise Error('A reviewed journal ID belongs to recover.')
+     components = tuple(dict.fromkeys(args.components or COMPONENTS))
+     observed, code = status(args, components, run)
+-    pending = observed['pending']['status']
++    pending = observed['pending']
++    journal_id = pending.get('transaction')
+     report = {'schema_version': 1, 'operation': args.operation, 'mode': 'read-only',
+               'setup_status': observed, 'components': [], 'next': [],
+               'scope': 'user configuration only; first graphical login and hardware NOT RUN'}
+@@ -129,22 +147,30 @@ def execute(args, run=invoke, executable=os.access):
+         report['components'].append({'component': row['component'], 'available': available,
+                                      'template': template, 'program': program,
+                                      'program_available': program_available})
+-    if pending != 'none':
++    if args.expected_journal is not None and args.expected_journal != journal_id:
++        return changed_journal(args, report)
++    if pending['status'] != 'none':
+         report['status'] = 'recovery-required'
+-        if pending == 'migration-owned':
++        if pending['status'] == 'migration-owned':
+             report['next'] = ['Use cachy-asahi-config-migrate with the original migration manifest and path options; setup cannot resume a migration-owned transaction.']
+             return report, 2
+-        if pending != 'resumable' or observed['state']['status'] == 'unknown':
++        if (pending['status'] != 'resumable' or pending.get('can_resume') is not True
++                or observed['state']['status'] == 'unknown'
++                or not isinstance(journal_id, str) or not re.fullmatch(r'[0-9a-f]{32}', journal_id)):
+             report['next'] = observed.get('guidance', [])
+             return report, 1
+-        report['next'] = [followup(args, 'recover'), followup(args, 'recover', apply=True)]
++        report['next'] = [followup(args, 'recover', apply=apply, expected_journal=journal_id)
++                          for apply in (False, True)]
+         if args.operation != 'recover':
+             return report, 2
+     if args.operation == 'recover':
+-        if code == 1:
++        if pending['status'] == 'none' and code == 1:
+             report['status'] = 'blocked'
+             return report, 1
+-        recovered, recovery_code = operation(args, 'recover', (), args.apply, run)
++        recovered, recovery_code = operation(args, 'recover', (), args.apply, run,
++                                             expected_journal='none' if pending['status'] == 'none' else journal_id)
++        if recovered.get('journal_changed') is True:
++            return changed_journal(args, report)
+         report.update(status='recovery-applied' if args.apply else 'recovery-preview',
+                       mode=recovered['mode'], setup_result=recovered)
+         if args.apply and not recovery_code:
+@@ -169,7 +195,9 @@ def execute(args, run=invoke, executable=os.access):
+     if not args.apply:
+         report.update(status='activation-preview', next=[followup(args, 'activate', components, apply=True)])
+         return report, 0
+-    applied, apply_code = operation(args, 'activate', components, True, run)
++    applied, apply_code = operation(args, 'activate', components, True, run, expected_journal='none')
++    if applied.get('journal_changed') is True:
++        return changed_journal(args, report)
+     report.update(status='activation-applied' if not apply_code else 'attention-required',
+                   mode=applied['mode'], setup_result=applied)
+     report['next'] = ['Start fresh shells for selected shell components.']
+@@ -184,6 +212,7 @@ def parser():
+     value.add_argument('operation', nargs='?', default='inspect', choices=('inspect', 'activate', 'recover'))
+     value.add_argument('--components', nargs='+', choices=COMPONENTS)
+     value.add_argument('--apply', action='store_true', help='explicitly apply the selected user-configuration operation')
++    value.add_argument('--expected-journal', help='recover only the pending transaction with this reviewed ID')
+     value.add_argument('--setup-helper', type=Path, default=Path('/usr/bin/cachy-asahi-setup'))
+     for option in PATH_OPTIONS:
+         value.add_argument('--' + option.replace('_', '-'), type=Path)
+diff --git a/scripts/setup8/setup.py b/scripts/setup8/setup.py
+index 1e907a821..793a2a3ca 100644
+--- a/scripts/setup8/setup.py
++++ b/scripts/setup8/setup.py
+@@ -707,9 +707,13 @@ class Setup:
+                 'state': {'status': state_status}, 'pending': pending, 'actions': actions,
+                 'guidance': guidance, 'exit_code': 1 if incomplete else 2 if attention else 0}
+
+-    def run(self, operation, components=(), apply=False):
++    def run(self, operation, components=(), apply=False, *, expected_journal=None):
+         if operation not in ('activate', 'remove', 'recover', 'status') or not set(components) <= set(ALL_COMPONENTS):
+             raise Error('Unrecognized operation/components')
++        if expected_journal is not None and not (
++                (operation == 'activate' and expected_journal == 'none')
++                or (operation == 'recover' and re.fullmatch(r'none|[0-9a-f]{32}', expected_journal))):
++            raise Error('Use --expected-journal none for activation or a reviewed journal ID for recovery')
+         if operation == 'status':
+             if apply:
+                 raise Error('Status is read-only; --apply is not supported')
+@@ -723,6 +727,12 @@ class Setup:
+         lock = self.fs.lock(self.lock_path) if apply else None
+         try:
+             journal = self.load(self.journal_path)
++            # Apply checks the journal under the lock shared with migration.
++            matches = journal is None if expected_journal == 'none' else (
++                journal is not None and journal.get('id') == expected_journal)
++            if expected_journal is not None and not matches:
++                return {'mode': 'read-only', 'operation': operation, 'actions': [],
++                        'journal_changed': True, 'exit_code': 2}
+             recovered = False
+             if journal:
+                 self.validate_journal(journal)
+@@ -779,6 +789,7 @@ def main():
+     parser.add_argument('operation', choices=('activate', 'remove', 'recover', 'status'))
+     parser.add_argument('--components', nargs='+', choices=ALL_COMPONENTS)
+     parser.add_argument('--apply', action='store_true', help='perform the previewed operation; default is read-only')
++    parser.add_argument('--expected-journal', help='require no pending journal (none) or the reviewed recovery ID')
+     parser.add_argument('--home', type=Path, help='explicit user home; tests use temporary homes')
+     parser.add_argument('--template-root', type=Path, default=Path('/usr/share/cachy-asahi'))
+     parser.add_argument('--config-home', type=Path)
+@@ -800,7 +811,7 @@ def main():
+         setup = Setup(home, args.template_root,
+                       relative_directory(home, config, '.config'), relative_directory(home, zsh, '.'),
+                       relative_directory(home, state, '.local/state/cachy-asahi/setup'))
+-        result = setup.run(args.operation, args.components or (), args.apply)
++        result = setup.run(args.operation, args.components or (), args.apply, expected_journal=args.expected_journal)
+         print(json.dumps(result, indent=2, sort_keys=True))
+         return result.get('exit_code', 2 if result.get('preserved_conflicts') or result.get('pending_transaction') else 0)
+     except (Error, OSError, UnicodeError, ValueError, KeyError, TypeError) as error:
