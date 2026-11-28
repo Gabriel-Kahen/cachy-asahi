@@ -162,19 +162,29 @@ def select(policy, event, raw_diff, *, complete=False, truncated=False, signatur
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--policy', type=Path, default=Path(__file__).with_name('dependencies.json'))
-    parser.add_argument('--event', required=True)
-    parser.add_argument('--diff', type=Path, required=True)
-    parser.add_argument('--group', choices=('static', 'full-port', 'parallel'), required=True)
+    operation = parser.add_mutually_exclusive_group(required=True)
+    operation.add_argument('--diff', type=Path)
+    operation.add_argument('--sparse-paths', action='store_true',
+                           help='print literal sparse-checkout patterns for reviewed Python sources')
+    parser.add_argument('--event')
+    parser.add_argument('--group', choices=('static', 'full-port', 'parallel'))
     parser.add_argument('--complete', action='store_true')
     parser.add_argument('--truncated', action='store_true')
     parser.add_argument('--github-output', type=Path)
     parser.add_argument('--source-root', type=Path, default=Path.cwd())
     args = parser.parse_args(argv)
+    if not args.sparse_paths and (args.event is None or args.group is None):
+        parser.error('--diff requires --event and --group')
     try:
         with args.policy.open('rb') as stream:
             policy_raw = stream.read(MAX_POLICY + 1)
         require(len(policy_raw) <= MAX_POLICY, 'policy byte bound')
         policy = policy_check(decode(policy_raw))
+        if args.sparse_paths:
+            for path in sorted(policy['dependency_signatures']):
+                # Non-cone patterns use gitignore glob syntax. Match the literal path.
+                print('/' + re.sub(r'([*?\[\]])', r'\\\1', path))
+            return 0
         try:
             with args.diff.open('rb') as stream:
                 raw = stream.read(MAX_DIFF + 1)

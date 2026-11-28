@@ -530,7 +530,7 @@ jobs:
       run: ${{ steps.select.outputs.run }}
       matrix: ${{ steps.select.outputs.matrix }}
     steps:
-      - name: Checkout bounded depth-two selector inputs
+      - name: Check out the selector and its workflow inputs
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
@@ -538,9 +538,7 @@ jobs:
           fetch-tags: false
           filter: blob:none
           sparse-checkout-cone-mode: false
-          # The selector reads reviewed Python sources and its tests inspect all three callers.
           sparse-checkout: |
-            *.py
             /scripts/ci/component_selection/
             /.github/workflows/static.yml
             /.github/workflows/full-port-workflows.yml
@@ -555,12 +553,9 @@ jobs:
         env:
           SELECTION_EVENT: ${{ github.event_name }}
           SELECTION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.event.after }}
           SELECTION_SHA: ${{ github.sha }}
         run: |
-          set -euo pipefail
-          component_diff() {
-            timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
-          }
-          source scripts/ci/component_selection/collect.sh
-          collect_components full-port
+          python3 -I -B scripts/ci/component_selection/select.py --sparse-paths |
+            timeout --kill-after=5s 45s env GIT_TERMINAL_PROMPT=0 git sparse-checkout add --stdin
+          bash scripts/ci/component_selection/collect.sh full-port

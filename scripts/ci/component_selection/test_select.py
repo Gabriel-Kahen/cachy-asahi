@@ -220,8 +220,10 @@ class SelectionTests(unittest.TestCase):
             self.assertIsNotNone(match,name)
             self.assertEqual(json.loads(match.group(1)),dict(include=POLICY['groups'][group]['rows']))
             self.assertIn("needs.component-selection.result != 'success' || needs.component-selection.outputs.run != 'false'",workflow)
-            self.assertIn('head -c 1048577',workflow)
-            self.assertIn('git diff --no-ext-diff --no-renames --name-status -z',workflow)
+            self.assertIn(f'bash scripts/ci/component_selection/collect.sh {group}',workflow)
+            self.assertIn('SELECTION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}', workflow)
+            self.assertIn('SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.event.after }}', workflow)
+            self.assertIn('SELECTION_SHA: ${{ github.sha }}', workflow)
             if group!='static':self.assertEqual(workflow.count("- '**' # Unknown paths"),2)
         static=(root/'.github/workflows/static.yml').read_text().split('  developer-release-components:',1)[0]
         self.assertIn('  checks:\n    needs: cache-seed\n',static)
@@ -230,7 +232,7 @@ class SelectionTests(unittest.TestCase):
     def test_sparse_selector_checkout_keeps_dependency_and_workflow_inputs(self):
         workflows = HERE.parents[2] / '.github/workflows'
         names = ('static', 'full-port-workflows', 'parallel-development-tools')
-        patterns = ['*.py', '/scripts/ci/component_selection/']
+        patterns = ['/scripts/ci/component_selection/']
         patterns.extend(f'/.github/workflows/{name}.yml' for name in names)
         for name in names:
             with self.subTest(name=name):
@@ -241,6 +243,33 @@ class SelectionTests(unittest.TestCase):
                 checkout = re.search(r'^          sparse-checkout: \|\n((?:            [^\n]+\n)+)', selector, re.M)
                 self.assertIsNotNone(checkout)
                 self.assertEqual(checkout[1].split(), patterns)
+                self.assertIn('          persist-credentials: false\n', selector)
+                self.assertIn('          fetch-depth: 2\n', selector)
+                self.assertIn('        shell: bash\n', selector)
+                self.assertRegex(selector, r'select\.py --sparse-paths \|\n +timeout .* git sparse-checkout add --stdin')
+
+    def test_static_tiff_step_runs_independently_after_qt_with_prerequisites(self):
+        workflow = (HERE.parents[2] / '.github/workflows/static.yml').read_text()
+        constraints = (
+            '!cancelled()',
+            "(matrix.shard == 'all' || matrix.shard == 'foundation')",
+            "steps.static_checkout.outcome == 'success'",
+            "steps.static_prerequisites.outcome == 'success'",
+        )
+        qt_name = '      - name: Check offline Qtbase continuation and full-target preflight\n'
+        tiff_name = '      - name: Check offline Asahi629 JBIG and TIFF integration\n'
+        self.assertLess(workflow.index(qt_name), workflow.index(tiff_name))
+        qt = workflow.split(qt_name, 1)[1].split('      - name: ', 1)[0]
+        tiff = workflow.split(tiff_name, 1)[1].split('      - name: ', 1)[0]
+        self.assertNotIn('jbig_tiff_asahi629', qt)
+        self.assertIn('scripts/integration/jbig_tiff_asahi629', tiff)
+        self.assertIn('        if: ${{ ' + ' && '.join(constraints) + ' }}\n', tiff)
+        self.assertRegex(workflow, r'      - uses: actions/checkout@[0-9a-f]{40}[^\n]*\n        id: static_checkout\n')
+        self.assertIn(
+            '        id: static_prerequisites\n        uses: ./.github/actions/static-prerequisites\n', workflow)
+        for suite in ('inputs', 'jpeg_recipe', 'runtime', 'lane', 'reflink', 'host_telemetry',
+                      'clone_rehash', 'refresh_preflight'):
+            self.assertIn(f'test_{suite}.py', tiff)
 
     def test_dispatch_inventory_cannot_drift_from_full_matrix(self):
         root=HERE.parents[2]

@@ -50,9 +50,11 @@ jobs:
         shard: ${{ fromJSON(((github.event_name == 'workflow_dispatch' && inputs.measure-cache) || inputs.setup-phase == 'warm') && '["all"]' || '["foundation","source-data","desktop","composition"]') }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        id: static_checkout
         with:
           persist-credentials: false
       - name: Install verified test prerequisites on disposable runner
+        id: static_prerequisites
         uses: ./.github/actions/static-prerequisites
         with:
           phase: ${{ github.event_name == 'workflow_dispatch' && inputs.measure-cache && 'warm' || inputs.setup-phase || 'normal' }}
@@ -375,6 +377,9 @@ jobs:
                       test_readback.py test_controller.py test_launch.py test_receipt.py; do
             python3 -I -B -Werror::ResourceWarning "$lane/$test"
           done
+      - name: Check offline Asahi629 JBIG and TIFF integration
+        if: ${{ !cancelled() && (matrix.shard == 'all' || matrix.shard == 'foundation') && steps.static_checkout.outcome == 'success' && steps.static_prerequisites.outcome == 'success' }}
+        run: |
           lane=scripts/integration/jbig_tiff_asahi629
           for test in test_inputs.py test_jpeg_recipe.py test_runtime.py test_lane.py \
                       test_reflink.py test_host_telemetry.py test_clone_rehash.py \
@@ -1719,7 +1724,7 @@ jobs:
       run: ${{ steps.select.outputs.run }}
       matrix: ${{ steps.select.outputs.matrix }}
     steps:
-      - name: Checkout bounded depth-two selector source
+      - name: Check out the selector and its workflow inputs
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
@@ -1727,9 +1732,7 @@ jobs:
           fetch-tags: false
           filter: blob:none
           sparse-checkout-cone-mode: false
-          # Keep reviewed Python sources and the workflow files read by the selector tests.
           sparse-checkout: |
-            *.py
             /scripts/ci/component_selection/
             /.github/workflows/static.yml
             /.github/workflows/full-port-workflows.yml
@@ -1744,12 +1747,9 @@ jobs:
         env:
           SELECTION_EVENT: ${{ github.event_name }}
           SELECTION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.event.after }}
           SELECTION_SHA: ${{ github.sha }}
         run: |
-          set -euo pipefail
-          component_diff() {
-            timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
-          }
-          source scripts/ci/component_selection/collect.sh
-          collect_components static
+          python3 -I -B scripts/ci/component_selection/select.py --sparse-paths |
+            timeout --kill-after=5s 45s env GIT_TERMINAL_PROMPT=0 git sparse-checkout add --stdin
+          bash scripts/ci/component_selection/collect.sh static
