@@ -285,6 +285,34 @@ class CheckpointTests(unittest.TestCase):
                                          qt, held=False)
         self.assertEqual(S["checkpoint_observations"](asahi, {}, held=True), (checkpoint, 101))
 
+    def test_held_parity_export_checks_the_completed_restored_report_pin(self):
+        profile = {"inert": True}
+        nonce = "a" * 32
+        name = E["R"]["RESTORED_REPORT"]
+        report = C.wire(dict(nonce=nonce, phase="restoration", status="PARTIAL"))
+        entry = dict(phase="entry", parity_profile=C.pin(C.wire(profile)))
+
+        def observe(pin, raw, *, include_journal=True):
+            failure = dict(error_type="RestoredCoverageError", error="PARTIAL")
+            tx = dict(status="HOLD_QT629_OFFICIAL_RESTORATION_VERIFIED", error=failure, restored_runtime_probe=pin)
+            checkpoint = dict(nonce=nonce, transaction=tx, runtime_probe=None)
+            owner = C.wire(dict(nonce=nonce, qt_checkpoint=checkpoint, trust_retired_at_ns=None))
+            terminal = dict(phase="terminal", at_ns=100, **tx)
+            qt = {} if raw is None else {name: raw}
+            if include_journal:
+                qt["transaction.jsonl"] = "".join(json.dumps(row) + "\n" for row in (entry, terminal)).encode()
+            self.assertEqual(S["checkpoint_observations"]({"result.json": owner}, qt, held=True, profile=profile),
+                             (checkpoint, None))
+
+        pin = C.pin(report)
+        observe(pin, report)
+        observe(None, None)
+        for selected, raw in ((None, report), (pin, None), (pin, report + b"rebound")):
+            with self.subTest(pin=selected, report=raw), self.assertRaisesRegex(ValueError, "Restored runtime evidence pin"):
+                observe(selected, raw)
+        with self.assertRaisesRegex(ValueError, "Restored runtime evidence pin"):
+            observe(pin, report, include_journal=False)
+
 
 class TestAdmissionSignature(unittest.TestCase):
     def test_checks_detached_signature_even_when_all_operand_pins_match(self):

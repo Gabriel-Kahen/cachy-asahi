@@ -246,7 +246,13 @@ class CheckpointTests(unittest.TestCase):
     def test_parity_checkpoint_runs_restored_probe_in_the_owned_compositor(self):
         self.check_live_checkpoint(parity=True)
 
-    def check_live_checkpoint(self, *, parity):
+    def test_parity_checkpoint_returns_completed_failed_restored_report(self):
+        self.check_live_checkpoint(parity=True, restored_outcome="FAIL")
+
+    def test_parity_checkpoint_returns_completed_partial_restored_report(self):
+        self.check_live_checkpoint(parity=True, restored_outcome="SKIP")
+
+    def check_live_checkpoint(self, *, parity, restored_outcome="PASS"):
         profile = None
         if parity:
             P = X.P
@@ -293,7 +299,10 @@ class CheckpointTests(unittest.TestCase):
             self.assertIs(weston, compositor)
             calls.append(phase)
             directory = self.O.WORK if phase == "vendor" else report_path.parent
-            return R.write_result(directory, passing_checks(), wayland_socket, nonce=nonce, name=R.REPORTS[phase])
+            checks = passing_checks()
+            if phase == "restoration" and restored_outcome != "PASS":
+                checks["core_gui_offscreen"] = R.result(restored_outcome, "test restored coverage")
+            return R.write_result(directory, checks, wayland_socket, nonce=nonce, name=R.REPORTS[phase])
 
         actor.run = Mock(side_effect=run_probe)
         context = SimpleNamespace(**vars(G))
@@ -309,8 +318,18 @@ class CheckpointTests(unittest.TestCase):
             report_path.parent.mkdir()
             self.assertIsNone(probe())
             if parity:
-                restored_pin = parity_args["restored_probe"]()
-                self.assertEqual(restored_pin, T.pin((report_path.parent / R.RESTORED_REPORT).read_bytes()))
+                restored_pin, failure = parity_args["restored_probe"]()
+                body = (report_path.parent / R.RESTORED_REPORT).read_bytes()
+                self.assertEqual(restored_pin, T.pin(body))
+                expected_status = {"PASS": "PASS", "FAIL": "FAIL", "SKIP": "PARTIAL"}[restored_outcome]
+                self.assertEqual(T.decode(body)["status"], expected_status)
+                if expected_status == "PASS":
+                    self.assertIsNone(failure)
+                else:
+                    self.assertIsInstance(failure, R.RestoredCoverageError)
+                    self.assertEqual(failure.status, expected_status)
+                    self.assertIn("test restored coverage", str(failure))
+                    disposition["status"] = X.HOLD_RESTORED
                 disposition["restored_runtime_probe"] = restored_pin
             else:
                 self.assertFalse(parity_args)

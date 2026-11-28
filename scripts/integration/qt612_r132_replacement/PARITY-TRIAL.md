@@ -154,6 +154,8 @@ Record fresh comparison and ALPM transcript pins. Replacement adds project
    Independent readback requires both restored Weston presentations and
    matches their client identities to the restored report. A restored probe
    failure holds the trial with the official inventory already verified.
+   The terminal and owner checkpoint retain the pin for a completed FAIL or
+   PARTIAL report. The stopped exporter checks that pin on held trials.
    The historical `QT612_ASAHI629_REPLACEMENT_RECEIPT_V1` uses its original
    vendor and replacement runtime reports.
 6. Broader runtime parity still requires bounded ordinary-user probes for

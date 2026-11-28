@@ -213,9 +213,10 @@ def select_trust(T, O, G, tx, manifest, folder, review):
     check_keyrings(T, G, homes, keys, candidate=review)
 
 
-def probe_evidence(T, R, path, socket, *, nonce, passed, restored=False):
+def probe_evidence(T, R, path, socket, *, nonce, passed, restored=False, expected_status=None):
     if path_absent(path):
         T.need(not passed, "Successful Qt transaction lacks its runtime probe report")
+        T.need(expected_status is None, "Completed Qt probe lacks its runtime probe report")
         return None
     body = T.read(path, cap=2 << 20)
     report = T.decode(body)
@@ -226,6 +227,7 @@ def probe_evidence(T, R, path, socket, *, nonce, passed, restored=False):
     outcomes = {row["status"] for row in report["checks"].values()}
     T.need(outcomes <= {"PASS", "FAIL", "SKIP"}
            and report["status"] == ("FAIL" if "FAIL" in outcomes else "PARTIAL" if "SKIP" in outcomes else "PASS")
+           and (expected_status is None or report["status"] == expected_status)
            and (not passed or outcomes == {"PASS"}), "Qt runtime coverage differs from the transaction outcome")
     T.need(socket is not None or all(report["checks"][name]["status"] == "SKIP" for name in ("wayland", "vulkan_qrhi")),
            "Unselected Wayland compositor cannot yield a Wayland or QRhi probe result")
@@ -266,9 +268,15 @@ def run_checkpoint(T, O, G, selected):
 
     def transact(compositor):
         def restored_probe():
-            runtime.run(nonce=nonce, wayland_socket=socket, weston=compositor, phase="restoration")
-            return probe_evidence(T, runtime, evidence_dir / runtime.RESTORED_REPORT, socket,
-                                  nonce=nonce, passed=True, restored=True)
+            failure = None
+            try:
+                runtime.run(nonce=nonce, wayland_socket=socket, weston=compositor, phase="restoration")
+            except runtime.RestoredCoverageError as error:
+                failure = error
+            report = probe_evidence(T, runtime, evidence_dir / runtime.RESTORED_REPORT, socket, nonce=nonce,
+                                    passed=failure is None, restored=True,
+                                    expected_status=failure.status if failure is not None else None)
+            return report, failure
 
         parity = {"profile": profile, "restored_probe": restored_probe} if profile is not None else {}
         return tx.run(project_review=review,

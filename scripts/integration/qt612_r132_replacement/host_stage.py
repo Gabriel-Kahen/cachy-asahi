@@ -275,13 +275,14 @@ def stage(*, retained_source, retained_init, qt_source, qt_source_pins, baseline
 
 
 def checkpoint_observations(asahi, qt, *, held, profile=None):
+    restored = qt.get(E["R"]["RESTORED_REPORT"]) if profile is not None else None
     if "result.json" not in asahi:
-        need(held, "Completed Qt result requires the Asahi owner result")
+        need(held and restored is None, "Completed Qt result requires the Asahi owner result")
         return None, None
     owner = C.json_body(asahi["result.json"], canonical=True)
     names = {"qt_checkpoint", "trust_retired_at_ns"}
     if not owner.keys() & names:
-        need(held, "Completed Qt result requires checkpoint and trust retirement observations")
+        need(held and restored is None, "Completed Qt result requires checkpoint and trust retirement observations")
         return None, None
     need(names <= owner.keys(), "Incomplete Qt checkpoint and trust retirement observations")
     checkpoint, stamp = (owner[name] for name in ("qt_checkpoint", "trust_retired_at_ns"))
@@ -312,11 +313,12 @@ def checkpoint_observations(asahi, qt, *, held, profile=None):
             need(phase == "terminal" and last == checkpoint["transaction"] and type(when) is int
                  and 0 < when < 2**63 and (stamp is None or when < stamp),
                  "Checkpoint disposition or trust retirement disagrees with the terminal journal")
-        if profile is not None and checkpoint["transaction"] is not None:
-            restored_pin = checkpoint["transaction"].get("restored_runtime_probe")
-            restored = qt.get(E["R"]["RESTORED_REPORT"])
-            need((held and restored_pin is None) or (restored is not None and C.pin(restored) == restored_pin),
-                 "Restored runtime evidence pin differs from the stopped disk")
+    if profile is not None:
+        transaction = checkpoint["transaction"] if checkpoint is not None else None
+        restored_pin = transaction.get("restored_runtime_probe") if transaction is not None else None
+        need(held and restored is None and restored_pin is None
+             or restored is not None and qt.get("transaction.jsonl") and C.pin(restored) == restored_pin,
+             "Restored runtime evidence pin differs from the stopped disk")
     need(held or stamp is not None and checkpoint is not None and qt.get("transaction.jsonl")
          and checkpoint["runtime_probe"] is not None
          and checkpoint["transaction"]["status"] == "PASS_QT629_PROVIDER_ROUND_TRIP",

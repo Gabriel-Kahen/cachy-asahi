@@ -445,6 +445,14 @@ def collect(guest, wayland_socket, weston=None, *, phase="replacement"):
     return checked
 
 
+class RestoredCoverageError(RuntimeError):
+    """The restored probe completed and recorded incomplete runtime coverage."""
+
+    def __init__(self, status, message):
+        super().__init__(message)
+        self.status = status
+
+
 def write_result(directory, checks, wayland_socket, *, nonce, name=REPORTS["replacement"]):
     blocked = [name for name in PHASES if checks[name]["status"] != "PASS"]
     statuses = {checks[name]["status"] for name in PHASES}
@@ -459,8 +467,11 @@ def write_result(directory, checks, wayland_socket, *, nonce, name=REPORTS["repl
         stream.flush()
         os.fsync(stream.fileno())
     if blocked:
-        raise RuntimeError("Qt runtime coverage " + status + ": " + ", ".join(
-            f"{name}={checks[name]['status']}({checks[name]['reason']})" for name in blocked))
+        message = "Qt runtime coverage " + status + ": " + ", ".join(
+            f"{check}={checks[check]['status']}({checks[check]['reason']})" for check in blocked)
+        if name == RESTORED_REPORT:
+            raise RestoredCoverageError(status, message)
+        raise RuntimeError(message)
 
 
 def run(*, nonce, wayland_socket=None, weston=None, phase="replacement"):

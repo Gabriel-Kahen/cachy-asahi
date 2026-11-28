@@ -423,19 +423,21 @@ def _run(backend, journal, baseline, probe, platform, platform_pin, nonce, *, pr
         known = label
 
     def run_probe(label, callback, *, retain_pin=False):
+        evidence, failure = None, None
         try:
-            evidence = callback()
             if retain_pin:
-                need(P["C"].check_pin(evidence, 2 << 20) and evidence["bytes"] > 0,
-                     "Restored runtime probe must return an evidence pin")
+                report, error = callback()
+                need(P["C"].check_pin(report, 2 << 20) and report["bytes"] > 0
+                     and (error is None or isinstance(error, Exception)),
+                     "Restored runtime probe must return an evidence pin and optional failure")
+                evidence, failure = report, error
             else:
-                need(evidence is None, "Probe must return None on success")
+                need(callback() is None, "Probe must return None on success")
         except Exception as error:
-            evidence, failure = None, {"error_type": type(error).__name__, "error": str(error)[:512]}
-        else:
-            failure = None
-        journal.record(label, status="PASS" if failure is None else "HOLD", error=failure)
-        return evidence, failure
+            failure = error
+        structured = None if failure is None else {"error_type": type(failure).__name__, "error": str(failure)[:512]}
+        journal.record(label, status="PASS" if structured is None else "HOLD", error=structured)
+        return evidence, structured
 
     entry = dict(kind=RECEIPT, nonce=nonce)
     if profile_pin is not None:
@@ -491,7 +493,8 @@ def run(project_review, probe, platform, *, nonce, profile=None, restored_probe=
     of the writable clone. Only a clean candidate commit and exact readback
     permit the single ordinary official reversal, even if the probe fails.
     For parity, restored_probe runs after the verified reversal and returns
-    the separate report pin required for a successful terminal record.
+    the completed report pin and optional coverage failure. Errors before
+    a report completes raise and leave the report pin unset.
     """
     need(os.geteuid() == 0 and os.uname().machine == "aarch64" and os.sysconf("SC_PAGE_SIZE") == 16384,
          "Expected the owned AArch64 16 KiB guest")
