@@ -143,15 +143,16 @@ def adapted(function, **bindings):
 
 
 def verify_derivation(legacy, packet, plan):
+    profile = parity_profile(packet)
     paths, pins = legacy["selection"]()
     source = {name: C.read(path, CAP, pins[name])[0] for name, path in paths.items()}
     worker, operands = H["guest_checkpoint"](source["asahi-guest.py"], source["operands.py"], plan["qt_media"])
     legacy_init = legacy["init_bytes"]()
     expected = pins | {"asahi-guest.py": C.pin(worker), "operands.py": C.pin(operands)}
     need(all(plan["code"][name] == pin for name, pin in expected.items())
-         and C.pin(legacy_init) == H["PID1"] and C.pin(H["guest_init"](legacy_init)) == packet["staged"]["init"],
+         and C.pin(legacy_init) == H["PID1"]
+         and C.pin(H["guest_init"](legacy_init, profile=profile)) == packet["staged"]["init"],
          "Selected Qt worker or PID 1 does not derive from the frozen runner")
-    profile = parity_profile(packet)
     originals = R["originals"](profile)
     known = {"qt-replacement/" + leaf: originals[role] for leaf, role in M["fixed_media"](profile).items()}
     known.update({"qt-replacement/" + leaf: C.file_pin(row["bytes"], row["sha256"])

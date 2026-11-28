@@ -93,6 +93,44 @@ class LaunchSelectionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Staged Qt profile differs"):
             L["prepared"](selected, changed, stage, repo, current=False)
 
+    def test_derivation_binds_pid1_to_the_selected_profile(self):
+        legacy = run_path(str(HERE.parents[2] / M["LEGACY"]))
+        paths, base = legacy["selection"]()
+        legacy_init = legacy["init_bytes"]()
+        legacy_pid1 = H["guest_init"](legacy_init)
+        P = M["P"]
+        review = dict(fingerprint="B" * 40, not_before=1, not_after=8000,
+                      certificate=C.pin(b"public certificate"), signature=C.pin(b"detached signature"))
+        parity = dict(kind=P["PARITY_KIND"], official_version=P["VERSION"], project_version=P["PARITY_PROJECT_VERSION"],
+                      recipe=P["PARITY_RECIPE"], test_review=review,
+                      **{name: C.pin(name.encode()) for name in P["PARITY_INPUT_CAPS"]})
+        parity_pid1 = H["guest_init"](legacy_init, profile=parity)
+        restored = (R["RESTORED_REPORT"] + ") limit=2097152 ;;").encode()
+        self.assertIn(restored, parity_pid1)
+        self.assertNotIn(restored, legacy_pid1)
+
+        for profile, pid1 in ((None, legacy_pid1), (parity, parity_pid1)):
+            with self.subTest(profile=profile is not None):
+                originals = R["originals"](profile)
+                display = {name: C.pin(name.encode()) for name in M["WESTON_MEDIA"]}
+                media = {"qt-replacement/" + name: originals[role] for name, role in M["fixed_media"](profile).items()}
+                media.update({"qt-replacement/" + name: pin for name, pin in display.items()})
+                worker, operands = H["guest_checkpoint"](paths["asahi-guest.py"].read_bytes(),
+                                                         paths["operands.py"].read_bytes(), media)
+                plan = dict(code=base | {"asahi-guest.py": C.pin(worker), "operands.py": C.pin(operands)}, qt_media=media)
+                packet = dict(display={"media": display}, staged={"init": C.pin(pid1)})
+                if profile is not None:
+                    packet["parity_profile"] = profile
+                L["verify_derivation"](legacy, packet, plan)
+
+                if profile is not None:
+                    wrong_pid1 = packet | {"staged": {"init": C.pin(legacy_pid1)}}
+                    with self.assertRaisesRegex(ValueError, "PID 1 does not derive"):
+                        L["verify_derivation"](legacy, wrong_pid1, plan)
+                    other = parity | {"project_archive": C.pin(b"different archive under the same name")}
+                    with self.assertRaisesRegex(ValueError, "Fixed guest media selection differs"):
+                        L["verify_derivation"](legacy, packet | {"parity_profile": other}, plan)
+
     def test_runner_hooks_replace_names_without_modifying_legacy_globals(self):
         namespace = {"init_bytes": lambda: b"old", "copy_transport": lambda: {"old": True}}
         exec("def rehearse(): return init_bytes(), copy_transport()", namespace)
