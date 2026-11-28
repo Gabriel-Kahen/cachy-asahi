@@ -1575,6 +1575,13 @@ jobs:
       - name: Check combined shell source guards without interactive shell actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/shell-modules-coexistence -p test_source.py
+      - name: Checkout the frozen expanded composition implementation for passive checks
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 7f52246a1cb956acedb83d31dd2e5dc8265af115
+          path: .ci-inputs/expanded-implementation
+          persist-credentials: false
       - name: Checkout the frozen expanded composition inputs for passive checks
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -1589,8 +1596,9 @@ jobs:
           ref: 22c095c85cb6fd79d5de0f0ee43ca012c32c2aeb
           path: .ci-inputs/expanded-modules
           persist-credentials: false
-      - name: Check expanded composition contracts without native actors
+      - name: Check frozen expanded composition contracts without native actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        working-directory: ${{ github.workspace }}/.ci-inputs/expanded-implementation
         env:
           EXPANDED_INPUT_PAYLOAD: ${{ github.workspace }}/.ci-inputs/expanded-candidates
           EXPANDED_MODULE_SOURCE: ${{ github.workspace }}/.ci-inputs/expanded-modules
