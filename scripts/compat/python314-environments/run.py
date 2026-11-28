@@ -17,8 +17,8 @@ import zipfile
 
 HERE = Path(__file__).resolve().parent
 SUPPORT = HERE.parent / 'python314-consumers/probe.py'
-SUPPORT_COMMIT = '0e41b50a20d089ca1c35b7a246c7fb7aa433fd1c'
-SUPPORT_SHA256 = 'b2bf0d64c60e63e6420533712765144223d80679e4814b4ebe3d1b13d0bfd739'
+SUPPORT_COMMIT = 'a3927be6f5803f3901427c6c7bf10dbd130a25a1'
+SUPPORT_SHA256 = 'def0732c64498ac4ca98d2590b100bb8f9611194e1b5309e3a28cd02a6df3a70'
 support_raw = SUPPORT.read_bytes()
 if hashlib.sha256(support_raw).hexdigest() != SUPPORT_SHA256:
     raise ValueError('reviewed consumer support pin differs')
