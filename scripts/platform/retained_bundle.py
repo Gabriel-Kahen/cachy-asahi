@@ -239,13 +239,7 @@ def run(request_ref, output):
         s.output_identity(output, parent_fd, output_fd)
         s.save_at(output_fd, "bundle.json", bundle_data)
         evidence.bound(report["bundle_reference"], 8 * MIB)
-        # Make the captured entries durable before publishing completion.
-        os.fsync(output_fd)
-        s.output_identity(output, parent_fd, output_fd)
-        os.unlink("INCOMPLETE", dir_fd=output_fd)
-        os.fsync(output_fd)
-        os.fsync(parent_fd)
-        s.output_identity(output, parent_fd, output_fd)
+        s.finish_publication(output, parent_fd, output_fd, "bundle.json")
         return report
     finally:
         if output_fd is not None:

@@ -252,6 +252,25 @@ def output_identity(output, parent_fd, output_fd):
             os.close(fresh)
 
 
+def finish_publication(output, parent_fd, output_fd, completion_name):
+    # Make the captured entries durable before removing the refusal marker.
+    os.fsync(output_fd)
+    output_identity(output, parent_fd, output_fd)
+    os.unlink("INCOMPLETE", dir_fd=output_fd)
+    try:
+        os.fsync(output_fd)
+        os.fsync(parent_fd)
+        output_identity(output, parent_fd, output_fd)
+    except BaseException as error:
+        try:
+            # Retain the record for diagnosis while withdrawing its canonical name.
+            os.replace(completion_name, "INCOMPLETE", src_dir_fd=output_fd, dst_dir_fd=output_fd)
+            os.fsync(output_fd)
+        except OSError as rollback_error:
+            error.add_note("publication rollback failed: " + str(rollback_error))
+        raise
+
+
 def run(contract_ref, output, *, retain_inputs=False):
     need(type(retain_inputs) is bool, "retained input mode must be boolean")
     reader = Reader(retain=retain_inputs)
@@ -380,12 +399,7 @@ def run(contract_ref, output, *, retain_inputs=False):
         save_at(output_fd, "collection.json", receipt_bytes)
         output_identity(output, parent_fd, output_fd)
         save_at(output_fd, "snapshot.json", snapshot_bytes)
-        # Make the captured entries durable before publishing completion.
-        os.fsync(output_fd)
-        output_identity(output, parent_fd, output_fd)
-        os.unlink("INCOMPLETE", dir_fd=output_fd)
-        os.fsync(output_fd)
-        os.fsync(parent_fd)
+        finish_publication(output, parent_fd, output_fd, "snapshot.json")
         return receipt
     finally:
         if output_fd is not None:

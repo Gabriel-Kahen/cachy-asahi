@@ -319,6 +319,7 @@ def run(recipe_path, recipe_sha256, output, resume_receipt_sha256=None):
             if row['type'] == 'directory':
                 sync_directory(output / relative)
         sync_directory(output)
+        sync_directory(output.parent)
         (output / 'INCOMPLETE.json').unlink()
         os.rename(output / 'receipt.pending.json', output / 'receipt.json')
         sync_directory(output)

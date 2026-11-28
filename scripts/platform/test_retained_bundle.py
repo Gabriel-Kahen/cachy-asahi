@@ -308,6 +308,35 @@ class BundleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "publication is incomplete"):
             c.Comparison().bundle(json.loads(manifest.read_bytes()), "before")
 
+    def test_final_sync_failure_refuses_comparison(self):
+        self.complete_assertions()
+        first = self.run_bundle()
+        sync = os.fsync
+        for directory in ("output", "parent"):
+            with self.subTest(directory=directory):
+                self.output = self.root / ("failed-" + directory)
+                manifest = self.output / "bundle.json"
+                marker = self.output / "INCOMPLETE"
+                target = self.output if directory == "output" else self.root
+
+                def fail_after_unlink(fd):
+                    if (manifest.is_file() and not marker.exists()
+                            and os.path.samestat(os.fstat(fd), target.stat())):
+                        raise OSError("final bundle sync failed")
+                    sync(fd)
+
+                with patch.object(b.s.os, "fsync", fail_after_unlink):
+                    with self.assertRaisesRegex(OSError, "final bundle sync failed"):
+                        self.run_bundle()
+                second = json.loads((self.output / "producer-receipt.json").read_bytes())
+                report = self.compare(first, second)
+                self.assertEqual(report["status"], "MISSING_EVIDENCE")
+                self.assertFalse(report["comparison_data_admitted"])
+                self.assertTrue(any("publication is incomplete" in row.get("reason", "")
+                                    for row in report["findings"]))
+                self.assertTrue(marker.is_file())
+                self.assertFalse(manifest.exists())
+
     def test_marker_removal_failure_is_not_admissible(self):
         original = b.s.os.unlink
         calls = [0]

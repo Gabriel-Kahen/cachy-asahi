@@ -240,6 +240,30 @@ class SnapshotTests(unittest.TestCase):
                 self.run_fixture()
         self.assertTrue(marker.is_file())
 
+    def test_final_sync_failure_refuses_preflight(self):
+        sync = os.fsync
+        for directory in ("output", "parent"):
+            with self.subTest(directory=directory):
+                self.output = self.root / ("failed-" + directory)
+                snapshot = self.output / "snapshot.json"
+                marker = self.output / "INCOMPLETE"
+                target = self.output if directory == "output" else self.root
+
+                def fail_after_unlink(fd):
+                    if (snapshot.is_file() and not marker.exists()
+                            and os.path.samestat(os.fstat(fd), target.stat())):
+                        raise OSError("final snapshot sync failed")
+                    sync(fd)
+
+                with patch.object(s.os, "fsync", fail_after_unlink):
+                    with self.assertRaisesRegex(OSError, "final snapshot sync failed"):
+                        self.run_fixture()
+                contract = json.loads((self.output / "preflight-contract.json").read_bytes())
+                with self.assertRaises(FileNotFoundError):
+                    old.p.run(contract)
+                self.assertTrue(marker.is_file())
+                self.assertFalse(snapshot.exists())
+
     def test_duplicate_name_with_valid_directory_identity_refused(self):
         folder = self.db / "mesa-2-1"
         folder.mkdir()
