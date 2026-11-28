@@ -118,13 +118,11 @@ class WireTests(unittest.TestCase):
             'metadata_pins': {path: digit * 64 for path, digit in zip(LAUNCHER['METADATA'].values(), '123')},
         }
 
-    def test_controller_argv_uses_v3_packet_and_historical_metadata(self):
+    def test_controller_options_use_v3_packet_and_historical_metadata(self):
         entry = time.monotonic()
-        argv = LAUNCHER['controller_argv'](self.plan, self.layout, self.verified, self.bindings, entry)
-        self.assertEqual(argv[:5], [sys.executable, '-E', '-s', '-B', str(
-            self.layout['workspace'] / 'scripts/ci/development/controller.py')])
-        flags = dict(zip(argv[5::2], argv[6::2]))
-        self.assertEqual(len(flags), len(argv[5::2]))
+        options = LAUNCHER['controller_options'](self.plan, self.layout, self.verified, self.bindings, entry)
+        flags = dict(zip(options[::2], options[1::2]))
+        self.assertEqual(len(flags), len(options[::2]))
         self.assertEqual(flags['--packet'], str(self.layout['workspace'] / LAUNCHER['PACKET_PATH']))
         self.assertEqual(flags['--original-source-root'], str(self.layout['original']))
         self.assertEqual(flags['--controller-entry-monotonic'], repr(entry))
@@ -144,24 +142,48 @@ class WireTests(unittest.TestCase):
         for path_changes, result_changes, reason in changes:
             with self.subTest(path_changes=path_changes, result_changes=result_changes):
                 with self.assertRaisesRegex(LAUNCHER['Refused'], reason):
-                    LAUNCHER['controller_argv'](self.plan, {**self.layout, **path_changes},
+                    LAUNCHER['controller_options'](self.plan, {**self.layout, **path_changes},
                         {**self.verified, **result_changes}, self.bindings, time.monotonic())
 
     def test_checkout_accepts_only_the_exact_three_data_paths(self):
         legacy = SimpleNamespace(read_bootstrap=Mock(return_value=(GIT, object(), None)),
                                  git_environment=lambda prepared: {'SOURCE_ONLY': '1'})
         prepared = {'paths': self.layout, 'workspace_owner': self.owner}
-        paths = list(LAUNCHER['DATA_PATHS'].values())
-        data_diff = lambda names: ('\n'.join(names) + '\n').encode()
-        runner = Mock(side_effect=[(0, b'')] * 3 + [(0, data_diff(paths))] + [(0, b''), (0, SOURCE.encode())])
+        data = {key: key.encode() for key in LAUNCHER['DATA_PATHS']}
+        self.plan['root_pins'].update({key: LAUNCHER['digest'](raw) for key, raw in data.items()})
+        rows = [(path, '100644', str(index) * 40, 'A') for index, path in enumerate(LAUNCHER['DATA_PATHS'].values(), 1)]
+
+        def data_diff(records):
+            return b''.join(f':000000 {mode} {"0" * 40} {oid} {action}\0{path}\0'.encode()
+                            for path, mode, oid, action in records)
+
+        runner = Mock(side_effect=[(0, b'')] * 3 + [(0, data_diff(rows))] +
+                      [step for body in data.values() for step in ((0, b'blob\n'), (0, body))] +
+                      [(0, b''), (0, SOURCE.encode())])
         LAUNCHER['checkout'](legacy, None, prepared, self.plan, self.end, runner)
-        self.assertEqual(runner.call_count, 6)
+        self.assertEqual(runner.call_count, 12)
         self.owner.verify.assert_any_call(self.end, empty=True)
-        for names in (paths[:-1], paths + ['scripts/changed.py'], paths[:-1] + [paths[0]]):
-            runner = Mock(side_effect=[(0, b'')] * 3 + [(0, data_diff(names))])
-            with self.subTest(names=names), self.assertRaisesRegex(LAUNCHER['Refused'], 'data-only-tree-required'):
+        for call in runner.call_args_list[5:10:2]:
+            self.assertEqual(call.args[0][-3:-1], ['cat-file', 'blob'])
+            self.assertEqual(call.kwargs['output_limit'], LAUNCHER['DATA_LIMIT'])
+        path, mode, oid, action = rows[-1]
+        defects = (rows[:-1], rows + [('scripts/changed.py', mode, oid, action)],
+                   rows[:-1] + [rows[0]], rows[:-1] + [(path, '100755', oid, action)],
+                   rows[:-1] + [(path, mode, oid, 'M')])
+        for records in defects:
+            runner = Mock(side_effect=[(0, b'')] * 3 + [(0, data_diff(records))])
+            with self.subTest(records=records), self.assertRaisesRegex(LAUNCHER['Refused'], 'data-only-tree-required'):
                 LAUNCHER['checkout'](legacy, None, prepared, self.plan, self.end, runner)
             self.assertEqual(runner.call_count, 4)
+        runner = Mock(side_effect=[(0, b'')] * 3 + [(0, data_diff(rows)), (0, b'tag\n')])
+        with self.assertRaisesRegex(LAUNCHER['Refused'], '^data-blob-type$'):
+            LAUNCHER['checkout'](legacy, None, prepared, self.plan, self.end, runner)
+        self.assertEqual(runner.call_count, 5)
+        runner = Mock(side_effect=[(0, b'')] * 3 + [(0, data_diff(rows)), (0, b'blob\n'),
+                                                 (0, b'wrong selected Git body')])
+        with self.assertRaisesRegex(LAUNCHER['Refused'], '^data-blob-pin$'):
+            LAUNCHER['checkout'](legacy, None, prepared, self.plan, self.end, runner)
+        self.assertEqual(runner.call_count, 6)
 
     def test_even_rebound_packet_requires_v3_selection_and_original_pins(self):
         hashes = self.verified['metadata_pins']
@@ -185,8 +207,8 @@ class WireTests(unittest.TestCase):
         with self.assertRaisesRegex(LAUNCHER['Refused'], 'development-packet-invocation'):
             verify(packet, {**self.verified, 'metadata_pins': {}})
 
-    def test_prepared_source_refusal_retires_before_controller_spawn(self):
-        owned = SimpleNamespace(verify=Mock())
+    def test_prepared_source_refusal_disposes_before_controller_spawn(self):
+        owned = SimpleNamespace(verify=Mock(), dispose=Mock(return_value=True))
         prepared = {'paths': self.layout, 'owned': owned,
                     'execution_grant': ('/MODELED/grant', '5' * 64),
                     'runtime_contract': ('/MODELED/runtime', '6' * 64)}
@@ -202,7 +224,8 @@ class WireTests(unittest.TestCase):
                                     self.plan, environment(), self.end, runner, self.owner)
         runner.assert_not_called()
         checkout.assert_called_once()
-        legacy.retire.assert_called_once_with(owned)
+        owned.dispose.assert_called_once_with()
+        legacy.retire.assert_not_called()
 
     def test_modeled_dispatch_keeps_bootstrap_custody_and_original_cutoff(self):
         hashes = self.verified['metadata_pins']
@@ -215,7 +238,7 @@ class WireTests(unittest.TestCase):
         packet_pin = LAUNCHER['digest'](raw)
         value = {**self.plan, 'development_sha256': packet_pin}
         verified = {**self.verified, 'packet_sha256': packet_pin}
-        owned = SimpleNamespace(verify=Mock())
+        owned = SimpleNamespace(verify=Mock(), dispose=Mock())
         prepared = {'paths': self.layout, 'owned': owned,
                     'execution_grant': ('/MODELED/grant', '5' * 64),
                     'runtime_contract': ('/MODELED/runtime', '6' * 64)}
@@ -223,22 +246,34 @@ class WireTests(unittest.TestCase):
         legacy = SimpleNamespace(defer_controls=nullcontext, clock=Mock(return_value=(self.end, self.end + 20)),
                                  read_bootstrap=Mock(return_value=(raw, None, None)), retire=Mock(return_value=[]))
         fixture_issuer = SimpleNamespace(issue=Mock(return_value=self.bindings))
-        runner, checkout = Mock(return_value=(3, b'')), Mock()
+        def spawn(*args, on_spawn, **kwargs):
+            on_spawn()
+            return 3, b''
+
+        def capture(legacy, old_bootstrap, prepared, rows, options, cutoff):
+            return [sys.executable, '-I', '-B', '-S', '-c', LAUNCHER['CONTROLLER_BOOT'],
+                    str(self.owner.path), '/MODELED/startup.json', 'a' * 64, *options]
+
+        runner, checkout = Mock(side_effect=spawn), Mock()
         decoder = SimpleNamespace(decode=json.loads)
         globals_ = LAUNCHER['_launch'].__globals__
-        with patch.dict(globals_, {'checkout': checkout}), patch.object(globals_['signal'], 'setitimer'):
+        with patch.dict(globals_, {'checkout': checkout, 'captured_controller': capture}), \
+             patch.object(globals_['signal'], 'setitimer'):
             result = LAUNCHER['_launch'](legacy, (decoder, bootstrap, fixture_issuer), (selected, b'peer', b'history'),
                                          value, environment(), self.end, runner, self.owner)
         self.assertEqual((result['controller_exit_code'], result['retained_cutoff']), (3, self.end))
         argv, child, cwd, workflow_end = runner.call_args.args
-        flags = dict(zip(argv[5::2], argv[6::2]))
+        self.assertEqual(argv[:6], [sys.executable, '-I', '-B', '-S', '-c', LAUNCHER['CONTROLLER_BOOT']])
+        flags = dict(zip(argv[9::2], argv[10::2]))
         self.assertEqual(flags['--original-source-root'], str(self.layout['original']))
         self.assertEqual(flags['--packet'], str(self.layout['workspace'] / LAUNCHER['PACKET_PATH']))
         self.assertEqual(child['DEVELOPMENT_CLOCK_PATH'], self.bindings['DEVELOPMENT_CLOCK_PATH'])
         self.assertEqual(cwd, str(self.owner.path))
         self.assertEqual(workflow_end, self.end + 20)
-        self.assertEqual(runner.call_args.kwargs, {'spawn_deadline': self.end, 'workspace_owner': self.owner})
+        self.assertEqual(runner.call_args.kwargs['spawn_deadline'], self.end)
+        self.assertIs(runner.call_args.kwargs['workspace_owner'], self.owner)
         legacy.retire.assert_called_once_with(owned)
+        owned.dispose.assert_not_called()
 
 
 if __name__ == '__main__':

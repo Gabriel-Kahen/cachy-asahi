@@ -1,11 +1,15 @@
 """Root-selected dual-source launcher for the repository-svg composition."""
 
+import base64
 import hashlib
+import json
 import math
 import os
 from pathlib import Path
 import re
+import selectors
 import signal
+import subprocess
 import sys
 import time
 import types
@@ -34,6 +38,47 @@ COMPOSITION, LIVE_ROWS = 'repository-svg', 259
 PACKET_PATH = 'scripts/ci/development/packet-dual-source.lock.json'
 METADATA = {name: 'scripts/ci/' + name + '.lock.json' for name in ('inputs', 'recipes', 'integration')}
 CODE_LIMIT, DATA_LIMIT = 256 * 1024, 8 * 1024**2
+DEVELOPMENT = 'scripts/ci/development'
+CONTROLLER_MODULES = ('common', 'packet', 'base_stages', 'virtual_stage', 'initial_artifacts', 'controller')
+STARTUP_LIMIT = 2 * 1024**2
+CONTROLLER_BOOT = f'names = {CONTROLLER_MODULES!r}\nlimit = {STARTUP_LIMIT!r}\n' + r'''
+import sys
+
+if not (sys.flags.isolated and sys.flags.dont_write_bytecode and sys.flags.no_site):
+    raise SystemExit('controller-startup-boundary')
+
+import base64
+import hashlib
+import json
+import os
+from pathlib import Path
+import stat
+import types
+
+_, workspace, bundle, pin, *options = sys.argv
+if not (os.getcwd() == workspace and os.path.isabs(bundle)):
+    raise SystemExit('controller-startup-boundary')
+flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
+with os.fdopen(os.open(bundle, flags), 'rb') as stream:
+    info = os.fstat(stream.fileno())
+    if not (stat.S_ISREG(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o600
+            and info.st_nlink == 1 and info.st_uid == os.geteuid() and 0 < info.st_size <= limit):
+        raise SystemExit('controller-startup-bundle')
+    raw = stream.read(limit + 1)
+if len(raw) != info.st_size or hashlib.sha256(raw).hexdigest() != pin:
+    raise SystemExit('controller-startup-pin')
+source = json.loads(raw)
+if type(source) is not dict or set(source) != set(names) or any(name in sys.modules for name in names):
+    raise SystemExit('controller-startup-modules')
+directory = Path(workspace) / 'scripts/ci/development'
+sys.argv = [str(directory / 'controller.py'), *options]
+for name in names:
+    key = '__main__' if name == 'controller' else name
+    module = types.ModuleType(key)
+    module.__file__ = str(directory / (name + '.py'))
+    sys.modules[key] = module
+    exec(compile(base64.b64decode(source[name], validate=True), module.__file__, 'exec'), module.__dict__)
+'''
 
 
 class Refused(ValueError):
@@ -129,6 +174,19 @@ def load_legacy(plan, delivery, end):
             signal.signal(signal.SIGALRM, previous)
 
 
+def data_additions(raw):
+    """Require exactly the three new regular data blobs and return their object IDs."""
+    fields = raw.split(b'\0')
+    need(len(fields) == 2 * len(DATA_PATHS) + 1 and fields[-1] == b'', 'data-only-tree-required')
+    wanted = {path.encode('ascii'): key for key, path in DATA_PATHS.items()}
+    additions = {}
+    for header, path in zip(fields[0:-1:2], fields[1:-1:2]):
+        match = re.fullmatch(rb':000000 100644 0{40} ([0-9a-f]{40}) A', header)
+        need(match is not None and path in wanted, 'data-only-tree-required')
+        additions[wanted.pop(path)] = match[1].decode('ascii')
+    return additions
+
+
 def checkout(legacy, old_bootstrap, prepared, plan, cutoff, runner):
     """Apply the retained checkout grammar to the v3 data-only path set."""
     workspace, owner = prepared['paths']['workspace'], prepared['workspace_owner']
@@ -138,36 +196,39 @@ def checkout(legacy, old_bootstrap, prepared, plan, cutoff, runner):
     options = {'limit': 128 * 1024**2, 'owner': 0, 'mode': 0o755}
     raw, node, _ = legacy.read_bootstrap(old_bootstrap, tool, cutoff, **options)
     need(digest(raw) == plan['git_sha256'], 'git-pin')
-    prefix = [str(tool), '-c', 'credential.helper=', '-c', 'core.hooksPath=/dev/null',
+    prefix = [str(tool), '--no-replace-objects', '-c', 'credential.helper=', '-c', 'core.hooksPath=/dev/null',
               '-c', 'core.fsmonitor=false', '-c', 'core.autocrlf=false', '-c', 'submodule.recurse=false',
               '-c', 'protocol.file.allow=never', '-c', 'protocol.ext.allow=never', '-c', 'http.followRedirects=false']
     source, data = plan['root_pins']['source_commit'], plan['data_commit']
     scoped = prefix + ['-C', str(workspace)]
     transfer = scoped + ['fetch', '--quiet', '--depth=1', '--no-tags', '--no-recurse-submodules', '--', REMOTE]
-    commands = (
-        prefix + ['init', '--template=', '--', str(workspace)],
-        transfer + [source],
-        transfer + [data],
-        scoped + ['diff', '--name-only', '--no-renames', source, data, '--'],
-        scoped + ['checkout', '--quiet', '--detach', source, '--'],
-        scoped + ['rev-parse', '--verify', 'HEAD'],
-    )
-    for index, command in enumerate(commands):
+
+    def checked(command, **limits):
         check(cutoff)
         owner.verify(cutoff)
         raw, found, _ = legacy.read_bootstrap(old_bootstrap, tool, cutoff, **options)
         need(found == node and digest(raw) == plan['git_sha256'], 'git-identity-drift')
-        code, reply = runner(command, legacy.git_environment(prepared), None, cutoff, workspace_owner=owner)
+        code, reply = runner(command, legacy.git_environment(prepared), None, cutoff,
+                             workspace_owner=owner, **limits)
         owner.verify(cutoff)
-        need(type(code) is int and code == 0, 'checkout-command-failed')
-        if index == 3:
-            names = reply.decode('ascii').splitlines()
-            need(len(names) == len(DATA_PATHS) and set(names) == set(DATA_PATHS.values()), 'data-only-tree-required')
-        if index == 5:
-            need(reply.strip() == source.encode(), 'checkout-head')
+        need(type(code) is int and code == 0 and type(reply) is bytes, 'checkout-command-failed')
+        return reply
+
+    checked(prefix + ['init', '--template=', '--', str(workspace)])
+    for commit in (source, data):
+        checked(transfer + [commit])
+    diff = checked(scoped + ['diff', '--raw', '--no-abbrev', '--no-renames', '--no-ext-diff', '--no-textconv',
+                             '--no-color', '-z', source, data, '--'])
+    for field, oid in data_additions(diff).items():
+        # `cat-file blob` alone peels a tag to its target, so check the direct type.
+        need(checked(scoped + ['cat-file', '-t', oid]) == b'blob\n', 'data-blob-type')
+        blob = checked(scoped + ['cat-file', 'blob', oid], output_limit=DATA_LIMIT)
+        need(0 < len(blob) <= DATA_LIMIT and digest(blob) == plan['root_pins'][field], 'data-blob-pin')
+    checked(scoped + ['checkout', '--quiet', '--detach', source, '--'])
+    need(checked(scoped + ['rev-parse', '--verify', 'HEAD']).strip() == source.encode(), 'checkout-head')
 
 
-def controller_argv(plan, paths, verified, bindings, entry):
+def controller_options(plan, paths, verified, bindings, entry):
     source, original = paths['workspace'], paths['original']
     need(original.is_absolute() and original == paths['bootstrap'] / 'historical-source' and
          '..' not in original.parts and
@@ -178,8 +239,7 @@ def controller_argv(plan, paths, verified, bindings, entry):
          verified['packet_sha256'] == plan['development_sha256'] and type(pins) is dict and
          set(pins) == set(METADATA.values()) and all(pin(value) for value in pins.values()),
          'development-packet-binding')
-    argv = [sys.executable, '-E', '-s', '-B', str(source / 'scripts/ci/development/controller.py'),
-            '--composition', COMPOSITION, '--development-sha256', plan['development_sha256'],
+    argv = ['--composition', COMPOSITION, '--development-sha256', plan['development_sha256'],
             '--controller-entry-monotonic', repr(entry), '--packet', str(source / PACKET_PATH),
             '--original-source-root', str(original), '--cache', str(paths['cache']), '--output', str(paths['output'])]
     for flag, name in METADATA.items():
@@ -188,6 +248,23 @@ def controller_argv(plan, paths, verified, bindings, entry):
         argv += ['--' + flag, bindings['DEVELOPMENT_' + prefix + '_PATH'],
                  '--' + flag + '-sha256', bindings['DEVELOPMENT_' + prefix + '_SHA256']]
     return argv
+
+
+def captured_controller(legacy, old_bootstrap, prepared, rows, options, cutoff):
+    workspace = prepared['paths']['workspace']
+    captured = {}
+    for name in CONTROLLER_MODULES:
+        path = DEVELOPMENT + '/' + name + '.py'
+        row = rows.get(path)
+        need(type(row) is dict and row.get('mode') == 0o644 and pin(row.get('sha256')),
+             'controller-startup-source-row')
+        raw, _, _ = legacy.read_bootstrap(old_bootstrap, workspace / path, cutoff, limit=CODE_LIMIT, mode=0o644)
+        need(digest(raw) == row['sha256'], 'controller-startup-source-drift')
+        captured[name] = base64.b64encode(raw).decode('ascii')
+    target = prepared['paths']['bootstrap'] / 'controller-startup.json'
+    raw = json.dumps(captured, sort_keys=True, separators=(',', ':')).encode()
+    path, expected = prepared['owned'].write(target, raw, cutoff, STARTUP_LIMIT)
+    return [sys.executable, '-I', '-B', '-S', '-c', CONTROLLER_BOOT, str(workspace), path, expected, *options]
 
 
 def bind_packet(old_bootstrap, raw, selection, verified, plan):
@@ -206,14 +283,113 @@ def bind_packet(old_bootstrap, raw, selection, verified, plan):
     pins = {METADATA['integration']: original['integration_lock_sha256'],
             **{METADATA[name]: rows[METADATA[name]]['sha256'] for name in ('inputs', 'recipes')}}
     need(verified['metadata_pins'] == pins, 'development-packet-invocation')
+    return packet['source_files']
+
+
+def run(argv, environment, cwd, end, *, spawn_deadline=None, workspace_owner=None,
+        output_limit=4 * 1024**2, on_spawn=None):
+    """Keep the checked spawn boundary and stream only the captured controller."""
+    streaming = on_spawn is not None
+    if streaming:
+        need(callable(on_spawn) and len(argv) >= 9 and
+             argv[:6] == [sys.executable, '-I', '-B', '-S', '-c', CONTROLLER_BOOT] and
+             workspace_owner is not None and cwd == environment.get('GITHUB_WORKSPACE') == argv[6],
+             'controller-stream-boundary')
+    need(type(output_limit) is int and 0 < output_limit <= DATA_LIMIT, 'command-output-limit')
+    work = end if streaming else end - 10
+    spawn_end = work if spawn_deadline is None else min(work, spawn_deadline)
+    check(spawn_end)
+    process = pipe = first = code = None
+    output = bytearray()
+    try:
+        signals = (signal.SIGINT, signal.SIGTERM, signal.SIGALRM)
+        previous = signal.pthread_sigmask(signal.SIG_BLOCK, signals)
+        try:
+            if workspace_owner is not None:
+                workspace_owner.verify(spawn_end)
+            check(spawn_end)
+            process = subprocess.Popen(list(argv), env=dict(environment), cwd=cwd, stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True, close_fds=True,
+                preexec_fn=lambda: signal.pthread_sigmask(signal.SIG_SETMASK, previous))
+            pipe = process.stdout
+            if streaming:
+                on_spawn()
+        finally:
+            cause = sys.exc_info()[1]
+            try:
+                signal.pthread_sigmask(signal.SIG_SETMASK, previous)
+            except BaseException:
+                if cause is None:
+                    raise
+        with selectors.DefaultSelector() as selector:
+            selector.register(pipe, selectors.EVENT_READ)
+            while selector.get_map() or process.poll() is None:
+                check(work)
+                for key, _ in selector.select(min(0.1, max(0, work-time.monotonic()))):
+                    block = os.read(key.fd, 65536)
+                    if not block:
+                        selector.unregister(key.fileobj)
+                    elif streaming:
+                        while block:
+                            check(work)
+                            written = os.write(sys.stdout.fileno(), block)
+                            need(written > 0, 'publication-short-write')
+                            block = block[written:]
+                    else:
+                        output.extend(block)
+                        need(len(output) <= output_limit, 'command-output-bound')
+            code = process.wait(timeout=max(0, min(1, work-time.monotonic())))
+            check(work)
+    except BaseException as error:
+        first = error
+    finally:
+        if process is not None:
+            for number in (signal.SIGTERM, signal.SIGKILL):
+                try:
+                    os.killpg(process.pid, number)
+                except ProcessLookupError:
+                    pass
+                except BaseException as error:
+                    first = first or error
+                try:
+                    process.wait(timeout=max(0, min(2, end-time.monotonic())))
+                except subprocess.TimeoutExpired:
+                    pass
+                except BaseException as error:
+                    first = first or error
+            try:
+                need(process.poll() is not None, 'child-reap-unproved')
+                try:
+                    os.killpg(process.pid, 0)
+                except ProcessLookupError:
+                    pass
+                else:
+                    raise Refused('group-absence-unproved')
+            except BaseException as error:
+                first = first or error
+        if pipe is not None:
+            try:
+                pipe.close()
+            except BaseException as error:
+                first = first or error
+    if first is not None:
+        raise first
+    check(end)
+    return code, bytes(output)
 
 
 def _launch(legacy, modules, datasets, plan, environment, preparation_end, runner, owner):
     old_bootstrap, bootstrap, issuer = modules
     selection, peer, historical = datasets
     prepared = None
+    handed_off = False
     first = None
     retirement = []
+
+    def mark_handoff():
+        nonlocal handed_off
+        handed_off = True
+
     try:
         with legacy.defer_controls():
             prepared = bootstrap.prepare(old_bootstrap, selection, peer, historical, plan['root_pins'],
@@ -234,25 +410,40 @@ def _launch(legacy, modules, datasets, plan, environment, preparation_end, runne
             verified = bootstrap.verify_checkout(old_bootstrap, prepared, plan['root_pins'], environment, deadline=cutoff)
         packet = prepared['paths']['workspace'] / PACKET_PATH
         raw, _, _ = legacy.read_bootstrap(old_bootstrap, packet, cutoff, mode=0o644)
-        bind_packet(old_bootstrap, raw, selection, verified, plan)
-        argv = controller_argv(plan, prepared['paths'], verified, bindings, entry)
+        rows = bind_packet(old_bootstrap, raw, selection, verified, plan)
+        options = controller_options(plan, prepared['paths'], verified, bindings, entry)
+        with legacy.defer_controls():
+            argv = captured_controller(legacy, old_bootstrap, prepared, rows, options, cutoff)
         prepared['owned'].verify(cutoff)
         owner.verify(cutoff)
         check(cutoff)
         signal.setitimer(signal.ITIMER_REAL, workflow_end - time.monotonic())
         child = {**environment, **bindings, 'PYTHONDONTWRITEBYTECODE': '1'}
-        code, _ = runner(argv, child, str(owner.path), workflow_end, spawn_deadline=cutoff, workspace_owner=owner)
+        code, _ = runner(argv, child, str(owner.path), workflow_end, spawn_deadline=cutoff, workspace_owner=owner,
+                         on_spawn=mark_handoff)
+        need(handed_off, 'controller-spawn-unconfirmed')
         owner.verify(workflow_end)
         need(type(code) is int and 0 <= code <= 255, 'controller-return-code')
         check(workflow_end)
     except BaseException as error:
         first = error
     finally:
+        uncertainty = 'bootstrap-retirement-uncertain' if handed_off else 'bootstrap-disposal-uncertain'
         if prepared is not None:
-            retirement = legacy.retire(prepared['owned'])
+            owned = prepared['owned']
+            try:
+                with legacy.defer_controls():
+                    if handed_off:
+                        retirement = legacy.retire(owned)
+                    elif not owned.dispose():
+                        retirement = owned.cleanup_errors or ['disposal-unconfirmed']
+            except BaseException as error:
+                retirement = [*retirement, type(error).__name__]
     if first is not None:
+        if retirement:
+            first.add_note(f'{uncertainty} ({", ".join(retirement)})')
         raise first
-    need(not retirement, 'bootstrap-retirement-uncertain')
+    need(not retirement, uncertainty)
     return {'controller_exit_code': code, 'retained_cutoff': cutoff, 'workflow_end': workflow_end,
             'source_commit': plan['root_pins']['source_commit'], 'data_commit': plan['data_commit'],
             'composition': COMPOSITION}
@@ -270,7 +461,9 @@ def launch_composed(plan, environment, *, preparation_entry=None, delivery=fetch
     legacy = load_legacy(plan, delivery, end)
     source, data = plan['root_pins']['source_commit'], plan['data_commit']
     if runner is None:
-        runner = legacy.run
+        def runner(argv, env, cwd, deadline, **options):
+            selected = run if 'on_spawn' in options or 'output_limit' in options else legacy.run
+            return selected(argv, env, cwd, deadline, **options)
     owner = None
     first = None
     retirement = []
@@ -293,8 +486,14 @@ def launch_composed(plan, environment, *, preparation_entry=None, delivery=fetch
             first = error
         finally:
             if owner is not None:
-                retirement = owner.close()
+                try:
+                    with legacy.defer_controls():
+                        retirement = owner.close()
+                except BaseException as error:
+                    retirement = [*retirement, type(error).__name__]
         if first is not None:
+            if retirement:
+                first.add_note(f'workspace-retirement-uncertain ({", ".join(retirement)})')
             raise first
         need(not retirement, 'workspace-retirement-uncertain')
         check(result['workflow_end'])
