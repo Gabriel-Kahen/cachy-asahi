@@ -58,11 +58,20 @@ class AdoptionControls(unittest.TestCase):
         self.assertFalse(self.output.exists())
 
     def test_changed_pipeline_or_reused_builder_refuses_before_export(self):
-        for name in (P.RECIPE+'/pipeline.py', 'scripts/build/build_v2.py'):
+        for name in (P.RECIPE+'/pipeline.py', 'scripts/build/build_v2.py', 'scripts/build/compare_v2.py'):
             source = self.profile['files'][name]['source']; path = self.root/source; raw = path.read_bytes()
             path.write_bytes(raw+b'\n# changed\n')
             with self.assertRaises(ValueError): P.export(self.output, self.root)
             self.assertFalse(self.output.exists()); path.write_bytes(raw)
+
+    def test_export_uses_frozen_builder_and_comparator(self):
+        names = ('scripts/build/build_v2.py', 'scripts/build/compare_v2.py')
+        for name in names:
+            self.assertNotEqual(self.profile['files'][name]['source'], name)
+            (self.root / name).write_text('# active build helper revision\n')
+        P.export(self.output, self.root)
+        for name in names:
+            self.assertEqual(P.digest((self.output / name).read_bytes()), self.profile['files'][name]['sha256'])
 
     def test_export_uses_frozen_package_checker(self):
         name = 'scripts/checks/package_checks.py'
