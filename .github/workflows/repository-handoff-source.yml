@@ -7,6 +7,7 @@ on:
       - .github/workflows/native-arm-development.yml
       - scripts/ci/development/**
       - scripts/client/client.py
+      - scripts/experiments/**
       - scripts/port/repository-client-native/**
       - scripts/port/repository-client-phase-stage/**
       - scripts/port/repository-client-stage/**
@@ -39,3 +40,4 @@ jobs:
           for suite in test_packet.py test_repository_handoff.py test_repository_authority.py test_controller.py; do
             python3 -I -B -S -m unittest discover -s scripts/ci/development -p "$suite"
           done
+          python3 -I -B -S -m unittest discover -s scripts/port/repository-native-handoff -p 'test_*.py'

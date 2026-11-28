@@ -1308,6 +1308,9 @@ jobs:
       - name: Check composed entry, source downloads and repository handoff
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         run: |
+          historical_commit=bcf0cee981ee4b7f7b082f636922c859dc7e0abc
+          git fetch --no-tags --no-recurse-submodules --depth=1 origin "$historical_commit"
+          test "$(git --no-replace-objects rev-parse --verify 'FETCH_HEAD^{commit}')" = "$historical_commit"
           python3 -B -m unittest discover -s scripts/ci/development -p test_controller.py \
             -k DirectEntryTests -k EarlyEntryModels -k test_virtual_pins_only_live_during_virtual_call
           python3 -B -m unittest discover -s scripts/ci/development -p test_base_stages.py -k fetch

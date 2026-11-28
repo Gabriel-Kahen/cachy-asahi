@@ -11,7 +11,7 @@
   "source_files": {
     "arm_c01.py": {
       "mode": 420,
-      "sha256": "12576d39e30c13b91c003713218615e4b9259776ba86994ebe9730af0050f044"
+      "sha256": "6ffcc97316329273c194ba7391221355d0526ac7dd834d88be3e30367ac38a38"
     },
     "corpus.py": {
       "mode": 420,
@@ -19,11 +19,11 @@
     },
     "stage.py": {
       "mode": 420,
-      "sha256": "0ec75669e3bac0b4aab59f67cc56bcf0b2bb1a78c8b8bca2c7485a91d1fd9f91"
+      "sha256": "7a6f64dc1e7048065796685e9b7b562a10d6d2b79cfe9cb51d86c1cc20b907e6"
     },
     "test_arm_c01.py": {
       "mode": 420,
-      "sha256": "8a4ad0713a3df8e29d1582ef6b353e7eb224c4eeeb57973e31f34bb912bd7b3e"
+      "sha256": "eb660438de224086ee05534c461c1b17971828d843a9a94d68a4eecf4c27d693"
     },
     "test_corpus.py": {
       "mode": 420,

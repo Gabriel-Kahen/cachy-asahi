@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""MODELED Docker/protocol fixtures only; no subprocess, Docker or native actor."""
+"""MODELED Docker/protocol fixtures only; no Docker or native actor."""
 import base64
 import copy
 import importlib.util
@@ -8,6 +8,7 @@ import errno
 import json
 import os
 from pathlib import Path
+import runpy
 import shutil
 import signal
 import stat
@@ -22,7 +23,8 @@ ROOT = Path(__file__).resolve().parents[3]
 spec = importlib.util.spec_from_file_location('handoff_launch', Path(__file__).with_name('launch.py'))
 launch = importlib.util.module_from_spec(spec); spec.loader.exec_module(launch)
 CID = 'c' * 64
-PREVIOUS_RUNNER_PIN = '49c87f41bbb2fe1288251f16019f12aaeabb98d81ff5339387873e88e903b940'
+ORIGINAL_RUNNER = 'scripts/integration/repository.py'
+graph_fixture = runpy.run_path(str(ROOT/'scripts/ci/development/repository_graph_fixture.py'))
 
 
 def response(raw=b'', code=0):
@@ -109,7 +111,9 @@ class LaunchTests(unittest.TestCase):
         self.root = Path(self.temp.name); self.inputs = self.root/'inputs'; self.runner = self.root/'runner'
         self.output = self.root/'out'; self.private = self.root/'private'
         for path in (self.inputs, self.runner, self.output, self.private): path.mkdir(mode=0o700)
-        shutil.copyfile(ROOT/'scripts/integration/repository.py', self.runner/'repository.py')
+        raw, mode = graph_fixture['historical_graph_input'](ROOT, ORIGINAL_RUNNER)
+        (self.runner/'repository.py').write_bytes(raw)
+        (self.runner/'repository.py').chmod(mode)
         (self.runner/'producer.py').write_bytes(b'# MODELED observer bytes\n')
         self.pin = launch.digest((self.runner/'producer.py').read_bytes())
         self.contract = {'schema_version': 1, 'purpose': 'disposable-generic-repository-test',
@@ -137,7 +141,7 @@ class LaunchTests(unittest.TestCase):
         options.update(kwargs)
         return launch.run_repository(self.command,self.root/'container.log',self.private,lambda *_:None,**options)
 
-    def test_launcher_admits_the_reviewed_checkout_runner_without_pin_overrides(self):
+    def test_launcher_admits_the_frozen_original_runner_without_pin_overrides(self):
         expected = launch.validate_command(self.command, self.contract)
         self.assertEqual(expected['binds']['/runner'], self.runner)
 
@@ -168,8 +172,12 @@ class LaunchTests(unittest.TestCase):
         with self.assertRaises(launch.Refused):self.execute()
         self.assertFalse(self.transport.calls)
 
-    def test_previous_runner_pin_with_current_bytes_refuses_before_transport(self):
-        self.contract['script_sha256'] = PREVIOUS_RUNNER_PIN
+    def test_live_runner_and_rebound_manifest_refuse_before_transport(self):
+        raw = (ROOT/ORIGINAL_RUNNER).read_bytes()
+        (self.runner/'repository.py').write_bytes(raw)
+        digest = launch.digest(raw)
+        self.assertNotEqual(digest, launch.ORIGINAL_PIN)
+        self.contract['script_sha256'] = digest
         (self.inputs/'manifest.json').write_bytes(launch.encoded(self.contract))
         index = self.command.index('--inputs-sha256') + 1
         self.command[index] = launch.digest((self.inputs/'manifest.json').read_bytes())

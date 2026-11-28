@@ -690,26 +690,29 @@ class DualSourceFixtures(unittest.TestCase):
                 self.assertFalse(self.output.exists())
 
     def test_runner_binding_requires_both_reviewed_runtime_pins(self):
-        with self.assertRaisesRegex(adapter.Refused,'^original-runner-refused$'):
-            self.preflight().require_original_runner()
+        self.preflight().require_original_runner()
         names = (('launch.py','ORIGINAL_PIN'),('producer.py','SOURCE_SHA256'))
         runtime = adapter.PREFIXES['runtime']
         map_row = self.grant['maps']['runtime']
-        manifest = json.loads((self.live/map_row['path']).read_bytes())
-        # Staged hypothetical successor map. No runtime actor is constructed.
+        map_raw = (self.live/map_row['path']).read_bytes()
+        old_runner = b'fdfd3611ca8d3fab7584594ccaf627f42a9ae31898372925af1bcae173d55cd7'
         for name, field in names:
-            path = runtime+'/'+name
-            raw = (self.live/path).read_bytes()
-            current = adapter.source_literals(raw,{field})[field].encode()
-            self.assertEqual(raw.count(current),1)
-            self.replace_live(path,raw.replace(current,adapter.ORIGINAL_RUNNER_SHA256.encode()))
-            manifest[name] = self.grant['source_files'][path]
-            self.replace_live(map_row['path'],adapter.encoded(manifest))
-            map_row['sha256'] = self.grant['source_files'][map_row['path']]['sha256']
-            if field == 'ORIGINAL_PIN':
+            with self.subTest(field=field):
+                path = runtime+'/'+name
+                raw = (self.live/path).read_bytes()
+                current = adapter.source_literals(raw,{field})[field].encode()
+                self.assertEqual(current,adapter.ORIGINAL_RUNNER_SHA256.encode())
+                self.assertEqual(raw.count(current),1)
+                self.replace_live(path,raw.replace(current,old_runner))
+                manifest = json.loads(map_raw)
+                manifest[name] = self.grant['source_files'][path]
+                self.replace_live(map_row['path'],adapter.encoded(manifest))
+                map_row['sha256'] = self.grant['source_files'][map_row['path']]['sha256']
                 with self.assertRaisesRegex(adapter.Refused,'^original-runner-refused$'):
                     self.preflight().require_original_runner()
-        self.preflight().require_original_runner()
+                self.replace_live(path,raw)
+                self.replace_live(map_row['path'],map_raw)
+                map_row['sha256'] = adapter.digest(map_raw)
         self.grant['original_view']['runner_sha256'] = '0'*64
         with self.assertRaisesRegex(adapter.Refused,'^grant-refused$'):
             self.preflight()

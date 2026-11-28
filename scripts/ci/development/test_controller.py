@@ -755,7 +755,7 @@ class InstallerConstructorSourceTests(unittest.TestCase):
         cls.fixture = test_repository_handoff.CapturedGraphFixtures;cls.fixture.setUpClass()
         cls.addClassCleanup(cls.fixture.doClassCleanups)
 
-    def test_dual_source_constructor_binds_real_roots_and_holds_current_launcher(self):
+    def test_dual_source_constructor_binds_real_roots_and_historical_runner(self):
         import hashlib
         import time
         import test_repository_handoff
@@ -801,10 +801,7 @@ class InstallerConstructorSourceTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'disjoint-original-source-required'):
                     parent.composed_sources(root,source_packet,raw,sha(raw),runtime_raw,output,original/'cache',
                                             deadline,original_root=original,source_only=True)
-                with self.assertRaisesRegex(ValueError,'original-runner-refused'):
-                    parent.composed_sources(*args,original_root=original)
-                self.assertNotIn('development_repository_handoff',sys.modules)
-                session, callbacks, actual, selected = parent.composed_sources(*args,original_root=original,source_only=True)
+                session, callbacks, actual, selected = parent.composed_sources(*args,original_root=original)
                 self.assertEqual(session.sources.root,root)
                 self.assertEqual(sha((original/controller.packet.ORIGINAL_RUNNER).read_bytes()),identity['runner_sha256'])
                 self.assertEqual(callbacks.handoff_binding()['integration_lock_sha256'],pins[controller.packet.INITIAL])
