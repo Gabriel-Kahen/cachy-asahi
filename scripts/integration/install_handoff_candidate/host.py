@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import secrets
+import stat
 import subprocess
 import sys
 import time
@@ -46,24 +47,46 @@ def cleanup_owned(command,identity,cid=None):
     deadline = time.monotonic()+45
     def call(label,argv):
         return command(label,argv,seconds=10,deadline=deadline)
-    query = ['docker','ps','-a','--no-trunc','--filter','name=^/'+identity['name']+'$','--format','{{.ID}}']
-    found = call('find-only-owned-name',query).decode().splitlines()
+    def query(label,operand):
+        return call(label,['docker','ps','-a','--no-trunc','--filter',operand,'--format','{{.ID}}'])
+
+    from_file = None
+    try:
+        fd = os.open(identity['cidfile'],os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except FileNotFoundError:
+        pass
+    else:
+        with os.fdopen(fd,'rb') as stream:
+            info = os.fstat(stream.fileno())
+            assert stat.S_ISREG(info.st_mode) and info.st_nlink == 1,'unsafe owned cidfile'
+            raw = stream.read(66)
+        assert re.fullmatch(rb'[0-9a-f]{64}\n?',raw),'invalid owned cidfile'
+        from_file = raw.decode().strip()
+    assert cid is None or re.fullmatch('[0-9a-f]{64}',cid),'invalid owned container ID'
+    assert cid is None or from_file is None or cid == from_file,'owned cidfile differs'
+    expected = cid or from_file
+    name_filter = 'name=^/'+identity['name']+'$'
+    found = query('find-only-owned-name',name_filter).decode().splitlines()
     assert len(found) <= 1 and all(re.fullmatch('[0-9a-f]{64}',value) for value in found),'ambiguous owned container identity'
     result = dict(container_removed=False,cleanup_budget_seconds=45,owned_name=identity['name'])
     if found:
         recovered = found[0]
-        assert cid is None or recovered == cid,'owned ID/name changed'
-        if identity['cidfile'].exists():
-            assert identity['cidfile'].read_text().strip() == recovered,'owned cidfile differs'
-        row = json.loads(call('recover-owned-container-identity',['docker','container','inspect',recovered]))[0]
-        assert row['Name'] == '/'+identity['name'] and row['Image'] == identity['image'],'owned name/image differs'
+        assert expected is None or recovered == expected,'owned ID/name changed'
+        row, = json.loads(call('recover-owned-container-identity',['docker','container','inspect',recovered]))
+        assert row['Id'] == recovered and row['Name'] == '/'+identity['name'] and row['Image'] == identity['image'],'owned ID/name/image differs'
         assert row['Config'].get('Labels',{}).get(OWNER_LABEL) == identity['nonce'],'owned label differs'
         assert row['Config']['Cmd'] == identity['argv'] and row['Config']['Entrypoint'] == ['/usr/bin/python3'],'owned actor differs'
         assert {(m['Source'],m['Destination'],m['RW']) for m in row['Mounts']} == identity['mounts'],'owned mounts differ'
         assert len(row['Mounts']) == 3 and all(m['Type'] == 'bind' for m in row['Mounts']),'owned mount type differs'
         call('remove-only-owned-container',['docker','rm','-f',recovered])
+        expected = recovered
         result.update(container_id=recovered,recovered_after_client_failure=cid is None)
-    assert call('verify-owned-container-absent',query) == b'','owned container remains'
+    assert query('verify-owned-container-absent',name_filter) == b'','owned container name remains'
+    if expected is not None:
+        assert query('verify-owned-container-id-absent','id='+expected) == b'','owned container ID remains'
+    else:
+        label_filter = 'label='+OWNER_LABEL+'='+identity['nonce']
+        assert query('verify-owned-container-label-absent',label_filter) == b'','ambiguous owned container label remains'
     result['container_removed'] = True
     return result
 
