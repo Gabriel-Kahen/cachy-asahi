@@ -142,6 +142,8 @@ class LaunchTests(unittest.TestCase):
         receipt = self.execute(); self.assertEqual(receipt['status'],'PASS'); self.assertTrue(receipt['absence_verified'])
         self.assertEqual(len(receipt['checkpoints']),2); self.assertEqual(receipt['native_admission'],'NOT RUN')
         self.assertTrue(self.transport.removed); self.assertNotIn(launch.RESERVED,(self.root/'container.log').read_bytes())
+        self.assertEqual(launch.decode((self.root/'container.launcher.json').read_bytes()), {'status': 'PASS'})
+        self.assertEqual(list(self.root.glob('.launcher-*')), [])
         self.assertEqual(receipt['original_command'],self.command)
         self.assertEqual(receipt['actual_create_command'][1:3],['create','-i'])
         actual=receipt['actual_create_command'];self.assertIn('--handoff-deadline',actual)
@@ -262,6 +264,7 @@ class LaunchTests(unittest.TestCase):
         receipt=launch.decode((self.private/('launch-'+'a'*32)/'receipt.json').read_bytes())
         self.assertTrue(injected);self.assertEqual(receipt['status'],'FAIL');self.assertTrue(receipt['cancelled'])
         self.assertEqual(receipt['cleanup'],'PASS')
+        self.assertFalse((self.root/'container.launcher.json').exists())
 
     def test_real_int_during_final_handler_restore_invalidates_pass(self):
         original=launch.signal.signal;old={n:signal.getsignal(n)for n in launch.SIGNALS};injected=[]
@@ -275,6 +278,124 @@ class LaunchTests(unittest.TestCase):
         receipt=launch.decode((self.private/('launch-'+'a'*32)/'receipt.json').read_bytes())
         self.assertTrue(injected);self.assertEqual(receipt['status'],'FAIL');self.assertTrue(receipt['cancelled'])
         self.assertEqual(old,{n:signal.getsignal(n)for n in launch.SIGNALS})
+        self.assertFalse((self.root/'container.launcher.json').exists())
+
+    def test_staged_sidecar_file_fsync_failure_never_publishes(self):
+        sidecar = self.root / 'container.launcher.json'
+        original = launch.os.fsync
+        injected = []
+
+        def sync(fd):
+            target = Path(os.readlink(f'/proc/self/fd/{fd}'))
+            if target.name == 'status.json' and target.parent.name.startswith('.launcher-'):
+                self.assertFalse(sidecar.exists())
+                self.assertEqual(launch.decode(target.read_bytes()), {'status': 'PASS'})
+                injected.append(True)
+                raise OSError('modeled staged-file fsync failure')
+            return original(fd)
+
+        with mock.patch.object(launch.os, 'fsync', side_effect=sync), self.assertRaises(launch.Refused) as error:
+            self.execute()
+        self.assertEqual(injected, [True])
+        self.assertEqual(error.exception.receipt['status'], 'FAIL')
+        self.assertFalse(sidecar.exists())
+        self.assertEqual(list(self.root.glob('.launcher-*')), [])
+
+    def test_sidecar_publication_never_overwrites_an_existing_name(self):
+        sidecar = self.root / 'container.launcher.json'
+        sidecar.write_bytes(b'preexisting leaf')
+        with self.assertRaises(launch.Refused) as error:
+            self.execute()
+        self.assertEqual(error.exception.receipt['status'], 'FAIL')
+        self.assertEqual(sidecar.read_bytes(), b'preexisting leaf')
+        self.assertEqual(list(self.root.glob('.launcher-*')), [])
+
+    def test_late_signal_during_withdrawal_preserves_failed_publication(self):
+        sidecar = self.root / 'container.launcher.json'
+        sync, move = launch.os.fsync, launch.rename_new
+        injected = []
+
+        def fail_sync(fd):
+            if not injected and sidecar.exists() and Path(os.readlink(f'/proc/self/fd/{fd}')) == self.root:
+                injected.append('fsync')
+                raise OSError('modeled public-directory fsync failure')
+            return sync(fd)
+
+        def interrupt_withdrawal(src, leaf, dst, target):
+            if leaf == sidecar.name:
+                self.assertEqual(injected, ['fsync'])
+                injected.append('SIGINT')
+                os.kill(os.getpid(), signal.SIGINT)
+            return move(src, leaf, dst, target)
+
+        with (mock.patch.object(launch.os, 'fsync', side_effect=fail_sync),
+              mock.patch.object(launch, 'rename_new', side_effect=interrupt_withdrawal),
+              self.assertRaises(launch.Refused) as error):
+            self.execute()
+        self.assertEqual(injected, ['fsync', 'SIGINT'])
+        receipt = launch.decode((Path(error.exception.receipt['private_root']) / 'receipt.json').read_bytes())
+        self.assertEqual(receipt['status'], 'FAIL')
+        self.assertTrue(receipt['cancelled'])
+        self.assertNotIn('sidecar_revocation_error_type', receipt)
+        self.assertFalse(sidecar.exists())
+
+    def test_sigterm_during_publication_uses_launcher_state_with_custom_caller(self):
+        sidecar = self.root / 'container.launcher.json'
+        sync = launch.os.fsync
+        injected, caller = [], []
+
+        def interrupt(number, _):
+            caller.append(number)
+            raise ValueError('modeled caller cancellation')
+
+        def signal_after_sync(fd):
+            sync(fd)
+            if not injected and sidecar.exists() and Path(os.readlink(f'/proc/self/fd/{fd}')) == self.root:
+                injected.append(True)
+                os.kill(os.getpid(), signal.SIGTERM)
+
+        original = signal.signal(signal.SIGTERM, interrupt)
+        try:
+            with mock.patch.object(launch.os, 'fsync', side_effect=signal_after_sync), self.assertRaises(launch.Refused) as error:
+                self.execute()
+            self.assertIs(signal.getsignal(signal.SIGTERM), interrupt)
+        finally:
+            signal.signal(signal.SIGTERM, original)
+        self.assertEqual(injected, [True])
+        self.assertEqual(caller, [])
+        self.assertEqual(error.exception.receipt['status'], 'FAIL')
+        self.assertTrue(error.exception.receipt['cancelled'])
+        self.assertFalse(sidecar.exists())
+
+    def test_pathname_replacement_during_withdrawal_is_restored(self):
+        sidecar = self.root / 'container.launcher.json'
+        original = self.root / 'original-sidecar'
+        sync, move = launch.os.fsync, launch.rename_new
+        injected = []
+
+        def fail_sync(fd):
+            if not injected and sidecar.exists() and Path(os.readlink(f'/proc/self/fd/{fd}')) == self.root:
+                injected.append('fsync')
+                raise OSError('modeled public-directory fsync failure')
+            return sync(fd)
+
+        def replace_before_withdrawal(src, leaf, dst, target):
+            if leaf == sidecar.name:
+                self.assertEqual(injected, ['fsync'])
+                sidecar.rename(original)
+                sidecar.write_bytes(b'foreign leaf')
+                injected.append('replacement')
+            return move(src, leaf, dst, target)
+
+        with (mock.patch.object(launch.os, 'fsync', side_effect=fail_sync),
+              mock.patch.object(launch, 'rename_new', side_effect=replace_before_withdrawal),
+              self.assertRaises(launch.Refused) as error):
+            self.execute()
+        self.assertEqual(injected, ['fsync', 'replacement'])
+        self.assertEqual(error.exception.receipt['status'], 'FAIL')
+        self.assertEqual(sidecar.read_bytes(), b'foreign leaf')
+        self.assertEqual(launch.decode(original.read_bytes()), {'status': 'PASS'})
+        self.assertEqual(list(self.root.glob('.launcher-*')), [])
 
     def test_public_write_failure_retains_only_failed_private_receipt(self):
         original=launch.write_new

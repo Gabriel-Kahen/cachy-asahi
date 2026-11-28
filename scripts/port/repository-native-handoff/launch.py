@@ -6,14 +6,16 @@ Transport.run and .attach return {exit_code, stdout, stderr}; bytes are raw.
 attach calls on_stdout(bytes), and obtains queued ACKs through on_stdin().
 The transport must enforce the supplied absolute deadline and byte limit.
 """
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 import base64
+import ctypes
 import hashlib
 import json
 import math
 import os
 from pathlib import Path
 import re
+import secrets
 import signal
 import stat
 import threading
@@ -123,6 +125,87 @@ def write_new(path, raw):
         need(read(path, max(len(raw), 1)) == raw, 'private write reread differs')
 
 
+def rename_new(source_parent, source, target_parent, target):
+    rename = ctypes.CDLL(None, use_errno=True).renameat2
+    rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+    rename.restype = ctypes.c_int
+    if rename(source_parent, os.fsencode(source), target_parent, os.fsencode(target), 1):  # RENAME_NOREPLACE
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error), target)
+
+
+def inode(info):
+    return info.st_dev, info.st_ino
+
+
+def remove_empty_slot(parent, name):
+    try:
+        os.rmdir(name, dir_fd=parent)
+    except OSError:
+        # Preserve a foreign leaf if its public name could not be restored.
+        pass
+
+
+def withdraw_status(parent, name, slot, leaf, expected, published):
+    if published:
+        # Move first so a pathname replacement can be compared in the private slot.
+        rename_new(parent, name, slot, leaf)
+    actual = os.stat(leaf, dir_fd=slot, follow_symlinks=False)
+    if inode(actual) != expected:
+        if published:
+            rename_new(slot, leaf, parent, name)
+            os.fsync(parent)
+        raise Refused('foreign sidecar preserved during withdrawal')
+    os.unlink(leaf, dir_fd=slot)
+    os.fsync(slot)
+    if published:
+        os.fsync(parent)
+
+
+def publish_status(path, raw, state, mask, receipt):
+    """Commit one verified sidecar, with cancellation masked until rollback ends."""
+    path = Path(path).absolute()
+    name = '.launcher-' + secrets.token_hex(16)
+    staged = path.parent / name / 'status.json'
+    with ExitStack() as descriptors:
+        with directory(path.parent) as parent_fd:
+            parent = os.dup(parent_fd)
+            descriptors.callback(os.close, parent)
+        os.mkdir(name, 0o700, dir_fd=parent)
+        descriptors.callback(remove_empty_slot, parent, name)
+        slot = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+        descriptors.callback(os.close, slot)
+        try:
+            write_new(staged, raw)
+        except BaseException:
+            # Only this invocation can have opened its unpublished staging name.
+            try:
+                os.unlink(staged.name, dir_fd=slot)
+            except FileNotFoundError:
+                pass
+            raise
+        expected = inode(os.stat(staged.name, dir_fd=slot, follow_symlinks=False))
+        published = False
+        try:
+            state.check_publication(mask)
+            rename_new(slot, staged.name, parent, path.name)
+            published = True
+            os.fsync(slot)
+            os.fsync(parent)
+            need(inode(path.parent.lstat()) == inode(os.fstat(parent))
+                 and read(path, len(raw)) == raw
+                 and inode(os.stat(path.name, dir_fd=parent, follow_symlinks=False)) == expected,
+                 'published sidecar drift')
+            # Commit here. A subsequent signal belongs to the caller once unmasked.
+            state.check_publication(mask)
+        except BaseException:
+            try:
+                withdraw_status(parent, path.name, slot, staged.name, expected, published)
+            except (OSError, Refused) as error:
+                receipt['sidecar_revocation_error_type'] = type(error).__name__
+            raise
+
+
 class Cancellation:
     def __init__(self):
         self.pending = False
@@ -132,6 +215,16 @@ class Cancellation:
         self.pending = True
         if not self.depth:
             raise Cancelled('launch cancelled')
+
+    def observe_pending(self, mask):
+        while pending := signal.sigpending() & (SIGNALS - set(mask)):
+            signal.sigwait(pending)
+            self.pending = True
+
+    def check_publication(self, mask):
+        self.observe_pending(mask)
+        if self.pending:
+            raise Cancelled('launch cancelled before publication commit')
 
     @contextmanager
     def defer(self):
@@ -149,15 +242,17 @@ class Cancellation:
 
 
 @contextmanager
-def cancellation_handlers(state):
+def cancellation_handlers(state, *, run_mask=None):
     need(threading.current_thread() is threading.main_thread(), 'main-thread signal supervision required')
     mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
+    if run_mask is None:
+        run_mask = mask
     original = {number: signal.getsignal(number) for number in SIGNALS}
     error = None
     try:
         for number in SIGNALS:
             signal.signal(number, state.handler)
-        signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+        signal.pthread_sigmask(signal.SIG_SETMASK, run_mask)
         yield
     finally:
         signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
@@ -169,14 +264,8 @@ def cancellation_handlers(state):
                     error = error or fault
                 if signal.getsignal(number) == handler:
                     break
-        transition = []
-        pending = signal.sigpending() & (SIGNALS - set(mask))
-        while pending:
-            transition.append(signal.sigwait(pending))
-            pending = signal.sigpending() & (SIGNALS - set(mask))
+        state.observe_pending(run_mask)
         signal.pthread_sigmask(signal.SIG_SETMASK, mask)
-        if transition:
-            state.pending = True
         if error:
             raise error
         if state.pending:
@@ -455,8 +544,11 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
             while view:
                 count = os.write(receipt_fd, view); need(count > 0, 'receipt write failed'); view = view[count:]
             os.fsync(receipt_fd)
+        # Restore the caller's handlers while blocked. Explicit pending checks own
+        # signals through publication and any compensating receipt rewrite.
+        mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
         try:
-            with cancellation_handlers(state):
+            with cancellation_handlers(state, run_mask=mask):
                 with state.defer():
                     with directory(work) as parent:
                         receipt_fd = os.open('receipt.json', os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
@@ -464,25 +556,30 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                         os.fsync(parent)
                     write_new(log, bytes(protocol.plain) if protocol is not None else b'')
                     write_new(Path(log).with_suffix('.cleanup.json'), encoded(dict(summary, status=receipt['cleanup'])) + b'\n')
-                    write_new(Path(log).with_suffix('.launcher.json'), encoded({'status': receipt['status']}) + b'\n')
                     if state.pending:
                         receipt.update(status='FAIL', cancelled=True)
                     commit()
-                    if state.pending:
-                        receipt.update(status='FAIL', cancelled=True); commit()
+            publish_status(Path(log).with_suffix('.launcher.json'), encoded({'status': receipt['status']}) + b'\n',
+                           state, mask, receipt)
         except BaseException as error:
             fault = fault or error; receipt['status'] = 'FAIL'; receipt['publication_error_type'] = type(error).__name__
+            state.observe_pending(mask)
             receipt['cancelled'] = state.pending or isinstance(error, (Cancelled, KeyboardInterrupt))
             if receipt_fd is not None:
-                mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
                 try:
                     commit()
-                finally:
-                    os.close(receipt_fd); receipt_fd = None
-                    signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+                    state.observe_pending(mask)
+                    if state.pending and not receipt['cancelled']:
+                        receipt['cancelled'] = True
+                        commit()
+                except (OSError, Refused) as commit_error:
+                    receipt['receipt_rewrite_error_type'] = type(commit_error).__name__
         finally:
-            if receipt_fd is not None:
-                os.close(receipt_fd)
+            try:
+                if receipt_fd is not None:
+                    os.close(receipt_fd)
+            finally:
+                signal.pthread_sigmask(signal.SIG_SETMASK, mask)
     if fault is not None or receipt['status'] != 'PASS':
         error = Refused('repository custody launch refused'); error.receipt = receipt
         raise error from fault
