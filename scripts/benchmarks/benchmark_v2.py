@@ -344,6 +344,32 @@ def input_paths(config, binding, declared_from):
     return list(dict.fromkeys(str(declared_from / path) for path in paths))
 
 
+def workload_argv(plan):
+    """Use the exact pinned access paths for declared relative file operands."""
+    config = plan["config"]
+    declared_from = Path(plan["declared_from"])
+    inputs = set(config["inputs"])
+    for paths in config.get("variant_inputs", {}).values():
+        inputs.update(paths)
+    pinned_paths = {declared_from / path for path in inputs}
+
+    def bind(value):
+        path = Path(value)
+        absolute = declared_from / path
+        if value and not path.is_absolute() and absolute in pinned_paths:
+            return str(absolute)
+        return value
+
+    argv = []
+    for argument in config["argv"]:
+        option, separator, value = argument.partition("=")
+        if option.startswith("-"):
+            argv.append(option + separator + bind(value) if separator else argument)
+        else:
+            argv.append(bind(argument))
+    return argv
+
+
 def validate_hardware_gates(config, pins, declared_from):
     if config.get("hardware_gate_evidence"):
         path = str(declared_from / config["hardware_gate_evidence"])
@@ -693,6 +719,7 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_m
     cwd = Path(cwd).resolve(strict=True)
     if not cwd.is_dir():
         raise Invalid("cwd must be a caller-selected isolated directory")
+    argv = workload_argv(plan)
     output = Path(output)
     output.mkdir(parents=False, exist_ok=False)
     environment = os.environ.copy()
@@ -706,7 +733,7 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_m
               "slot": slot, "variant": variant, "started_at": now(), "hostname": platform.node(),
               "machine_id": config["machine_id"], "base_id": config["base_id"],
               "workload_id": config["workload_id"], "state": plan["states"][variant],
-              "conditions": conditions, "argv": config["argv"], "cwd": str(cwd),
+              "conditions": conditions, "argv": argv, "cwd": str(cwd),
               "environment_sha256": canonical(environment), "comparable_environment_sha256": canonical(comparable_env),
               "declared_environment": declared_env,
               "execution_label": "M2 physical measurement pending review" if config["execution_context"] == "physical"
@@ -714,12 +741,12 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_m
               "optimization_acceptance": "NOT RUN"}
     write_json(output / "started.json", record)
     if platform_metrics and "owned_rss" in config:
-        result = execute_owned_rss(config, config["argv"], cwd, environment, output)
+        result = execute_owned_rss(config, argv, cwd, environment, output)
     elif platform_metrics:
-        result = platform_adapter().execute(config["argv"], cwd, environment, output,
+        result = platform_adapter().execute(argv, cwd, environment, output,
                                             config["timeout_seconds"], config["sample_seconds"], config["platform_metrics"], metrics)
     else:
-        result = execute(config["argv"], cwd, environment, output, config["timeout_seconds"], config["sample_seconds"])
+        result = execute(argv, cwd, environment, output, config["timeout_seconds"], config["sample_seconds"])
     record.update(result)
     record["finished_at"] = now()
     if platform_metrics:
@@ -751,6 +778,7 @@ def sensor_identity(sample):
 def compare(plan_path, directories, output):
     plan = load_plan(plan_path)
     config = plan["config"]
+    argv = workload_argv(plan)
     trials, sensor_ids = [], None
     for directory in directories:
         directory = Path(directory)
@@ -767,9 +795,11 @@ def compare(plan_path, directories, output):
         if isinstance(slot, bool) or not isinstance(slot, int) or not 0 <= slot < len(config["order"]):
             raise Invalid("invalid trial slot")
         variant = config["order"][slot]
-        for key in ("machine_id", "base_id", "workload_id", "argv"):
+        for key in ("machine_id", "base_id", "workload_id"):
             if trial.get(key) != config[key]:
                 raise Invalid(f"differing {key}")
+        if trial.get("argv") != argv:
+            raise Invalid("differing argv")
         if (trial.get("state") != plan["states"][variant] or trial.get("state_after") != trial.get("state")
                 or trial.get("variant") != variant):
             raise Invalid("differing observed variant machine/base state")

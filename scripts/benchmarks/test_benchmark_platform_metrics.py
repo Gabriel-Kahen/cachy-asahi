@@ -75,6 +75,89 @@ def fixture_sysfs(root):
     return root
 
 
+class ReplayTests(unittest.TestCase):
+    """Pinned synthetic receipts exercise the verifier without a workload."""
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.directory = Path(temporary.name)
+        self.raw = self.directory / 'platform-metrics'
+        self.raw.mkdir()
+
+        def clocks(ns):
+            return dict(monotonic_ns=ns, boottime_ns=ns + 900, realtime_ns=ns + 1800)
+
+        inventory = dict(schema=m.SCHEMA, sensors=[])
+        samples = [dict(sequence=index, start=clocks(ns), end=clocks(ns + 1), readings=[])
+                   for index, ns in enumerate((1, 20, 40))]
+        inventory_data = m.encoded(inventory)
+        samples_data = b''.join(map(m.encoded, samples))
+        (self.raw / 'inventory.json').write_bytes(inventory_data)
+        (self.raw / 'samples.jsonl').write_bytes(samples_data)
+        self.summary = m.summarize(inventory, samples, .25, 10, 30)
+        (self.raw / 'summary.json').write_bytes(m.encoded(self.summary))
+
+        argv = ['/fixture/inert']
+        machine = {'boot_id': 'modeled-fixture'}
+        binding = dict(machine_before=machine, machine_after=machine, start=clocks(10), end=clocks(30),
+                       argv_sha256=hashlib.sha256(m.encoded(argv)).hexdigest(), cwd=str(self.directory))
+        pins = dict(adapter_sha256=a.digest(Path(a.__file__)), collector_sha256=a.COLLECTOR_SHA256,
+                    owner_sha256=a.OWNER_SHA256)
+        self.capture = dict(schema=a.SCHEMA, completed=True, machine_before=machine, machine_after=machine,
+                            workload=binding, worker_stopped=True, sampling={'error': None},
+                            interval_seconds_requested=.1, max_gap_seconds=.25, unresolved_wait_pid=None,
+                            supervision=dict(passed=True, reaped=True, ownership='REAPED', exit=0,
+                                             timeout=False, signals=[], error=None, output_complete=True,
+                                             group_census='EMPTY_TWICE', seconds=1e-8),
+                            files={'inventory.json': m.pin_bytes(inventory_data),
+                                   'samples.jsonl': m.pin_bytes(samples_data)}, **pins)
+        self.trial = dict(platform_metrics=dict(schema=a.SCHEMA, binding=binding, source_pins=pins),
+                          argv=argv, cwd=binding['cwd'], monotonic_start_ns=10, monotonic_end_ns=30,
+                          valid=True, error=None, returncode=0, sampling_status={'workload_reaped': True})
+
+    def verify(self):
+        (self.raw / 'capture.json').write_bytes(m.encoded(self.capture))
+        return a.verify_trial(self.directory, self.trial, {'interval_seconds': .1})
+
+    def test_natural_retirement_verifies(self):
+        self.assertEqual(self.verify(), self.summary)
+
+    def test_valid_trial_refuses_timeout_or_forced_retirement(self):
+        clean = self.capture['supervision']
+        for change in ({'passed': False}, {'timeout': True}, {'signals': ['SIGTERM']},
+                       {'error': 'modeled owner failure'}, {'output_complete': False},
+                       {'group_census': 'PRESENT_OR_REUSED'}, {'group_census': 'RESERVED_LEADER_ONLY'}):
+            self.capture['supervision'] = clean | change
+            with self.subTest(change=change), self.assertRaisesRegex(a.Invalid, 'retirement'):
+                self.verify()
+
+    def test_explicit_failed_trial_retains_replayable_timeout_diagnostics(self):
+        for exit_code in (0, -15):
+            self.capture['supervision'].update(passed=False, timeout=True, signals=['SIGTERM'], exit=exit_code)
+            self.trial.update(valid=False, error='owned workload timeout', returncode=exit_code)
+            with self.subTest(exit_code=exit_code):
+                self.assertEqual(self.verify(), self.summary)
+
+    def test_valid_trial_refuses_contradictory_wait_status(self):
+        for exit_code in (1, False):
+            self.capture['supervision']['exit'] = self.trial['returncode'] = exit_code
+            with self.subTest(exit_code=exit_code), self.assertRaisesRegex(a.Invalid, 'retirement'):
+                self.verify()
+        self.capture['supervision']['exit'] = self.trial['returncode'] = 0
+        self.capture['unresolved_wait_pid'] = 42
+        with self.assertRaisesRegex(a.Invalid, 'retirement'):
+            self.verify()
+
+    def test_owned_rss_uses_reserved_leader_census(self):
+        self.trial['owned_rss'] = {'status': 'complete'}
+        self.capture['supervision'].update(group_census='RESERVED_LEADER_ONLY', rss={'status': 'complete'})
+        self.assertEqual(self.verify(), self.summary)
+        self.capture['supervision']['group_census'] = 'EMPTY_TWICE'
+        with self.assertRaisesRegex(a.Invalid, 'retirement'):
+            self.verify()
+
+
 class IntegrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

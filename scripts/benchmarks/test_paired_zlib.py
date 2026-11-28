@@ -13,6 +13,7 @@ from types import SimpleNamespace as NS
 from unittest.mock import patch
 import benchmark as B
 import paired_zlib as P
+import paired_zlib_v2 as P2
 
 HERE = Path(__file__).resolve().parent
 BASE = HERE.parents[3]
@@ -237,6 +238,79 @@ class Tests(unittest.TestCase):
                 self.assertEqual(result['status'], 'FAIL')
                 self.assertEqual(len(result['completed']), 1)
                 self.assertFalse((args.output / 'comparison.json').exists())
+
+
+class V2SourceTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+
+    def test_interrupted_checkpoint_can_publish_failure(self):
+        running = {'status': 'RUNNING', 'completed': []}
+        P2.save_session(self.root, running)
+
+        def interrupt(value, stream, **kwargs):
+            stream.write('{"status":')
+            raise KeyboardInterrupt('modeled session deadline')
+
+        with patch.object(P2.json, 'dump', side_effect=interrupt), self.assertRaises(KeyboardInterrupt):
+            P2.save_session(self.root, {'status': 'RUNNING', 'completed': ['correctness-00']})
+
+        session_file = self.root / 'session.json'
+        self.assertEqual(json.loads(session_file.read_bytes()), running)
+        failure = {'status': 'FAIL', 'completed': ['correctness-00']}
+        P2.save_session(self.root, failure)
+        self.assertEqual(json.loads(session_file.read_bytes()), failure)
+        self.assertEqual(list(self.root.iterdir()), [session_file])
+
+    def test_expanded_payload_hash_is_reused_with_per_slot_validation(self):
+        heldout = b'modeled held-out data'
+        payload = (heldout * 2)[:len(heldout) + 3]
+        corpus_manifest = self.root / 'corpus' / 'manifest.json'
+        archive = self.root / 'archive-manifest.json'
+        config = {'order': P2.ORDER, 'timeout_seconds': 1,
+                  'change': {'baseline': 'baseline-tool', 'candidate': 'candidate-tool'},
+                  'argv': ['python', '-B', 'zlib_workload.py', 'run',
+                           '--archive-manifest', str(archive), '--corpus-manifest', str(corpus_manifest),
+                           '--input', str(corpus_manifest.with_name('heldout-source.bin')),
+                           '--payload-bytes', str(len(payload)), '--iterations', '1']}
+        plan = {'config': config, 'baseline_binding': {'path': 'baseline-state'},
+                'candidate_binding': {'path': 'candidate-state'}}
+        args = NS(plan=self.root / 'plan.json', conditions_root=self.root / 'conditions', output=self.root / 'session',
+                  warmup_blocks=1, session_seconds=30, control_only=False)
+        args.plan.write_text('{}')
+        args.conditions_root.mkdir()
+        for slot in P2.schedule(config, args.warmup_blocks):
+            (args.conditions_root / (slot['name'] + '.json')).write_text('{}')
+        report = {'experiment': 'ARM-C01', 'heldout_sha256': P2.Z.sha(heldout),
+                  'payload_sha256': P2.Z.sha(payload), 'payload_bytes': len(payload), 'iterations': 1}
+        bad_report = report | {'payload_sha256': '0' * 64}
+
+        def slot_runner(plan, slot, state, condition, work, raw):
+            raw.mkdir()
+            (raw / 'trial.json').write_text('{}')
+            return 0
+
+        with (
+            patch.object(P2.os, 'getuid', return_value=1000),
+            patch.object(P2.os, 'geteuid', return_value=1000),
+            patch.object(P2.B, 'load_plan', return_value=plan),
+            patch.object(P2, 'validate'),
+            patch.object(P2.B, 'validate_conditions'),
+            patch.object(P2.B, 'run', side_effect=slot_runner) as run,
+            patch.object(P2, 'workload_report', side_effect=[report, report, bad_report]),
+            patch.object(P2.Z, 'materials', return_value=('ARM-C01', self.root, heldout)) as materials,
+            patch.object(P2.Z, 'sha', wraps=P2.Z.sha) as digest,
+        ):
+            session = P2.run(args)
+
+        self.assertEqual(session['status'], 'FAIL')
+        self.assertIn('original workload output joins differ', session['error'])
+        self.assertEqual([slot['name'] for slot in session['completed']], ['correctness-00', 'correctness-01'])
+        self.assertEqual(run.call_count, 3)
+        self.assertEqual(materials.call_count, 3)
+        self.assertEqual(sum(call.args == (payload,) for call in digest.call_args_list), 1)
 
 
 if __name__ == '__main__':

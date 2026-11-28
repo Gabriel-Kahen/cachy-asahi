@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 spec = importlib.util.spec_from_file_location("benchmark_v2", Path(__file__).with_name("benchmark_v2.py"))
@@ -135,6 +136,50 @@ class PlanTests(unittest.TestCase):
             os.chdir(original)
         plan = runner.load_plan(self.plan_path)
         self.assertEqual(plan["declared_from"], str(self.root))
+
+    def relative_workload_trial(self):
+        declared = self.root / "declaration"
+        work = self.root / "work"
+        for path in (declared, work):
+            path.mkdir()
+            (path / "driver.py").write_text(str(path))
+            (path / "data.bin").write_text(str(path))
+        self.config["inputs"].append("driver.py")
+        self.config["variant_inputs"] = {"baseline": ["data.bin"]}
+        self.config["argv"] += ["./driver.py", "--data=data.bin", "--output", "result.bin"]
+        original = Path.cwd()
+        try:
+            os.chdir(declared)
+            self.freeze()
+        finally:
+            os.chdir(original)
+        conditions = self.root / "conditions.json"
+        self.write(conditions, self.config["controls"] |
+                   dict.fromkeys(("ambient_C", "thermal_start_C", "battery_soc_percent"), 0) |
+                   {"operator": "fixture", "notes": "mocked workload"})
+        output = self.root / "trial"
+        identity = runner.load_plan(self.plan_path)["states"]["baseline"]
+        with (patch.object(runner.os, "geteuid", return_value=1000),
+              patch.object(runner, "live_identity", return_value=identity),
+              patch.object(runner, "execute", return_value={"error": None, "returncode": 0}) as execute):
+            self.assertEqual(runner.run(self.plan_path, 0, self.baseline, conditions, work, output), 0)
+        return declared, work, output, execute.call_args.args
+
+    def test_run_passes_and_records_pinned_paths_from_a_different_cwd(self):
+        declared, work, output, call = self.relative_workload_trial()
+        expected = [sys.executable, str(declared / "driver.py"), "--data=" + str(declared / "data.bin"),
+                    "--output", "result.bin"]
+        self.assertEqual(call[:2], (expected, work))
+        for name in ("started.json", "trial.json"):
+            self.assertEqual(runner.read_json(output / name)["argv"], expected)
+
+    def test_compare_refuses_record_of_unbound_arguments(self):
+        _, _, output, _ = self.relative_workload_trial()
+        record = runner.read_json(output / "trial.json")
+        record["argv"] = self.config["argv"]
+        self.write(output / "trial.json", record)
+        with self.assertRaisesRegex(runner.Invalid, "differing argv"):
+            runner.compare(self.plan_path, [output], self.root / "comparison.json")
 
 
 if __name__ == "__main__":

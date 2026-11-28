@@ -262,6 +262,14 @@ def verify_trial(directory, trial, config=None):
     need(supervision['reaped'] is True and supervision['ownership'] == 'REAPED' and
          supervision['exit'] == trial['returncode'] and trial['sampling_status']['workload_reaped'] is True,
          'trial/capture wait result mismatch')
+    if trial.get('valid') is True:
+        owned_rss = 'owned_rss' in trial
+        census = 'RESERVED_LEADER_ONLY' if owned_rss else 'EMPTY_TWICE'
+        need(type(supervision['exit']) is type(trial['returncode']) is int and supervision['exit'] == 0 and
+             supervision['passed'] is True and supervision['timeout'] is False and supervision['signals'] == [] and
+             supervision['error'] is None and trial['error'] is None and supervision['output_complete'] is True and
+             capture['unresolved_wait_pid'] is None and supervision['group_census'] == census and
+             ('rss' in supervision) == owned_rss, 'valid trial contradicts platform workload retirement')
     if config is not None:
         validate_config(config, 1)
         interval = config['interval_seconds']

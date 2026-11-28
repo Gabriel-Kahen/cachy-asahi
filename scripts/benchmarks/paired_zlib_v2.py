@@ -15,6 +15,7 @@ import re
 import signal
 from types import SimpleNamespace
 import sys
+import tempfile
 import time
 
 def _load(name, filename):
@@ -135,11 +136,12 @@ def schedule(config, blocks):
 
 
 def save_session(output, value):
-    temp = output / '.session.json.tmp'
-    with temp.open('x') as stream:
-        json.dump(value, stream, indent=2, sort_keys=True, allow_nan=False)
-        stream.write('\n')
-    temp.replace(output / 'session.json')
+    with tempfile.TemporaryDirectory(prefix='.session-', dir=output) as staging:
+        temp = Path(staging) / 'session.json'
+        with temp.open('x') as stream:
+            json.dump(value, stream, indent=2, sort_keys=True, allow_nan=False)
+            stream.write('\n')
+        temp.replace(output / 'session.json')
 
 
 def run(args):
@@ -187,6 +189,7 @@ def run(args):
         raise KeyboardInterrupt('paired session deadline')
     signal.signal(signal.SIGALRM, expired)
     signal.setitimer(signal.ITIMER_REAL, args.session_seconds)
+    payload_sha256 = None
     try:
         for step in steps:
             need(time.monotonic() - started + c['timeout_seconds'] + 2 <= args.session_seconds,
@@ -204,9 +207,11 @@ def run(args):
                 corpus = Path(values['--corpus-manifest'])
                 experiment, _, heldout = Z.materials(corpus.parent.parent, Path(values['--archive-manifest']))
                 size = int(values['--payload-bytes'])
-                payload = (heldout * ((size + len(heldout) - 1) // len(heldout)))[:size]
+                if payload_sha256 is None:
+                    # Each slot still revalidates the plan and original archive. The expanded payload is invariant.
+                    payload_sha256 = Z.sha((heldout * ((size + len(heldout) - 1) // len(heldout)))[:size])
                 need(report['experiment'] == experiment and report['heldout_sha256'] == Z.sha(heldout)
-                     and report['payload_sha256'] == Z.sha(payload) and report['payload_bytes'] == size
+                     and report['payload_sha256'] == payload_sha256 and report['payload_bytes'] == size
                      and report['iterations'] == int(values['--iterations']), 'original workload output joins differ')
             if session['completed']:
                 previous = session['completed'][0]['workload']
