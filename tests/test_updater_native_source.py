@@ -1,6 +1,7 @@
-"""Run the native workflow's source validation without ARM or Docker."""
+"""Replay the native workflow's reviewed source validation without ARM or Docker."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -9,23 +10,29 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+REVIEWED_COMMIT = '6302e2994ee4a25a3e9ad3aee24f1416375505cb'
 
 
 class UpdaterNativeSourceTests(unittest.TestCase):
     def test_workflow_pins_match_committed_source(self):
-        workflow = (ROOT / '.github/workflows/native-arm-updater.yml').read_text()
+        checkout = Path(os.environ.get('UPDATER_NATIVE_SOURCE_REPLAY',
+                                       ROOT / '.ci-inputs/updater-native-reviewed')).resolve()
+        self.assertTrue((checkout / '.git').exists(),
+                        f'Expected reviewed updater checkout at {checkout} ({REVIEWED_COMMIT})')
+        commit = subprocess.check_output(['git', 'rev-parse', '--verify', 'HEAD'], cwd=checkout,
+                                         text=True, timeout=5).strip()
+        self.assertEqual(commit, REVIEWED_COMMIT)
+        workflow = (checkout / '.github/workflows/native-arm-updater.yml').read_text()
         pins = {}
         for name in ('READY', 'STAGE', 'SOURCE'):
             matches = re.findall(rf'^      {name}_SHA256: ([0-9a-f]{{64}})$', workflow, re.M)
             self.assertEqual(len(matches), 1, name)
             pins[name] = matches[0]
 
-        stage = ROOT / 'scripts/port/updater-native-stage/stage.py'
+        stage = checkout / 'scripts/port/updater-native-stage/stage.py'
         self.assertEqual(hashlib.sha256(stage.read_bytes()).hexdigest(), pins['STAGE'])
-        commit = subprocess.check_output(['git', 'rev-parse', '--verify', 'HEAD'], cwd=ROOT,
-                                         text=True, timeout=5).strip()
         result = subprocess.run([sys.executable, '-I', '-B', str(stage), 'preflight',
-                                 '--root', str(ROOT), '--source-commit', commit,
+                                 '--root', str(checkout), '--source-commit', commit,
                                  '--ready-sha256', pins['READY'],
                                  '--bootstrap-stage-sha256', pins['STAGE'],
                                  '--bootstrap-source-sha256', pins['SOURCE']],

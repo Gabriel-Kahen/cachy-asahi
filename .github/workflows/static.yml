@@ -140,6 +140,26 @@ jobs:
           assert set(metadata['depends']) == {'python>=3.11', 'gnupg', 'pacman'}
           assert len(report['input_sha256']) == 20
           PY
+      - name: Checkout exact reviewed native updater source for static replay
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: 6302e2994ee4a25a3e9ad3aee24f1416375505cb
+          path: .ci-inputs/updater-native-reviewed
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/workflows/native-arm-updater.yml
+            /packages/tools/cachy-asahi-update/
+            /scripts/port/updater-native-stage/
+            /scripts/port/updater-extension/
+            /scripts/build/
+            /scripts/checks/package_checks.py
+            /scripts/ci/inputs.lock.json
+            /scripts/ci/integration_export.py
+            /scripts/ci/native_arm.py
+            /scripts/ci/log_evidence.py
+            /scripts/ci/updater-optional-check/
       - name: Validate tooling and safety boundaries
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         env:
@@ -804,28 +824,9 @@ jobs:
           python3 -B -Werror::ResourceWarning scripts/platform/test_recovery_preflight.py
           python3 -I -B -Werror::ResourceWarning scripts/update/test_platform_policy.py
           python3 -I -B -Werror::ResourceWarning scripts/update/test_asahi629_preflight.py
-      - name: Verify exact native updater workflow source and bootstrap pins
+      - name: Verify live native updater workflow bootstrap pins
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
-        run: |
-          lane=scripts/port/updater-native-stage
-          python3 -I -B -Werror::ResourceWarning "$lane/test_stage.py" WorkflowBootstrapTests -v
-          python3 -I -B -Werror::ResourceWarning - <<'PY'
-          import importlib.util
-          import os
-          import re
-          from pathlib import Path
-
-          root = Path.cwd()
-          stage = root / 'scripts/port/updater-native-stage/stage.py'
-          spec = importlib.util.spec_from_file_location('updater_stage', stage)
-          updater = importlib.util.module_from_spec(spec)
-          spec.loader.exec_module(updater)
-          workflow = (root / '.github/workflows/native-arm-updater.yml').read_text()
-          pins = [re.search(rf'^      {name}: ([0-9a-f]{{64}})$', workflow, re.MULTILINE)[1]
-                  for name in ('READY_SHA256', 'SOURCE_SHA256', 'STAGE_SHA256')]
-          source = updater.preflight(root, os.environ['GITHUB_SHA'], *pins)
-          print(f"Authenticated {len(source['files'])} native updater source files")
-          PY
+        run: python3 -I -B -Werror::ResourceWarning scripts/port/updater-native-stage/test_stage.py WorkflowBootstrapTests -v
       - name: Check read-only exact-target snapshot collection
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: python3 -B -Werror::ResourceWarning scripts/platform/test_target_snapshot.py

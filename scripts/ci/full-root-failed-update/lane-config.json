@@ -1,9 +1,9 @@
 {
   "code_pins": {
     "packages/tools/cachy-asahi-update/asahi-policy.py": "80cda05980b064a9cb2ad47e5525ddba03dbaefaf350d44d18a27c63ac1ffbaf",
-    "scripts/build/build.py": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45",
-    "scripts/build/compare.py": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd",
-    "scripts/build/provision.py": "cc7d719fad21185aea5fb7bd150f6cdab06958227de21f6e53d10084068bb1d3",
+    "scripts/build/build.py": "bb1d506ee443102073b4265d848b505afa18a5176af10780de487731529a137f",
+    "scripts/build/compare.py": "8d1b40bf4a889e15ebb44f19d1aaaf287bc2103eec8e3e21080f5826e8e29620",
+    "scripts/build/provision.py": "e9c7796a42749f2802e51b568da666752b8793cb5c2fd0a77a9e8947fc8e2fa9",
     "scripts/checks/dependencies.py": "b0ea33dd5db5c54dd36ab7ed0d5123606829ba63294fd6ae0f2a9f988d45bed3",
     "scripts/checks/package_checks.py": "306ea3dfa1ce4eb14796c0526a8ca9086043bdcb8e6698c0993d640d076f19cd",
     "scripts/ci/full-development-composition/audio_aux.py": "3e9b0f0f153a1fade1ff98606dafd93a654730eea0a8e44464415112922fc552",
@@ -21,7 +21,7 @@
     "scripts/ci/full-root-upgrade/root_upgrade.py": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756",
     "scripts/client/client.py": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7",
     "scripts/client/endpoint.py": "e94520d9cc6ee0bb8ac007227dc51bc677de9efff7464f453ad7682eaa026e79",
-    "scripts/client/stage.py": "1a182e1bfaf9e3e7aa80d608fbc59805865fdd67e3aed0f460667abe8d626283",
+    "scripts/client/stage.py": "0a7650dc4542fee1b7bcb955d9f9d8b597e446784b1383d61b46db484159136f",
     "scripts/install/local_transaction.py": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5",
     "scripts/install/native_arm_trial.py": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4",
     "scripts/install/native_preflight.py": "0ee9eb771dd306e6cd22401fae495d5b73306aafbc979c61b8243c8507ddc269",
