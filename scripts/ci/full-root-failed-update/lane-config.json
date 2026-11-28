@@ -21,7 +21,7 @@
     "scripts/ci/full-root-upgrade/root_upgrade.py": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756",
     "scripts/client/client.py": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7",
     "scripts/client/endpoint.py": "e94520d9cc6ee0bb8ac007227dc51bc677de9efff7464f453ad7682eaa026e79",
-    "scripts/client/stage.py": "eb402340e0715f5812dd1f44ad6e059f1dcc67827402b4897ef253f1d458400e",
+    "scripts/client/stage.py": "fa79ecee43eb2426f421f5aab1d0678fcb0ffeccd8f4f84d8e5af380eda95a20",
     "scripts/install/local_transaction.py": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5",
     "scripts/install/native_arm_trial.py": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4",
     "scripts/install/native_preflight.py": "67056d0b22a0cc0b147f505ad89cc00a67a1a4b7d886e7b59e271c1550a5ed11",
