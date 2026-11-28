@@ -59,7 +59,7 @@
     "profile.DATA.json": {
       "bytes": 1880,
       "mode": 420,
-      "sha256": "89339cbe9821157e7a0e92ea358ad4e74a169f16245f528361b6202daabc7058"
+      "sha256": "1001f333d8903750245f4803ce0f5d84000c2672bf312c1dc7ff8e31831db3fe"
     },
     "test_inputs.py": {
       "bytes": 5837,

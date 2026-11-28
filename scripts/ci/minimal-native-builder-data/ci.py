@@ -18,7 +18,7 @@ SOURCE = ROOT / 'scripts/port/minimal-native-builder-inputs'
 CHECKER = 'scripts/checks/package_checks.py'
 HELD_CHECKER = ('scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/'
                 'scripts/ci/llhttp-reference-native-source/base/runtime/' + CHECKER)
-LOCK_PIN = {'bytes': 2377, 'sha256': '6fac7419f32e2c370840dc9ee587b0cdf9d265f2dc9b57ff38bb945a468d090f'}
+LOCK_PIN = {'bytes': 2377, 'sha256': '4730b8f6df4ad17140ec3dddcedbafd78b7012538361ae866757635269ac6bd3'}
 OLD349_PATH = ROOT / 'scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock'
 OLD349_PIN = {'bytes': 6800, 'sha256': '579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453'}
 ATTEMPTS = []

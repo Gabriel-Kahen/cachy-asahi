@@ -20,8 +20,8 @@
       "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
     },
     "scripts/port/platform-residual-closure/resolve.py": {
-      "bytes": 36995,
-      "sha256": "df71e3166025849785f1bdd4543f36938d7fd191dc8d407aa420a1b61968548e"
+      "bytes": 37702,
+      "sha256": "fde0ef7b6bb8e52598e63619a4e140bffa48f7fcbdf075128aed52f01f2d7271"
     },
     "scripts/port/supported-composition/ci-runtime/acquire.py": {
       "bytes": 10062,

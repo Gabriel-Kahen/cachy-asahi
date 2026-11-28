@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 CI = None  # The fenced driver supplies its already verified helper module.
 SOURCE = None  # Original operands staged under their canonical paths.
@@ -32,6 +33,18 @@ class Controls(unittest.TestCase):
         checker = self.P.ROOT / CI.CHECKER
         self.assertNotEqual(checker, CI.ROOT / CI.CHECKER)
         self.assertEqual(checker.read_bytes(), (CI.ROOT / CI.HELD_CHECKER).read_bytes())
+        resolver = Path(self.R.__file__)
+        live_resolver = CI.ROOT / resolver.relative_to(self.P.ROOT)
+        self.assertEqual(resolver.read_bytes(), live_resolver.read_bytes())
+        read_bytes = Path.read_bytes
+
+        def changed_resolver(path):
+            raw = read_bytes(path)
+            return bytes([raw[0] ^ 1]) + raw[1:] if path == resolver else raw
+
+        with patch.object(Path, 'read_bytes', changed_resolver):
+            with self.assertRaisesRegex(ValueError, 'whole maintained resolver pin'):
+                self.P.resolver()
         self.assertEqual(self.P.encoded(self.regenerated), (SOURCE / 'builder.lock.json').read_bytes())
         self.assertEqual(len(self.regenerated['packages']), 206); self.assertEqual(len(self.regenerated['edges']), 869)
         self.assertEqual(len(self.regenerated['resolver_remaining_review_holds']), 1236)
