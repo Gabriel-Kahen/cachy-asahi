@@ -14,6 +14,7 @@ ACQUISITION = packet.KERNEL + 'acquisition.py'
 STAGE = packet.KERNEL + 'stage.py'
 PRODUCER = 'scripts/ci/native_arm.py'
 BUILD = 'scripts/build/build.py'
+BUILD_ENTRY = 'scripts/build/container-entry.sh'
 COMPARE = 'scripts/build/compare.py'
 CHECKER = 'scripts/checks/package_checks.py'
 HARNESS = 'scripts/port/kernel-candidates/harness.py'
@@ -130,6 +131,10 @@ if entry == stage:
 
     value.Runner = runner
     raise SystemExit(value.main())
+if drivers and entry == drivers[0]:
+    value = load('kernel_held_build', entry, bodies[entry])
+    entry_script = str(Path(entry).with_name('container-entry.sh'))
+    raise SystemExit(value.main(entry_script=bodies[entry_script]))
 load('__main__', entry, bodies[entry])
 """
 
@@ -166,6 +171,8 @@ def bind(root, entry, command, rows):
         drivers = (BUILD, COMPARE)
 
     paths = {entry, *modules.values(), *(source for _, source in aliases.values()), *drivers}
+    if drivers:
+        paths.add(BUILD_ENTRY)
     packet.need(paths <= rows.keys(), 'child-source-pin')
     packet.need(sum(rows[name]['bytes'] for name in paths) <= LIMIT * 3 // 4, 'child-source-bound')
     bodies = {}

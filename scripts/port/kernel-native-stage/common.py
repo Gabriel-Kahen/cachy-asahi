@@ -69,6 +69,7 @@ def save(path, value):
     with os.fdopen(fd, 'wb') as stream:
         stream.write(data); stream.flush(); os.fsync(stream.fileno())
     os.replace(temp, path)
+    return hashlib.sha256(data).hexdigest()
 
 
 def inventory(data):

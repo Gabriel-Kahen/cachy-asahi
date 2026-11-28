@@ -1,0 +1,150 @@
+{
+  "base_inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "base_inventory_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+  "development_only": true,
+  "files": {
+    "scripts/ci/commit_image.py": {
+      "bytes": 9274,
+      "mode": 420,
+      "sha256": "716e9aac5bd472e58da53e5def54a169f01b2c8bc7ac1fbae849f68532cf8a5c"
+    },
+    "scripts/ci/native_arm.py": {
+      "bytes": 28877,
+      "mode": 420,
+      "sha256": "8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba"
+    },
+    "scripts/port/kernel-candidates/candidate.json": {
+      "bytes": 6442,
+      "mode": 420,
+      "sha256": "d26f691006a24f76db11f2f353e0ec10d93425ce2b6f8970a446b7bd34c98617"
+    },
+    "scripts/port/kernel-candidates/harness.py": {
+      "bytes": 16957,
+      "mode": 493,
+      "sha256": "f2d6fc62d28b0c189469ca7cf8293f10c574ecd0459c33c013bf1a271b8a5ebf"
+    },
+    "scripts/port/kernel-candidates/verify_build.py": {
+      "bytes": 57845,
+      "mode": 493,
+      "sha256": "7306ebf4e7ca54b49128882d8c730c3ee7e6249ea676fed2b6970a0679379057"
+    },
+    "scripts/port/kernel-native-stage/acquisition.py": {
+      "bytes": 20341,
+      "mode": 493,
+      "sha256": "c481e5f942d3ed1363e8ca6e917387b4a6fa18298ffd59de23283e287f8ff3f8"
+    },
+    "scripts/port/kernel-native-stage/broker.py": {
+      "bytes": 35619,
+      "mode": 420,
+      "sha256": "4f7312d578b98e2a007b899915c5ca2eb7549f64926b257ac87ba66f3633b116"
+    },
+    "scripts/port/kernel-native-stage/common.py": {
+      "bytes": 4436,
+      "mode": 420,
+      "sha256": "e53467b15c836cc61a7e1d2121d5c2507f7b0b3744179ff916aca6c5b51451b9"
+    },
+    "scripts/port/kernel-native-stage/dependencies.json": {
+      "bytes": 37780,
+      "mode": 420,
+      "sha256": "aa5f5580f10256f5749bbc86ec0abc0420981d935f37e84672298fa38d72cfe4"
+    },
+    "scripts/port/kernel-native-stage/dependency_audit.py": {
+      "bytes": 11740,
+      "mode": 493,
+      "sha256": "c6f639be6e7e9da08933f23f18aa3185bad64dc75fab036e7057dad0e258fd05"
+    },
+    "scripts/port/kernel-native-stage/embedded-config.txt": {
+      "bytes": 240677,
+      "mode": 420,
+      "sha256": "ae1d4ce855bd435b62c8fb213cbcf2d4eefd47b62274792c4a6bf299848b3876"
+    },
+    "scripts/port/kernel-native-stage/evidence.py": {
+      "bytes": 45918,
+      "mode": 420,
+      "sha256": "59f2500ad3c1e7ed38ff2a2bff5a4ec4cabf3036e76f1d953db23e6d8437fd38"
+    },
+    "scripts/port/kernel-native-stage/image.py": {
+      "bytes": 15700,
+      "mode": 420,
+      "sha256": "3bfd0c1b78d28a4575f9e38c3d6a326da9cc4dae4952cf8f6db21843c6304730"
+    },
+    "scripts/port/kernel-native-stage/inner_result.py": {
+      "bytes": 51458,
+      "mode": 420,
+      "sha256": "7be67a2e0788008690c22080789f7797b3d4bb2a8f03686798288bbad69db1dc"
+    },
+    "scripts/port/kernel-native-stage/regression.py": {
+      "bytes": 23648,
+      "mode": 493,
+      "sha256": "23f2b7fd17e34ab268e4468071b2ef52e9f4703c11dff1d6297594a11934a59b"
+    },
+    "scripts/port/kernel-native-stage/runtime.py": {
+      "bytes": 8100,
+      "mode": 420,
+      "sha256": "6d733a1c70fb2dc37723527bd19a5947e77b354f2a5b0bdfec7c5c96f2de74e4"
+    },
+    "scripts/port/kernel-native-stage/stage.py": {
+      "bytes": 26857,
+      "mode": 493,
+      "sha256": "2a2b1205e21aebac2d7c8a603ff534110079cc081e7b2c296c0f78449d000b2e"
+    },
+    "scripts/port/kernel-native-stage/test_acquisition.py": {
+      "bytes": 16463,
+      "mode": 420,
+      "sha256": "f829d4b09644fb24f0a66f06088d1f8774671e86d91b6bf9a4a5d07867907eef"
+    },
+    "scripts/port/kernel-native-stage/test_broker.py": {
+      "bytes": 51041,
+      "mode": 420,
+      "sha256": "6c6e9f29b17938899c5898662d9de073b2be560d8f799f27e091d1b719558c66"
+    },
+    "scripts/port/kernel-native-stage/test_dependency_audit.py": {
+      "bytes": 2752,
+      "mode": 420,
+      "sha256": "f04251d08135424a30cb522adb28b3712303452d371d34782e7763841db82362"
+    },
+    "scripts/port/kernel-native-stage/test_evidence.py": {
+      "bytes": 34349,
+      "mode": 420,
+      "sha256": "eee506348b153a600309df040ca98fcff9b14ab06b5f401ff3a6ae45f766d93c"
+    },
+    "scripts/port/kernel-native-stage/test_image.py": {
+      "bytes": 31199,
+      "mode": 420,
+      "sha256": "57a3bdf419dbc9b473f9909d48c2efaaeafd9b151090a82d14f14eeb6ab9378f"
+    },
+    "scripts/port/kernel-native-stage/test_inner_result.py": {
+      "bytes": 17489,
+      "mode": 420,
+      "sha256": "d981624e11a5d80e38c75a7d72d189fc7701c7da818d28412709aed561976574"
+    },
+    "scripts/port/kernel-native-stage/test_regression.py": {
+      "bytes": 11216,
+      "mode": 420,
+      "sha256": "fb18d186aa1c4f2026fe772db99a438966e04725eaad3904bbd000fdffbaae38"
+    },
+    "scripts/port/kernel-native-stage/test_stage.py": {
+      "bytes": 22416,
+      "mode": 420,
+      "sha256": "03782022be0a38025669ed43cccdcb77aa3b1d7b958dbfdd8a2a3e719190d593"
+    },
+    "scripts/port/kernel-native-stage/test_stage_inner.py": {
+      "bytes": 11205,
+      "mode": 420,
+      "sha256": "0a8acb85e398a4aa875ce4b38877181d07f5a3bb7e39eb02ec5021cc5400c71a"
+    },
+    "scripts/port/kernel-native-stage/test_worker.py": {
+      "bytes": 28957,
+      "mode": 420,
+      "sha256": "1284d56632dc8978dd52da61138f6401d6445361b1f732f2db2c07d3d9147525"
+    },
+    "scripts/port/kernel-native-stage/worker.py": {
+      "bytes": 25493,
+      "mode": 493,
+      "sha256": "0c7c72343f0102c76a3f77e769e4ca2c29ad976322a34ee30d51746139e23b7b"
+    }
+  },
+  "purpose": "KERNEL-NATIVE-C01",
+  "recipes_sha256": "56c53699b1c9a493798a071a537ae17d5b892ffa9618ca99a3465985a51fcef8",
+  "schema_version": 2
+}

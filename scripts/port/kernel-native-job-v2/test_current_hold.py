@@ -22,6 +22,8 @@ MANIFEST = ROOT / packet_v2.MANIFEST
 LEGACY_PARENT_SHA = '3cc6631797d804086686e88ddd2240455561420430bedb4ea6e4ce9eade9c53f'
 SUCCESSOR_PYTHON = {packet.PREFIX + name for name in ('packet_v3.py', 'child_launch.py')}
 SUCCESSOR_CHANGES = {*packet_v3.BUILD_HELPERS, packet.WORKFLOW, packet.DOCUMENT,
+                     *(packet.KERNEL + name for name in ('broker.py', 'common.py', 'stage.py',
+                                                         'test_broker.py', 'test_stage.py')),
                      *(packet.PREFIX + name for name in ('job.py', 'packet.py', 'packet_v2.py',
                                                          'runtime.py', 'test_packet.py', 'test_public.py'))}
 
@@ -41,9 +43,9 @@ class CurrentPacketTests(unittest.TestCase):
         self.assertEqual(historical_pin[0], legacy['files'][packet_v2.CHECKER]['sha256'])
         self.assertNotEqual(historical_pin[0], packet_v2.CHECKER_SHA)
         self.assertEqual(successor['files'][packet_v2.CHECKER]['sha256'], packet_v2.CHECKER_SHA)
-        with self.assertRaisesRegex(ValueError, '^frozen-producer-drift$'):
+        with self.assertRaisesRegex(ValueError, '^frozen-kernel-drift$'):
             packet_v2.preview(ROOT)
-        with self.assertRaisesRegex(ValueError, 'frozen-producer-drift'):
+        with self.assertRaisesRegex(ValueError, '^frozen-kernel-drift$'):
             packet.preview(ROOT)
 
     def test_successor_checks_current_sources_and_rejects_historical_or_changed_bytes(self):

@@ -24,6 +24,7 @@ import inner_result
 
 HELPERS = ('scripts/ci/native_arm.py', 'scripts/ci/commit_image.py')
 HELD = ('harness.py', 'verify_build.py', 'candidate.json')
+STAGE_LOCKS = (PREFIX + 'stage.lock.json', 'scripts/port/kernel-native-job-v3/stage.lock.json')
 MAX_STAGE_SECONDS = 5 * 3600
 
 
@@ -73,7 +74,7 @@ def source_files(root):
 
 def freeze(root, output):
     need(root.is_absolute() and root == root.resolve() and output.is_absolute() and output == output.resolve() and
-         not output.exists() and (output == root / (PREFIX + 'stage.lock.json') or
+         not output.exists() and (output in {root / name for name in STAGE_LOCKS} or
          output.is_relative_to(root / 'artifacts/kernel-native-stage')), 'canonical owned source/new freeze required')
     rows = {}
     for name in sorted(source_files(root)):
@@ -99,15 +100,15 @@ def snapshot(args, lock, output, runner):
     need(set(lock['files']) == source_files(args.root), 'exact stage source closure differs')
     target = output / 'code'; target.mkdir(mode=0o700)
     code_contract(args.root, lock['files'])
+    git = ['/usr/bin/git', '--no-replace-objects', '-c', 'core.hooksPath=/dev/null',
+           '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C', str(args.root)]
     for name, row in lock['files'].items():
-        result = runner.run(['/usr/bin/git', '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false',
-            '--no-optional-locks', '-C', str(args.root), 'show', args.source_commit + ':' + name], timeout=15)
+        result = runner.run(git + ['show', args.source_commit + ':' + name], timeout=15)
         regular(args.root / name)
         data = (args.root / name).read_bytes()
         need(result.returncode == 0 and result.stdout == data and len(data) == row['bytes'] and
              hashlib.sha256(data).hexdigest() == row['sha256'], 'committed source bytes differ: ' + name)
-        mode = runner.run(['/usr/bin/git', '--no-optional-locks', '-C', str(args.root), 'ls-tree',
-            '--format=%(objectmode)', args.source_commit, '--', name], timeout=10)
+        mode = runner.run(git + ['ls-tree', '--format=%(objectmode)', args.source_commit, '--', name], timeout=10)
         need(mode.returncode == 0 and mode.stdout == ('100' + oct(row['mode'])[2:] + '\n').encode(), 'committed mode differs')
         path = target / name; path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data); path.chmod(row['mode'])
@@ -292,9 +293,9 @@ def execute(args):
             out = private / ('output-' + action); out.mkdir(mode=0o700)
             mounts = {'/inputs': str(inputs), '/code': str(code), '/out': str(out)}
             broker.expected_mounts = mounts
-            save(inputs / 'contract.json', contract)
+            contract_sha = save(inputs / 'contract.json', contract)
             worker_env = {'PATH': '/usr/bin:/bin', 'HOME': '/tmp/home', 'LC_ALL': 'C', 'KERNEL_STAGE_NONCE': nonce,
-                          'KERNEL_STAGE_ACTION': action, 'KERNEL_STAGE_CONTRACT_SHA256': digest(inputs / 'contract.json')}
+                          'KERNEL_STAGE_ACTION': action, 'KERNEL_STAGE_CONTRACT_SHA256': contract_sha}
             report['diagnostics']['commands'][action] = {'kind': 'UNOBSERVED', 'code': None}
             checkpoint(action.upper() + '_COMMAND')
             command_result = broker.launch(action, mounts, worker_env, 7800 if action in ('baseline', 'candidate') else 900,

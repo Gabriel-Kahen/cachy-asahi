@@ -65,7 +65,7 @@ jobs:
                       'scripts/ci/inputs.lock.json',
                       'scripts/port/kernel-native-job/recipes.lock.json',
                       'scripts/port/kernel-native-stage/stage.py',
-                      'scripts/port/kernel-native-stage/stage.lock.json'}
+                      'scripts/port/kernel-native-job-v3/stage.lock.json'}
 
           def need(ok):
               if not ok:

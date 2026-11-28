@@ -69,7 +69,13 @@ class ChildCustodyTests(unittest.TestCase):
                 helper = module('kernel_commit_config', out / 'private/code/scripts/ci/commit_image.py')
                 print(helper.VALUE, Runner(30, {}, None)['GIT_NO_REPLACE_OBJECTS'])
         """)
-        self.source(launch.BUILD, 'from package_checks import VALUE\nif __name__ == "__main__": print(VALUE)')
+        self.source(launch.BUILD, '''
+            from package_checks import VALUE
+            def main(*, entry_script):
+                assert entry_script == b'# held shell entry'
+                print(VALUE)
+        ''')
+        self.source(launch.BUILD_ENTRY, '# held shell entry')
         self.source(launch.COMPARE, 'from build import VALUE\nprint(VALUE)')
         self.source(launch.HARNESS, 'VALUE = "held"')
         self.source(launch.COMMIT, 'VALUE = "held"')
@@ -115,6 +121,7 @@ class ChildCustodyTests(unittest.TestCase):
 
     def test_binding_refuses_mode_drift_in_entries_and_local_dependencies(self):
         for entry, member in ((launch.PRODUCER, launch.PRODUCER), (launch.PRODUCER, launch.BUILD),
+                              (launch.PRODUCER, launch.BUILD_ENTRY),
                               (launch.ACQUISITION, launch.ACQUISITION), (launch.ACQUISITION, launch.HARNESS),
                               (launch.STAGE, launch.STAGE), (launch.STAGE, launch.COMMIT)):
             with self.subTest(entry=entry, member=member):

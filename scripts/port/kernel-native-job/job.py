@@ -577,10 +577,19 @@ def acquired_paths(out):
     return paths
 
 
+def kernel_lock(args):
+    import packet_v3
+    chosen = getattr(args, 'packet', None)
+    if chosen is not None and chosen == args.source_root / packet_v3.MANIFEST:
+        return packet_v3.KERNEL_LOCK, packet_v3.KERNEL_SHA
+    return packet.KERNEL_LOCK, packet.KERNEL_SHA
+
+
 def kernel_command(args, private, image, accepted, paths, kernel_output):
+    lock_path, lock_sha = kernel_lock(args)
     command = ['/usr/bin/python3', '-I', '-B', str(private / 'source' / (packet.KERNEL + 'stage.py')), 'run',
         '--root', str(args.source_root), '--output', str(kernel_output), '--source-commit', args.source_commit,
-        '--lock', str(args.source_root / (packet.KERNEL + 'stage.lock.json')), '--lock-sha256', packet.KERNEL_SHA,
+        '--lock', str(args.source_root / lock_path), '--lock-sha256', lock_sha,
         '--docker', str(args.docker_binary), '--docker-sha256', args.docker_sha256,
         '--endpoint', args.docker_endpoint, '--image', image,
         '--bootstrap', str(accepted / 'bootstrap.json'), '--bootstrap-sha256', packet.sha(packet.read(accepted / 'bootstrap.json')),
@@ -630,10 +639,11 @@ def child_observation(args, kernel_output, invocation, row):
         diagnostic = record['diagnostics']
         projected = public.child_project(diagnostic)
         expected = dict(invocation, nonce=record['nonce'])
+        _, stage_lock_sha = kernel_lock(args)
         packet.need(diagnostic['binding'] == expected and record['source_commit'] == args.source_commit and
-            expected['source_commit'] == args.source_commit and expected['stage_lock_sha256'] == packet.KERNEL_SHA and
+            expected['source_commit'] == args.source_commit and expected['stage_lock_sha256'] == stage_lock_sha and
             expected['output_name_sha256'] == packet.sha(kernel_output.name.encode()) and
-            record['stage_lock_sha256'] == packet.KERNEL_SHA and record['status'] in ('PASS', 'FAIL') and
+            record['stage_lock_sha256'] == stage_lock_sha and record['status'] in ('PASS', 'FAIL') and
             type(record['cancelled']) is bool and record['kernel_execution'] == record['hardware_validation'] == 'NOT RUN' and
             record['performance'] == 'NOT MEASURED' and
             diagnostic['cleanup']['status'] == {'NOT RUN': 'NOT_RUN', 'PASS': 'PASS', 'FAIL': 'FAIL'}.get(record['cleanup']['status']) and

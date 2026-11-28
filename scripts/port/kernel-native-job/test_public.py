@@ -612,7 +612,7 @@ class BootstrapTests(unittest.TestCase):
                     'sha256': hashlib.sha256((self.root / name).read_bytes()).hexdigest(),
                     'mode': stat.S_IMODE((self.root / name).stat().st_mode)} for name in self.ns['REQUIRED']}
         self.packet = self.root / self.ns['PACKET']
-        self.packet.parent.mkdir()
+        self.packet.parent.mkdir(exist_ok=True)
         self.write_packet()
         self.git('init', '-q'); self.git('add', '.')
         self.git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-q', '-m', 'fixture')

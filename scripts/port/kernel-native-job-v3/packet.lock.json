@@ -1,9 +1,9 @@
 {
   "files": {
     ".github/workflows/native-arm-kernel.yml": {
-      "bytes": 17955,
+      "bytes": 17956,
       "mode": 420,
-      "sha256": "1b666329d3a9ddebaa17996135ef899ce0e2d657e8a566e36aedf867e7ba8410"
+      "sha256": "4316a962c169da60eea52ba85dc74484b8c80546f608c4ce9597290673459c89"
     },
     "AGENTS.md": {
       "bytes": 1334,
@@ -406,9 +406,9 @@
       "sha256": "19a9df455ad2c42b01eb184bdfb0b14402fe372e397fa91cc0ee28dd766bb65d"
     },
     "scripts/build/build.py": {
-      "bytes": 11884,
+      "bytes": 12126,
       "mode": 420,
-      "sha256": "bb1d506ee443102073b4265d848b505afa18a5176af10780de487731529a137f"
+      "sha256": "3063936c1cd7369a14919e6491b100281d7ada0515ef87f1f176d7bdb4403dca"
     },
     "scripts/build/compare.py": {
       "bytes": 9648,
@@ -465,10 +465,15 @@
       "mode": 420,
       "sha256": "466eb04d1c3f7402c04ce8bd311cf141e29d9a59d3b7e1206a2cfa34b89e7366"
     },
-    "scripts/port/kernel-native-job/child_launch.py": {
-      "bytes": 7304,
+    "scripts/port/kernel-native-job-v3/stage.lock.json": {
+      "bytes": 5596,
       "mode": 420,
-      "sha256": "f9c3100146b308e967694810bf769a8759d4d2e2111817a5c69755c08ef4dbd9"
+      "sha256": "b225e993c991b02866582f2bfdc81f18575cd755bba716831011f5bea3189cec"
+    },
+    "scripts/port/kernel-native-job/child_launch.py": {
+      "bytes": 7632,
+      "mode": 420,
+      "sha256": "990b2e3812ecca10b3421fc4a11c4e864b274187e7ba67ce228780a89a579b49"
     },
     "scripts/port/kernel-native-job/intake.py": {
       "bytes": 16912,
@@ -476,24 +481,24 @@
       "sha256": "45a0cbc3c9ae27f0438ed8dde87f2b0d46faec54c5931f160e63ee17cfe726ce"
     },
     "scripts/port/kernel-native-job/job.py": {
-      "bytes": 59277,
+      "bytes": 59602,
       "mode": 493,
-      "sha256": "76bb65536c1b2eb7482a91d4e9c47fb599845f6aa5928b134a23464341f67805"
+      "sha256": "aa279a6767b3fd7070bf1a7bfbf60f863a32d6fdcb0d4947d1be38c4c70efb17"
     },
     "scripts/port/kernel-native-job/packet.py": {
-      "bytes": 12875,
+      "bytes": 12884,
       "mode": 420,
-      "sha256": "10b6dbda789bf13c6cbd335af3bfbf7827b72eaac3cfbd906f9977bdcba8af56"
+      "sha256": "c84649755dfa8d7cef91eb3e2df28308e0ea83b9e0f8e09bd76f60deee212014"
     },
     "scripts/port/kernel-native-job/packet_v2.py": {
       "bytes": 4069,
       "mode": 420,
-      "sha256": "4c3a0f2dc3adc129858cd622d3d960f4632d097d61a4ab3257302a39f34fdf16"
+      "sha256": "2fd77c8d22c322008f9f43d9b574fd797d6bd52be4ab26463699a165134ce9c6"
     },
     "scripts/port/kernel-native-job/packet_v3.py": {
-      "bytes": 3047,
+      "bytes": 3261,
       "mode": 420,
-      "sha256": "96bee1a846d6962f4af687f3944e4d9d2a539490ba8898c0d2abb83473c36fd6"
+      "sha256": "bd5e129419e6e5dd6858727a11ad8af974deeae371c345794f1f7ffaa99045cc"
     },
     "scripts/port/kernel-native-job/public.py": {
       "bytes": 58959,
@@ -531,9 +536,9 @@
       "sha256": "e1fa4964d16e7eedb77fcf00de2da7263e9f52970a163fcede9d15c8920317d8"
     },
     "scripts/port/kernel-native-job/test_public.py": {
-      "bytes": 79044,
+      "bytes": 79057,
       "mode": 420,
-      "sha256": "739472d644c90443e743cc309b84b1454422eba20c9b2378b6671169b30d1efc"
+      "sha256": "5d58d7333e11c515263614c26bd2e3b093667fe88cb7120916da6e5060799f3c"
     },
     "scripts/port/kernel-native-job/test_runtime.py": {
       "bytes": 13019,
@@ -546,14 +551,14 @@
       "sha256": "c481e5f942d3ed1363e8ca6e917387b4a6fa18298ffd59de23283e287f8ff3f8"
     },
     "scripts/port/kernel-native-stage/broker.py": {
-      "bytes": 31620,
+      "bytes": 35619,
       "mode": 420,
-      "sha256": "370a6036d7c268267c31fa40dd08b159b70dba6e7ccd693b46b92df512725fe7"
+      "sha256": "4f7312d578b98e2a007b899915c5ca2eb7549f64926b257ac87ba66f3633b116"
     },
     "scripts/port/kernel-native-stage/common.py": {
-      "bytes": 4392,
+      "bytes": 4436,
       "mode": 420,
-      "sha256": "b91e7cd7e5b8d9044688e76b0730401a6ffe9d04df9720429d0b5acf864ef2e5"
+      "sha256": "e53467b15c836cc61a7e1d2121d5c2507f7b0b3744179ff916aca6c5b51451b9"
     },
     "scripts/port/kernel-native-stage/dependencies.json": {
       "bytes": 37780,
@@ -595,15 +600,10 @@
       "mode": 420,
       "sha256": "6d733a1c70fb2dc37723527bd19a5947e77b354f2a5b0bdfec7c5c96f2de74e4"
     },
-    "scripts/port/kernel-native-stage/stage.lock.json": {
-      "bytes": 5596,
-      "mode": 420,
-      "sha256": "dbc2681bc42971f5214070a08d67e76c36bdb714979c762d0e56e15e0071d584"
-    },
     "scripts/port/kernel-native-stage/stage.py": {
-      "bytes": 26791,
+      "bytes": 26857,
       "mode": 493,
-      "sha256": "d43025bae2d6287acc5df7c46263c95418631c90c824ebfe89305bba2644a3af"
+      "sha256": "2a2b1205e21aebac2d7c8a603ff534110079cc081e7b2c296c0f78449d000b2e"
     },
     "scripts/port/kernel-native-stage/test_acquisition.py": {
       "bytes": 16463,
@@ -611,9 +611,9 @@
       "sha256": "f829d4b09644fb24f0a66f06088d1f8774671e86d91b6bf9a4a5d07867907eef"
     },
     "scripts/port/kernel-native-stage/test_broker.py": {
-      "bytes": 46110,
+      "bytes": 51041,
       "mode": 420,
-      "sha256": "a82e38e0362793962e9a9a73613dd2028545e05d07e21ba8fb1113e224c16248"
+      "sha256": "6c6e9f29b17938899c5898662d9de073b2be560d8f799f27e091d1b719558c66"
     },
     "scripts/port/kernel-native-stage/test_dependency_audit.py": {
       "bytes": 2752,
@@ -641,9 +641,9 @@
       "sha256": "fb18d186aa1c4f2026fe772db99a438966e04725eaad3904bbd000fdffbaae38"
     },
     "scripts/port/kernel-native-stage/test_stage.py": {
-      "bytes": 21201,
+      "bytes": 22416,
       "mode": 420,
-      "sha256": "d5f85ba5217e617759ac8e73c5a83ce625549e6ab9864c1f0e3ea3aee236e5ce"
+      "sha256": "03782022be0a38025669ed43cccdcb77aa3b1d7b958dbfdd8a2a3e719190d593"
     },
     "scripts/port/kernel-native-stage/test_stage_inner.py": {
       "bytes": 11205,

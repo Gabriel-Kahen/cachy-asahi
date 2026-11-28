@@ -14,9 +14,11 @@ import packet_v2
 
 MANIFEST = 'scripts/port/kernel-native-job-v3/packet.lock.json'
 MANIFEST_LIMIT = 1024**2
-PARENT_SHA = '4c3a0f2dc3adc129858cd622d3d960f4632d097d61a4ab3257302a39f34fdf16'
+KERNEL_LOCK = 'scripts/port/kernel-native-job-v3/stage.lock.json'
+KERNEL_SHA = 'b225e993c991b02866582f2bfdc81f18575cd755bba716831011f5bea3189cec'
+PARENT_SHA = '2fd77c8d22c322008f9f43d9b574fd797d6bd52be4ab26463699a165134ce9c6'
 BUILD_HELPERS = {
-    'scripts/build/build.py': ('bb1d506ee443102073b4265d848b505afa18a5176af10780de487731529a137f', 0o644),
+    'scripts/build/build.py': ('3063936c1cd7369a14919e6491b100281d7ada0515ef87f1f176d7bdb4403dca', 0o644),
     'scripts/build/compare.py': ('f28a02dd1b19847df8870e2ded18117c39d11e7d62d990b68292e37c11f19d9a', 0o644),
 }
 
@@ -25,6 +27,7 @@ def _policy():
     parent = Path(__file__).with_name('packet_v2.py')
     packet.need(packet.sha(packet.read(parent, 32 * 1024)) == PARENT_SHA, 'packet-v3-parent-policy')
     policy = packet_v2._policy()
+    policy.KERNEL_LOCK, policy.KERNEL_SHA = KERNEL_LOCK, KERNEL_SHA
     policy.HELPERS.update(BUILD_HELPERS)
     policy.HELPERS.update({packet.PREFIX + 'packet.py': (packet_v2.PARENT_SHA, 0o644),
                            packet.PREFIX + 'packet_v2.py': (PARENT_SHA, 0o644)})

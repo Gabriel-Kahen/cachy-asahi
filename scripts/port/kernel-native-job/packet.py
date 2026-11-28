@@ -11,6 +11,7 @@ import stat
 
 PREFIX = 'scripts/port/kernel-native-job/'
 KERNEL = 'scripts/port/kernel-native-stage/'
+KERNEL_LOCK = KERNEL + 'stage.lock.json'
 WORKFLOW = '.github/workflows/native-arm-kernel.yml'
 DOCUMENT = 'docs/workstreams/kernel-native-job.md'
 RECIPES_LOCK = PREFIX + 'recipes.lock.json'
@@ -141,7 +142,7 @@ def walk(root, ignore_cache=False):
 
 def closure(root):
     root = Path(root)
-    kernel = load(root / (KERNEL + 'stage.lock.json'), KERNEL_SHA)
+    kernel = load(root / KERNEL_LOCK, KERNEL_SHA)
     recipes = load(root / RECIPES_LOCK, RECIPES_SHA)
     inputs = load(root / 'scripts/ci/inputs.lock.json', INPUTS_SHA)
     need(kernel.get('schema_version') == 2 and kernel.get('purpose') == 'KERNEL-NATIVE-C01' and
@@ -151,7 +152,7 @@ def closure(root):
          inputs.get('source_date_epoch') == EPOCH and len(inputs.get('packages', [])) == 248 and
          set(recipes) == RECIPE_BASES and sum(len(v) for v in recipes.values()) == RECIPE_COUNT,
          'producer-scope')
-    files = set(kernel['files']) | set(HELPERS) | {KERNEL + 'stage.lock.json',
+    files = set(kernel['files']) | set(HELPERS) | {KERNEL_LOCK,
             'scripts/ci/inputs.lock.json', RECIPES_LOCK, INTAKE_SOURCE, WORKFLOW, DOCUMENT}
     for base, rows in recipes.items():
         relative(base)

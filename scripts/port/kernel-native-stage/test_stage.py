@@ -71,8 +71,8 @@ class StageDataTests(unittest.TestCase):
         with self.assertRaises(ValueError): common.delta_config({}, {'CONFIG_RUSTC_HAS_SUSPICIOUS_RUNTIME_SYMBOL_DEFINITIONS': 'n'}, policy)
 
     def test_json_pin_authenticates_captured_bytes(self):
-        path = self.root / 'receipt.json'; common.save(path, {'status': 'UNREVIEWED'})
-        pin = common.digest(path)
+        path = self.root / 'receipt.json'; pin = common.save(path, {'status': 'UNREVIEWED'})
+        self.assertEqual(pin, common.digest(path))
         with patch.object(common, 'digest', side_effect=AssertionError('second-path-read not allowed')):
             self.assertEqual(common.load(path, pin)['status'], 'UNREVIEWED')
         path.write_text('{"status":"REVIEWED"}')
@@ -113,6 +113,28 @@ class StageDataTests(unittest.TestCase):
         result = subprocess.run([sys.executable, '-I', '-B', stage.__file__, '--help'], capture_output=True, timeout=5)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(b'--accepted-result-sha256', result.stdout)
+
+    def test_snapshot_disables_git_replacement_refs_for_bytes_and_mode(self):
+        name, body, commit = 'fixture.py', b'# inert source\n', 'a' * 40
+        source = self.root / name
+        source.write_bytes(body)
+        source.chmod(0o644)
+        args = SimpleNamespace(root=self.root, source_commit=commit)
+        lock = {'files': {name: {'bytes': len(body), 'mode': 0o644, 'sha256': common.digest(source)}}}
+        calls = []
+
+        def run(argv, *, timeout):
+            self.assertEqual(argv[:2], ['/usr/bin/git', '--no-replace-objects'])
+            command = argv[argv.index('-C') + 2:]
+            calls.append((command, timeout))
+            stdout = {'show': body, 'ls-tree': b'100644\n'}[command[0]]
+            return subprocess.CompletedProcess(argv, 0, stdout=stdout)
+
+        with patch.object(stage, 'source_files', return_value={name}):
+            output = stage.snapshot(args, lock, self.root / 'private', SimpleNamespace(run=run))
+        self.assertEqual(calls, [(['show', commit + ':' + name], 15),
+                                 (['ls-tree', '--format=%(objectmode)', commit, '--', name], 10)])
+        self.assertEqual((output / name).read_bytes(), body)
 
     def test_snapshot_failure_remains_authoritative_fail(self):
         base = self.root / 'artifacts/kernel-native-stage'; base.mkdir(parents=True)

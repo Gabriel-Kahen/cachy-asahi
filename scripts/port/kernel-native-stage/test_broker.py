@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 import copy
+import hashlib
 import itertools
 import json
 import os
@@ -8,11 +9,13 @@ import signal
 import subprocess
 import sys
 import tempfile
+from textwrap import dedent
 import time
 import unittest
 from unittest.mock import Mock, patch
 
 import broker
+import common
 
 
 FAKE_CLI = r'''#!/usr/bin/python3
@@ -59,7 +62,7 @@ else:raise SystemExit(9)
 '''
 
 
-class BrokerPolicy(unittest.TestCase):
+class BrokerFixture(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
@@ -80,6 +83,8 @@ class BrokerPolicy(unittest.TestCase):
         return {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'HOME': '/tmp/home', 'KERNEL_STAGE_NONCE': self.nonce,
                 'KERNEL_STAGE_ACTION': action, 'KERNEL_STAGE_CONTRACT_SHA256': 'd' * 64}
 
+
+class BrokerPolicy(BrokerFixture):
     def test_build_options_are_nonroot_network_off_readonly_and_bounded(self):
         value = self.instance(); options = value._options('name', {}, self.mounts)
         for item in ('--read-only', '--network=none', '--memory=14g', '--memory-swap=14g', '--cpus=2', '--pids-limit=512'):
@@ -124,7 +129,7 @@ class BrokerPolicy(unittest.TestCase):
 
     def inspect_row(self, value):
         row = {'name': 'cachy-asahi-kernel-' + self.nonce + '-baseline', 'id': 'e' * 64,
-               'mounts': self.mounts, 'env': self.env('baseline'), 'cmd': ['-I', '-B', 'worker.py', 'baseline']}
+               'mounts': self.mounts, 'env': self.env('baseline'), 'cmd': broker.worker_command('baseline')}
         item = {'Id': row['id'], 'Name': '/' + row['name'], 'Image': value.image,
             'Config': {'User': value.user, 'Labels': {broker.LABEL: self.nonce},
                        'Env': [key + '=' + text for key, text in row['env'].items()],
@@ -149,8 +154,7 @@ class BrokerPolicy(unittest.TestCase):
     def provision_inspect(self):
         value = self.instance('provision'); row, item = self.inspect_row(value)
         row.update(name='cachy-asahi-kernel-' + self.nonce + '-provision', env={},
-                   cmd=['-I', '-B', '/code/scripts/port/kernel-native-stage/worker.py',
-                        'provision', self.nonce, 'd' * 64])
+                   cmd=broker.worker_command('provision', self.nonce, 'd' * 64))
         item['Name'] = '/' + row['name']
         item['Config'].update(Labels={}, Env=value.image_config['Env'], Cmd=row['cmd'])
         item['HostConfig'].update(ReadonlyRootfs=False, CapAdd=['CHOWN', 'DAC_OVERRIDE', 'FOWNER'])
@@ -231,7 +235,7 @@ class BrokerPolicy(unittest.TestCase):
         self.mounts['/out'] = str(self.root / 'output-baseline')
         Path(self.mounts['/out']).mkdir()
         value = self.instance(); row, item = self.inspect_row(value)
-        row['cmd'] = ['-I', '-B', '/code/scripts/port/kernel-native-stage/worker.py', 'baseline']
+        row['cmd'] = broker.worker_command('baseline')
         item['Config']['Cmd'] = row['cmd']
         binary = self.root / 'fake-docker'; binary.write_text(FAKE_CLI); binary.chmod(0o755)
         create = ['create', *value._options(row['name'], row['env'], self.mounts), value.image, *row['cmd']]
@@ -725,3 +729,102 @@ class ProvisionCapabilityEquivalence(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class WorkerCommandCustody(BrokerFixture):
+    def setUp(self):
+        super().setUp()
+        self.code = Path(self.mounts['/code'])
+        self.inputs = Path(self.mounts['/inputs'])
+        self.contract = self.inputs / 'contract.json'
+        self.worker = common.PREFIX + 'worker.py'
+        self.rows = {}
+        self.original = {}
+        for name in ('runtime', 'inner_result', 'regression'):
+            self.source(common.PREFIX + name + '.py', 'VALUE = "held"\n')
+        self.source(common.SOURCE + 'harness.py', 'VALUE = "held"\n')
+        self.source(common.SOURCE + 'verify_build.py', 'from harness import VALUE\n')
+        self.source(common.PREFIX + 'common.py', f"""
+            from pathlib import Path
+            Path({str(self.code / self.worker)!r}).chmod(0o755)
+            Path({str(self.code / (common.PREFIX + 'regression.py'))!r}).write_text('VALUE = "changed"')
+        """)
+        self.source(self.worker, f"""
+            from pathlib import Path
+            import sys
+            from common import module
+            sys.path.insert(0, {str(self.code)!r})
+            try:
+                import unlisted_fixture
+            except ModuleNotFoundError:
+                pass
+            else:
+                raise AssertionError('unexpected local module')
+            root = Path({str(self.code)!r})
+            probe = module('kernel_regression', root / {common.PREFIX + 'regression.py'!r})
+            harness = module('harness', root / {common.SOURCE + 'harness.py'!r})
+            verifier = module('kernel_output_verifier', root / {common.SOURCE + 'verify_build.py'!r})
+            print(probe.VALUE, harness.VALUE, verifier.VALUE, sys.argv[1], len(sys.argv))
+        """)
+        (self.code / 'unlisted_fixture.py').write_text('VALUE = "not admitted"')
+        self.pin = common.save(self.contract, {'files': self.rows})
+
+    def source(self, name, content):
+        data = dedent(content).encode()
+        path = self.code / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+        path.chmod(0o644)
+        self.original[name] = data
+        self.rows[name] = {'bytes': len(data), 'mode': 0o644, 'sha256': hashlib.sha256(data).hexdigest()}
+
+    def handoff(self, action):
+        provision = action == 'provision'
+        value = self.instance('provision' if provision else 'build')
+        env = {**self.env(action), 'KERNEL_STAGE_CONTRACT_SHA256': self.pin}
+        with patch.object(value, '_launch') as docker:
+            value.launch(action, self.mounts, env, 900, persist=provision)
+        _, container_env, _, command, _, _ = docker.call_args.args
+        self.assertEqual(command[:5], ['-I', '-B', '-S', '-c', broker.WORKER_BOOTSTRAP])
+        self.assertEqual(command[5:], [action, self.nonce, self.pin] if provision else [action])
+        if provision:
+            self.assertEqual(container_env, {})
+        bootstrap = (command[4].replace("CODE = Path('/code')", f'CODE = Path({str(self.code)!r})')
+                     .replace("INPUTS = Path('/inputs')", f'INPUTS = Path({str(self.inputs)!r})'))
+        return subprocess.run([sys.executable, *command[:4], bootstrap, *command[5:]],
+                              env=container_env, capture_output=True, timeout=10)
+
+    def restore(self):
+        for name, data in self.original.items():
+            path = self.code / name
+            path.write_bytes(data)
+            path.chmod(0o644)
+
+    def test_bootstrap_compiles_held_entry_and_dynamic_imports(self):
+        for action, argc in (('provision', 4), ('probe', 2), ('baseline', 2), ('candidate', 2)):
+            with self.subTest(action=action):
+                self.restore()
+                result = self.handoff(action)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, f'held held held {action} {argc}\n'.encode())
+
+    def test_bootstrap_refuses_entry_helper_and_contract_drift_before_worker(self):
+        for name, kind in ((self.worker, 'mode'), (self.worker, 'bytes'),
+                           (common.SOURCE + 'verify_build.py', 'bytes')):
+            with self.subTest(name=name, kind=kind):
+                self.restore()
+                path = self.code / name
+                if kind == 'mode':
+                    path.chmod(0o755)
+                else:
+                    path.write_bytes(path.read_bytes().replace(b'from', b'pass', 1))
+                result = self.handoff('probe')
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(b'kernel worker source', result.stderr)
+                self.assertEqual(result.stdout, b'')
+        self.restore()
+        common.save(self.contract, {'files': {}})
+        result = self.handoff('provision')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(b'kernel worker contract pin differs', result.stderr)
+        self.assertEqual(result.stdout, b'')

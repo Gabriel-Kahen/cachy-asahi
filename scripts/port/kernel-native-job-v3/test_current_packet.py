@@ -117,7 +117,16 @@ class CurrentPacketTests(unittest.TestCase):
                    packet.PREFIX + 'packet_v2.py': (packet_v3.PARENT_SHA, 0o644)}
         self.assertEqual(policy.HELPERS, {**old_policy.HELPERS, **packet_v3.BUILD_HELPERS, **parents})
         _, kernel, recipes = policy.closure(ROOT)
-        self.assertEqual((kernel, recipes), old_policy.closure(ROOT)[1:])
+        _, historical, old_recipes = old_policy.closure(ROOT)
+        self.assertEqual(recipes, old_recipes)
+        self.assertEqual(kernel['files'].keys(), historical['files'].keys())
+        self.assertNotEqual(kernel['files'], historical['files'])
+        self.assertEqual(self.rows[packet_v3.KERNEL_LOCK]['sha256'], packet_v3.KERNEL_SHA)
+        self.assertNotIn(packet.KERNEL_LOCK, self.rows)
+        kernel_args = SimpleNamespace(source_root=ROOT, packet=self.manifest)
+        self.assertEqual(job.kernel_lock(kernel_args), (packet_v3.KERNEL_LOCK, packet_v3.KERNEL_SHA))
+        kernel_args.packet = ROOT / packet_v2.MANIFEST
+        self.assertEqual(job.kernel_lock(kernel_args), (packet.KERNEL_LOCK, packet.KERNEL_SHA))
         self.assertNotIn(packet_v2.ENROLL, self.rows)
         self.assertEqual(self.rows[packet_v2.HELD_SETUP]['sha256'], packet_v2.HELD_SETUP_SHA)
         for leaf, digest in packet_v2.SETUP_PINS.items():
