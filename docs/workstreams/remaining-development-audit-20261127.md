@@ -163,8 +163,16 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    the unchanged 6 GiB cgroup limit. Its file cache reached about 5.97 GiB
    while rehashing the control-root clone after earlier pinned reads; no pair
    transaction ran. Actor swap and OOM stayed zero, and ownership retired.
-   A cache-efficient, fail-closed read path and bounded no-guest preboot
-   rehearsal remain necessary before another live trial.
+   A scoped, fail-closed reader now rehashes the exact pinned originals and
+   owned clones in 1 MiB chunks with cache-discard advice. It preserves the
+   byte, size and file-identity checks and leaves the generic controller
+   unchanged. All 50 lane tests and a bounded Btrfs probe passed. A full
+   **cold no-guest replay** then passed preboot and post-QEMU verification with
+   a hard QEMU denial, 3.56 GiB peak actor memory, 2.44 GiB headroom, and zero
+   limit, swap or OOM events. Independent readback confirmed the result.
+   **Warm replay remains NOT RUN**: one attempt refused before actor creation
+   and another after creation but before start when live admission could not
+   be maintained. No later guest pair transaction has run.
    [Trial runbook](../../scripts/integration/jbig_tiff_asahi629/README.md)
 
    A lock-to-manifest reconciliation found four of the 14
@@ -177,8 +185,9 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
 
    Static now registers the existing signed installer handoff and Bubblewrap
    relocation suites alongside the base handoff suite. All 28 tests passed
-   locally under Python 3.12 and 3.14, including two real Bubblewrap cases;
-   the hosted exact-head result is pending. A separate offline Asahi629
+   locally under Python 3.12 and 3.14, including two real Bubblewrap cases.
+   The exact-head hosted run passed all 28 and restored its temporary runner
+   setting. A separate offline Asahi629
    updater preflight verifies the exact 629-row before, candidate and recovery
    locks and six signed ALARM archive pairs. It remains **HOLD** because the
    updater-equipped inventory, lane-specific trust, signed repositories,
