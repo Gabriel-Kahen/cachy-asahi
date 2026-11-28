@@ -1,0 +1,1712 @@
+{
+  "doctor": {
+    "checks": [
+      {
+        "check": "platform",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "architecture": "aarch64",
+          "kernel": "PRIVATE-USER",
+          "page_size_bytes": 16384
+        }
+      },
+      {
+        "check": "apple-model",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "identifier": "apple,j413",
+          "model": "MacBook Air 13-inch (M2)",
+          "model_property_available": true,
+          "observed_board": "apple,j413"
+        }
+      },
+      {
+        "check": "session",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "unknown",
+        "value": {
+          "hyprland_environment": false,
+          "type": "unknown",
+          "wayland_environment": false
+        }
+      },
+      {
+        "check": "tools",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "Hyprland": false,
+          "cachy-asahi-setup": false,
+          "cachy-asahi-update": false,
+          "hyprctl": false,
+          "pacman": false,
+          "pipewire": false,
+          "systemctl": false,
+          "wireplumber": false,
+          "wpctl": false
+        }
+      },
+      {
+        "check": "package/asahi-meta",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/linux-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/m1n1",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/uboot-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-alarm-keyring",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-firmware",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-scripts",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-configs",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-audio",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/alsa-ucm-conf-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/speakersafetyd",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/mesa",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/mesa-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/libdrm",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/hyprland",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/pipewire",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/pipewire-pulse",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/wireplumber",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-hyprland-settings",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-fish-config",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-zsh-config",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-setup",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-update",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-fdk-aac",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-ksmctl",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-topmem",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-zsh-autosuggestions",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-fish-bang-bang",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-doctor",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-welcome",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "system/speakersafetyd.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "system/asahi-audio.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "system/display-manager.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/pipewire.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/pipewire-pulse.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/wireplumber.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/xdg-desktop-portal.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/xdg-desktop-portal-hyprland.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "audio/default-output",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "unavailable",
+        "value": null
+      }
+    ],
+    "collected_utc": "2026-10-27T12:00:00+00:00",
+    "coverage": {
+      "checked": 41,
+      "unavailable": 1,
+      "unknown": 1
+    },
+    "limitations": [
+      "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+    ],
+    "limits": {
+      "command_output_bytes": 65536,
+      "command_seconds": 2,
+      "device_tree_bytes": 4096,
+      "total_query_seconds": 20
+    },
+    "schema_version": 1,
+    "scope": "local observations only",
+    "tool": "cachy-asahi-doctor",
+    "version": "0.2.0"
+  },
+  "doctor-after": {
+    "checks": [
+      {
+        "check": "platform",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "architecture": "aarch64",
+          "kernel": "PRIVATE-USER",
+          "page_size_bytes": 16384
+        }
+      },
+      {
+        "check": "apple-model",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "identifier": "apple,j413",
+          "model": "MacBook Air 13-inch (M2)",
+          "model_property_available": true,
+          "observed_board": "apple,j413"
+        }
+      },
+      {
+        "check": "session",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "unknown",
+        "value": {
+          "hyprland_environment": false,
+          "type": "unknown",
+          "wayland_environment": false
+        }
+      },
+      {
+        "check": "tools",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "Hyprland": false,
+          "cachy-asahi-setup": false,
+          "cachy-asahi-update": false,
+          "hyprctl": false,
+          "pacman": false,
+          "pipewire": false,
+          "systemctl": false,
+          "wireplumber": false,
+          "wpctl": false
+        }
+      },
+      {
+        "check": "package/asahi-meta",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/linux-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/m1n1",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "absent",
+          "version": null
+        }
+      },
+      {
+        "check": "package/uboot-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-alarm-keyring",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-firmware",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-scripts",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-configs",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-audio",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/alsa-ucm-conf-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/speakersafetyd",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/mesa",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/mesa-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/libdrm",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/hyprland",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/pipewire",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/pipewire-pulse",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/wireplumber",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-hyprland-settings",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-fish-config",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-zsh-config",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-setup",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-update",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-fdk-aac",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-ksmctl",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-topmem",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-zsh-autosuggestions",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-fish-bang-bang",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-doctor",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-welcome",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "system/speakersafetyd.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "system/asahi-audio.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "system/display-manager.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/pipewire.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/pipewire-pulse.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/wireplumber.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/xdg-desktop-portal.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/xdg-desktop-portal-hyprland.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "audio/default-output",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "unavailable",
+        "value": null
+      }
+    ],
+    "collected_utc": "2026-10-27T12:00:00+00:00",
+    "coverage": {
+      "checked": 41,
+      "unavailable": 1,
+      "unknown": 1
+    },
+    "limitations": [
+      "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+    ],
+    "limits": {
+      "command_output_bytes": 65536,
+      "command_seconds": 2,
+      "device_tree_bytes": 4096,
+      "total_query_seconds": 20
+    },
+    "schema_version": 1,
+    "scope": "local observations only",
+    "tool": "cachy-asahi-doctor",
+    "version": "0.2.0"
+  },
+  "doctor-before": {
+    "checks": [
+      {
+        "check": "platform",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "architecture": "aarch64",
+          "kernel": "PRIVATE-USER",
+          "page_size_bytes": 16384
+        }
+      },
+      {
+        "check": "apple-model",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "identifier": "apple,j413",
+          "model": "MacBook Air 13-inch (M2)",
+          "model_property_available": true,
+          "observed_board": "apple,j413"
+        }
+      },
+      {
+        "check": "session",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "unknown",
+        "value": {
+          "hyprland_environment": false,
+          "type": "unknown",
+          "wayland_environment": false
+        }
+      },
+      {
+        "check": "tools",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "Hyprland": false,
+          "cachy-asahi-setup": false,
+          "cachy-asahi-update": false,
+          "hyprctl": false,
+          "pacman": false,
+          "pipewire": false,
+          "systemctl": false,
+          "wireplumber": false,
+          "wpctl": false
+        }
+      },
+      {
+        "check": "package/asahi-meta",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/linux-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/m1n1",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/uboot-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-alarm-keyring",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-firmware",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-scripts",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-configs",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/asahi-audio",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/alsa-ucm-conf-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/speakersafetyd",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/mesa",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/mesa-asahi",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/libdrm",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "platform",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/hyprland",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/pipewire",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/pipewire-pulse",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/wireplumber",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "desktop",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-hyprland-settings",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-fish-config",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-zsh-config",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-setup",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-update",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-fdk-aac",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-ksmctl",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-topmem",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-zsh-autosuggestions",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-fish-bang-bang",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-doctor",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "package/cachy-asahi-welcome",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "group": "project",
+          "presence": "present",
+          "version": "PRIVATE-USER"
+        }
+      },
+      {
+        "check": "system/speakersafetyd.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "system/asahi-audio.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "system/display-manager.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/pipewire.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/pipewire-pulse.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/wireplumber.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/xdg-desktop-portal.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "user/xdg-desktop-portal-hyprland.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "check": "audio/default-output",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "state": "unavailable",
+        "value": null
+      }
+    ],
+    "collected_utc": "2026-10-27T12:00:00+00:00",
+    "coverage": {
+      "checked": 41,
+      "unavailable": 1,
+      "unknown": 1
+    },
+    "limitations": [
+      "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+    ],
+    "limits": {
+      "command_output_bytes": 65536,
+      "command_seconds": 2,
+      "device_tree_bytes": 4096,
+      "total_query_seconds": 20
+    },
+    "schema_version": 1,
+    "scope": "local observations only",
+    "tool": "cachy-asahi-doctor",
+    "version": "0.2.0"
+  },
+  "doctor-comparison": {
+    "after": {
+      "collected_utc": "2026-10-27T12:00:00+00:00",
+      "version": "0.2.0"
+    },
+    "before": {
+      "collected_utc": "2026-10-27T12:00:00+00:00",
+      "version": "0.2.0"
+    },
+    "change_count": 1,
+    "changed": true,
+    "changes": [
+      {
+        "after": {
+          "state": "checked",
+          "value": {
+            "group": "platform",
+            "presence": "absent",
+            "version": null
+          }
+        },
+        "before": {
+          "state": "checked",
+          "value": {
+            "group": "platform",
+            "presence": "present",
+            "version": "PRIVATE-USER"
+          }
+        },
+        "check": "package/m1n1",
+        "kind": "value"
+      }
+    ],
+    "coverage": {
+      "after": {
+        "checked": 41,
+        "unavailable": 1,
+        "unknown": 1
+      },
+      "before": {
+        "checked": 41,
+        "unavailable": 1,
+        "unknown": 1
+      }
+    },
+    "limitations": [
+      "User-supplied reports are not authenticated; matching model labels do not identify the same machine.",
+      "Unknown and unavailable describe missing knowledge; neither means absent or healthy.",
+      "Observed changes do not establish update causation, health, regression, hardware behavior or performance.",
+      "Check additions/removals describe report coverage; no new observations were collected."
+    ],
+    "schema_version": 1,
+    "scope": "supplied observations only",
+    "tool": "cachy-asahi-doctor-comparison",
+    "unchanged_count": 42
+  },
+  "health": {
+    "arm_security_status": "UNKNOWN",
+    "as_of": "2026-10-27T12:00:00+00:00",
+    "binding": {
+      "package_inventory_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "project_sources_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "release_id": "synthetic-support-demo",
+      "release_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "snapshot_id": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+      "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "synthetic": true
+    },
+    "checks": {
+      "comparison": {
+        "status": "UNAVAILABLE"
+      },
+      "maintenance": {
+        "status": "UNAVAILABLE"
+      },
+      "operations": {
+        "status": "UNAVAILABLE"
+      },
+      "signing": {
+        "status": "UNAVAILABLE"
+      },
+      "sources": {
+        "status": "UNAVAILABLE"
+      }
+    },
+    "findings": [
+      {
+        "action": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "code": "EVIDENCE_UNAVAILABLE",
+        "kind": "signing",
+        "path": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+      },
+      {
+        "action": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "code": "EVIDENCE_UNAVAILABLE",
+        "kind": "maintenance",
+        "path": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+      },
+      {
+        "action": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "code": "EVIDENCE_UNAVAILABLE",
+        "kind": "sources",
+        "path": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+      },
+      {
+        "action": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "code": "EVIDENCE_UNAVAILABLE",
+        "kind": "comparison",
+        "path": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+      },
+      {
+        "action": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "code": "EVIDENCE_UNAVAILABLE",
+        "kind": "operations",
+        "path": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+      }
+    ],
+    "implementation_dependencies": {
+      "scripts/maintenance/health.py": {
+        "bytes": 10,
+        "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      }
+    },
+    "installed_lifecycle": "NOT_RUN",
+    "limitations": [
+      "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+    ],
+    "maintenance_acceptance": "NOT_ESTABLISHED",
+    "max_age_hours": 24,
+    "native_build": "NOT_RUN",
+    "observations_authenticated": false,
+    "physical_m2": "NOT_RUN",
+    "publication_selection_or_withdrawal": "NOT_CHECKED",
+    "release_authenticated_to_supplied_fingerprint": true,
+    "release_verification_time": "CURRENT_GPG_TIME_NOT_HISTORICAL_AS_OF",
+    "schema_version": 1,
+    "status": "OFFLINE_HEALTH_REVIEW_REQUIRED",
+    "summary": {
+      "EVIDENCE_UNAVAILABLE": 5
+    }
+  },
+  "session": {
+    "checks": [
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "hyprland/version",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "local-endpoint-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "hyprland/displays",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "local-endpoint-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "check": "hyprland/compositor-renderer",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "not-exposed-by-selected-interface",
+        "state": "unknown",
+        "value": null
+      },
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "renderer/wayland-gles-client",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "local-endpoint-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "user/graphical-session.target",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "local-endpoint-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "user/pipewire.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "observed",
+        "state": "checked",
+        "value": {
+          "ActiveState": "failed",
+          "LoadState": "loaded",
+          "SubState": "private-user"
+        }
+      },
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "user/wireplumber.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "local-endpoint-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "user/xdg-desktop-portal-hyprland.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "local-endpoint-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "system/speakersafetyd.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "local-endpoint-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "system/asahi-audio.service",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "local-endpoint-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "session/logind",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "local-endpoint-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "audio/graph",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "local-endpoint-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "argv": [
+          "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+        ],
+        "check": "suspend/logind-capability",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "local-endpoint-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "check": "suspend/kernel-state",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "interface-unavailable",
+        "state": "unavailable",
+        "value": null
+      },
+      {
+        "check": "suspend/kernel-mem_sleep",
+        "note": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+        "reason": "interface-unavailable",
+        "state": "unavailable",
+        "value": null
+      }
+    ],
+    "collected_at": "2026-10-27T12:00:00+00:00",
+    "coverage": {
+      "checked": 1,
+      "unavailable": 13,
+      "unknown": 1
+    },
+    "identity": {
+      "architecture": "aarch64",
+      "baseline_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "declared_model_id": "apple,j413",
+      "declared_model_matches_observation": true,
+      "execution_context": "unknown",
+      "kernel": "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET",
+      "observed_model_id": "apple,j413",
+      "page_size_bytes": 16384,
+      "source_revision": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "limitations": [
+      "/home/PRIVATE-USER/SSID-SECRET 192.0.2.19 --token=SECRET"
+    ],
+    "limits": {
+      "cleanup_seconds_per_command": 1,
+      "combined_output_bytes_per_command": 524288,
+      "command_seconds": 2,
+      "total_query_seconds": 20
+    },
+    "physical_checks": {
+      "brightness_keyboard_trackpad": "NOT RUN",
+      "external_display_reconnect": "NOT RUN",
+      "fresh_login_and_acceleration": "NOT RUN",
+      "headset_and_microphone": "NOT RUN",
+      "lid_suspend_resume_and_preserved_applications": "NOT RUN",
+      "lock_unlock": "NOT RUN",
+      "power_thermals_and_performance": "NOT RUN",
+      "speaker_protection_and_audibility": "NOT RUN"
+    },
+    "record_type": "session-observations",
+    "schema_version": 1,
+    "session_hints": {
+      "hyprland_environment_present": false,
+      "session_type": null,
+      "wayland_environment_present": false
+    },
+    "tool_sha256": "9c5c41899cd991b0de4bf8d30bad6f5452b4592ea9440df0f0b4a7b54bc66984",
+    "tools_available": {
+      "busctl": false,
+      "eglinfo": false,
+      "hyprctl": false,
+      "loginctl": false,
+      "pw-dump": false,
+      "systemctl": false
+    }
+  }
+}

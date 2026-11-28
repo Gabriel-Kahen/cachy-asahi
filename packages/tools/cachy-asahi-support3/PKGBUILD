@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: MIT
+# Original support collection CLI; no installation hooks or system mutation.
+pkgname=cachy-asahi-support
+pkgver=0.2.0
+pkgrel=2
+pkgdesc='Private read-only support collection and offline sanitized bundles'
+arch=(any)
+url=https://github.com/Gabriel-Kahen/cachy-asahi
+license=(MIT)
+depends=('python>=3.11')
+checkdepends=(bubblewrap)
+options=('!strip' '!debug')
+source=(cachy-asahi-support support_bundle.py doctor.py session_probe.py check_package.py test_package.py collect_support.py collect-support.md fixtures.json README.md support-bundle.md source-provenance.json payload-map.json NOTICE LICENSE)
+sha256sums=(93898aae64d8a2277149e3fddd645211f440083d854773412eef3d01efc84324 9a7b06425add8fe21c8283ec76df89d2b3e31f932bf8dc60598c5212130a4b71 ddd8c3cedc5ba1291dcdd2d1d7a188e5b4d4a4ac7323ffe6f7ee554f6687d41e 9c5c41899cd991b0de4bf8d30bad6f5452b4592ea9440df0f0b4a7b54bc66984 9f2960a9562c4aaaf3ddf7c92c56248c2a6fccfb38779289c96ccf814bdd2250 72078db79528f82f631a13f036577b8ca6e32d6322163a8908423497bb6a4de0 76acc9e65c74e3ef8c877dca923355a2dadbde847282e3a2ec79b7c62dfe77ac cf5e9ebf4030100e8b4c3544c394f7b2ce74265112579cf023a5691cc271a4a0 ead5a42fa26d2e2f9e559e0160ed348e65fcc9754c3cf62c736f4f3b36627cc8 d9267157341440776cb900b0e63055cba17ca09fac0aa4141ff400ce1ffaf624 d062f418ebca8e67b862019f786e5dbdef644bc63561b6d2113804f00ca10355 e7fd0943930fbc18983ace2cffdc353b275beafd5f9546463dfe0f0e47e08eee 02504600fedc0deb6d4ce1cf4fcb6f7ff150097535241b39dcfb98a400bf3252 ebc772298edc165f9cef44ecd4cfc5b16cec9e07784fb76a225aa2b6aee01801 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7)
+
+check() {
+    python -I -B "$srcdir/check_package.py" --recipe-root "$startdir" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n ${pkgdir:-} && $pkgdir != / ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-support" "$pkgdir/usr/bin/cachy-asahi-support" || return
+    install -Dm644 "$srcdir/doctor.py" "$pkgdir/usr/lib/cachy-asahi/support/packages/tools/cachy-asahi-doctor2/cachy-asahi-doctor" || return
+    install -Dm644 "$srcdir/session_probe.py" "$pkgdir/usr/lib/cachy-asahi/support/scripts/hardware/session_probe.py" || return
+    install -Dm644 "$srcdir/collect_support.py" "$pkgdir/usr/lib/cachy-asahi/support/scripts/support/collect_support.py" || return
+    install -Dm644 "$srcdir/support_bundle.py" "$pkgdir/usr/lib/cachy-asahi/support/scripts/support/support_bundle.py" || return
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/cachy-asahi-support/README.md" || return
+    install -Dm644 "$srcdir/collect-support.md" "$pkgdir/usr/share/doc/cachy-asahi-support/collect-support.md" || return
+    install -Dm644 "$srcdir/payload-map.json" "$pkgdir/usr/share/doc/cachy-asahi-support/payload-map.json" || return
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/cachy-asahi-support/source-provenance.json" || return
+    install -Dm644 "$srcdir/support-bundle.md" "$pkgdir/usr/share/doc/cachy-asahi-support/support-bundle.md" || return
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/cachy-asahi-support/LICENSE" || return
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/cachy-asahi-support/NOTICE" || return
+}
