@@ -18,9 +18,13 @@ HOSTED = 'scripts/ci/bankstown-qt3-hosted-v1/prepare.py'
 DISPATCH = 'scripts/ci/bankstown-qt3-hosted-v1/prepare_dispatch.py'
 INVENTORY = 'scripts/ci/bankstown-qt3-native-profile-v1/inventory.py'
 READER = 'scripts/ci/bankstown-qt3-hosted-reader-v1/source79/reader.py'
-CHECKER = 'scripts/checks/package_checks.py'
-HELD_CHECKER = ('scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/'
-                'scripts/ci/llhttp-reference-native-source/base/runtime/' + CHECKER)
+# Source72 records these roles before the live scripts changed.
+HELD_SOURCE72_MEMBERS = {
+    'scripts/build/build.py': 'scripts/ci/maintained-native/native/scripts/build/build.py',
+    'scripts/checks/package_checks.py': (
+        'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/'
+        'scripts/ci/llhttp-reference-native-source/base/runtime/scripts/checks/package_checks.py'),
+}
 
 
 def need(value, message):
@@ -131,7 +135,7 @@ def reconstruct(*, repo, output):
     aliases = {'inputs/catalog333.DATA.json':catalog_path,
                'inputs/prospective477.expected.DATA.lock':prospective_path,
                'inputs/stages/baseline349.expected.lock':baseline_path,
-               CHECKER:repo/HELD_CHECKER}
+               **{member:repo/held for member, held in HELD_SOURCE72_MEMBERS.items()}}
     rows = {}
     for member, row in source_map['files'].items():
         path = aliases.get(member, repo/member)
