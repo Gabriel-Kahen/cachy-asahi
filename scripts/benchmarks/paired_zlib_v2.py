@@ -184,6 +184,23 @@ def save_session(output, value):
         temp.replace(output / 'session.json')
 
 
+def wait_for_observation(path, config, step, requested_at, deadline):
+    while True:
+        remaining = deadline - time.monotonic()
+        need(remaining > 0, 'session deadline waiting for conditions: ' + path.name)
+        try:
+            raw = B.read_observed_conditions(path)
+        except FileNotFoundError:
+            time.sleep(min(.25, remaining))
+            continue
+        received_at = B.now()
+        receipt = dict(requested_at=requested_at, received_at=received_at, sha256=Z.sha(raw))
+        conditions = json.loads(raw)
+        B.validate_observed_conditions(conditions, step, receipt, received_at)
+        B.validate_conditions(config, conditions)
+        return receipt, dict(path=str(path), bytes=len(raw), **receipt)
+
+
 def run(args):
     need(os.getuid() == os.geteuid() > 0, 'ordinary nonroot measurement only')
     plan_path = args.plan.absolute()
@@ -191,6 +208,9 @@ def run(args):
     plan = B.load_plan(plan_path)
     validate(plan, args.control_only)
     c = plan['config']
+    mode = args.conditions_mode
+    need(mode == 'observed' or (mode == 'prewritten' and args.control_only),
+         'physical paired zlib requires observed conditions; prewritten mode is control-only')
     steps = schedule(c, args.warmup_blocks)
     B.number(args.session_seconds, 'session_seconds', c['timeout_seconds'] + 2, 14400)
     output = args.output.absolute()
@@ -200,20 +220,26 @@ def run(args):
          and not output.is_relative_to(conditions_root) and not conditions_root.is_relative_to(output),
          'ordinary separate conditions directory required')
     conditions = {}
-    for step in steps:
-        path = conditions_root / (step['name'] + '.json')
-        B.validate_conditions(c, json.loads(ordinary(path)))
-        conditions[step['name']] = (path, pin(path))
+    if mode == 'prewritten':
+        for step in steps:
+            path = conditions_root / (step['name'] + '.json')
+            raw = ordinary(path)
+            B.validate_conditions(c, json.loads(raw))
+            conditions[step['name']] = dict(path=str(path), bytes=len(raw), sha256=Z.sha(raw))
     need(signal.getitimer(signal.ITIMER_REAL) == (0.0, 0.0), 'session requires its own inactive deadline timer')
     output.mkdir(mode=0o700)
     (output / 'plan.json').write_bytes(ordinary(plan_path))
     session = dict(schema_version=1, session_id=uuid4().hex, status='RUNNING', plan=pin(plan_path), started_at=B.now(),
+                   conditions_mode=mode, session_seconds=args.session_seconds,
                    scope='CONTROL_ONLY' if args.control_only else 'EXACT_ARM_PAIRED_MEASUREMENT_PENDING_REVIEW',
                    schedule=steps, completed=[], warmups_excluded=True, environment_sha256=B.canonical(dict(os.environ)),
                    hardware_validation='NOT RUN', optimization_acceptance='NOT RUN', release='NOT ADMITTED',
                    limitations=['Elapsed includes Python, startup, file I/O, verification and telemetry.',
                                 'Conditions are operator declarations; missing sensors remain unavailable.',
                                 'No population, energy, final-system or model-wide gain is inferred.'])
+    if mode == 'observed':
+        session['conditions_max_age_seconds'] = B.OBSERVED_CONDITIONS_MAX_AGE
+        session['conditions_max_bytes'] = B.OBSERVED_CONDITIONS_MAX_BYTES
     cpu = B.text_file('/proc/cpuinfo') or ''
     fields = {'processor', 'model name', 'CPU architecture', 'CPU implementer', 'CPU part', 'Features', 'Hardware'}
     B.write_json(output / 'environment.json', dict(architecture=platform.machine(), kernel=platform.release(),
@@ -224,6 +250,7 @@ def run(args):
     session['environment'] = pin(output / 'environment.json')
     save_session(output, session)
     started, measured = time.monotonic(), []
+    launch_deadline = started + args.session_seconds - c['timeout_seconds'] - 2
     previous_alarm = signal.getsignal(signal.SIGALRM)
     def expired(*_):
         raise KeyboardInterrupt('paired session deadline')
@@ -232,21 +259,33 @@ def run(args):
     try:
         check_workload = workload_check(plan)
         for step in steps:
-            need(time.monotonic() - started + c['timeout_seconds'] + 2 <= args.session_seconds,
+            need(time.monotonic() <= launch_deadline,
                  'session deadline: retain completed and partial evidence')
             need(pin(plan_path) == session['plan'], 'frozen plan changed within session')
-            condition, binding = conditions[step['name']]
-            need(pin(condition) == binding, 'conditions changed after schedule validation')
             work, raw = output / (step['name'] + '-work'), output / step['name']
             work.mkdir(mode=0o700)
             state = Path(plan[step['variant'] + '_binding']['path'])
             binding_step = dict(session_id=session['session_id'], phase=step['phase'], index=step['index'])
+            condition = conditions_root / (step['name'] + '.json')
+            receipt = None
+            if mode == 'observed':
+                requested_at = B.now()
+                session['awaiting_conditions'] = dict(**binding_step, name=step['name'], variant=step['variant'],
+                                                      slot=step['slot'], filename=condition.name, requested_at=requested_at)
+                save_session(output, session)
+                receipt, binding = wait_for_observation(condition, c, binding_step, requested_at, launch_deadline)
+            else:
+                binding = conditions[step['name']]
+                need(pin(condition) == binding, 'conditions changed after schedule validation')
+            need(time.monotonic() <= launch_deadline,
+                 'session deadline: insufficient time to start ' + step['name'])
             status = B.run(plan_path, step['slot'], state, condition, work, raw,
-                           paired=binding_step, check_workload=check_workload)
+                           paired=binding_step, check_workload=check_workload, conditions_receipt=receipt)
             trial_path = raw / 'trial.json'
             trial = json.loads(ordinary(trial_path))
             need(status == 0, 'failed workload: ' + step['name'] + ': ' + (trial.get('error') or 'invalid trial'))
             report = trial['paired_zlib']['report']
+            session.pop('awaiting_conditions', None)
             session['completed'].append(dict(**step, conditions=binding, trial=pin(trial_path), workload=report))
             if step['phase'] == 'measured':
                 measured.append(raw)
@@ -337,6 +376,8 @@ def main(argv=None):
         runner.add_argument('--' + name, type=Path, required=True)
     runner.add_argument('--warmup-blocks', type=int, default=1)
     runner.add_argument('--session-seconds', type=float, default=7200)
+    runner.add_argument('--conditions-mode', choices=('observed', 'prewritten'), default='observed',
+                        help='request fresh observations for each slot, or use prewritten control fixtures')
     runner.add_argument('--control-only', action='store_true')
     def interrupted(*_):
         raise KeyboardInterrupt('paired session interrupted')

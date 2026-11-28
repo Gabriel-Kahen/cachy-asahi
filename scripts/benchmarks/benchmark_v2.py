@@ -38,6 +38,8 @@ OWNED_RETIREMENT_ADAPTER_SHA256 = '418892c3c108549610234645dd80d49ec692ab7dc0708
 EXECUTION_LAYER = "benchmark-owned-retirement-v2"
 CAPTURE_SOURCE = Path(__file__).resolve().parents[1] / "hardware/capture-baseline.py"
 PAIRED_ZLIB_SOURCE = Path(__file__).resolve().with_name("paired_zlib_v2.py")
+OBSERVED_CONDITIONS_MAX_AGE = 30
+OBSERVED_CONDITIONS_MAX_BYTES = 64 * 1024
 
 
 class Invalid(ValueError):
@@ -740,8 +742,49 @@ def paired_replay(plan):
     return module.workload_check(plan)
 
 
+def validate_observed_conditions(conditions, step, receipt, latest_at):
+    if type(receipt) is not dict or set(receipt) != {"requested_at", "received_at", "sha256"}:
+        raise Invalid("paired observed conditions receipt required")
+    observation = conditions.get("observation") if type(conditions) is dict else None
+    if (type(observation) is not dict or set(observation) != (step.keys() | {"observed_at"})
+            or any(type(observation[key]) is not type(value) or observation[key] != value
+                   for key, value in step.items())):
+        raise Invalid("conditions observation differs from the requested session or step")
+    requested, observed, received, latest = map(utc_timestamp, (
+        receipt["requested_at"], observation["observed_at"], receipt["received_at"], latest_at))
+    if not requested <= observed <= received <= latest:
+        raise Invalid("conditions timestamps must follow request, observation, receipt and launch order")
+    if (latest - observed).total_seconds() > OBSERVED_CONDITIONS_MAX_AGE:
+        raise Invalid(f"conditions observation exceeds {OBSERVED_CONDITIONS_MAX_AGE}-second launch age limit")
+
+
+def read_observed_conditions(path):
+    return retirement_adapter().ordinary(path, OBSERVED_CONDITIONS_MAX_BYTES)
+
+
+def check_conditions_pin(data, receipt):
+    if hashlib.sha256(data).hexdigest() != receipt["sha256"]:
+        raise Invalid("retained conditions differ from the accepted observation")
+
+
+def verify_paired_conditions(directory, trial, proof, step, *, required):
+    receipt = proof.get("conditions_receipt")
+    if receipt is None:
+        if required:
+            raise Invalid("physical paired zlib requires observed conditions for this slot")
+        return
+    launch_checked_at = proof["conditions_launch_checked_at"]
+    if not utc_timestamp(trial["started_at"]) <= utc_timestamp(launch_checked_at) <= utc_timestamp(trial["finished_at"]):
+        raise Invalid("conditions launch check falls outside the trial")
+    validate_observed_conditions(trial["conditions"], step, receipt, launch_checked_at)
+    data = read_observed_conditions(directory / "conditions.json")
+    check_conditions_pin(data, receipt)
+    if json.loads(data) != trial["conditions"]:
+        raise Invalid("trial conditions differ from retained observation")
+
+
 def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_metrics=False,
-        paired=None, check_workload=None):
+        paired=None, check_workload=None, conditions_receipt=None):
     if os.geteuid() == 0:
         raise Invalid("root workload execution is refused")
     plan = load_plan(plan_path)
@@ -754,14 +797,20 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_m
         if not callable(check_workload):
             raise Invalid("paired zlib trials must run through paired_zlib_v2.py")
         paired_step(paired, slot)
-    elif paired is not None or check_workload is not None:
+        if config["paired_zlib"] == "exact-arm" and conditions_receipt is None:
+            raise Invalid("physical paired zlib requires observed conditions for this slot")
+    elif paired is not None or check_workload is not None or conditions_receipt is not None:
         raise Invalid("paired zlib execution requires a matching frozen plan")
     variant = config["order"][slot]
     if digest(state_path) != plan[f"{variant}_binding"]["sha256"]:
         raise Invalid("state record does not match frozen variant binding")
     if live_identity(config["execution_context"]) != plan["states"][variant]:
         raise Invalid("live machine/base differs from frozen state; recapture and predeclare a new plan")
-    conditions = read_json(conditions_path)
+    observed = read_observed_conditions(conditions_path) if conditions_receipt is not None else None
+    conditions = json.loads(observed) if observed is not None else read_json(conditions_path)
+    if observed is not None:
+        validate_observed_conditions(conditions, paired, conditions_receipt, now())
+        check_conditions_pin(observed, conditions_receipt)
     validate_conditions(config, conditions)
     cwd = Path(cwd).resolve(strict=True)
     if not cwd.is_dir():
@@ -788,7 +837,14 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_m
               "optimization_acceptance": "NOT RUN"}
     if paired is not None:
         record["paired_zlib"] = {"step": paired}
+    if observed is not None:
+        record["paired_zlib"]["conditions_receipt"] = conditions_receipt
+        (output / "conditions.json").write_bytes(observed)
     write_json(output / "started.json", record)
+    if observed is not None:
+        launch_checked_at = now()
+        validate_observed_conditions(conditions, paired, conditions_receipt, launch_checked_at)
+        record["paired_zlib"]["conditions_launch_checked_at"] = launch_checked_at
     if platform_metrics and "owned_rss" in config:
         result = execute_owned_rss(config, argv, cwd, environment, output)
     elif platform_metrics:
@@ -802,7 +858,10 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_m
         record["raw_sha256"] = {str(p.relative_to(output)): digest(p) for p in output.rglob('*')
                                 if p.is_file() and p != output / 'started.json'}
     else:
-        record["raw_sha256"] = {p.name: digest(p) for p in output.iterdir() if p.name != "started.json"}
+        separate_receipts = {"started.json"}
+        if observed is not None:
+            separate_receipts.add("conditions.json")
+        record["raw_sha256"] = {p.name: digest(p) for p in output.iterdir() if p.name not in separate_receipts}
     record["state_after"] = live_identity(config["execution_context"])
     record["valid"] = (result["error"] is None and result["returncode"] == 0
                        and record["state_after"] == record["state"])
@@ -908,10 +967,13 @@ def compare(plan_path, directories, output):
                 raise Invalid(f"raw output changed: {name}")
         if check_workload is not None:
             proof = trial["paired_zlib"]
+            if type(proof) is not dict:
+                raise Invalid("invalid paired zlib trial proof")
             step = paired_step(proof["step"], slot, measured_only=True)
             if session_id is not None and step["session_id"] != session_id:
                 raise Invalid("paired zlib measurements belong to different sessions")
             session_id = step["session_id"]
+            verify_paired_conditions(directory, trial, proof, step, required=config["paired_zlib"] == "exact-arm")
             if proof.get("report") != check_workload(bounded_raw["stdout.txt"], variant):
                 raise Invalid("paired workload report differs from verified stdout")
         if platform_reader is None:

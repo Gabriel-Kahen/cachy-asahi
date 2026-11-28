@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Real host subprocess controls; fixture programs never represent ARM artifacts."""
 import copy
+from datetime import timedelta
 import json
 import os
 import signal
@@ -278,7 +279,7 @@ class V2SourceTests(unittest.TestCase):
         plan = {'config': config, 'baseline_binding': {'path': 'baseline-state'},
                 'candidate_binding': {'path': 'candidate-state'}}
         args = NS(plan=self.root / 'plan.json', conditions_root=self.root / 'conditions', output=self.root / 'session',
-                  warmup_blocks=1, session_seconds=30, control_only=False)
+                  warmup_blocks=1, session_seconds=30, control_only=False, conditions_mode='observed')
         args.plan.write_text('{}')
         args.conditions_root.mkdir()
         for slot in P2.schedule(config, args.warmup_blocks):
@@ -287,7 +288,7 @@ class V2SourceTests(unittest.TestCase):
                   'payload_sha256': P2.Z.sha(payload), 'payload_bytes': len(payload), 'iterations': 1}
         bad_report = report | {'payload_sha256': '0' * 64}
 
-        def slot_runner(plan, slot, state, condition, work, raw, *, paired, check_workload):
+        def slot_runner(plan, slot, state, condition, work, raw, *, paired, check_workload, conditions_receipt):
             raw.mkdir()
             try:
                 checked = check_workload(b'modeled stdout', config['order'][slot])
@@ -303,6 +304,7 @@ class V2SourceTests(unittest.TestCase):
             patch.object(P2.B, 'load_plan', return_value=plan),
             patch.object(P2, 'validate'),
             patch.object(P2.B, 'validate_conditions'),
+            patch.object(P2, 'wait_for_observation', return_value=({}, {})),
             patch.object(P2.B, 'run', side_effect=slot_runner) as run,
             patch.object(P2, 'workload_report', side_effect=[report, report, bad_report]),
             patch.object(P2.Z, 'materials', return_value=('ARM-C01', self.root, heldout)) as materials,
@@ -359,7 +361,7 @@ class V2AdmissionTests(unittest.TestCase):
         self.plan = self.root / 'plan.json'
         self.runner.freeze(self.config_path, self.state, self.state, self.plan)
         self.args = NS(plan=self.plan, conditions_root=self.root / 'conditions', output=self.root / 'session',
-                       warmup_blocks=1, session_seconds=30, control_only=True)
+                       warmup_blocks=1, session_seconds=30, control_only=True, conditions_mode='prewritten')
         self.args.conditions_root.mkdir()
         condition = controls | dict(ambient_C=20, thermal_start_C=20, battery_soc_percent=50,
                                    operator='fixture', notes='Modeled conditions.')
@@ -510,6 +512,111 @@ class V2AdmissionTests(unittest.TestCase):
             self.assertNotIn('paired_zlib', self.runner.read_json(output / 'trial.json'))
             outputs.append(output)
         self.assertEqual(self.runner.compare(plan, outputs, self.output), 0)
+
+    def observe_after_request(self, *, early=False):
+        self.args.conditions_mode = 'observed'
+        original_save = P2.save_session
+        observed = {}
+        for path in self.args.conditions_root.iterdir():
+            observed[path.name] = self.runner.read_json(path)
+            path.unlink()
+
+        def operator(output, session):
+            original_save(output, session)
+            request = self.runner.read_json(output / 'session.json').get('awaiting_conditions')
+            if request is None or session['status'] != 'RUNNING':
+                return
+            name = request['filename']
+            self.assertEqual(len(list(self.args.conditions_root.iterdir())), len(session['completed']))
+            timestamp = self.runner.utc_timestamp(request['requested_at'])
+            if early:
+                timestamp -= timedelta(seconds=1)
+            observation = {key: request[key] for key in ('session_id', 'phase', 'index')}
+            observation['observed_at'] = timestamp.isoformat()
+            self.runner.write_json(self.args.conditions_root / name, observed[name] | {'observation': observation})
+
+        return patch.object(P2, 'save_session', side_effect=operator)
+
+    def test_observed_conditions_are_requested_per_slot_retained_and_replayed(self):
+        with self.observe_after_request():
+            result = P2.run(self.args)
+        self.assertEqual(result['status'], 'COMPLETE_CONTROL_ONLY', result.get('error'))
+        self.assertEqual(result['conditions_mode'], 'observed')
+        self.assertNotIn('awaiting_conditions', result)
+        self.assertEqual(len(result['completed']), 18)
+        trial_path = self.measurements[-1] / 'trial.json'
+        raw = self.measurements[-1] / 'conditions.json'
+        trial = self.runner.read_json(trial_path)
+        self.assertEqual(trial['conditions'], self.runner.read_json(raw))
+        self.assertEqual(result['completed'][-1]['conditions']['sha256'], self.runner.digest(raw))
+        self.assertEqual(self.runner.compare(self.plan, self.measurements, self.output), 0)
+        original = raw.read_bytes()
+        raw.write_bytes(original + b'\n')
+        with self.assertRaisesRegex(self.runner.Invalid, 'retained conditions differ'):
+            self.runner.compare(self.plan, self.measurements, self.root / 'rebound-conditions.json')
+
+    def test_pre_request_observation_stops_before_workload_and_keeps_request(self):
+        with self.observe_after_request(early=True):
+            result = P2.run(self.args)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertIn('conditions timestamps', result['error'])
+        self.assertEqual(result['awaiting_conditions']['name'], 'correctness-00')
+        self.runner.execute.assert_not_called()
+
+    def test_observation_ages_out_at_launch(self):
+        step = dict(session_id='f' * 32, phase='measured', index=0)
+        start = self.runner.utc_timestamp('2026-11-28T12:00:00+00:00')
+        path = self.args.conditions_root / 'measured-00.json'
+        conditions = self.runner.read_json(path) | {'observation': dict(**step, observed_at=start.isoformat())}
+        path.write_text(json.dumps(conditions))
+        receipt = dict(requested_at=start.isoformat(), received_at=start.isoformat(), sha256=self.runner.digest(path))
+        cwd = self.root / 'work'
+        cwd.mkdir()
+        raw = self.root / 'raw'
+        stale = (start + timedelta(seconds=self.runner.OBSERVED_CONDITIONS_MAX_AGE + 1)).isoformat()
+        with patch.object(self.runner, 'now', side_effect=[start.isoformat(), start.isoformat(), stale]):
+            with self.assertRaisesRegex(self.runner.Invalid, 'launch age limit'):
+                self.runner.run(self.plan, 0, self.state, path, cwd, raw, paired=step,
+                                check_workload=P2.workload_check(self.runner.load_plan(self.plan)), conditions_receipt=receipt)
+        self.runner.execute.assert_not_called()
+        self.assertTrue((raw / 'started.json').is_file())
+        self.assertFalse((raw / 'trial.json').exists())
+
+    def test_wait_stops_at_reserved_launch_deadline(self):
+        self.args.conditions_mode = 'observed'
+        for path in self.args.conditions_root.iterdir():
+            path.unlink()
+        self.args.session_seconds = self.config['timeout_seconds'] + 2.25
+        ticks = [100.]
+
+        def advance(seconds):
+            self.assertLessEqual(seconds, .25)
+            ticks[0] += seconds
+
+        with patch.object(P2.time, 'monotonic', side_effect=lambda: ticks[0]), patch.object(P2.time, 'sleep', side_effect=advance):
+            result = P2.run(self.args)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertIn('session deadline waiting for conditions', result['error'])
+        self.assertEqual(ticks[0], 100.25)
+        self.runner.execute.assert_not_called()
+
+    def test_physical_mode_refuses_prewritten_conditions(self):
+        self.args.control_only = False
+        with patch.object(P2, 'validate'), self.assertRaisesRegex(ValueError, 'prewritten mode is control-only'):
+            P2.run(self.args)
+        self.assertFalse(self.args.output.exists())
+        self.runner.execute.assert_not_called()
+
+    def test_physical_trial_api_requires_observed_receipt(self):
+        path = self.args.conditions_root / 'measured-00.json'
+        plan = self.runner.load_plan(self.plan)
+        plan['config']['paired_zlib'] = 'exact-arm'
+        step = dict(session_id='f' * 32, phase='measured', index=0)
+        with patch.object(self.runner, 'load_plan', return_value=plan):
+            with self.assertRaisesRegex(self.runner.Invalid, 'physical paired zlib requires observed conditions'):
+                self.runner.run(self.plan, 0, self.state, path, self.root, self.root / 'raw',
+                                paired=step, check_workload=lambda *args: {})
+        self.runner.execute.assert_not_called()
 
 
 if __name__ == '__main__':

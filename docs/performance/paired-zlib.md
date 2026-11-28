@@ -36,7 +36,11 @@ These paths describe future operator inputs, not supplied hardware evidence. Pre
 
 ## Run and interpret
 
-Supply one actual conditions JSON per scheduled invocation under a separate conditions directory: `correctness-00.json`, `correctness-01.json`, `warmup-00.json` through `warmup-03.json` for one warmup block, and `measured-00.json` through `measured-11.json` for twelve measured slots. Two warmup blocks additionally require `warmup-04.json` through `warmup-07.json`. Each file follows the original conditions schema, repeats frozen control strings and supplies observed numeric conditions/operator notes. Files are checked before launch, bound into the session and checked again before their slot. They are operator declarations, not automatic proof of ambient temperature, background load, thermal settling or brightness. Only automate a target session when these observations and the declared settling/cache procedure remain valid throughout it.
+Start with an empty, separate conditions directory. The runner publishes one `awaiting_conditions` request at a time in its output `session.json`. The request includes a filename such as `correctness-00.json` or `measured-00.json`, the session ID, phase, index, variant, and a timezone-aware `requested_at`. Wait for the request, let the machine settle within the declared bands, then observe the conditions for that slot.
+
+Use the [normal conditions fields](cli.md#record-conditions-and-execute-the-declared-order) and add an `observation` object. Copy `session_id`, `phase`, and `index` from the request and set `observed_at` to the actual observation time in ISO 8601 with a timezone. Record the instruments and settling procedure in `notes`. Write the JSON to a temporary file in the conditions directory, then rename it to the requested filename once complete.
+
+Physical sessions require this observed mode. The runner accepts a receipt of at most 64 KiB, checks its order from request to receipt and launch, and checks that the observation is at most 30 seconds old immediately before calling the workload runner. Waiting ends when the session has only the frozen trial timeout plus two seconds left. Stale, invalid, or missing receipts stop the session with the request retained. Raw receipts and their hashes remain in the trial evidence for replay. These timestamps and readings are operator observations. They do not independently establish ambient temperature, cache state, background load, or thermal settling.
 
 ```sh
 python3 -B scripts/benchmarks/paired_zlib_v2.py run \
@@ -44,7 +48,7 @@ python3 -B scripts/benchmarks/paired_zlib_v2.py run \
   --warmup-blocks 1 --session-seconds 7200 --output /absolute/new-session
 ```
 
-Default execution refuses nonphysical or non-aarch64 plans before actors. `--control-only` requires a nonphysical plan frozen with `paired_zlib: "control-only"` and explicitly labeled fixture output. Control-only records carry no target acceptance. Both modes refuse loader/emulation overrides.
+Default execution refuses nonphysical or non-aarch64 plans before actors. `--control-only` requires a nonphysical plan frozen with `paired_zlib: "control-only"` and explicitly labeled fixture output. For synthetic fixtures, pass `--conditions-mode prewritten` with `--control-only` to use the original conditions fields in files prepared before the session. Prewritten mode checks each file again at its slot. Control-only records carry no target acceptance. Both modes refuse loader/emulation overrides.
 
 The session retains a copied plan, exact actual schedule, workload reports, condition/trial bindings, environment identity (CPU fields, affinity, kernel, Python, page size), raw output, elapsed boundaries and telemetry. A valid `trial.json` is published atomically after the complete stdout report passes artifact, payload and iteration checks. A refused report leaves an invalid trial and raw evidence. An interruption before publication leaves raw evidence without an admissible trial.
 
