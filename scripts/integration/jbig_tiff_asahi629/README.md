@@ -6,9 +6,13 @@ This lane starts after the original TEST-signed Asahi629 replay reaches its
 restores both original providers in one inverse transaction, and exercises
 the installed consumers before, during, and after the swap.
 
-The source and passive input checks are available. The signed ARM16K swap
-and runtime remain **NOT RUN**. A preboot actor reached the control-image
-copy and stopped on host memory pressure before QEMU. The earlier [341-package and Minimal206
+The signed ARM16K pair swap and installed consumer probes remain **NOT RUN**.
+The first attempt stopped before QEMU. The first guest to boot held at
+candidate validation before the scoped ALPM transaction. Stopped-disk
+readback verified the original 629-package lock and 362 protected entries.
+The replacement lock with 627 unchanged rows was verified as a projection.
+The path fix passed its guest-layout regression. The next actor stopped
+before QEMU at its 6 GiB memory limit. The earlier [341-package and Minimal206
 results](../../../docs/validation/project-libraries-native-20261125.md) and
 the [scoped Qt result](../qt612_r132_replacement/README.md) have their own
 inputs and receipts. This lane uses vendor Qt from the original Asahi629

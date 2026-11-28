@@ -6,36 +6,13 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
 
 ## Next engineering work
 
-1. **Verify the full-port APT fix on the current PR head.** The change restricts
-   APT to the runner's signed Ubuntu sources for the security, support and
-   orphans component prerequisites. The exact-head full-port run was queued,
-   and its selector was the only job GitHub had listed at the time of review.
-   Check the affected matrix jobs under both Python versions once they run.
-   For CI efficiency, distinguish runner queue time from prerequisite setup
-   time before tuning either. An earlier successful full-matrix run contained
-   50 component jobs plus the selector. The selector already narrows reviewed
-   changes and deliberately keeps a full fallback for common or unknown paths.
-   [Exact-head run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46055216134)
-   · [Earlier full-matrix run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45936750153)
-   · [Selector](../../scripts/ci/component_selection/select.py)
-
-   Follow-up: the exact-head PR at `265ca64c97bc50982cba0b76b6babf3f73c981d8`
-   passed all 51 Full Port jobs, including the signed Ubuntu prerequisite
-   paths under both Python versions. The whole PR reported 302 passing checks
-   and one expected skipped cache-seed job. The queued APT verification is
-   closed. [Full Port run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46088594451)
-2. **Finish the signed Qt provider replacement on the exact Asahi629 rollback
-   inventory.** The project Qtbase 6.12.0-3 archive was recovered and verified
+1. **Qualify Qtbase 6.12.0-4 on the exact Asahi629 rollback inventory.**
+   The project Qtbase 6.12.0-3 archive was recovered and verified
    from the retired ARM16K build. The build guest recorded HOLD during its final
-   census/export because boot-side `cmp` was missing. The source has a hashing
-   fix, and the recovered archive is available for the next trial. The unissued
-   handoff binds the archive, original official signature, rollback inventory,
-   passive audit of 145 consumer objects and prepare-only ALPM output. Finish the
-   runner and independent readback, then use a fresh TEST signature for the
-   scoped swap and restoration. Check installed ownership, the ordinary-user
-   Qt Quick, Wayland and Vulkan paths, and which of the 22 omitted vendor
-   plugins affect the selected desktop. Require exact restoration of official
-   Qt and preservation of the other 628 package rows.
+   census/export because boot-side `cmp` was missing. The source gained a
+   hashing fix. The initial handoff bound the recovered archive, original
+   official signature, rollback inventory, passive audit of 145 consumer
+   objects and prepare-only ALPM output.
    [Recovered build](../../scripts/integration/qt612_vulkan_md4c_successor/README.md#november-27-build-and-offline-package-recovery)
    · [Replacement input handoff](../../scripts/integration/qt612_r132_replacement/README.md)
 
@@ -45,24 +22,26 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    signed one-provider replacement and restoration, ordinary-user vendor and
    project Core/Gui, Qt Quick, Wayland and Lavapipe/QRhi software probes,
    independent readback and owned retirement. Its 629-package final lock,
-   628 untouched rows and 362 protected paths matched. There was no
-   post-restoration runtime probe. A follow-up package audit found that the
-   22 omitted plugins do not block the tested default Hyprland software path,
-   but the project configuration disables Qt's AT-SPI bridge and omits native
-   CUPS printing and XWayland EGL fallback. The selected screen-sharing picker
-   still needs a real portal and accessibility check; physical M2 GPU and
-   DRM/KMS remain **NOT RUN**.
+   628 untouched rows and 362 protected paths matched. The Wayland probes
+   used headless Weston/Pixman, and the Vulkan probes used Lavapipe.
+   Runtime probes ran before and during replacement. Post-restoration
+   runtime remains untested. The package audit found 22 omitted vendor
+   plugins. The project configuration disables Qt's AT-SPI bridge and
+   omits native CUPS printing and XWayland EGL fallback.
+   The selected Hyprland screen-sharing picker still needs a real portal
+   and accessibility check. Physical M2 GPU and DRM/KMS remain **NOT RUN**.
    [Scoped result](../../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27)
 
    The parity follow-up has source-prepared Qt 6.12.0-4 controls for AT-SPI,
    CUPS and XWayland EGL. A cold AArch64/16 KiB build stopped at Ninja step 50
-   because its original plan lacked the later mandatory source seal; it is a
-   diagnostic HOLD. A fresh, explicitly sealed parity build started, but its
-   archive and mixed-version replacement trial have **not** passed. The
-   original 6.12.0-3 scoped PASS remains the only installed Qt result.
+   and the launch receipt records SIGTERM. Its original plan also lacks the
+   source seal required for admission. This run is a diagnostic HOLD. A
+   fresh, explicitly sealed parity build started. Archive acceptance and
+   the mixed-version replacement trial remain pending. The 6.12.0-3 result
+   is the only Asahi629 Qt provider-swap PASS.
    [Parity recipe](../../scripts/integration/qt612_vulkan_md4c_successor/PARITY.md)
    · [Trial contract](../../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md)
-3. **Fix two independently reproduced package preflight defects.** These are
+2. **Fix two independently reproduced package preflight defects.** These are
    source work and can proceed alongside the hosted and guest jobs.
    - `recipe-check` returned exit 0 and `static-pass` from a directory with a
      valid `.SRCINFO` and no recipe file. Both a missing `PKGBUILD` and a missing
@@ -101,7 +80,7 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    pre-run status. This manifest and the exact native receipts record the later
    qualification; changing the installed README would require a new package
    build and qualification.
-4. **Requalify the hosted repository handoff after the callback state fix.**
+3. **Requalify the hosted repository handoff after the callback state fix.**
    Run the corrected composed lane on the authenticated retained inputs. The
    prior hosted attempt exercised generic AArch64 QEMU, produced and retired
    the desktop session, passed signed repository transactions and ARM C01,
@@ -114,7 +93,7 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    [Desktop and repository evidence](virtual-desktop-completion-v2-admission.md#hosted-execution)
    · [Actual workflow entry](https://github.com/Gabriel-Kahen/cachy-asahi/blob/9aab573388a5ec30095965241b90f43eedba0fa8/.github/workflows/maintained-composed-virtual-desktop-v2-retained.yml)
    · [Exact-head source controls](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46055211894)
-5. **Prepare the next Asahi-specific consumers and reconcile source custody.**
+4. **Prepare the next Asahi-specific consumers and reconcile source custody.**
    Audit JBIG/TIFF consumers against the exact selected Asahi package set and
    use the result to scope an emulated ARM16K signed replacement/restoration.
    Then bind the updater's coordinated platform update and recovery cases to
@@ -133,11 +112,11 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    forward and reverse dependency checks. The project TIFF recipe omits
    `tiffgt`, which the original Asahi629 provider supplies; the signed guest
    trial must account for that package-parity gap and check all four consumers
-   at original, project and restored checkpoints. Neither the trial nor an
-   installed runtime probe has run. The exact Python 3.14.8-1 and Perl
-   5.42.3-1 PKGBUILD hashes in their signed `.BUILDINFO` still differ from the
-   public exact-version recipes; the current ALARM workunit URLs now serve
-   newer versions. Exact original recipe bytes remain unrecovered.
+   at original, project and restored checkpoints. The signed pair swap and
+   its installed consumer probes remain **NOT RUN**. The exact Python 3.14.8-1
+   and Perl 5.42.3-1 PKGBUILD hashes in their signed `.BUILDINFO` still differ
+   from the public exact-version recipes. The current ALARM workunit URLs
+   now serve newer versions. Exact original recipe bytes remain unrecovered.
 
    A corrected project TIFF 4.7.2-1.2 unsigned AArch64 archive passed a
    Minimal206 QEMU user-mode build, three package tests and independent
@@ -155,14 +134,15 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    `jpeg_recipe.py` assumed a repository parent absent at `/trial-code`.
    The guest reported **HOLD_ASAHI629_JBIG_TIFF_ENTRY** before the pair's ALPM
    transaction. Independent stopped-disk readback found the exact original
-   629-package lock and all 362 protected paths; the 627 unchanged rows were
-   only projected, not installed. The actor retired with zero swap and no OOM
-   events, while the host pressure guard stopped controller readback after
-   QEMU exited. The path fix is integrated and passes an exact guest-layout
-   regression, but the next fresh-nonce actor stopped **before QEMU boot** at
-   the unchanged 6 GiB cgroup limit. Its file cache reached about 5.97 GiB
-   while rehashing the control-root clone after earlier pinned reads; no pair
-   transaction ran. Actor swap and OOM stayed zero, and ownership retired.
+   629-package lock and all 362 protected paths. The replacement lock with
+   627 unchanged rows was verified as a projection only. The actor retired
+   with zero swap and no OOM events. The host pressure guard stopped
+   controller readback after QEMU exited. The path fix is integrated and
+   passes an exact guest-layout regression. The next fresh-nonce actor
+   stopped **before QEMU boot** at the unchanged 6 GiB cgroup limit.
+   Its file cache reached about 5.97 GiB while rehashing the control-root
+   clone after earlier pinned reads. No pair transaction ran. Actor swap
+   and OOM stayed zero, and ownership retired.
    A scoped, fail-closed reader now rehashes the exact pinned originals and
    owned clones in 1 MiB chunks with cache-discard advice. It preserves the
    byte, size and file-identity checks and leaves the generic controller
@@ -210,6 +190,16 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
 
 ## Qualification already recorded
 
+- **Full Port APT fix.** The fix restricts prerequisite downloads to the
+  hosted runner's signed Ubuntu sources. The original run at `db7acf84f`
+  and the later PR run at `fb862ffea` both passed all 51 jobs, including
+  the signed-source prerequisite steps under Python 3.12 and 3.14. The
+  latter PR head finished with 302 passing checks and one skipped cache-seed
+  job. The selector narrows reviewed changes and keeps a full fallback
+  for common or unknown paths.
+  [Original run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46055216134)
+  · [Reverification](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46098927295)
+  · [Selector](../../scripts/ci/component_selection/select.py)
 - **Asahi629** passed TEST-signed forward and reversal on the exact Asahi
   Minimal filesystem copy under emulated AArch64 with 16 KiB pages and a
   generic R132 kernel. The actual inventories were 261 → 629 → 629, the three
