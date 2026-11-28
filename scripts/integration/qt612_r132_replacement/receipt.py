@@ -37,12 +37,12 @@ def receipt(qt, asahi, exported, observed, *, profile=None, provenance=None):
          and exported["missing_actor_files"] == exported["missing_asahi_files"] == []
          and exported["original_inputs"] == R["originals"](profile), "Complete exact stopped export required")
     evidence = exported["evidence"]
-    need(evidence.keys() == R["EVIDENCE"].keys(), "Complete Qt receipt evidence required")
+    need(evidence.keys() == R["evidence_files"](profile).keys(), "Complete Qt receipt evidence required")
 
     owner_raw, _ = C.read(asahi / "result.json", 128 << 10, exported["asahi"]["result.json"])
     owner = C.json_body(owner_raw, canonical=True)
     journal_raw, _ = C.read(qt / "transaction.jsonl", R["EVIDENCE"]["transaction.jsonl"], evidence["transaction.jsonl"])
-    rows = R["journal_rows"](journal_raw)
+    rows = R["journal_rows"](journal_raw, parity=profile is not None)
     checkpoint = exported["qt_checkpoint"]
     E["require_guest_nonce"](nonce, owner, {"transaction.jsonl": journal_raw})
     original_lock = R["ORIGINALS"]["rollback_lock"]

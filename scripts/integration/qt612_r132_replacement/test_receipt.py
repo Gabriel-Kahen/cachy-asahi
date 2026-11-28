@@ -40,7 +40,7 @@ class ReceiptTests(unittest.TestCase):
             self.test_inputs[name] = path, C.pin(self.raw[name])
         self.times = {row["event"]: row["at_ns"] for row in self.expected["chronology"]}
 
-    def make_disk(self, **owner_changes):
+    def make_disk(self, *, profile=None, **owner_changes):
         source = self.root / "tree"
         source.mkdir()
         cleanup = C.wire(dict(completed=True, target_submounts=[],
@@ -56,7 +56,7 @@ class ReceiptTests(unittest.TestCase):
         asahi = dict.fromkeys(H["ASAHI_FILES"], b"synthetic Asahi operating evidence\n")
         asahi |= {"result.json": C.wire(owner), "cleanup.json": cleanup, "rollback.lock": self.raw["baseline.lock"]}
         members = {f"evidence/{name}": body for name, body in asahi.items()}
-        members.update({f"{E['ACTOR_DIR']}/{name}": self.raw[name] for name in E["ACTOR_FILES"]})
+        members.update({f"{E['ACTOR_DIR']}/{name}": self.raw[name] for name in E["actor_files"](profile)})
         for relative, body in members.items():
             path = source / relative
             path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -104,6 +104,7 @@ class ReceiptTests(unittest.TestCase):
     def test_parity_publication_joins_exact_plan_and_retired_disk_records(self):
         profile = {"test_review": {"signature": self.test_inputs["test-signature.sig"][1],
                                    "certificate": self.test_inputs["test-certificate.gpg"][1]}}
+        _, _, self.raw = F["fixture"](restored_runtime=True)
         rows = [C.json_body(line) for line in self.raw["transaction.jsonl"].splitlines()]
         rows[0]["parity_profile"] = C.pin(C.wire(profile))
         self.raw["transaction.jsonl"] = F["jsonl"](rows)
@@ -111,7 +112,7 @@ class ReceiptTests(unittest.TestCase):
         body = C.wire({"nonce": NONCE, "synthetic_staged_plan": True})
         plan.write_bytes(body)
         plan_pin = C.pin(body)
-        disk, pin = self.make_disk(plan=plan_pin)
+        disk, pin = self.make_disk(profile=profile, plan=plan_pin)
         row = self.observed(pin)
         with self.assertRaisesRegex(ValueError, "profile and staged guest plan required together"):
             self.assemble(disk, row, profile=profile)
@@ -128,6 +129,9 @@ class ReceiptTests(unittest.TestCase):
             self.assertEqual(receipt["asahi_owner"], C.pin(result))
             self.assertEqual(C.json_body(result)["plan"], receipt["guest_plan"])
             self.assertEqual(receipt["stopped_disk"], pin)
+            name = R["RESTORED_REPORT"]
+            self.assertEqual(receipt["evidence"][name], C.pin(self.raw[name]))
+            self.assertEqual((bundle / name).read_bytes(), self.raw[name])
             return receipt
 
         with patch.dict(R, originals=lambda _: self.expected["original_inputs"], readback=inspect):

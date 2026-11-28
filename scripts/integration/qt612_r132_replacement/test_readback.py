@@ -37,10 +37,10 @@ def jsonl(rows):
 def runtime_fixture(phase):
     """Use the current producer, with inert command results and socket state."""
     guest = RUNTIME["Guest"].__new__(RUNTIME["Guest"])
-    guest.inner = "/tmp/qt629-probe-vendor" if phase == "vendor" else "/tmp/qt629-probe-fixture"
+    guest.inner = "/tmp/qt629-probe-" + {"vendor": "vendor", "replacement": "fixture", "restoration": "restored"}[phase]
     guest.path = lambda _: SimpleNamespace(is_file=lambda: True)
     socket = W["SOCKET"]
-    pids = count(100 if phase == "vendor" else 200)
+    pids = count({"vendor": 100, "replacement": 200, "restoration": 300}[phase])
     marks = {
         "offscreen": "QT629_GUI_OK 6.12.0 offscreen",
         "software": "QT629_QUICK_OK software pixels=verified",
@@ -64,8 +64,9 @@ def runtime_fixture(phase):
         checks = RUNTIME["collect"](guest, socket, weston, phase=phase)
     with TemporaryDirectory() as folder:
         path = Path(folder)
-        RUNTIME["write_result"](path, checks, socket, nonce=NONCE)
-        return (path / "runtime-probes.json").read_bytes()
+        name = RUNTIME["REPORTS"][phase]
+        RUNTIME["write_result"](path, checks, socket, nonce=NONCE, name=name)
+        return (path / name).read_bytes()
 
 
 def protocol_trace(pid, frames):
@@ -91,9 +92,10 @@ def protocol_trace(pid, frames):
 def weston_fixture(raw):
     trace = b"[21:10:00.123] weston 15.0.1\n"
     presentations = {}
-    for role, minimum in W["PROBES"].items():
+    roles = W["PARITY_PROBES"] if R["RESTORED_REPORT"] in raw else W["PROBES"]
+    for role, minimum in roles.items():
         phase, kind = role.split("-")
-        name = "vendor-runtime-probes.json" if phase == "vendor" else "runtime-probes.json"
+        name = RUNTIME["REPORTS"][phase]
         check = "wayland" if kind == "raster" else "vulkan_qrhi"
         process = C.json_body(raw[name])["checks"][check]["process"]
         pid = process["pid"]
@@ -114,7 +116,7 @@ def weston_fixture(raw):
     return {W["LOG_NAME"]: trace, W["REPORT_NAME"]: C.wire(report)}
 
 
-def fixture(*, project_version=VERSION):
+def fixture(*, project_version=VERSION, restored_runtime=False):
     """Return canonical receipt data and the original and observed file bodies."""
     lock = (f"{OFFICIAL} {VERSION}\n" + "".join(f"unchanged-{i:04d} 1:2.3-4\n" for i in range(628))).encode()
     changed, restored = P["project"](lock, project_version=project_version)
@@ -145,13 +147,15 @@ def fixture(*, project_version=VERSION):
                 "restoration-signature.status": signature(VENDOR),
                 "runtime-probes.json": runtime_fixture("replacement"),
                 "vendor-runtime-probes.json": runtime_fixture("vendor")})
+    if restored_runtime:
+        raw[R["RESTORED_REPORT"]] = runtime_fixture("restoration")
     raw.update(weston_fixture(raw))
     actions = [("removed", OFFICIAL), ("installed", PROJECT), ("removed", PROJECT), ("installed", OFFICIAL)]
     raw["pacman.log"] = "".join(f"[2026-11-27T13:30:00+0000] [ALPM] {action} {name} ({versions[name]})\n"
                                 for action, name in actions).encode()
     start = NOW * 10**9
-    rows = {name: dict(phase=name, at_ns=start + i)
-            for i, name in enumerate(R["JOURNAL_PHASES"], 1)}
+    journal_phases = R["PARITY_JOURNAL_PHASES"] if restored_runtime else R["JOURNAL_PHASES"]
+    rows = {name: dict(phase=name, at_ns=start + i) for i, name in enumerate(journal_phases, 1)}
     rows["entry"].update(kind=R["JOURNAL_KIND"], nonce=NONCE)
     rows["trust"]["signers"] = {
         PROJECT: dict(archive=pins["project_archive"], signature=C.pin(raw["test-signature.sig"]),
@@ -172,6 +176,9 @@ def fixture(*, project_version=VERSION):
     rows["probe"].update(status="PASS", error=None)
     rows["terminal"].update(kind=R["JOURNAL_KIND"], status="PASS_QT629_PROVIDER_ROUND_TRIP",
                             last_verified="restoration", failure_phase=None, error=None)
+    if restored_runtime:
+        rows["restoration-probe"].update(status="PASS", error=None)
+        rows["terminal"]["restored_runtime_probe"] = C.pin(raw[R["RESTORED_REPORT"]])
     raw["transaction.jsonl"] = jsonl(rows.values())
     outer = dict(zip(("trust-retired", "vm-exited", "absence-first", "absence-second"), range(20, 24), strict=True))
     times = {"inputs-verified": start} | {name: start + offset for name, offset in outer.items()}
@@ -239,7 +246,7 @@ class ReadbackTests(unittest.TestCase):
 
     def test_public_parity_readback_requires_same_profile_archive_and_test_operands(self):
         parity = P["PARITY_PROJECT_VERSION"]
-        receipt, inputs, raw = fixture(project_version=parity)
+        receipt, inputs, raw = fixture(project_version=parity, restored_runtime=True)
         del inputs["recovery_seal"]
         inputs["parity_recipe"] = b"inert parity recipe\n"
         recipe = C.pin(inputs["parity_recipe"])
@@ -348,6 +355,56 @@ class ReadbackTests(unittest.TestCase):
         self.assertEqual(checked["status"], "CONSISTENT_EXPORTED_QT612_ASAHI629_PARITY_SCOPED_RECEIPT")
         self.assertEqual(checked["guest_plan"], plan_pin)
         self.assertEqual(checked["stopped_disk"], disk)
+
+        restored_name = R["RESTORED_REPORT"]
+        removed_pin = receipt["evidence"].pop(restored_name)
+        with self.assertRaisesRegex(ValueError, "Unexpected evidence fields"):
+            check()
+        receipt["evidence"][restored_name] = removed_pin
+        self.change_evidence(restored_name, raw["vendor-runtime-probes.json"])
+        with self.assertRaisesRegex(ValueError, "Complete successful guest transaction"):
+            check()
+        self.change_evidence(restored_name, raw[restored_name])
+
+        # Even a correctly repinned PASS must contain fresh restoration-phase client evidence.
+        restored = C.json_body(raw[restored_name])
+        for change, message in (
+            ({"phase": "vendor"}, "Expected the restored runtime phase"),
+            ({"status": "PARTIAL"}, "Complete ordinary-user runtime probe PASS"),
+            ({"checks": C.json_body(raw["runtime-probes.json"])["checks"]}, "Weston presentation client identity"),
+        ):
+            body = C.wire(restored | change)
+            terminal_pin = {"restored_runtime_probe": C.pin(body)}
+            self.change_evidence(restored_name, body)
+            self.change_evidence("transaction.jsonl", jsonl([*rows[:-1], rows[-1] | terminal_pin]))
+            altered_owner = owner | {"qt_checkpoint": owner["qt_checkpoint"] | {"transaction": terminal | terminal_pin}}
+            owner_path = self.bundle / R["PARITY_EVIDENCE"]["asahi_owner"][0]
+            owner_path.write_bytes(C.wire(altered_owner))
+            receipt["asahi_owner"] = C.pin(C.wire(altered_owner))
+            with self.subTest(restored=change.keys()), self.assertRaisesRegex(ValueError, message):
+                check()
+        self.change_evidence(restored_name, raw[restored_name])
+        self.change_evidence("transaction.jsonl", raw["transaction.jsonl"])
+        owner_path.write_bytes(C.wire(owner))
+        receipt["asahi_owner"] = C.pin(C.wire(owner))
+
+        without_probe = [row for row in rows if row["phase"] != "restoration-probe"]
+        self.change_evidence("transaction.jsonl", jsonl(without_probe))
+        with self.assertRaisesRegex(ValueError, "Complete Qt transaction journal"):
+            check()
+        misordered = [*rows[:-3], rows[-2], rows[-3], rows[-1]]
+        self.change_evidence("transaction.jsonl", jsonl(misordered))
+        with self.assertRaisesRegex(ValueError, "Misordered Qt transaction journal"):
+            check()
+        self.change_evidence("transaction.jsonl", raw["transaction.jsonl"])
+        lifecycle = C.json_body(raw[W["REPORT_NAME"]])
+        del lifecycle["presentations"]["restoration-qrhi"]
+        self.change_evidence(W["REPORT_NAME"], C.wire(lifecycle))
+        with self.assertRaisesRegex(ValueError, "Unexpected Weston presentation roles fields"):
+            check()
+        self.change_evidence(W["REPORT_NAME"], raw[W["REPORT_NAME"]])
+        self.assertEqual(check(), checked)
+
         with self.assertRaisesRegex(ValueError, "Unexpected receipt fields"):
             check(None)
         with self.assertRaisesRegex(ValueError, "Prior Qt evidence"):

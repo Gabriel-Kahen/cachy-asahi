@@ -32,6 +32,7 @@ STARTUP_SECONDS = 20
 TERM_SECONDS = 8
 KILL_SECONDS = 3
 PROBES = {"vendor-raster": 1, "vendor-qrhi": 2, "replacement-raster": 1, "replacement-qrhi": 2}
+PARITY_PROBES = PROBES | {"restoration-raster": 1, "restoration-qrhi": 2}
 LOG_NAME = "weston-server.log"
 REPORT_NAME = "weston-lifecycle.json"
 KIND = "QT629_WESTON_LIFECYCLE_V1"
@@ -467,8 +468,9 @@ def publish(report, trace):
 class Session:
     socket = SOCKET
 
-    def __init__(self, log):
+    def __init__(self, log, probes=PROBES):
         self.log = log
+        self.probes = probes
         self.process = None
         self.pending = None
         self.entries = {}
@@ -496,7 +498,7 @@ class Session:
         raise ValueError("Timed out waiting for the pinned Weston headless output and socket")
 
     def begin(self, role):
-        need(self.pending is None and role in PROBES and role not in self.entries and self.process.poll() is None,
+        need(self.pending is None and role in self.probes and role not in self.entries and self.process.poll() is None,
              "Qt Weston probe boundaries must be live, scoped and non-overlapping")
         trace = self.snapshot()
         need(trace.endswith(b"\n"), "Weston probe trace has an incomplete starting record")
@@ -516,7 +518,7 @@ class Session:
                  and self.process.poll() is None, "Wrong or repeated Qt client PID")
             trace = self.snapshot()
             result.update(end=len(trace), trace=pin(trace[start:]))
-            result["presentation"] = presentation(trace[start:], pid, PROBES[role])
+            result["presentation"] = presentation(trace[start:], pid, self.probes[role])
             result["status"] = "PASS"
         except (OSError, ValueError) as error:
             result["error"] = str(error)
@@ -524,11 +526,11 @@ class Session:
 
 
 @contextmanager
-def supervise(*, nonce, stage_fixture):
+def supervise(*, nonce, stage_fixture, parity=False):
     """Yield a ready compositor and report PASS only for all bound Qt probes.
 
     Supply the signed staging function, which receives a fresh destination.
-    Extraction and startup both run within cleanup. For each role in PROBES, call
+    Extraction and startup both run within cleanup. For each selected role, call
     session.begin(role) before launching the Qt client, then call
     session.attest(role, actual_popen_pid, proc_start_ticks) after its wait.
     The caller retains the client argv/exit evidence and owns VM retirement.
@@ -539,7 +541,7 @@ def supervise(*, nonce, stage_fixture):
     fixture_id = runtime_id = None
     runtime, fixture = path_inside(RUNTIME), path_inside(FIXTURE)
     with TemporaryFile(dir=WORK) as log:
-        session = Session(log)
+        session = Session(log, PARITY_PROBES if parity else PROBES)
         report["presentations"] = session.entries
         try:
             need(path_absent(fixture), "Expected a fresh Weston fixture destination")
@@ -578,7 +580,7 @@ def supervise(*, nonce, stage_fixture):
                 trace = os.pread(log.fileno(), min(size, LOG_CAP), 0)
                 report["log"] = pin(trace)
                 report["log_limit_reached"] = size >= LOG_CAP or len(trace) != size
-                missing = [role for role in PROBES if session.entries.get(role, {}).get("status") != "PASS"]
+                missing = [role for role in session.probes if session.entries.get(role, {}).get("status") != "PASS"]
                 report["missing_presentations"] = missing
                 if (report["startup"] and clean and not missing and report["error"] is None
                         and not report["log_limit_reached"] and trace.endswith(b"\n")):

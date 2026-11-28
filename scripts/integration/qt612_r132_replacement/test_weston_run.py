@@ -375,6 +375,17 @@ class StartupCleanupTests(unittest.TestCase):
         self.assertTrue(all(report["retirement"][key] for key in (
             "reaped", "group_absent", "socket_removed_by_weston", "runtime_removed", "fixture_removed")))
 
+    def test_parity_lifecycle_holds_without_both_restored_presentations(self):
+        with patch.object(W["Session"], "wait_ready", return_value={"output": "fixture is ready"}):
+            with self.assertRaisesRegex(ValueError, "Weston lifecycle HOLD"):
+                with self.entry(nonce="a" * 32, stage_fixture=self.stage, parity=True) as session:
+                    session.log.write(b"Weston trace fixture\n")
+                    session.log.flush()
+                    session.entries.update({role: {"status": "PASS"} for role in W["PROBES"]})
+        report = self.report.call_args.args[0]
+        self.assertEqual(report["missing_presentations"], ["restoration-raster", "restoration-qrhi"])
+        self.assertTrue(report["retirement"]["fixture_removed"])
+
 
 if __name__ == "__main__":
     unittest.main()

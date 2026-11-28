@@ -73,12 +73,20 @@ EVIDENCE = {
     W["LOG_NAME"]: W["LOG_CAP"],
     W["REPORT_NAME"]: 128 << 10,
 }
+RESTORED_REPORT = "restored-runtime-probes.json"
+
+
+def evidence_files(profile):
+    return EVIDENCE if profile is None else EVIDENCE | {RESTORED_REPORT: 2 << 20}
+
+
 JOURNAL_KIND = "QT629_PROVIDER_TRANSACTION_V1"
 JOURNAL_PHASES = (
     "entry", "baseline", "trust", "replacement-prepare", "replacement-commit-start", "replacement-commit-done",
     "replacement", "probe", "restoration-prepare", "restoration-commit-start", "restoration-commit-done",
     "restoration", "terminal",
 )
+PARITY_JOURNAL_PHASES = (*JOURNAL_PHASES[:-1], "restoration-probe", JOURNAL_PHASES[-1])
 JOURNAL_EVENTS = {
     "baseline": "baseline",
     "trust": "trust-verified",
@@ -182,36 +190,37 @@ def signature_status(raw, signer):
     return int(record[3]), int(record[4])
 
 
-def journal_rows(raw):
+def journal_rows(raw, *, parity=False):
+    phases = PARITY_JOURNAL_PHASES if parity else JOURNAL_PHASES
     lines = raw.splitlines(keepends=True)
-    need(len(lines) == len(JOURNAL_PHASES) and all(line.endswith(b"\n") for line in lines),
+    need(len(lines) == len(phases) and all(line.endswith(b"\n") for line in lines),
          "Complete Qt transaction journal required")
     rows = [C.json_body(line) for line in lines]
-    need(tuple(row["phase"] for row in rows) == JOURNAL_PHASES, "Misordered Qt transaction journal")
+    need(tuple(row["phase"] for row in rows) == phases, "Misordered Qt transaction journal")
     return rows
 
 
 def journal(raw, times, nonce, *, profile_pin=None):
-    rows = journal_rows(raw)
-    for row in rows:
-        del row["phase"]
+    rows = journal_rows(raw, parity=profile_pin is not None)
+    phases = [row.pop("phase") for row in rows]
     stamps = [row.pop("at_ns") for row in rows]
     need(all(type(stamp) is int for stamp in stamps)
          and times["inputs-verified"] <= stamps[0] < stamps[-1] < times["trust-retired"]
          and all(before < after for before, after in zip(stamps, stamps[1:])),
          "Misordered Qt transaction journal timestamps")
-    observed_times = dict(zip(JOURNAL_PHASES, stamps, strict=True))
+    observed_times = dict(zip(phases, stamps, strict=True))
     need(all(observed_times[phase] == times[event] for phase, event in JOURNAL_EVENTS.items()),
          "Guest transaction timestamps differ from outer chronology")
-    observed = dict(zip(JOURNAL_PHASES, rows, strict=True))
+    observed = dict(zip(phases, rows, strict=True))
     entry = dict(kind=JOURNAL_KIND, nonce=nonce)
     if profile_pin is not None:
         entry["parity_profile"] = profile_pin
     need(observed["entry"] == entry, "Guest journal nonce differs from receipt or the parity profile differs")
-    need(observed["probe"] == dict(status="PASS", error=None)
-         and observed["terminal"] == dict(kind=JOURNAL_KIND, status="PASS_QT629_PROVIDER_ROUND_TRIP",
-                                          last_verified="restoration", failure_phase=None, error=None),
+    need(observed["probe"] == dict(status="PASS", error=None),
          "Complete successful guest transaction and probe required")
+    if profile_pin is not None:
+        need(observed["restoration-probe"] == dict(status="PASS", error=None),
+             "Complete successful restored runtime probe required")
     return observed
 
 
@@ -238,6 +247,11 @@ def transactions(trust, raw, times, nonce, *, project_version=VERSION, project_a
          and type(before) is type(after) is int and 0 < before <= verified <= restored < after,
          "Separate current TEST trust required")
     rows = journal(raw["transaction.jsonl"], times, nonce, profile_pin=profile_pin)
+    terminal = dict(kind=JOURNAL_KIND, status="PASS_QT629_PROVIDER_ROUND_TRIP", last_verified="restoration",
+                    failure_phase=None, error=None)
+    if profile_pin is not None:
+        terminal["restored_runtime_probe"] = C.pin(raw[RESTORED_REPORT])
+    need(rows["terminal"] == terminal, "Complete successful guest transaction and probe required")
     reason = rows["baseline"]["install_reason"]
     need(type(reason) is int and reason in (0, 1), "Expected supported original provider install reason")
     for phase in PHASES:
@@ -313,8 +327,12 @@ def probe_arguments(step):
 
 
 def runtime_probes(raw, nonce, phase):
-    report = fields(C.json_body(raw, canonical=True),
-                    "kind status nonce uid gid wayland_socket vulkan_icd checks", "runtime probe report")
+    names = "kind status nonce uid gid wayland_socket vulkan_icd checks"
+    if phase == "restoration":
+        names += " phase"
+    report = fields(C.json_body(raw, canonical=True), names, "runtime probe report")
+    if phase == "restoration":
+        need(report["phase"] == phase, "Expected the restored runtime phase")
     socket = report["wayland_socket"]
     need(report["kind"] == PROBE_KIND and report["status"] == "PASS" and report["nonce"] == nonce
          and type(report["uid"]) is type(report["gid"]) is int and report["uid"] == report["gid"] == 65534
@@ -369,7 +387,7 @@ def runtime_probes(raw, nonce, phase):
     return clients
 
 
-def weston_presentations(raw, trace, nonce, clients):
+def weston_presentations(raw, trace, nonce, clients, *, parity=False):
     report = fields(C.json_body(raw, canonical=True),
                     "kind status nonce socket dependencies startup retirement presentations error argv log"
                     " log_limit_reached missing_presentations", "Weston lifecycle evidence")
@@ -399,9 +417,10 @@ def weston_presentations(raw, trace, nonce, clients):
         need(type(row["exit"]) is int and row["exit"] == 0 and row["truncated"] is False
              and type(row["output"]) is str and 0 < len(row["output"]) <= 32 << 10 and "not found" not in row["output"],
              "Expected complete Weston dependency result")
-    presentations = fields(report["presentations"], " ".join(W["PROBES"]), "Weston presentation roles")
+    roles = W["PARITY_PROBES"] if parity else W["PROBES"]
+    presentations = fields(report["presentations"], " ".join(roles), "Weston presentation roles")
     pids, previous_end = {peer["pid"]}, 0
-    for role, minimum in W["PROBES"].items():
+    for role, minimum in roles.items():
         entry = fields(presentations[role], "status pid start_ticks socket start end trace presentation",
                        f"{role} Weston presentation")
         pid, ticks, start, end = (entry[key] for key in ("pid", "start_ticks", "start", "end"))
@@ -531,9 +550,10 @@ def readback(bundle, receipt_sha256, *, profile=None):
     terminal = C.json_body(bodies["owned_terminal"])
     P["verify_predecessor"](predecessor, terminal)
     need(receipt["nonce"] != predecessor["nonce"], "Qt replacement must use a fresh run nonce")
-    evidence = fields(receipt["evidence"], " ".join(EVIDENCE), "evidence")
-    raw = {name: C.read(bundle / name, cap, evidence[name])[0] for name, cap in EVIDENCE.items()}
-    need(all(raw[name] for name in EVIDENCE), "Empty Qt replacement evidence")
+    expected_evidence = evidence_files(profile)
+    evidence = fields(receipt["evidence"], " ".join(expected_evidence), "evidence")
+    raw = {name: C.read(bundle / name, cap, evidence[name])[0] for name, cap in expected_evidence.items()}
+    need(all(raw.values()), "Empty Qt replacement evidence")
     times = chronology(receipt["chronology"])
     phases = fields(receipt["phases"], " ".join(PHASES), "phase")
     untouched = inventories(phases, raw, bodies["rollback_lock"], project_version=version)
@@ -551,7 +571,9 @@ def readback(bundle, receipt_sha256, *, profile=None):
     nonce = receipt["nonce"]
     clients = runtime_probes(raw["vendor-runtime-probes.json"], nonce, "vendor") | runtime_probes(
         raw["runtime-probes.json"], nonce, "replacement")
-    weston_presentations(raw[W["REPORT_NAME"]], raw[W["LOG_NAME"]], nonce, clients)
+    if profile is not None:
+        clients |= runtime_probes(raw[RESTORED_REPORT], nonce, "restoration")
+    weston_presentations(raw[W["REPORT_NAME"]], raw[W["LOG_NAME"]], nonce, clients, parity=profile is not None)
     retirement(receipt["retirement"], receipt["nonce"])
     result = dict(status="CONSISTENT_EXPORTED_QT612_ASAHI629_RECEIPT", receipt=receipt_pin,
                 nonce=receipt["nonce"], predecessor_nonce=predecessor["nonce"], untouched_rows=628,

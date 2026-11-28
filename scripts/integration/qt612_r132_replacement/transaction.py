@@ -352,8 +352,9 @@ class Journal:
     Complete sequence: entry, baseline, trust, replacement-prepare,
     replacement-commit-start, replacement-commit-done, replacement, probe,
     restoration-prepare, restoration-commit-start, restoration-commit-done,
-    restoration, terminal. Each inventory row binds an adjacent named lock,
-    a boot/mount snapshot and the Qt provider's installation reason.
+    restoration, terminal. The parity journal adds restoration-probe before
+    terminal. Each inventory row binds an adjacent named lock, a boot/mount
+    snapshot and the Qt provider's installation reason.
     The entry records the selected run nonce. The trust row binds the verified
     TEST certificate pin, fingerprint and validity window. Each prepare row
     specifies the operand, removal and one conflict answer.
@@ -389,7 +390,9 @@ class Journal:
 
 
 def _run(backend, journal, baseline, probe, platform, platform_pin, nonce, *, project_version=VERSION,
-         profile_pin=None):
+         profile_pin=None, restored_probe=None):
+    need((profile_pin is None and restored_probe is None) or (profile_pin is not None and callable(restored_probe)),
+         "Parity transactions require a restored runtime probe")
     replacement, restored = P["project"](baseline, project_version=project_version)
     phase, known = "baseline", None
 
@@ -419,6 +422,21 @@ def _run(backend, journal, baseline, probe, platform, platform_pin, nonce, *, pr
         observe(label, incoming, after, reason)
         known = label
 
+    def run_probe(label, callback, *, retain_pin=False):
+        try:
+            evidence = callback()
+            if retain_pin:
+                need(P["C"].check_pin(evidence, 2 << 20) and evidence["bytes"] > 0,
+                     "Restored runtime probe must return an evidence pin")
+            else:
+                need(evidence is None, "Probe must return None on success")
+        except Exception as error:
+            evidence, failure = None, {"error_type": type(error).__name__, "error": str(error)[:512]}
+        else:
+            failure = None
+        journal.record(label, status="PASS" if failure is None else "HOLD", error=failure)
+        return evidence, failure
+
     entry = dict(kind=RECEIPT, nonce=nonce)
     if profile_pin is not None:
         entry["parity_profile"] = profile_pin
@@ -439,24 +457,27 @@ def _run(backend, journal, baseline, probe, platform, platform_pin, nonce, *, pr
         journal.record(phase, policy="Required TrustedOnly", signers=signers, test_certificate=test_certificate)
         swap("replacement", OFFICIAL, PROJECT, baseline, replacement, reason)
         phase = "probe"
-        try:
-            probe_error = None
-            need(probe() is None, "Probe must return None on success")
-        except Exception as error:
-            probe_error = {"error_type": type(error).__name__, "error": str(error)[:512]}
-        journal.record("probe", status="PASS" if probe_error is None else "HOLD", error=probe_error)
+        _, probe_error = run_probe(phase, probe)
+        failure_phase = phase if probe_error is not None else None
         swap("restoration", PROJECT, OFFICIAL, replacement, restored, reason)
-        result = dict(status=PASS if probe_error is None else HOLD_RESTORED, error=probe_error)
+        if restored_probe is not None:
+            phase = "restoration-probe"
+            restored_pin, restored_error = run_probe(phase, restored_probe, retain_pin=True)
+            if restored_error is not None and probe_error is None:
+                probe_error, failure_phase = restored_error, phase
+        result = dict(status=PASS if probe_error is None else HOLD_RESTORED, error=probe_error,
+                      failure_phase=failure_phase)
+        if restored_probe is not None:
+            result["restored_runtime_probe"] = restored_pin
     except Exception as error:
         result = dict(status=HOLD_BASELINE if known == "baseline" else HOLD_DISCARD,
-                      error={"error_type": type(error).__name__, "error": str(error)[:512]})
-    result.update(kind=RECEIPT, last_verified=known, failure_phase=("probe" if result["status"] == HOLD_RESTORED
-                                                                  else phase if result["error"] else None))
+                      error={"error_type": type(error).__name__, "error": str(error)[:512]}, failure_phase=phase)
+    result.update(kind=RECEIPT, last_verified=known)
     journal.record("terminal", **result)
     return result
 
 
-def run(project_review, probe, platform, *, nonce, profile=None):
+def run(project_review, probe, platform, *, nonce, profile=None, restored_probe=None):
     """Run inside the owned 16 KiB guest with its prepared public keyring.
 
     Media supplies `qt-replacement/` with the retained `rollback.lock` and
@@ -469,6 +490,8 @@ def run(project_review, probe, platform, *, nonce, profile=None):
     A HOLD, missing terminal row or uncaught interruption requires retirement
     of the writable clone. Only a clean candidate commit and exact readback
     permit the single ordinary official reversal, even if the probe fails.
+    For parity, restored_probe runs after the verified reversal and returns
+    the separate report pin required for a successful terminal record.
     """
     need(os.geteuid() == 0 and os.uname().machine == "aarch64" and os.sysconf("SC_PAGE_SIZE") == 16384,
          "Expected the owned AArch64 16 KiB guest")
@@ -504,4 +527,4 @@ def run(project_review, probe, platform, *, nonce, profile=None):
                       project_review, project_version=version)
     profile_pin = None if profile is None else pin(P["C"].wire(profile))
     return _run(backend, Journal(evidence), baseline, probe, platform, platform_pin, nonce,
-                project_version=version, profile_pin=profile_pin)
+                project_version=version, profile_pin=profile_pin, restored_probe=restored_probe)

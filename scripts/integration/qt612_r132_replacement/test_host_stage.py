@@ -201,6 +201,18 @@ export_qt_evidence "$1" "$2"
         self.assertEqual((retained / journal.name).stat().st_mode & 0o777, 0o600)
         for name in ("weston-server.log", "weston-lifecycle.json", "vendor-runtime-probes.json"):
             self.assertEqual((retained / name).read_bytes(), (incoming / name).read_bytes())
+        restored = incoming / S["E"]["R"]["RESTORED_REPORT"]
+        restored.write_bytes(b'{"status":"PARTIAL"}\n')
+        restored.chmod(0o600)
+        legacy = self.root / "legacy"
+        parity = self.root / "parity"
+        parity_function, _ = S["guest_init"](INIT, profile={}).split(b"[[ $$ == 1", 1)
+        for generated, destination in ((function, legacy), (parity_function, parity)):
+            result = subprocess.run(["/usr/bin/bash", "-s", "--", str(incoming), str(destination)],
+                                    input=generated + command, capture_output=True)
+            self.assertEqual(result.returncode == 0, destination == parity, result.stderr)
+        self.assertEqual((parity / restored.name).read_bytes(), restored.read_bytes())
+        restored.unlink()
         (incoming / "unexpected").symlink_to(journal)
         refused = self.root / "refused"
         result = subprocess.run(["/usr/bin/bash", "-s", "--", str(incoming), str(refused)],

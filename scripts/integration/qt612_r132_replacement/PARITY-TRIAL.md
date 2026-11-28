@@ -145,15 +145,21 @@ Record fresh comparison and ALPM transcript pins. Replacement adds project
    inputs to the independently selected profile before validating the
    mixed-version journal, exact `pacman.log` actions and byte-identical
    official restoration. Keep the V1 schema and historical packet intact.
-5. This scoped receipt covers the existing ordinary-user vendor/project
-   offscreen and Weston software checks and the inventory reversal. Before
-   broader runtime parity acceptance, rerun those checks after restoration
-   and retain distinct phase evidence. Add bounded ordinary-user
-   probes for the Hyprland screen-sharing picker's portal and AT-SPI roles
-   and focus, a private CUPS queue that receives a print job, and a
-   rendered XWayland frame with the forced EGL integration plugin. Also
-   check automatic XCB selection with GLX available. A scoped software swap
-   result and runtime parity require their respective observations.
+5. The parity profile requires the ordinary-user offscreen, Weston/Pixman
+   and Lavapipe checks with the vendor, replacement and restored providers.
+   The actor reruns them after verifying the official package lock, install
+   reason and protected state. It writes `restored-runtime-probes.json` with
+   phase `restoration` and journals `restoration-probe` before `terminal`.
+   The terminal row and Asahi owner checkpoint bind the report's digest.
+   Independent readback requires both restored Weston presentations and
+   matches their client identities to the restored report. A restored probe
+   failure holds the trial with the official inventory already verified.
+   The historical `QT612_ASAHI629_REPLACEMENT_RECEIPT_V1` uses its original
+   vendor and replacement runtime reports.
+6. Broader runtime parity still requires bounded ordinary-user probes for
+   the Hyprland screen-sharing picker's portal and AT-SPI roles and focus,
+   a private CUPS queue that receives a print job, a rendered XWayland
+   frame with forced EGL, and automatic XCB selection with GLX available.
 
 TEST signing, the mixed-version Asahi629 installation and restoration,
 and installed provider parity remain open. Physical validation on both M2

@@ -34,9 +34,15 @@ MAX_NODE_BYTES = 14 << 20
 ACTOR_DIR = "qt-replacement-evidence"
 TEST_SIGNATURE = "test-signature.sig"
 TEST_FILES = {"test-certificate.gpg", TEST_SIGNATURE}
-ACTOR_FILES = {name: cap for name, cap in R["EVIDENCE"].items() if name != TEST_SIGNATURE}
+
+
+def actor_files(profile):
+    return {name: cap for name, cap in R["evidence_files"](profile).items() if name != TEST_SIGNATURE}
+
+
+ACTOR_FILES = actor_files(None)
 DIRECTORY_FLAGS = os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY | os.O_CLOEXEC
-NONCE_REPORTS = ("runtime-probes.json", "vendor-runtime-probes.json", "weston-lifecycle.json")
+NONCE_REPORTS = ("runtime-probes.json", "vendor-runtime-probes.json", R["RESTORED_REPORT"], "weston-lifecycle.json")
 
 
 def require_guest_nonce(nonce, owner, bodies):
@@ -79,12 +85,12 @@ def member_body(disk, node, cap, scope, name):
     return body
 
 
-def actor_bodies(disk_path, disk_pin, *, expected_nonce=None):
+def actor_bodies(disk_path, disk_pin, *, expected_nonce=None, profile=None):
     need(C.check_pin(disk_pin, RESULT_BYTES) and disk_pin["bytes"] == RESULT_BYTES,
          "Exact stopped result-disk pin required")
     before = C.identity(disk_path.lstat())
     C.read(disk_path, RESULT_BYTES, disk_pin, collect=False)
-    bodies = {}
+    bodies, allowed = {}, actor_files(profile)
     with C.ext4_reader()(disk_path, max_nodes=64, max_file_bytes=MAX_NODE_BYTES) as disk:
         need(C.identity(os.fstat(disk.fd)) == before, "Stopped result disk changed before inventory")
         nodes = disk.inventory()["nodes"]
@@ -102,8 +108,8 @@ def actor_bodies(disk_path, disk_pin, *, expected_nonce=None):
             if name in {".", "lost+found", "evidence", ACTOR_DIR} or name.startswith("evidence/"):
                 continue
             prefix, _, leaf = name.partition("/")
-            need(present and prefix == ACTOR_DIR and leaf in ACTOR_FILES, f"Unexpected result member: {name}")
-            bodies[leaf] = member_body(disk, node, ACTOR_FILES[leaf], "Qt actor", leaf)
+            need(present and prefix == ACTOR_DIR and leaf in allowed, f"Unexpected result member: {name}")
+            bodies[leaf] = member_body(disk, node, allowed[leaf], "Qt actor", leaf)
         if expected_nonce is not None:
             owner = nodes.get("evidence/result.json")
             if owner is not None:
@@ -196,13 +202,13 @@ def write_bundle(bundle, evidence, originals):
 
 def export(disk_path, disk_pin, bundle, *, originals=None, test_inputs=None, expected_nonce=None, profile=None):
     """Collect bounded evidence and publish it atomically at a new bundle path."""
-    present, guest = actor_bodies(disk_path, disk_pin, expected_nonce=expected_nonce)
+    present, guest = actor_bodies(disk_path, disk_pin, expected_nonce=expected_nonce, profile=profile)
     original_bodies, test_bodies = reviewed_bodies(originals, test_inputs, profile=profile)
     for name in guest.keys() & test_bodies.keys():
         need(guest[name] == test_bodies[name], f"Guest evidence differs from reviewed TEST operand: {name}")
     bodies = test_bodies | guest
     write_bundle(bundle, bodies, original_bodies)
     return dict(result_disk=disk_pin, actor_directory_present=present,
-                missing_actor_files=sorted(ACTOR_FILES.keys() - guest.keys()),
+                missing_actor_files=sorted(actor_files(profile).keys() - guest.keys()),
                 original_inputs={role: C.pin(body) for role, body in original_bodies.items()},
                 evidence={name: C.pin(body) for name, body in bodies.items()})
