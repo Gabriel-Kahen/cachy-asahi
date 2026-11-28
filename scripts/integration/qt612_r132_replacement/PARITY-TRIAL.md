@@ -54,6 +54,30 @@ exports across all 18 Qt libraries, the AT-SPI bridge export and its
 Wayland and XCB imports, CUPS and XCB EGL plugin linkage, and the
 Vulkan/md4c ABI checks. [Independent archive reader](../qt612_vulkan_md4c_successor/arm16k_readback.py)
 
+## Verified offline audit and TEST signing
+
+The November 28 comparison resolved all 18,661 checked strong versioned
+Qt references across 145 AArch64 consumers. It preserved the previous
+project exports in all 18 libraries and found zero package ownership
+collisions. The compared inventories shared four unresolved non-base
+SONAMEs.
+
+Prepare-only libalpm checks used private reconstructed and projected
+database copies. The expected conflict selected one removal and one
+addition in each direction. Declining the conflict stopped preparation.
+The database digests matched before and after. A separate public-only
+keyring verified the detached signature on the exact 6.12.0-4 archive.
+The disposable TEST primary fingerprint is
+`61FE4B9843C51FDDEDB89A2E4CAB5C8976333D18`. Launch authority remains unissued.
+
+| Retained evidence | SHA-256 |
+| --- | --- |
+| ABI and consumer comparison | `10fcd257338218a700c1995213c1f31a78e967c50a54927a277c78f91addbcdf` |
+| Prepare-only ALPM transcript | `d8c39dfc300f41db677f293ee6962c16975ad85d1738bb25f965a8a6896cfb8e` |
+| TEST public certificate | `42607d128f0cafa969bba2df7b5e4184d162113b1c1775e9a4e114d6576b0bd3` |
+| Detached TEST signature | `f4d7ed6483b97e87617714ef1b7ceb8850dad792b8a154f6b497437d2ad9b93f` |
+| Unissued parity profile | `b6ad58e3ab8877ec95832d1ac60797366a9995cca950db9885fd2632ac7f7ace` |
+
 ## Reviewed profile inputs
 
 Create a canonical JSON profile using `C.wire` from `prepare.py`. Preserve
@@ -163,6 +187,5 @@ Record fresh comparison and ALPM transcript pins. Replacement adds project
    a private CUPS queue that receives a print job, a rendered XWayland
    frame with forced EGL, and automatic XCB selection with GLX available.
 
-TEST signing, the mixed-version Asahi629 installation and restoration,
-and installed provider parity remain open. Physical validation on both M2
-Air sizes also remains open.
+The mixed-version Asahi629 installation and restoration, installed
+provider parity, and validation on both physical M2 Air sizes remain open.
