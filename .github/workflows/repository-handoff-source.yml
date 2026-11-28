@@ -4,16 +4,38 @@ on:
   pull_request:
     paths:
       - .github/bootstrap/**
-      - .github/workflows/repository-handoff-source.yml
+      - .github/workflows/native-arm-build.yml
       - .github/workflows/native-arm-development.yml
+      - .github/workflows/repository-handoff-source.yml
+      - AGENTS.md
+      - LICENSE
+      - README.md
+      - examples/development/**
+      - manifests/reviewed/ksmctl.json
+      - manifests/reviewed/repository-generic-policy.json
+      - packages/desktop/**
+      - packages/settings/**
+      - packages/shells/**
+      - packages/tools/cachy-asahi-ksmctl/**
+      - scripts/benchmarks/**
+      - scripts/build/**
+      - scripts/checks/**
+      - scripts/ci/*.json
+      - scripts/ci/*.py
       - scripts/ci/development/**
-      - scripts/client/client.py
+      - scripts/client/**
       - scripts/experiments/**
+      - scripts/hardware/**
+      - scripts/integration/**
+      - scripts/port/refreshed-desktop/proposed-builder-inventory.lock
       - scripts/port/repository-client-native/**
       - scripts/port/repository-client-phase-stage/**
       - scripts/port/repository-client-stage/**
       - scripts/port/repository-native-handoff/**
-      - scripts/release/release.py
+      - scripts/release/**
+      - scripts/setup/**
+      - scripts/virtual/**
+      - tests/test_build_validation.py
 
 permissions:
   contents: read
@@ -33,6 +55,12 @@ jobs:
           historical_commit=bcf0cee981ee4b7f7b082f636922c859dc7e0abc
           git fetch --no-tags --no-recurse-submodules --depth=1 origin "$historical_commit"
           test "$(git --no-replace-objects rev-parse --verify 'FETCH_HEAD^{commit}')" = "$historical_commit"
+      - name: Replay the committed dual-source packet with real Git
+        shell: bash
+        env:
+          TMPDIR: ${{ runner.temp }}
+        run: |
+          timeout --kill-after=5s 90s python3 -I -B -S -m unittest discover -s .github/bootstrap -p test_repository_handoff_source.py -v
       - name: Run repository handoff source controls
         shell: bash
         env:
