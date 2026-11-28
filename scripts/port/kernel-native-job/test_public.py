@@ -603,13 +603,10 @@ class BootstrapTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name) / 'source'; self.root.mkdir()
         self.ns = bootstrap()
+        sources = {self.ns['JOB'], *self.ns['MODULES'].values()}
         for name in self.ns['REQUIRED']:
             path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes((ROOT / name).read_bytes() if name in
-                            {self.ns['PUBLIC'], self.ns['JOB'], 'scripts/port/kernel-native-job/packet.py',
-                             'scripts/port/kernel-native-job/packet_v2.py',
-                             'scripts/port/kernel-native-job/runtime.py', 'scripts/port/kernel-native-job/intake.py'} else
-                             (name + '\n').encode())
+            path.write_bytes((ROOT / name).read_bytes() if name in sources else (name + '\n').encode())
             path.chmod(0o755 if name == self.ns['JOB'] else 0o644)
         self.rows = {name: {'bytes': len((self.root / name).read_bytes()),
                     'sha256': hashlib.sha256((self.root / name).read_bytes()).hexdigest(),

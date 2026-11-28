@@ -56,7 +56,7 @@ jobs:
           INTAKE = 'scripts/port/kernel-native-job/intake.py'
           PUBLIC = 'scripts/port/kernel-native-job/public.py'
           MODULES = {name: 'scripts/port/kernel-native-job/' + name + '.py'
-                     for name in ('intake', 'packet', 'packet_v2', 'packet_v3', 'public', 'runtime')}
+                     for name in ('child_launch', 'intake', 'packet', 'packet_v2', 'packet_v3', 'public', 'runtime')}
           REQUIRED = {WORKFLOW, JOB, *MODULES.values(), 'scripts/ci/native_arm.py',
                       'scripts/checks/package_checks.py',
                       'scripts/ci/native349-pinned-input-carrier/expected-files.json',
@@ -106,7 +106,7 @@ jobs:
           def git(root, *args):
               env = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'HOME': os.environ['RUNNER_TEMP'],
                      'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': '/dev/null'}
-              result = subprocess.run(['/usr/bin/git', '--literal-pathspecs', '-c', 'core.hooksPath=/dev/null',
+              result = subprocess.run(['/usr/bin/git', '--no-replace-objects', '--literal-pathspecs', '-c', 'core.hooksPath=/dev/null',
                                        '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C', str(root), *args],
                                       env=env, capture_output=True, timeout=10, check=True)
               need(len(result.stdout) <= 8 * 1024**2 and len(result.stderr) <= 4096)

@@ -9,7 +9,7 @@ import packet
 MANIFEST = 'scripts/port/kernel-native-job-v2/packet.lock.json'
 CHECKER = 'scripts/checks/package_checks.py'
 CHECKER_SHA = '306ea3dfa1ce4eb14796c0526a8ca9086043bdcb8e6698c0993d640d076f19cd'
-PARENT_SHA = '3cc6631797d804086686e88ddd2240455561420430bedb4ea6e4ce9eade9c53f'
+PARENT_SHA = '10b6dbda789bf13c6cbd335af3bfbf7827b72eaac3cfbd906f9977bdcba8af56'
 SETUP = 'packages/settings/cachy-asahi-setup'
 ENROLL = 'scripts/repository/enroll.py'
 HELD_SETUP = 'scripts/port/kernel-native-job-v2/setup-producer-source.json'

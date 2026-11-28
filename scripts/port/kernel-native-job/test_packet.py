@@ -98,18 +98,18 @@ class PacketTests(unittest.TestCase):
 
     def run_git(self, argv, **kwargs):
         self.commands.append(argv)
-        self.assertEqual(argv[:7], ['/usr/bin/git', '-c', 'core.hooksPath=/dev/null', '-c',
-                                  'core.fsmonitor=false', '--no-optional-locks', '-C'])
-        self.assertEqual(argv[7], str(self.root))
-        if argv[8] == 'rev-parse':
-            self.assertEqual(argv[9:], ['--verify', 'HEAD'])
+        self.assertEqual(argv[:8], ['/usr/bin/git', '--no-replace-objects', '-c', 'core.hooksPath=/dev/null',
+                                  '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C'])
+        self.assertEqual(argv[8], str(self.root))
+        if argv[9] == 'rev-parse':
+            self.assertEqual(argv[10:], ['--verify', 'HEAD'])
             return subprocess.CompletedProcess(argv, 0, (self.commit + '\n').encode())
-        if argv[8] == 'show':
-            name = argv[9].removeprefix(self.commit + ':')
-            self.assertEqual(argv[9], self.commit + ':' + name)
+        if argv[9] == 'show':
+            name = argv[10].removeprefix(self.commit + ':')
+            self.assertEqual(argv[10], self.commit + ':' + name)
             return subprocess.CompletedProcess(argv, 0, self.contents[name])
-        self.assertEqual(argv[8:12], ['ls-tree', '--format=%(objectmode)', self.commit, '--'])
-        name = argv[12]
+        self.assertEqual(argv[9:13], ['ls-tree', '--format=%(objectmode)', self.commit, '--'])
+        name = argv[13]
         return subprocess.CompletedProcess(argv, 0,
                 ('100' + oct(self.manifest['files'][name]['mode'])[2:] + '\n').encode())
 
@@ -208,9 +208,9 @@ class PacketTests(unittest.TestCase):
         for change in ('blob', 'mode', 'exit'):
             def drift(argv, **kwargs):
                 result = self.run_git(argv, **kwargs)
-                if change == 'blob' and argv[8] == 'show':
+                if change == 'blob' and argv[9] == 'show':
                     result.stdout = b'different committed source'
-                elif change == 'mode' and argv[8] == 'ls-tree':
+                elif change == 'mode' and argv[9] == 'ls-tree':
                     result.stdout = b'100777\n'
                 elif change == 'exit':
                     result.returncode = 1
@@ -222,7 +222,7 @@ class PacketTests(unittest.TestCase):
         name = 'scripts/setup/setup.py'
         def drift(argv, **kwargs):
             result = self.run_git(argv, **kwargs)
-            if argv[8] == 'ls-tree' and argv[-1] == name:
+            if argv[9] == 'ls-tree' and argv[-1] == name:
                 (self.root / name).write_bytes(b'mid-copy drift')
             return result
         with self.assertRaisesRegex(ValueError, 'packet-copy-race'):
@@ -309,7 +309,7 @@ class PacketTests(unittest.TestCase):
                 self.verify()
         def different_head(argv, **kwargs):
             result = self.run_git(argv, **kwargs)
-            if argv[8] == 'rev-parse':
+            if argv[9] == 'rev-parse':
                 result.stdout = ('b' * 40 + '\n').encode()
             return result
         with self.assertRaisesRegex(ValueError, 'packet-HEAD'):

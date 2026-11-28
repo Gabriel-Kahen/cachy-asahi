@@ -19,9 +19,11 @@ from test_public import bootstrap
 LEGACY = ROOT / packet.PREFIX / 'packet.lock.json'
 LEGACY_SHA = '3676a36626bf55a925e395128fb32ab6a876642259f2eac2c4221a920db65e18'
 MANIFEST = ROOT / packet_v2.MANIFEST
-SUCCESSOR_POLICY = packet.PREFIX + 'packet_v3.py'
+LEGACY_PARENT_SHA = '3cc6631797d804086686e88ddd2240455561420430bedb4ea6e4ce9eade9c53f'
+SUCCESSOR_PYTHON = {packet.PREFIX + name for name in ('packet_v3.py', 'child_launch.py')}
 SUCCESSOR_CHANGES = {*packet_v3.BUILD_HELPERS, packet.WORKFLOW, packet.DOCUMENT,
-                     packet.PREFIX + 'job.py', packet.PREFIX + 'test_public.py'}
+                     *(packet.PREFIX + name for name in ('job.py', 'packet.py', 'packet_v2.py',
+                                                         'runtime.py', 'test_packet.py', 'test_public.py'))}
 
 
 class CurrentPacketTests(unittest.TestCase):
@@ -30,10 +32,11 @@ class CurrentPacketTests(unittest.TestCase):
         successor = packet.load(MANIFEST)
         policy = packet_v2._policy()
         names, kernel, recipes = policy.closure(ROOT)
-        self.assertEqual(names - set(successor['files']), {SUCCESSOR_POLICY})
+        self.assertEqual(names - set(successor['files']), SUCCESSOR_PYTHON)
         self.assertFalse(set(successor['files']) - names)
         policy.frozen(successor['files'], kernel, recipes)
-        self.assertEqual(legacy['files'][packet.PREFIX + 'packet.py']['sha256'], packet_v2.PARENT_SHA)
+        self.assertEqual(legacy['files'][packet.PREFIX + 'packet.py']['sha256'], LEGACY_PARENT_SHA)
+        self.assertEqual(packet.sha(packet.read(ROOT / packet.PREFIX / 'packet.py')), packet_v2.PARENT_SHA)
         historical_pin = packet.HELPERS[packet_v2.CHECKER]
         self.assertEqual(historical_pin[0], legacy['files'][packet_v2.CHECKER]['sha256'])
         self.assertNotEqual(historical_pin[0], packet_v2.CHECKER_SHA)

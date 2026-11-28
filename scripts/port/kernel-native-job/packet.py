@@ -193,6 +193,11 @@ def preview(root):
     return {'schema_version': 1, 'files': rows}
 
 
+def git_command(root):
+    return ['/usr/bin/git', '--no-replace-objects', '-c', 'core.hooksPath=/dev/null',
+            '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C', str(root)]
+
+
 def verify(root, manifest_path, manifest_sha, commit, runner, output, workflow_sha=None):
     root, output = Path(root).absolute(), Path(output).absolute()
     need(type(commit) is str and re.fullmatch('[0-9a-f]{40}', commit) and
@@ -219,8 +224,7 @@ def verify(root, manifest_path, manifest_sha, commit, runner, output, workflow_s
         total += value['bytes']
     need(total <= MAX_TOTAL, 'packet-total-bound')
     frozen(manifest['files'], kernel, recipes)
-    command = ['/usr/bin/git', '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false',
-               '--no-optional-locks', '-C', str(root)]
+    command = git_command(root)
     head = runner.run(command + ['rev-parse', '--verify', 'HEAD'], timeout=10, limit=4096)
     need(head.returncode == 0 and head.stdout == (commit + '\n').encode(), 'packet-HEAD')
     output.mkdir(mode=0o700)

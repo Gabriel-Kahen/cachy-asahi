@@ -230,5 +230,40 @@ class CurrentPacketTests(unittest.TestCase):
         self.assertEqual(packet.walk(producer), self.rows.keys() | {packet_v2.ENROLL})
 
 
+    def test_verified_source_with_child_mode_drift_never_reaches_parallel_runner(self):
+        root = self.private_checkout()
+        output_parent = root / 'artifacts/kernel-native-job'
+        output_parent.mkdir(parents=True)
+        for index, (staged, entry) in enumerate((
+                ('producer-source', job.child_launch.PRODUCER), ('source', job.child_launch.ACQUISITION)), 1):
+            with self.subTest(entry=entry):
+                output = output_parent / f'job-1-{index}'
+                args = SimpleNamespace(source_root=root, source_commit=self.commit, packet_sha256=self.pin,
+                                       packet=root / packet_v3.MANIFEST, output=output,
+                                       docker_endpoint='unix:///modeled-no-daemon')
+
+                def drift(_):
+                    mode = 0o644 if self.rows[entry]['mode'] == 0o755 else 0o755
+                    (output / 'private' / staged / entry).chmod(mode)
+
+                baseline = SimpleNamespace(ready=True, start=drift, observe=lambda *args: None)
+                with (patch.dict(os.environ, {'GITHUB_WORKSPACE': str(root)}),
+                      patch.object(job, 'ordinary'),
+                      patch.object(job.runtime, 'Runner', return_value=self.runner) as runner,
+                      patch.object(job, 'Docker', return_value=SimpleNamespace(info=lambda _: {})),
+                      patch.object(job, 'Baseline', return_value=baseline),
+                      patch.object(job, 'cleanup_base', return_value={'status': 'PASS'})):
+                    self.assertEqual(job.work(args, [], monotonic()), 1)
+
+                self.assertEqual([call.args[0] for call in runner.call_args_list], [job.SETUP, job.CLEANUP])
+                receipt = packet.load(output / 'private/result.json')
+                self.assertEqual(receipt['source']['status'], 'PASS')
+                status = receipt['status']
+                self.assertEqual((status['first_failed_phase'], status['failure_reason']),
+                                 ('parallel', 'PARALLEL_RUN_FAILED'))
+                self.assertEqual(status['daemon_baseline']['producer_mutation'], 'NOT_STARTED')
+                self.assertFalse((output / 'private/producer-started.json').exists())
+
+
 if __name__ == '__main__':
     unittest.main()

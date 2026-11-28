@@ -14,7 +14,7 @@ import packet_v2
 
 MANIFEST = 'scripts/port/kernel-native-job-v3/packet.lock.json'
 MANIFEST_LIMIT = 1024**2
-PARENT_SHA = '4d69abec079102b2f0ad1566961dd3e663a19ca5668cb5d68215f97bbdced68e'
+PARENT_SHA = '4c3a0f2dc3adc129858cd622d3d960f4632d097d61a4ab3257302a39f34fdf16'
 BUILD_HELPERS = {
     'scripts/build/build.py': ('bb1d506ee443102073b4265d848b505afa18a5176af10780de487731529a137f', 0o644),
     'scripts/build/compare.py': ('f28a02dd1b19847df8870e2ded18117c39d11e7d62d990b68292e37c11f19d9a', 0o644),
@@ -44,8 +44,7 @@ def verify(root, manifest_path, manifest_sha, commit, runner, output):
     held = packet.capture(manifest_path, MANIFEST_LIMIT)
     body, mode = held
     packet.need(mode == 0o644 and packet.sha(body) == manifest_sha, 'packet-pin')
-    git = ['/usr/bin/git', '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false',
-           '--no-optional-locks', '-C', str(root)]
+    git = packet.git_command(root)
     blob = runner.run(git + ['show', commit + ':' + MANIFEST], timeout=10, limit=MANIFEST_LIMIT)
     tree = runner.run(git + ['ls-tree', '--format=%(objectmode)', commit, '--', MANIFEST],
                       timeout=10, limit=4096)

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Finite disposable hosted job using the original producer and held kernel stage."""
 import argparse
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 import hashlib
 import json
 import os
@@ -18,6 +18,7 @@ import time
 from time import monotonic as snapshot_clock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import child_launch
 import intake
 import packet
 import public
@@ -761,7 +762,7 @@ def work(args, terminal, start):
     docker = None; image = None; producer_finished = False; kernel_output = None; baseline = None
     child_record = None; invocation = None; child_captured = False
     env = {'PATH': '/usr/bin:/bin', 'HOME': str(private / 'home'), 'DOCKER_CONFIG': str(private / 'docker-config'),
-        'DOCKER_HOST': args.docker_endpoint, 'DOCKER_BUILDKIT': '0', 'LC_ALL': 'C', 'LANG': 'C.UTF-8', 'PYTHONDONTWRITEBYTECODE': '1',
+        'DOCKER_HOST': args.docker_endpoint, 'DOCKER_BUILDKIT': '0', 'GIT_NO_REPLACE_OBJECTS': '1', 'LC_ALL': 'C', 'LANG': 'C.UTF-8', 'PYTHONDONTWRITEBYTECODE': '1',
         **{key: os.environ[key] for key in HOST_ENV if key in os.environ}}
     context = ('preflight', 'PREFLIGHT_REJECTED')
     try:
@@ -776,6 +777,7 @@ def work(args, terminal, start):
             root / packet_v2.MANIFEST: packet_v2.verify,
             root / packet_v3.MANIFEST: packet_v3.verify,
         }.get(args.packet)
+        bind_children = args.packet == root / packet_v3.MANIFEST
         verify = current_verify if current_verify is not None else packet.verify
         evidence['source'] = verify(root, args.packet, args.packet_sha256, args.source_commit, setup, snapshot)
         producer_source = snapshot
@@ -788,7 +790,7 @@ def work(args, terminal, start):
         baseline = Baseline(args, docker, private, status['daemon_baseline'])
         baseline.start(setup)
         context = ('source', 'RETAINED_INPUTS_REJECTED')
-        with retained_input_cache(private) as reuse:
+        with retained_input_cache(private) as reuse, ExitStack() as children:
             context = ('source', 'PRODUCER_TIME_RESERVE')
             packet.need(DEADLINE - (time.monotonic() - start) >= PARALLEL + KERNEL_ENVELOPE + CLEANUP + GUARD, 'producer-time-reserve')
             status['phase'] = 'producer'
@@ -801,13 +803,23 @@ def work(args, terminal, start):
                 str(snapshot / 'artifacts/kernel-native-stage/acquisition')]]
             if reuse is not None:
                 commands[1].extend(('--reuse-cache', str(reuse)))
+            parallel_options = {}
+            if bind_children:
+                rows = evidence['source']['files_map']
+                producer, producer_fds = children.enter_context(
+                    child_launch.bind(producer_source, child_launch.PRODUCER, commands[0], rows))
+                acquisition, acquisition_fds = children.enter_context(
+                    child_launch.bind(snapshot, child_launch.ACQUISITION, commands[1], rows))
+                commands = [producer, acquisition]
+                parallel_options['pass_fds'] = (producer_fds, acquisition_fds)
             phase = runtime.Runner(PARALLEL, env, private / 'phase-logs')
             evidence['commands'] = commands
             save(private / 'producer-started.json', {'commands': commands, 'daemon': docker.daemon, 'producer_finished': False})
             status['daemon_baseline']['producer_mutation'] = 'UNCERTAIN'
             status.update(producer_exit={'kind': 'UNOBSERVED', 'code': None},
                 acquisition_exit={'kind': 'UNOBSERVED', 'code': None})
-            results = phase.run_many(commands, timeout=PARALLEL, lognames=('original-producer.log', 'kernel-acquisition.log'))
+            results = phase.run_many(commands, timeout=PARALLEL,
+                                     lognames=('original-producer.log', 'kernel-acquisition.log'), **parallel_options)
         packet.need(type(results) in (list, tuple) and len(results) == 2, 'parallel-results')
         exits = [public.exit_record(result.returncode) for result in results]
         status.update(producer_exit=exits[0], acquisition_exit=exits[1])
@@ -851,12 +863,17 @@ def work(args, terminal, start):
         kernel_output = kernel_parent / ('hosted-job-' + secrets.token_hex(16))
         command = kernel_command(args, private, image, accepted, paths, kernel_output)
         invocation = child_binding(command, env)
-        evidence['commands'].append(command); evidence['kernel_output'] = str(kernel_output)
         status['phase'] = 'kernel'
         context = ('kernel', 'KERNEL_RUN_FAILED')
-        phase = runtime.Runner(KERNEL_ENVELOPE, env, private / 'kernel-logs')
-        status['kernel_child'].update(availability='UNAVAILABLE', exit={'kind': 'UNOBSERVED', 'code': None})
-        result = phase.run(command, timeout=KERNEL_ENVELOPE, log='kernel-controller.log')
+        with ExitStack() as child:
+            stage_options = {}
+            if bind_children:
+                command, stage_options['pass_fds'] = child.enter_context(
+                    child_launch.bind(snapshot, child_launch.STAGE, command, evidence['source']['files_map']))
+            evidence['commands'].append(command); evidence['kernel_output'] = str(kernel_output)
+            phase = runtime.Runner(KERNEL_ENVELOPE, env, private / 'kernel-logs')
+            status['kernel_child'].update(availability='UNAVAILABLE', exit={'kind': 'UNOBSERVED', 'code': None})
+            result = phase.run(command, timeout=KERNEL_ENVELOPE, log='kernel-controller.log', **stage_options)
         status['kernel_child']['exit'] = public.exit_record(result.returncode)
         child_record = child_observation(args, kernel_output, invocation, status['kernel_child'])
         child_captured = True
