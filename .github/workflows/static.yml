@@ -1221,11 +1221,25 @@ jobs:
           python3 -B -m unittest discover -s scripts/ci/full-root-upgrade -p 'test_*.py'
           python3 -B -m unittest discover -s scripts/update -p test_snapshot_selection.py
           python3 -B -m unittest discover -s scripts/update -p test_var_lock_protection.py
+      - name: Check out the frozen release helper for full-root failure controls
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 598a3dd77184f74935f71cb07c48c4411b6c44e4
+          path: .ci-inputs/full-root-release
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/release/release.py
       - name: Check controlled complete-root failure and disposal without actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        env:
+          FROZEN_FULL_ROOT_RELEASE_HELPER: ${{ github.workspace }}/.ci-inputs/full-root-release/scripts/release/release.py
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-root-failed-update -p 'test_*.py'
       - name: Check controlled postcommit interruption and disposal without actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        env:
+          FROZEN_FULL_ROOT_RELEASE_HELPER: ${{ github.workspace }}/.ci-inputs/full-root-release/scripts/release/release.py
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-root-postcommit-failure -p 'test_*.py'
       - name: Check Debian-source provider authentication and source boundaries without actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
