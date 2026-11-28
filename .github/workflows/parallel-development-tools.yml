@@ -125,6 +125,7 @@ jobs:
               python -I -B scripts/benchmarks/test_platform_metrics.py -v
               python -I -B scripts/benchmarks/test_benchmark_platform_metrics.py -v
               python -I -B scripts/benchmarks/test_benchmark_owned_rss.py -v
+              python -I -B -Werror::ResourceWarning -m unittest discover -s scripts/benchmarks -p test_benchmark_owned_process_v2.py -v
               python -I -B scripts/benchmarks/test_suspend_drain.py -v
               ;;
             developer)
