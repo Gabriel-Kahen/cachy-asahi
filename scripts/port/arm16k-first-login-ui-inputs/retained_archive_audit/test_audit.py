@@ -19,6 +19,10 @@ SPEC.loader.exec_module(audit)
 CHECKER = 'scripts/checks/package_checks.py'
 HELD_CHECKER = (audit.ROOT / 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
                 / 'scripts/ci/llhttp-reference-native-source/base/runtime' / CHECKER)
+RESOLVER = 'scripts/port/platform-residual-closure/resolve.py'
+# Verbatim resolver blob from fb862ffea at RESOLVER.
+HELD_RESOLVER = HERE / 'fixtures' / 'resolve.fb862ffea.py.data'
+HELD_READERS = {CHECKER: HELD_CHECKER, RESOLVER: HELD_RESOLVER}
 
 
 def elf(alignment=16384):
@@ -38,7 +42,7 @@ class AuditControls(unittest.TestCase):
         cls.addClassCleanup(temporary.cleanup)
         cls.reader_root = Path(temporary.name)
         for name, row in cls.config['reader_sources'].items():
-            source = HELD_CHECKER if name == CHECKER else audit.ROOT / name
+            source = HELD_READERS.get(name, audit.ROOT / name)
             target = cls.reader_root / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(audit.checked_bytes({'path': str(source), **row}))
@@ -79,6 +83,18 @@ class AuditControls(unittest.TestCase):
         checker = Path(self.modules['geometry'].__file__)
         self.assertEqual(checker, self.reader_root / CHECKER)
         self.assertEqual(checker.read_bytes(), HELD_CHECKER.read_bytes())
+
+    def test_resolver_fixture_matches_historical_pins_and_loaded_reader(self):
+        body = HELD_RESOLVER.read_bytes()
+        pin = {'bytes': len(body), 'sha256': audit.sha(body)}
+        self.assertEqual(pin, {'bytes': 36995,
+                              'sha256': 'df71e3166025849785f1bdd4543f36938d7fd191dc8d407aa420a1b61968548e'})
+        seat = json.loads((HERE / 'seat-inputs.json').read_text())
+        for config in (self.config, seat):
+            self.assertEqual(config['reader_sources'][RESOLVER], pin)
+        resolver = Path(self.modules['resolver'].__file__)
+        self.assertEqual(resolver, self.reader_root / RESOLVER)
+        self.assertEqual(resolver.read_bytes(), body)
 
     def test_snapshot_full_pin_and_same_length_change(self):
         source = self.root / 'source'
