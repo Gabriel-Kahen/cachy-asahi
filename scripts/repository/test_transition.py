@@ -7,9 +7,12 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import py_compile
 import shutil
 import sys
+import tempfile
 import unittest
+from unittest.mock import patch
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
@@ -27,6 +30,42 @@ F = module('enrollment_fixture', HERE / 'test_enroll.py')
 R = module('release_fixture', HERE.parent / 'release/test_compare_releases.py')
 R.c = m.T.c
 R.fixture.r = m.T.r
+
+
+class SourceLoadingTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix='repository-source-loader-')
+        self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name)
+        self.repository = root / 'repository'
+        self.release = root / 'release'
+        self.repository.mkdir()
+        self.release.mkdir()
+        prefix = patch.object(sys, 'pycache_prefix', None)
+        prefix.start()
+        self.addCleanup(prefix.stop)
+
+    def write_source_update(self, path):
+        path.write_bytes(b'REVISION = "one"\n')
+        original = path.stat()
+        py_compile.compile(str(path), doraise=True, invalidation_mode=py_compile.PycInvalidationMode.TIMESTAMP)
+        path.write_bytes(b'REVISION = "two"\n')
+        os.utime(path, ns=(original.st_atime_ns, original.st_mtime_ns))
+
+    def test_rotation_loads_current_enrollment_source(self):
+        entry = self.repository / 'rotate.py'
+        shutil.copyfile(HERE / entry.name, entry)
+        self.write_source_update(self.repository / 'enroll.py')
+        rotation = module('test_rotation_source_update', entry)
+        self.assertEqual(rotation.E.REVISION, 'two')
+
+    def test_transition_loads_current_signing_and_rotation_sources(self):
+        entry = self.repository / 'transition.py'
+        shutil.copyfile(HERE / entry.name, entry)
+        self.write_source_update(self.release / 'signing_transition.py')
+        self.write_source_update(self.repository / 'rotate.py')
+        transition = module('test_transition_source_update', entry)
+        self.assertEqual((transition.T.REVISION, transition.load_rotation().REVISION), ('two', 'two'))
 
 
 class TransitionTests(unittest.TestCase):

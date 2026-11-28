@@ -20,7 +20,8 @@ HERE = Path(__file__).resolve().parent
 def module(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     value = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(value)
+    # Python -B can still read an existing bytecode cache.
+    exec(compile(path.read_bytes(), str(path), 'exec'), vars(value))
     return value
 
 
