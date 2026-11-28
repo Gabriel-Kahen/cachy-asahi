@@ -66,20 +66,6 @@ def module_bytes(path, body):
     return SimpleNamespace(**scope)
 
 
-def packet_tools(contract):
-    path = ROOT / (KERNEL_PACKET + ".py")
-    pin = contract["references"][KERNEL_PACKET + ".py"]
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
-    with os.fdopen(fd, "rb") as stream:
-        info = os.fstat(fd)
-        require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_size == pin["bytes"],
-                "ordinary maintained producer packet reader required")
-        body = stream.read(pin["bytes"] + 1)
-    require(len(body) == pin["bytes"] and hashlib.sha256(body).hexdigest() == pin["sha256"],
-            "exact maintained producer packet reader required")
-    return module_bytes(path, body)
-
-
 def producer_git(*args):
     try:
         return command(["git", "--no-replace-objects", "-c", "protocol.allow=never", *args],
@@ -88,19 +74,44 @@ def producer_git(*args):
         raise GuardFailure("missing or unreadable maintained producer Git object") from error
 
 
-def stage_producer(scratch, contract, packet):
-    name = KERNEL_PACKET + ".lock.json"
-    manifest = packet.load(ROOT / name, contract["references"][name]["sha256"])["files"]
+def producer_entries(contract, paths):
     reference = contract["reference_commit"]
     require(re.fullmatch(r"[0-9a-f]{40}", reference), "exact maintained producer reference")
-    selected = set(packet.HELPERS) | {INPUTS, packet.RECIPES_LOCK}
-    table = producer_git("ls-tree", "-rlz", "--full-tree", reference, "--",
-                         *sorted(selected | packet.RECIPE_BASES))
-    blobs = {}
+    table = producer_git("ls-tree", "-rlz", "--full-tree", reference, "--", *sorted(paths))
     for entry in table.split(b"\0")[:-1]:
         header, leaf = entry.split(b"\t", 1)
-        git_mode, kind, oid, size = header.split()
-        name = leaf.decode("ascii")
+        yield leaf.decode("ascii"), header.split()
+
+
+def reference_file(contract, name, pin, mode):
+    entries = dict(producer_entries(contract, (name,)))
+    require(entries.keys() == {name}, f"exact maintained reference path: {name}")
+    git_mode, kind, oid, size = entries[name]
+    require(kind == b"blob" and int(git_mode, 8) == (stat.S_IFREG | mode)
+            and size == str(pin["bytes"]).encode("ascii"), f"maintained reference byte/mode pin: {name}")
+    body = producer_git("cat-file", "blob", oid.decode("ascii"))
+    require(len(body) == pin["bytes"] and hashlib.sha256(body).hexdigest() == pin["sha256"],
+            f"maintained reference bytes required: {name}")
+    return body
+
+
+def packet_tools(contract):
+    name = KERNEL_PACKET + ".py"
+    body = reference_file(contract, name, contract["references"][name], 0o644)
+    return module_bytes(ROOT / name, body)
+
+
+def producer_manifest(contract, packet):
+    name = KERNEL_PACKET + ".lock.json"
+    body = reference_file(contract, name, contract["references"][name], 0o644)
+    return packet.decode(body)["files"]
+
+
+def stage_producer(scratch, contract, packet):
+    manifest = producer_manifest(contract, packet)
+    selected = set(packet.HELPERS) | {INPUTS, packet.RECIPES_LOCK}
+    blobs = {}
+    for name, (git_mode, kind, oid, size) in producer_entries(contract, selected | packet.RECIPE_BASES):
         pin = manifest.get(name)
         require(pin and kind == b"blob" and git_mode in (b"100644", b"100755")
                 and int(git_mode, 8) == (stat.S_IFREG | pin["mode"]) and int(size) == pin["bytes"],
@@ -321,12 +332,9 @@ def audit_maintained(prepared, scratch, report):
     source, cache = prepared.producer_source, prepared.cache
     require(source == scratch / "maintained-producer-source" and cache == scratch / "alarm-cache",
             "exact maintained audit scratch paths")
-    manifest = KERNEL_PACKET + ".lock.json"
-    rows = packet.load(ROOT / manifest, binding["references"][manifest]["sha256"])["files"]
-    path = ROOT / KERNEL_RUNTIME
-    body, mode = packet.capture(path)
-    require(packet.row(body, mode) == rows[KERNEL_RUNTIME], "exact maintained audit process supervisor")
-    runtime = module_bytes(path, body)
+    pin = producer_manifest(binding, packet)[KERNEL_RUNTIME]
+    body = reference_file(binding, KERNEL_RUNTIME, pin, pin["mode"])
+    runtime = module_bytes(ROOT / KERNEL_RUNTIME, body)
 
     home = scratch / "audit-home"
     home.mkdir(mode=0o700)

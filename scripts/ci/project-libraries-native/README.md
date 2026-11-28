@@ -217,9 +217,10 @@ matching materializations of the reviewed project recipes.
 The maintained producer stages the 89 files selected at
 `4e5493cbd384feaae027abb476437c90b7c07cba`. The existing packet manifest
 verifies the byte count, SHA-256 and mode of every staged file, including
-the retained Source95 package checker. The hosted jobs fetch the source
-commit into their shallow Git checkout. To run the maintained controls in a
-local shallow checkout, fetch the same commit first.
+the retained Source95 package checker. The pinned packet reader, manifest
+and input-only audit supervisor come from that same Git commit. The hosted
+jobs fetch it into their shallow checkout. To run the maintained controls in
+a local shallow checkout, fetch the same commit first.
 
 ```sh
 git fetch --no-tags --no-recurse-submodules --depth=1 origin 4e5493cbd384feaae027abb476437c90b7c07cba

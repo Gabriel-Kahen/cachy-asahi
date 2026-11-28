@@ -6,8 +6,9 @@ import os
 from pathlib import Path
 import subprocess
 import tempfile
+from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import maintained_inputs622 as maintained
 from inputs622 import load
@@ -32,6 +33,61 @@ class MaintainedInputs(unittest.TestCase):
                                              self.root / "expected341.lock", self.root / "expected346.lock",
                                              self.root / "recipes")
 
+    def test_audit_uses_locked_reader_manifest_and_supervisor_after_live_drift(self):
+        item = self.prepared()
+        git_dir = maintained.producer_git("rev-parse", "--absolute-git-dir").decode().strip()
+        packet_name = maintained.KERNEL_PACKET + ".py"
+        live_reader = self.root / packet_name
+        live_manifest = self.root / (maintained.KERNEL_PACKET + ".lock.json")
+        live_runtime = self.root / maintained.KERNEL_RUNTIME
+        live_reader.parent.mkdir(parents=True)
+        for path in (live_reader, live_manifest, live_runtime):
+            path.write_bytes(b"drifted checkout file\n")
+        runtime_pin = maintained.producer_manifest(self.binding, self.packet)[maintained.KERNEL_RUNTIME]
+        runner = Mock()
+        runner.run.return_value = subprocess.CompletedProcess([], 0)
+        compile_source = maintained.module_bytes
+
+        def load_with_stub_runner(path, body):
+            if path == live_runtime:
+                return SimpleNamespace(Runner=Mock(return_value=runner), Cancelled=InterruptedError)
+            return compile_source(path, body)
+
+        report = {}
+        with (patch.dict(os.environ, {"GIT_DIR": git_dir}),
+              patch.object(maintained, "ROOT", self.root),
+              patch.object(maintained, "module_bytes", side_effect=load_with_stub_runner) as load_source,
+              patch.object(maintained, "verify_audit") as verify):
+            maintained.audit_maintained(item, self.root, report)
+
+        self.assertEqual([call.args[0] for call in load_source.call_args_list], [live_reader, live_runtime])
+        reader_body, runtime_body = (call.args[1] for call in load_source.call_args_list)
+        self.assertEqual(dict(bytes=len(reader_body), sha256=self.packet.sha(reader_body)),
+                         self.binding["references"][packet_name])
+        self.assertEqual(self.packet.row(runtime_body, 0o644), runtime_pin)
+        runner.run.assert_called_once()
+        self.assertEqual(runner.run.call_args.args[0][4], "audit")
+        verify.assert_called_once()
+        self.assertEqual(report["maintained_input_authentication"]["verified_signatures"], self.binding["signatures"])
+
+    def test_packet_reader_rejects_historical_mode_and_same_size_byte_drift(self):
+        git = maintained.producer_git
+        for operation, error in (("ls-tree", "reference byte/mode pin"), ("cat-file", "reference bytes required")):
+            def git_with_drift(*args):
+                raw = git(*args)
+                if args[0] != operation:
+                    return raw
+                if operation == "ls-tree":
+                    return raw.replace(b"100644 ", b"100755 ", 1)
+                return bytes([raw[0] ^ 1]) + raw[1:]
+
+            with (self.subTest(operation=operation),
+                  patch.object(maintained, "producer_git", side_effect=git_with_drift),
+                  patch.object(maintained, "module_bytes") as compile_reader):
+                with self.assertRaisesRegex(ValueError, error):
+                    maintained.packet_tools(self.binding)
+                compile_reader.assert_not_called()
+
     def test_exact_original_operand_counts_and_producer_snapshot(self):
         self.assertEqual(len(self.pins), 501)
         self.assertEqual(sum(name.endswith(".sig") for name in self.pins), 249)
@@ -46,8 +102,7 @@ class MaintainedInputs(unittest.TestCase):
         self.assertFalse(any(name.startswith(self.packet.KERNEL) for name in files))
         self.assertEqual(self.packet.capture(item.producer_source / maintained.CHECKER),
                          self.packet.capture(maintained.ROOT / maintained.HELD_CHECKER))
-        lock = maintained.KERNEL_PACKET + ".lock.json"
-        rows = self.packet.load(maintained.ROOT / lock, self.binding["references"][lock]["sha256"])["files"]
+        rows = maintained.producer_manifest(self.binding, self.packet)
         self.assertEqual({name: self.packet.row(*self.packet.capture(item.producer_source / name)) for name in files},
                          {name: rows[name] for name in files})
 
