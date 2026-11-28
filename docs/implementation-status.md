@@ -63,22 +63,27 @@ The separate Asahi629 JBIG/TIFF package swap is also **NOT RUN**.
 The scoped Qtbase 6.12.0-3 TEST-signed swap on the earlier Asahi629 rollback
 inventory passed replacement, software rendering probes before and during
 replacement, and restoration of the original package and inventory.
-Post-restoration runtime remains **NOT RUN**. The fresh, sealed Qtbase
-6.12.0-4 parity build was still compiling in emulated AArch64 with 16 KiB
-pages at the status check. Archive verification and the mixed-version guest
-swap and restoration remain pending.
+Post-restoration runtime remains **NOT RUN**.
 [6.12.0-3 guest trial](../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27)
-· [6.12.0-4 parity trial](../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md)
 
-The 104-workflow pass reported in draft PR #625 applies to `40e7ad1b`.
-At `e9ad4220`, draft PR #626's dedicated registration job verified 265 Git
-source rows and passed 11 cleanup models and 37 receiver controls. The native
-preflight bridge source is integrated at `1db8f7a5`. Trusted launch, peer
-Data issuance, native ABI, guest and installed qualification for that
-preflight remain open.
+**November 28, 2026.** The sealed Qtbase 6.12.0-4 parity profile completed
+its offline build and smoke test in emulated AArch64 with 16 KiB pages.
+Independent stopped-disk readback verified the 14,333,964-byte archive,
+its package metadata and ABI checks. QEMU and the outer container exited
+normally. TEST signing, mixed-version guest installation and restoration,
+and physical M2 qualification remain open.
+[6.12.0-4 parity trial](../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md)
+
+Draft PR #625 at `598a3dd77184f74935f71cb07c48c4411b6c44e4` recorded 309
+successful jobs and one skipped cache-seed job. Stacked draft PR #626 at
+`95711a241e1830b07c4940fa1de3d5cadde3bef1` recorded 82 successful jobs
+and one skipped cache-seed job. Its dedicated registration job verified
+265 Git source rows and passed 11 cleanup models and 37 receiver controls.
+Trusted launch, peer Data issuance, native ABI, guest and installed
+qualification for that preflight remain open.
 [PR #625](https://github.com/Gabriel-Kahen/cachy-asahi/pull/625)
 · [PR #626](https://github.com/Gabriel-Kahen/cachy-asahi/pull/626)
-· [Hosted source registration](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46108010834/job/140865004520)
+· [Hosted source registration](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46123698986/job/140913515557)
 
 Track current engineering follow-ups in
 [GitHub Issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues).
