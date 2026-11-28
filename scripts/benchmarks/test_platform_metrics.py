@@ -311,15 +311,22 @@ class MetricsTests(unittest.TestCase):
         inventory = copy.deepcopy(self.inventory); inventory['sensors'][0]['unit'] = 'W'
         with self.assertRaises(m.Invalid): m.summarize(inventory, self.series(), 2.5)
 
-    def test_file_pins_symlinks_and_existing_outputs_refused(self):
+    def replay_fixture(self):
         directory = self.root / 'capture'; directory.mkdir()
         inventory_data, samples = m.encoded(self.inventory), self.series()
         samples_data = b''.join(m.encoded(s) for s in samples)
-        capture = {'schema': m.SCHEMA, 'completed': True, 'files': {
-            'inventory.json': m.pin_bytes(inventory_data), 'samples.jsonl': m.pin_bytes(samples_data)}}
+        capture = {'schema': m.SCHEMA, 'completed': True, 'sample_count': len(samples),
+                   'duration_seconds_requested': 3, 'interval_seconds_requested': 1,
+                   'max_gap_seconds': 2.5, 'start': samples[0]['start'], 'end': samples[-1]['end'],
+                   'files': {'inventory.json': m.pin_bytes(inventory_data),
+                             'samples.jsonl': m.pin_bytes(samples_data)}}
         m.fresh_file(directory / 'inventory.json', inventory_data)
         m.fresh_file(directory / 'samples.jsonl', samples_data)
         m.fresh_file(directory / 'capture.json', m.encoded(capture))
+        return directory, capture, samples
+
+    def test_file_pins_symlinks_and_existing_outputs_refused(self):
+        directory, _, samples = self.replay_fixture()
         self.assertEqual(m.load_capture(directory)[2], samples)
         with self.assertRaises(FileExistsError): m.fresh_file(directory / 'inventory.json', b'overwrite')
         (directory / 'inventory.json').write_bytes(b'{}')
@@ -327,6 +334,22 @@ class MetricsTests(unittest.TestCase):
         (directory / 'capture.json').unlink()
         (directory / 'capture.json').symlink_to(directory / 'inventory.json')
         with self.assertRaises(OSError): m.load_capture(directory)
+
+    def test_replay_checks_interval_policy_count_and_capture_window(self):
+        directory, capture, samples = self.replay_fixture()
+        for mutation, reason in (
+                ({'max_gap_seconds': 120}, 'gap differs'),
+                ({'interval_seconds_requested': True}, 'interval must'),
+                ({'interval_seconds_requested': 60, 'max_gap_seconds': 120}, 'sample count'),
+                ({'sample_count': len(samples) - 1}, 'sample count'),
+                ({'sample_count': float(len(samples))}, 'sample count'),
+                ({'start': samples[1]['start']}, 'capture window'),
+                ({'end': samples[-1]['start']}, 'capture window'),
+                ({'duration_seconds_requested': 4}, 'capture window')):
+            with self.subTest(mutation=mutation):
+                (directory / 'capture.json').write_bytes(m.encoded(capture | mutation))
+                with self.assertRaisesRegex(m.Invalid, reason):
+                    m.load_capture(directory)
 
     def test_discovery_and_sampling_caps_and_nonfinite_gap(self):
         with patch.object(m, 'MAX_SENSORS', 1), self.assertRaises(m.Invalid): m.discover(self.sys)

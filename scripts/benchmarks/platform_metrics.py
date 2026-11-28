@@ -380,23 +380,47 @@ def ordinary(path, cap=MAX_BYTES):
     return data
 
 
+def sampling_max_gap(interval):
+    return min(120, interval * 2.5)
+
+
+def capture_sample_limit(duration, interval):
+    need(type(duration) in (int, float) and 0.1 <= duration <= 3600, 'duration must be 0.1..3600 seconds')
+    need(type(interval) in (int, float) and 0.1 <= interval <= 60, 'interval must be 0.1..60 seconds')
+    limit = math.ceil(duration / interval) + 1
+    need(limit <= MAX_SAMPLES, 'requested sample count bound')
+    return limit
+
+
 def load_capture(directory):
     capture = json.loads(ordinary(directory / 'capture.json', MAX_LINE))
     need(capture['schema'] == SCHEMA and capture['completed'] is True, 'capture not completed')
+    duration, interval = capture['duration_seconds_requested'], capture['interval_seconds_requested']
+    limit = capture_sample_limit(duration, interval)
+    gap = capture['max_gap_seconds']
+    need(type(gap) in (int, float) and gap == sampling_max_gap(interval), 'capture gap differs from interval policy')
     inventory_data = ordinary(directory / 'inventory.json', 2 * 1024**2)
     samples_data = ordinary(directory / 'samples.jsonl')
     need(pin_bytes(inventory_data) == capture['files']['inventory.json'] and
          pin_bytes(samples_data) == capture['files']['samples.jsonl'], 'capture file pin mismatch')
     lines = samples_data.splitlines()
-    need(len(lines) <= MAX_SAMPLES and all(len(line) <= MAX_LINE for line in lines), 'sample line/count bound')
-    return capture, json.loads(inventory_data), [json.loads(line) for line in lines]
+    count = capture['sample_count']
+    need(type(count) is int and 0 < count == len(lines) <= limit, 'capture sample count mismatch')
+    need(all(len(line) <= MAX_LINE for line in lines), 'sample line bound')
+    samples = [json.loads(line) for line in lines]
+    start, end = capture['start'], capture['end']
+    valid_clock(start)
+    valid_clock(end)
+    first_ns = samples[0]['start']['monotonic_ns']
+    last_ns = samples[-1]['end']['monotonic_ns']
+    need(start['monotonic_ns'] <= first_ns <= last_ns <= end['monotonic_ns'] and
+         end['monotonic_ns'] - start['monotonic_ns'] >= round(duration * 1e9), 'capture window differs from samples/duration')
+    return capture, json.loads(inventory_data), samples
 
 
 def capture(args):
     need(sys.platform == 'linux' and hasattr(time, 'CLOCK_BOOTTIME'), 'Linux boottime clock required')
-    need(math.isfinite(args.duration) and 0.1 <= args.duration <= 3600, 'duration must be 0.1..3600 seconds')
-    need(math.isfinite(args.interval) and 0.1 <= args.interval <= 60, 'interval must be 0.1..60 seconds')
-    need(math.ceil(args.duration / args.interval) + 1 <= MAX_SAMPLES, 'requested sample count bound')
+    sample_limit = capture_sample_limit(args.duration, args.interval)
     need(isinstance(args.machine_label, str) and 0 < len(args.machine_label) <= 200, 'machine label required')
     need(len(args.note) <= 16 and all(0 < len(n) <= 500 for n in args.note), 'note bound')
     need(len(args.reference) <= 16, 'reference count bound')
@@ -417,7 +441,7 @@ def capture(args):
                           'dmi_product_name': signature(read_text(Path('/sys/class/dmi/id/product_name')))},
               'collector': pin_bytes(ordinary(Path(__file__), 2 * 1024**2)),
               'duration_seconds_requested': args.duration, 'interval_seconds_requested': args.interval,
-              'max_gap_seconds': min(120, args.interval * 2.5), 'start': clocks(), 'limits': LIMITS}
+              'max_gap_seconds': sampling_max_gap(args.interval), 'start': clocks(), 'limits': LIMITS}
     fresh_file(args.output / 'started.json', encoded(record))
     samples, size = [], 0
     began = time.monotonic_ns()
@@ -425,7 +449,7 @@ def capture(args):
     fd = os.open(args.output / 'samples.jsonl', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC | os.O_NOFOLLOW, 0o600)
     try:
         with os.fdopen(fd, 'wb') as stream:
-            for sequence in range(MAX_SAMPLES):
+            for sequence in range(sample_limit):
                 row = snapshot(inventory, sequence)
                 data = encoded(row)
                 need(len(data) <= MAX_LINE and size + len(data) <= MAX_BYTES, 'capture byte bound')
@@ -474,7 +498,8 @@ def main(argv=None):
             result = capture(args)
         else:
             record, inventory, samples = load_capture(args.capture)
-            result = summarize(inventory, samples, record['max_gap_seconds'], args.start_monotonic_ns, args.end_monotonic_ns)
+            result = summarize(inventory, samples, sampling_max_gap(record['interval_seconds_requested']),
+                               args.start_monotonic_ns, args.end_monotonic_ns)
             result['inputs'] = record['files']
             fresh_file(args.output, encoded(result))
             result = {'output': str(args.output), 'sensor_count': len(inventory['sensors'])}
