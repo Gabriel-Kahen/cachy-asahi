@@ -740,9 +740,12 @@ jobs:
               if not result.wasSuccessful() or result.skipped or result.testsRun == 0:
                   raise SystemExit(f'{directory}: failures, skips, or empty suite')
           PY
-      - name: Check offline exact platform and recovery preflight
+      - name: Check offline platform, recovery and Asahi629 updater preflight
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
-        run: python3 -B -Werror::ResourceWarning scripts/platform/test_recovery_preflight.py
+        run: |
+          python3 -B -Werror::ResourceWarning scripts/platform/test_recovery_preflight.py
+          python3 -I -B -Werror::ResourceWarning scripts/update/test_platform_policy.py
+          python3 -I -B -Werror::ResourceWarning scripts/update/test_asahi629_preflight.py
       - name: Check read-only exact-target snapshot collection
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: python3 -B -Werror::ResourceWarning scripts/platform/test_target_snapshot.py
