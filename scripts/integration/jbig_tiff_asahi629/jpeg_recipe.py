@@ -11,9 +11,6 @@ import stat
 
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[2]
-BUILD_SOURCE = REPO / "scripts/build/project-libraries"
-MATERIALIZATION_PLAN = BUILD_SOURCE / "materialization-plan.json"
 PLAN_PIN = {"bytes": 60646, "sha256": "892b271cd5dc8ff22f103b875adcca87b75ce8b98a2b35ca5b258225ca17923f"}
 PARENT_PIN = {"bytes": 4950, "sha256": "217634ec9084aacf2c2583c566cc6a82167d00a27195d45636ad9552fbe86630"}
 PKGBUILD_PIN = {"bytes": 4968, "sha256": "583aeb9b6a967ac7c2ba639bb176dbc7b11b5a7d2e17e41583765169133775e4"}
@@ -45,7 +42,9 @@ def recipe(parent):
 
 
 def source_specs(read):
-    plan = json.loads(read(MATERIALIZATION_PLAN, PLAN_PIN))
+    # Only host source materialization uses the repository layout.
+    materialization_plan = HERE.parents[2] / "scripts/build/project-libraries/materialization-plan.json"
+    plan = json.loads(read(materialization_plan, PLAN_PIN))
     rows = [row for row in plan["outputs"] if row["package"] == "libtiff"]
     specs = {row["filename"]: {key: row[key] for key in ("bytes", "sha256")} for row in rows}
     require(len(rows) == len(FILES) and specs.keys() == FILES and specs["PKGBUILD"] == PARENT_PIN

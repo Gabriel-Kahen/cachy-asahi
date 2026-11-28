@@ -11,7 +11,9 @@ import unittest
 from unittest.mock import patch
 
 
-I = run_path(str(Path(__file__).with_name("inputs.py")))
+LANE = Path(__file__).resolve().parent
+GUEST_LANE = Path("/trial-code/jbig-tiff")
+I = run_path(str(LANE / "inputs.py"))
 TIFF = """
  0x0000000000000001 (NEEDED)             Shared library: [libtiff.so.6]
  0x0000000000000001 (NEEDED)             Shared library: [libanother.so.1]
@@ -44,6 +46,17 @@ def archive(*members):
 
 def lock(rows):
     return "".join(f"{key} {value}\n" for key, value in sorted(rows.items())).encode("ascii")
+
+
+def guest_module(file):
+    # Preserve the shallow guest __file__ values without mounting or writing the host root.
+    path = Path(file)
+    if path.parent != GUEST_LANE or path.name not in {"inputs.py", "jpeg_recipe.py"}:
+        raise AssertionError(f"Unexpected guest source path: {path}")
+    scope = {"__file__": str(path), "__name__": "guest_fixture"}
+    exec(compile((LANE / path.name).read_bytes(), str(path), "exec"), scope)
+    scope["run_path"] = guest_module
+    return scope
 
 
 class AuditTest(unittest.TestCase):
@@ -140,11 +153,13 @@ class AuditTest(unittest.TestCase):
                     abi(objects | {"usr/bin/example": TIFF.replace("libanother.so.1", retired)}, PROJECT_TIFF)
 
     def test_jpeg_correction_requires_new_release_dependency_and_recipe_identity(self):
-        recipe = I["jpeg_recipe"]()
+        guest = guest_module(GUEST_LANE / "inputs.py")
+        recipe = guest["jpeg_recipe"]()
+        self.assertEqual(recipe["HERE"], GUEST_LANE)
         metadata = (b"pkgname = cachy-asahi-libtiff\npkgver = 4.7.2-1.2\narch = aarch64\n"
                     b"depend = libjpeg-turbo\ndepend = libjpeg.so=8-64\n")
         buildinfo = f'pkgbuild_sha256sum = {recipe["PKGBUILD_PIN"]["sha256"]}\n'.encode()
-        verifier = I["require_qualified_tiff"]
+        verifier = guest["require_qualified_tiff"]
         with TemporaryDirectory() as folder:
             path = Path(folder) / "cachy-asahi-libtiff-4.7.2-1.2-aarch64.pkg.tar.xz"
             with patch.dict(verifier.__globals__, {"PROVIDERS": I["HISTORICAL_PROVIDERS"]}):
@@ -153,6 +168,7 @@ class AuditTest(unittest.TestCase):
             for info, build, failure in (
                 (metadata, buildinfo, None),
                 (metadata.replace(b"4.7.2-1.2", b"4.7.2-1.1"), buildinfo, "identity"),
+                (metadata.replace(b"aarch64", b"x86_64"), buildinfo, "identity"),
                 (metadata.replace(b"8-64", b"7-64"), buildinfo, "exact libjpeg"),
                 (metadata + b"depend = libjpeg.so=8-64\n", buildinfo, "exact libjpeg"),
                 (metadata, b"pkgbuild_sha256sum = wrong\n", "different recipe"),
@@ -170,6 +186,11 @@ class AuditTest(unittest.TestCase):
                             self.assertEqual(verifier(path), dict(version=recipe["VERSION"],
                                                                   dependency=recipe["JPEG_DEPENDENCY"],
                                                                   recipe=recipe["PKGBUILD_PIN"]))
+                            with self.assertRaisesRegex(ValueError, "archive name"):
+                                verifier(path.with_name("unselected.pkg.tar.xz"))
+                            path.write_bytes(body[:-1] + bytes([body[-1] ^ 1]))
+                            with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
+                                verifier(path)
 
     def test_selected_jpeg_provider_requires_provision_on_exact_installed_version(self):
         raw = (b"%NAME%\nlibjpeg-turbo\n\n%VERSION%\n3.2.0-2\n\n"

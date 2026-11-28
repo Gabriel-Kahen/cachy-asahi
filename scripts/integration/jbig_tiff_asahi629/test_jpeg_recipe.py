@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 R = run_path(str(Path(__file__).with_name("jpeg_recipe.py")))
 I = run_path(str(Path(__file__).with_name("inputs.py")))
-PARENT = R["BUILD_SOURCE"] / "recipes/libtiff/PKGBUILD"
+PARENT = Path(__file__).resolve().parents[3] / "scripts/build/project-libraries/recipes/libtiff/PKGBUILD"
 
 
 class RecipeTest(unittest.TestCase):
