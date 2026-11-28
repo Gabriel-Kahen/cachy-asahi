@@ -122,6 +122,14 @@ class DatabaseDescriptorTests(unittest.TestCase):
                 with self.assertRaisesRegex(r.Error, "repository database field mismatch: CSIZE"):
                     r.database_check(self.database.parent, "fixture", [dict(package, size=123)])
 
+    def test_database_cannot_reuse_one_descriptor_for_two_packages(self):
+        package = self.package_database()
+        [(member, desc)] = list(r.database_descriptors(self.database))
+        other = desc.replace(b"%NAME%\nfixture\n", b"%NAME%\nother\n")
+        self.archive([(member, tarfile.REGTYPE, desc), ("other-2:1-1/desc", tarfile.REGTYPE, other)])
+        with self.assertRaisesRegex(r.Error, "repository database package identity mismatch"):
+            r.database_check(self.database.parent, "fixture", [package, package])
+
     def test_release_verification_uses_size_from_hashed_payload(self):
         directory = self.database.parent
         repo = directory / "repo"
@@ -190,6 +198,7 @@ class DatabaseDescriptorTests(unittest.TestCase):
         with mock.patch.object(r, "archive_members", return_value={**listed, "absent/desc": "absent/desc"}):
             with self.assertRaisesRegex(r.Error, "descriptor members missing"):
                 list(r.database_descriptors(self.database))
+        self.package_database()
         with self.assertRaisesRegex(r.Error, "repository database package count mismatch"):
             r.database_check(self.database.parent, "fixture", [])
 

@@ -301,7 +301,7 @@ def database_descriptors(db):
 
 def database_check(directory, repo_name, packages):
     db = directory / f"{repo_name}.db.tar.gz"
-    records = []
+    records = {}
     with contextlib.closing(database_descriptors(db)) as descriptors:
         for member, data in descriptors:
             info, key = {}, None
@@ -313,13 +313,15 @@ def database_check(directory, repo_name, packages):
                     info[key] = []
                 elif line and key:
                     info[key].append(line)
-            records.append((member, info))
+            names = info.get("NAME", ())
+            require(len(names) == 1 and names[0] not in records, "repository database package identity mismatch")
+            records[names[0]] = member, info
     require(len(records) == len(packages), "repository database package count mismatch")
     for package in packages:
-        matches = [(member, record) for member, record in records if record.get("NAME") == [package["name"]]]
-        require(len(matches) == 1, "repository database package identity mismatch")
-        member, record = matches[0]
-        require(member == f"{package['name']}-{package['version']}/desc",
+        name = package["name"]
+        require(name in records, "repository database package identity mismatch")
+        member, record = records.pop(name)
+        require(member == f"{name}-{package['version']}/desc",
                 "repository database descriptor path mismatch")
         for field, values in {"VERSION": [package["version"]], "ARCH": [package["arch"]],
                               "FILENAME": [package["filename"]], "SHA256SUM": [package["sha256"]],
