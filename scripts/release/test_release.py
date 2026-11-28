@@ -84,6 +84,74 @@ class DatabaseDescriptorTests(unittest.TestCase):
                 member.size = len(data)
                 archive.addfile(member, io.BytesIO(data))
 
+    def package_database(self, *, member="./fixture-2:1-1/desc", compressed_size="123", package_body=None):
+        package = dict(name="fixture", version="2:1-1", arch="any", filename="fixture-1-1-any.pkg.tar.zst",
+                       sha256="a" * 64, depend=[], provides=[], conflict=[], replaces=[])
+        archive = self.database.parent / package["filename"]
+        if package_body is not None:
+            archive.write_bytes(package_body)
+            package["sha256"] = r.sha(archive)
+        signature = b"fixture detached signature bytes"
+        archive.with_name(archive.name + ".sig").write_bytes(signature)
+        fields = dict(NAME=package["name"], VERSION=package["version"], ARCH=package["arch"],
+                      FILENAME=package["filename"], SHA256SUM=package["sha256"],
+                      PGPSIG=base64.b64encode(signature).decode("ascii"))
+        if compressed_size is not None:
+            fields["CSIZE"] = compressed_size
+        desc = "".join(f"%{key}%\n{value}\n\n" for key, value in fields.items()).encode()
+        self.archive([(member, tarfile.REGTYPE, desc)], mode="w:gz")
+        return package
+
+    def test_database_binds_descriptor_name_and_epoch_to_package_fields(self):
+        package = self.package_database()
+        r.database_check(self.database.parent, "fixture", [package])
+        for wrong in ("other-2:1-1/desc", "fixture-1-1/desc", "fixture-2:1-1/nested/desc"):
+            with self.subTest(member=wrong):
+                package = self.package_database(member=wrong)
+                with self.assertRaisesRegex(r.Error, "repository database descriptor path mismatch"):
+                    r.database_check(self.database.parent, "fixture", [package])
+
+    def test_database_checks_known_size_without_requiring_index_archive_files(self):
+        package = self.package_database()
+        self.assertFalse((self.database.parent / package["filename"]).exists())
+        r.database_check(self.database.parent, "fixture", [dict(package, size=123)])
+        for compressed_size in ("124", None):
+            with self.subTest(compressed_size=compressed_size):
+                package = self.package_database(compressed_size=compressed_size)
+                r.database_check(self.database.parent, "fixture", [package])
+                with self.assertRaisesRegex(r.Error, "repository database field mismatch: CSIZE"):
+                    r.database_check(self.database.parent, "fixture", [dict(package, size=123)])
+
+    def test_release_verification_uses_size_from_hashed_payload(self):
+        directory = self.database.parent
+        repo = directory / "repo"
+        repo.mkdir()
+        self.database = repo / self.database.name
+        base = directory / "base.json"
+        r.write(base, {})
+        base_pin = {"sha256": r.sha(base)}
+        (directory / "provenance.json").write_bytes(base.read_bytes())
+        body = b"pinned release archive"
+        for size in (str(len(body)), "1"):
+            with self.subTest(compressed_size=size):
+                package = self.package_database(compressed_size=size, package_body=body)
+                artifacts = {"path": package["filename"], "sha256": package["sha256"]}
+                r.write(directory / "spec.json", dict(release_id="fixture", repo_name="fixture",
+                                                        base=base_pin, packages=[{"artifact": artifacts,
+                                                                                 "provenance": base_pin}]))
+                r.write(directory / "release.json", dict(schema_version=1, signer="test", release_id="fixture",
+                                                        files=r.payload_files(directory), symlinks={},
+                                                        packages=[dict(package, provenance="provenance.json")]))
+                with mock.patch.multiple(r, verify_signature=lambda *_: None,
+                                         pkginfo=lambda _: {"name": package["name"]},
+                                         provenance_check=lambda *_: None, dependency_check=lambda *_: None,
+                                         source_associations=lambda *_: None):
+                    if size == "1":
+                        with self.assertRaisesRegex(r.Error, "repository database field mismatch: CSIZE"):
+                            r.verify_release(directory, "test", {})
+                    else:
+                        r.verify_release(directory, "test", {})
+
     def test_tar_compressions_keep_exact_descriptor_bytes_and_order(self):
         long_name = "a" * 120 + "-2:1-1/desc"
         rows = [(long_name, tarfile.REGTYPE, b"first\r\n" * 180),
