@@ -322,6 +322,9 @@ class V2AdmissionTests(unittest.TestCase):
     """Use frozen inputs and raw record fixtures without launching workloads."""
 
     def setUp(self):
+        environment = {key: value for key, value in os.environ.items()
+                       if not key.startswith(('LD_', 'DYLD_', 'QEMU_'))}
+        self.enterContext(patch.dict(os.environ, environment, clear=True))
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
@@ -482,6 +485,12 @@ class V2AdmissionTests(unittest.TestCase):
             self.runner.run(self.plan, 0, self.state, self.args.conditions_root / 'measured-00.json',
                             self.root, self.root / 'raw')
         self.runner.execute.assert_not_called()
+
+    def test_paired_execution_rejects_loader_or_emulator_override(self):
+        plan = self.runner.load_plan(self.plan)
+        with patch.dict(os.environ, {'QEMU_TEST_ENV': 'fixture'}):
+            with self.assertRaisesRegex(ValueError, 'loader/emulation override refused'):
+                P2.validate(plan, self.args.control_only)
 
     def test_ordinary_plan_retains_generic_run_and_compare(self):
         generic = dict(self.config)
