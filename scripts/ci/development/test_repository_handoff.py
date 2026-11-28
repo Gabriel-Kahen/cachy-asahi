@@ -8,6 +8,7 @@ import inspect
 import json
 import os
 from pathlib import Path
+import runpy
 import shutil
 import socket
 import subprocess
@@ -18,7 +19,8 @@ import types
 import unittest
 from unittest.mock import patch
 
-PATH = Path(__file__).with_name('repository_handoff.py')
+PATH = Path(__file__).resolve().with_name('repository_handoff.py')
+graph_fixture = runpy.run_path(str(PATH.with_name('repository_graph_fixture.py')))
 spec = importlib.util.spec_from_file_location('repository_handoff',PATH)
 adapter = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(adapter)
@@ -558,8 +560,48 @@ class InitialInvocationFixtures(unittest.TestCase):
                 with self.assertRaises(adapter.Refused):session.execute(changed,{},contract)
                 self.assertFalse(output.exists())
 
+class LivePhaseGraphFixtures(unittest.TestCase):
+    def test_live_phase_loads_only_its_own_release_predecessor(self):
+        project = PATH.parents[3]
+        entry = runpy.run_path(str(project / adapter.PREFIXES['runtime'] / 'entry.py'))
+        phase_pin = runpy.run_path(str(PATH.with_name('repository_authority.py')))['PHASE_MAP']
+        names = set(entry['PREDECESSORS'])
+        manifests = {}
+        phase = entry['PHASE_ROOT']
+        for prefix in (entry['COLLECTOR_ROOT'], phase):
+            map_path = prefix + '/source-map.json'
+            manifests[prefix] = json.loads((project / map_path).read_bytes())
+            names.add(map_path)
+            names.update(prefix + '/' + name for name in manifests[prefix])
+        with tempfile.TemporaryDirectory(prefix='handoff-live-phase-') as temporary:
+            root = Path(temporary)
+            for name in sorted(names):
+                raw, mode = graph_fixture['checkout_input'](project, name)
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw)
+                target.chmod(mode)
+
+            def load_phase():
+                return entry['dependency_entry'](
+                    root, phase + '/entry.py', manifests[phase]['entry.py']['sha256'],
+                    phase + '/source-map.json', phase_pin, deadline=time.monotonic() + 10, phase=True,
+                )[0]
+
+            modules = load_phase()
+            name = graph_fixture['RELEASE']
+            target = root / name
+            self.assertEqual(modules['dependencies'].predecessor(root, name), target.read_bytes())
+            old, mode = graph_fixture['historical_input'](project, name)
+            self.assertNotEqual(old, target.read_bytes())
+            self.assertEqual(mode, target.stat().st_mode & 0o777)
+            target.write_bytes(old)
+            with self.assertRaisesRegex(ValueError, '^dependency-source$'):
+                load_phase()
+
+
 class CapturedGraphFixtures(unittest.TestCase):
-    """Actual selected258 source/slot graph; modeled registered policy, no actors."""
+    """Historical selected 258 source graph; modeled registered policy, no actors."""
     @classmethod
     def setUpClass(cls):
         cls.temporary=tempfile.TemporaryDirectory(prefix='handoff-actual-graph-')
@@ -567,7 +609,7 @@ class CapturedGraphFixtures(unittest.TestCase):
         cls.root=Path(cls.temporary.name)/'source';cls.root.mkdir()
         cls.output=Path(cls.temporary.name)/'output';project=PATH.parents[3]
         # Explicit source-only fixture closure; no unregistered packet-map read.
-        names=set(json.loads((project/'scripts/ci/integration.lock.json').read_bytes())['source_files'])
+        names=set(graph_fixture['original_lock'](project)['source_files'])
         names.update('''
 .github/workflows/native-arm-development.yml
 manifests/reviewed/repository-generic-policy.json
@@ -674,10 +716,9 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
         for name in sorted(names):
             # Explicit harmless fixture bytes, never an ignored artifact dependency
             # or authority for production. Root registers the actual policy path.
-            raw=(b'{\n  "coordinated_sets": [\n    {\n      "name": "generic-Hyprland-builder",\n      "versions": {\n        "aquamarine": "0.15.1-1",\n        "hyprgraphics": "0.5.1-4",\n        "hyprland": "0.56.2-4",\n        "hyprlang": "0.6.8-5",\n        "hyprutils": "0.14.2-1"\n      }\n    }\n  ],\n  "platform_scope": "generic-builder-only",\n  "protected_packages": [\n    "pacman",\n    "glibc",\n    "bash",\n    "filesystem"\n  ],\n  "purpose": "reviewed-generic-restage-policy",\n  "review_status": "ACCEPTED",\n  "selected_packages": [\n    "cachy-asahi-fish-config",\n    "cachy-asahi-hyprland-settings",\n    "cachy-asahi-setup",\n    "cachy-asahi-zsh-config"\n  ],\n  "supported_models": []\n}\n' if name=='manifests/reviewed/repository-generic-policy.json'
-                 else (project/name).read_bytes());destination=cls.root/name
+            raw,mode=(b'{\n  "coordinated_sets": [\n    {\n      "name": "generic-Hyprland-builder",\n      "versions": {\n        "aquamarine": "0.15.1-1",\n        "hyprgraphics": "0.5.1-4",\n        "hyprland": "0.56.2-4",\n        "hyprlang": "0.6.8-5",\n        "hyprutils": "0.14.2-1"\n      }\n    }\n  ],\n  "platform_scope": "generic-builder-only",\n  "protected_packages": [\n    "pacman",\n    "glibc",\n    "bash",\n    "filesystem"\n  ],\n  "purpose": "reviewed-generic-restage-policy",\n  "review_status": "ACCEPTED",\n  "selected_packages": [\n    "cachy-asahi-fish-config",\n    "cachy-asahi-hyprland-settings",\n    "cachy-asahi-setup",\n    "cachy-asahi-zsh-config"\n  ],\n  "supported_models": []\n}\n',0o644) if name=='manifests/reviewed/repository-generic-policy.json' else graph_fixture['historical_graph_input'](project,name)
+            destination=cls.root/name
             destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(raw)
-            mode=0o644 if name=='manifests/reviewed/repository-generic-policy.json' else (project/name).stat().st_mode&0o777
             destination.chmod(mode)
             rows[name]={'sha256':adapter.digest(raw),'mode':mode}
         cls.a=types.ModuleType('handoff_actual_graph');cls.a.__file__=str(cls.root/'scripts/ci/development/repository_handoff.py')
@@ -934,16 +975,18 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
         self.assertEqual(len(self.a.decode(context['receipt'])['files']),160)
         self.assertEqual(self.original['native_arm'].ROOT,self.session.view_root)
 
-    def test_current_full_checkout_scanner_sees_addon_view_remains_original(self):
-        project=PATH.parents[3]
-        actual=self.original['integration'].scan(project)
+    def test_selected_source_scanner_sees_live_addon_view_remains_original(self):
+        actual=self.original['integration'].scan(self.root)
         initial=self.a.decode(self.sources.raw['scripts/ci/integration.lock.json'])['source_files']
-        self.assertGreaterEqual(len(actual),171)
-        self.assertTrue(set('packages/shells/cachy-asahi-zsh-autosuggestions/'+name
+        addon=set('packages/shells/cachy-asahi-zsh-autosuggestions/'+name
             for name in ('.SRCINFO','LICENSE.project','LICENSE.upstream','NOTICE','PKGBUILD','README.md',
                          'check-module.py','integration-proposal.json','opt-in.zsh','source-provenance.json',
-                         'usage.md','zsh-autosuggestions.zsh')) <= set(actual)-set(initial))
-        self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),159)
+                         'usage.md','zsh-autosuggestions.zsh'))
+        self.assertTrue(addon <= set(actual)-set(initial))
+        for name in addon:
+            raw,mode=graph_fixture['checkout_input'](PATH.parents[3],name)
+            self.assertEqual(actual[name],{'sha256':self.a.digest(raw),'mode':mode})
+        self.assertEqual(self.original['integration'].scan(self.session.view_root),initial)
 
     def test_old_schema_refuses_current_preflight(self):
         grant=copy.deepcopy(self.grant);grant['schema_version']=1;grant.pop('original_view')
