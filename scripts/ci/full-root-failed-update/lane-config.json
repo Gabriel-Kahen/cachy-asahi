@@ -24,7 +24,7 @@
     "scripts/client/stage.py": "1a182e1bfaf9e3e7aa80d608fbc59805865fdd67e3aed0f460667abe8d626283",
     "scripts/install/local_transaction.py": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5",
     "scripts/install/native_arm_trial.py": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4",
-    "scripts/install/native_preflight.py": "d240f9959e25851f8688ada75257de54dde40db492b8a2cf9780216bb53bf8eb",
+    "scripts/install/native_preflight.py": "0ee9eb771dd306e6cd22401fae495d5b73306aafbc979c61b8243c8507ddc269",
     "scripts/port/kernel-native-job/runtime.py": "185daf192d5435d9616952ddc9176b01318a7543f47433c2f8be5514e996bf0e",
     "scripts/release/check_source_pins.py": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3",
     "scripts/release/compare_releases.py": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c",
