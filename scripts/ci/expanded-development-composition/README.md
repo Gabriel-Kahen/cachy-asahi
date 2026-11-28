@@ -25,12 +25,16 @@ The original source/build/cache checkouts remain borrowed.
 
 Two distinct clean offline574 containers build bang2. A single exact adapter
 changes the accepted Welcome build function's `packages/tools` recipe path to
-`packages/shells`. The remaining accepted build body is unchanged. Whole archive
-bytes, BUILDINFO, ordinary metadata, seven installed source/license files and
-makepkg check exit must agree before new TEST signing. Thirteen new TEST
-signatures cover five retained audio, seven retained scripts and bang2; LSP
-keeps its exact official ALARM signature. All original587 signatures keep their
-original signer roles. New secret material stays private and is retired.
+`packages/shells`. The comparator for the Welcome build receipts runs in isolated
+Python from the immutable Bang2 checkout. The passive gate verifies that
+comparator, its imports and the container entry script against `input-policy.json`.
+The checked implementation checkout supplies the metadata bindings used by the
+adapter. Whole archive bytes, BUILDINFO, ordinary metadata, seven installed
+source/license files and makepkg check exit must agree before new TEST signing.
+Thirteen new TEST signatures cover five retained audio, seven retained scripts
+and bang2. LSP keeps its exact official ALARM signature. All original587
+signatures keep their original signer roles. New secret material stays private
+and is retired.
 
 The complete original587 and selected600 archives are passively merged with the
 existing bounded archive parser, preserving its exact numeric metadata guards.
@@ -77,10 +81,14 @@ private signing homes, original caches, arbitrary output trees and source
 checkouts are excluded. The existing bounded log encoder includes hidden
 files within this already-closed public directory.
 
-Run inert controls from the repository root:
+Run inert controls from the implementation checkout. Use the immutable retained
+and module checkout roots identified above.
 
 ```sh
-python3 -B -m unittest discover -s scripts/ci/expanded-development-composition -p test_source.py -v
+EXPANDED_INPUT_PAYLOAD=/path/to/expanded-inputs \
+EXPANDED_MODULE_SOURCE=/path/to/expanded-modules \
+python3 -B -Werror::ResourceWarning -m unittest discover \
+  -s scripts/ci/expanded-development-composition -p test_source.py -v
 ```
 
 These source controls are not a native result. The workflow is separate from the

@@ -18,6 +18,7 @@ from owned import Containers
 
 ROOT=Path(os.environ.get('EXPANDED_CODE_ROOT',Path.cwd())).absolute()
 BUNDLE=Path(os.environ.get('EXPANDED_INPUT_PAYLOAD',ROOT/'artifacts/development/expanded-candidate-inputs-20261016/payload')).absolute()
+MODULES=Path(os.environ.get('EXPANDED_MODULE_SOURCE',ROOT)).absolute()
 
 
 class Inputs(unittest.TestCase):
@@ -59,10 +60,11 @@ class Inputs(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             checkout=Path(directory);shutil.copyfile(BUNDLE/'index.json',checkout/'index.json')
             self.assertFalse((checkout/'artifacts').exists())
-            args=argparse.Namespace(code=ROOT,code_revision=self.policy['bang_source'],script_source=checkout,
-                bang_source=ROOT,combined_source=ROOT)
+            revisions={ROOT:'a'*40,checkout:self.policy['script_source'],MODULES:self.policy['bang_source']}
+            args=argparse.Namespace(code=ROOT,code_revision=revisions[ROOT],script_source=checkout,
+                bang_source=MODULES,combined_source=MODULES)
             def revision(path):
-                return self.policy['script_source'] if Path(path)==checkout else self.policy['bang_source']
+                return revisions[Path(path)]
             # Verify the current code closure and index here. Archive acceptance
             # has its own real fourteen-archive test.
             with patch.object(inputs,'retained',return_value=self.index['packages']) as inspect:
@@ -70,8 +72,8 @@ class Inputs(unittest.TestCase):
                     _,bundle,rows=runner.check(args)
                 self.assertEqual(bundle,checkout);self.assertEqual(set(rows),C.SCRIPTS)
                 self.assertEqual(inspect.call_args.args[0],checkout)
-                argv=['gate.py','--code',str(ROOT),'--script-source',str(checkout),'--module-source',str(ROOT),
-                    '--source',self.policy['bang_source'],'--workflow-sha',self.policy['bang_source']]
+                argv=['gate.py','--code',str(ROOT),'--script-source',str(checkout),'--module-source',str(MODULES),
+                    '--source',args.code_revision,'--workflow-sha',args.code_revision]
                 with patch.object(sys,'argv',argv),patch.object(gate.subprocess,'check_output',
                     side_effect=lambda command,**kwargs:revision(command[2])+'\n'):
                     self.assertEqual(gate.main(),0)
@@ -119,8 +121,8 @@ class Inputs(unittest.TestCase):
 
     def test_actual_bang2_source_and_combined_closure(self):
         checks,_=inputs.tools(ROOT)
-        self.assertEqual(bang.recipe(ROOT,self.policy,checks)['input_sha256'],self.policy['bang_inputs'])
-        self.assertEqual(len(inputs.combined(ROOT,self.policy)['files']),86)
+        self.assertEqual(bang.recipe(MODULES,self.policy,checks)['input_sha256'],self.policy['bang_inputs'])
+        self.assertEqual(len(inputs.combined(MODULES,self.policy)['files']),86)
 
     def test_exact587_to600_only(self):
         before=C.lock((ROOT/'scripts/ci/full-development-composition/expected-updater-v2.lock').read_bytes(),587)
@@ -168,6 +170,23 @@ class Adapters(unittest.TestCase):
         import inspect
         helper=C.load('control_accepted_builder',ROOT/'scripts/ci/welcome-native/run.py')
         self.assertEqual(inspect.getsource(helper.build).count("source/'packages/tools'/name"),1)
+
+    def test_held_bang_comparator_checks_every_helper(self):
+        policy=C.policy()
+        self.assertEqual(bang.held_comparator(MODULES,policy),MODULES/bang.COMPARATOR)
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            for name in bang.BUILD_HELPERS:
+                path=root/name
+                path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_bytes((MODULES/name).read_bytes())
+            for name in bang.BUILD_HELPERS:
+                path=root/name
+                original=path.read_bytes()
+                path.write_bytes(bytes([original[0]^1])+original[1:])
+                with self.subTest(helper=name),self.assertRaisesRegex(ValueError,'input byte identity differs'):
+                    bang.held_comparator(root,policy)
+                path.write_bytes(original)
 
     def test_runtime_reads_installed_bytes_instead_of_source_snapshot(self):
         import installed_shells as adapter

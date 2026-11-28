@@ -30,6 +30,7 @@ def check(args):
     C.need(revision(args.code)==args.code_revision and revision(args.script_source)==policy['script_source'] and
            revision(args.bang_source)==policy['bang_source'] and revision(args.combined_source)==policy['combined']['source'],
            'held immutable source revisions differ')
+    bang.held_comparator(args.bang_source,policy)
     bundle=args.script_source
     index=C.read(C.checked(bundle,policy['script_index']))
     rows=inputs.retained(bundle,index,args.code)

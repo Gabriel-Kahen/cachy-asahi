@@ -1577,10 +1577,18 @@ jobs:
           ref: 7fee76d68e5fd75437d8b49aaaced8376d2215cd
           path: .ci-inputs/expanded-candidates
           persist-credentials: false
+      - name: Checkout the frozen expanded composition module source for passive checks
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 22c095c85cb6fd79d5de0f0ee43ca012c32c2aeb
+          path: .ci-inputs/expanded-modules
+          persist-credentials: false
       - name: Check expanded composition contracts without native actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         env:
           EXPANDED_INPUT_PAYLOAD: ${{ github.workspace }}/.ci-inputs/expanded-candidates
+          EXPANDED_MODULE_SOURCE: ${{ github.workspace }}/.ci-inputs/expanded-modules
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded-development-composition -p test_source.py
       - name: Check native tool candidate contracts without container actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
