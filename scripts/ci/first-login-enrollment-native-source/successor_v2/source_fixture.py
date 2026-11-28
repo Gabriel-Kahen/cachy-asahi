@@ -8,8 +8,15 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 FAMILY = HERE.parent.relative_to(ROOT)
 CHECKER = 'scripts/checks/package_checks.py'
-HELD_CHECKER = (ROOT / 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
-                / 'scripts/ci/llhttp-reference-native-source/base/runtime' / CHECKER)
+BUILD_HELPERS = ROOT / 'packages/tools/cachy-asahi-security-maintenance'
+# These checked-in copies match the frozen v2 profile's bytes and modes.
+HELD_HELPERS = {
+    'scripts/build/build.py': BUILD_HELPERS / 'build.py',
+    'scripts/build/compare.py': BUILD_HELPERS / 'compare.py',
+    'scripts/build/container-entry.sh': BUILD_HELPERS / 'container-entry.sh',
+    CHECKER: (ROOT / 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
+              / 'scripts/ci/llhttp-reference-native-source/base/runtime' / CHECKER),
+}
 
 
 def stage_inputs(output):
@@ -22,7 +29,7 @@ def stage_inputs(output):
         prefix = recipe['path']
         files.update({prefix + '/' + name: value for name, value in basis.snapshot(ROOT / prefix).items()})
     for name in profile['helpers']:
-        files[name] = basis.read(HELD_CHECKER if name == CHECKER else ROOT / name)
+        files[name] = basis.read(HELD_HELPERS.get(name, ROOT / name))
     for name in profile['prior_factory']:
         member = (FAMILY / name).as_posix()
         files[member] = basis.read(ROOT / member)

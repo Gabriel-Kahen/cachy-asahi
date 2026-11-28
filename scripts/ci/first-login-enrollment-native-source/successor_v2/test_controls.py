@@ -47,11 +47,10 @@ class Controls(unittest.TestCase):
   with tempfile.TemporaryDirectory(prefix='current-first-login-source-DATA-')as temp:
    _,files,result=C.construct(S.stage_inputs(Path(temp)/'inputs'),SHA)
   self.assertEqual(result['files'],59);self.assertEqual(set(json.loads(files['source.lock.json'][0])['files']),set(files)-{'source.lock.json'})
-  self.assertEqual(files[S.CHECKER][0],S.HELD_CHECKER.read_bytes())
   self.assertEqual(result['tree'],'17ab19913bd486ea937f5e84df6f3ed989cc85bf')
   self.assertEqual(result['source_lock']['sha256'],'749f31930c0584f9f06d8ea610cdf95032577b2325bfbc1ae96c88c060e8ae8f')
-  for name in ['scripts/build/build.py','scripts/build/container-entry.sh','scripts/build/compare.py']:
-   self.assertEqual(files[name][0],(ROOT/name).read_bytes())
+  for name,path in S.HELD_HELPERS.items():
+   self.assertEqual(files[name][0],path.read_bytes())
   self.assertTrue(all(v is None for v in result['actual'].values()));self.assertEqual(result['status'],'STAGED_CURRENT_SOURCE_ONLY_NOT_NATIVE_READY')
  def test_external_profile_pin_refuses(self):
   with self.assertRaises(ValueError):C.construct(ROOT,'0'*64)

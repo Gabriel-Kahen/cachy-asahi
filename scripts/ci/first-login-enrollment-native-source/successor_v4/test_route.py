@@ -222,7 +222,7 @@ class Controls(unittest.TestCase):
         for event in ('subprocess.Popen','socket.__new__','ctypes.dlopen','fcntl.flock','os.exec'):
             with self.assertRaises(RuntimeError):fence(event,())
     def test_static_validator_exact_import_seam_uses_only_pinned_predicates(self):
-        repo=HERE.parents[3];raw=(repo/'scripts/build/build.py').read_bytes()
+        raw=S.HELD_HELPERS['scripts/build/build.py'].read_bytes()
         projected=V.project_build(raw);self.assertEqual(projected.replace(V.REPLACEMENT,V.SEAM),raw)
         self.assertNotIn(V.SEAM,projected)
         for invalid in (b'NO SEAM',raw+V.SEAM):
@@ -230,11 +230,11 @@ class Controls(unittest.TestCase):
         self.stage_static_helpers()
         before=list(sys.path);P,B,entry=V.helpers(self.source,PROFILE)
         self.assertEqual(sys.path,before);self.assertIs(B.recipe,P.recipe);self.assertIs(B.metadata,P.metadata)
-        self.assertEqual(Path(P.__file__).read_bytes(),S.HELD_CHECKER.read_bytes())
+        self.assertEqual(Path(P.__file__).read_bytes(),S.HELD_HELPERS[S.CHECKER].read_bytes())
         self.assertEqual(entry,PROFILE['helpers']['scripts/build/container-entry.sh']['sha256'])
     def stage_static_helpers(self):
         for name in (S.CHECKER,'scripts/build/build.py','scripts/build/container-entry.sh'):
-            source=S.HELD_CHECKER if name==S.CHECKER else S.ROOT/name
+            source=S.HELD_HELPERS[name]
             destination=self.source/name;destination.parent.mkdir(parents=True,exist_ok=True)
             shutil.copyfile(source,destination);destination.chmod(0o644)
     def validator_fixture(self):
