@@ -151,9 +151,10 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    **cold no-guest replay** then passed preboot and post-QEMU verification with
    a hard QEMU denial, 3.56 GiB peak actor memory, 2.44 GiB headroom, and zero
    limit, swap or OOM events. Independent readback confirmed the result.
-   **Warm replay remains NOT RUN**: one attempt refused before actor creation
-   and another after creation but before start when live admission could not
-   be maintained. No later guest pair transaction has run.
+   Later cold and warm no-guest replays passed with the exact backed image
+   pages resident together in the warm case. The new guest reached the
+   restored 629-package checkpoint. Its scoped probe held before either
+   provider transaction on the GTK SDK's GIO version requirement.
    [Trial runbook](../../scripts/integration/jbig_tiff_asahi629/README.md)
 
    A separate refreshed Preview TEST public transport passed independent
@@ -166,8 +167,10 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    preflight command caused the host spike. A source-only follow-up adds
    phase and file/anonymous-memory records, uses cache advice for digest-only
    Preview reads, and confines public GPG checks to the worker runtime. Its
-   63 lane tests and small guarded probe passed; full refreshed staging and
-   new cold/warm replays remain **NOT RUN**.
+   63 lane tests and small guarded probe passed. Later refreshed staging and
+   both replays passed. The renewed inputs completed the forward and
+   reversal commands in the November 28 guest.
+   [Renewed-input transaction evidence](supported-composition-maintenance.md#november-28-renewed-input-transaction-evidence)
 
    A lock-to-manifest reconciliation found four of the 14
    development-selected project packages in Asahi629, plus First Login

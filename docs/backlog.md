@@ -51,11 +51,12 @@ only the Fish package and exercised staging, comparison and withdrawal.
   restored the original NetworkManager, Perl and Python versions and
   preserved all 362 protected boot and mount entries. The refreshed TEST
   transport passed independent public verification of all 767 payload pins.
-  Installation and rollback using the refreshed transport remain **NOT RUN**.
-  The separate Asahi629 JBIG/TIFF replacement and restoration also remain
-  **NOT RUN**. Composition approval remains open.
+  The refreshed inputs also completed both base transactions and restored
+  all 629 package rows and 362 protected paths on November 28. The scoped
+  JBIG/TIFF trial held before replacement on the installed GTK SDK/GIO
+  version requirement. Composition approval remains open.
   [November 27 rehearsal](workstreams/supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
-  · [Refreshed inputs and JBIG/TIFF follow-up](workstreams/remaining-development-audit-20261127.md#next-engineering-work)
+  · [Renewed-input transaction evidence](workstreams/supported-composition-maintenance.md#november-28-renewed-input-transaction-evidence)
 - The Q3 Qtbase 6.12 build completed `all` in the replacement 8 GiB emulated
   AArch64 guest with 16 KiB pages. Independent readback verified 18 linked
   libraries and 1,216 distinct Ninja timing and command tuples. A separate
