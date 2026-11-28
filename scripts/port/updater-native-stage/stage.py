@@ -433,7 +433,7 @@ def ownership_save(output,owner):
 def launches_verified(owner):
     rows=owner['launch_intents'];children=owner['children']
     need(type(rows) is list and len(rows)<=16,'process-intent-count')
-    linked=[]
+    linked={}
     for row in rows:
         need(type(row) is dict and set(row)=={'phase','status','child_index'} and
              type(row['phase']) is str and re.fullmatch('[a-z-]{1,40}',row['phase']) and
@@ -442,9 +442,10 @@ def launches_verified(owner):
         if index is None:need(row['status']=='ABSENT','ambiguous-process-launch')
         else:
             need(type(index) is int and 0<=index<len(children) and index not in linked,'process-intent-index')
-            linked.append(index)
+            linked[index]=row
             if row['status']=='ABSENT':need(children[index]['complete'],'process-absence-mismatch')
     need(set(linked)==set(range(len(children))),'unlinked-process-record')
+    return linked
 
 
 def tracked_process(owner,output,runner,phase,argv,stdout,stderr,deadline,env,cwd,on_tick=None):
@@ -738,7 +739,8 @@ def stop_record(record,deadline):
         except FileNotFoundError:return {'status':'FAIL','reason_code':'ambiguous-group-leader'}
         os.killpg(record['group'],signal.SIGKILL)
         while exists() and time.monotonic()<min(deadline,grace+3):time.sleep(.05)
-    return {'status':'FAIL' if exists() else 'PASS','group_absent':not exists()}
+    absent=not exists()
+    return {'status':'PASS' if absent else 'FAIL','group_absent':absent}
 
 
 def revoke_terminal(output,prefix='terminal'):
@@ -781,9 +783,19 @@ def owned_cleanup(owner,output,private,contract,runtime,broker,runner,deadline,e
             if not cancelled:cancelled.append(0)
         if phase:failure_diagnostics(receipt,phase,getattr(error,'receipt',None),runtime)
     try:
-        launches_verified(owner)
-        receipt['process_cleanup']=[stop_record(row,deadline) for row in reversed(owner['children'])]
-        receipt['process_cleanup_status']='PASS' if all(row['status']=='PASS' for row in receipt['process_cleanup']) else 'FAIL'
+        intents=launches_verified(owner)
+        children=owner['children']
+        outcomes=[stop_record(child,deadline) for child in reversed(children)]
+        receipt['process_cleanup']=outcomes
+        verified=[row['status']=='PASS' and row.get('group_absent') is True for row in outcomes]
+        changed=False
+        for index,absent in enumerate(reversed(verified)):
+            if absent and not children[index]['complete']:
+                children[index]['complete']=True
+                intents[index]['status']='ABSENT'
+                changed=True
+        if changed:ownership_save(output,owner)
+        receipt['process_cleanup_status']='PASS' if all(verified) else 'FAIL'
         if receipt['process_cleanup_status']=='FAIL':reasons.add('process-group-unverified')
     except BaseException as error:
         receipt['process_cleanup_status']='FAIL';failed(error,'process-ownership-unverified')

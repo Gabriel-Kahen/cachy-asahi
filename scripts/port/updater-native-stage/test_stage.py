@@ -1241,8 +1241,25 @@ class StageTests(unittest.TestCase):
 
     def test_recovery_adopts_exact_persisted_private_identity_and_removes_partial_cache(self):
         raw = self.recovery_fixture()
-        result = self.recover()
+        pid = 2147481000
+        self.owner['children'] = [dict(pid=pid, group=pid, start_ticks=2, complete=False)]
+        self.owner['launch_intents'] = [dict(phase='materialize', status='REGISTERED', child_index=0)]
+        stage.save(self.output / 'ownership.json', self.owner)
+        self.owner_sha = stage.digest((self.output / 'ownership.json').read_bytes())
+
+        remove = self.runtime.owned_remove
+        def check_attestation(*args):
+            saved = stage.load(self.output / 'ownership.json')
+            self.assertTrue(saved['children'][0]['complete'])
+            self.assertEqual(saved['launch_intents'][0]['status'], 'ABSENT')
+            return remove(*args)
+
+        with mock.patch.object(stage.os, 'killpg', side_effect=ProcessLookupError) as probe, \
+                mock.patch.object(self.runtime, 'owned_remove', side_effect=check_attestation) as removal:
+            result = self.recover()
+        probe.assert_called_once_with(pid, 0)
         self.assertEqual(result['status'], 'PASS'); self.assertFalse(raw.exists())
+        removal.assert_called_once()
         self.assertFalse((self.output / 'private').exists()); self.assertTrue(self.cleanup_calls)
         self.assertEqual(result['cleanup_status'], 'PASS')
         self.assertEqual(result['native_compilation'], 'NOT ATTESTED BY RECOVERY')
@@ -1252,6 +1269,45 @@ class StageTests(unittest.TestCase):
         self.assertTrue(self.owner['cleanup_verified']); self.assertTrue(self.owner['private_removed'])
         self.assertEqual(self.recover()['status'], 'PASS')
         self.assertEqual(len(self.cleanup_calls), 1)
+
+    def test_recovery_records_absent_sibling_but_blocks_ambiguous_registered_child(self):
+        pid, sibling = 2147481000, 2147481001
+        for reason in ('ambiguous-group-leader', 'reused-process-id'):
+            with self.subTest(reason=reason):
+                self.output = self.base / reason
+                raw = self.recovery_fixture()
+                self.owner['children'] = [dict(pid=p, group=p, start_ticks=2, complete=False)
+                                          for p in (pid, sibling)]
+                self.owner['launch_intents'] = [dict(phase='materialize', status='REGISTERED', child_index=i)
+                                                for i in range(2)]
+                ownership_path = self.output / 'ownership.json'
+                stage.save(ownership_path, self.owner)
+                self.owner_sha = stage.digest(ownership_path.read_bytes())
+
+                def identify(process):
+                    if process == pid and reason == 'reused-process-id':
+                        return dict(pid=pid, start_ticks=3)
+                    raise FileNotFoundError
+
+                with mock.patch.object(stage, 'process_identity', side_effect=identify), \
+                        mock.patch.object(stage.os, 'killpg', side_effect=[ProcessLookupError, None]) as probe:
+                    result = stage.recover(self.root, self.controller, self.controller_sha, self.output, self.owner_sha)
+                self.assertEqual(probe.call_args_list, [mock.call(sibling, 0), mock.call(pid, 0)])
+                self.assertEqual(result['process_cleanup'][-1], dict(status='FAIL', reason_code=reason))
+                self.assertEqual(result['process_cleanup_status'], 'FAIL')
+                self.assertIn('private-removal-blocked', result['cleanup_reasons'])
+                self.assertFalse(result['private_data_removed'])
+                self.assertEqual(raw.read_bytes(), POISON)
+
+                self.owner = stage.load(ownership_path)
+                self.owner_sha = stage.digest(ownership_path.read_bytes())
+                self.assertEqual([row['complete'] for row in self.owner['children']], [False, True])
+                self.assertEqual([row['status'] for row in self.owner['launch_intents']], ['REGISTERED', 'ABSENT'])
+                with mock.patch.object(stage.os, 'killpg', side_effect=ProcessLookupError) as probe:
+                    retried = self.recover()
+                probe.assert_called_once_with(pid, 0)
+                self.assertEqual(retried['status'], 'PASS')
+                self.assertFalse(raw.exists())
 
     def test_recovery_already_cleaned_attested_owner_is_repeatable_noop(self):
         self.recovery_fixture(private=False, attested=True)
