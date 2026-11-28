@@ -241,6 +241,29 @@ class CheckpointTests(unittest.TestCase):
         self.assertFalse(any(scope == "pacman" and action.startswith("--import") for scope, action, _ in ring.calls))
 
     def test_live_checkpoint_calls_probe_and_returns_readback_pin(self):
+        self.check_live_checkpoint(parity=False)
+
+    def test_parity_checkpoint_runs_restored_probe_in_the_owned_compositor(self):
+        self.check_live_checkpoint(parity=True)
+
+    def test_parity_checkpoint_returns_completed_failed_restored_report(self):
+        self.check_live_checkpoint(parity=True, restored_outcome="FAIL")
+
+    def test_parity_checkpoint_returns_completed_partial_restored_report(self):
+        self.check_live_checkpoint(parity=True, restored_outcome="SKIP")
+
+    def check_live_checkpoint(self, *, parity, restored_outcome="PASS"):
+        profile = None
+        if parity:
+            P = X.P
+            profile = dict(kind=P["PARITY_KIND"], official_version=P["VERSION"],
+                           project_version=P["PARITY_PROJECT_VERSION"], recipe=P["PARITY_RECIPE"],
+                           test_review=REVIEW, **{name: T.pin(name.encode()) for name in P["PARITY_INPUT_CAPS"]})
+            profile["project_archive"] = self.tx.P["PINS"]["project_archive"]
+            self.plan["qt_replacement"]["parity_profile"] = profile
+            name = P["project_name"](profile)
+            (self.folder / "project.pkg").rename(self.folder / name)
+            (self.folder / "project.pkg.sig").rename(self.folder / (name + ".sig"))
         report_path = self.O.WORK / "qt-replacement-evidence/runtime-probes.json"
         socket = W.SOCKET
         self.plan["qt_replacement"]["wayland_socket"] = socket
@@ -255,7 +278,8 @@ class CheckpointTests(unittest.TestCase):
         weston = SimpleNamespace(**vars(W))
 
         @contextmanager
-        def supervise(*, nonce, stage_fixture):
+        def supervise(*, nonce, stage_fixture, parity=False):
+            self.assertEqual(parity, profile is not None)
             self.assertEqual(nonce, NONCE)
             self.fixture.stage.assert_not_called()
             destination = self.O.TARGET / W.FIXTURE.lstrip("/")
@@ -274,30 +298,54 @@ class CheckpointTests(unittest.TestCase):
         def run_probe(*, nonce, wayland_socket, weston, phase="replacement"):
             self.assertIs(weston, compositor)
             calls.append(phase)
-            directory, name = ((self.O.WORK, R.VENDOR_REPORT) if phase == "vendor"
-                               else (report_path.parent, "runtime-probes.json"))
-            return R.write_result(directory, passing_checks(), wayland_socket, nonce=nonce, name=name)
+            directory = self.O.WORK if phase == "vendor" else report_path.parent
+            checks = passing_checks()
+            if phase == "restoration" and restored_outcome != "PASS":
+                checks["core_gui_offscreen"] = R.result(restored_outcome, "test restored coverage")
+            return R.write_result(directory, checks, wayland_socket, nonce=nonce, name=R.REPORTS[phase])
 
         actor.run = Mock(side_effect=run_probe)
         context = SimpleNamespace(**vars(G))
         context.base = SimpleNamespace(platform=Mock(return_value=PLATFORM))
 
-        def transact(*, project_review, probe, platform, nonce):
+        disposition = dict(status=self.tx.PASS)
+
+        def transact(*, project_review, probe, platform, nonce, **parity_args):
+            self.assertEqual(parity_args.get("profile"), profile)
             self.assertEqual(project_review, REVIEW)
             self.assertEqual(nonce, NONCE)
             self.assertEqual(platform(), T.encoded(PLATFORM))
             report_path.parent.mkdir()
             self.assertIsNone(probe())
-            return dict(status=self.tx.PASS)
+            if parity:
+                restored_pin, failure = parity_args["restored_probe"]()
+                body = (report_path.parent / R.RESTORED_REPORT).read_bytes()
+                self.assertEqual(restored_pin, T.pin(body))
+                expected_status = {"PASS": "PASS", "FAIL": "FAIL", "SKIP": "PARTIAL"}[restored_outcome]
+                self.assertEqual(T.decode(body)["status"], expected_status)
+                if expected_status == "PASS":
+                    self.assertIsNone(failure)
+                else:
+                    self.assertIsInstance(failure, R.RestoredCoverageError)
+                    self.assertEqual(failure.status, expected_status)
+                    self.assertIn("test restored coverage", str(failure))
+                    disposition["status"] = X.HOLD_RESTORED
+                disposition["restored_runtime_probe"] = restored_pin
+            else:
+                self.assertFalse(parity_args)
+            return disposition
 
         self.tx.run = Mock(side_effect=transact)
         hook = E["run_checkpoint"]
         with patch.dict(hook.__globals__, environment=Mock(return_value=NONCE),
                         modules=Mock(return_value=(self.tx, actor, self.fixture, weston)), select_trust=Mock()):
             output = hook(T, self.O, context, self.plan)
-            self.assertEqual(output, dict(nonce=NONCE, transaction={"status": self.tx.PASS},
+            self.assertEqual(output, dict(nonce=NONCE, transaction=disposition,
                                           runtime_probe=T.pin(report_path.read_bytes())))
-            self.assertEqual(calls, ["ready", "vendor", "replacement", "retired"])
+            expected_phases = ["ready", "vendor", "replacement"]
+            if parity:
+                expected_phases.append("restoration")
+            self.assertEqual(calls, [*expected_phases, "retired"])
             self.assertTrue((report_path.parent / R.VENDOR_REPORT).is_file())
             checkpoint.write_bytes(b"foreign data")
             with self.assertRaises(ValueError):

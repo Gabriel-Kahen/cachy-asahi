@@ -301,9 +301,9 @@ def database_descriptors(db):
 
 def database_check(directory, repo_name, packages):
     db = directory / f"{repo_name}.db.tar.gz"
-    records = []
+    records = {}
     with contextlib.closing(database_descriptors(db)) as descriptors:
-        for _, data in descriptors:
+        for member, data in descriptors:
             info, key = {}, None
             for line in data.decode().splitlines():
                 if line.startswith("%") and line.endswith("%"):
@@ -313,26 +313,54 @@ def database_check(directory, repo_name, packages):
                     info[key] = []
                 elif line and key:
                     info[key].append(line)
-            records.append(info)
+            names = info.get("NAME", ())
+            require(len(names) == 1 and names[0] not in records, "repository database package identity mismatch")
+            records[names[0]] = member, info
     require(len(records) == len(packages), "repository database package count mismatch")
     for package in packages:
-        matches = [r for r in records if r.get("NAME") == [package["name"]]]
-        require(len(matches) == 1, "repository database package identity mismatch")
-        record = matches[0]
+        name = package["name"]
+        require(name in records, "repository database package identity mismatch")
+        member, record = records.pop(name)
+        require(member == f"{name}-{package['version']}/desc",
+                "repository database descriptor path mismatch")
         for field, values in {"VERSION": [package["version"]], "ARCH": [package["arch"]],
                               "FILENAME": [package["filename"]], "SHA256SUM": [package["sha256"]],
                               "DEPENDS": package["depend"], "PROVIDES": package["provides"],
                               "CONFLICTS": package["conflict"], "REPLACES": package["replaces"]}.items():
             require(record.get(field, []) == values, f"repository database field mismatch: {field}")
+        if "size" in package:
+            size = package["size"]
+            require(type(size) is int and size > 0 and record.get("CSIZE") == [str(size)],
+                    "repository database field mismatch: CSIZE")
         signature = Path(str(directory / package["filename"]) + ".sig").read_bytes()
         require(record.get("PGPSIG") == [base64.b64encode(signature).decode("ascii")],
                 "repository database package signature mismatch")
 
 
-def payload_files(directory):
-    return {p.relative_to(directory).as_posix(): sha(p) for p in directory.rglob("*")
-            if p.is_file() and not p.is_symlink() and
-            p.relative_to(directory).as_posix() not in {"release.json", "release.json.sig"}}
+def archive_pin(path):
+    def identity(info):
+        return info.st_dev, info.st_ino, info.st_mode, info.st_size, info.st_mtime_ns, info.st_ctime_ns
+
+    with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), "rb") as stream:
+        before = os.fstat(stream.fileno())
+        require(stat.S_ISREG(before.st_mode), "release archive is not an ordinary file")
+        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+        require(identity(before) == identity(os.fstat(stream.fileno())) == identity(path.lstat()),
+                "release archive changed while hashing")
+    return digest, before.st_size
+
+
+def payload_files(directory, *, archive_sizes=None):
+    hashes = {}
+    for path in directory.rglob("*"):
+        relative = path.relative_to(directory).as_posix()
+        if not path.is_file() or path.is_symlink() or relative in {"release.json", "release.json.sig"}:
+            continue
+        if archive_sizes is not None and relative in archive_sizes:
+            hashes[relative], archive_sizes[relative] = archive_pin(path)
+        else:
+            hashes[relative] = sha(path)
+    return hashes
 
 
 
@@ -376,7 +404,9 @@ def verify_release(directory, key, env):
     verify_signature(directory / "release.json", key, env)
     manifest = load(directory / "release.json")
     require(manifest.get("schema_version") == 1 and manifest.get("signer") == key, "release schema/signer mismatch")
-    require(payload_files(directory) == manifest["files"], "release payload changed or unrecorded files present")
+    archive_sizes = {f"repo/{package['filename']}": None for package in manifest["packages"]}
+    require(payload_files(directory, archive_sizes=archive_sizes) == manifest["files"],
+            "release payload changed or unrecorded files present")
     links = {p.relative_to(directory).as_posix(): os.readlink(p) for p in directory.rglob("*") if p.is_symlink()}
     require(links == manifest["symlinks"] and all("/" not in v and
             (Path(k).parent / v).as_posix() in manifest["files"] for k, v in links.items()),
@@ -409,7 +439,9 @@ def verify_release(directory, key, env):
     source_associations(directory, manifest, spec)
     for name in (f"{spec['repo_name']}.db.tar.gz", f"{spec['repo_name']}.files.tar.gz"):
         verify_signature(directory / "repo" / name, key, env)
-    database_check(directory / "repo", spec["repo_name"], manifest["packages"])
+    database_check(directory / "repo", spec["repo_name"], [
+        dict(package, size=archive_sizes[f"repo/{package['filename']}"]) for package in manifest["packages"]
+    ])
     return manifest, spec
 
 

@@ -18,6 +18,8 @@ TARGET = Path("/trial-scratch")
 WORK = Path("/trial-work")
 EVIDENCE = WORK / "qt-replacement-evidence"
 VENDOR_REPORT = "vendor-runtime-probes.json"
+RESTORED_REPORT = "restored-runtime-probes.json"
+REPORTS = {"vendor": VENDOR_REPORT, "replacement": "runtime-probes.json", "restoration": RESTORED_REPORT}
 USER = 65534
 VERSION = "6.12.0"
 MAX_OUTPUT = 32 * 1024
@@ -443,20 +445,33 @@ def collect(guest, wayland_socket, weston=None, *, phase="replacement"):
     return checked
 
 
-def write_result(directory, checks, wayland_socket, *, nonce, name="runtime-probes.json"):
+class RestoredCoverageError(RuntimeError):
+    """The restored probe completed and recorded incomplete runtime coverage."""
+
+    def __init__(self, status, message):
+        super().__init__(message)
+        self.status = status
+
+
+def write_result(directory, checks, wayland_socket, *, nonce, name=REPORTS["replacement"]):
     blocked = [name for name in PHASES if checks[name]["status"] != "PASS"]
     statuses = {checks[name]["status"] for name in PHASES}
     status = "FAIL" if "FAIL" in statuses else "PARTIAL" if blocked else "PASS"
     receipt = dict(kind=KIND, status=status, nonce=nonce, uid=USER, gid=USER, wayland_socket=wayland_socket,
                    vulkan_icd=LAVAPIPE, checks=checks)
+    if name == RESTORED_REPORT:
+        receipt["phase"] = "restoration"
     with (directory / name).open("x", encoding="utf-8") as stream:
         json.dump(receipt, stream, sort_keys=True, indent=2)
         stream.write("\n")
         stream.flush()
         os.fsync(stream.fileno())
     if blocked:
-        raise RuntimeError("Qt runtime coverage " + status + ": " + ", ".join(
-            f"{name}={checks[name]['status']}({checks[name]['reason']})" for name in blocked))
+        message = "Qt runtime coverage " + status + ": " + ", ".join(
+            f"{check}={checks[check]['status']}({checks[check]['reason']})" for check in blocked)
+        if name == RESTORED_REPORT:
+            raise RestoredCoverageError(status, message)
+        raise RuntimeError(message)
 
 
 def run(*, nonce, wayland_socket=None, weston=None, phase="replacement"):
@@ -478,7 +493,7 @@ def run(*, nonce, wayland_socket=None, weston=None, phase="replacement"):
             raise ValueError(f"Unexpected probe guest mount: {path}")
     if set(os.listdir("/sys/class/net")) != {"lo"}:
         raise ValueError("Expected an offline guest")
-    if phase not in {"vendor", "replacement"}:
+    if phase not in REPORTS:
         raise ValueError("Unknown Qt runtime checkpoint")
     selection = f"cachy_overlay583_nonce={nonce}"
     if type(nonce) is not str or not re.fullmatch(r"[0-9a-f]{32}", nonce) or [word for word in Path("/proc/cmdline").read_text().split()
@@ -490,4 +505,4 @@ def run(*, nonce, wayland_socket=None, weston=None, phase="replacement"):
         raise ValueError("Expected ordinary guest scratch and transaction evidence directories")
     with tempfile.TemporaryDirectory(prefix="qt629-probe-", dir=scratch) as directory:
         checks = collect(Guest(Path(directory)), wayland_socket, weston, phase=phase)
-    write_result(evidence, checks, wayland_socket, nonce=nonce, name=VENDOR_REPORT if phase == "vendor" else "runtime-probes.json")
+    write_result(evidence, checks, wayland_socket, nonce=nonce, name=REPORTS[phase])

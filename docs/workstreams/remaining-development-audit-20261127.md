@@ -36,9 +36,10 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    CUPS and XWayland EGL. A cold AArch64/16 KiB build stopped at Ninja step 50
    and the launch receipt records SIGTERM. Its original plan also lacks the
    source seal required for admission. This run is a diagnostic HOLD. A
-   fresh, explicitly sealed parity build started. Archive acceptance and
-   the mixed-version replacement trial remain pending. The 6.12.0-3 result
-   is the only Asahi629 Qt provider-swap PASS.
+   fresh, explicitly sealed parity build completed on November 28.
+   Independent stopped-disk readback verified the 6.12.0-4 archive and
+   ABI checks. The TEST-signed mixed-version installation and restoration
+   remain pending. The 6.12.0-3 result is the only Asahi629 Qt provider-swap PASS.
    [Parity recipe](../../scripts/integration/qt612_vulkan_md4c_successor/PARITY.md)
    · [Trial contract](../../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md)
 2. **Fix two independently reproduced package preflight defects.** These are

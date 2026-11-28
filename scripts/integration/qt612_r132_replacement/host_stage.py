@@ -24,12 +24,6 @@ E = run_path(str(HERE / "export.py"))
 GUEST_ENTRY = run_path(str(HERE / "guest_entry.py"))
 C, need = E["C"], E["need"]
 P = E["R"]["P"]
-# This exporter instance is private to the host-stage module. Keep the shell
-# and stopped-disk allowlists identical while the reader schema is updated.
-ACTOR_FILES = E["ACTOR_FILES"]
-for name, cap in {"weston-server.log": 1 << 20, "weston-lifecycle.json": 128 << 10,
-                  "vendor-runtime-probes.json": 2 << 20}.items():
-    ACTOR_FILES[name] = min(cap, ACTOR_FILES.get(name, cap))
 KIND = "ASAHI629_EXACT_GUEST_PLAN_V1"
 LANE = GUEST_ENTRY["LANE"]
 WESTON_ARCHIVE = "weston-15.0.1-3-aarch64.pkg.tar.xz"
@@ -122,8 +116,9 @@ def guest_checkpoint(worker, operands, qt_media):
     return worker, operands
 
 
-def guest_init(body):
-    cases = "\n".join(f"            {name}) limit={cap} ;;" for name, cap in sorted(ACTOR_FILES.items()))
+def guest_init(body, *, profile=None):
+    allowed = E["actor_files"](profile)
+    cases = "\n".join(f"            {name}) limit={cap} ;;" for name, cap in sorted(allowed.items()))
     function = r'''export_qt_evidence() {
     local source=$1 dest=$2 file name metadata links bytes uid gid mode limit
     if [[ ! -e $source && ! -L $source ]]; then return 0; fi
@@ -157,7 +152,7 @@ def guest_init(body):
     done
 }
 
-'''.replace("@CASES@", cases).replace("@COUNT@", str(len(ACTOR_FILES))).encode("ascii")
+'''.replace("@CASES@", cases).replace("@COUNT@", str(len(allowed))).encode("ascii")
     entry = b"[[ $$ == 1 && $# == 0 && $EUID == 0 ]]\n"
     body = replace_once(body, entry, function + entry)
     marker = b"export_evidence /trial-work/evidence /trial-export/evidence\n"
@@ -253,7 +248,7 @@ def stage(*, retained_source, retained_init, qt_source, qt_source_pins, baseline
         plan["qt_replacement"]["parity_profile"] = profile
     plan_bytes = C.wire(plan)
     need(len(plan_bytes) <= MAX_PLAN, "Extended guest plan exceeds the boot size limit")
-    init = guest_init(C.read(retained_init, PID1["bytes"], PID1)[0])
+    init = guest_init(C.read(retained_init, PID1["bytes"], PID1)[0], profile=profile)
     files = {"code/" + name: body for name, body in code_bodies.items()} | {"code/plan.json": plan_bytes} | media
     with E["directory"](output.parent) as parent:
         meta = os.fstat(parent)
@@ -280,13 +275,14 @@ def stage(*, retained_source, retained_init, qt_source, qt_source_pins, baseline
 
 
 def checkpoint_observations(asahi, qt, *, held, profile=None):
+    restored = qt.get(E["R"]["RESTORED_REPORT"]) if profile is not None else None
     if "result.json" not in asahi:
-        need(held, "Completed Qt result requires the Asahi owner result")
+        need(held and restored is None, "Completed Qt result requires the Asahi owner result")
         return None, None
     owner = C.json_body(asahi["result.json"], canonical=True)
     names = {"qt_checkpoint", "trust_retired_at_ns"}
     if not owner.keys() & names:
-        need(held, "Completed Qt result requires checkpoint and trust retirement observations")
+        need(held and restored is None, "Completed Qt result requires checkpoint and trust retirement observations")
         return None, None
     need(names <= owner.keys(), "Incomplete Qt checkpoint and trust retirement observations")
     checkpoint, stamp = (owner[name] for name in ("qt_checkpoint", "trust_retired_at_ns"))
@@ -317,6 +313,12 @@ def checkpoint_observations(asahi, qt, *, held, profile=None):
             need(phase == "terminal" and last == checkpoint["transaction"] and type(when) is int
                  and 0 < when < 2**63 and (stamp is None or when < stamp),
                  "Checkpoint disposition or trust retirement disagrees with the terminal journal")
+    if profile is not None:
+        transaction = checkpoint["transaction"] if checkpoint is not None else None
+        restored_pin = transaction.get("restored_runtime_probe") if transaction is not None else None
+        need(held and restored is None and restored_pin is None
+             or restored is not None and qt.get("transaction.jsonl") and C.pin(restored) == restored_pin,
+             "Restored runtime evidence pin differs from the stopped disk")
     need(held or stamp is not None and checkpoint is not None and qt.get("transaction.jsonl")
          and checkpoint["runtime_probe"] is not None
          and checkpoint["transaction"]["status"] == "PASS_QT629_PROVIDER_ROUND_TRIP",
@@ -329,7 +331,8 @@ def export_result(disk_path, disk_pin, bundle, *, held, originals=None, test_inp
     """Validate both result namespaces, then publish separate inert readback bundles."""
     need(type(held) is bool, "Expected explicit outer hold observation")
     before = C.identity(disk_path.lstat())
-    present, qt = E["actor_bodies"](disk_path, disk_pin, expected_nonce=expected_nonce)
+    allowed = E["actor_files"](profile)
+    present, qt = E["actor_bodies"](disk_path, disk_pin, expected_nonce=expected_nonce, profile=profile)
     asahi = {}
     with C.ext4_reader()(disk_path, max_nodes=64, max_file_bytes=E["MAX_NODE_BYTES"]) as disk:
         need(C.identity(os.fstat(disk.fd)) == before, "Stopped result disk changed before Asahi evidence check")
@@ -340,7 +343,7 @@ def export_result(disk_path, disk_pin, bundle, *, held, originals=None, test_inp
                  and not folder["xattrs"], "Unexpected Asahi629 evidence directory identity")
         members = {path.removeprefix("evidence/"): row for path, row in nodes.items() if path.startswith("evidence/")}
         need(members.keys() <= ASAHI_FILES | ASAHI_GENERATED and (not members or "evidence" in nodes)
-             and (held or ASAHI_FILES <= members.keys() and qt.keys() == ACTOR_FILES.keys()),
+             and (held or ASAHI_FILES <= members.keys() and qt.keys() == allowed.keys()),
              "Unexpected or incomplete Asahi629/Qt result namespace")
         need(sum(row["size"] for row in members.values()) <= 32 << 20, "Asahi629 result evidence exceeds total cap")
         for name, row in members.items():
@@ -364,7 +367,7 @@ def export_result(disk_path, disk_pin, bundle, *, held, originals=None, test_inp
     if asahi_bundle is not None:
         E["write_bundle"](asahi_bundle, asahi, {})
     return dict(result_disk=disk_pin, actor_directory_present=present,
-                missing_actor_files=sorted(ACTOR_FILES.keys() - qt.keys()),
+                missing_actor_files=sorted(allowed.keys() - qt.keys()),
                 missing_asahi_files=sorted(ASAHI_FILES - asahi.keys()),
                 qt_checkpoint=checkpoint, trust_retired_at_ns=stamp,
                 original_inputs={name: C.pin(body) for name, body in original_bodies.items()},

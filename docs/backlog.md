@@ -71,9 +71,10 @@ only the Fish package and exercised staging, comparison and withdrawal.
   guest recorded HOLD after a missing boot utility interrupted the normal
   export. A separate TEST-signed Asahi629 guest swapped and restored the
   official provider, including software rendering probes before and during
-  replacement. At the November 27 status check, the 6.12.0-4 parity candidate
-  was still compiling in emulated AArch64 with 16 KiB pages. Package readback,
-  signed installation and restoration, and the added runtime checks
+  replacement. The 6.12.0-4 parity candidate completed its offline build
+  and smoke test in emulated AArch64 with 16 KiB pages on November 28.
+  Independent stopped-disk readback verified the archive. TEST signing,
+  installed replacement and restoration, and the added runtime checks
   remain open for 6.12.0-4.
   [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
   · [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
@@ -81,7 +82,7 @@ only the Fish package and exercised staging, comparison and withdrawal.
   · [R132 replacement checks](../scripts/integration/qt612_installed_16k_preflight/README.md#official-provider-replacement-on-r132)
   · [Successor build and recovery](../scripts/integration/qt612_vulkan_md4c_successor/README.md#november-27-build-and-offline-package-recovery)
   · [6.12.0-3 scoped replacement](../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27)
-  · [6.12.0-4 parity candidate](../scripts/integration/qt612_vulkan_md4c_successor/PARITY.md)
+  · [6.12.0-4 verified parity build](../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md#verified-build-on-november-28)
 - The virtual desktop successor requires a terminal event after guest
   cleanup, bounded UART EOF, and outer-reader verification before accepting
   frames. The retained-input run `45731218357` authenticated all 45 tooling objects,

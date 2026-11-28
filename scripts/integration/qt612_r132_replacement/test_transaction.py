@@ -11,7 +11,7 @@ from subprocess import CompletedProcess
 import tarfile
 from tempfile import TemporaryDirectory
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 
 T = run_path(str(Path(__file__).with_name("transaction.py")))
@@ -138,6 +138,53 @@ class TransactionTests(unittest.TestCase):
             self.assertEqual((self.root / (stage + "-platform.json")).read_bytes(), PLATFORM)
         for stage, owner in (("replacement", PROJECT), ("restoration", OFFICIAL)):
             self.assertEqual((self.root / (stage + "-signature.status")).read_bytes(), owner.encode())
+
+    def test_parity_probe_runs_only_after_exact_official_restoration(self):
+        parity = T["P"]["PARITY_PROJECT_VERSION"]
+        report = PIN(b"restored runtime report")
+        for fault in (None, "completed-probe-failure", "missing-probe-report", "restoration-readback"):
+            with self.subTest(fault=fault), TemporaryDirectory() as folder:
+                journal = T["Journal"](Path(folder))
+                backend = FakeBackend(journal, project_version=parity)
+                backend.fault = fault
+
+                def restored_probe():
+                    self.assertEqual(backend.raw, inventory(OFFICIAL))
+                    self.assertFalse(backend.locked)
+                    self.assertTrue((journal.directory / "restoration.lock").is_file())
+                    if fault == "missing-probe-report":
+                        raise OSError("No completed report")
+                    failure = RuntimeError("Restored runtime failed") if fault == "completed-probe-failure" else None
+                    return report, failure
+
+                callback = Mock(side_effect=restored_probe)
+                result = T["_run"](backend, journal, inventory(OFFICIAL), lambda: None, lambda: PLATFORM,
+                                   PIN(PLATFORM), NONCE, project_version=parity, profile_pin=PIN(b"profile"),
+                                   restored_probe=callback)
+                rows = [json.loads(line) for line in journal.path.read_bytes().splitlines()]
+                if fault == "restoration-readback":
+                    callback.assert_not_called()
+                    self.assertEqual(result["status"], T["HOLD_DISCARD"])
+                    self.assertEqual(result["failure_phase"], "restoration")
+                else:
+                    callback.assert_called_once_with()
+                    self.assertEqual([row["phase"] for row in rows[-3:]],
+                                     ["restoration", "restoration-probe", "terminal"])
+                    self.assertEqual(result["last_verified"], "restoration")
+                    if fault is None:
+                        self.assertEqual(result["status"], T["PASS"])
+                        self.assertEqual(result["restored_runtime_probe"], report)
+                    else:
+                        self.assertEqual(result["status"], T["HOLD_RESTORED"])
+                        self.assertEqual(result["failure_phase"], "restoration-probe")
+                        self.assertEqual(rows[-2]["status"], "HOLD")
+                        self.assertEqual(result["error"], rows[-2]["error"])
+                        expected = (report, "RuntimeError", "Restored runtime failed") if fault == "completed-probe-failure" else (
+                            None, "OSError", "No completed report")
+                        pin, error_type, message = expected
+                        self.assertEqual(result["restored_runtime_probe"], pin)
+                        self.assertEqual(result["error"], {"error_type": error_type, "error": message})
+                        self.assertEqual(rows[-1]["restored_runtime_probe"], pin)
 
     def test_mixed_version_round_trip_and_legacy_project_rejection(self):
         parity = T["P"]["PARITY_PROJECT_VERSION"]

@@ -201,6 +201,18 @@ export_qt_evidence "$1" "$2"
         self.assertEqual((retained / journal.name).stat().st_mode & 0o777, 0o600)
         for name in ("weston-server.log", "weston-lifecycle.json", "vendor-runtime-probes.json"):
             self.assertEqual((retained / name).read_bytes(), (incoming / name).read_bytes())
+        restored = incoming / S["E"]["R"]["RESTORED_REPORT"]
+        restored.write_bytes(b'{"status":"PARTIAL"}\n')
+        restored.chmod(0o600)
+        legacy = self.root / "legacy"
+        parity = self.root / "parity"
+        parity_function, _ = S["guest_init"](INIT, profile={}).split(b"[[ $$ == 1", 1)
+        for generated, destination in ((function, legacy), (parity_function, parity)):
+            result = subprocess.run(["/usr/bin/bash", "-s", "--", str(incoming), str(destination)],
+                                    input=generated + command, capture_output=True)
+            self.assertEqual(result.returncode == 0, destination == parity, result.stderr)
+        self.assertEqual((parity / restored.name).read_bytes(), restored.read_bytes())
+        restored.unlink()
         (incoming / "unexpected").symlink_to(journal)
         refused = self.root / "refused"
         result = subprocess.run(["/usr/bin/bash", "-s", "--", str(incoming), str(refused)],
@@ -272,6 +284,34 @@ class CheckpointTests(unittest.TestCase):
             S["checkpoint_observations"](asahi | {"result.json": C.wire(owner | {"trust_retired_at_ns": 99})},
                                          qt, held=False)
         self.assertEqual(S["checkpoint_observations"](asahi, {}, held=True), (checkpoint, 101))
+
+    def test_held_parity_export_checks_the_completed_restored_report_pin(self):
+        profile = {"inert": True}
+        nonce = "a" * 32
+        name = E["R"]["RESTORED_REPORT"]
+        report = C.wire(dict(nonce=nonce, phase="restoration", status="PARTIAL"))
+        entry = dict(phase="entry", parity_profile=C.pin(C.wire(profile)))
+
+        def observe(pin, raw, *, include_journal=True):
+            failure = dict(error_type="RestoredCoverageError", error="PARTIAL")
+            tx = dict(status="HOLD_QT629_OFFICIAL_RESTORATION_VERIFIED", error=failure, restored_runtime_probe=pin)
+            checkpoint = dict(nonce=nonce, transaction=tx, runtime_probe=None)
+            owner = C.wire(dict(nonce=nonce, qt_checkpoint=checkpoint, trust_retired_at_ns=None))
+            terminal = dict(phase="terminal", at_ns=100, **tx)
+            qt = {} if raw is None else {name: raw}
+            if include_journal:
+                qt["transaction.jsonl"] = "".join(json.dumps(row) + "\n" for row in (entry, terminal)).encode()
+            self.assertEqual(S["checkpoint_observations"]({"result.json": owner}, qt, held=True, profile=profile),
+                             (checkpoint, None))
+
+        pin = C.pin(report)
+        observe(pin, report)
+        observe(None, None)
+        for selected, raw in ((None, report), (pin, None), (pin, report + b"rebound")):
+            with self.subTest(pin=selected, report=raw), self.assertRaisesRegex(ValueError, "Restored runtime evidence pin"):
+                observe(selected, raw)
+        with self.assertRaisesRegex(ValueError, "Restored runtime evidence pin"):
+            observe(pin, report, include_journal=False)
 
 
 class TestAdmissionSignature(unittest.TestCase):

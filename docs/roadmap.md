@@ -29,16 +29,19 @@ AArch64 16 KiB Q3 baseline. A separate TEST-signed trial on the Asahi629
 reversal inventory swapped in the project Qtbase 6.12.0-3 provider, then
 restored the official package and exact inventory. Ordinary-user software
 rendering checks ran before and during replacement with headless
-Weston/Pixman and Lavapipe. Post-restoration
-runtime remains **NOT RUN**. Qtbase 6.12.0-4 archive verification, provider
-parity and the mixed-version guest lifecycle remain open.
+Weston/Pixman and Lavapipe. Post-restoration runtime remains **NOT RUN**.
+Qtbase 6.12.0-4 passed one offline serial build in emulated AArch64 with
+16 KiB pages. The build passed the offscreen and local Wayland server
+API smoke test. The guest retired cleanly, and independent stopped-disk
+readback verified the unsigned archive. TEST signing, the mixed-version
+Asahi629 lifecycle and installed provider parity remain open.
 [Qtbase validation](validation/qtbase612-emulated-arm16k-configure-20261118.md)
 · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md)
 · [QtGui link](validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
 · [Full Qtbase build](../scripts/integration/qt612_full_16k_preflight/README.md)
 · [Installed Qtbase lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
 · [Scoped 6.12.0-3 provider swap](../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27)
-· [6.12.0-4 parity trial](../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md)
+· [6.12.0-4 build evidence and parity trial](../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md#verified-build-on-november-28)
 
 An earlier direct boot of the stock Asahi kernel with an auxiliary
 initramfs reached the installed systemd's `basic.target` in emulation.

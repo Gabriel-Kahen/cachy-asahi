@@ -213,19 +213,21 @@ def select_trust(T, O, G, tx, manifest, folder, review):
     check_keyrings(T, G, homes, keys, candidate=review)
 
 
-def probe_evidence(T, R, path, socket, *, nonce, passed):
+def probe_evidence(T, R, path, socket, *, nonce, passed, restored=False, expected_status=None):
     if path_absent(path):
         T.need(not passed, "Successful Qt transaction lacks its runtime probe report")
+        T.need(expected_status is None, "Completed Qt probe lacks its runtime probe report")
         return None
     body = T.read(path, cap=2 << 20)
     report = T.decode(body)
     T.need(T.encoded(report) == body and report["kind"] == R.KIND and report["wayland_socket"] == socket
-           and report["nonce"] == nonce
+           and report["nonce"] == nonce and report.get("phase") == ("restoration" if restored else None)
            and report["uid"] == report["gid"] == R.USER and report["vulkan_icd"] == R.LAVAPIPE
            and set(report["checks"]) == set(R.PHASES), "Runtime probe evidence differs from the selected Qt scope")
     outcomes = {row["status"] for row in report["checks"].values()}
     T.need(outcomes <= {"PASS", "FAIL", "SKIP"}
            and report["status"] == ("FAIL" if "FAIL" in outcomes else "PARTIAL" if "SKIP" in outcomes else "PASS")
+           and (expected_status is None or report["status"] == expected_status)
            and (not passed or outcomes == {"PASS"}), "Qt runtime coverage differs from the transaction outcome")
     T.need(socket is not None or all(report["checks"][name]["status"] == "SKIP" for name in ("wayland", "vulkan_qrhi")),
            "Unselected Wayland compositor cannot yield a Wayland or QRhi probe result")
@@ -265,9 +267,21 @@ def run_checkpoint(T, O, G, selected):
     vendor_report = O.WORK / runtime.VENDOR_REPORT
 
     def transact(compositor):
+        def restored_probe():
+            failure = None
+            try:
+                runtime.run(nonce=nonce, wayland_socket=socket, weston=compositor, phase="restoration")
+            except runtime.RestoredCoverageError as error:
+                failure = error
+            report = probe_evidence(T, runtime, evidence_dir / runtime.RESTORED_REPORT, socket, nonce=nonce,
+                                    passed=failure is None, restored=True,
+                                    expected_status=failure.status if failure is not None else None)
+            return report, failure
+
+        parity = {"profile": profile, "restored_probe": restored_probe} if profile is not None else {}
         return tx.run(project_review=review,
                       probe=lambda: runtime.run(nonce=nonce, wayland_socket=socket, weston=compositor),
-                      platform=platform, nonce=nonce, **({"profile": profile} if profile is not None else {}))
+                      platform=platform, nonce=nonce, **parity)
 
     mask = os.umask(0o077)
     try:
@@ -281,7 +295,8 @@ def run_checkpoint(T, O, G, selected):
                                      public_key=folder / QT_ALARM_NAME, destination=destination)
 
             try:
-                with weston.supervise(nonce=nonce, stage_fixture=stage_fixture) as compositor:
+                parity = {"parity": True} if profile is not None else {}
+                with weston.supervise(nonce=nonce, stage_fixture=stage_fixture, **parity) as compositor:
                     T.need(compositor.socket == socket, "Owned Weston must serve the selected socket")
                     runtime.run(nonce=nonce, wayland_socket=socket, weston=compositor, phase="vendor")
                     probe_evidence(T, runtime, vendor_report, socket, nonce=nonce, passed=True)

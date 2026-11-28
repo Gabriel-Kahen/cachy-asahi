@@ -34,13 +34,41 @@ Use canonical absolute paths. The tool exits zero when it emits the audit,
 whose status remains **HOLD**. A refused input exits nonzero. No release or
 launch authority is issued. [Retained Asahi629 rehearsal](../install/asahi629_trial/README.md)
 
+## Optional 633-package runtime projection
+
+Supply both `--updater` and `--updater-runtime "$Q3_VENDOR_MEDIA"` to verify
+the runtime extension. The directory must contain the following exact
+archives and adjacent detached ALARM signatures.
+
+| Package | Version | Architecture |
+| --- | --- | --- |
+| archlinux-contrib | `20261009-1` | any |
+| htmlq | `0.4.0-3` | aarch64 |
+| pyalpm | `0.12.0-1` | aarch64 |
+
+The optional audit requires the complete retained Asahi629 operands. It
+verifies the extension using the existing [runtime intake pins](../port/updater-native-stage/runtime_intake.py)
+and the ALARM public key from the Asahi629 transport. It reads the four
+pinned packages' `.PKGINFO`, checks their identities and exact declared
+relations, and checks dependency and conflict names against each projected
+inventory. The three vendor packages and the updater add four rows to
+each original lock. The report contains their metadata and archive pins,
+the three vendor signature receipts, and the before, candidate and recovery
+lock pins. The before and recovery projections are identical.
+
+This report retains the original 629-package audit and adds
+`updater_runtime_projection` with status `PROJECTED_ONLY`. Current updater
+TEST signing, signed candidate and recovery repositories, actual ALPM
+dependency and transaction preparation, and installed load and recovery
+checks remain pending. In particular, exercise the CPython 3.14 `pyalpm`
+module against the selected `libalpm.so.16` under both Python versions.
+
 ## Unselected inputs
 
 - The 629-package lock lacks the updater and its direct package names
-  `archlinux-contrib` and `htmlq`. The older Q3 lane supplies reference versions
-  `archlinux-contrib 20261009-1` and `htmlq 0.4.0-3` with detached ALARM
-  signatures. Bind the exact dependency closure, including any adapters the
-  new lane selects, to a fresh updater-equipped before inventory.
+  `archlinux-contrib` and `htmlq`, plus the transitive `pyalpm` dependency.
+  Bind the projected closure and any selected adapters to a verified
+  updater-equipped local ALPM database and an exact before inventory.
   [Q3 input lock](../ci/updater-optional-check/historical/dependencies/inputs.lock.json)
 - The exact updater needs a detached signature under a current reviewed
   disposable TEST certificate for this profile. The candidate and recovery
