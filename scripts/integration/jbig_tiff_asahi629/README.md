@@ -130,14 +130,24 @@ python3 -I -B "$lane/runner.py" \
 ```
 
 The runner reuses disk setup, PID 1, supervision, Asahi trust, output and
-retirement from the pinned controller. Only the scoped input packer and
-result reviewer are supplied to its rehearsal method. The scoped runner
+retirement from the pinned controller. The scoped runner
 requires a reflink for the control-root and Asahi target copies. The exact
 source, destination and retained options are checked before each copy.
 The selected copies use GNU cp's compatible `--sparse=auto --reflink=always`. A
 filesystem that cannot reflink either copy produces a HOLD with no full-copy
-fallback. The controller still checks the cloned bytes against the input
-hashes before preparing the guest. The host owner records actor memory
+fallback. The scoped SHA-256 reader reads the exact pinned control and seed
+images and their two disposable clones in 1 MiB chunks. It checks the
+canonical path, single link, length, EOF, digest and stable identity on
+each open. It advises discard only for consumed page-aligned ranges on
+that descriptor. The advice can evict already-warm pages from the two
+selected original inodes. Advice errors hold the run, and eviction itself
+remains best-effort. Other reads use the retained controller.
+
+Before scheduling a guest for this reader, require cold and warm no-guest
+rehearsals of preboot and post-QEMU verification under the 6 GiB no-swap
+actor cap. Require exact pin and refusal checks, at least 1 GiB of peak
+headroom, zero new limit or OOM events, and the original pressure gates.
+The host owner records actor memory
 accounting and host swap counters alongside its existing PSI guard.
 Two digest-checked
 worker copies add the checkpoint after the original rollback query, before
@@ -192,7 +202,7 @@ python3 -I -B "$lane/readback.py" \
 ## Source controls
 
 ```sh
-for test in test_inputs.py test_jpeg_recipe.py test_runtime.py test_lane.py test_reflink.py test_host_telemetry.py; do
+for test in test_inputs.py test_jpeg_recipe.py test_runtime.py test_lane.py test_reflink.py test_host_telemetry.py test_clone_rehash.py; do
   python3 -I -B -Werror::ResourceWarning "$lane/$test" || exit
 done
 ```

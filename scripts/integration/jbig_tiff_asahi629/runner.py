@@ -2,9 +2,12 @@
 """Enter the reviewed JBIG/TIFF extension from the existing offline Asahi629 actor."""
 
 import argparse
+import hashlib
 from itertools import islice
+import os
 from pathlib import Path
 from runpy import run_path
+import stat
 import sys
 from types import FunctionType, SimpleNamespace
 
@@ -66,10 +69,71 @@ def packed_transport(L, stage, record, plan, staging, base, root):
     return files, aliases, directories
 
 
+def rehash_image(T, path, expected):
+    path = T.ordinary(path)
+    chunk_size = 1 << 20
+    page_size = os.sysconf("SC_PAGE_SIZE")
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+    with os.fdopen(fd, "rb", buffering=0) as stream:
+        before = os.fstat(fd)
+        T.need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and before.st_size > 0
+               and before.st_size % page_size == chunk_size % page_size == 0,
+               "Expected an ordinary page-aligned image with one link: " + path.name)
+        T.need(type(expected) is dict and expected.keys() == {"bytes", "sha256"}
+               and type(expected["bytes"]) is int and expected["bytes"] == before.st_size
+               and type(expected["sha256"]) is str and T.HEX.fullmatch(expected["sha256"]),
+               "Expected image length or digest differs: " + path.name)
+        os.posix_fadvise(fd, 0, 0, os.POSIX_FADV_RANDOM)
+        digest = hashlib.sha256()
+        for offset in range(0, before.st_size, chunk_size):
+            length = min(chunk_size, before.st_size - offset)
+            chunk = stream.read(length)
+            T.need(len(chunk) == length, "Short pinned image read: " + path.name)
+            digest.update(chunk)
+            os.posix_fadvise(fd, offset, length, os.POSIX_FADV_DONTNEED)
+        T.need(not stream.read(1), "Pinned image grew: " + path.name)
+        pin = dict(bytes=before.st_size, sha256=digest.hexdigest())
+        T.need(pin == expected and T.identity(before) == T.identity(os.fstat(fd)) == T.identity(path.lstat()),
+               "Changed pinned image bytes or identity: " + path.name)
+    return pin
+
+
+def image_reader(T, images):
+    def read(path, expected=None, *, cap=T.MAX_MEMBER, collect=True, observed=None, allowed_links=(1,)):
+        selected = images.get(Path(path))
+        if selected is None:
+            return T.read(path, expected, cap=cap, collect=collect, observed=observed, allowed_links=allowed_links)
+        T.need(expected == selected and cap == selected["bytes"] and collect is False and observed is None
+               and allowed_links == (1,), "Unexpected pinned image check: " + str(path))
+        return rehash_image(T, path, selected)
+
+    return read
+
+
+def with_globals(original, **overrides):
+    scoped = FunctionType(original.__code__, original.__globals__ | overrides,
+                          original.__name__, original.__defaults__, original.__closure__)
+    scoped.__kwdefaults__ = original.__kwdefaults__
+    return scoped
+
+
+def image_reads(L, paths, refs, *, out=None):
+    images = {paths["control"] / L.CONTROL_FILES / "guest.raw": refs["baseline"], paths["seed"]: refs["seed"]}
+    if out is not None:
+        images |= {out / "reference.raw": refs["baseline"], out / "scratch.raw": refs["seed"]}
+    T = SimpleNamespace(**(vars(L.T) | {"read": image_reader(L.T, images)}))
+    return dict(T=T, control_refs=with_globals(L.control_refs, T=T))
+
+
 def scoped_controller(L, stage, record, plan):
     T = L.T
 
     class ScopedController(L.Controller):
+        def run_asahi629(self, authority_path, authority_digest):
+            binding = with_globals(L.binding, **image_reads(L, self.paths, self.authority["references"]))
+            run = with_globals(L.Controller.run_asahi629, binding=binding)
+            return run(self, authority_path, authority_digest)
+
         def command(self, label, name, args, seconds, deadline):
             if label == "clone-control-root":
                 source = self.paths["control"] / L.CONTROL_FILES / "guest.raw"
@@ -97,11 +161,9 @@ def scoped_controller(L, stage, record, plan):
             def review(out, selected, *, held):
                 return R.review(L, out, selected, held=held)
 
-            # Both seams are replaced only for this invocation. The pinned original
-            # method still owns the disk geometry, boot, supervision and export.
-            original = L.Controller.rehearse
-            scope = original.__globals__ | {"copy_transport": copy, "review": review}
-            owned = FunctionType(original.__code__, scope, original.__name__, original.__defaults__, original.__closure__)
+            # The pinned controller still owns the disk geometry, boot, supervision and export.
+            owned = with_globals(L.Controller.rehearse, copy_transport=copy, review=review,
+                                 **image_reads(L, self.paths, actual["references"], out=self.out))
             receipt = owned(self, actual | {"plan": record["plan"]}, plan, authority_path, authority_digest)
             if receipt["status"] == L.G.PASS:
                 start, end = (receipt["host_realtime"][key] for key in ("before", "after"))
