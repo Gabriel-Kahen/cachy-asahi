@@ -18,8 +18,9 @@ KERNEL_LOCK = 'scripts/port/kernel-native-job-v3/stage.lock.json'
 KERNEL_SHA = 'ec2125c80d59fbe235018bb05b80c6a3157287543d4caf05ffb494ae8d76f47e'
 PARENT_SHA = '2fd77c8d22c322008f9f43d9b574fd797d6bd52be4ab26463699a165134ce9c6'
 BUILD_HELPERS = {
-    'scripts/build/build.py': ('3063936c1cd7369a14919e6491b100281d7ada0515ef87f1f176d7bdb4403dca', 0o644),
+    'scripts/build/build.py': ('a90ee5930f600de37d8af2ef0135be3c3d5ff08173207da8e465b60517467ce2', 0o644),
     'scripts/build/compare.py': ('f28a02dd1b19847df8870e2ded18117c39d11e7d62d990b68292e37c11f19d9a', 0o644),
+    'scripts/build/container-entry.sh': ('558ab9333301807c740bfe6e782907c8d20aafc57ebabfa9889816a6e44da529', 0o644),
 }
 
 

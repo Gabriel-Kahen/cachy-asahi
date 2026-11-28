@@ -109,7 +109,9 @@ class CurrentPacketTests(unittest.TestCase):
         self.assertEqual(self.inline['PACKET'], packet_v3.MANIFEST)
         self.assertEqual(packet.read(self.manifest), self.lock)
         self.assertEqual(packet_v3.preview(ROOT), packet.decode(self.lock))
-        self.assertEqual(set(packet_v3.BUILD_HELPERS), {'scripts/build/build.py', 'scripts/build/compare.py'})
+        self.assertEqual(set(packet_v3.BUILD_HELPERS),
+                         {'scripts/build/build.py', 'scripts/build/compare.py',
+                          'scripts/build/container-entry.sh'})
 
         policy = packet_v3._policy()
         old_policy = packet_v2._policy()
@@ -160,16 +162,20 @@ class CurrentPacketTests(unittest.TestCase):
 
     def test_both_git_verifiers_refuse_changed_worktree_bytes(self):
         root = self.private_checkout()
-        name = next(iter(sorted(packet_v3.BUILD_HELPERS)))
-        changed = root / name
-        changed.write_bytes(packet.read(changed) + b'\n')
-
-        with self.assertRaises(ValueError):
-            self.inline['source'](root, self.commit, self.pin)
-        out = self.private / 'refused'
-        with self.assertRaisesRegex(ValueError, '^packet-byte-mode-pin$'):
-            packet_v3.verify(root, root / packet_v3.MANIFEST, self.pin, self.commit, self.runner, out)
-        self.assertFalse((out / name).exists())
+        for name in sorted(packet_v3.BUILD_HELPERS):
+            with self.subTest(name=name):
+                changed = root / name
+                original = packet.read(changed)
+                changed.write_bytes(original + b'\n')
+                out = self.private / ('refused-' + changed.name)
+                try:
+                    with self.assertRaises(ValueError):
+                        self.inline['source'](root, self.commit, self.pin)
+                    with self.assertRaisesRegex(ValueError, '^packet-byte-mode-pin$'):
+                        packet_v3.verify(root, root / packet_v3.MANIFEST, self.pin, self.commit, self.runner, out)
+                    self.assertFalse((out / name).exists())
+                finally:
+                    changed.write_bytes(original)
 
     def test_both_git_verifiers_refuse_repinning_an_uncommitted_lock(self):
         root = self.private_checkout()

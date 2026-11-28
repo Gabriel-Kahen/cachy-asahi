@@ -62,6 +62,7 @@ jobs:
                       'scripts/ci/native349-pinned-input-carrier/expected-files.json',
                       'scripts/port/kernel-native-job-v2/setup-producer-source.json',
                       'scripts/build/build.py', 'scripts/build/compare.py',
+                      'scripts/build/container-entry.sh',
                       'scripts/ci/inputs.lock.json',
                       'scripts/port/kernel-native-job/recipes.lock.json',
                       'scripts/port/kernel-native-stage/stage.py',

@@ -1,9 +1,9 @@
 {
   "files": {
     ".github/workflows/native-arm-kernel.yml": {
-      "bytes": 17956,
+      "bytes": 18014,
       "mode": 420,
-      "sha256": "4316a962c169da60eea52ba85dc74484b8c80546f608c4ce9597290673459c89"
+      "sha256": "7bc6f164e066935cde1d3d301bf1debc828605e387b1c2b0f43d4948a32710e7"
     },
     "AGENTS.md": {
       "bytes": 1334,
@@ -406,9 +406,9 @@
       "sha256": "19a9df455ad2c42b01eb184bdfb0b14402fe372e397fa91cc0ee28dd766bb65d"
     },
     "scripts/build/build.py": {
-      "bytes": 12126,
+      "bytes": 12599,
       "mode": 420,
-      "sha256": "3063936c1cd7369a14919e6491b100281d7ada0515ef87f1f176d7bdb4403dca"
+      "sha256": "a90ee5930f600de37d8af2ef0135be3c3d5ff08173207da8e465b60517467ce2"
     },
     "scripts/build/compare.py": {
       "bytes": 9648,
@@ -416,9 +416,9 @@
       "sha256": "f28a02dd1b19847df8870e2ded18117c39d11e7d62d990b68292e37c11f19d9a"
     },
     "scripts/build/container-entry.sh": {
-      "bytes": 1787,
+      "bytes": 2401,
       "mode": 420,
-      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+      "sha256": "558ab9333301807c740bfe6e782907c8d20aafc57ebabfa9889816a6e44da529"
     },
     "scripts/checks/package_checks.py": {
       "bytes": 19390,
@@ -496,9 +496,9 @@
       "sha256": "2fd77c8d22c322008f9f43d9b574fd797d6bd52be4ab26463699a165134ce9c6"
     },
     "scripts/port/kernel-native-job/packet_v3.py": {
-      "bytes": 3261,
+      "bytes": 3378,
       "mode": 420,
-      "sha256": "3754ee5d3f92b921a3f9b48ab014836ac5cc772c239ca1a14d6ed9f43f74c345"
+      "sha256": "ee55a73d8a92e5c0952fe4d4f1e125d4aad0ba17a77aecbd5fa80aab3e1147ed"
     },
     "scripts/port/kernel-native-job/public.py": {
       "bytes": 58959,
