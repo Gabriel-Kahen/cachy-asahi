@@ -172,9 +172,20 @@ jobs:
           PY
           bash -n scripts/build/container-entry.sh
           bash -n scripts/build/container-entry-v2.sh
+      - name: Checkout exact sealed kernel packet for source replay
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: c9f11142e061c163e6df4bcf5cf474e608ef711d
+          path: .ci-inputs/kernel-packet-v2
+          persist-credentials: false
       - name: Check kernel build, output verifier and native job fixtures
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        env:
+          KERNEL_PACKET_V2_REPLAY: ${{ github.workspace }}/.ci-inputs/kernel-packet-v2
         run: |
+          test "$(git -C "$KERNEL_PACKET_V2_REPLAY" rev-parse HEAD)" = c9f11142e061c163e6df4bcf5cf474e608ef711d
+          /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s "$KERNEL_PACKET_V2_REPLAY/scripts/port/kernel-native-job" -p test_packet_v2.py
           # Some source-fixture cases need retained private input and report a skip here.
           for suite in kernel-candidates kernel-native-stage kernel-native-job; do
             /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s "scripts/port/$suite" -p 'test_*.py'
