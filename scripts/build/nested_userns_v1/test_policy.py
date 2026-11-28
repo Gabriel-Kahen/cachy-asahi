@@ -185,8 +185,12 @@ class Controls(unittest.TestCase):
             (out / 'inputs').mkdir()
             (out / 'artifacts').mkdir()
             recipe = out / 'inputs/PKGBUILD'
-            recipe.write_text('MODELED reviewed recipe\n')
-            recipe_hash = C.digest(recipe)
+            payload = out / 'inputs/payload'
+            payload.write_text('MODELED input\n')
+            recipe.write_text("pkgname=example\npkgver=1\npkgrel=1\narch=('any')\nlicense=('MIT')\n"
+                              f"source=('payload')\nsha256sums=('{C.digest(payload)}')\n")
+            reviewed = B.recipe(recipe)
+            recipe_hash = reviewed['input_sha256']['PKGBUILD']
             artifact = out / 'artifacts/example-1-1-any.pkg.tar.gz'
             with tarfile.open(artifact, 'w:gz') as archive:
                 entries = {
@@ -200,10 +204,13 @@ class Controls(unittest.TestCase):
                     member = tarfile.TarInfo(name)
                     member.size = len(body)
                     archive.addfile(member, BytesIO(body))
-            for name in ('build.log', 'validation.json', 'artifacts/generated.SRCINFO',
-                         'artifacts/environment.txt', 'artifacts/config.sha256',
+            for name in ('build.log', 'artifacts/environment.txt', 'artifacts/config.sha256',
                          'artifacts/makepkg.conf', 'artifacts/pacman.conf'):
                 (out / name).write_text('MODELED evidence\n')
+            (out / 'artifacts/generated.SRCINFO').write_text('pkgbase = example\n' + ''.join(
+                f'{key} = {value}\n' for key, values in reviewed['metadata'].items() for value in values
+            ))
+            (out / 'validation.json').write_text(json.dumps({'artifacts': [C.package(artifact)], 'errors': []}))
             expected = out / 'expected-packages.lock'
             observed = out / 'artifacts/packages.lock'
             record_path = out / 'provenance.json'
@@ -218,12 +225,11 @@ class Controls(unittest.TestCase):
                     record = dict(
                         status='built-package-static-pass', nested_namespaces=None, exit_code=0, network='none',
                         expected_packages_sha256=claimed_hash or C.digest(expected),
-                        recipe_inputs={'PKGBUILD': recipe_hash},
-                        recipe_metadata=dict(pkgname=['example'], pkgver=['1'], pkgrel=['1'],
-                                             arch=['any'], license=['MIT']),
+                        recipe_inputs=reviewed['input_sha256'],
+                        recipe_metadata=reviewed['metadata'],
                         artifacts={artifact.name: C.digest(artifact)},
                         files={str(path.relative_to(out)): C.digest(path) for path in out.rglob('*')
-                               if path.is_file() and path not in (recipe, record_path)},
+                               if path.is_file() and path != record_path and not path.is_relative_to(out / 'inputs')},
                     )
                     record_path.write_text(json.dumps(record))
                     if reason is None:

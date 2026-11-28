@@ -62,14 +62,22 @@ class ValidationTests(unittest.TestCase):
                 archive.addfile(member, io.BytesIO(data))
         return path
 
-    def evidence(self, name, artifact):
+    def evidence(self, name, artifact, reviewed_srcinfo=False):
         directory = self.root / name
         (directory / 'artifacts').mkdir(parents=True)
-        (directory / 'inputs').mkdir()
+        inputs = directory / 'inputs'
+        shutil.copytree(self.recipe().parent, inputs)
         dest = directory / 'artifacts' / artifact.name
         dest.write_bytes(artifact.read_bytes())
-        (directory / 'inputs' / 'PKGBUILD').write_text('reviewed')
-        recipe_hash = checks.digest(directory / 'inputs' / 'PKGBUILD')
+        reviewed = checks.recipe(inputs / 'PKGBUILD')
+        srcinfo = 'pkgbase = example\n' + ''.join(
+            f'\t{key} = {value}\n' for key, values in reviewed['metadata'].items()
+            if key != 'pkgname' for value in values
+        ) + '\npkgname = example\n'
+        if reviewed_srcinfo:
+            (inputs / '.SRCINFO').write_text('# reviewed fixture\n' + srcinfo)
+            reviewed = checks.recipe(inputs / 'PKGBUILD')
+        recipe_hash = reviewed['input_sha256']['PKGBUILD']
         rewritten = dest.with_suffix('.new')
         with tarfile.open(dest) as source, tarfile.open(rewritten, 'w') as target:
             for member in source:
@@ -81,17 +89,19 @@ class ValidationTests(unittest.TestCase):
                 member.size = len(content)
                 target.addfile(member, io.BytesIO(content) if member.isfile() else None)
         rewritten.replace(dest)
-        for file_name in ('build.log', 'validation.json', 'expected-packages.lock', 'artifacts/packages.lock',
-                     'artifacts/generated.SRCINFO', 'artifacts/environment.txt', 'artifacts/config.sha256',
-                     'artifacts/makepkg.conf', 'artifacts/pacman.conf'):
+        for file_name in ('build.log', 'artifacts/environment.txt', 'artifacts/config.sha256',
+                          'artifacts/makepkg.conf', 'artifacts/pacman.conf'):
             (directory / file_name).write_text('synthetic fixture')
+        (directory / 'artifacts/generated.SRCINFO').write_text(srcinfo)
+        (directory / 'validation.json').write_text(json.dumps({'artifacts': [checks.package(dest)], 'errors': []}))
         for file_name in ('expected-packages.lock', 'artifacts/packages.lock'):
             (directory / file_name).write_text('base-devel 1-1\n')
         record = {'status': 'built-package-static-pass', 'image': 'digest', 'image_id': 'id',
                   'exit_code': 0, 'network': 'none', 'nested_namespaces': None,
-                  'mode': 'native', 'clean_environment_id': name, 'source_date_epoch': 1, 'recipe_metadata': {'pkgname': ['example'], 'pkgver': ['1'], 'pkgrel': ['1'], 'arch': ['any'], 'license': ['MIT']},
+                  'mode': 'emulated', 'clean_environment_id': name, 'source_date_epoch': 1,
+                  'recipe_metadata': reviewed['metadata'],
                   'expected_packages_sha256': checks.digest(directory / 'expected-packages.lock'), 'entry_script_sha256': 'entry',
-                  'recipe_inputs': {'PKGBUILD': checks.digest(directory / 'inputs' / 'PKGBUILD')},
+                  'recipe_inputs': reviewed['input_sha256'],
                   'artifacts': {artifact.name: checks.digest(dest)},
                   'files': {str(p.relative_to(directory)): checks.digest(p) for p in directory.rglob('*')
                             if p.is_file() and not p.is_relative_to(directory / 'inputs')}}
@@ -254,7 +264,7 @@ class ValidationTests(unittest.TestCase):
                 first_path.write_text(json.dumps(first_record))
                 second_path.write_text(json.dumps(original))
 
-    def test_all_comparators_require_nonempty_bound_inventory(self):
+    def test_all_comparators_require_valid_bound_inventory(self):
         artifact = self.archive()
         first, second = self.evidence('first', artifact), self.evidence('second', artifact)
         originals = {directory: json.loads((directory / 'provenance.json').read_text())
@@ -264,6 +274,12 @@ class ValidationTests(unittest.TestCase):
             (b'base-devel 1-1\n', b'base-devel 2-1\n', None, 'observed builder package lock differs'),
             (b'', b'', None, 'expected package lock is empty'),
             (b'\n  \n', b'\n  \n', None, 'expected package lock is empty'),
+            (b'not-a-package-inventory\n', b'not-a-package-inventory\n', None, 'invalid pacman -Q inventory row'),
+            (b'base-devel  1-1\n', b'base-devel  1-1\n', None, 'invalid pacman -Q inventory row'),
+            (b'base-devel 1-1', b'base-devel 1-1', None, 'inventory must end with a newline'),
+            (b'base-devel abc\n', b'base-devel abc\n', None, 'invalid pacman -Q inventory row'),
+            (b'base-devel 1-1\nacl 2-1\n', b'base-devel 1-1\nacl 2-1\n', None, 'sorted with unique'),
+            (b'base-devel 1-1\nbase-devel 2-1\n', b'base-devel 1-1\nbase-devel 2-1\n', None, 'sorted with unique'),
         ):
             for directory, original in originals.items():
                 expected = directory / 'expected-packages.lock'
@@ -281,6 +297,85 @@ class ValidationTests(unittest.TestCase):
                 with self.subTest(comparator=comparator.__name__, error=error, expected=expected_bytes):
                     with self.assertRaisesRegex(ValueError, error):
                         comparator.compare(first, second)
+
+    def test_all_comparators_reject_rehashed_generated_metadata(self):
+        path = self.evidence('fixture', self.archive(), reviewed_srcinfo=True)
+        relative = 'artifacts/generated.SRCINFO'
+        generated = path / relative
+        original = generated.read_text()
+        provenance = path / 'provenance.json'
+        record = json.loads(provenance.read_text())
+        for text, reason in (
+            ('synthetic fixture\n', 'invalid metadata line'),
+            (original.partition('\n')[2], 'single nonempty pkgbase'),
+            (original.replace('source = payload', 'source = another'), 'generated metadata differs from reviewed source'),
+            (original.replace('\tpkgver =', '  pkgver ='), 'differs from reviewed .SRCINFO'),
+        ):
+            generated.write_text(text)
+            record['files'][relative] = checks.digest(generated)
+            provenance.write_text(json.dumps(record))
+            for comparator in (compare, compare_v2, compare_v3):
+                with self.subTest(comparator=comparator.__name__, reason=reason):
+                    with self.assertRaisesRegex(ValueError, reason):
+                        comparator.verify(path)
+        # The container's strict comparison permits comments and blank lines.
+        generated.write_text(original + '\n# generated fixture\n')
+        record['files'][relative] = checks.digest(generated)
+        provenance.write_text(json.dumps(record))
+        for comparator in (compare, compare_v2, compare_v3):
+            self.assertEqual(comparator.verify(path)[0], record)
+
+    def test_all_comparators_reject_rehashed_validation(self):
+        path = self.evidence('fixture', self.archive())
+        validation = path / 'validation.json'
+        original = json.loads(validation.read_text())
+        wrong_payload = json.loads(validation.read_text())
+        wrong_payload['artifacts'][0]['members']['usr/share/example/data']['sha256'] = '0' * 64
+        wrong_type = json.loads(validation.read_text())
+        wrong_type['artifacts'][0]['members']['usr/share/example/data']['uid'] = False
+        provenance = path / 'provenance.json'
+        record = json.loads(provenance.read_text())
+        for text in ('synthetic fixture\n', json.dumps([]), json.dumps(dict(original, artifacts=[])),
+                     json.dumps(dict(original, errors=['claimed failure'])),
+                     json.dumps(wrong_payload), json.dumps(wrong_type)):
+            validation.write_text(text)
+            record['files']['validation.json'] = checks.digest(validation)
+            provenance.write_text(json.dumps(record))
+            for comparator in (compare, compare_v2, compare_v3):
+                with self.subTest(comparator=comparator.__name__, text=text[:64]):
+                    with self.assertRaisesRegex(ValueError, r'validation\.json'):
+                        comparator.verify(path)
+
+    def test_all_comparators_bind_recipe_snapshot_and_archive(self):
+        archive = self.archive()
+        for change, reason in (
+            ('extra input', 'changed recipe snapshot'),
+            ('changed metadata', 'recorded recipe metadata differs from recipe snapshot'),
+            ('unlisted archive', 'artifact missing/changed in evidence closure'),
+            ('second archive', 'single-package recipe must produce exactly one artifact'),
+        ):
+            path = self.evidence(change, archive)
+            provenance = path / 'provenance.json'
+            record = json.loads(provenance.read_text())
+            if change == 'extra input':
+                (path / 'inputs/extra').write_text('unrecorded recipe file')
+            elif change == 'changed metadata':
+                generated = path / 'artifacts/generated.SRCINFO'
+                generated.write_text(generated.read_text().replace('source = payload', 'source = other'))
+                record['recipe_metadata']['source'] = ['other']
+                record['files']['artifacts/generated.SRCINFO'] = checks.digest(generated)
+            elif change == 'unlisted archive':
+                record['files'].pop(f'artifacts/{archive.name}')
+            else:
+                second = path / 'artifacts/second.pkg.tar.gz'
+                second.write_bytes((path / 'artifacts' / archive.name).read_bytes())
+                record['artifacts'][second.name] = checks.digest(second)
+                record['files'][f'artifacts/{second.name}'] = checks.digest(second)
+            provenance.write_text(json.dumps(record))
+            for comparator in (compare, compare_v2, compare_v3):
+                with self.subTest(comparator=comparator.__name__, change=change):
+                    with self.assertRaisesRegex(ValueError, reason):
+                        comparator.verify(path)
 
     def test_unpinned_images_rejected(self):
         for value in ('arm:latest', 'arm@sha256:123', 'image;command'):
