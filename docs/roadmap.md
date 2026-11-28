@@ -33,8 +33,9 @@ Weston/Pixman and Lavapipe. Post-restoration runtime remains **NOT RUN**.
 Qtbase 6.12.0-4 passed one offline serial build in emulated AArch64 with
 16 KiB pages. The build passed the offscreen and local Wayland server
 API smoke test. The guest retired cleanly, and independent stopped-disk
-readback verified the unsigned archive. TEST signing, the mixed-version
-Asahi629 lifecycle and installed provider parity remain open.
+readback verified the archive. Offline ABI checks and TEST signing passed.
+The mixed-version Asahi629 lifecycle and installed provider parity remain
+open.
 [Qtbase validation](validation/qtbase612-emulated-arm16k-configure-20261118.md)
 · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md)
 · [QtGui link](validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)

@@ -6,7 +6,7 @@ This lane starts after the original TEST-signed Asahi629 replay reaches its
 restores both original providers in one inverse transaction, and exercises
 the installed consumers before, during, and after the swap.
 
-The signed ARM16K pair swap and installed consumer probes remain **NOT RUN**.
+The scoped ARM16K provider swap and inverse transaction remain **NOT RUN**.
 The first attempt stopped before QEMU. The first guest to boot held at
 candidate validation before the scoped ALPM transaction. Stopped-disk
 readback verified the original 629-package lock and 362 protected entries.
@@ -17,6 +17,14 @@ results](../../../docs/validation/project-libraries-native-20261125.md) and
 the [scoped Qt result](../qt612_r132_replacement/README.md) have their own
 inputs and receipts. This lane uses vendor Qt from the original Asahi629
 composition.
+
+The November 28 guest completed the signed base forward and rollback
+transactions and ran all eight scoped baseline loader checks. The GTK SDK
+probe then held because its metadata requires GIO 2.89.3 or newer and the
+restored inventory supplies 2.88.3. The archived GTK and GLib binaries also
+showed two missing required exports. The exact compatibility finding and
+stopped evidence are recorded in the
+[renewed-input transaction evidence](../../../docs/workstreams/supported-composition-maintenance.md#november-28-renewed-input-transaction-evidence).
 
 ## Retained inputs
 
@@ -170,6 +178,17 @@ the target API mounts and keyrings retire. The original evidence exporter
 carries the compact scoped result in `evidence/result.json`.
 
 ## Acceptance and independent readback
+
+The separate `ROOT_ASAHI629_JBIG_TIFF_ALPM_CAPTURE_SELECTION_V1` authority
+selects `runner.py --capture-alpm-db`. After natural QEMU exit and successful
+base installation and restoration, the runner can capture the actual local
+ALPM database from the stopped disposable target before removing it. The
+capture requires either the untouched pair baseline or a verified scoped
+restoration. The private `alpm-db.pending` export and its manifest pin
+belong to the same nonce as the original 629-row lock. Admit the export for a later
+prepare-only audit after the outer owner verifies retirement and an
+independent reader checks the manifest and package metadata. Pair
+qualification still requires both scoped transactions and consumer probes.
 
 - Both original and project archives verify with Required TrustedOnly.
   Libalpm refuses a private unsigned copy of the candidate while the

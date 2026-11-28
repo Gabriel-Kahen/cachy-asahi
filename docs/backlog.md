@@ -74,9 +74,9 @@ only the Fish package and exercised staging, comparison and withdrawal.
   official provider, including software rendering probes before and during
   replacement. The 6.12.0-4 parity candidate completed its offline build
   and smoke test in emulated AArch64 with 16 KiB pages on November 28.
-  Independent stopped-disk readback verified the archive. TEST signing,
-  installed replacement and restoration, and the added runtime checks
-  remain open for 6.12.0-4.
+  Independent stopped-disk readback verified the archive. Offline ABI
+  checks and TEST signing passed. Installed replacement, restoration and
+  the added runtime checks remain open for 6.12.0-4.
   [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
   · [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
   · [Installed lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)

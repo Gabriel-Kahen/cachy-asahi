@@ -95,7 +95,7 @@ def source_files():
 
 def host_sources(T):
     return {name: T.read(HERE / name, cap=128 << 10, collect=False)
-            for name in ("stage.py", "runner.py", "readback.py")}
+            for name in ("stage.py", "runner.py", "readback.py", "alpm_capture.py")}
 
 
 def derive(L, base, review):

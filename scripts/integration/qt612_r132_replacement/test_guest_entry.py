@@ -117,7 +117,7 @@ class CheckpointTests(unittest.TestCase):
         self.enterContext(patch.dict(E["media"].__globals__, ASAHI629_ALARM=T.pin(BASE_ALARM)))
         self.tx = SimpleNamespace(
             P=dict(OFFICIAL_NAME="official.pkg", PROJECT_NAME="project.pkg", PINS=fixed, verify_official=Mock(),
-                   plan_profile=X.P["plan_profile"],
+                   plan_profile=X.P["plan_profile"], choose_review=X.P["choose_review"],
                    profile_pins=lambda profile: fixed if profile is None else fixed | {
                        "project_archive": profile["project_archive"]},
                    project_name=lambda profile: "project.pkg" if profile is None else X.P["project_name"](profile)),
@@ -199,11 +199,11 @@ class CheckpointTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "original ALARM public certificate"):
             self.media(self.plan | {"media": previous | {"keys": KEYS | {"alarm": vendor}}}, {})
 
-    def select(self, ring, review=REVIEW):
+    def select(self, ring, review=REVIEW, *, profile=None):
         function = E["select_trust"]
         with patch.dict(function.__globals__, private_homes=lambda *_args: self.homes, call_gpg=ring), \
                 patch.object(E["time"], "time", return_value=150):
-            return function(T, self.O, G, self.tx, self.plan["media"], self.folder, review)
+            return function(T, self.O, G, self.tx, self.plan["media"], self.folder, review, profile=profile)
 
     def test_import_extends_only_test_verification_and_pacman_keyrings(self):
         ring = Keyrings(self.homes)
@@ -213,6 +213,52 @@ class CheckpointTests(unittest.TestCase):
         self.assertEqual(ring.primary["vendor"], {ALARM, COMMUNITY})
         self.assertEqual(ring.ownertrust, {ALARM, COMMUNITY, PREVIEW, CANDIDATE})
         self.tx.certificate.assert_called_once_with(self.folder / "test-certificate.gpg", REVIEW, self.homes["project-test"])
+        self.tx.signature.assert_called_once_with(
+            self.folder / "project.pkg", self.tx.PROJECT,
+            dict(archive=self.tx.P["PINS"]["project_archive"], signature=REVIEW["signature"], fingerprint=CANDIDATE),
+            self.homes["project-test"])
+
+    def test_parity_trust_opens_exact_new_pair_and_rejects_stale_operands(self):
+        P = X.P
+        new_archive, new_signature = b"parity -4 archive", b"parity -4 signature"
+        review = REVIEW | {"signature": T.pin(new_signature)}
+        profile = dict(kind=P["PARITY_KIND"], official_version=P["VERSION"], project_version=P["PARITY_PROJECT_VERSION"],
+                       recipe=P["PARITY_RECIPE"], test_review=review,
+                       **{name: T.pin(name.encode()) for name in P["PARITY_INPUT_CAPS"]})
+        profile["project_archive"] = T.pin(new_archive)
+        archive = self.folder / P["project_name"](profile)
+        detached = archive.with_name(archive.name + ".sig")
+        archive.write_bytes(new_archive)
+        detached.write_bytes(new_signature)
+        stale_archive = (self.folder / "project.pkg").read_bytes()
+        stale_signature = (self.folder / "project.pkg.sig").read_bytes()
+        self.tx.signature = Mock(wraps=X.signature)
+        gpg_result = SimpleNamespace(returncode=0, stdout=signature(CANDIDATE))
+        with patch.object(X.subprocess, "run", return_value=gpg_result) as verify:
+            ring = Keyrings(self.homes)
+            self.select(ring, review, profile=profile)
+            self.tx.signature.assert_called_once_with(
+                archive, self.tx.PROJECT,
+                dict(archive=T.pin(new_archive), signature=T.pin(new_signature), fingerprint=CANDIDATE),
+                self.homes["project-test"])
+            self.assertIn(CANDIDATE, ring.ownertrust)
+            verify.assert_called_once()
+
+            for path, stale, expected in ((archive, stale_archive, new_archive), (detached, stale_signature, new_signature)):
+                with self.subTest(operand=path.name):
+                    verify.reset_mock()
+                    ring = Keyrings(self.homes)
+                    path.write_bytes(stale)
+                    with self.assertRaisesRegex(ValueError, "Input pin differs"):
+                        self.select(ring, review, profile=profile)
+                    path.write_bytes(expected)
+                    verify.assert_not_called()
+                    self.assertNotIn(CANDIDATE, ring.ownertrust)
+
+            ring = Keyrings(self.homes)
+            with self.assertRaisesRegex(ValueError, "Qt TEST review differs"):
+                self.select(ring, REVIEW, profile=profile)
+            self.assertEqual(ring.calls, [])
 
     def test_wrong_ownertrust_secret_keys_or_relaxed_pacman_prevent_import(self):
         ring = Keyrings(self.homes)
@@ -337,9 +383,12 @@ class CheckpointTests(unittest.TestCase):
 
         self.tx.run = Mock(side_effect=transact)
         hook = E["run_checkpoint"]
+        trust = Mock()
         with patch.dict(hook.__globals__, environment=Mock(return_value=NONCE),
-                        modules=Mock(return_value=(self.tx, actor, self.fixture, weston)), select_trust=Mock()):
+                        modules=Mock(return_value=(self.tx, actor, self.fixture, weston)), select_trust=trust):
             output = hook(T, self.O, context, self.plan)
+            trust.assert_called_once_with(T, self.O, context, self.tx, self.plan["media"], self.folder,
+                                          REVIEW, profile=profile)
             self.assertEqual(output, dict(nonce=NONCE, transaction=disposition,
                                           runtime_probe=T.pin(report_path.read_bytes())))
             expected_phases = ["ready", "vendor", "replacement"]

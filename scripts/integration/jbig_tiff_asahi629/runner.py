@@ -15,6 +15,7 @@ HERE = Path(__file__).resolve().parent
 S = SimpleNamespace(**run_path(str(HERE / "stage.py")))
 R = SimpleNamespace(**run_path(str(HERE / "readback.py")))
 KIND = "ROOT_ASAHI629_JBIG_TIFF_SELECTION_V1"
+CAPTURE_KIND = "ROOT_ASAHI629_JBIG_TIFF_ALPM_CAPTURE_SELECTION_V1"
 
 
 def canonical(T, path, expected, cap):
@@ -125,7 +126,37 @@ def image_reads(L, paths, refs, *, out=None):
     return dict(T=T, control_refs=with_globals(L.control_refs, T=T))
 
 
-def scoped_controller(L, stage, record, plan):
+def capture_restored_db(L, out, receipt, source_pin, debugfs_pin):
+    T = L.T
+    if receipt["status"] != L.G.PASS:
+        checkpoint = receipt.get("jbig_tiff_checkpoint") or {}
+        phases = checkpoint.get("phases", {})
+        baseline = phases.get("baseline", {})
+        T.need(checkpoint.get("status") == R.TX.HOLD_BASELINE
+               and (checkpoint.get("failure") or {}).get("phase") == "baseline-probe"
+               and checkpoint.get("transactions") == {} and phases.keys() == {"baseline"}
+               and baseline.get("lock") == S.I.BASELINE and baseline.get("platform") == S.I.PLATFORM,
+               "Capture requires a verified untouched pair baseline or complete scoped restoration")
+    evidence = out / "evidence"
+    files = receipt["files"]
+    commands = T.decode(T.read(evidence / "commands.json", files["commands.json"], cap=2 << 20))
+    exits = {row["role"]: row["exit"] for row in commands}
+    roles = ("apply-forward", "apply-rollback", "query-rollback", "check-rollback")
+    T.need(all(exits.get(role) == 0 for role in roles),
+           "Capture requires the completed original Asahi629 install and rollback")
+    cleanup = T.decode(T.read(evidence / "cleanup.json", files["cleanup.json"], cap=128 << 10))
+    T.need(cleanup["completed"] is True and cleanup["target_submounts"] == []
+           and cleanup["keyrings"] == dict.fromkeys(("pacman", "project-test", "vendor"), "removed"),
+           "Capture requires retired guest mounts and trust homes")
+    lock = T.read(evidence / "rollback.lock", L.O.lock_ref("rollback.lock"), cap=64 << 10)
+    helper = HERE / "alpm_capture.py"
+    scope = {"__file__": str(helper), "__name__": "asahi629_alpm_capture"}
+    exec(compile(T.read(helper, source_pin, cap=128 << 10), str(helper), "exec"), scope)
+    return scope["capture"](T, out / "scratch.raw", lock, receipt["nonce"], out / "alpm-db.pending",
+                            debugfs_pin=debugfs_pin, expected_size=L.O.SIZE, expected_uuid=L.O.UUID)
+
+
+def scoped_controller(L, stage, record, plan, *, capture_alpm_db=False):
     T = L.T
 
     class ScopedController(L.Controller):
@@ -170,18 +201,22 @@ def scoped_controller(L, stage, record, plan):
                 T.need(all(start - 3 <= signed["observed_at"] <= end
                            for signed in receipt["jbig_tiff_checkpoint"]["trust"]["signatures"].values()),
                        "Pair signature observations fall outside the owned QEMU window")
+            if capture_alpm_db:
+                receipt["restored_alpm_pending"] = capture_restored_db(
+                    L, self.out, receipt, record["source"]["alpm_capture.py"], actual["tools"]["/usr/bin/debugfs"])
             return receipt
 
     return ScopedController
 
 
-def run(L, *, authority, authority_sha256, stage, selection, selection_sha256):
+def run(L, *, authority, authority_sha256, stage, selection, selection_sha256, capture_alpm_db=False):
     T = L.T
     T.need(sys.flags.isolated and sys.dont_write_bytecode, "Use isolated no-bytecode Python")
     issued, selection_pin = canonical(T, selection, selection_sha256, 128 << 10)
     original, original_pin = canonical(T, authority, authority_sha256, 128 << 10)
     T.need(issued.keys() == {"kind", "issuer", "approval_status", "nonce", "authority", "stage"}
-           and issued["kind"] == KIND and issued["issuer"] == original["issuer"] == "Root"
+           and issued["kind"] == (CAPTURE_KIND if capture_alpm_db else KIND)
+           and issued["issuer"] == original["issuer"] == "Root"
            and issued["approval_status"] == original["approval_status"] == "UNAPPROVED"
            and issued["nonce"] == original["nonce"] and S.LHEX.fullmatch(issued["nonce"])
            and issued["authority"] == original_pin and original["kind"] == L.KIND,
@@ -190,7 +225,8 @@ def run(L, *, authority, authority_sha256, stage, selection, selection_sha256):
                         "pair_stage": stage, "pair_selection": selection, "authority": authority})
     L.disjoint(Path(original["paths"]["output"]), (stage, selection))
     record, plan = checked_stage(L, stage, issued["stage"], issued["nonce"])
-    report = scoped_controller(L, stage, record, plan)(original).run_asahi629(authority, authority_sha256)
+    controller = scoped_controller(L, stage, record, plan, capture_alpm_db=capture_alpm_db)
+    report = controller(original).run_asahi629(authority, authority_sha256)
     T.read(selection, selection_pin, cap=128 << 10, collect=False)
     T.read(stage / S.STAGE, issued["stage"], cap=S.CAP, collect=False)
     return report
@@ -202,6 +238,7 @@ def main():
         parser.add_argument("--" + name, type=Path, required=True)
     for name in ("authority-sha256", "selection-sha256"):
         parser.add_argument("--" + name, required=True)
+    parser.add_argument("--capture-alpm-db", action="store_true")
     L = S.legacy()
     try:
         report = run(L, **vars(parser.parse_args()))

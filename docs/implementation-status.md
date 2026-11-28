@@ -76,8 +76,9 @@ Post-restoration runtime remains **NOT RUN**.
 its offline build and smoke test in emulated AArch64 with 16 KiB pages.
 Independent stopped-disk readback verified the 14,333,964-byte archive,
 its package metadata and ABI checks. QEMU and the outer container exited
-normally. TEST signing, mixed-version guest installation and restoration,
-and physical M2 qualification remain open.
+normally. The subsequent offline ABI comparison and TEST signing passed.
+Mixed-version guest installation and restoration, and physical M2
+qualification remain open.
 [6.12.0-4 parity trial](../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md)
 
 Draft PR #625 at `598a3dd77184f74935f71cb07c48c4411b6c44e4` recorded 309

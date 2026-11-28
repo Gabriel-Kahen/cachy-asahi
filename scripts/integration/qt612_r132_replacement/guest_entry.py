@@ -193,7 +193,10 @@ def check_keyrings(T, G, homes, keys, *, candidate=None):
         T.need(actual_trust == wanted, "Unexpected ownertrust in the private " + role + " keyring")
 
 
-def select_trust(T, O, G, tx, manifest, folder, review):
+def select_trust(T, O, G, tx, manifest, folder, review, *, profile=None):
+    p = tx.P
+    p["choose_review"](profile, review)
+    candidate = folder / p["project_name"](profile)
     keys = manifest["keys"]
     fingerprint = review["fingerprint"]
     T.need(fingerprint not in O.HISTORICAL_TEST | {key["fingerprint"] for key in keys.values()},
@@ -204,9 +207,9 @@ def select_trust(T, O, G, tx, manifest, folder, review):
     check_keyrings(T, G, homes, keys)
     _, body = tx.certificate(folder / "test-certificate.gpg", review, homes["project-test"])
     call_gpg(T, homes["project-test"], "--import", data=body)
-    p = tx.P
-    signature_input = dict(archive=p["PINS"]["project_archive"], signature=review["signature"], fingerprint=fingerprint)
-    _, status = tx.signature(folder / p["PROJECT_NAME"], tx.PROJECT, signature_input, homes["project-test"])
+    signature_input = dict(archive=p["profile_pins"](profile)["project_archive"],
+                           signature=review["signature"], fingerprint=fingerprint)
+    _, status = tx.signature(candidate, tx.PROJECT, signature_input, homes["project-test"])
     G.test_signature(T, status, review, int(time.time()))
     call_gpg(T, homes["pacman"], "--import", data=body)
     call_gpg(T, homes["pacman"], "--import-ownertrust", data=f"{fingerprint}:6:\n".encode("ascii"))
@@ -261,7 +264,7 @@ def run_checkpoint(T, O, G, selected):
         return T.encoded(G.base.platform(T, O.TARGET))
 
     T.need(T.pin(platform()) == retained["platform"]["rollback"], "Qt entry requires the exact protected 629 checkpoint")
-    select_trust(T, O, G, tx, selected["media"], folder, review)
+    select_trust(T, O, G, tx, selected["media"], folder, review, profile=profile)
     evidence_dir = O.WORK / "qt-replacement-evidence"
     report_path = evidence_dir / PROBE_FILE
     vendor_report = O.WORK / runtime.VENDOR_REPORT
