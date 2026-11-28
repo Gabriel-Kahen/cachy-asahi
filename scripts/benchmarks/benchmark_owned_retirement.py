@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Versioned legacy-format capture: shared wait owner, PID-free sensor worker."""
+"""Versioned wait owner and PID-free sensor worker for legacy-format capture.
+
+Replay of earlier frozen plans requires their original runner, adapter, and
+owner. A fresh plan binds the benchmark-specific owner and current adapter.
+"""
 import hashlib
-import importlib.util
 import json
 import math
 import os
@@ -12,9 +15,10 @@ import stat
 import subprocess
 import threading
 import time
+import types
 
 SCHEMA = 'benchmark-owned-retirement-v2'
-OWNER_SHA256 = '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
+OWNER_SHA256 = 'c350ec18cb98ccd9ec0fdbafa3829a5e044bc6e33af929c63ea17d787dc2be9d'
 MAX_OUTPUT = 512 * 1024
 MAX_LINE = 128 * 1024
 MAX_TELEMETRY = 16 * 1024**2
@@ -37,16 +41,22 @@ def pin(path):
     return dict(path=str(path.resolve()), bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest())
 
 
+def _owner_source():
+    path = Path(__file__).resolve().with_name('benchmark_owned_process_v2.py')
+    raw = ordinary(path, 256 * 1024)
+    need(hashlib.sha256(raw).hexdigest() == OWNER_SHA256, 'owned process source differs from reviewed pin')
+    return path, raw
+
+
 def owner_path():
-    path = Path(__file__).resolve().parents[1] / 'virtual/owned_process.py'
-    need(pin(path)['sha256'] == OWNER_SHA256, 'owned process source differs from reviewed pin')
-    return path
+    return _owner_source()[0]
 
 
 def owner_module():
-    spec = importlib.util.spec_from_file_location('benchmark_v2_wait_owner', owner_path())
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    path, raw = _owner_source()
+    module = types.ModuleType('benchmark_v2_wait_owner')
+    module.__file__ = str(path)
+    exec(compile(raw, str(path), 'exec'), module.__dict__)
     return module
 
 
