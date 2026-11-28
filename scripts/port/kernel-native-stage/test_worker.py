@@ -22,7 +22,6 @@ class ProvisionFlow(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name); self.inputs = self.root / 'inputs'; self.inputs.mkdir()
-        self.real_path = Path
         self.packet, self.sig, self.key = b'archive', b'signature', b'public-key'
         self.payloads = {'tool.pkg': self.packet, 'tool.pkg.sig': self.sig, 'archlinuxarm.gpg': self.key}
         rows = {}
@@ -42,11 +41,14 @@ class ProvisionFlow(unittest.TestCase):
         self.log_dir = self.root / 'logs'; self.log_dir.mkdir()
 
     def path(self, value):
-        if str(value) == '/tmp' or str(value).startswith('/tmp/'):
-            return self.real_path(self.root / str(value).lstrip('/'))
-        if str(value).startswith('/usr/share/') or str(value).startswith('/etc/'):
+        path = Path(value)
+        if path.is_relative_to(self.root):
+            return path
+        if path.is_relative_to('/tmp'):
+            return self.scratch / path.relative_to('/tmp')
+        if path.is_relative_to('/usr/share') or path.is_relative_to('/etc'):
             return self.root / 'nonexistent-hooks'
-        return self.real_path(value)
+        return path
 
     def command_run(self, argv, timeout=0, log=None):
         self.labels.append(log)
