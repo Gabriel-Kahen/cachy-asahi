@@ -134,9 +134,9 @@
       "sha256": "0a8acb85e398a4aa875ce4b38877181d07f5a3bb7e39eb02ec5021cc5400c71a"
     },
     "scripts/port/kernel-native-stage/test_worker.py": {
-      "bytes": 31962,
+      "bytes": 31965,
       "mode": 420,
-      "sha256": "7d5d2e7af028ef8dcceed1df8724e51c75ffb192cfa63325e7c74436cbb9e1a3"
+      "sha256": "8c080ff7da9b03bf4fe7d9ffce6a316a74bd56c7f87c1aad898bf41180e51ae2"
     },
     "scripts/port/kernel-native-stage/worker.py": {
       "bytes": 27843,
