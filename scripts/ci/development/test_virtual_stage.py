@@ -67,6 +67,7 @@ class VirtualStage(unittest.TestCase):
         self.put(self.native / 'image-id', self.c.image.encode())
         inputs = {'rootfs_packages': [], 'packages': [{'name': n, 'version': ver} for n, ver in self.base_map.items()]}
         self.put_json(self.native / 'inputs.lock.json', inputs)
+        self.c.lock = {'source_files': {'scripts/ci/inputs.lock.json': {'sha256': v.digest(self.native / 'inputs.lock.json')}}}
         self.put_json(self.native / 'result.json', {'native_build': 'PASS', 'reviewed_inputs_sha256': v.digest(self.native / 'inputs.lock.json')})
         self.put_json(self.native / 'bootstrap.json', {'status': 'image-provisioned', 'image_id': self.c.image,
             'packages_lock_sha256': v.digest(self.native / 'packages.lock'), 'inputs_sha256': v.digest(self.native / 'inputs.lock.json')})
@@ -160,13 +161,40 @@ class VirtualStage(unittest.TestCase):
         data = ('blob-' + name).encode(); self.blob_data[name] = data
         return {'filename': name, 'url': 'https://example.invalid/' + name, 'size': len(data), 'sha256': sha(data)}
 
-    def rebind(self):
+    def rebind(self, compatible_base_inputs=()):
         core = {n: v.digest(self.owner / n) for n in ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c',
                                                     'image_decode_probe.c', 'image_decode_report.py')}
         self.put(self.owner / 'controller.py', ('LOCK_PIN = ' + repr(v.digest(self.owner / 'tooling.lock.json')) + '\n' +
             'AUDIT_PIN = ' + repr(v.digest(self.owner / 'tooling-audit.json')) + '\n' +
-            'AUDITOR_PIN = ' + repr(v.digest(self.owner / 'audit_tooling.py')) + '\nCORE = ' + repr(core) + '\nALIASES = ' + repr(v.ALIASES) + '\n').encode())
+            'AUDITOR_PIN = ' + repr(v.digest(self.owner / 'audit_tooling.py')) + '\nCORE = ' + repr(core) + '\nALIASES = ' + repr(v.ALIASES) +
+            '\nCOMPATIBLE_BASE_INPUTS = ' + repr(compatible_base_inputs) + '\n').encode())
         self.c.virtual_packet_sha256 = {n: v.digest(self.owner / n) for n in v.PACKET_FILES}
+
+    def set_native_base(self, inputs):
+        self.put(self.native / 'inputs.lock.json', inputs)
+        selection = json.loads(inputs)
+        base = {row['name'][0]: row['version'][0] for row in selection['rootfs_packages']}
+        base.update({row['name']: row['version'] for row in selection['packages']})
+        self.put(self.native / 'packages.lock', self.lock(base))
+        self.put(self.handoff / 'installed-packages.lock', self.lock(base | self.versions))
+        base_pin = v.digest(self.native / 'packages.lock')
+        installed_pin = v.digest(self.handoff / 'installed-packages.lock')
+        self.mutate(self.native / 'result.json', lambda value: value.update(reviewed_inputs_sha256=sha(inputs)))
+        self.mutate(self.native / 'bootstrap.json', lambda value: value.update(
+            inputs_sha256=sha(inputs), packages_lock_sha256=base_pin))
+        self.mutate(self.handoff / 'committed-image/result.json', lambda value: value.update(installed_packages_sha256=installed_pin))
+        self.mutate(self.handoff / 'commit-receipt.json', lambda value: value.update(
+            base_packages_sha256=base_pin, installed_packages_sha256=installed_pin))
+        self.mutate(self.handoff / 'installed-image.json', lambda value: value.update(
+            lock_sha256=installed_pin, commit_receipt_sha256=v.digest(self.handoff / 'commit-receipt.json')))
+
+    def select_historical_base(self):
+        live = (self.native / 'inputs.lock.json').read_bytes()
+        historical = live.replace(b'"base-000", "version": "1-1"', b'"base-000", "version": "2-1"')
+        self.assertNotEqual(historical, live)
+        self.c.lock['source_files']['scripts/ci/inputs.lock.json']['sha256'] = sha(historical)
+        self.rebind((sha(historical), sha(live)))
+        return historical, live
 
     def mock_fetch(self, row, cache, deadline=None):
         path = cache / row['filename']; self.put(path, self.blob_data[row['filename']]); return path
@@ -313,6 +341,33 @@ class VirtualStage(unittest.TestCase):
             stream.write(b"LOCK_PIN = '" + b'0' * 64 + b"'\n")
         self.c.virtual_packet_sha256['controller.py'] = v.digest(self.owner / 'controller.py')
         self.assert_prerequisite_refused()
+
+    def test_schema_three_historical_base_uses_reviewed_tooling(self):
+        historical, _ = self.select_historical_base()
+        self.set_native_base(historical)
+        prerequisite, contract, paths, blobs = v.preflight(self.c, self.root)
+        self.assertEqual(prerequisite['status'], 'PASS')
+        self.assertEqual(contract['files']['base_inputs_lock']['sha256'], sha(historical))
+        for alias in ('tooling_lock', 'tooling_audit'):
+            self.assertEqual(contract['files'][alias]['sha256'], self.c.virtual_packet_sha256[paths[alias].name])
+        self.assertEqual(len(blobs), 45)
+        self.fetch.assert_not_called()
+        self.command.assert_not_called()
+
+    def test_schema_three_refuses_resealed_base_drift_before_acquisition(self):
+        historical, live = self.select_historical_base()
+        drift = historical + b' '
+        # Even an authenticated input still needs its own tooling compatibility.
+        cases = ((live, sha(historical)), (drift, sha(historical)), (drift, sha(drift)))
+        for index, (inputs, selected) in enumerate(cases):
+            with self.subTest(inputs_sha256=sha(inputs), selected=selected):
+                self.output = self.base / f'stage-{index}'
+                self.fetch.reset_mock()
+                self.command.reset_mock()
+                self.c.lock['source_files']['scripts/ci/inputs.lock.json']['sha256'] = selected
+                self.set_native_base(inputs)
+                result = self.assert_prerequisite_refused()
+                self.assertEqual(result['error_code'], 'authenticated-base-binding-refused')
 
     def test_producer_signed_annotations_preserved_in_contract(self):
         self.assertNotEqual(self.rows, self.signed_rows)

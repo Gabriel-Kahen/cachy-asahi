@@ -21,6 +21,7 @@ from unittest.mock import Mock
 
 import audit_tooling
 import common
+import controller as virtual_controller
 import guest
 import image_decode_report
 import run
@@ -1374,6 +1375,16 @@ class Bounds(unittest.TestCase):
 
 
 class Evidence(unittest.TestCase):
+    def test_only_the_reviewed_historical_and_maintained_bases_can_share_tooling(self):
+        lock = common.json_load(Path(__file__).with_name('tooling.lock.json'))
+        historical = lock['maintained_selection']['inherited_inputs_sha256']
+        maintained = lock['base_inputs_lock_sha256']
+        for actual, tooling_base in ((historical, maintained), (maintained, historical), (maintained, maintained)):
+            self.assertTrue(virtual_controller.accepted_base_inputs(actual, tooling_base))
+        unknown = '0' * 64
+        for actual, tooling_base in ((unknown, historical), (unknown, maintained), (historical, unknown), (maintained, unknown)):
+            self.assertFalse(virtual_controller.accepted_base_inputs(actual, tooling_base))
+
     def test_colorful_console_is_never_a_visual_review_pass(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'frame.ppm'
