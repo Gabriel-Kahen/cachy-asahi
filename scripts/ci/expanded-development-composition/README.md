@@ -81,12 +81,15 @@ private signing homes, original caches, arbitrary output trees and source
 checkouts are excluded. The existing bounded log encoder includes hidden
 files within this already-closed public directory.
 
-Run inert controls from the implementation checkout. Use the immutable retained
-and module checkout roots identified above.
+Static CI fetches both frozen fixture checkouts under `.ci-inputs`. For local
+runs, create the same checkouts and pass their roots. If a commit is absent,
+fetch its SHA from `origin` first.
 
 ```sh
-EXPANDED_INPUT_PAYLOAD=/path/to/expanded-inputs \
-EXPANDED_MODULE_SOURCE=/path/to/expanded-modules \
+git worktree add --detach ../expanded-inputs 7fee76d68e5fd75437d8b49aaaced8376d2215cd
+git worktree add --detach ../expanded-modules 22c095c85cb6fd79d5de0f0ee43ca012c32c2aeb
+EXPANDED_INPUT_PAYLOAD=../expanded-inputs \
+EXPANDED_MODULE_SOURCE=../expanded-modules \
 python3 -B -Werror::ResourceWarning -m unittest discover \
   -s scripts/ci/expanded-development-composition -p test_source.py -v
 ```

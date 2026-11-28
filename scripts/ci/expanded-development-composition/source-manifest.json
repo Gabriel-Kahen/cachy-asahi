@@ -4,8 +4,8 @@
     "sha256": "ab8f4568bc57ba474ccc15b1e48bbf83445f35de588d4ee280c3c63e53184bcf"
   },
   "scripts/ci/expanded-development-composition/README.md": {
-    "bytes": 6626,
-    "sha256": "6e197f0d7367d46d30b4eb8a0b50654aff2ef8ff8e241c0843f23bcae0953bea"
+    "bytes": 6853,
+    "sha256": "57b7d1d31419603a61724f346e923748b0a929e8698464924c353a1bf03c684f"
   },
   "scripts/ci/expanded-development-composition/bang.py": {
     "bytes": 5353,
@@ -48,7 +48,7 @@
     "sha256": "bb973bc31a550dea8c9808eb7e621d9708f6ad1b0354ab900e3a6622e2106afc"
   },
   "scripts/ci/expanded-development-composition/test_source.py": {
-    "bytes": 20743,
-    "sha256": "d4ef3f6e10f78436d57c655248ef9e3bfb76900230895ed60e7f0232d4721358"
+    "bytes": 21062,
+    "sha256": "48228a3f696cd726680582d60e4562e3913bd7cd8771c609e89d695945431349"
   }
 }

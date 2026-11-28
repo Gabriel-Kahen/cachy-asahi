@@ -17,8 +17,16 @@ import bang
 from owned import Containers
 
 ROOT=Path(os.environ.get('EXPANDED_CODE_ROOT',Path.cwd())).absolute()
-BUNDLE=Path(os.environ.get('EXPANDED_INPUT_PAYLOAD',ROOT/'artifacts/development/expanded-candidate-inputs-20261016/payload')).absolute()
-MODULES=Path(os.environ.get('EXPANDED_MODULE_SOURCE',ROOT)).absolute()
+BUNDLE=Path(os.environ.get('EXPANDED_INPUT_PAYLOAD',ROOT/'.ci-inputs/expanded-candidates')).absolute()
+MODULES=Path(os.environ.get('EXPANDED_MODULE_SOURCE',ROOT/'.ci-inputs/expanded-modules')).absolute()
+
+
+def setUpModule():
+    if not ((BUNDLE/'index.json').is_file() and (MODULES/bang.COMPARATOR).is_file()):
+        raise RuntimeError(
+            f'Frozen fixtures required. Set EXPANDED_INPUT_PAYLOAD ({BUNDLE}) and '
+            f'EXPANDED_MODULE_SOURCE ({MODULES}) to the checkouts in {C.HERE / "README.md"}.'
+        )
 
 
 class Inputs(unittest.TestCase):
