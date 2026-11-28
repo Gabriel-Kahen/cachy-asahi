@@ -24,11 +24,8 @@ P=load('tested_native_preflight',ROOT/'scripts/install/native_preflight.py')
 R=load('tested_native_receiver',ROOT/'scripts/install/native_arm_trial.py')
 BASE=ROOT/P.HANDOFF
 ORIGINAL_REVISION='bfaaccaeeee58e86d72d253225d8cd09386147a8'
-ORIGINAL_LOCK='scripts/ci/integration.lock.json'
 BUILDER_INPUTS='scripts/ci/inputs.lock.json'
 GRAPH_REVISION='bcf0cee981ee4b7f7b082f636922c859dc7e0abc'
-GRAPH_PACKET='scripts/ci/development/packet-installer-preflight.lock.json'
-GRAPH_PACKET_SHA='59f4d6eccb7f62f75f5241d0f3eceb996bd3e0c93dec161d8d22f02a9ea648f0'
 
 
 def pinned_fixture(name, digest, *, revision=ORIGINAL_REVISION):
@@ -39,38 +36,6 @@ def pinned_fixture(name, digest, *, revision=ORIGINAL_REVISION):
     if P.sha(raw)!=digest:
         raise AssertionError('frozen fixture pin differs: '+name)
     return raw
-
-
-class OriginalModelSources:
-    """Select the preserved original view alongside the selected bridge source."""
-    def __init__(self, root, lock_pin):
-        self.root=root
-        lock=pinned_fixture(ORIGINAL_LOCK,lock_pin)
-        self.pins=P.strict(lock)['source_files']
-        self.pins[ORIGINAL_LOCK]=dict(sha256=lock_pin,mode=0o644)
-        self.graph={}
-        if P.sha((ROOT/ORIGINAL_LOCK).read_bytes())!=lock_pin:
-            # The legacy original lock and predecessor dependency maps must
-            # agree at shared paths. Use the captured graph family as a unit.
-            packet=P.strict(pinned_fixture(GRAPH_PACKET,GRAPH_PACKET_SHA,revision=GRAPH_REVISION))
-            prefixes=('scripts/port/repository-client-native/', 'scripts/port/repository-client-phase-stage/',
-                      'scripts/port/repository-client-stage/')
-            graph_members={'scripts/client/client.py','scripts/ci/development/repository_authority.py'}
-            self.graph={name:row for name,row in packet['source_files'].items()
-                        if name.startswith(prefixes) or name in graph_members}
-
-    def __truediv__(self,name):
-        if name in self.pins:
-            row,revision=self.pins[name],ORIGINAL_REVISION
-        elif name in self.graph:
-            row,revision=self.graph[name],GRAPH_REVISION
-        else:
-            return ROOT/name
-        target=self.root/name
-        target.parent.mkdir(parents=True,exist_ok=True)
-        target.write_bytes(pinned_fixture(name,row['sha256'],revision=revision))
-        target.chmod(row['mode'])
-        return target
 
 
 def record():
@@ -85,6 +50,30 @@ class AuthorityControls(unittest.TestCase):
     def test_published_issuer_source_authenticates_without_actors(self): P.issuer(self.module,self.raw)
     def test_changed_issuer_bytes_refuse(self):
         with self.assertRaisesRegex(ValueError,'ISSUER_PIN'): P.issuer(self.module,self.raw+b'\n')
+    def test_controller_admits_current_installer_bridge_and_refuses_issuer_drift(self):
+        bridge_raw = (ROOT / P.OWN).read_bytes()
+        with patch.dict(sys.modules), patch.object(sys, 'path', sys.path.copy()):
+            fixture = load('_native_installer_routing_model', ROOT / 'scripts/ci/development/test_controller.py')
+            model = fixture.InstallerRoutingModels()
+            try:
+                model.setUp()
+                name = fixture.controller.INSTALLER_NAME
+                bridge = types.ModuleType(name)
+                bridge.__file__ = str(model.root / P.OWN)
+                exec(compile(bridge_raw, bridge.__file__, 'exec'), vars(bridge))
+                model.sources.raw.update({P.HANDOFF: self.raw, P.OWN: bridge_raw})
+                model.sources.grant['source_files'][P.OWN]['sha256'] = P.sha(bridge_raw)
+                model.sources.graph[P.OWN] = bridge
+                model.session.source_graph['native_preflight'] = bridge
+
+                with patch.dict(sys.modules, {name: bridge}):
+                    self.assertIs(model.dev.installer_module(model.initial), bridge)
+                    with patch.dict(model.sources.raw, {P.HANDOFF: self.raw + b'\n'}):
+                        with self.assertRaisesRegex(ValueError, '^installer-issuer-refused$'):
+                            model.dev.installer_module(model.initial)
+                self.assertFalse((model.output / 'native-install-preflight').exists())
+            finally:
+                model.doCleanups()
     def test_rebound_issuer_method_refuses(self):
         self.module.Session.original_context=lambda *a,**k:{'status':'PASS'}
         with self.assertRaisesRegex(ValueError,'ISSUER_CODE'): P.issuer(self.module,self.raw)
@@ -123,7 +112,7 @@ class SelfNamespaceControls(unittest.TestCase):
         self.raw=(ROOT/P.OWN).read_bytes(); self.pin=P.sha(self.raw)
         handoff=load('_self_namespace_captured_issuer',ROOT/P.HANDOFF)
         self.sources=object.__new__(handoff.Sources); self.sources.root=ROOT
-        self.sources.original_root=None; self.sources.codes={}
+        self.sources.original_root=None; self.sources.historical_root=None; self.sources.codes={}
         self.sources.raw={P.OWN:self.raw,P.HANDOFF:(ROOT/P.HANDOFF).read_bytes()}
         self.module=self.sources.module('_self_namespace_captured_bridge',P.OWN)
     def check(self): self.module.namespace(self.module,self.raw,self.pin)
@@ -597,10 +586,7 @@ class LiveGraphBindingControls(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.fixture=load('_live_graph_fixture_builder',ROOT/'scripts/ci/development/test_repository_handoff.py')
-        with tempfile.TemporaryDirectory(prefix='installer-original-model-') as temporary:
-            original=OriginalModelSources(Path(temporary),cls.fixture.adapter.INITIAL)
-            with patch.object(cls.fixture,'PATH',types.SimpleNamespace(parents={3:original})):
-                cls.fixture.CapturedGraphFixtures.setUpClass.__func__(cls)
+        cls.fixture.CapturedGraphFixtures.setUpClass.__func__(cls)
     def check(self,*,end=None,returned=None):
         class BeforeNativeContext(BaseException): pass
         def trace(frame,event,arg):

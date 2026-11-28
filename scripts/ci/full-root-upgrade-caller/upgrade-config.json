@@ -2,7 +2,7 @@
   "code_pins": {
     "packages/tools/cachy-asahi-update/asahi-policy.py": "80cda05980b064a9cb2ad47e5525ddba03dbaefaf350d44d18a27c63ac1ffbaf",
     "scripts/build/build.py": "bb1d506ee443102073b4265d848b505afa18a5176af10780de487731529a137f",
-    "scripts/build/compare.py": "33d51bf7bb7b5a78918cbacdd45fdee2632cd07e381d645489c603a2331c2e37",
+    "scripts/build/compare.py": "f28a02dd1b19847df8870e2ded18117c39d11e7d62d990b68292e37c11f19d9a",
     "scripts/build/provision.py": "e9c7796a42749f2802e51b568da666752b8793cb5c2fd0a77a9e8947fc8e2fa9",
     "scripts/checks/dependencies.py": "b0ea33dd5db5c54dd36ab7ed0d5123606829ba63294fd6ae0f2a9f988d45bed3",
     "scripts/checks/package_checks.py": "306ea3dfa1ce4eb14796c0526a8ca9086043bdcb8e6698c0993d640d076f19cd",
@@ -18,7 +18,7 @@
     "scripts/client/stage.py": "eb402340e0715f5812dd1f44ad6e059f1dcc67827402b4897ef253f1d458400e",
     "scripts/install/local_transaction.py": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5",
     "scripts/install/native_arm_trial.py": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4",
-    "scripts/install/native_preflight.py": "0ee9eb771dd306e6cd22401fae495d5b73306aafbc979c61b8243c8507ddc269",
+    "scripts/install/native_preflight.py": "67056d0b22a0cc0b147f505ad89cc00a67a1a4b7d886e7b59e271c1550a5ed11",
     "scripts/port/kernel-native-job/runtime.py": "185daf192d5435d9616952ddc9176b01318a7543f47433c2f8be5514e996bf0e",
     "scripts/release/check_source_pins.py": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3",
     "scripts/release/compare_releases.py": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c",
