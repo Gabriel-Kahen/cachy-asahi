@@ -62,9 +62,9 @@
       "sha256": "9152a9fad6b22b249c681c9e18fbdeed90664d98026110734492925ca1c02b28"
     },
     "controller.py": {
-      "bytes": 26314,
+      "bytes": 27006,
       "mode": 420,
-      "sha256": "c76fb3e71ff3a15e1ba15cb3a05263ad4dd2e6631ddbca5a5dc436155d91e0b3"
+      "sha256": "a47ec5dba211f6c192923fb96c4b47e80e3439a152b2ff7beec9c4bbac52b153"
     },
     "expected-payload-certificate.TEMPLATE.json": {
       "bytes": 929,
@@ -247,9 +247,9 @@
       "sha256": "dfc50adcf26582db3b041ec2d377481f7edaaa318a719616d297492cbbfe4e44"
     },
     "test_controls.py": {
-      "bytes": 86189,
+      "bytes": 87217,
       "mode": 420,
-      "sha256": "40c7f4580c224bfdc934fe36875507540c6ceb9d4189aa8cfad9666246956c94"
+      "sha256": "a6148bf89d6a0629fd43fd636c4dbf94e8a14fa39a719ee6e548c9c8e0a4daba"
     },
     "test_etc_mtime.py": {
       "bytes": 20567,

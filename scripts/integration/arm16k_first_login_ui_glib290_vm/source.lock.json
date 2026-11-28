@@ -33,8 +33,8 @@
       "sha256": "3a1a62798c7d6222ff75cb289c12c834e3c5e6f88dabda3920ae3fc3710ef82e"
     },
     "boot.py": {
-      "bytes": 16955,
-      "sha256": "af849b39e87742112f48cc8271f4c08bc938ba02daa5d89307869af0694a0214"
+      "bytes": 18029,
+      "sha256": "d584ad5fbce25c182a2f52255e7bc7eb113c73b08a9e3b7601a6ab822d599649"
     },
     "client.py": {
       "bytes": 4001,
@@ -149,8 +149,8 @@
       "sha256": "0a401304e96fa86bd9b2db68eb4793d012cb71abe784e86e2f75a1d8290c9990"
     },
     "test_controls.py": {
-      "bytes": 68167,
-      "sha256": "c706e802d48b55c6c6ff75c2f22d6f8d432dd73438e7f744dedfe0f77cd43248"
+      "bytes": 71792,
+      "sha256": "2522c90cf9382dab6892b9145ef751ced810a1c38ecf00feb10ff710d64d628e"
     },
     "ui-observer.service": {
       "bytes": 256,
