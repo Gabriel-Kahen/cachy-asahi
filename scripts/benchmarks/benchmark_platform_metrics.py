@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import re
 import signal
+import stat
 import subprocess
 import threading
 import time
@@ -21,6 +22,7 @@ COLLECTOR_SHA256 = '5975d376fa7b1b7321d4b663f1aea030539e4fdd073c671f5c2cfcf3e86c
 OWNER_SHA256 = '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
 OWNED_RSS_OWNER_SHA256 = 'bd1c18c0c8f05462d3d175fceaeda559f422cc1cfd40dfce6244e71df482d42d'
 SCHEMA = 'benchmark-platform-metrics-v1'
+MAX_SOURCE_BYTES = 256 * 1024
 MAX_OUTPUT_BYTES = 512 * 1024
 MAX_SUMMARY_BYTES = 4 * 1024**2
 MAX_OWNED_RSS_BYTES = 16 * 1024**2
@@ -46,33 +48,47 @@ def _owner_pin(owned_rss):
     return OWNED_RSS_OWNER_SHA256 if owned_rss else OWNER_SHA256
 
 
-def _reviewed_path(name, path, expected):
-    need(path.is_file() and not path.is_symlink() and digest(path) == expected,
-         name + ' differs from reviewed source pin')
-    return path
+def _reviewed_source(name, path, expected):
+    mismatch = name + ' differs from reviewed source pin'
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(fd, 'rb') as stream:
+            info = os.fstat(stream.fileno())
+            need(stat.S_ISREG(info.st_mode) and info.st_size <= MAX_SOURCE_BYTES,
+                 'bounded ordinary source required: ' + name)
+            data = stream.read(MAX_SOURCE_BYTES + 1)
+    except OSError as error:
+        raise Invalid(mismatch) from error
+    need(len(data) == info.st_size and hashlib.sha256(data).hexdigest() == expected, mismatch)
+    return path, data
 
 
-def _collector_path():
-    return _reviewed_path('collector', Path(__file__).resolve().with_name('platform_metrics.py'), COLLECTOR_SHA256)
+def _collector_source():
+    return _reviewed_source('collector', Path(__file__).resolve().with_name('platform_metrics.py'), COLLECTOR_SHA256)
+
+
+def _dependency_sources(owned_rss):
+    here = Path(__file__).resolve().parent
+    owner = here / 'benchmark_owned_process_v2.py' if owned_rss else here.parent / 'virtual/owned_process.py'
+    return {'collector': _collector_source(), 'owner': _reviewed_source('owner', owner, _owner_pin(owned_rss))}
 
 
 def dependencies(*, owned_rss=False):
-    here = Path(__file__).resolve().parent
-    owner = here / 'benchmark_owned_process_v2.py' if owned_rss else here.parent / 'virtual/owned_process.py'
-    return {'collector': _collector_path(), 'owner': _reviewed_path('owner', owner, _owner_pin(owned_rss))}
+    return {name: path for name, (path, _) in _dependency_sources(owned_rss).items()}
 
 
-def _load_source(name, path):
+def _load_source(name, source):
+    path, data = source
     spec = importlib.util.spec_from_file_location('platform_sidecar_' + name, path)
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    exec(compile(data, str(path), 'exec', dont_inherit=True), module.__dict__)
     return module
 
 
 def load_dependencies(*, owned_rss=False):
     """Load the platform collector and the selected workload owner."""
-    paths = dependencies(owned_rss=owned_rss)
-    return _load_source('collector', paths['collector']), _load_source('owner', paths['owner'])
+    sources = _dependency_sources(owned_rss)
+    return _load_source('collector', sources['collector']), _load_source('owner', sources['owner'])
 
 
 def validate_config(config, timeout):
@@ -301,7 +317,7 @@ def _raw_caps(collector, owned_rss):
 
 def raw_files(directory, *, owned_rss=False):
     """Read the platform trial's raw-hash artifacts once as bounded regular files."""
-    collector = _load_source('collector', _collector_path())
+    collector = _load_source('collector', _collector_source())
     directory = Path(directory)
     return {name: collector.ordinary(directory / name, cap)
             for name, cap in _raw_caps(collector, owned_rss).items()}

@@ -165,6 +165,42 @@ class ReplayTests(unittest.TestCase):
             with self.assertRaisesRegex(a.Invalid, 'owner differs from reviewed source pin'):
                 a.load_dependencies(owned_rss=True)
 
+    def test_dependencies_compile_the_verified_bytes_after_paths_change(self):
+        scripts = self.directory / 'scripts'
+        benchmarks = scripts / 'benchmarks'
+        legacy = scripts / 'virtual' / 'owned_process.py'
+        versioned = benchmarks / 'benchmark_owned_process_v2.py'
+        sources = {benchmarks / 'platform_metrics.py': 'collector', legacy: 'legacy', versioned: 'versioned'}
+        payloads = {path: f'MARKER = {marker!r}\n'.encode() for path, marker in sources.items()}
+        for path in sources:
+            path.parent.mkdir(parents=True, exist_ok=True)
+
+        module_from_spec = importlib.util.module_from_spec
+
+        def replace_path(spec):
+            Path(spec.origin).write_bytes(b"MARKER = 'replacement'\n")
+            return module_from_spec(spec)
+
+        with (patch.object(a, '__file__', str(benchmarks / 'benchmark_platform_metrics.py')),
+              patch.object(a, 'COLLECTOR_SHA256', hashlib.sha256(payloads[benchmarks / 'platform_metrics.py']).hexdigest()),
+              patch.object(a, 'OWNER_SHA256', hashlib.sha256(payloads[legacy]).hexdigest()),
+              patch.object(a, 'OWNED_RSS_OWNER_SHA256', hashlib.sha256(payloads[versioned]).hexdigest()),
+              patch.object(importlib.util, 'module_from_spec', side_effect=replace_path)):
+            for selected, expected in ((False, 'legacy'), (True, 'versioned')):
+                with self.subTest(owned_rss=selected):
+                    for path, data in payloads.items():
+                        path.write_bytes(data)
+                    collector, dependency = a.load_dependencies(owned_rss=selected)
+                    self.assertEqual((collector.MARKER, dependency.MARKER), ('collector', expected))
+
+    def test_dependency_source_size_bound_applies_even_with_matching_pin(self):
+        path = self.directory / 'module.py'
+        data = b'# inert fixture\n'
+        path.write_bytes(data)
+        with patch.object(a, 'MAX_SOURCE_BYTES', len(data) - 1):
+            with self.assertRaisesRegex(a.Invalid, 'bounded ordinary source required'):
+                a._reviewed_source('fixture', path, hashlib.sha256(data).hexdigest())
+
     def test_versioned_replay_requires_selected_trial_and_capture_pins(self):
         with self.assertRaisesRegex(a.Invalid, 'requires an owned RSS trial receipt'):
             self.verify(owned_rss=True)
