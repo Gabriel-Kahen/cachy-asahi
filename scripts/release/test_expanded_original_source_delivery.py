@@ -8,6 +8,7 @@ import copy
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
 import re
 import shlex
@@ -23,6 +24,7 @@ SPEC = importlib.util.spec_from_file_location('expanded_delivery', HERE / 'recip
 d = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(d)
 REVISION = '49771edfc7a9def473b875c59242abd3a25d4177'
+SETUP_SOURCE = '97f44c9e275b8d6446ae2d5aa99f1c413e884c64'
 NAMES = ('cachy-asahi-setup', 'cachy-asahi-mirrors', 'cachy-asahi-doctor')
 
 
@@ -34,9 +36,20 @@ class Expansion(unittest.TestCase):
 
     def recipe(self, name, version=None):
         if name == 'cachy-asahi-setup':
-            if version == '0.1.0-7':
-                return REPO / 'packages/settings/cachy-asahi-setup'
-            return REPO / 'packages/tools/cachy-asahi-setup8'
+            relative = ('packages/settings/cachy-asahi-setup' if version == '0.1.0-7'
+                        else 'packages/tools/cachy-asahi-setup8')
+            # These profiles identify the original build inputs for both packages.
+            if held := os.environ.get('FROZEN_SETUP_RECIPE_SOURCE'):
+                return Path(held) / relative
+            recipe = self.work / ('held-setup7' if version == '0.1.0-7' else 'held-setup8')
+            if not recipe.exists():
+                def read(name):
+                    return subprocess.check_output(['git', '-C', str(REPO), 'show',
+                                                    f'{SETUP_SOURCE}:{relative}/{name}'], timeout=10)
+
+                bodies, _ = d.source_set(name, read)
+                d.write_fresh(recipe, bodies)
+            return recipe
         return REPO / 'packages/tools' / name
 
     def contents(self, name, version=None):

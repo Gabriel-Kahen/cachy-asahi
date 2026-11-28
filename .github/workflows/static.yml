@@ -765,6 +765,7 @@ jobs:
         env:
           PYTHONDONTWRITEBYTECODE: '1'
           FROZEN_CLIENT_RELEASE_HELPERS: ${{ github.workspace }}/.ci-inputs/apps-package-release
+          FROZEN_SETUP_RECIPE_SOURCE: ${{ github.workspace }}/.ci-inputs/historical-inventory-input-basis
         run: |
           python3 -B - <<'PY'
           import importlib.util, tempfile, unittest
