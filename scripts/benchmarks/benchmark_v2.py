@@ -362,7 +362,7 @@ def input_paths(config, binding, declared_from):
     for values in config.get("variant_inputs", {}).values():
         paths.extend(values)
     if "platform_metrics" in config:
-        paths.extend(str(p) for p in platform_adapter().source_paths())
+        paths.extend(str(p) for p in platform_adapter().source_paths(owned_rss='owned_rss' in config))
     paths.extend(config[key] for key in ("state_change_evidence", "hardware_gate_evidence") if config.get(key))
     paths.extend(binding[key]["path"] for key in ("runner", "adapter", "owner"))
     return list(dict.fromkeys(str(declared_from / path) for path in paths))
@@ -569,7 +569,7 @@ def metrics(samples):
 
 
 # Owner-aware RSS is separately frozen; ordinary/default calls do not select it.
-OWNED_RSS_CORE_SHA256 = '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
+OWNED_RSS_CORE_SHA256 = 'bd1c18c0c8f05462d3d175fceaeda559f422cc1cfd40dfce6244e71df482d42d'
 OWNED_RSS_SCHEMA = 'benchmark-owned-group-rss-v1'
 
 
@@ -585,7 +585,7 @@ def validate_owned_rss(config):
             or not .01 <= interval <= 60
             or math.ceil((config['timeout_seconds'] + .5) / interval) + 1 > 4096):
         raise Invalid('owned RSS interval/retained sample bound')
-    if digest(platform_adapter().dependencies()['owner']) != OWNED_RSS_CORE_SHA256:
+    if digest(platform_adapter().dependencies(owned_rss=True)['owner']) != OWNED_RSS_CORE_SHA256:
         raise Invalid('owned RSS requires Root adoption of the prepared core/pin before freezing')
 
 
@@ -673,22 +673,14 @@ def owned_rss_metrics(rss, start, end, interval):
 
 def execute_owned_rss(config, argv, cwd, environment, output):
     """Pass only the built-in RSS option; no arbitrary PID callback/thread."""
-    from types import SimpleNamespace
     adapter = platform_adapter()
-    collector, owner = adapter.load_dependencies()
+    collector, owner = adapter.load_dependencies(owned_rss=True)
     if digest(owner.__file__) != OWNED_RSS_CORE_SHA256:
         raise Invalid('owner-aware RSS requires the prepared exact core; Root pin adoption is a prerequisite')
     interval = config['owned_rss']['interval_seconds']
-    def supervise(child, **kwargs):
-        return owner.supervise(child, **kwargs, rss_interval=interval)
-    facade = SimpleNamespace(prepare=owner.prepare, supervise=supervise)
-    previous = adapter.load_dependencies
-    adapter.load_dependencies = lambda: (collector, facade)
-    try:
-        result = adapter.execute(argv, cwd, environment, output, config['timeout_seconds'],
-                                 config['sample_seconds'], config['platform_metrics'], metrics)
-    finally:
-        adapter.load_dependencies = previous
+    result = adapter.execute(argv, cwd, environment, output, config['timeout_seconds'],
+                             config['sample_seconds'], config['platform_metrics'], metrics,
+                             rss_interval=interval)
     capture_data = collector.ordinary(output / 'platform-metrics/capture.json', 16 * 1024**2)
     capture = json.loads(capture_data)
     replayable = len(capture_data) <= collector.MAX_LINE
@@ -712,7 +704,7 @@ def execute_owned_rss(config, argv, cwd, environment, output):
 
 def verify_owned_rss(directory, trial, config, legacy, *, raw_files=None):
     """Bind the new raw artifact to the existing source/clock/workload capture."""
-    collector, owner = platform_adapter().load_dependencies()
+    collector, owner = platform_adapter().load_dependencies(owned_rss=True)
     if digest(owner.__file__) != OWNED_RSS_CORE_SHA256:
         raise Invalid('owned RSS core source mismatch')
     def read(name, cap):
@@ -1002,7 +994,8 @@ def compare(plan_path, directories, output):
         if platform_reader is None:
             samples = [json.loads(line) for line in bounded_raw['telemetry.jsonl'].splitlines()]
         else:
-            platform_reader.verify_trial(directory, trial, config['platform_metrics'], raw=bounded_raw)
+            platform_reader.verify_trial(directory, trial, config['platform_metrics'], raw=bounded_raw,
+                                         owned_rss='owned_rss' in config)
             samples = [platform_reader.unavailable_legacy(start)]
         if not samples or trial.get("sample_count", len(samples)) != len(samples):
             raise Invalid("missing telemetry samples or differing sample count")
