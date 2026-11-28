@@ -319,6 +319,39 @@ class ResolveTests(unittest.TestCase):
         self.failed(result, "file-ownership-collision", graph=False)
         self.assertEqual(result["metadata_graph_status"], "PASS")
 
+    def test_file_conflicts_with_explicit_and_implied_directories(self):
+        path = "usr/bin/collision"
+        for directory_path in (path + "/", path + "/nested/tool", path + "/empty/"):
+            for claim_first in (False, True):
+                with self.subTest(directory_path=directory_path, claim_first=claim_first):
+                    owner = record("owner", files=[path])
+                    claimant = record("claimant", files=[directory_path])
+                    catalog = [claimant, owner] if claim_first else [owner, claimant]
+                    result = self.solve(catalog, roots=[pin(row) for row in catalog])
+                    self.assertEqual(result["status"], "FAIL")
+                    self.assertEqual(result["metadata_graph_status"], "PASS")
+                    self.assertEqual(result["blockers"], [{
+                        "code": "file-ownership-collision", "scope": "ownership",
+                        "path": path, "packages": ["claimant", "owner"],
+                    }])
+
+    def test_file_conflicts_with_implied_directory_in_same_package(self):
+        path = "usr/bin/collision"
+        result = self.solve([record("app", files=[path, path + "/tool"])])
+        self.assertEqual(result["status"], "FAIL")
+        self.assertEqual(result["metadata_graph_status"], "PASS")
+        self.assertEqual(result["blockers"], [{
+            "code": "file-ownership-collision", "scope": "ownership",
+            "path": path, "packages": ["app"],
+        }])
+
+    def test_directory_sharing_and_distinct_file_prefixes_pass(self):
+        app = record("app", depends=["dep"], files=["usr/bin/", "usr/bin/tool"])
+        dependency = record("dep", files=["usr/bin/tool-kit/helper"])
+        result = self.solve([app, dependency])
+        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(result["blockers"], [])
+
     def test_literal_multihyphen_SONAME_version_constraints(self):
         for version in ("0.20.so-64", "libwlroots-0.20.so-64"):
             for requirement, passes in (("libwlroots=" + version, True),

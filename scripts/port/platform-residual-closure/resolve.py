@@ -393,7 +393,7 @@ def resolve(anchors, catalog, roots, protected, *, limits=None, clock=time.monot
                     if matches:
                         block(code, package=name, requirement=required, matches=matches)
         result['metadata_graph_status'] = 'FAIL' if result['blockers'] else 'PASS'
-        ownership = {}
+        file_owners = {}
         for name, row in selected.items():
             check()
             archive = row.get('archive')
@@ -407,10 +407,10 @@ def resolve(anchors, catalog, roots, protected, *, limits=None, clock=time.monot
             if files is None:
                 block('unknown-file-ownership', 'ownership', package=name)
             else:
-                for file in files:
-                    if file.endswith('/'):
-                        continue
-                    ownership.setdefault(file, []).append(name)
+                for path in files:
+                    check()
+                    if not path.endswith('/'):
+                        file_owners.setdefault(path, []).append(name)
             if row.get('hooks') is None:
                 block('unknown-hooks', 'hooks', package=name)
             else:
@@ -429,9 +429,23 @@ def resolve(anchors, catalog, roots, protected, *, limits=None, clock=time.monot
                 result['policy_decisions'].append({'package': name, 'field': field, 'status': status})
                 if status == 'UNKNOWN':
                     block('unknown-' + field.replace('_', '-'), 'review', package=name)
-        for path, owners in ownership.items():
-            if len(owners) > 1:
-                block('file-ownership-collision', 'ownership', path=path, packages=owners)
+        directory_claimants = {}
+        for name, row in selected.items():
+            for path in row.get('files') or ():
+                check()
+                # A terminal slash includes the declared directory in the ancestor walk.
+                parent = path.rpartition('/')[0]
+                while parent:
+                    check()
+                    if parent in file_owners:
+                        directory_claimants.setdefault(parent, set()).add(name)
+                    parent = parent.rpartition('/')[0]
+        for path, owners in file_owners.items():
+            check()
+            claimants = directory_claimants.get(path)
+            if claimants or len(owners) > 1:
+                packages = sorted(set(owners) | claimants) if claimants else owners
+                block('file-ownership-collision', 'ownership', path=path, packages=packages)
         result['selected'] = [selected[name] for name in sorted(selected)]
         result['duplicate_declarations'] = [{'package': name, 'field': field, 'directive': value, 'occurrences': row[field].count(value)}
             for name, row in selected.items() for field in ('depends', 'provides', 'conflicts', 'replaces')
