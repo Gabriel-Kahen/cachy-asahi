@@ -45,6 +45,7 @@ class Controls(unittest.TestCase):
         good=key();A['key_status'](good,NOW)
         for bad in(good.replace('pub:-:','pub:r:'),good.replace('uid:-:','uid:i:'),good.replace('sub:-:','sub:e:'),good.replace(':scESC:',':scESCD:'),good.replace(A['SIGNER'],'0'*40),good.replace(A['UID'],'MODEL FOREIGN'),good.replace(':1390085363::',':1390085363:'+str(NOW-1)+':')):self.assertRaises(ValueError,A['key_status'],bad,NOW)
     def test_whole422_207_and_original_signature_algorithm_pins_retained(self):
+        self.assertEqual(A['pin']((A['SOURCE']/'source.lock.json').read_bytes()),A['SOURCE_LOCK'])
         d=json.loads((A['SOURCE']/'builder.lock.json').read_bytes());self.assertEqual(A['pin']((A['SOURCE']/'builder.lock.json').read_bytes()),A['BUILDER']);rows,signed=A['inputs'](d);self.assertEqual((len(rows),len(signed),sum(x['bytes']for x in rows.values())),(422,207,1473694724))
         bad=copy.deepcopy(d);bad['packages']=bad['packages'][:-1];self.assertRaises(ValueError,A['inputs'],bad)
         self.assertEqual(A['RUN_CAP'],900);self.assertEqual(A['ACTOR_CAP'],60)

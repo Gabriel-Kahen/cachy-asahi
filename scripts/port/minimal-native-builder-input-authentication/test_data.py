@@ -20,7 +20,7 @@ D = json.loads((A.SOURCE / 'builder.lock.json').read_bytes())
 FIXTURES = A.ROOT / 'scripts/ci/core-native-lifecycle-source/payload/keyring'
 # The maintained parser is loaded from whole-pinned bytes, never invoked as an actor.
 sys.addaudithook(A.ActorFence())
-sys.modules['package_checks'] = A.module(A.ROOT / 'scripts/checks/package_checks.py', A.ENGINES['scripts/checks/package_checks.py'], 'package_checks')
+sys.modules['package_checks'] = A.module(A.ROOT / A.HELD_CHECKER, A.ENGINES[A.HELD_CHECKER], 'package_checks')
 N = A.module(A.ROOT / 'scripts/ci/native_arm.py', A.ENGINES['scripts/ci/native_arm.py'], 'MODEL_maintained_signature_parser')
 NOW = 1794950000
 
@@ -109,7 +109,11 @@ class Controls(unittest.TestCase):
 
     def test_fixed_source_and_complete422_contract(self):
         self.assertEqual(A.pin((A.SOURCE / 'builder.lock.json').read_bytes()), A.BUILDER)
-        self.assertEqual(A.pin((A.SOURCE / 'source.lock.json').read_bytes()), A.SOURCE_LOCK)
+        lock = json.loads(A.read_pinned(A.SOURCE / 'source.lock.json', A.SOURCE_LOCK))
+        profile = json.loads(A.read_pinned(A.SOURCE / 'profile.DATA.json', lock['files']['profile.DATA.json']))
+        resolver = 'scripts/port/platform-residual-closure/resolve.py'
+        self.assertEqual(A.pin((A.ROOT / resolver).read_bytes()), profile['engines'][resolver])
+        self.assertEqual(A.ENGINES[A.HELD_CHECKER], profile['engines']['scripts/checks/package_checks.py'])
         for path, row in A.ENGINES.items():
             self.assertEqual(A.pin((A.ROOT / path).read_bytes()), row)
         rows, signed = A.inputs(D)

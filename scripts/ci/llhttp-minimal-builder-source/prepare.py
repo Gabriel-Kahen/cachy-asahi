@@ -12,7 +12,10 @@ NO=NEW+'owner/'
 MARKER='minimal206-build-only-projection.json'
 PARENT_MAP=dict(bytes=20200,sha256='ab743415f602ba8c5f81a063fc7cc5d25587be0d535601396f2ee617fb4149ce')
 PARENT_TREE='b73f92b1ed4e6f6ab8c4210fdaa19617b1a5721f'
-INTAKE_LOCK=dict(bytes=2377,sha256='6fac7419f32e2c370840dc9ee587b0cdf9d265f2dc9b57ff38bb945a468d090f')
+INTAKE_REVISION='b0f47fe258d64831f70818dcb1750ef50e26d1b2'
+INTAKE_LOCK=dict(bytes=2377,sha256='4730b8f6df4ad17140ec3dddcedbafd78b7012538361ae866757635269ac6bd3')
+ORIGINAL_INTAKE_REVISION='e947d24c3cb2f9facfd897d5e65ce6f19942cbca'
+ORIGINAL_INTAKE_LOCK=dict(bytes=2377,sha256='6fac7419f32e2c370840dc9ee587b0cdf9d265f2dc9b57ff38bb945a468d090f')
 BUILDER=dict(bytes=1189335,sha256='c5c9f4450575b6c66f7991c48f9bb227e78ea1e605f57df0a46778ba9d4d6f65')
 NATIVE=dict(bytes=236589,sha256='629ef92976d17f13443897b0711a54ecb3e404eea4d0d997447407d76a9baf16')
 EXPECTED=dict(bytes=4048,sha256='303cb32db7378e2cdd5d7645df1dc1f5e7a30fc9ea588f0d2867eede21127e66')
@@ -65,8 +68,8 @@ def parent_bodies(p):
  p=ordinary(p);found=census(p,95);b={n:read(p/n)for n in sorted(found)};need(all(stat.S_IMODE((p/n).stat().st_mode)==0o644 for n in found),'whole physical95 modes');validate_parent(b);return b
 
 def intake(p,package_proof,acquisition_proof):
- p=ordinary(p);lock=read(p/'source.lock.json');need(pin(lock)==INTAKE_LOCK,'whole original e947 intake family lock');rows=decode(lock)['files'];need(census(p,15)==set(rows)|{'source.lock.json'},'whole e947 family membership')
- for n,r in rows.items():need(dict(pin(read(p/n)),mode=stat.S_IMODE((p/n).stat().st_mode))==r,'whole e947 source/mode '+n)
+ p=ordinary(p);lock=read(p/'source.lock.json');need(pin(lock)==INTAKE_LOCK,'whole maintained intake family lock');rows=decode(lock)['files'];need(census(p,15)==set(rows)|{'source.lock.json'},'whole intake family membership')
+ for n,r in rows.items():need(dict(pin(read(p/n)),mode=stat.S_IMODE((p/n).stat().st_mode))==r,'whole intake source/mode '+n)
  builder=read(p/'builder.lock.json');native=read(p/'native-inputs.lock.json');expected=read(p/'expected206.lock');need(pin(builder)==BUILDER and pin(native)==NATIVE and pin(expected)==EXPECTED,'exact206 builder/native/inventory operands')
  d=decode(builder);need(d['metadata_graph_status']=='PASS'and not d['graph_blockers']and not d['rootfs_reconciliation']['missing']and len(d['packages'])==206,'complete coherent206 graph')
  evidence=decode(read(p/'actual-intake.DATA.json'));proofs={}
@@ -119,7 +122,7 @@ def minimal_inputs(admission,runtime,profile):
 
 def once(text,before,after):need(text.count(before)==1,'one exact operation projection seam');return text.replace(before,after,1)
 
-def assemble(old,native,expected,signatures):
+def assemble(old,native,expected,signatures,*,historical=False):
  validate_parent(old);need(pin(native)==NATIVE and pin(expected)==EXPECTED and pin(encoded(signatures))==SIGNATURES,'exact fixed206 operands and public signatures');b={renamed(n):raw for n,raw in old.items()};need(len(b)==len(old),'one-to-one path projection')
  operational={n for n in old if n.startswith(OLD+'owner/')or n.startswith(OB)and('/runtime/'in n or n.endswith(('.py','profile.json','admission.TEMPLATE.json','runtime.TEMPLATE.json')))}|{'.github/workflows/native-arm-llhttp-reference-source.yml'}
  for n in operational:
@@ -158,7 +161,10 @@ def assemble(old,native,expected,signatures):
  # Exact compressed preimages, not a full Source copy or duplicate old maps.
  changed={n:dict(pin=pin(raw),mode=0o644,zlib_base64=base64.b64encode(zlib.compress(raw,9)).decode())for n,raw in old.items()if b.get(renamed(n))!=raw and n not in('source-map.json',OLD+'owner/owner-program.json')}
  changed['source-map.json']=dict(pin=pin(old['source-map.json']),mode=0o644,zlib_base64=base64.b64encode(zlib.compress(old['source-map.json'],9)).decode());changed[OLD+'owner/owner-program.json']=dict(pin=pin(old[OLD+'owner/owner-program.json']),mode=0o644,zlib_base64=base64.b64encode(zlib.compress(old[OLD+'owner/owner-program.json'],9)).decode())
- b[MARKER]=encoded(dict(kind='SEPARATE_MINIMAL206_BUILD_ONLY_PROJECTION_V1',parent_map=PARENT_MAP,parent_tree=PARENT_TREE,parent_files=95,parent_bytes=1318237,intake_revision='e947d24c3cb2f9facfd897d5e65ce6f19942cbca',intake_lock=INTAKE_LOCK,builder_lock=BUILDER,native_inputs=NATIVE,expected_inventory=EXPECTED,public_signature_seed=SIGNATURES,prerequisite_proofs=PROOFS,changed=changed,renames={n:renamed(n)for n in old if renamed(n)!=n},actual=None,Root_selection=None,native=None,scope='BUILD_ONLY'))
+ # The resolver repin changes the intake profile, while all projected operands
+ # keep their original pins. Historical replay still emits the original ledger.
+ intake_revision,intake_lock=(ORIGINAL_INTAKE_REVISION,ORIGINAL_INTAKE_LOCK)if historical else(INTAKE_REVISION,INTAKE_LOCK)
+ b[MARKER]=encoded(dict(kind='SEPARATE_MINIMAL206_BUILD_ONLY_PROJECTION_V1',parent_map=PARENT_MAP,parent_tree=PARENT_TREE,parent_files=95,parent_bytes=1318237,intake_revision=intake_revision,intake_lock=intake_lock,builder_lock=BUILDER,native_inputs=NATIVE,expected_inventory=EXPECTED,public_signature_seed=SIGNATURES,prerequisite_proofs=PROOFS,changed=changed,renames={n:renamed(n)for n in old if renamed(n)!=n},actual=None,Root_selection=None,native=None,scope='BUILD_ONLY'))
  b.pop('source-map.json');b.pop(NO+'owner-program.json');b[NO+'owner-program.json']=encoded(dict(schema=1,base_source_map_sha256=pin(b[NB+'source-map.json'])['sha256'],files={n:dict(pin(raw),mode=0o644)for n,raw in sorted(b.items())if not n.startswith('held-source/')}))
  d=decode(old['source-map.json']);b['source-map.json']=encoded(dict(d,kind='LLHTTP_MINIMAL206_BUILD_ONLY_OWNED_HOSTED_SOURCE_V2',files={n:dict(pin(raw),mode=0o644)for n,raw in sorted(b.items())}))
  need(len(b)==96 and sum(map(len,b.values()))<2*1024**2,'unchanged96-leaf/2MiB Source cap');return b
@@ -168,11 +174,12 @@ def inverse(b):
  marker=decode(b[MARKER]);need(marker['parent_map']==PARENT_MAP and marker['parent_tree']==PARENT_TREE and marker['scope']=='BUILD_ONLY','exact original95 inverse binding');need(type(marker['changed'])is dict and 2<=len(marker['changed'])<=95 and type(marker['renames'])is dict and len(marker['renames'])<=95 and all(renamed(k)==v for k,v in marker['renames'].items()),'finite exact preimage/rename ledger');need(sum(r['pin']['bytes']for r in marker['changed'].values())<=1318237,'finite total preimage extent');renames={v:k for k,v in marker['renames'].items()};old={renames.get(n,n):raw for n,raw in b.items()if n!=MARKER}
  for n,r in marker['changed'].items():
   need(set(r)=={'pin','mode','zlib_base64'}and type(r['pin']['bytes'])is int and 0<r['pin']['bytes']<=1318237,'bounded complete preimage row');packed=base64.b64decode(r['zlib_base64'],validate=True);need(len(packed)<=2*1024**2,'bounded compressed preimage');stream=zlib.decompressobj();raw=stream.decompress(packed,2*1024**2+1);need(stream.eof and not stream.unused_data and not stream.unconsumed_tail and pin(raw)==r['pin']and r['mode']==0o644,'complete exact bounded inverse preimage');old[n]=raw
- validate_parent(old);need(b==assemble(old,b[NB+'runtime/scripts/ci/inputs.lock.json'],b[NB+'expected206.lock'],decode(b[NB+'profile.json'])['minimal_public_signatures']),'whole canonical minimal206 successor/inverse');return old
+ historical=marker['intake_revision']==ORIGINAL_INTAKE_REVISION
+ validate_parent(old);need(b==assemble(old,b[NB+'runtime/scripts/ci/inputs.lock.json'],b[NB+'expected206.lock'],decode(b[NB+'profile.json'])['minimal_public_signatures'],historical=historical),'whole canonical minimal206 successor/inverse');return old
 
-def construct(parent,intake_root,package_proof,acquisition_proof,output):
+def construct(parent,intake_root,package_proof,acquisition_proof,output,*,historical=False):
  parent,intake_root,output=map(ordinary,(parent,intake_root,output));need(not output.exists()and not output.is_relative_to(parent)and not parent.is_relative_to(output)and not output.is_relative_to(intake_root),'fresh disjoint output')
- old=parent_bodies(parent);native,expected,proofs,signatures=intake(intake_root,package_proof,acquisition_proof);b=assemble(old,native,expected,signatures);need(inverse(b)==old,'full95 byte/mode inverse');output.mkdir(mode=0o700)
+ old=parent_bodies(parent);native,expected,proofs,signatures=intake(intake_root,package_proof,acquisition_proof);b=assemble(old,native,expected,signatures,historical=historical);need(inverse(b)==old,'full95 byte/mode inverse');output.mkdir(mode=0o700)
  for n,raw in b.items():
   p=output/n;p.parent.mkdir(parents=True,exist_ok=True)
   with p.open('xb')as f:f.write(raw)

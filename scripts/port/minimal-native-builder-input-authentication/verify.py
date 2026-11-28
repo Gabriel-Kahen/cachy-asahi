@@ -21,11 +21,13 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 SOURCE = ROOT / 'scripts/port/minimal-native-builder-inputs'
 BUILDER = dict(bytes=1189335, sha256='c5c9f4450575b6c66f7991c48f9bb227e78ea1e605f57df0a46778ba9d4d6f65')
-SOURCE_LOCK = dict(bytes=2377, sha256='6fac7419f32e2c370840dc9ee587b0cdf9d265f2dc9b57ff38bb945a468d090f')
+SOURCE_LOCK = dict(bytes=2377, sha256='4730b8f6df4ad17140ec3dddcedbafd78b7012538361ae866757635269ac6bd3')
+HELD_CHECKER = ('scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/'
+                'scripts/ci/llhttp-reference-native-source/base/runtime/scripts/checks/package_checks.py')
 ENGINES = {
     'scripts/virtual/owned_process.py': dict(bytes=25140, sha256='83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'),
     'scripts/ci/native_arm.py': dict(bytes=28877, sha256='8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'),
-    'scripts/checks/package_checks.py': dict(bytes=19289, sha256='314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a'),
+    HELD_CHECKER: dict(bytes=19289, sha256='314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a'),
 }
 SIGNER = '68B3537F39A313B3E574D06777193F152BDBE6A6'
 SUBKEY = 'EA5AE14634B0DA39F927DC9EA517E8E924321745'
@@ -312,7 +314,7 @@ def verify(selection_path, selection_pin, *, execute=False):
         resource.setrlimit(kind, (bounded, bounded))
     fence = ActorFence(); sys.addaudithook(fence)
     source_lock = json.loads(read_pinned(SOURCE / 'source.lock.json', SOURCE_LOCK))
-    need({p.relative_to(SOURCE).as_posix() for p in SOURCE.rglob('*') if p.is_file() or p.is_symlink()} == set(source_lock['files']) | {'source.lock.json'}, 'closed unchanged author family')
+    need({p.relative_to(SOURCE).as_posix() for p in SOURCE.rglob('*') if p.is_file() or p.is_symlink()} == set(source_lock['files']) | {'source.lock.json'}, 'closed maintained author family')
     for name, row in source_lock['files'].items():
         read_pinned(SOURCE / name, row)
     d = json.loads(read_pinned(SOURCE / 'builder.lock.json', BUILDER))
@@ -321,7 +323,7 @@ def verify(selection_path, selection_pin, *, execute=False):
         read_pinned(ROOT / name, row)
     owned = module(ROOT / 'scripts/virtual/owned_process.py', ENGINES['scripts/virtual/owned_process.py'], 'minimal206_owned_verifier')
     need('package_checks' not in sys.modules, 'fresh isolated maintained dependency namespace')
-    sys.modules['package_checks'] = module(ROOT / 'scripts/checks/package_checks.py', ENGINES['scripts/checks/package_checks.py'], 'package_checks')
+    sys.modules['package_checks'] = module(ROOT / HELD_CHECKER, ENGINES[HELD_CHECKER], 'package_checks')
     native = module(ROOT / 'scripts/ci/native_arm.py', ENGINES['scripts/ci/native_arm.py'], 'minimal206_signature_parser')
     namespace(cache, expected)
     held = {}; tools = {}; binary = None; persist = None

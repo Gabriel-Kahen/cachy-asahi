@@ -5,8 +5,9 @@ import argparse,ast,base64,hashlib,importlib.util,json,math,stat,types,zlib
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 ORIGINAL=dict(bytes=20399,sha256='a7915d97b9e8fc9a5e152d803dbd5e453a6a99e59ae62704712b5e73015f1d7f')
+CONSTRUCTOR=dict(bytes=21041, sha256='588565d2340c77e2c6469100d1c54ac432bc62dd1b4e43eca69f932e8db4668f')
 p=HERE.parent/'llhttp-minimal-builder-source/prepare.py';raw=p.read_bytes()
-if dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())!=ORIGINAL:raise ValueError('whole exact6651 constructor')
+if dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())!=CONSTRUCTOR:raise ValueError('whole maintained constructor')
 spec=importlib.util.spec_from_file_location('minimal206_original6651',p);P=importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
 NB=P.NB;NO=P.NO;MARKER=P.MARKER
 MAP=dict(bytes=20332,sha256='a5661571f8698b41233d4a0cb5cdbe39b27ecbcc5c59c266e9555a003efc0ec5')
@@ -15,7 +16,7 @@ EXT='command512_successor'
 CHANGED=(NB+'entry.py',NO+'hosted_owner.py',NO+'public_evidence.py',NO+'policy.json',NB+'source-map.json',NO+'base-binding.json',NO+'owner-program.json',MARKER,'source-map.json')
 need=P.need;pin=P.pin;encode=P.encoded;decode=P.decode;read=P.read;tree=P.tree
 
-def original_call(fn,*args,marker):
+def original_call(fn,*args,marker,**kwargs):
  # DEFLATE is not byte-canonical across zlib versions. Reuse ONLY the pinned
  # historical compressed preimages, checking complete decompression first.
  need(type(marker['changed'])is dict and 2<=len(marker['changed'])<=95,'finite historical compression table')
@@ -28,7 +29,7 @@ def original_call(fn,*args,marker):
  def compress(raw,level):
   need(level==9 and raw in table,'only exact recorded historical compression');return table[raw]
  previous=P.zlib;P.zlib=types.SimpleNamespace(compress=compress,decompressobj=zlib.decompressobj)
- try:return fn(*args)
+ try:return fn(*args,**kwargs)
  finally:P.zlib=previous
 
 def predecessor95(b):return original_call(P.inverse,b,marker=decode(b[MARKER]))
@@ -70,7 +71,7 @@ def recover_parent(b):
  renames={v:k for k,v in marker['renames'].items()};old95={renames.get(n,n):raw for n,raw in b.items()if n!=MARKER}
  for n,r in marker['changed'].items():
   compressed=base64.b64decode(r['zlib_base64'],validate=True);need(0<r['pin']['bytes']<=1318237 and len(compressed)<=2*1024**2,'finite exact old preimage');stream=zlib.decompressobj();raw=stream.decompress(compressed,1318238);need(stream.eof and not stream.unused_data and not stream.unconsumed_tail and pin(raw)==r['pin']and r['mode']==0o644,'whole original95 preimage');old95[n]=raw
- P.validate_parent(old95);parent=original_call(P.assemble,old95,b[NB+'runtime/scripts/ci/inputs.lock.json'],b[NB+'expected206.lock'],decode(b[NB+'profile.json'])['minimal_public_signatures'],marker=marker);need(parent[MARKER]==encode(marker),'old compact marker exact regeneration');validate_parent(parent);return parent
+ P.validate_parent(old95);parent=original_call(P.assemble,old95,b[NB+'runtime/scripts/ci/inputs.lock.json'],b[NB+'expected206.lock'],decode(b[NB+'profile.json'])['minimal_public_signatures'],marker=marker,historical=True);need(parent[MARKER]==encode(marker),'old compact marker exact regeneration');validate_parent(parent);return parent
 
 def inverse(b):
  old=recover_parent(b);need(b==assemble(old),'whole canonical new512 source and full6651 inverse');need(all(b[n]==raw for n,raw in old.items()if n not in CHANGED),'all unrelated96 bodies unchanged');return old

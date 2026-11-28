@@ -20,12 +20,12 @@ INTAKE = ROOT / 'scripts/port/minimal-native-builder-inputs'
 FIXTURE = HERE / 'fixtures/Source95'
 PARENT_MAP = dict(bytes=20200, sha256='ab743415f602ba8c5f81a063fc7cc5d25587be0d535601396f2ee617fb4149ce')
 PARENT_TREE = 'b73f92b1ed4e6f6ab8c4210fdaa19617b1a5721f'
-INTAKE_LOCK = dict(bytes=2377, sha256='6fac7419f32e2c370840dc9ee587b0cdf9d265f2dc9b57ff38bb945a468d090f')
-BASE_LOCK = dict(bytes=1301, sha256='bd1d9379e98dc64be13b3ac40a15eec9730a4a81107b96cf406729bbc0115d75')
+INTAKE_LOCK = dict(bytes=2377, sha256='4730b8f6df4ad17140ec3dddcedbafd78b7012538361ae866757635269ac6bd3')
+BASE_LOCK = dict(bytes=1301, sha256='cc2b66fe03676cd00826655fdcbfa43fe89769162b82ddf1507afe6765f5bfa3')
 PROJECTION = HERE / 'fixtures/Source96-original-projection.DATA.json'
 PROJECTION_PIN = dict(bytes=197700, sha256='313c0a4b205b84c8fe8b8c1ddf7d98750c6e3da86d31b7bc915be55c18814862')
 AUTHORED_REVISION = '1f0a2a18600b5aea4c837974f91e3ba2451f18a9'
-AUTHORED_LOCK = dict(bytes=934, sha256='3a0adc63aa1ae9cbe17d4e0c2f45394f688b569484d27bdba688240220020096')
+AUTHORED_LOCK = dict(bytes=934, sha256='14d885eae88fbbb373ff7e666aabac39b6d0ab8aa044183578597731e251e1a3')
 AUTHOR_CONTROLS = 14
 ATTEMPTS = []
 PINNED = {}
@@ -147,13 +147,14 @@ def run():
     sys.addaudithook(fence)
     verify_fixture(); verify_family(INTAKE, INTAKE_LOCK); verify_family(BASE_SOURCE, BASE_LOCK); verify_family(SOURCE, AUTHORED_LOCK)
     verify_provenance(); marker = verify_projection()
-    # Reproduce the predecessor as closed DATA only. Its test suite, Commands,
-    # operational entry and workflow are never registered or executed.
+    # Reproduce the predecessor with the historical ledger and exact projected
+    # operands. The maintained intake pin also covers the current graph profile.
     corrected = module(SOURCE / 'prepare.py', 'minimal_native_source_corrected_replay')
     with tempfile.TemporaryDirectory(prefix='minimal512-source-data-') as name:
         intermediate = Path(name) / 'Source96-original-DATA'
         corrected.original_call(corrected.P.construct, FIXTURE, INTAKE, BASE_SOURCE / 'fixtures/material-check.DATA.json',
-                                BASE_SOURCE / 'fixtures/acquisition-with-catalogs.DATA.json', intermediate, marker=marker)
+                                BASE_SOURCE / 'fixtures/acquisition-with-catalogs.DATA.json', intermediate, marker=marker, historical=True)
+        need(pin((intermediate / corrected.MARKER).read_bytes()) == PROJECTION_PIN, 'exact original Source96 projection replay')
         saved = sys.argv
         # Final option/count/pins are set only after the corrected author commits.
         sys.argv = [str(SOURCE / 'test_data.py'), '--parent', str(intermediate)]

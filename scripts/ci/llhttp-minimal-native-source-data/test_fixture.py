@@ -18,7 +18,10 @@ class FixtureControls(unittest.TestCase):
         self.assertTrue(all(v is None for v in json.loads(bodies['source-map.json'])['actual'].values()))
         archives = {n: len(b) for n, b in bodies.items() if n.endswith(('.tar.gz', '.tar.xz', '.tar.zst'))}
         self.assertEqual(archives, {'held-source/scripts/ci/llhttp-reference-native-source/base/recipe/llhttp-9.3.1.tar.gz': 39211})
-        self.assertEqual(len(CI.verify_projection()['changed']), 30)
+        marker = CI.verify_projection()
+        self.assertEqual(len(marker['changed']), 30)
+        self.assertEqual(CI.pin((CI.INTAKE / 'source.lock.json').read_bytes()), CI.INTAKE_LOCK)
+        self.assertNotEqual(marker['intake_lock'], CI.INTAKE_LOCK)
         expected = json.loads((CI.SOURCE / 'validation.DATA.json').read_bytes())['physical_export']
         actual = CI.AUTHOR_MODULE.Controls.report
         self.assertEqual(actual, expected)
