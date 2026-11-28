@@ -36,6 +36,10 @@ def valid_path(value):
             all(part not in ('.', '..') for part in value.split('/')))
 
 
+def protected_path(policy, path):
+    return path in policy['full_paths'] or path.startswith(tuple(policy['full_prefixes']))
+
+
 def dependency_signature(raw):
     """Conservative imports/call targets/string footprint; never execute code.
 
@@ -133,7 +137,7 @@ def select(policy, event, raw_diff, *, complete=False, truncated=False, signatur
                     changed.append(path)
                 if reason is None:
                     for path in sorted(changed):
-                        if path in policy['full_paths'] or any(path.startswith(prefix) for prefix in policy['full_prefixes']):
+                        if protected_path(policy, path):
                             reason = 'protected_or_common_path'; break
                         if path not in policy['paths']:
                             reason = 'unknown_path'; break

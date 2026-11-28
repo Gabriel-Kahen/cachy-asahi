@@ -114,6 +114,11 @@ class SelectionTests(unittest.TestCase):
                      'scripts/release/new-helper.py','packages/tools/new-package/runtime.py'):
             self.assert_full(self.choose(path))
 
+    def test_current_pgo_source_changes_require_full_coverage(self):
+        report = self.choose('scripts/experiments/test_zlib_pgo102.py')
+        self.assert_full(report)
+        self.assertEqual(report['reason'], 'protected_or_common_path')
+
     def test_manual_other_events_and_unavailable_diff(self):
         raw=diff('scripts/release/compare_sboms.py')
         for event in ('workflow_dispatch','workflow_call','schedule','unknown'):

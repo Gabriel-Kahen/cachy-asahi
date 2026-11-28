@@ -86,7 +86,22 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.component-selection.result == 'success' && needs.component-selection.outputs.matrix || '{"include":[{"component":"image","python":"3.12"},{"component":"signed-intake","python":"3.12"},{"component":"signed-image","python":"3.12"},{"component":"sbom","python":"3.12"},{"component":"source-mirror","python":"3.12"},{"component":"source-mirror-update","python":"3.12"},{"component":"desktop","python":"3.12"},{"component":"app-runtime","python":"3.12"},{"component":"app-inputs","python":"3.12"},{"component":"python","python":"3.12"},{"component":"python-extension","python":"3.12"},{"component":"build-systems","python":"3.12"},{"component":"pgo-source","python":"3.12"},{"component":"app-window","python":"3.12"},{"component":"mirror-builder","python":"3.12"},{"component":"debugger","python":"3.12"},{"component":"support-bundle","python":"3.12"},{"component":"support-collection","python":"3.12"},{"component":"recovery-bundle","python":"3.12"},{"component":"security-operation","python":"3.12"},{"component":"advisory-cache","python":"3.12"},{"component":"support-package2","python":"3.12"},{"component":"security-maintenance-package","python":"3.12"},{"component":"orphans03","python":"3.12"},{"component":"support-package","python":"3.12"},{"component":"image","python":"3.14"},{"component":"signed-intake","python":"3.14"},{"component":"signed-image","python":"3.14"},{"component":"sbom","python":"3.14"},{"component":"source-mirror","python":"3.14"},{"component":"source-mirror-update","python":"3.14"},{"component":"desktop","python":"3.14"},{"component":"app-runtime","python":"3.14"},{"component":"app-inputs","python":"3.14"},{"component":"python","python":"3.14"},{"component":"python-extension","python":"3.14"},{"component":"build-systems","python":"3.14"},{"component":"pgo-source","python":"3.14"},{"component":"app-window","python":"3.14"},{"component":"mirror-builder","python":"3.14"},{"component":"debugger","python":"3.14"},{"component":"support-bundle","python":"3.14"},{"component":"support-collection","python":"3.14"},{"component":"recovery-bundle","python":"3.14"},{"component":"security-operation","python":"3.14"},{"component":"advisory-cache","python":"3.14"},{"component":"support-package2","python":"3.14"},{"component":"security-maintenance-package","python":"3.14"},{"component":"orphans03","python":"3.14"},{"component":"support-package","python":"3.14"}]}') }}
     steps:
+      - name: Checkout only the SBOM source and fixture dependencies
+        if: matrix.component == 'sbom'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/release/test_release_sbom.py
+            /scripts/release/release_sbom.py
+            /scripts/release/source_delivery.py
+            /scripts/release/recipe_source_delivery.py
+            /scripts/update/archive_stream.py
+            /scripts/virtual/owned_process.py
       - name: Checkout complete canonical component closure
+        if: matrix.component != 'sbom'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false

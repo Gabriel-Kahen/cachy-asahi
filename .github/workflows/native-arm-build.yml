@@ -172,9 +172,6 @@ jobs:
 
   project-libraries:
     if: >-
-      github.repository == 'Gabriel-Kahen/cachy-asahi' &&
-      github.event.repository.private == false &&
-      github.sha == inputs.project_libraries_head &&
       (inputs.mode == 'project-libraries-inputs' || inputs.mode == 'project-libraries-native' ||
        inputs.mode == 'project-libraries-migration' || inputs.mode == 'project-libraries-maintained-inputs' ||
        inputs.mode == 'project-libraries-maintained-native')

@@ -34,12 +34,39 @@ concurrency:
   group: native-arm-project-libraries-622
   cancel-in-progress: false
 jobs:
+  validate-dispatch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Validate the reviewed revision and selected lane
+        shell: bash
+        env:
+          REVIEWED_HEAD: ${{ inputs.reviewed_head }}
+          WORKFLOW_SHA: ${{ github.workflow_sha }}
+          PRIVATE_REPOSITORY: ${{ github.event.repository.private }}
+          PROJECT_LIBRARIES_LANE: ${{ inputs.lane }}
+        run: |
+          if [[ "$GITHUB_REPOSITORY" != Gabriel-Kahen/cachy-asahi || "$PRIVATE_REPOSITORY" != false ||
+                "$GITHUB_EVENT_NAME" != workflow_dispatch ]]; then
+            echo 'Project Libraries requires a manual dispatch in the public upstream repository.' >&2
+            exit 1
+          fi
+          if [[ ! "$REVIEWED_HEAD" =~ ^[0-9a-f]{40}$ || "$REVIEWED_HEAD" != "$GITHUB_SHA" ||
+                "$REVIEWED_HEAD" != "$WORKFLOW_SHA" ]]; then
+            echo 'The reviewed head must be the full SHA of the selected ref and workflow.' >&2
+            exit 1
+          fi
+          case "$PROJECT_LIBRARIES_LANE" in
+            inputs|native|native-migration|maintained-inputs|maintained-native) ;;
+            *)
+              echo 'Unsupported Project Libraries lane.' >&2
+              exit 1
+              ;;
+          esac
+
   pairs:
-    if: >-
-      github.repository == 'Gabriel-Kahen/cachy-asahi' &&
-      github.event_name == 'workflow_dispatch' &&
-      github.sha == inputs.reviewed_head && github.workflow_sha == inputs.reviewed_head &&
-      (inputs.lane == 'inputs' || inputs.lane == 'native' || inputs.lane == 'native-migration')
+    needs: validate-dispatch
+    if: inputs.lane == 'inputs' || inputs.lane == 'native' || inputs.lane == 'native-migration'
     runs-on: ubuntu-24.04-arm
     environment: native-622-inputs
     timeout-minutes: 100
@@ -102,12 +129,8 @@ jobs:
         timeout-minutes: 1
         run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py retire --historical
   maintained-pairs:
-    if: >-
-      github.repository == 'Gabriel-Kahen/cachy-asahi' &&
-      github.event.repository.private == false &&
-      github.event_name == 'workflow_dispatch' &&
-      github.sha == inputs.reviewed_head && github.workflow_sha == inputs.reviewed_head &&
-      (inputs.lane == 'maintained-inputs' || inputs.lane == 'maintained-native')
+    needs: validate-dispatch
+    if: inputs.lane == 'maintained-inputs' || inputs.lane == 'maintained-native'
     runs-on: ubuntu-24.04-arm
     environment: native-622-inputs
     timeout-minutes: 100
