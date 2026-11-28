@@ -158,7 +158,13 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    629-package lock and all 362 protected paths; the 627 unchanged rows were
    only projected, not installed. The actor retired with zero swap and no OOM
    events, while the host pressure guard stopped controller readback after
-   QEMU exited. The path fix and fresh trial remain open.
+   QEMU exited. The path fix is integrated and passes an exact guest-layout
+   regression, but the next fresh-nonce actor stopped **before QEMU boot** at
+   the unchanged 6 GiB cgroup limit. Its file cache reached about 5.97 GiB
+   while rehashing the control-root clone after earlier pinned reads; no pair
+   transaction ran. Actor swap and OOM stayed zero, and ownership retired.
+   A cache-efficient, fail-closed read path and bounded no-guest preboot
+   rehearsal remain necessary before another live trial.
    [Trial runbook](../../scripts/integration/jbig_tiff_asahi629/README.md)
 
    A lock-to-manifest reconciliation found four of the 14
@@ -168,6 +174,17 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    selected trials. The manifest now records the exact First Login v3 and
    Zsh installation evidence while keeping First Login outside the
    development selection until its graphical journey is checked.
+
+   Static now registers the existing signed installer handoff and Bubblewrap
+   relocation suites alongside the base handoff suite. All 28 tests passed
+   locally under Python 3.12 and 3.14, including two real Bubblewrap cases;
+   the hosted exact-head result is pending. A separate offline Asahi629
+   updater preflight verifies the exact 629-row before, candidate and recovery
+   locks and six signed ALARM archive pairs. It remains **HOLD** because the
+   updater-equipped inventory, lane-specific trust, signed repositories,
+   protected Apple transition and boot/session recovery inputs are unselected.
+   Its 47 input, updater-policy and platform-transition controls passed.
+   [Updater preflight](../../scripts/update/ASAHI629_PREFLIGHT.md)
 
 ## Qualification already recorded
 
