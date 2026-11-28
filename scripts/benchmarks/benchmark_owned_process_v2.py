@@ -252,8 +252,8 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
     while WNOWAIT-owned. There is no arbitrary observation callback. This mode
     replaces post-reap census with a reserved-terminal-leader-only proof before
     reap; no numeric child/proc access follows reap in this mode. Membership
-    churn invalidates RSS without initiating retirement. Incomplete RSS fails
-    evidence admission; diagnostic observed peaks never substitute for data.
+    churn invalidates RSS while a clean workload can still pass supervision.
+    Other observation errors fail supervision. Observed peaks are diagnostic.
     """
     started = time.monotonic()
     for value in (cap, retirement, grace):
@@ -543,10 +543,12 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
                        for row in rss_samples):
                 rss_problem = 'RSS wait ownership/reap unconfirmed'
                 rss_samples.append(_rss_failure(pid, rss_problem))
-        result['rss'] = _rss_summary(rss_samples, rss_interval, rss_problem)
-        if result['rss']['status'] != 'complete' or result['rss']['leader_sampled_rss_kib'] is None:
-            result['passed'] = False
-            result['error'] = result['error'] or 'RSS unavailable/incomplete; no usable live-leader/group observations'
+        rss = result['rss'] = _rss_summary(rss_samples, rss_interval, rss_problem)
+        if rss['status'] != 'complete' or rss['leader_sampled_rss_kib'] is None:
+            gaps = [row for row in rss_samples if row['status'] == 'incomplete']
+            if not gaps or any(row.get('kind') != 'membership_churn' for row in gaps):
+                result['passed'] = False
+                result['error'] = result['error'] or 'RSS unavailable/incomplete; no usable live-leader/group observations'
     return result
 
 
