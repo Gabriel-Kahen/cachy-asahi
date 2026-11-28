@@ -36,7 +36,8 @@ PYTHON = ('/usr/bin/python3', '-I', '-B', '-S', '-c')
 
 # Run with no application filesystem import paths. The payload contains verified
 # bytes, their logical filenames and the exact delayed imports used by the child.
-LAUNCHER = f"get_seals, seals = {GET_SEALS}, {SEALS}\n" + """\
+LAUNCHER = (f"add_seals, get_seals, seals, memfd_flags = {ADD_SEALS}, {GET_SEALS}, {SEALS}, {MEMFD_FLAGS}\n"
+            f"recipes_lock = {packet.RECIPES_LOCK!r}\n") + """\
 import base64
 import fcntl
 import hashlib
@@ -132,9 +133,37 @@ if entry == stage:
     value.Runner = runner
     raise SystemExit(value.main())
 if drivers and entry == drivers[0]:
-    value = load('kernel_held_build', entry, bodies[entry])
-    entry_script = str(Path(entry).with_name('container-entry.sh'))
-    raise SystemExit(value.main(entry_script=bodies[entry_script]))
+    root = Path(entry).parents[2]
+    approved = json.loads(bodies[str(root / recipes_lock)])
+    try:
+        recipe = Path(args[0]).relative_to(root).as_posix()
+        review = approved[recipe]
+        option = args.index('--reviewed-inputs')
+        if (args[0] != str(root / recipe) or args.count('--reviewed-inputs') != 1
+                or not args[option + 1] or args[option + 1].startswith('-')):
+            raise ValueError('review argument')
+    except (IndexError, KeyError, ValueError):
+        raise ValueError('unbound builder reviewed inputs') from None
+
+    # The producer's review file is retained for evidence. The builder reads
+    # only the map authorized by the sealed recipe lock.
+    import ctypes
+    create = ctypes.CDLL(None, use_errno=True).memfd_create
+    create.argtypes = (ctypes.c_char_p, ctypes.c_uint)
+    create.restype = ctypes.c_int
+    review_fd = create(b'kernel-reviewed-inputs', memfd_flags)
+    if review_fd < 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error))
+    with os.fdopen(review_fd, 'wb') as stream:
+        stream.write((json.dumps(review, indent=2, sort_keys=True) + '\\n').encode('utf-8'))
+        stream.flush()
+        fcntl.fcntl(review_fd, add_seals, seals)
+        sys.argv = [entry, *args[:option], *args[option + 2:],
+                    '--reviewed-inputs', f'/proc/self/fd/{review_fd}']
+        value = load('kernel_held_build', entry, bodies[entry])
+        entry_script = str(Path(entry).with_name('container-entry.sh'))
+        raise SystemExit(value.main(entry_script=bodies[entry_script]))
 load('__main__', entry, bodies[entry])
 """
 
@@ -172,7 +201,12 @@ def bind(root, entry, command, rows):
 
     paths = {entry, *modules.values(), *(source for _, source in aliases.values()), *drivers}
     if drivers:
-        paths.add(BUILD_ENTRY)
+        paths.update((BUILD_ENTRY, packet.RECIPES_LOCK))
+        for flag, expected in (('--recipes', str(root / packet.RECIPES_LOCK)),
+                               ('--recipes-sha256', packet.RECIPES_SHA)):
+            packet.need(command.count(flag) == 1, 'child-recipe-review-pin')
+            index = command.index(flag) + 1
+            packet.need(command[index:index + 1] == [expected], 'child-recipe-review-pin')
     packet.need(paths <= rows.keys(), 'child-source-pin')
     packet.need(sum(rows[name]['bytes'] for name in paths) <= LIMIT * 3 // 4, 'child-source-bound')
     bodies = {}
@@ -180,6 +214,8 @@ def bind(root, entry, command, rows):
         path = root / name
         raw, mode = packet.capture(path, rows[name]['bytes'])
         packet.need(rows[name] == packet.row(raw, mode), 'child-source-pin')
+        if name == packet.RECIPES_LOCK:
+            packet.need(packet.sha(raw) == packet.RECIPES_SHA, 'child-recipe-review-pin')
         bodies[str(path)] = base64.b64encode(raw).decode('ascii')
 
     payload = json.dumps([bodies, {name: str(root / path) for name, path in modules.items()},
