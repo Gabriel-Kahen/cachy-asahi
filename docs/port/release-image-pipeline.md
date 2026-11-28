@@ -15,23 +15,35 @@ the newly created image directly.
 
 ## Dependencies and supported inputs
 
-Adopt the portable encoder's complete twelve-file canonical proposal first. This
-entrypoint pins `metadata_gated_ext4.py` SHA256
-`e39e11f3ad1423ecc11f8fc2a7277bf8c2ea1e9fb718d5f0568778ba670218b1`.
-That bridge checks its six source dependencies and the intake's complete tracked
-bundle. Keep the existing `scripts/virtual/owned_process.py` dependency at SHA256
-`80547f753dc7d13819d727783c669d10a56b7bf832dc05084b5c4b5302cb79d9`.
-There are no ignored packet references or automatic source/tool downloads in the
-production entrypoint. Original code is MIT licensed; upstream archive licensing
-and redistribution approval remain separate.
+Use the committed source graph. The entrypoint and signed-intake adapter pin
+`scripts/platform/metadata_gated_ext4.py` at SHA-256
+`467cbb9562189b79926deb9d15d9b027d7c73d2a27ba07bc01d6740941567227`.
+The bridge and adapter pin `scripts/virtual/owned_process.py` at SHA-256
+`83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f`.
+The entrypoint pins `scripts/platform/signed_archive_intake.py` at SHA-256
+`b7857ba4d83a7475e173f33fc6430fcb0099c3e51d4a312b5b3afc965c30ac91`.
+The CLI uses local inputs and tools. Original code is MIT licensed. Upstream
+archive licensing and redistribution approval remain separate.
 
-The existing authentication profile supports **both** aarch64 NetworkManager
-1.58.1-1 and Perl 5.42.2-2, at their exact retained archive/signature path, byte and
-identity references. It checks the retained historical signature proof graph;
-this invocation does not run a new GPG verification or establish independent
-owner trust. A different version, relocated archive or synthetic package needs a
-separately reviewed intake authentication successor. This CLI never substitutes
-a hash-only or test authentication profile.
+The recipe kind determines which authentication inputs to supply.
+
+- `cachy-asahi-pristine-payload-ext4-v1` uses the retained historical signature
+  proof for exactly two aarch64 packages, NetworkManager 1.58.1-1 and Perl
+  5.42.2-2. Supply the original selection and proof with their exact retained
+  archive/signature paths, hashes and file identities. This path checks the
+  historical proof without running a fresh GPG verification.
+- `cachy-asahi-policy-signed-payload-ext4-v1` uses the
+  [operator-policy signed selection](signed-archive-intake.md#inputs). Supply the
+  canonical selection as `selection` and the canonical operator policy as
+  `authentication`. The policy binds the selection digest, signer windows,
+  public keyring, trusted and revoked lists, and GPG executable. Assembly
+  freshly verifies detached signatures offline before parsing package payloads.
+  The policy and signer windows must be current whenever the recipe is read,
+  including verification and completed-output resume.
+
+Both paths produce an archive-payload image. Independent key ownership,
+distribution rights, full dependency closure, and boot or install qualification
+require their own evidence.
 
 Tool and metadata inputs are separately SHA256-pinned schema2 profiles captured
 for explicit local tool/library configurations. Follow
@@ -58,7 +70,8 @@ The recipe is a UTF-8 JSON file with exactly these fields:
 ```
 
 Replace the placeholders with the actual lowercase SHA256 of each complete file.
-Selection/authentication retain their existing intake schemas. The root policy
+The example uses the historical recipe kind. For the policy-signed kind, change
+`kind` and use the selection and policy schemas above. The root policy
 is exactly `{"mode":493,"uid":0,"gid":0,"acl":null,"xattrs":{}}`;
 it is a generated-root policy proved in a separate image, not an archive root
 ownership claim. Epoch must be an integer from 0 through 2147483647. Duplicate
@@ -75,9 +88,10 @@ older dependency profiles and installed-system recipe kinds refuse.
   --output /absolute/nonexistent-output
 ```
 
-`plan` reads pinned JSON/source files and validates the supported selection. It
-does not open package archives, load native libraries or run native subprocesses;
-authentication and runtime tool/profile acceptance occur during assembly.
+`plan` reads pinned JSON/source files and validates the supported selection,
+including the signer policy for the policy-signed kind. Archive access, signature
+verification where applicable, and native tool/profile checks occur during
+assembly.
 Assembly reuses the existing bridge's intake/verifier/metadata/encoder validators.
 It performs an additional raw readback comparison of every node's type, owner,
 mode, timestamp, attributes, regular contents, symlink and hardlink association.
@@ -125,7 +139,7 @@ allow at most 100,000 nodes, 64 levels and 8GiB total. Existing dependency limit
 also apply. Native child commands use the pinned exclusive-wait supervisor;
 they are never retired with an independently invented PID-signalling path.
 
-## Actual local evidence, 2026-10-27
+## Historical two-package image evidence, 2026-10-27
 
 The development packet ran this CLI from a fresh private projection with
 `/usr/bin/python3` 3.14.7, Linux x86_64, libarchive 3.8.9 and e2fsprogs 1.47.4.
@@ -144,6 +158,8 @@ actors. The final assembly receipt SHA256 is
 The focused 29 pure controls pass with ResourceWarning treated as error. Their
 inert services cover recipe/refusal, publication, input/source drift and artifact
 closure; those tests do not authenticate packages or qualify native tools.
-The actual CLI execution above is separate evidence. No production full-package
-set, fresh trust bootstrap, installed scriptlet state, native ARM/16K, boot,
-physical installation/recovery, M2, performance or release acceptance follows.
+The separate [policy-signed intake record](signed-archive-intake.md#uninterrupted-full-cli-qualification-2026-10-27)
+verified detached signatures and a pristine staging tar for five packages.
+That evidence ends at staging. Full-set image composition, installed state,
+trust bootstrap, native ARM and 16 KiB execution, Asahi boot, physical
+installation and recovery, performance, and release qualification remain open.
