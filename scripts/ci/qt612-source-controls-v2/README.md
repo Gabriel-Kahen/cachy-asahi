@@ -23,10 +23,17 @@ zero skips** on each of Python **3.12.13** and **3.14.6**.
 GUI adapter: 20; producer: 42), the unchanged legacy workflow, seven additional
 public support files, the suite catalog and three new local execution/control
 files. The reused baseline independently checks its 298 frozen recipe/transport
-entries. All those inputs are rechecked after the suites; no C/E/F source family,
-old CI code or shared manifest is modified. A shallow checkout is sufficient;
-this gate compares current file bytes to original Git-derived pins and does not
-fetch or assert historical Git ancestry.
+entries. The successor rechecks the checkout and its temporary source tree after
+the suites. A shallow checkout supplies every required file.
+
+The frozen producer tests read the builder from framework commit
+`620b5b28c4e07cfd23e753bde3de51695a7a7ef8`. The successor verifies the retained
+copy at `packages/tools/cachy-asahi-security-maintenance/build_v2.py` against the
+original size, mode and SHA-256. It places those bytes at
+`scripts/build/build_v2.py` in a temporary tree containing only pinned files.
+The producer and GUI projection tests read that tree, and the report records the
+historical source. The integration checkout keeps the live builder with its
+bounded timeout cleanup.
 
 Each new suite executes in a separate interpreter under a 512 MiB address-space
 cap, 30-second CPU cap and 40-second parent timeout. A permanent audit policy
@@ -57,7 +64,7 @@ are inspected as source data; their previous real operations are not replayed.
 ```sh
 /absolute/python3.12-or-3.14 -I -B -Werror::ResourceWarning \
   scripts/ci/qt612-source-controls-v2/ci.py \
-  --workspace /absolute/composed/checkout \
+  --workspace /absolute/checkout \
   --report /absolute/fresh/report-outside-checkout.json
 ```
 

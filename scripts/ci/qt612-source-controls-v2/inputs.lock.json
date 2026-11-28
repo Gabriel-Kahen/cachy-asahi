@@ -428,6 +428,12 @@
       "path": "scripts/ci/qt612-reference-native-source"
     }
   },
+  "historical_support": {
+    "scripts/build/build_v2.py": {
+      "commit": "620b5b28c4e07cfd23e753bde3de51695a7a7ef8",
+      "source": "packages/tools/cachy-asahi-security-maintenance/build_v2.py"
+    }
+  },
   "kind": "QT612_SOURCE_CONTROLS_SUCCESSOR_LOCK_V1",
   "local_files": {
     "scripts/ci/qt612-source-controls-v2/isolation.py": {
