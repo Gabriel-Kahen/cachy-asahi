@@ -36,7 +36,19 @@ BASELINE = pin(12346, "f335e8430a1d6f8463e95e16524cf78fc224c24fb31cf871772337049
 HISTORICAL_REPLACEMENT = pin(12374, "1e69e2ebe1f1d021fe85a1b0a0f0aaddc8897ff142e7783197419bd8f093b9a6")
 # Set only after reviewing the successor archive, provider payloads and projected lock.
 # Required keys are provider (package() row), payloads (path-to-pin map), and replacement (lock pin).
-QUALIFICATION_TIFF = None
+QUALIFICATION_TIFF = {
+    "provider": {
+        "version": "4.7.2-1.2",
+        "filename": "cachy-asahi-libtiff-4.7.2-1.2-aarch64.pkg.tar.xz",
+        "archive": pin(861952, "f6df34ab9ddd3496407a9dd4707abd44a2270a3abbd3fe6e27862db4dda59e4f"),
+        "signature": None,
+    },
+    "payloads": {
+        "usr/lib/libtiff.so.6.3.0": pin(591976, "1c11df5fcd30e0b8ad285083bff41f7d017670e8f6f94750b70147884141ace4"),
+        "usr/lib/libtiffxx.so.6.3.0": pin(67592, "6f38e390028607be4d3482ae49ba772ba5eceb78554529ce947e79414838bb73"),
+    },
+    "replacement": pin(12374, "78ec10f8d52103af3ab41d6460f63848ac525a447d7e8eb2904e4a1a824a57d8"),
+}
 REPLACEMENT = HISTORICAL_REPLACEMENT if QUALIFICATION_TIFF is None else QUALIFICATION_TIFF["replacement"]
 PLATFORM = pin(88933, "b4d84a4eacba5e57264bdaca91b68034e87cbd4d997975c55e1f2da3688218a7")
 ASAHI_RESULT = pin(1954, "7acb1874ae50cd41910e3bc420e67afbb63147d93140ed7e482faa52e860987b")

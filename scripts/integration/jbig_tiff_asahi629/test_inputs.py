@@ -147,8 +147,9 @@ class AuditTest(unittest.TestCase):
         verifier = I["require_qualified_tiff"]
         with TemporaryDirectory() as folder:
             path = Path(folder) / "cachy-asahi-libtiff-4.7.2-1.2-aarch64.pkg.tar.xz"
-            with self.assertRaisesRegex(ValueError, "awaits an audited pin"):
-                verifier(path)
+            with patch.dict(verifier.__globals__, {"PROVIDERS": I["HISTORICAL_PROVIDERS"]}):
+                with self.assertRaisesRegex(ValueError, "awaits an audited pin"):
+                    verifier(path)
             for info, build, failure in (
                 (metadata, buildinfo, None),
                 (metadata.replace(b"4.7.2-1.2", b"4.7.2-1.1"), buildinfo, "identity"),

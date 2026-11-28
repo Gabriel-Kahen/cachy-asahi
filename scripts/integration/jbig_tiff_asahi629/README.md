@@ -7,8 +7,8 @@ restores both original providers in one inverse transaction, and exercises
 the installed consumers before, during, and after the swap.
 
 The source and passive input checks are available. The signed ARM16K swap
-and runtime remain **NOT RUN**. Qualification is held pending a built and
-audited JPEG-corrected TIFF archive. The earlier [341-package and Minimal206
+and runtime remain **NOT RUN**. A preboot actor reached the control-image
+copy and stopped on host memory pressure before QEMU. The earlier [341-package and Minimal206
 results](../../../docs/validation/project-libraries-native-20261125.md) and
 the [scoped Qt result](../qt612_r132_replacement/README.md) have their own
 inputs and receipts. This lane uses vendor Qt from the original Asahi629
@@ -22,7 +22,7 @@ composition.
 | Original TIFF | `libtiff 4.7.2-1`, archive `02a5d2d74019…` and original ALARM signature `8dae1efda531…` |
 | Project JBIG | `cachy-asahi-jbigkit 2.2-1.1`, retained archive `98636579a965…` |
 | Historical project TIFF | `cachy-asahi-libtiff 4.7.2-1.1`, retained emulated rebuild `085e8293b170…`, passive evidence |
-| Guest qualification TIFF | `cachy-asahi-libtiff 4.7.2-1.2` source successor, archive pin pending |
+| Guest qualification TIFF | `cachy-asahi-libtiff 4.7.2-1.2`, audited Minimal206 archive `f6df34ab9ddd3…` |
 | Rollback checkpoint | 12,346-byte lock `f335e8430a1d…` and 362 protected boot and mount entries `b4d84a4eacba…` |
 | Historical project checkpoint | 12,374-byte lock `1e69e2ebe1f1d021fe85a1b0a0f0aaddc8897ff142e7783197419bd8f093b9a6` |
 
@@ -46,10 +46,9 @@ python3 -I -B "$lane/jpeg_recipe.py" \
   --materialized "$historical_materialized_tiff_source" --output "$fresh_tiff12_source"
 ```
 
-After the scheduled build, review the new TIFF archive, provider payloads
-and projected replacement lock. Record all three in `QUALIFICATION_TIFF`
-in [inputs.py](inputs.py) and repeat the passive audit with
-`--qualification`. Staging and guest admission require the new version,
+The corrected TIFF archive, provider payloads and projected replacement
+lock are pinned in `QUALIFICATION_TIFF` in [inputs.py](inputs.py). Use
+`--qualification` to check these inputs. Staging and guest admission require the new version,
 the exact JPEG dependency in `.PKGINFO`, and the corrected PKGBUILD digest
 in `.BUILDINFO`. The default passive audit still takes the historical
 archive and reproduces its original projection.
@@ -132,7 +131,15 @@ python3 -I -B "$lane/runner.py" \
 
 The runner reuses disk setup, PID 1, supervision, Asahi trust, output and
 retirement from the pinned controller. Only the scoped input packer and
-result reviewer are supplied to its rehearsal method. Two digest-checked
+result reviewer are supplied to its rehearsal method. The scoped runner
+requires a reflink for the control-root and Asahi target copies. The exact
+source, destination and retained options are checked before each copy.
+The selected copies use GNU cp's compatible `--sparse=auto --reflink=always`. A
+filesystem that cannot reflink either copy produces a HOLD with no full-copy
+fallback. The controller still checks the cloned bytes against the input
+hashes before preparing the guest. The host owner records actor memory
+accounting and host swap counters alongside its existing PSI guard.
+Two digest-checked
 worker copies add the checkpoint after the original rollback query, before
 the target API mounts and keyrings retire. The original evidence exporter
 carries the compact scoped result in `evidence/result.json`.
@@ -185,7 +192,7 @@ python3 -I -B "$lane/readback.py" \
 ## Source controls
 
 ```sh
-for test in test_inputs.py test_jpeg_recipe.py test_runtime.py test_lane.py; do
+for test in test_inputs.py test_jpeg_recipe.py test_runtime.py test_lane.py test_reflink.py test_host_telemetry.py; do
   python3 -I -B -Werror::ResourceWarning "$lane/$test" || exit
 done
 ```

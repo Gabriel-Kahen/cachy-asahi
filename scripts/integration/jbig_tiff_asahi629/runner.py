@@ -70,6 +70,21 @@ def scoped_controller(L, stage, record, plan):
     T = L.T
 
     class ScopedController(L.Controller):
+        def command(self, label, name, args, seconds, deadline):
+            if label == "clone-control-root":
+                source = self.paths["control"] / L.CONTROL_FILES / "guest.raw"
+                destination = self.out / "reference.raw"
+            elif label == "clone-asahi-target":
+                source = self.paths["seed"]
+                destination = self.out / "scratch.raw"
+            else:
+                return super().command(label, name, args, seconds, deadline)
+            T.need(name == "cp" and args == ["--sparse=always", "--reflink=never", source, destination],
+                   f"Unexpected owned clone command for {label}")
+            # GNU cp requires sparse=auto when a reflink is mandatory.
+            return super().command(label, name, ["--sparse=auto", "--reflink=always", source, destination],
+                                   seconds, deadline)
+
         def rehearse(self, actual, base, authority_path, authority_digest):
             T.need(base["nonce"] == plan["nonce"] and T.pin(T.encoded(base)) == record["base_plan"],
                    "Base authority and scoped stage refer to different guests")
