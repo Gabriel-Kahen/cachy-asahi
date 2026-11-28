@@ -209,7 +209,7 @@ selected_for_release = false
 native_build = "PASS"
 native_build_commit = "2db02a279cf7dcee90167858f96a543689e45198"
 native_evidence = "docs/validation/ksm-lifecycle-native-20261015.md"
-installation = "NOT RUN"
+installation = "PASS signed disposable native AArch64 install, read-only CLI probes, remove, reinstall and final remove with baseline restoration; supported Asahi target NOT RUN."
 hardware_validation = "NOT RUN"
 next_step = "Current native build pair, signed disposable install/status/remove/reinstall and owned cleanup passed. Test target lifecycle and interruption recovery; safe management and measured target policy remain unfinished."
 
@@ -220,7 +220,7 @@ status = "candidate"
 source = "https://github.com/CachyOS/cachy-update"
 upstream_commit = "e2b1b7144be71cf392809f48d1440f8da1d9c81a"
 recipe = "packages/tools/cachy-asahi-update/PKGBUILD"
-license = "GPL-3.0-or-later"
+license = "GPL-3.0-or-later; MIT"
 audit = "docs/workstreams/cachy-update.md"
 selected_for_development = true
 selected_for_release = false
@@ -254,7 +254,7 @@ selected_for_release = false
 native_build = "PASS"
 native_build_commit = "804b418f14459e82031046fb28a0308b4cb9348e"
 native_evidence = "docs/validation/fdk-current-native-20261015.md"
-installation = "NOT RUN"
+installation = "PASS disposable generic AArch64 provider replacement and restoration with dependent-removal refusal and shipped PipeWire AAC-LC codec probe; target audio and Asahi installation NOT RUN."
 hardware_validation = "NOT RUN"
 next_step = "Native ARM pair, provider replacement/restoration and the shipped PipeWire AAC-LC codec passed; see docs/validation/fdk-provider-native-20261015.md. Verify daemon audio graphs, Bluetooth transport and actual target lifecycle before release selection."
 
@@ -272,7 +272,7 @@ selected_for_release = false
 native_build = "PASS"
 native_build_commit = "4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c"
 native_evidence = "docs/validation/tools-batch-native-20261015.md"
-installation = "NOT RUN"
+installation = "PASS unsigned disposable native AArch64 install, changed-version upgrade, remove, reinstall and final remove with installed interactive checks; supported Asahi target NOT RUN."
 hardware_validation = "NOT RUN"
 next_step = "Native ARM pair, lifecycle and real installed suggestion/editing/user-binding checks passed; see docs/validation/tools-interactive-native-20261015.md. Test remaining shell modes, both target Air workflows and signed release integration."
 
@@ -289,7 +289,7 @@ selected_for_release = false
 native_build = "PASS"
 native_build_commit = "4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c"
 native_evidence = "docs/validation/tools-batch-native-20261015.md"
-installation = "NOT RUN"
+installation = "PASS unsigned disposable native AArch64 install, changed-version upgrade, remove, reinstall and final remove with controlled live-process checks; supported Asahi target NOT RUN."
 hardware_validation = "NOT RUN"
 next_step = "Native ARM pair, lifecycle and controlled live-process PID/RSS/limit checks passed; see docs/validation/tools-interactive-native-20261015.md. Verify both target Air workflows and wider process conditions; no performance gain is claimed."
 
