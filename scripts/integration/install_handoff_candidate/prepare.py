@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[3]
 PACKAGE_ROOT = ROOT/'packages/tools/cachy-asahi-install-handoff'
 PACKAGE_SHA = 'cf34935122855ca6aaa02f4c11987d53530e0e729c03698fa03aa1586ffac59e'
 IMAGE = 'sha256:30cfe09952ef8d9bfabd64224185c97021b260d47bb83941fec5bae7bdd16145'
-LIFECYCLE_SHA = 'c3223a1bd4002683071f4442e1f5b9caf439c68c4e231da10039cc9cebcdb52b'
+LIFECYCLE_SHA = '1f4d8763e3380f700b75e0a2be4980eb3a0550977280db7997c655d50f842e73'
 
 
 def load(name, path):
