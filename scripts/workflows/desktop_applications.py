@@ -42,6 +42,10 @@ def absolute(value):
     return '/' + '/'.join(parts)
 
 
+class NonRegularStagedFile(ValueError):
+    """A staged path resolved to a node that is not a regular file."""
+
+
 class Stage:
     """Descriptor-relative reads; symlinks are interpreted in the staged namespace.
 
@@ -100,14 +104,14 @@ class Stage:
                 if not last or directory:
                     flags |= os.O_DIRECTORY
                 elif not stat.S_ISREG(info.st_mode):
-                    raise ValueError('not a regular staged file: ' + path)
+                    raise NonRegularStagedFile('not a regular staged file: ' + path)
                 new = os.open(name, flags, dir_fd=fd)
                 os.close(fd)
                 fd = new
                 done.append(name)
             info = os.fstat(fd)
             if not directory and not stat.S_ISREG(info.st_mode):
-                raise ValueError('not a regular staged file: ' + path)
+                raise NonRegularStagedFile('not a regular staged file: ' + path)
             return fd, {'path': path, 'resolved': '/' + '/'.join(done),
                         'mode': oct(stat.S_IMODE(info.st_mode)), 'symlinks': links}
         except BaseException:
@@ -405,13 +409,19 @@ class Audit:
     def executable(self, name, path=None, ancestry=()):
         if not name or '=' in name or ('/' in name and not name.startswith('/')):
             raise ValueError('executable must be basename or absolute: ' + repr(name))
-        candidates = [name] if name.startswith('/') else [x + '/' + name for x in (path or self.env['PATH']).split(':')]
+        explicit = name.startswith('/')
+        candidates = [name] if explicit else [x + '/' + name for x in (path or self.env['PATH']).split(':')]
         attempts = []
         for candidate in candidates:
             try:
                 raw, record = self.stage.read(candidate, FILE_CAP)
             except FileNotFoundError:
                 attempts.append({'path': candidate, 'reason': 'missing'})
+                continue
+            except (NonRegularStagedFile, NotADirectoryError):
+                if explicit:
+                    raise
+                attempts.append({'path': candidate, 'reason': 'not_regular_file'})
                 continue
             if not int(record['mode'], 8) & 0o111:
                 attempts.append({'path': candidate, 'reason': 'no_execute_mode_bit'})
@@ -588,7 +598,19 @@ class Audit:
         if '/' in name:
             raise ValueError('icon name must be basename or absolute path')
         bases = [self.env['HOME'] + '/.icons', self.env['XDG_DATA_HOME'] + '/icons'] + [x + '/icons' for x in self.env['XDG_DATA_DIRS'].split(':')]
+        wanted_size, wanted_scale = self.env['icon_size'], self.env['icon_scale']
+        wanted = wanted_size * wanted_scale
         seen, indexes = set(), []
+
+        def find_icon(directories):
+            for directory in directories:
+                for ext in ('.png', '.svg', '.xpm'):
+                    found = self.stage.optional(directory + '/' + name + ext)
+                    if found:
+                        _, receipt = found
+                        return receipt
+            return None
+
         def theme_lookup(theme):
             if theme in seen:
                 return None
@@ -609,8 +631,8 @@ class Audit:
             directories = [x for x in (main.get('Directories', '') + ',' + main.get('ScaledDirectories', '')).split(',') if x]
             if len(directories) > 1024:
                 raise ValueError('icon theme directory count cap')
-            candidates = []
-            for order, sub in enumerate(dict.fromkeys(directories)):
+            exact, closest = [], []
+            for sub in dict.fromkeys(directories):
                 if sub.startswith('/') or '..' in sub.split('/'):
                     raise ValueError('unsafe icon theme directory')
                 group = index[sub]
@@ -622,34 +644,27 @@ class Audit:
                 high = int(group.get('MaxSize', str(size))) if kind == 'Scalable' else size + int(group.get('Threshold', '2')) if kind == 'Threshold' else size
                 if kind not in ('Fixed', 'Scalable', 'Threshold') or low > high:
                     raise ValueError('invalid icon directory type/range')
-                wanted = self.env['icon_size'] * self.env['icon_scale']
-                distance = max(low * scale - wanted, wanted - high * scale, 0)
-                exact = scale == self.env['icon_scale'] and low <= self.env['icon_size'] <= high
-                for base in bases:
-                    for ext in ('.png', '.svg', '.xpm'):
-                        found = self.stage.optional(base + '/' + theme + '/' + sub + '/' + name + ext)
-                        if found:
-                            _, receipt = found
-                            candidates.append((not exact, distance, order, receipt))
-            if candidates:
-                # Stable sort preserves base-directory then extension precedence.
-                return sorted(candidates, key=lambda x: x[:3])[0][3]
+                if scale == wanted_scale and low <= wanted_size <= high:
+                    exact.append(sub)
+                else:
+                    distance = max(low * scale - wanted, wanted - high * scale, 0)
+                    closest.append((distance, sub))
+            found = find_icon(base + '/' + theme + '/' + sub for sub in exact for base in bases)
+            if found:
+                return found
+            # Equal distances retain the theme's declared directory order.
+            closest.sort(key=lambda item: item[0])
+            found = find_icon(base + '/' + theme + '/' + sub for _, sub in closest for base in bases)
+            if found:
+                return found
             for parent in main.get('Inherits', '').split(','):
                 if parent and parent != 'hicolor':
                     found = theme_lookup(parent)
                     if found:
                         return found
             return None
-        record = theme_lookup(self.env['icon_theme']) or theme_lookup('hicolor')
-        if not record:
-            for base in bases + ['/usr/share/pixmaps']:
-                for ext in ('.png', '.svg', '.xpm'):
-                    found = self.stage.optional(base + '/' + name + ext)
-                    if found:
-                        _, record = found
-                        break
-                if record:
-                    break
+        record = (theme_lookup(self.env['icon_theme']) or theme_lookup('hicolor') or
+                  find_icon(bases + ['/usr/share/pixmaps']))
         return {'status': 'FOUND' if record else 'MISSING', 'name': name,
                 'file': record, 'theme_indexes': indexes, 'themes_checked': sorted(seen),
                 'rendering': 'NOT_RUN (SVG support assumed for selection)'}

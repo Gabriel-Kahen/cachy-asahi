@@ -238,6 +238,18 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(value['file']['path'], '/usr/bin/app')
         self.assertEqual(value['search_misses'][0]['reason'], 'no_execute_mode_bit')
 
+    def test_directory_first_path_candidate_allows_later_binary(self):
+        (self.root / 'usr/local/bin/app').mkdir(parents=True)
+        self.desktop(extra='TryExec=app\n')
+        report = self.run_audit()
+        self.assertEqual(report['status'], 'PASS_STAGED_CHECKS')
+        app = report['applications'][0]
+        for value in (app['exec']['resolution'], app['try_exec']):
+            self.assertEqual(value['file']['path'], '/usr/bin/app')
+            self.assertEqual(value['search_misses'], [
+                {'path': '/usr/local/bin/app', 'reason': 'not_regular_file'},
+            ])
+
     def test_missing_shebang_interpreter_is_not_available(self):
         self.write('/usr/bin/app', '#!/usr/bin/python3\nprint("never executed")\n', 0o755)
         report = self.run_audit()
@@ -399,9 +411,13 @@ class FixtureTests(unittest.TestCase):
     def test_fifo_and_symlink_loop_refused_without_blocking(self):
         (self.root / 'usr/bin/app').unlink()
         os.mkfifo(self.root / 'usr/bin/app')
+        app = self.run_audit()['applications'][0]
+        self.assertEqual(app['exec']['resolution']['search_misses'][-1]['reason'], 'not_regular_file')
+        self.desktop(body='[Desktop Entry]\nType=Application\nName=Fixture\nExec=/usr/bin/app\n')
         self.assertIn('not a regular', self.run_audit()['applications'][0]['error'])
         (self.root / 'usr/bin/app').unlink()
         (self.root / 'usr/bin/app').symlink_to('app')
+        self.desktop()
         self.assertIn('symlink loop/limit', self.run_audit()['applications'][0]['error'])
 
     def test_icon_exact_size_before_closest_and_theme_inheritance(self):
@@ -417,6 +433,36 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(icon['file']['path'], '/usr/share/icons/selected/48x48/apps/fixture.png')
         (self.root / icon['file']['path'].lstrip('/')).unlink()
         self.assertEqual(self.run_audit()['applications'][0]['icon']['file']['path'], '/usr/share/icons/selected/16x16/apps/fixture.png')
+
+    def test_icon_audit_stops_at_first_exact_file(self):
+        self.theme('hicolor', [('first', 48, 'Fixed', '')] + [
+            (f'other{i}', 48, 'Fixed', '') for i in range(99)
+        ])
+        entries = []
+        for i in range(84):
+            entries.append(f'app{i}.desktop')
+            self.desktop(entries[-1], extra=f'Icon=fixture{i}\n')
+            path = self.write(f'/usr/share/icons/hicolor/first/fixture{i}.png', b'first choice')
+            path.with_suffix('.svg').mkdir()
+        report = self.run_audit(entries)
+        self.assertEqual(report['status'], 'PASS_STAGED_CHECKS')
+        self.assertEqual(len(report['applications']), len(entries))
+        self.assertLess(report['budget_used']['open_attempts'], 2000)
+        for i, app in enumerate(report['applications']):
+            self.assertEqual(app['icon']['file']['path'],
+                             f'/usr/share/icons/hicolor/first/fixture{i}.png')
+
+    def test_icon_closest_breaks_ties_in_theme_directory_order(self):
+        self.desktop(extra='Icon=fixture\n')
+        self.theme('hicolor', [
+            ('far', 16, 'Fixed', ''), ('z-near', 32, 'Fixed', ''), ('a-near', 64, 'Fixed', ''),
+        ])
+        self.write('/usr/share/icons/hicolor/far/fixture.png', b'far')
+        self.write('/usr/share/icons/hicolor/z-near/fixture.xpm', b'first near')
+        self.write('/home/fixture/.icons/hicolor/a-near/fixture.png', b'second near')
+        report = self.run_audit()
+        self.assertEqual(report['applications'][0]['icon']['file']['path'],
+                         '/usr/share/icons/hicolor/z-near/fixture.xpm')
 
     def test_icon_parent_hicolor_and_unthemed_fallback(self):
         self.env['icon_theme'] = 'selected'
