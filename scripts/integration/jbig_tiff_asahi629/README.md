@@ -109,8 +109,19 @@ python3 -I -B "$lane/stage.py" \
 ```
 
 This command verifies the two project signatures and produces the unissued
-stage. The retained Asahi629 binding uses the same nonce and Preview
-manifest. The coordinator selects the exact original binding and stage in
+stage. The outer owner admits the bounded systemd worker and enforces its
+resource limits. Inside that worker, pass
+`--worker-phase-log "$private_phase_log"` to record the Preview rehash and
+library TEST signature checks with the worker's memory PSI and file and
+anonymous memory counters. The worker verifies each selected Preview file
+of 1 MiB or larger through a pinned descriptor and advises discard for
+fully consumed pages. It checks the final partial page, file size, digest
+and identity. The host-only GPG preflight disables agent autostart and uses
+a temporary home under the worker's private runtime directory.
+During packet preparation, use `Worker.held_disk` with the selected plan's
+held-disk pin to apply the same descriptor checks and record its own phase.
+The retained Asahi629 binding uses the same nonce and Preview manifest.
+The coordinator selects the exact original binding and stage in
 a canonical `ROOT_ASAHI629_JBIG_TIFF_SELECTION_V1` record with `issuer`
 `Root`, `approval_status` `UNAPPROVED`, `nonce`, and exact `authority` and
 `stage` byte pins. The `stage` pin is the digest of

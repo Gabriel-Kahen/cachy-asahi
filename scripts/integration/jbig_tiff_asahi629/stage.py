@@ -2,6 +2,8 @@
 """Prepare an unissued JBIG/TIFF extension of the retained Asahi629 guest plan."""
 
 import argparse
+from contextlib import nullcontext
+from functools import partial
 import json
 from pathlib import Path
 import re
@@ -113,24 +115,25 @@ def derive(L, base, review):
                    "jbig_tiff": {"test_review": review}, "jbig_tiff_media": pins}, code
 
 
-def host_test(L, folder, review):
+def host_test(L, folder, review, *, runtime_directory=None):
     T, G = L.T, L.G
     I.require_qualified_tiff(folder / I.PROVIDERS[I.PROJECT_TIFF]["filename"])
     now = int(time.time())
     G.current_test(T, review, now, remaining=G.TIMEOUT)
-    with tempfile.TemporaryDirectory(prefix="jbig-tiff-preflight-") as path:
+    with tempfile.TemporaryDirectory(prefix="jbig-tiff-preflight-", dir=runtime_directory) as path:
         home = Path(path)
+        gpg = partial(ENTRY.gpg, home, "--no-autostart")
         cert = T.read(folder / ENTRY.CERTIFICATE, review["certificate"], cap=64 << 10)
-        ENTRY.gpg(home, "--import", data=cert)
-        listing = ENTRY.gpg(home, "--with-colons", "--fingerprint", "--list-keys")
+        gpg("--import", data=cert)
+        listing = gpg("--with-colons", "--fingerprint", "--list-keys")
         T.need(G.key_listing(T, listing) == {review["fingerprint"]: {
             key: review[key] for key in ("not_before", "not_after")}}, "TEST certificate review differs from public input")
-        G.public_only(T, ENTRY.gpg(home, "--with-colons", "--list-secret-keys"))
+        G.public_only(T, gpg("--with-colons", "--list-secret-keys"))
         for name, sig in review["signatures"].items():
             archive = folder / I.PROVIDERS[name]["filename"]
             T.read(archive, I.PROVIDERS[name]["archive"], cap=2 << 20, collect=False)
             T.read(archive.with_name(archive.name + ".sig"), sig, cap=64 << 10, collect=False)
-            raw = ENTRY.gpg(home, "--status-fd", "1", "--verify", "--", str(archive) + ".sig", str(archive))
+            raw = gpg("--status-fd", "1", "--verify", "--", str(archive) + ".sig", str(archive))
             G.test_signature(T, raw, review, int(time.time()))
 
 
@@ -150,11 +153,14 @@ def put(path, body):
 
 
 def prepare(L, *, preview, nonce, official_cache, project_jbig, project_tiff, test_inputs, test_review,
-            test_review_sha256, output):
+            test_review_sha256, output, worker=None):
     T = L.T
     I.require_qualified_tiff(project_tiff)
     media, pin = stage_paths(T, preview, nonce)
-    L.O.rehash(T, preview, media)
+    if worker is None:
+        L.O.rehash(T, preview, media)
+    else:
+        worker.rehash_preview(T, L.O, preview, media)
     L.O.check_current_trust(T, media, int(time.time()))
     raw = T.read(test_review, cap=64 << 10)
     review = ENTRY.review_shape(T, T.decode(raw), I.PROJECT)
@@ -180,7 +186,9 @@ def prepare(L, *, preview, nonce, official_cache, project_jbig, project_tiff, te
             put(output / "code" / leaf, data)
         for leaf, data in body.items():
             put(output / "inputs" / leaf, data)
-        host_test(L, output / "inputs/jbig-tiff", review)
+        signature_phase = worker.phase("library-test-signatures") if worker else nullcontext()
+        with signature_phase:
+            host_test(L, output / "inputs/jbig-tiff", review, runtime_directory=worker.runtime if worker else None)
         packed = T.encoded(plan)
         put(output / PLAN, packed)
         record = dict(kind=KIND, nonce=nonce, authority=None, execution="NOT RUN", plan=T.pin(packed),
@@ -200,8 +208,15 @@ def main():
         parser.add_argument("--" + name, type=Path, required=True)
     for name in ("nonce", "test-review-sha256"):
         parser.add_argument("--" + name, required=True)
+    parser.add_argument("--worker-phase-log", type=Path, help="Record phases inside an admitted bounded systemd worker")
+    args = vars(parser.parse_args())
+    phase_log = args.pop("worker_phase_log")
     try:
-        result = prepare(legacy(), **vars(parser.parse_args()))
+        worker_context = nullcontext()
+        if phase_log is not None:
+            worker_context = run_path(str(HERE / "refresh_preflight.py"))["systemd_worker"](phase_log)
+        with worker_context as worker:
+            result = prepare(legacy(), worker=worker, **args)
     except (ValueError, OSError, KeyError, TypeError) as error:
         parser.exit(1, f"JBIG/TIFF stage refused: {error}\n")
     print(json.dumps(result, indent=2, sort_keys=True))
