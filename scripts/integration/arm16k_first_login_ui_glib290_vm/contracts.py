@@ -16,13 +16,8 @@ def pin(path):
 def checked(path,ref):
  if not isinstance(ref,dict)or set(ref)!={'bytes','sha256'}or type(ref['bytes'])is not int or not 0<ref['bytes']<=4*1024**3 or not re.fullmatch('[0-9a-f]{64}',ref.get('sha256',''))or pin(path)!=ref:raise ValueError('exact finite input pin required')
  return Path(path)
-def public_packet_reader(refs):
- dependency = refs['public_packets_dependency']
- ref = refs['public_packets']
+def public_packet_source(ref):
  path = Path(ref['path'])
- if Path(dependency['path']) != path.resolve().with_name('enroll.py'):
-  raise ValueError('public packet reader dependency path differs')
- checked(dependency['path'], {key: dependency[key] for key in ('bytes', 'sha256')})
  size = ref['bytes']
  if type(size) is not int or not 0 < size <= 1024**2:
   raise ValueError('exact finite public packet reader pin required')
@@ -33,9 +28,19 @@ def public_packet_reader(refs):
   raw = stream.read(size + 1)
  if len(raw) != size or hashlib.sha256(raw).hexdigest() != ref['sha256']:
   raise ValueError('exact finite public packet reader pin required')
+ return raw
+def public_packet_reader(refs):
+ dependency = refs['public_packets_dependency']
+ ref = refs['public_packets']
+ path = Path(ref['path'])
+ if Path(dependency['path']) != path.resolve().with_name('enroll.py'):
+  raise ValueError('public packet reader dependency path differs')
+ enrollment_source = public_packet_source(dependency)
+ raw = public_packet_source(ref)
  spec = importlib.util.spec_from_file_location('UI_public_only_packets', path)
  module = importlib.util.module_from_spec(spec)
- # Compile the authenticated read directly. Python -B still allows bytecode reads.
+ # Supply the authenticated dependency to the revoker without reopening its path.
+ module._enrollment_source = enrollment_source
  exec(compile(raw, str(path), 'exec'), vars(module))
  return module
 def read(path,maximum=8*1024**2):

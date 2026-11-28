@@ -32,9 +32,9 @@
     "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
   },
   "public_packets": {
-    "bytes": 14929,
+    "bytes": 15102,
     "path": "scripts/repository/revoke.py",
-    "sha256": "8014f03092090b00c1fe389ae2d679fac7804bdc45e85d2140aedd37ed244595"
+    "sha256": "2066921c8e5fc6a6706a4d332de661b79e2a5966a806c0a50e3494b637230167"
   },
   "public_packets_dependency": {
     "bytes": 20142,

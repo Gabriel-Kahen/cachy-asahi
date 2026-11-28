@@ -331,4 +331,35 @@ class NamespaceControls(Fenced):
      K.public_packet_reader(refs)
     path.write_bytes(raw)
 
+ def test_public_packet_reader_keeps_authenticated_dependency_after_replacement(self):
+  work = Path(self.enterContext(tempfile.TemporaryDirectory()))
+  parser = work / 'revoke.py'
+  shutil.copyfile(K.ROOT / 'scripts/repository/revoke.py', parser)
+  dependency = work / 'enroll.py'
+  approved = b'SOURCE_REVISION = "reviewed"\n'
+  dependency.write_bytes(approved)
+  replacement = work / 'replacement.py'
+  replacement.write_bytes(b'SOURCE_REVISION = "replacement"\n')
+  refs = {
+   'public_packets': {'path': str(parser), **K.pin(parser)},
+   'public_packets_dependency': {'path': str(dependency), **K.pin(dependency)},
+  }
+
+  def file_digest(stream, algorithm):
+   digest = hashlib.file_digest(stream, algorithm)
+   if Path(stream.name) == dependency:
+    replacement.replace(dependency)
+   return digest
+
+  def sha256(raw):
+   digest = hashlib.sha256(raw)
+   if raw == approved:
+    replacement.replace(dependency)
+   return digest
+
+  with patch.object(K, 'hashlib', types.SimpleNamespace(file_digest=file_digest, sha256=sha256)):
+   module = K.public_packet_reader(refs)
+  self.assertFalse(replacement.exists())
+  self.assertEqual(module.E.SOURCE_REVISION, 'reviewed')
+
 if __name__=='__main__':unittest.main()
