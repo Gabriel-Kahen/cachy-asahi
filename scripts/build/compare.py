@@ -34,9 +34,10 @@ def verify_inventory(path):
 
 
 def srcinfo_lines(path):
-    # Match the container's comparison, which skips blanks and full-line comments.
-    return [line for line in path.read_bytes().split(b'\n')
-            if line.strip() and not line.lstrip().startswith(b'#')]
+    # glibc C.UTF-8 [[:space:]], as used by the builder's sed filter.
+    space = ' \t\r\v\f\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2008\u2009\u200a\u2028\u2029\u205f\u3000'
+    return [line for line in path.read_bytes().decode('utf-8').split('\n')
+            if (body := line.lstrip(space)) and not body.startswith('#')]
 
 
 def verify(path):
@@ -76,6 +77,12 @@ def verify(path):
     snapshot = recipe(inputs / 'PKGBUILD')
     if snapshot['input_sha256'] != record['recipe_inputs']:
         raise ValueError(f'{path}: changed recipe snapshot')
+    # The scoped audio adapter supplies its own archive policy for protected names.
+    # Defer that finding to the archive check, which binds the same package name.
+    name_errors = {f'protected platform package name: {name}' for name in snapshot['metadata'].get('pkgname', [])}
+    errors = [error for error in snapshot['errors'] if error not in name_errors]
+    if errors:
+        raise ValueError(f'{path}: recipe snapshot fails builder preflight: {errors}')
     if snapshot['metadata'] != record.get('recipe_metadata'):
         raise ValueError(f'{path}: recorded recipe metadata differs from recipe snapshot')
     generated_path = path / 'artifacts/generated.SRCINFO'
