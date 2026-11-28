@@ -26,6 +26,8 @@ jobs:
   source-data:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    env:
+      CLIENT_V3_FROZEN_SHA: fe468313d92066fc97bbc6cad3fed029517d92d3
     strategy:
       fail-fast: false
       matrix:
@@ -37,15 +39,25 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
-      - name: Check NEW10 selected-state binding controls
+      - name: Check live v3 state and publication controls
         run: >-
           timeout --signal=TERM --kill-after=5s 60s
           python3 -I -B -Werror scripts/client/test_state_binding_v3.py
-      - name: Check exact source, unchanged runtime dependency and seven-file DATA payload
+      - name: Check out the v3 source matching the frozen package bytes
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: ${{ env.CLIENT_V3_FROZEN_SHA }}
+          path: client-v3-frozen-source
+          sparse-checkout: scripts/client
+          persist-credentials: false
+      - name: Check historical source, runtime dependency and seven-file DATA payload
         run: |
           set -euo pipefail
           ulimit -t 60 -v 1048576 -f 4096 -n 128
+          frozen="$GITHUB_WORKSPACE/client-v3-frozen-source"
+          test "$(git -C "$frozen" rev-parse HEAD)" = "$CLIENT_V3_FROZEN_SHA"
           recipe="$GITHUB_WORKSPACE/packages/tools/cachy-asahi-repository-client-v3"
           runtime="$GITHUB_WORKSPACE/packages/tools/cachy-asahi-repository-runtime"
-          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror "$recipe/check_source.py" --canonical-root "$GITHUB_WORKSPACE" --runtime-recipe-root "$runtime"
-          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror "$recipe/test_package.py" --canonical-root "$GITHUB_WORKSPACE" --runtime-recipe-root "$runtime"
+          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror "$recipe/check_source.py" --canonical-root "$frozen" --runtime-recipe-root "$runtime"
+          timeout --signal=TERM --kill-after=5s 60s python3 -I -B -Werror "$recipe/test_package.py" --canonical-root "$frozen" --runtime-recipe-root "$runtime"
