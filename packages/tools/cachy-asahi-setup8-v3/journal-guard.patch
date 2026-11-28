@@ -1,0 +1,65 @@
+diff --git a/setup.py b/setup.py
+index d925620..bb6fc8f 100644
+--- a/setup.py
++++ b/setup.py
+@@ -551,8 +551,13 @@ class Setup:
+             before = self.fs.read(group['path'])['data']
+             actual = checksum(before)
+             for entry in group.get('chain', [group]):
+-                action = 'remove' if entry.get('new_record') is None else 'add' if entry.get('old_record') is None else 'update'
+-                actions.append({'component': entry['component'], 'path': group['path'],
++                component = entry['component']
++                record = entry.get('new_record')
++                if record is not None and record['kind'] == 'block':
++                    # Replay adds or retains a source directive to this live shell template.
++                    self.source(component, record['source_root'])
++                action = 'remove' if record is None else 'add' if entry.get('old_record') is None else 'update'
++                actions.append({'component': component, 'path': group['path'],
+                                 'status': 'already-applied' if actual == group['after'] else 'would-' + action})
+             if actual == group['after']:
+                 self.check_order(before, new_state['components'], group['path'])
+@@ -712,9 +717,13 @@ class Setup:
+                 'state': {'status': state_status}, 'pending': pending, 'actions': actions,
+                 'guidance': guidance, 'exit_code': 1 if incomplete else 2 if attention else 0}
+
+-    def run(self, operation, components=(), apply=False):
++    def run(self, operation, components=(), apply=False, *, expected_journal=None):
+         if operation not in ('activate', 'remove', 'recover', 'status') or not set(components) <= set(ALL_COMPONENTS):
+             raise Error('Unrecognized operation/components')
++        if expected_journal is not None and not (
++                (operation == 'activate' and expected_journal == 'none')
++                or (operation == 'recover' and re.fullmatch(r'none|[0-9a-f]{32}', expected_journal))):
++            raise Error('Use --expected-journal none for activation or a reviewed journal ID for recovery')
+         if operation == 'status':
+             if apply:
+                 raise Error('Status is read-only; --apply is not supported')
+@@ -728,6 +737,12 @@ class Setup:
+         lock = self.fs.lock(self.lock_path) if apply else None
+         try:
+             journal = self.load(self.journal_path)
++            # Apply checks the journal under the lock shared with migration.
++            matches = journal is None if expected_journal == 'none' else (
++                journal is not None and journal.get('id') == expected_journal)
++            if expected_journal is not None and not matches:
++                return {'mode': 'read-only', 'operation': operation, 'actions': [],
++                        'journal_changed': True, 'exit_code': 2}
+             recovered = False
+             if journal:
+                 self.validate_journal(journal)
+@@ -784,6 +799,7 @@ def main():
+     parser.add_argument('operation', choices=('activate', 'remove', 'recover', 'status'))
+     parser.add_argument('--components', nargs='+', choices=ALL_COMPONENTS)
+     parser.add_argument('--apply', action='store_true', help='perform the previewed operation; default is read-only')
++    parser.add_argument('--expected-journal', help='require no pending journal (none) or the reviewed recovery ID')
+     parser.add_argument('--home', type=Path, help='explicit user home; tests use temporary homes')
+     parser.add_argument('--template-root', type=Path, default=Path('/usr/share/cachy-asahi'))
+     parser.add_argument('--config-home', type=Path)
+@@ -805,7 +821,7 @@ def main():
+         setup = Setup(home, args.template_root,
+                       relative_directory(home, config, '.config'), relative_directory(home, zsh, '.'),
+                       relative_directory(home, state, '.local/state/cachy-asahi/setup'))
+-        result = setup.run(args.operation, args.components or (), args.apply)
++        result = setup.run(args.operation, args.components or (), args.apply, expected_journal=args.expected_journal)
+         print(json.dumps(result, indent=2, sort_keys=True))
+         return result.get('exit_code', 2 if result.get('preserved_conflicts') or result.get('pending_transaction') else 0)
+     except (Error, OSError, UnicodeError, ValueError, KeyError, TypeError) as error:

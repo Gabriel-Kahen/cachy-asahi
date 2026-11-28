@@ -1,0 +1,7 @@
+cachy-asahi-first-login 0.1.0-2
+Original project code, copyright 2026 cachy-asahi contributors, MIT licensed.
+
+This opt-in helper delegates configuration ownership and recovery to the
+separately installed cachy-asahi-setup package. Its retained Setup8 fixture is
+used only for package checks and is not installed or substituted for that helper.
+No installer, autostart, package scriptlet, service or boot integration is included.

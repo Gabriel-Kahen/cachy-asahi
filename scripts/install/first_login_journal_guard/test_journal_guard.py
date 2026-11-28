@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: MIT
 """Exercise the successor First Login and Setup entry points in temporary homes."""
+import errno
 import importlib.util
+import json
 import os
 from pathlib import Path
 import shlex
@@ -11,19 +13,23 @@ import unittest
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[3]
-FIRST = Path('scripts/install/first_login.py')
-SETUP = Path('scripts/setup8/setup.py')
-PATCH = Path(__file__).with_name('journal-guard.patch').resolve()
+TOOLS = ROOT / 'packages/tools'
+FIRST_RECIPE = TOOLS / 'cachy-asahi-first-login-v4'
+SETUP_RECIPE = TOOLS / 'cachy-asahi-setup8-v3'
 
 
-def stage_sources(destination):
-    # Keep the accepted source snapshots usable for their frozen package recipes.
-    for relative in (FIRST, SETUP):
-        path = destination / relative
-        path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(ROOT / relative, path)
-    subprocess.run(['git', 'apply', str(PATCH)], cwd=destination, check=True)
-    (destination / SETUP).chmod(0o700)
+def stage_pair(destination):
+    setup_sources = destination / 'setup sources'
+    shutil.copytree(SETUP_RECIPE, setup_sources)
+    stage = destination / 'package payload'
+    for recipe, sources in ((SETUP_RECIPE, setup_sources), (FIRST_RECIPE, FIRST_RECIPE)):
+        subprocess.run(
+            ['bash', '-euc', 'source "$1"; srcdir=$2; pkgdir=$3; '
+             'if declare -F prepare >/dev/null; then prepare; fi; package',
+             'stage', str(recipe / 'PKGBUILD'), str(sources), str(stage)],
+            cwd=destination, check=True,
+        )
+    return stage / 'usr'
 
 
 def load_module(name, path):
@@ -38,11 +44,12 @@ class JournalGuardTests(unittest.TestCase):
     def setUpClass(cls):
         source = tempfile.TemporaryDirectory(prefix='first-login-source-')
         cls.addClassCleanup(source.cleanup)
-        destination = Path(source.name)
-        stage_sources(destination)
-        cls.first = load_module('guarded_first_login', destination / FIRST)
-        cls.setup = load_module('guarded_setup', destination / SETUP)
-        cls.helper = destination / SETUP
+        prefix = stage_pair(Path(source.name))
+        cls.first = load_module('guarded_first_login', prefix / 'lib/cachy-asahi/first-login/first_login.py')
+        cls.private_setup = prefix / 'lib/cachy-asahi/setup8/setup.py'
+        cls.setup = load_module('guarded_setup', cls.private_setup)
+        cls.helper = prefix / 'bin/cachy-asahi-setup'
+        cls.launcher = prefix / 'bin/cachy-asahi-first-login'
 
     def setUp(self):
         fixture = tempfile.TemporaryDirectory(prefix='first-login-guard-')
@@ -69,12 +76,20 @@ class JournalGuardTests(unittest.TestCase):
                 engine.run('activate', (component,), True)
         return engine.load(engine.journal_path)['id']
 
-    def run_first(self, *arguments, helper=None, run=None):
-        args = self.first.parser().parse_args([
+    def arguments(self, arguments, helper=None):
+        return [
             *arguments, '--setup-helper', str(helper or self.helper),
             '--home', str(self.home), '--template-root', str(self.templates),
-        ])
+        ]
+
+    def run_first(self, *arguments, helper=None, run=None):
+        args = self.first.parser().parse_args(self.arguments(arguments, helper))
         return self.first.execute(args, run=run or self.first.invoke, executable=lambda *_: True)
+
+    def test_delivered_setup_matches_private_module_and_first_login_fixture(self):
+        self.assertEqual(self.helper.read_bytes(), self.private_setup.read_bytes())
+        self.assertEqual(self.helper.read_bytes(), (FIRST_RECIPE / 'setup8-fixture.py').read_bytes())
+        self.assertTrue(os.access(self.helper, os.X_OK))
 
     def test_fish_activation_refuses_zsh_journal_arriving_after_preview(self):
         def invoke(command):
@@ -118,8 +133,11 @@ class JournalGuardTests(unittest.TestCase):
         self.zsh.symlink_to(link)
         before = self.journal.read_bytes()
 
-        report, code = self.run_first('recover')
-        self.assertEqual((report['status'], code), ('recovery-preview', 2))
+        preview = subprocess.run([str(self.launcher), *self.arguments(('recover',))],
+                                 capture_output=True, text=True, timeout=10)
+        self.assertEqual(preview.returncode, 2, preview.stderr)
+        report = json.loads(preview.stdout)
+        self.assertEqual(report['status'], 'recovery-preview')
         self.assertEqual(report['setup_status']['exit_code'], 1)
         self.assertEqual([row['component'] for row in report['setup_result']['actions']], ['fish'])
         self.assertEqual(self.journal.read_bytes(), before)
@@ -152,6 +170,51 @@ class JournalGuardTests(unittest.TestCase):
         self.assertFalse(self.fish.exists())
         self.assertFalse(self.zsh.exists())
         self.assertFalse(self.state.exists())
+
+    def test_recovery_refuses_affected_template_symlink_under_apply_lock(self):
+        journal_id = self.interrupt('fish')
+        before = self.journal.read_bytes()
+        source = self.templates / self.setup.TEMPLATES['fish']
+        original = source.read_bytes()
+        outside = self.root / 'outside template'
+        outside.write_bytes(b'# unrelated user file\n')
+        report, code = self.run_first('recover')
+        self.assertEqual((report['status'], code), ('recovery-preview', 2))
+        lock = self.engine.fs.lock
+
+        def acquire(path):
+            fd = lock(path)
+            source.unlink()
+            source.symlink_to(outside)
+            return fd
+
+        with mock.patch.object(self.engine.fs, 'lock', side_effect=acquire):
+            with self.assertRaises(OSError) as refusal:
+                self.engine.run('recover', apply=True, expected_journal=journal_id)
+        self.assertEqual(refusal.exception.errno, errno.ELOOP)
+        self.assertFalse(self.fish.exists())
+        self.assertFalse(self.state.exists())
+        self.assertEqual(self.journal.read_bytes(), before)
+        self.assertEqual(source.readlink(), outside)
+        self.assertEqual(outside.read_bytes(), b'# unrelated user file\n')
+        refused = subprocess.run(
+            [str(self.launcher), *self.arguments(('recover', '--apply', '--expected-journal', journal_id))],
+            capture_output=True, text=True, timeout=10,
+        )
+        self.assertEqual(refused.returncode, 1, refused.stderr)
+        report = json.loads(refused.stdout)
+        self.assertEqual(report['status'], 'recovery-required')
+        self.assertEqual(report['setup_status']['pending']['status'], 'blocked')
+        self.assertFalse(self.fish.exists())
+        self.assertFalse(self.state.exists())
+        self.assertEqual(self.journal.read_bytes(), before)
+
+        source.unlink()
+        source.write_bytes(original)
+        report, code = self.run_first('recover', '--apply')
+        self.assertEqual((report['status'], code), ('recovery-applied', 0))
+        self.assertTrue(self.fish.exists())
+        self.assertFalse(self.journal.exists())
 
     def test_printed_recovery_refuses_a_replacement_before_invocation(self):
         original = self.interrupt('fish')

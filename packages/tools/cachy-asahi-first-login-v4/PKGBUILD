@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-first-login
+pkgver=0.1.0
+pkgrel=4
+pkgdesc='Opt-in first-login configuration discovery, activation and recovery'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'cachy-asahi-setup>=0.3.1-2')
+checkdepends=('zsh')
+optdepends=('fish: Fish configuration activation'
+            'zsh: Zsh configuration activation'
+            'hyprland: Hyprland configuration activation'
+            'cachy-asahi-fish-config: Fish template'
+            'cachy-asahi-zsh-config: Zsh template'
+            'cachy-asahi-hyprland-settings: Hyprland template')
+source=('LICENSE' 'NOTICE' 'README.md' 'cachy-asahi-first-login' 'first_login.py'
+        'setup8-fixture.py' 'test_first_login.py' 'test_delivery.py'
+        'source-provenance.json')
+sha256sums=(
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+    '6aa0a8736adb815343fe56d530df8caa77605896e1eb8984c40e3cc669d86b35'
+    '8e3f2a5317cf318847ed1751d5edf99ff833bc7db2b1a0a76a2f3009b4b9acbb'
+    'a5e2b72ff58eac2763c0ad65f36c0c883a60ce20e97c38acc4bace9d30a18144'
+    '6c98e811c7fbd209ae19f82a9779f58be2b0bdd26a8f5235cf6b8b63a6017f38'
+    'adfb419090e990705a2d04e2f6ffa167a279b393a65d26a222edced984b640d3'
+    'd90dc4f08c3522a425ad8b2fd33b4da5d592260330b8049bb46f65289a18045c'
+    'e5bfb628033dd373e583770071c367138960dc381041f2819469c9b879fe1b69'
+    '625c8d7998dcbb838e79b37c1b3b9bb45068d5611a53e58d57da045baaea2405'
+)
+
+check() {
+    python -I -B -Werror::ResourceWarning "$srcdir/test_first_login.py" -v || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_delivery.py" --recipe "$startdir/PKGBUILD" -v
+}
+
+package() {
+    install -Dm755 "$srcdir/cachy-asahi-first-login" "$pkgdir/usr/bin/cachy-asahi-first-login"
+    install -Dm644 "$srcdir/first_login.py" "$pkgdir/usr/lib/cachy-asahi/first-login/first_login.py"
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/$pkgname/source-provenance.json"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+}
