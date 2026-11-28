@@ -74,7 +74,7 @@ class Controls(unittest.TestCase):
             with self.subTest(field=field),self.assertRaises(ValueError):read_with_drift(C.read,field)
         with self.assertRaises(ValueError):read_with_drift(C.read,content=True)
 
-    def test_constructor_exact_current_Main_recipe_runtime_and_null_actuals(self):
+    def test_constructor_exact_recipe_held_runtime_and_null_actuals(self):
         with tempfile.TemporaryDirectory()as temporary:
             out=Path(temporary)/'Source';report=P.construct(ROOT,out)
             self.assertEqual(report['files'],32);self.assertLess(report['bytes'],1024**2);self.assertTrue(all(v is None for v in report['actual'].values()))
@@ -83,7 +83,7 @@ class Controls(unittest.TestCase):
             self.assertEqual(len(list((base/'recipe').iterdir())),6)
             profile=C.load(HERE/'profile.json')
             for name,row in profile['held_inputs'].items():
-                source = P.HELD_CHECKER if name == P.CHECKER else row['source_path']
+                source = P.HELD_FRAMEWORK / name if name.startswith('runtime/') else row['source_path']
                 self.assertEqual((base/name).read_bytes(), (ROOT/source).read_bytes())
             self.assertEqual((base/'finish_pair.py').read_bytes(),(HERE/'finish_pair.py').read_bytes())
             self.assertEqual(len((base/'expected349.lock').read_text().splitlines()),349)
@@ -93,13 +93,17 @@ class Controls(unittest.TestCase):
     def test_constructor_tamper_missing_alias_and_reuse_refusals(self):
         with tempfile.TemporaryDirectory()as temporary:
             read = P.C.read
-            def altered_checker(path, *args, **kwargs):
-                body = read(path, *args, **kwargs)
-                return body[:-1] + b'X' if path == ROOT/P.HELD_CHECKER else body
             refused = Path(temporary) / 'refused'
-            with patch.object(P.C, 'read', side_effect=altered_checker), self.assertRaisesRegex(ValueError, 'exact Main held input: runtime/scripts/checks/package_checks.py'):
-                P.construct(ROOT, refused)
-            self.assertFalse(refused.exists())
+            held_inputs = C.load(HERE/'profile.json')['held_inputs']
+            for name in (name for name in held_inputs if name.startswith('runtime/')):
+                target = ROOT / P.HELD_FRAMEWORK / name
+                def altered_input(path, *args, **kwargs):
+                    body = read(path, *args, **kwargs)
+                    return body + b'X' if path == target else body
+                with self.subTest(name=name):
+                    with patch.object(P.C, 'read', side_effect=altered_input), self.assertRaisesRegex(ValueError, 'exact Main held input: ' + name):
+                        P.construct(ROOT, refused)
+                    self.assertFalse(refused.exists())
             out=Path(temporary)/'Source';report=P.construct(ROOT,out);path=out/C.PREFIX/'recipe/config.fish';original=path.read_bytes()
             path.write_bytes(original+b'changed')
             with self.assertRaises(ValueError):C.verify_source(out,report['source_map']['sha256'])
@@ -115,11 +119,11 @@ class Controls(unittest.TestCase):
             with self.assertRaises(ValueError):P.construct(ROOT,out)
 
     def test_three_exact_builder_edits_inverse_and_unmodified_normal_entry(self):
-        original=(ROOT/'scripts/build/build_v2.py').read_bytes();changed=C.projected_build(original);inverse=changed.decode()
+        original=(ROOT/P.HELD_FRAMEWORK/'runtime/scripts/build/build_v2.py').read_bytes();changed=C.projected_build(original);inverse=changed.decode()
         for before,after in reversed(C.BUILD_EDITS):inverse=inverse.replace(after,before)
         self.assertEqual(inverse.encode(),original);self.assertIn("'--memory-swap', '4g'",changed.decode())
         with self.assertRaises(ValueError):C.projected_build(original.replace(b"'--memory', '4g'",b"'--memory', '8g'"))
-        entry=(ROOT/'scripts/build/container-entry-v2.sh').read_text();self.assertIn('makepkg --verifysource --noconfirm',entry);self.assertIn('makepkg --cleanbuild --clean --force --log --noconfirm',entry)
+        entry=(ROOT/P.HELD_FRAMEWORK/'runtime/scripts/build/container-entry-v2.sh').read_text();self.assertIn('makepkg --verifysource --noconfirm',entry);self.assertIn('makepkg --cleanbuild --clean --force --log --noconfirm',entry)
         self.assertNotIn('--nodeps',entry);self.assertNotIn('--nocheck',entry)
 
     def test_serial_metadata_audit_projection_preserves_whole_original_audit(self):
