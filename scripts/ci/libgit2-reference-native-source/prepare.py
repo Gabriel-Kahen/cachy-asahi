@@ -15,18 +15,22 @@ PREFIX='scripts/ci/libgit2-reference-native-source/'
 WORKFLOW='.github/workflows/native-arm-libgit2-reference-source.yml'
 BASE=PREFIX+'base/'
 OWNER=PREFIX+'owner/'
-CHECKER = 'runtime/scripts/checks/package_checks.py'
 FROZEN_FRAMEWORK = Path('scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
                         '/scripts/ci/llhttp-reference-native-source/base')
+FROZEN_FRAMEWORK_INPUTS = (
+    'runtime/scripts/checks/package_checks.py',
+    'runtime/scripts/maintenance/source_cache.py',
+)
 
 def encoded(value):return (json.dumps(value,indent=2,sort_keys=True)+'\n').encode()
 
 def held_framework_body(root, name, row):
-    source = root / row['source_path']
-    if name == CHECKER:
-        # Source95 already holds the historical checker pinned by the profile.
-        C.need(row['source_path'] == 'scripts/checks/package_checks.py', 'exact original checker role required')
-        source = root / FROZEN_FRAMEWORK / CHECKER
+    if name in FROZEN_FRAMEWORK_INPUTS:
+        # Source95 retains the exact historical inputs pinned by the libgit2 profile.
+        C.need(row['source_path'] == name.removeprefix('runtime/'), 'exact original framework role required: ' + name)
+        source = root / FROZEN_FRAMEWORK / name
+    else:
+        source = root / row['source_path']
     body = C.read(source)
     C.need(C.pin(body) == {key: row[key] for key in ('bytes', 'sha256')}, 'exact held framework dependency: ' + name)
     return body
