@@ -511,6 +511,37 @@ jobs:
           LC_ALL=C sort -u "$blobs" | git -c fetch.negotiationAlgorithm=noop fetch --quiet --stdin \
             --filter=blob:none --no-tags --no-recurse-submodules --no-auto-maintenance --no-write-fetch-head origin
           python3 -I -B -Werror::ResourceWarning scripts/ci/build-tools-arm4k-r2/test_source.py
+      - name: Check installer handoff, TEST signatures and Bubblewrap relocation
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'source-data' }}
+        shell: bash
+        env:
+          TMPDIR: /tmp
+        run: |
+          test "$(id -u)" -ne 0
+          bwrap --version
+          namespace=(bwrap --unshare-net --ro-bind / / --proc /proc --dev /dev /usr/bin/true)
+          if ! "${namespace[@]}"; then
+            test "${GITHUB_ACTIONS:-}" = true
+            test "${RUNNER_ENVIRONMENT:-}" = github-hosted
+            userns_previous=$(sysctl -n kernel.apparmor_restrict_unprivileged_userns)
+            test "$userns_previous" = 1
+            trap 'sudo sysctl -w "kernel.apparmor_restrict_unprivileged_userns=$userns_previous"' EXIT
+            trap 'exit 129' HUP
+            trap 'exit 130' INT
+            trap 'exit 143' TERM
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+            "${namespace[@]}"
+          fi
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import unittest
+
+          loader = unittest.TestLoader()
+          for name in ("test_handoff.py", "test_signed_handoff.py", "test_runtime.py"):
+              suite = loader.discover("scripts/install/fresh_handoff", pattern=name)
+              result = unittest.TextTestRunner(verbosity=2).run(suite)
+              if not result.wasSuccessful() or result.skipped or result.testsRun == 0:
+                  raise SystemExit(f"{name}: failures, skips, or empty suite")
+          PY
       - name: Check corresponding-source data tools
         if: ${{ matrix.shard == 'all' || matrix.shard == 'source-data' }}
         run: |
@@ -544,7 +575,6 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-hosted-source/test_reader.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-hosted-source/test_source.py
           python3 -I -B -Werror::ResourceWarning scripts/compat/python314-consumers/test_probe.py
-          python3 -I -B -Werror::ResourceWarning scripts/install/fresh_handoff/test_handoff.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/install_handoff_candidate/test_contract.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/install_handoff_candidate/test_host.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/networkmanager_candidate/test_journey.py
