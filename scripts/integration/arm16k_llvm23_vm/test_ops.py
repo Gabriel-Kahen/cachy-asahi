@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Fenced runtime/quota/preflight controls: no daemon, syscall, actor or VM."""
-import ast,ctypes,importlib.util,json,os,sys,tempfile,time,unittest
+import ast,ctypes,importlib.util,json,os,signal,sys,tempfile,time,unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -11,6 +11,27 @@ def fence(event,args):
  if event.startswith(('subprocess.','socket.','ctypes.'))or event in('os.system','os.fork','os.posix_spawn','os.exec','fcntl.flock'):raise RuntimeError('operational test fence: '+event)
 sys.addaudithook(fence)
 class Controls(unittest.TestCase):
+ def test_terminal_report_checks_term_delivered_during_private_write(self):
+  boot=C.load('boot');cancel=K.helper('reference_controller.py').Cancellation
+  original=Path.write_text
+  for interrupted in (False,True):
+   with self.subTest(interrupted=interrupted),tempfile.TemporaryDirectory() as d:
+    out=Path(d);report=dict(status=boot.PASS,owned_container_absence_verified=True)
+    state=cancel();state.cleaning=True
+    def write(path,body):
+     self.assertFalse((out/'report.json').exists())
+     if interrupted and json.loads(body)['status']==boot.PASS:signal.raise_signal(signal.SIGTERM)
+     return original(path,body)
+    previous=signal.getsignal(signal.SIGTERM)
+    with patch.object(Path,'write_text',write):
+     state.__enter__()
+     boot.publish_report(out,report,state)
+    self.assertEqual(signal.getsignal(signal.SIGTERM),previous)
+    self.assertEqual(report['status'],'HOLD_CLEANUP_OR_CANCELLED' if interrupted else boot.PASS)
+    self.assertEqual(report.get('cancelled_signals'),[signal.SIGTERM] if interrupted else None)
+    self.assertEqual(json.loads((out/'report.json').read_bytes()),report)
+    self.assertEqual(list(out.iterdir()),[out/'report.json'])
+
  def test_unissued_phase_refuses_before_materials_output_quota_or_daemon(self):
   args=SimpleNamespace(authority=HERE/'authority.TEMPLATE.json',authority_sha256=K.pin(HERE/'authority.TEMPLATE.json')['sha256'])
   with patch.object(C,'guard',side_effect=AssertionError('quota must not run')),patch.object(C.load('adapter'),'preflight',side_effect=AssertionError('materials must not run')),self.assertRaises(ValueError):C.preflight(args,'prepare')

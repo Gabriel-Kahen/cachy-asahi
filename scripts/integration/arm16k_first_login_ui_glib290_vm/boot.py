@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: MIT
 """Separate Root-only first ARM virtio seat boot; preparation never calls this."""
 import argparse,copy,importlib.util,json,os,re,resource,secrets,shutil,socket,stat,subprocess,sys,tempfile,time
+from contextlib import ExitStack
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
+PASS='PASS_EMULATED_ARM16K_GLIB290_REAL_SEAT_UI_LIFECYCLE_ONLY'
 
 def load(name,path):
  s=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
@@ -55,6 +57,56 @@ def disk_evidence(out,nonce):
    assert row['within_budget']==(0<row['file_bytes']<=row['file_limit_bytes']and 0<row['allocated_bytes']<=row['allocated_cap_bytes'])
   result[name]={'pin':K.pin(path),'actual':value}
  return result
+
+def final_evidence(out,report,nonce):
+ report['memory_receipts']=memory_evidence(out,nonce)
+ report['disk_receipts']=disk_evidence(out,nonce)
+ report['allocated_nonoverlay_output_bytes']=sum(p.stat().st_blocks*512 for p in out.rglob('*')if p.is_file()and p.name!='overlay.qcow2')
+ assert report['allocated_nonoverlay_output_bytes']<=K.DISK_BUDGETS['boot_nonoverlay_bytes']-512*1024,'non-overlay output budget exceeded (final report reserve512KiB)'
+ if (out/'qemu-retirement.json').exists():report['QEMU_retirement']=K.read(out/'qemu-retirement.json')
+ report['QEMU_natural_without_actor_signal']=report.get('QEMU_retirement',{}).get('natural_without_actor_signal',False)
+ if report['status']==PASS:
+  assert report.get('owned_container_absence_verified') is True,'verified owned container absence required'
+  assert set(report['disk_receipts'])=={'actor-file-limits.json','qemu-file-limits.json','overlay-at-qemu-exit.json'}
+  assert all(row['actual']['overlay']['within_budget'] is True for row in report['disk_receipts'].values() if 'overlay' in row['actual'])
+  assert set(report['memory_receipts'])=={'before-vm','at-qemu-exit','final'} and all(r['actual_numeric_cgroup']['status']=='OBSERVED' for r in report['memory_receipts'].values())
+
+def publish_report(out,report,state,nonce):
+ def write_report(path):
+  raw=(json.dumps(report,indent=2,sort_keys=True)+'\n').encode()
+  assert len(raw)<=512*1024,'bounded final report required'
+  path.write_bytes(raw)
+
+ with ExitStack() as files:
+  try:
+   stage=Path(files.enter_context(tempfile.TemporaryDirectory(dir=out)))
+   if report['status']==PASS and not report.get('cleanup_errors'):
+    try:
+     journey={'foundation':report['seat'],'ui_journey':report['ui_journey'],'status':PASS}
+     (stage/'journey.json').write_text(json.dumps(journey,indent=2,sort_keys=True)+'\n')
+    except OSError as e:
+     report.setdefault('cleanup_errors',[]).append({'step':'journey-receipt','category':type(e).__name__})
+   # Include the staged journey allocation in the existing non-overlay census.
+   try:final_evidence(out,report,nonce)
+   except BaseException as e:report.setdefault('cleanup_errors',[]).append({'step':'final-evidence','category':type(e).__name__})
+   if report.get('cleanup_errors'):report['status']='HOLD_CLEANUP'
+   if report['status']!=PASS:report.pop('ui_status',None)
+   write_report(stage/'report.json')
+  finally:state.__exit__()
+  if state.pending:
+   report['cancelled_signals']=list(state.pending)
+   if report['status']!='HOLD_CLEANUP':report['status']='HOLD_CANCELLED'
+   report.pop('ui_status',None)
+   write_report(stage/'report.json')
+  # The report is the terminal receipt. A failed report publication retires its companion.
+  journey_path=out/'journey.json'
+  journey_stage=stage/'journey.json'
+  try:
+   if report['status']==PASS:journey_stage.replace(journey_path)
+   (stage/'report.json').replace(out/'report.json')
+  except BaseException:
+   if report['status']==PASS and not journey_stage.exists():journey_path.unlink(missing_ok=True)
+   raise
 
 def installed(proof,prepared,epoch,now):
  d=proof['installed_gate'];adds=prepared['lineage']['additions'];clock=d['clock']
@@ -122,11 +174,11 @@ def main():
      if row.get('id')==ident:assert 'error' not in row;return row.get('return')
     raise ValueError('bounded fixed QMP reply refused')
    rpc('qmp_capabilities');stream=socket.socket(socket.AF_UNIX);stream.connect(str(link/'serial.sock'));serial=P.Serial(stream,deadline,m['nonce'])
-   result=P.journey(serial,rpc,login['password']);report.update(result);assert result['ui_status']=='PASS_EMULATED_ARM16K_GLIB290_REAL_SEAT_UI_LIFECYCLE_ONLY';(out/'journey.json').write_text(json.dumps({'foundation':result['seat'],'ui_journey':result['ui_journey'],'status':result['ui_status']},indent=2,sort_keys=True)+'\n')
+   result=P.journey(serial,rpc,login['password']);report.update(result);assert result['ui_status']==PASS
    actual=K.read(out/'host-qemu-start.json');assert actual['nonce']==m['nonce'];report['installed_gate']=installed(report['seat'],m,actual['utc_ns']//1000000000,int(time.time()))
    rpc('quit');report['QMP_quit_requested']=True;report['guest_shutdown']='QMP quit requested after proved normal PAM logout; not guest poweroff'
   command('normal-container-wait',['docker','wait',name],20);terminal=scope.recover(time.monotonic()+8);assert terminal['State']['ExitCode']==0 and not terminal['State']['OOMKilled']
-  retirement=K.read(out/'qemu-retirement.json');assert retirement['passed'] and retirement['natural_without_actor_signal']is True and retirement['actor_signals']==[] and retirement['actor_error']is None and not retirement.get('actor_cancelled') and retirement['reaped'] and retirement['group_census']=='EMPTY_TWICE';report.update(status='PASS_EMULATED_ARM16K_GLIB290_REAL_SEAT_UI_LIFECYCLE_ONLY',QEMU_retirement=retirement)
+  retirement=K.read(out/'qemu-retirement.json');assert retirement['passed'] and retirement['natural_without_actor_signal']is True and retirement['actor_signals']==[] and retirement['actor_error']is None and not retirement.get('actor_cancelled') and retirement['reaped'] and retirement['group_census']=='EMPTY_TWICE';report.update(status=PASS,QEMU_retirement=retirement)
  except BaseException as e:report['failure']={'category':type(e).__name__,'message':str(e)[:2048]}
  finally:
   state.cleaning=True
@@ -141,23 +193,6 @@ def main():
    scope.cleanup(report)
   except BaseException as e:report.setdefault('cleanup_errors',[]).append({'step':'cleanup','category':type(e).__name__})
   finally:
-   try:
-    report['memory_receipts']=memory_evidence(out,m['nonce'])
-    report['disk_receipts']=disk_evidence(out,m['nonce'])
-    report['allocated_nonoverlay_output_bytes']=sum(p.stat().st_blocks*512 for p in out.rglob('*')if p.is_file()and p.name!='overlay.qcow2')
-    assert report['allocated_nonoverlay_output_bytes']<=K.DISK_BUDGETS['boot_nonoverlay_bytes']-512*1024,'non-overlay output budget exceeded (final report reserve512KiB)'
-    if (out/'qemu-retirement.json').exists():report['QEMU_retirement']=K.read(out/'qemu-retirement.json')
-    report['QEMU_natural_without_actor_signal']=report.get('QEMU_retirement',{}).get('natural_without_actor_signal',False)
-    if report['status']=='PASS_EMULATED_ARM16K_GLIB290_REAL_SEAT_UI_LIFECYCLE_ONLY':
-     assert set(report['disk_receipts'])=={'actor-file-limits.json','qemu-file-limits.json','overlay-at-qemu-exit.json'}
-     assert all(row['actual']['overlay']['within_budget']is True for name,row in report['disk_receipts'].items()if 'overlay'in row['actual'])
-    if report['status']=='PASS_EMULATED_ARM16K_GLIB290_REAL_SEAT_UI_LIFECYCLE_ONLY':assert set(report['memory_receipts'])=={'before-vm','at-qemu-exit','final'}and all(r['actual_numeric_cgroup']['status']=='OBSERVED'for r in report['memory_receipts'].values())
-   except BaseException as e:report.setdefault('cleanup_errors',[]).append({'step':'memory-receipts','category':type(e).__name__})
-   if state.pending:report.update(status='HOLD_CANCELLED',cancelled_signals=state.pending)
-   if report.get('cleanup_errors'):report['status']='HOLD_CLEANUP'
-   try:
-    raw=(json.dumps(report,indent=2,sort_keys=True)+'\n').encode();assert len(raw)<=512*1024,'bounded final report required'
-    (out/'report.json').write_bytes(raw)
-   finally:state.__exit__()
- print(json.dumps({'status':report['status'],'report':str(out/'report.json')}));return 0 if report['status']=='PASS_EMULATED_ARM16K_GLIB290_REAL_SEAT_UI_LIFECYCLE_ONLY' else 1
+   publish_report(out,report,state,m['nonce'])
+ print(json.dumps({'status':report['status'],'report':str(out/'report.json')}));return 0 if report['status']==PASS else 1
 if __name__=='__main__':raise SystemExit(main())

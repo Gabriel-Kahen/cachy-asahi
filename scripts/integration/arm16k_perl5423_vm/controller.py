@@ -2,11 +2,28 @@
 # SPDX-License-Identifier: MIT
 """Root-bound image preparation or separate boot; no operation on import."""
 import argparse,importlib.util,json,os,re,secrets,select,socket,stat,struct,sys,tempfile,time
+from contextlib import ExitStack
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 
 def module(n):
  s=importlib.util.spec_from_file_location('perl_controller_'+n,HERE/(n+'.py'));m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
+
+
+def publish_report(out, report, state, canonical):
+    with ExitStack() as files:
+        try:
+            stage = Path(files.enter_context(tempfile.TemporaryDirectory(dir=out))) / 'report.json'
+            if report.get('cleanup_errors') or not report.get('owned_container_absence_verified'):
+                report['status'] = 'HOLD_CLEANUP_OR_CANCELLED'
+            stage.write_bytes(canonical(report))
+        finally:
+            state.__exit__()
+        # The deferred handler covered staging. Publish only the settled verdict.
+        if state.pending:
+            report.update(status='HOLD_CLEANUP_OR_CANCELLED', cancelled_signals=list(state.pending))
+            stage.write_bytes(canonical(report))
+        stage.replace(out / 'report.json')
 
 
 def attempt_marker(phase,output,prepared,authority_sha256,nonce):
@@ -299,13 +316,11 @@ def main():
      try:
       if handle is not None:handle.close()
      except BaseException as error:report.setdefault('cleanup_errors',[]).append('close-handle: '+str(error)[:1024])
-    if state.pending or report.get('cleanup_errors') or not report.get('owned_container_absence_verified'):report['status']='HOLD_CLEANUP_OR_CANCELLED'
     if guard.home is None:report['quota_guard_samples']=guard.samples
     else:report['storage_guard']=dict(mode='HOME_BTRFS_ENOSYS',samples=guard.samples,last_snapshot=guard.last_snapshot,own_uid_quota='UNSUPPORTED_NOT_UNLIMITED',other_quota_availability='UNCLAIMED',capacity_reservation=False)
-    try:(out/'report.json').write_bytes(K.canonical(report))
-    finally:
-     try:
-      if entered:route.__exit__(None,None,None)
-     finally:state.__exit__()
+    try:
+     if entered:route.__exit__(None,None,None)
+    except BaseException as error:report.setdefault('cleanup_errors',[]).append('transport: '+str(error)[:1024])
+    publish_report(out,report,state,K.canonical)
  return 0 if report['status']in('PREPARED_NOT_BOOTED','PASS_EMULATED_ARM16K_PERL5423_DATA_ONLY')else 1
 if __name__=='__main__':raise SystemExit(main())
