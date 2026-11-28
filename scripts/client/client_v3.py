@@ -6,6 +6,7 @@ import argparse
 import contextlib
 import copy
 from datetime import datetime, timezone
+import errno
 import fcntl
 import hashlib
 import importlib.util
@@ -548,6 +549,63 @@ def sources(args, *, now=None):
             primary.add_note('source bundle close uncertainty: ' + type(error).__name__)
 
 
+@contextlib.contextmanager
+def envelope_staging(parent):
+    name = '.envelope-' + secrets.token_hex(16)
+    os.mkdir(name, mode=0o700, dir_fd=parent)
+    try:
+        staging = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+        try:
+            yield staging, name
+        finally:
+            try:
+                with contextlib.suppress(FileNotFoundError):
+                    os.unlink('payload', dir_fd=staging)
+            finally:
+                with contextlib.suppress(OSError):
+                    os.close(staging)
+    finally:
+        try:
+            os.rmdir(name, dir_fd=parent)
+        except OSError as error:
+            if error.errno != errno.ENOTEMPTY:
+                raise
+
+
+def retract_envelope(parent, name, original):
+    try:
+        current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+    except FileNotFoundError:
+        return False
+    if not os.path.samestat(current, original):
+        return False
+
+    with envelope_staging(parent) as (staging, staging_name):
+        try:
+            os.rename(name, 'recovery', src_dir_fd=parent, dst_dir_fd=staging)
+        except FileNotFoundError:
+            return False
+        # Only the entry actually moved into private staging can authorize deletion.
+        moved = os.stat('recovery', dir_fd=staging, follow_symlinks=False)
+        if os.path.samestat(moved, original):
+            os.unlink('recovery', dir_fd=staging)
+            return True
+
+        import ctypes
+
+        rename = getattr(ctypes.CDLL(None, use_errno=True), 'renameat2', None)
+        error = errno.ENOSYS
+        # Restore any entry type, with no overwrite if the public name filled again.
+        if rename is not None:
+            if rename(staging, b'recovery', parent, os.fsencode(name), 1) == 0:  # RENAME_NOREPLACE
+                return True
+            error = ctypes.get_errno()
+        for directory_fd in (staging, parent):
+            with contextlib.suppress(OSError):
+                os.fsync(directory_fd)
+        raise OSError(error, 'envelope rollback retained a replacement', staging_name + '/recovery')
+
+
 def build(args):
     now = datetime.now(timezone.utc)
     root = directory(args.bundle)
@@ -563,33 +621,21 @@ def build(args):
     output, bundle = absolute(args.output), absolute(args.bundle)
     need(not output.is_relative_to(bundle), 'envelope output must be outside the unchanged release bundle')
     raw = encoded(value)
-    temporary = f'.envelope-{secrets.token_hex(16)}.tmp'
     parent = directory(output.parent)
     fd = created = None
-
-    def unlink_owned(name):
-        try:
-            current = os.stat(name, dir_fd=parent, follow_symlinks=False)
-        except FileNotFoundError:
-            return False
-        if not os.path.samestat(current, created):
-            return False
-        os.unlink(name, dir_fd=parent)
-        return True
-
     try:
         info = os.fstat(parent)
         need(info.st_uid == os.geteuid() and not (stat.S_IMODE(info.st_mode) & 0o022), 'output parent must be caller-owned and not group/world writable')
-        fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
-        with os.fdopen(fd, 'wb', closefd=False) as stream:
-            created = os.fstat(fd)
-            os.fchmod(fd, 0o600)
-            stream.write(raw)
-            stream.flush()
-            os.fsync(fd)
-            os.link(temporary, output.name, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
-            need(unlink_owned(temporary), 'temporary output changed during envelope build')
-            published = os.fstat(fd)
+        with envelope_staging(parent) as (staging, _):
+            fd = os.open('payload', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=staging)
+            with os.fdopen(fd, 'wb', closefd=False) as stream:
+                created = os.fstat(fd)
+                os.fchmod(fd, 0o600)
+                stream.write(raw)
+                stream.flush()
+                os.fsync(fd)
+                os.link('payload', output.name, src_dir_fd=staging, dst_dir_fd=parent, follow_symlinks=False)
+        published = os.fstat(fd)
         os.fsync(parent)
         try:
             selected = directory(output.parent)
@@ -611,13 +657,11 @@ def build(args):
              'output file changed during envelope build')
         need(os.path.samestat(info, output.parent.lstat()), 'output parent path changed during envelope build')
     except BaseException as error:
-        if created is not None:
-            for name in (output.name, temporary):
-                try:
-                    if unlink_owned(name) and name == output.name:
-                        os.fsync(parent)
-                except OSError as cleanup_error:
-                    error.add_note('envelope cleanup uncertainty: ' + type(cleanup_error).__name__)
+        try:
+            if created is not None and retract_envelope(parent, output.name, created):
+                os.fsync(parent)
+        except OSError as cleanup_error:
+            error.add_note(str(cleanup_error))
         raise
     finally:
         if fd is not None:

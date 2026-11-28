@@ -7,6 +7,7 @@ Only a sanitized receipt leaves the disposable container; no raw test logs do.
 """
 import argparse
 from contextlib import contextmanager, redirect_stderr, redirect_stdout, suppress
+import errno
 import hashlib
 import importlib.util
 import json
@@ -364,20 +365,67 @@ def run_tests(home):
             'status': 'PASS' if result.testsRun == TEST_COUNT and result.wasSuccessful() and not result.skipped else 'FAIL'}
 
 
+@contextmanager
+def receipt_staging(parent):
+    name = '.receipt-' + os.urandom(12).hex()
+    os.mkdir(name, mode=0o700, dir_fd=parent)
+    try:
+        directory = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+        try:
+            yield directory, name
+        finally:
+            try:
+                with suppress(FileNotFoundError):
+                    os.unlink('payload', dir_fd=directory)
+            finally:
+                with suppress(OSError):
+                    os.close(directory)
+    finally:
+        try:
+            os.rmdir(name, dir_fd=parent)
+        except OSError as error:
+            if error.errno != errno.ENOTEMPTY:
+                raise
+
+
+def retract_receipt(parent, name, original):
+    try:
+        current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+    except FileNotFoundError:
+        return False
+    if not os.path.samestat(current, original):
+        return False
+
+    with receipt_staging(parent) as (staging, staging_name):
+        try:
+            os.rename(name, 'recovery', src_dir_fd=parent, dst_dir_fd=staging)
+        except FileNotFoundError:
+            return False
+        # Only the entry actually moved into private staging can authorize deletion.
+        moved = os.stat('recovery', dir_fd=staging, follow_symlinks=False)
+        if os.path.samestat(moved, original):
+            os.unlink('recovery', dir_fd=staging)
+            return True
+
+        import ctypes
+
+        rename = getattr(ctypes.CDLL(None, use_errno=True), 'renameat2', None)
+        error = errno.ENOSYS
+        # Restore any entry type, with no overwrite if the public name filled again.
+        if rename is not None:
+            if rename(staging, b'recovery', parent, os.fsencode(name), 1) == 0:  # RENAME_NOREPLACE
+                return True
+            error = ctypes.get_errno()
+        for directory_fd in (staging, parent):
+            with suppress(OSError):
+                os.fsync(directory_fd)
+        raise OSError(error, 'receipt rollback retained a replacement', staging_name + '/recovery')
+
+
 def finalize_receipt(path, report):
     """Sync evidence privately before publication and retire failed publications."""
     global RECEIPT_COMMITTED
     path = Path(path).absolute()
-
-    def unlink_owned(name, info):
-        try:
-            current = os.stat(name, dir_fd=parent, follow_symlinks=False)
-        except FileNotFoundError:
-            return False
-        if not os.path.samestat(current, info):
-            return False
-        os.unlink(name, dir_fd=parent)
-        return True
 
     with defer_signals():
         parent = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
@@ -390,21 +438,22 @@ def finalize_receipt(path, report):
                     report.update(status='FAIL', cancelled=True)
                 data = json.dumps(report, indent=2, sort_keys=True).encode() + b'\n'
                 need(len(data) <= LIMIT, 'receipt-byte-bound')
-                temporary = f'.{path.name}.{os.urandom(12).hex()}.tmp'
-                fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
-                info = None
+                fd = None
+                linked = False
                 try:
-                    with os.fdopen(fd, 'wb', closefd=False) as stream:
-                        info = os.fstat(fd)
-                        os.fchmod(fd, 0o600)
-                        stream.write(data)
-                        stream.flush()
-                        os.fsync(fd)
-                        if CANCELLED and not cancelled:
-                            continue
-                        os.link(temporary, path.name, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
-                        unlink_owned(temporary, info)
-                        published = os.fstat(fd)
+                    with receipt_staging(parent) as (staging, _):
+                        fd = os.open('payload', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=staging)
+                        with os.fdopen(fd, 'wb', closefd=False) as stream:
+                            info = os.fstat(fd)
+                            os.fchmod(fd, 0o600)
+                            stream.write(data)
+                            stream.flush()
+                            os.fsync(fd)
+                            if CANCELLED and not cancelled:
+                                continue
+                            os.link('payload', path.name, src_dir_fd=staging, dst_dir_fd=parent, follow_symlinks=False)
+                            linked = True
+                    published = os.fstat(fd)
                     os.fsync(parent)
                     need(os.path.samestat(path.parent.lstat(), parent_info), 'receipt-parent-changed')
                     need(read(path) == data, 'receipt-file-changed')
@@ -423,17 +472,20 @@ def finalize_receipt(path, report):
                     complete = True
                     return
                 finally:
+                    primary = sys.exception()
                     try:
-                        if not complete and info is not None:
-                            if unlink_owned(path.name, info):
-                                # Preserve the original failure after rolling back the visible receipt.
-                                with suppress(OSError):
-                                    os.fsync(parent)
-                            unlink_owned(temporary, info)
+                        if linked and not complete and retract_receipt(parent, path.name, info):
+                            with suppress(OSError):
+                                os.fsync(parent)
+                    except OSError as error:
+                        if primary is None:
+                            raise
+                        primary.add_note(str(error))
                     finally:
-                        # Keep the inode pinned until rollback has compared ownership.
-                        with suppress(OSError):
-                            os.close(fd)
+                        if fd is not None:
+                            # Keep the inode pinned until rollback has compared ownership.
+                            with suppress(OSError):
+                                os.close(fd)
         finally:
             if complete:
                 with suppress(OSError):

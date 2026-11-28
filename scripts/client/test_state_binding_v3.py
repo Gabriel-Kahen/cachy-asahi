@@ -1,12 +1,24 @@
 """NEW temporary-filesystem client state binding controls; crypto is mocked."""
 import argparse,contextlib,hashlib,json,os,stat,subprocess,sys,tempfile,types,unittest
+import ctypes
+import errno
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
 from unittest.mock import patch
 T=Path(__file__).resolve().parent;parser=argparse.ArgumentParser(add_help=False);parser.add_argument('--client',type=Path);parser.add_argument('--before',type=Path);options,rest=parser.parse_known_args();ATTEMPTS=[];ACTIVE=False
+RENAMEAT2_ADDRESS = ctypes.cast(ctypes.CDLL(None).renameat2, ctypes.c_void_p).value
 def fence(event,args):
- if ACTIVE and (event.startswith(('subprocess.','socket.','ctypes.','os.exec','os.spawn','os.fork','os.posix_spawn'))or event in('os.system','pty.spawn','os.kill','os.killpg')):
-  ATTEMPTS.append(event);raise RuntimeError('client DATA actor fence '+event)
+ if ACTIVE:
+  # Permit the current-process libc lookup used to restore a displaced name without clobbering.
+  if (event == 'ctypes.dlopen' and args == (None,)) or event == 'ctypes.get_errno' or (
+      event == 'ctypes.dlsym' and args[1] == 'renameat2' and args[0]._name is None):
+   return
+  if event == 'ctypes.call_function':
+   address, call = args
+   if address == RENAMEAT2_ADDRESS and len(call) == 5 and call[1] == b'recovery' and call[4] == 1:
+    return
+  if event.startswith(('subprocess.','socket.','ctypes.','os.exec','os.spawn','os.fork','os.posix_spawn')) or event in ('os.system','pty.spawn','os.kill','os.killpg'):
+   ATTEMPTS.append(event);raise RuntimeError('client DATA actor fence '+event)
 def end_fence():
  global ACTIVE
  ACTIVE=False
@@ -200,7 +212,9 @@ class Controls(unittest.TestCase):
   def edit_staging_after_sync(fd):
    sync(fd)
    if stat.S_ISREG(os.fstat(fd).st_mode):
-    staged, = parent.iterdir()
+    staging, = parent.iterdir()
+    self.assertEqual(stat.S_IMODE(staging.stat().st_mode), 0o700)
+    staged = staging / 'payload'
     raw = staged.read_bytes()
     replacement = raw.replace(b'dev.fixture', b'dev.changed')
     self.assertNotEqual(raw, replacement)
@@ -228,6 +242,89 @@ class Controls(unittest.TestCase):
    with self.assertRaisesRegex(c.Error, 'output file changed during envelope build'):
     c.build(args)
   self.assertEqual(output.read_bytes(), b'external replacement')
+
+ def test_build_directory_sync_error_retires_owned_output_and_staging(self):
+  parent, output, args = self.build_output_fixture()
+  parent_info = parent.stat()
+  primary = OSError(errno.EIO, 'TEST envelope directory sync refusal')
+  sync = os.fsync
+  failed_once = False
+
+  def fail_publication_sync(fd):
+   nonlocal failed_once
+   if os.path.samestat(os.fstat(fd), parent_info) and not failed_once:
+    self.assertTrue(output.exists())
+    failed_once = True
+    raise primary
+   sync(fd)
+
+  with patch.object(c, 'describe', return_value=(self.actual, {'signer': self.key}, b'')), \
+       patch.object(c.os, 'fsync', side_effect=fail_publication_sync):
+   with self.assertRaises(OSError) as failed:
+    c.build(args)
+  self.assertIs(failed.exception, primary)
+  self.assertTrue(failed_once)
+  self.assertEqual(list(parent.iterdir()), [])
+
+ def test_build_rollback_preserves_replacement_after_ownership_stat(self):
+  parent, output, args = self.build_output_fixture()
+  replacement = self.base / 'foreign'
+  replacement.write_bytes(b'external replacement')
+  foreign = replacement.stat()
+  primary = c.Error('TEST envelope readback refusal')
+  actual_stat = os.stat
+  rollback = replaced = False
+
+  def refuse_readback(*args, **kwargs):
+   nonlocal rollback
+   rollback = True
+   raise primary
+
+  def replace_after_stat(path, *args, **kwargs):
+   nonlocal replaced
+   current = actual_stat(path, *args, **kwargs)
+   if rollback and not replaced and path == output.name and kwargs.get('dir_fd') is not None:
+    replacement.replace(output)
+    replaced = True
+   return current
+
+  with patch.object(c, 'describe', return_value=(self.actual, {'signer': self.key}, b'')), \
+       patch.object(c, 'read_member', side_effect=refuse_readback), \
+       patch.object(c.os, 'stat', side_effect=replace_after_stat):
+   with self.assertRaises(c.Error) as failed:
+    c.build(args)
+  self.assertIs(failed.exception, primary)
+  self.assertTrue(replaced)
+  self.assertEqual(list(parent.iterdir()), [output])
+  self.assertTrue(os.path.samestat(output.stat(), foreign))
+  self.assertEqual(output.read_bytes(), b'external replacement')
+
+ def test_build_rollback_retains_displaced_symlink_if_name_is_reclaimed(self):
+  parent, output, args = self.build_output_fixture()
+  foreign = self.base / 'foreign'
+  foreign.symlink_to('external-target')
+  primary = c.Error('TEST envelope readback refusal')
+  actual_rename = os.rename
+
+  def replace_during_retraction(source, dest, **kwargs):
+   if source == output.name and dest == 'recovery':
+    actual_rename(foreign, output)
+    actual_rename(source, dest, **kwargs)
+    output.write_bytes(b'new owner')
+   else:
+    actual_rename(source, dest, **kwargs)
+
+  with patch.object(c, 'describe', return_value=(self.actual, {'signer': self.key}, b'')), \
+       patch.object(c, 'read_member', side_effect=primary), \
+       patch.object(c.os, 'rename', side_effect=replace_during_retraction):
+   with self.assertRaises(c.Error) as failed:
+    c.build(args)
+  self.assertIs(failed.exception, primary)
+  staging, = parent.glob('.envelope-*')
+  self.assertEqual(list(staging.iterdir()), [staging / 'recovery'])
+  self.assertEqual(os.readlink(staging / 'recovery'), 'external-target')
+  self.assertEqual(output.read_bytes(), b'new owner')
+  self.assertIn(staging.name + '/recovery', failed.exception.__notes__[0])
 
  def test_each_bundle_signature_and_target_is_retired_before_the_next(self):
   scratch = self.base / 'verification'

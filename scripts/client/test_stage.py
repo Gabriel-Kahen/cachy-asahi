@@ -462,6 +462,27 @@ class StageTests(unittest.TestCase):
         self.assertEqual(failed.exception.errno, errno.EIO)
         self.assertEqual(list(self.root.iterdir()), [])
 
+    def test_receipt_staging_cleanup_error_before_commit_retracts_owned_output(self):
+        target = self.root / 'receipt.json'
+        primary = OSError(errno.EIO, 'TEST staging retirement uncertainty')
+        actual_rmdir = s.os.rmdir
+        failed_once = False
+
+        def fail_staging_cleanup(path, **kwargs):
+            nonlocal failed_once
+            actual_rmdir(path, **kwargs)
+            if not failed_once and kwargs.get('dir_fd') is not None and path.startswith('.receipt-'):
+                self.assertTrue(target.exists())
+                failed_once = True
+                raise primary
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'rmdir', side_effect=fail_staging_cleanup):
+            with self.assertRaises(OSError) as failed:
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertIs(failed.exception, primary)
+        self.assertTrue(failed_once)
+        self.assertEqual(list(self.root.iterdir()), [])
+
     def test_receipt_failed_sync_preserves_replaced_publication(self):
         target = self.root / 'receipt.json'
         replacement = self.root / 'foreign'
@@ -480,6 +501,67 @@ class StageTests(unittest.TestCase):
         self.assertEqual(failed.exception.errno, errno.EIO)
         self.assertEqual(list(self.root.iterdir()), [target])
         self.assertEqual(target.read_bytes(), b'foreign data')
+
+    def test_receipt_rollback_preserves_replacement_after_ownership_stat(self):
+        target = self.root / 'receipt.json'
+        replacement = self.root / 'foreign'
+        replacement.write_bytes(b'foreign data')
+        foreign = replacement.stat()
+        primary = ValueError('TEST receipt readback refusal')
+        actual_stat = s.os.stat
+        rollback = replaced = False
+
+        def refuse_readback(path):
+            nonlocal rollback
+            self.assertEqual(Path(path), target)
+            rollback = True
+            raise primary
+
+        def replace_after_stat(path, *args, **kwargs):
+            nonlocal replaced
+            current = actual_stat(path, *args, **kwargs)
+            if rollback and not replaced and path == target.name and kwargs.get('dir_fd') is not None:
+                replacement.replace(target)
+                replaced = True
+            return current
+
+        with s.cancellation_handlers(), mock.patch.object(s, 'read', side_effect=refuse_readback), \
+                mock.patch.object(s.os, 'stat', side_effect=replace_after_stat):
+            with self.assertRaises(ValueError) as failed:
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertIs(failed.exception, primary)
+        self.assertTrue(replaced)
+        self.assertEqual(list(self.root.iterdir()), [target])
+        self.assertTrue(os.path.samestat(target.stat(), foreign))
+        self.assertEqual(target.read_bytes(), b'foreign data')
+
+    def test_receipt_rollback_retains_displaced_directory_if_name_is_reclaimed(self):
+        target = self.root / 'receipt.json'
+        foreign = self.root / 'foreign'
+        foreign.mkdir()
+        (foreign / 'sentinel').write_bytes(b'displaced data')
+        primary = ValueError('TEST receipt readback refusal')
+        actual_rename = s.os.rename
+
+        def replace_during_retraction(source, dest, **kwargs):
+            if source == target.name and dest == 'recovery':
+                target.unlink()
+                actual_rename(foreign, target)
+                actual_rename(source, dest, **kwargs)
+                target.write_bytes(b'new owner')
+            else:
+                actual_rename(source, dest, **kwargs)
+
+        with s.cancellation_handlers(), mock.patch.object(s, 'read', side_effect=primary), \
+                mock.patch.object(s.os, 'rename', side_effect=replace_during_retraction):
+            with self.assertRaises(ValueError) as failed:
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertIs(failed.exception, primary)
+        staging, = self.root.glob('.receipt-*')
+        self.assertEqual(list(staging.iterdir()), [staging / 'recovery'])
+        self.assertEqual((staging / 'recovery' / 'sentinel').read_bytes(), b'displaced data')
+        self.assertEqual(target.read_bytes(), b'new owner')
+        self.assertIn(staging.name + '/recovery', failed.exception.__notes__[0])
 
     def test_receipt_parent_replacement_after_directory_sync_refuses_success(self):
         parent = self.root / 'out'
@@ -520,12 +602,13 @@ class StageTests(unittest.TestCase):
         target = self.root / 'receipt.json'
         value = {'status': 'PASS'}
         actual_close = s.os.close
+        parent = self.root.stat()
         delivered = []
 
         def cancel_on_close(fd):
-            directory = stat.S_ISDIR(os.fstat(fd).st_mode)
+            is_parent = os.path.samestat(os.fstat(fd), parent)
             actual_close(fd)
-            if directory and target.exists():
+            if is_parent and target.exists():
                 delivered.append(signal.SIGTERM)
                 signal.raise_signal(signal.SIGTERM)
 
