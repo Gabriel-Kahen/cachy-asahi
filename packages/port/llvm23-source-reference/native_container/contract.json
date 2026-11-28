@@ -149,8 +149,9 @@
     "reference.elf",
     "reference.check_stage"
   ],
-  "schema": 1,
+  "schema": 2,
   "source": "/source",
+  "source_commit": "68c28dfa7cea42e5cd224e639287adb717d1f738",
   "stage": "/work/dest",
   "status": "PROPOSAL_ONLY_NO_RUNTIME_ENTRY",
   "work": "/work"

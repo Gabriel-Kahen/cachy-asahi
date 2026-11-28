@@ -21,6 +21,14 @@ class ContractTests(unittest.TestCase):
         self.assertEqual(data['prefix'], '/opt/cachy-asahi/llvm23-source-reference')
         self.assertEqual(data['libdir'], 'lib')
 
+    def test_live_source_and_frozen_driver_have_distinct_identities(self):
+        data = c.contract()
+        self.assertEqual(data['schema'], 2)
+        self.assertRegex(data['source_commit'], r'^[0-9a-f]{40}$')
+        self.assertEqual(data['frozen_driver_commit'], '0b83da9d3b77ba538c843e2c5c06b850384ac09c')
+        self.assertNotEqual(data['source_commit'], data['frozen_driver_commit'])
+        self.assertEqual(set(data['frozen_files_sha256']), {'build.sh', 'reference.py', 'inputs.json'})
+
     def test_fixed_phase_order_and_native_private_mounts(self):
         data = c.contract()
         for name in ('probe','tools','runtimes','check'):
