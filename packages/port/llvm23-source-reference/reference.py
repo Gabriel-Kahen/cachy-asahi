@@ -21,6 +21,7 @@ SOURCE = 'llvm-project-23.1.1.src'
 TARGET = 'aarch64-unknown-linux-gnu'
 ENV = 'CACHY_ASAHI_LLVM23_'
 GIB = 1024**3
+ET_REL, ET_EXEC, ET_DYN = 1, 2, 3
 
 
 def need(ok, why):
@@ -206,8 +207,8 @@ def binding(work, a):
     return row
 
 
-def elf(path, prefix=None):
-    """Static geometry check: no execution, accepts only LE AArch64 ELF64."""
+def elf(path, prefix=None, *, types=(ET_REL, ET_EXEC, ET_DYN)):
+    """Check the ELF role and load geometry without executing the file."""
     with path.open('rb') as stream:
         header = stream.read(64)
         if header[:4] != b'\x7fELF':
@@ -215,19 +216,27 @@ def elf(path, prefix=None):
         need(len(header) == 64 and header[4:6] == b'\x02\x01', f'ELF64 LE required: {path}')
         kind, machine = struct.unpack_from('<HH', header, 16)
         need(machine == 183, f'non-AArch64 ELF: {path}')
-        if kind not in (2, 3):
+        if kind not in types:
+            return False
+        if kind == ET_REL:
             return True
         offset = struct.unpack_from('<Q', header, 32)[0]
         width, count = struct.unpack_from('<HH', header, 54)
-        need(width == 56 and 0 < count <= 1024 and offset+width*count <= path.stat().st_size, 'invalid program headers')
+        file_size = os.fstat(stream.fileno()).st_size
+        need(width == 56 and 0 < count <= 1024 and 64 <= offset <= file_size-width*count, 'invalid program headers')
         stream.seek(offset)
         loads, segments = 0, []
         for _ in range(count):
             row = struct.unpack('<IIQQQQQQ', stream.read(width))
             segments.append(row)
-            if row[0] == 1:
+            segment_type, _, file_offset, vaddr, _, filesz, memsz, alignment = row
+            if segment_type in (1, 2):
+                need(file_offset+filesz <= file_size, f'ELF segment bounds refused: {path}')
+            if segment_type == 1:
                 loads += 1
-                need(row[7] >= 16384 and row[2] % 16384 == row[3] % 16384, f'16K PT_LOAD geometry refused: {path}')
+                need(filesz <= memsz, f'invalid PT_LOAD file/memory size: {path}')
+                need(alignment >= 16384 and alignment & (alignment-1) == 0
+                     and file_offset % alignment == vaddr % alignment, f'16K PT_LOAD geometry refused: {path}')
         need(loads, f'ELF lacks PT_LOAD: {path}')
         dynamic = next((r for r in segments if r[0] == 2), None)
         if dynamic and prefix is not None:
@@ -280,13 +289,13 @@ def check_stage(root):
         p = prefix/name
         need(p.is_file(), f'required staged component missing: {name}')
         if name.startswith('bin/'):
-            need(p.stat().st_mode & 0o111 and elf(p, prefix), f'native executable required: {name}')
+            need(p.stat().st_mode & 0o111 and elf(p, prefix, types=(ET_EXEC, ET_DYN)), f'native executable required: {name}')
     for pattern in ('lib/libLLVM*.so*', 'lib/libunwind.so*', 'lib/clang/23/lib/linux/libclang_rt.builtins-aarch64.a', 'lib/clang/23/lib/linux/libclang_rt.profile-aarch64.a'):
         matches = list(prefix.glob(pattern))
         need(matches, f'required runtime missing: {pattern}')
         for p in matches:
             if '.so' in p.name:
-                need(elf(p, prefix), f'native shared library required: {p}')
+                need(elf(p, prefix, types=(ET_DYN,)), f'native shared library required: {p}')
             else:
                 with p.open('rb') as stream:
                     need(stream.read(8) == b'!<arch>\n', f'static runtime archive required: {p}')

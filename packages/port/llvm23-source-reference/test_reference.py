@@ -19,14 +19,17 @@ r = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(r)
 
 
-def small_elf(path, machine=183, alignment=16384):
+def small_elf(path, machine=183, alignment=16384, *, kind=3, filesz=120, memsz=120, vaddr=0):
     path.parent.mkdir(parents=True, exist_ok=True)
     header = bytearray(64)
-    header[:6] = b'\x7fELF\x02\x01'
-    struct.pack_into('<HH', header, 16, 3, machine)
-    struct.pack_into('<Q', header, 32, 64)
-    struct.pack_into('<HH', header, 54, 56, 1)
-    row = struct.pack('<IIQQQQQQ', 1, 5, 0, 0, 0, 120, 120, alignment)
+    header[:7] = b'\x7fELF\x02\x01\x01'
+    struct.pack_into('<HHI', header, 16, kind, machine, 1)
+    struct.pack_into('<H', header, 52, 64)
+    row = b''
+    if kind != 1:
+        struct.pack_into('<Q', header, 32, 64)
+        struct.pack_into('<HH', header, 54, 56, 1)
+        row = struct.pack('<IIQQQQQQ', 1, 5, 0, vaddr, 0, filesz, memsz, alignment)
     path.write_bytes(header+row)
     path.chmod(0o755)
 
@@ -253,6 +256,48 @@ class ReferenceTests(unittest.TestCase):
             (prefix/'lib/libunwind.a').unlink()
             with self.assertRaisesRegex(ValueError, 'component missing'):
                 r.check_stage(root)
+
+    def test_stage_elf_roles_allow_tool_and_library_aliases_and_relocatable_data(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            prefix = stage(root)
+            clang = prefix/'bin/clang'
+            clangxx = prefix/'bin/clang++'
+            library = prefix/'lib/libLLVM.so.23.1'
+            clangxx.unlink()
+            clangxx.symlink_to(clang.name)
+            (prefix/'lib/libLLVM.so').symlink_to(library.name)
+            small_elf(prefix/'lib/startup.o', kind=1)
+            small_elf(library, alignment=32768, memsz=4096)
+            small_elf(clang, kind=2)
+            r.check_stage(root)
+            small_elf(clang, kind=3)
+            r.check_stage(root)
+            small_elf(clang, kind=1)
+            with self.assertRaisesRegex(ValueError, 'native executable'):
+                r.check_stage(root)
+            small_elf(clang)
+            for kind in (1, 2):
+                with self.subTest(library_type=kind):
+                    small_elf(library, kind=kind)
+                    with self.assertRaisesRegex(ValueError, 'native shared library'):
+                        r.check_stage(root)
+
+    def test_stage_rejects_bad_load_bounds_and_alignment(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            library = stage(root)/'lib/libLLVM.so.23.1'
+            for fields, error in (
+                (dict(filesz=121, memsz=121, alignment=16512), 'segment bounds'),
+                (dict(filesz=121, memsz=121), 'segment bounds'),
+                (dict(memsz=119), 'file/memory size'),
+                (dict(alignment=16512), '16K PT_LOAD'),
+                (dict(alignment=32768, vaddr=16384), '16K PT_LOAD'),
+            ):
+                with self.subTest(fields=fields):
+                    small_elf(library, **fields)
+                    with self.assertRaisesRegex(ValueError, error):
+                        r.check_stage(root)
 
     def test_prepare_accepts_makepkg_source_links_without_overwriting(self):
         with tempfile.TemporaryDirectory() as tmp:
