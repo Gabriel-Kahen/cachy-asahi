@@ -25,6 +25,7 @@ class ModelIPC:
         self.release, self.mode = release, mode
         self.pid = None
         self.closed = False
+        self.bound = False
         self.requests = []
     def clients(self, deadline, check):
         if self.mode == 'cancel':
@@ -41,18 +42,38 @@ class ModelIPC:
         if self.mode == 'multiple':
             return [row, dict(row, address='0x456')]
         return [row]
-    def evaluate(self, script, deadline, check):
+    def evaluate(self, script, deadline, check, *, after_send=None, cleanup=False):
         check()
         self.requests.append(script)
-        if b'hl.get_window' in script and self.mode == 'bind-expired':
-            raise ValueError('owned window identity changed')
+        if cleanup:
+            assert script.endswith(b'=nil') and b'hl.dispatch' not in script
+            self.bound = False
+        if b'hl.get_window' in script:
+            if self.mode == 'bind-expired':
+                raise ValueError('owned window identity changed')
+            self.bound = True
+            if self.mode == 'bind-no-ack':
+                raise TimeoutError('binding acknowledgment lost')
+            if self.mode == 'bind-cancelled':
+                os.kill(os.getpid(), signal.SIGTERM)
+                check()
+            if self.mode == 'bind-deadline':
+                time.sleep(max(0, deadline - time.monotonic()) + .01)
+                check()
         if b'hl.dispatch' in script:
             if self.mode == 'close-expired':
                 raise ValueError('owned window identity changed')
             if self.mode == 'unsupported':
                 raise window.runtime.NotRun('required private Lua window IPC unsupported')
             self.closed = True
+            self.bound = False
             self.release.write_text('close-model')
+            if self.mode == 'exit-before-ack':
+                while os.waitid(os.P_PID, self.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is None:
+                    if time.monotonic() >= deadline:
+                        raise TimeoutError('fixture failed to exit before acknowledgment')
+                    time.sleep(.005)
+                (after_send or check)()
         if self.mode == 'never-unmaps' and self.closed:
             self.closed = False
 
@@ -67,7 +88,7 @@ class LifecycleModels(unittest.TestCase):
         self.body = 'import pathlib,sys,time\np=pathlib.Path(sys.argv[1])\nprint("fixture started",flush=True)\nwhile not p.exists(): time.sleep(.01)\n'
         self.argv = [sys.executable, '-I', '-B', '-c', self.body, str(self.release)]
 
-    def run_model(self, mode='normal'):
+    def run_model(self, mode='normal', *, run_seconds=.6, ready_seconds=.25):
         ipc = ModelIPC(self.release, mode)
         original = window.owned._stat
         def observe(pid):
@@ -76,7 +97,7 @@ class LifecycleModels(unittest.TestCase):
             return original(pid)
         with mock.patch.object(window.owned, '_stat', side_effect=observe), \
              mock.patch.object(window, 'admit', return_value=(ipc, self.env, {'evidence': 'MODEL_ONLY'})):
-            result = window.launch(self.argv, self.home, self.env, .6, .25, 'unused',
+            result = window.launch(self.argv, self.home, self.env, run_seconds, ready_seconds, 'unused',
                      contract_path=self.home / 'not-a-real-contract', close_seconds=.2)
         return result, ipc
 
@@ -91,6 +112,26 @@ class LifecycleModels(unittest.TestCase):
         self.assertEqual(row['window']['evidence'], 'MODEL_PROTOCOL_ONLY')
         self.assertIn('fixture started', row['output'])
         self.assertEqual(sum(isinstance(x, bytes) and b'hl.dispatch' in x for x in ipc.requests), 1)
+
+    def test_close_acknowledgment_can_follow_natural_exit(self):
+        row, ipc = self.run_model('exit-before-ack')
+        self.assertEqual(row['status'], 'PASS_MODEL_WINDOW_PROTOCOL')
+        self.assertTrue(row['window']['close_requested'] and row['window']['unmapped'])
+        self.assertFalse(ipc.bound)
+        self.assertEqual(row['exit'], 0)
+        self.assertEqual(row['signals'], [])
+
+    def test_attempted_binding_clears_after_lost_ack_cancel_and_deadline(self):
+        for mode, status in (('bind-no-ack', 'WINDOW_WORKFLOW_FAILED'),
+                             ('bind-cancelled', 'CANCELLED'),
+                             ('bind-deadline', 'WINDOW_WORKFLOW_FAILED')):
+            with self.subTest(mode=mode):
+                row, ipc = self.run_model(mode, run_seconds=.2, ready_seconds=.2)
+                self.assertEqual(row['status'], status)
+                self.assertEqual(row['window']['binding_cleanup'], 'ACKNOWLEDGED')
+                self.assertFalse(ipc.bound)
+                self.assertFalse(row['window']['close_requested'])
+                self.assertTrue(row['reaped'])
 
     def test_unrelated_window_never_closed(self):
         row, ipc = self.run_model('unrelated')

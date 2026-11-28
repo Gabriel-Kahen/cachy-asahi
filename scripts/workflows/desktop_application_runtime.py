@@ -251,7 +251,7 @@ def launch(argv, cwd, env, run_seconds, ready_seconds, marker):
     except OSError as exc:
         if child is not None:
             raise
-        return {'status': 'START_FAILED', 'error': str(exc), 'exit': None,
+        return {'status': 'START_FAILED', 'passed': False, 'error': str(exc), 'exit': None,
                 'retirement': 'NOT_LAUNCHED', 'signals_received': cancelled}
     finally:
         for sig, handler in previous.items():
@@ -272,6 +272,8 @@ def launch(argv, cwd, env, run_seconds, ready_seconds, marker):
                         'START_FAILED' if result['exit'] != 0 else
                         'READINESS_NOT_OBSERVED' if observer.ready_at is None or observer.problem else
                         'PASS_EXEC_WORKFLOW' if result['passed'] else 'SUPERVISOR_FAILED')
+    result['supervisor_passed'] = result['passed']
+    result['passed'] = result['status'] == 'PASS_EXEC_WORKFLOW'
     return result
 
 
@@ -343,7 +345,8 @@ def run(args, launcher=None):
             result['application_status'] = result['status']
             if result['status'] == 'PASS_EXEC_WORKFLOW':
                 result['status'] = 'INPUT_CHANGED'
-        result.update(schema=1, context=mode, desktop_id=args.select, desktop_sha256=args.entry_sha256,
+        result.update(schema=1, passed=result['status'] == 'PASS_EXEC_WORKFLOW',
+                      context=mode, desktop_id=args.select, desktop_sha256=args.entry_sha256,
                       argv=argv, cwd=str(cwd), executable_files=sorted(set(files)), inputs=input_receipts,
                       audit_pins=audit.stage.pins, evidence='HOST_FIXTURE_ONLY' if mode == 'fixture' else 'ISOLATED_APPLICATION_EXEC_ONLY',
                       gui=result.get('gui', 'NOT_RUN (output marker does not prove window mapping)'), native_arm='NOT_RUN' if mode == 'fixture' else platform.machine(),

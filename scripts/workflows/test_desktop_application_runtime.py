@@ -74,6 +74,8 @@ class RuntimeTests(unittest.TestCase):
     def test_natural_close(self):
         row = self.run_case()
         self.assertEqual(row['status'], 'PASS_EXEC_WORKFLOW')
+        self.assertTrue(row['passed'])
+        self.assertTrue(row['supervisor_passed'])
         self.assertEqual(row['exit'], 0)
         self.assertEqual(row['signals'], [])
         self.assertTrue(row['reaped'])
@@ -185,7 +187,10 @@ class RuntimeTests(unittest.TestCase):
 
     def test_readiness_absent(self):
         self.script('print("not ready")\n')
-        self.assertEqual(self.run_case()['status'], 'READINESS_NOT_OBSERVED')
+        row = self.run_case()
+        self.assertEqual(row['status'], 'READINESS_NOT_OBSERVED')
+        self.assertFalse(row['passed'])
+        self.assertTrue(row['supervisor_passed'])
 
     def test_late_readiness(self):
         self.args.ready_seconds = .05
