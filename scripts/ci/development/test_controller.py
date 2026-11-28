@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
+import base64
+import hashlib
+import io
 import json
 from pathlib import Path
 import subprocess
 import sys
+import tarfile
 import tempfile
 from types import ModuleType, SimpleNamespace
 import unittest
@@ -292,6 +296,70 @@ class ControllerTests(unittest.TestCase):
         with self.assertRaises(ValueError): controller.public_tree(directory)
         link.unlink(); source.unlink(); os.mkfifo(directory / 'fifo')
         with self.assertRaises(ValueError): controller.public_tree(directory)
+
+
+class RepositoryPublicationTests(unittest.TestCase):
+    phase_name = 'development-repository-handoff-phase-public'
+    accepted = dict.fromkeys(('status','cleanup','restage','input_acceptance'), 'PASS')
+
+    def publication(self, schema, receipt):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name)
+        output = root/'output'
+        unrelated = output/'unrelated'
+        unrelated.mkdir(parents=True)
+        save(unrelated/'result.json', {'status':'PASS'})
+        dev = controller.Development(root,output,root/'cache',{'schema_version':schema})
+        dev.publication_deadline = controller.time.monotonic()+20
+        dev.public.append(unrelated)
+        dev.report.update(initial_integration='PASS', initial_cleanup={'status':'PASS'}, cancelled=False,
+                          repository_handoff=receipt)
+        dev.report['stages'].update({name:{'status':'PASS'} for name in controller.STAGES})
+        return dev
+
+    def publish(self, dev, emitted):
+        return controller.publish(dev,lambda root:(root/'result.json').read_bytes(),
+                                  emit=lambda value, **options:emitted.append(value))
+
+    def test_both_composed_schemas_publish_the_validated_phase_bundle(self):
+        phase_result = b'{"status":"PASS"}\n'
+        for schema in (2,3):
+            with self.subTest(schema=schema):
+                dev = self.publication(schema, self.accepted.copy())
+                emitted = []
+                # Model the actor-free output of the existing Session authority check.
+                with patch.object(controller,'phase_capture',return_value={'result.json':phase_result}) as capture:
+                    self.assertTrue(self.publish(dev,emitted))
+                capture.assert_called_once_with(dev,dev.publication_deadline)
+                archive_bytes = base64.b64decode(emitted[1])
+                self.assertEqual(emitted[0], f'CACHY_ASAHI_EVIDENCE_BEGIN {self.phase_name} '
+                                 f'sha256={hashlib.sha256(archive_bytes).hexdigest()} bytes={len(archive_bytes)}')
+                self.assertEqual(emitted[2], f'CACHY_ASAHI_EVIDENCE_END {self.phase_name}')
+                with tarfile.open(fileobj=io.BytesIO(archive_bytes),mode='r:gz') as archive:
+                    self.assertEqual(archive.extractfile('phase-public/result.json').read(),phase_result)
+                self.assertEqual(dev.report['repository_publication'],'PASS')
+                self.assertEqual(dev.report['status'],'PASS')
+
+    def test_schema_three_pass_labels_cannot_replace_session_capture(self):
+        dev = self.publication(3,self.accepted.copy())
+        emitted = []
+        self.assertFalse(self.publish(dev,emitted))
+        self.assertEqual(dev.report['repository_publication'],'FAIL')
+        self.assertEqual(dev.report['status'],'FAIL')
+        self.assertEqual(dev.report['bundles'][0]['error_code'],'bounded-phase-publication-failed')
+        self.assertEqual(dev.report['bundles'][1]['status'],'PASS')
+        self.assertFalse(any(line.startswith(f'CACHY_ASAHI_EVIDENCE_BEGIN {self.phase_name}') for line in emitted))
+
+    def test_composed_terminal_status_requires_every_handoff_receipt_field(self):
+        for schema in (2,3):
+            for field in self.accepted:
+                with self.subTest(schema=schema,field=field):
+                    dev = self.publication(schema,{**self.accepted,field:'FAIL'})
+                    with patch.object(controller,'phase_capture',return_value={'result.json':b'{}'}):
+                        self.assertFalse(self.publish(dev,[]))
+                    self.assertEqual(dev.report['repository_publication'],'PASS')
+                    self.assertEqual(dev.report['status'],'FAIL')
 
 
 class ComposedForwardingTests(unittest.TestCase):

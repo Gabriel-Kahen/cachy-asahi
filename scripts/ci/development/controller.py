@@ -1078,6 +1078,7 @@ def phase_bundle(files, deadline):
 def publish(development, bundle, emit=print):
     """Only existing producers' explicit public selectors reach workflow logs."""
     report = development.report
+    composed = development.packet.get('schema_version') in (2, 3)
     roots = list(development.public)
     native = development.output / 'native'
     if native.is_dir():
@@ -1095,7 +1096,7 @@ def publish(development, bundle, emit=print):
             if path.exists() or initial_status.get('stages', {}).get(stage, {}).get('status') == 'PASS':
                 roots.append(path)
     records = []
-    if development.packet.get('schema_version') == 2:
+    if composed:
         try:
             require(development.publication_deadline is not None,'publication-deadline-required')
             data = phase_bundle(phase_capture(development,development.publication_deadline),development.publication_deadline)
@@ -1137,7 +1138,7 @@ def publish(development, bundle, emit=print):
     stages = report['stages']
     required = (report.get('initial_integration') == 'PASS' and report.get('initial_cleanup', {}).get('status') == 'PASS'
                 and not report.get('cancelled') and report['publication'] == 'PASS')
-    if development.packet.get('schema_version') == 2:
+    if composed:
         repository = report.get('repository_handoff',{})
         required = required and repository.get('status') == repository.get('cleanup') == repository.get('restage') == repository.get('input_acceptance') == 'PASS' and report.get('repository_publication') == 'PASS'
     required = required and all(stages[name]['status'] == 'PASS' for name in STAGES[:-1])
