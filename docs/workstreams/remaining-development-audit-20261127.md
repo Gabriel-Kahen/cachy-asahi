@@ -175,6 +175,19 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    be maintained. No later guest pair transaction has run.
    [Trial runbook](../../scripts/integration/jbig_tiff_asahi629/README.md)
 
+   A separate refreshed Preview TEST public transport passed independent
+   verification of 767 payload pins, five archive bodies and signatures,
+   mismatch refusal, and unchanged vendor and lock bytes. Its admission
+   runway extends to November 28 at 7:33:54 a.m. Eastern. A bounded scoped
+   stage attempt stopped at the 3% sustained host PSI guard after writing
+   inputs but before publishing either manifest; it issued no authority.
+   The retained samples show worker reclaim, but do not identify which
+   preflight command caused the host spike. A source-only follow-up adds
+   phase and file/anonymous-memory records, uses cache advice for digest-only
+   Preview reads, and confines public GPG checks to the worker runtime. Its
+   63 lane tests and small guarded probe passed; full refreshed staging and
+   new cold/warm replays remain **NOT RUN**.
+
    A lock-to-manifest reconciliation found four of the 14
    development-selected project packages in Asahi629, plus First Login
    0.1.0-3. The other ten were outside this bounded Preview composition;
