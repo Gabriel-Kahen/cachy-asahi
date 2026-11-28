@@ -70,6 +70,7 @@ jobs:
             /examples/development/
             /scripts/integration/development_onboarding_overlay583/
             /scripts/benchmarks/
+            /scripts/hardware/capture-baseline.py
             /scripts/workflows/
             /scripts/virtual/owned_process.py
             /scripts/build/
