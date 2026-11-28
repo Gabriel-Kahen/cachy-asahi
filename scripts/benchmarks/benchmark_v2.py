@@ -685,19 +685,22 @@ def execute_owned_rss(config, argv, cwd, environment, output):
     return result
 
 
-def verify_owned_rss(directory, trial, config, legacy):
+def verify_owned_rss(directory, trial, config, legacy, *, raw_files=None):
     """Bind the new raw artifact to the existing source/clock/workload capture."""
     collector, owner = platform_adapter().load_dependencies()
     if digest(owner.__file__) != OWNED_RSS_CORE_SHA256:
         raise Invalid('owned RSS core source mismatch')
-    raw = json.loads(collector.ordinary(directory / 'owned-rss.json', 16 * 1024**2))
+    def read(name, cap):
+        return json.loads(raw_files[name] if raw_files is not None else collector.ordinary(directory / name, cap))
+
+    raw = read('owned-rss.json', 16 * 1024**2)
     interval = config['owned_rss']['interval_seconds']
     expected_record = {'schema': OWNED_RSS_SCHEMA, 'owner_sha256': OWNED_RSS_CORE_SHA256,
                        'interval_seconds': interval, 'scope': process_group_memory.SCOPE,
                        'raw': 'owned-rss.json', 'status': raw['observation']['status'], 'capture_replayable': True}
     if trial.get('owned_rss') != expected_record:
         raise Invalid('owned RSS trial declaration differs from frozen/raw evidence')
-    capture = json.loads(collector.ordinary(directory / 'platform-metrics/capture.json', collector.MAX_LINE))
+    capture = read('platform-metrics/capture.json', collector.MAX_LINE)
     if (raw['schema'] != OWNED_RSS_SCHEMA or raw['owner_sha256'] != OWNED_RSS_CORE_SHA256
             or raw['interval_seconds'] != interval
             or raw['monotonic_start_ns'] != trial['monotonic_start_ns']
@@ -841,6 +844,7 @@ def compare(plan_path, directories, output):
     plan = load_plan(plan_path)
     config = plan["config"]
     argv = workload_argv(plan)
+    platform_reader = platform_adapter() if 'platform_metrics' in config else None
     trials, sensor_ids = [], None
     check_workload = paired_replay(plan) if "paired_zlib" in config else None
     session_id = None
@@ -851,8 +855,6 @@ def compare(plan_path, directories, output):
             raise Invalid("owned RSS instrumentation differs from frozen plan")
         if ("platform_metrics" in config) != ("platform_metrics" in trial):
             raise Invalid("trial instrumentation differs from frozen plan")
-        if "platform_metrics" in config:
-            platform_adapter().verify_trial(directory, trial, config["platform_metrics"])
         if trial.get("record_type") != "benchmark-trial" or trial.get("plan_sha256") != digest(plan_path):
             raise Invalid("differing plan/base/machine/workload binding")
         slot = trial.get("slot")
@@ -898,9 +900,10 @@ def compare(plan_path, directories, output):
             expected_raw.add('owned-retirement.json')
         if set(trial.get("raw_sha256", {})) != expected_raw:
             raise Invalid("missing raw outputs")
-        bounded_raw = retirement_adapter().raw_files(directory) if 'platform_metrics' not in config else None
+        bounded_raw = (platform_reader.raw_files(directory, owned_rss='owned_rss' in config)
+                       if platform_reader is not None else retirement_adapter().raw_files(directory))
         for name, expected in trial["raw_sha256"].items():
-            observed = hashlib.sha256(bounded_raw[name]).hexdigest() if bounded_raw is not None else digest(directory / name)
+            observed = hashlib.sha256(bounded_raw[name]).hexdigest()
             if observed != expected:
                 raise Invalid(f"raw output changed: {name}")
         if check_workload is not None:
@@ -911,18 +914,22 @@ def compare(plan_path, directories, output):
             session_id = step["session_id"]
             if proof.get("report") != check_workload(bounded_raw["stdout.txt"], variant):
                 raise Invalid("paired workload report differs from verified stdout")
-        telemetry_bytes = bounded_raw['telemetry.jsonl'] if bounded_raw is not None else (directory / "telemetry.jsonl").read_bytes()
-        samples = [json.loads(line) for line in telemetry_bytes.splitlines()]
+        if platform_reader is None:
+            samples = [json.loads(line) for line in bounded_raw['telemetry.jsonl'].splitlines()]
+        else:
+            platform_reader.verify_trial(directory, trial, config['platform_metrics'], raw=bounded_raw)
+            samples = [platform_reader.unavailable_legacy(start)]
         if not samples or trial.get("sample_count", len(samples)) != len(samples):
             raise Invalid("missing telemetry samples or differing sample count")
         times = [number(s.get("monotonic_ns"), "sample monotonic_ns", start, end) for s in samples]
         if times != sorted(times):
             raise Invalid("telemetry timestamps are out of order")
-        if 'platform_metrics' not in config:
+        if platform_reader is None:
             measured = retirement_adapter().verify(directory, trial, config['sample_seconds'], samples,
                                                     metrics, owned_rss_metrics)
         else:
-            measured = verify_owned_rss(directory, trial, config, samples) if "owned_rss" in config else metrics(samples)
+            measured = (verify_owned_rss(directory, trial, config, samples, raw_files=bounded_raw)
+                        if 'owned_rss' in config else metrics(samples))
         if trial.get("metrics") != measured:
             raise Invalid("summary differs from raw telemetry")
         for sample in samples:
