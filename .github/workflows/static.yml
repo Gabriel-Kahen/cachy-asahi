@@ -377,7 +377,8 @@ jobs:
           done
           lane=scripts/integration/jbig_tiff_asahi629
           for test in test_inputs.py test_jpeg_recipe.py test_runtime.py test_lane.py \
-                      test_reflink.py test_host_telemetry.py test_clone_rehash.py; do
+                      test_reflink.py test_host_telemetry.py test_clone_rehash.py \
+                      test_refresh_preflight.py; do
             python3 -I -B -Werror::ResourceWarning "$lane/$test"
           done
       - name: Check explicit lock and ordered suspend without a desktop session
