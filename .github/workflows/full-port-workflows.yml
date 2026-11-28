@@ -134,6 +134,7 @@ jobs:
             /packages/tools/cachy-asahi-release-tools/source_delivery.py
             /packages/tools/cachy-asahi-support/
             /packages/tools/cachy-asahi-support2/
+            /packages/tools/cachy-asahi-support3/
             /packages/tools/cachy-asahi-security-maintenance/
             /tests/test_orphans03_adoption.py
             /packages/tools/cachy-asahi-session-diagnostics/
@@ -490,6 +491,11 @@ jobs:
           run_support_fixture 2>&1 | tee "$RUNNER_TEMP/support-package-tests.log"
           grep -q 'Ran 8 tests' "$RUNNER_TEMP/support-package-tests.log"
           if grep -q 'skipped' "$RUNNER_TEMP/support-package-tests.log"; then exit 1; fi
+      - name: Check support 0.2.0-2 source and transport
+        if: matrix.component == 'support-package2'
+        run: |
+          python -I -B packages/tools/cachy-asahi-support3/check_package.py
+          python -I -B -Werror::ResourceWarning scripts/release/test_support_source_delivery_v3.py
       - name: Observe the real support2 namespace permission boundary
         if: matrix.component == 'support-package2'
         run: |
