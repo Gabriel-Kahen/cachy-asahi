@@ -50,3 +50,19 @@ hardware result is established by this registration.
 The full controller suite has one inherited early-entry assertion failure.
 The same test fails at the frozen parent. All 25 installer-specific controller
 controls pass.
+
+## Hosted source-only check
+
+The [workflow](../../../.github/workflows/native-preflight-source-registration.yml)
+checks out the canonical Source SHA at depth one, authenticates the packet and
+its 265 Git rows, and runs 11 cleanup models and 37 receiver controls on
+Python 3.14. The job summary records the Source SHA, packet digest, and each
+step outcome.
+
+Publish `a113f522e6f17ac86daf82193442485e88b69316` to
+`refs/heads/codex/native-preflight-registered-source-20261127` on
+`Gabriel-Kahen/cachy-asahi` before opening the separate route PR. The route
+PR should target a branch containing `1db8f7a59`, which already carries the
+bridge fix. GitHub Actions must be enabled with read access to the canonical
+repository. The path-filtered PR check can run when the workflow is present
+in the PR. Manual dispatch also requires the workflow on the default branch.
