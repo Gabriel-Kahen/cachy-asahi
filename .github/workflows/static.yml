@@ -62,6 +62,20 @@ jobs:
       - name: Static prerequisite receipt controls without APT or cache service
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: python3 -I -B -Werror scripts/ci/test_static_apt_trial.py -v
+      - name: Check guarded First Login and Setup successor sources
+        if: ${{ !cancelled() && (matrix.shard == 'all' || matrix.shard == 'foundation') && steps.static_checkout.outcome == 'success' && steps.static_prerequisites.outcome == 'success' }}
+        run: |
+          for recipe in packages/tools/cachy-asahi-first-login-v4/PKGBUILD packages/tools/cachy-asahi-setup8-v3/PKGBUILD; do
+            bash -n "$recipe"
+            recipe_dir=${recipe%/*}
+            srcinfo=$(cd "$recipe_dir" && makepkg --printsrcinfo)
+            diff -u "$recipe_dir/.SRCINFO" - <<< "$srcinfo"
+            python3 -I -B scripts/checks/package_checks_v2.py recipe "$recipe"
+          done
+          python3 -I -B -Werror::ResourceWarning scripts/install/first_login_journal_guard/test_journal_guard.py -v
+      - name: Check residual closure resolver and ownership controls
+        if: ${{ !cancelled() && (matrix.shard == 'all' || matrix.shard == 'foundation') && steps.static_checkout.outcome == 'success' }}
+        run: python3 -I -B -Werror::ResourceWarning scripts/port/platform-residual-closure/test_resolve.py -v
       - name: Copy preparation interruption and owned disposal controls
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         env:
