@@ -62,6 +62,28 @@ class BuildSystemsTest(unittest.TestCase):
         self.assertIn('-DCMAKE_INSTALL_PREFIX=' + str(project.prefix), argv)
         self.assertEqual(project.argv('build')[-2:], ['--parallel', '1'])
 
+    def test_discovered_compiler_alias_is_used_by_both_backends(self):
+        alias = self.base / 'c++'
+        alias.symlink_to(self.frontend)
+        self.tools['c++'] = str(alias)
+
+        def inspect(project):
+            if project.backend == 'cmake':
+                self.assertIn('-DCMAKE_CXX_COMPILER=' + str(alias), project.argv('configure'))
+            else:
+                self.assertEqual(shlex.split(project.commands.env['CXX']), [str(alias)])
+            self.assertEqual(project.inputs()['compiler_targets']['c++'], str(self.frontend))
+            project.value['status'] = 'PASS_REAL_PROJECT_WORKFLOW'
+
+        with (mock.patch.object(B.shutil, 'which', side_effect=lambda name, path: self.tools.get(name)),
+              mock.patch.object(B.W.Commands, 'run', return_value=b'unit-version\n'),
+              mock.patch.object(B.Project, 'journey', autospec=True, side_effect=inspect) as journey):
+            report = B.run(self.base / 'alias-output')
+        self.assertEqual(report['status'], 'PASS_AVAILABLE_LOCAL_WORKFLOWS')
+        self.assertEqual(journey.call_count, 2)
+        self.assertEqual(report['tools']['c++']['path'], str(alias))
+        self.assertEqual(report['tools']['c++']['file'], B.file_pin(self.frontend))
+
     def test_meson_argv_no_downloads_or_implicit_test_install_build(self):
         project = self.project('meson')
         self.assertIn('--wrap-mode=nodownload', project.argv('configure'))

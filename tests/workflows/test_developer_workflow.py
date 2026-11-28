@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import shutil
 import signal
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -149,6 +150,41 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(report['status'], 'MISSING_TOOLS')
         self.assertEqual(report['tools']['git']['workflow'], 'VERSION_ONLY_WORKFLOW_NOT_RUN')
 
+    def test_cli_emits_safe_failure_details_and_retains_wrapper_pin(self):
+        tools = self.base / 'failed-tools'
+        tools.mkdir()
+        git = tools / 'git'
+        git.write_text("#!/bin/sh\nprintf 'fixture failed\\033[31m\\n'\nexit 7\n")
+        git.chmod(0o700)
+        output = self.base / 'cli'
+        result = subprocess.run([sys.executable, '-I', '-B', W.__file__, '--output', str(output),
+                                 '--tool-path', str(tools)], capture_output=True, timeout=15)
+        self.assertEqual(result.returncode, 2)
+        details = json.loads(result.stderr)
+        diagnostic = json.loads(details['error'].split(': ', 2)[2])
+        self.assertEqual(diagnostic['supervision']['exit'], 7)
+        self.assertEqual(diagnostic['output_tail'], 'fixture failed\x1b[31m\n')
+        self.assertNotIn(b'\x1b', result.stderr)
+        self.assertLess(len(result.stderr), 16 * 1024)
+        receipt = json.loads((output / 'result.json').read_bytes())
+        self.assertEqual(receipt['sources']['diagnostics_runner'], W.file_pin(W.__file__))
+        self.assertEqual(receipt['sources']['runner'],
+                         W.file_pin(ROOT / 'scripts/workflows/developer_workflow.py'))
+
+    def test_selected_cpp_invocation_preserves_discovered_name(self):
+        tools = self.base / 'aliased-tools'
+        tools.mkdir()
+        for name in W.REQUIRED:
+            (tools / name).symlink_to(sys.executable)
+        cpp = str(tools / 'c++')
+        with (mock.patch.object(W._BASE, 'journey', return_value={}) as journey,
+              mock.patch.object(W._BASE, 'project_workflows')):
+            report = W.run(self.base / 'aliased', str(tools), timeout=3, total=12)
+        self.assertEqual(report['status'], 'PASS_LOCAL_DEVELOPER_COMPONENT')
+        self.assertEqual(journey.call_args.args[1]['c++'], cpp)
+        self.assertEqual(report['commands'][2]['argv'][0], cpp)
+        self.assertEqual(report['tools']['c++']['resolved'], str(Path(sys.executable).resolve()))
+
     def test_elapsed_cap_is_required_even_after_reap(self):
         real = self.commands.core.supervise
         def delayed(child, **kwargs):
@@ -208,11 +244,27 @@ class WorkflowTest(unittest.TestCase):
         target.write_bytes(b'corrupt executable')
         builder.build('binary-tamper-rebuild', compiler, source, target)
         self.assertEqual(self.commands.run('run-restored', [str(target)], self.base), b'later\n')
-        source.write_text('#error INTENTIONAL_TEST_FAILURE\n')
+        source.write_text('#error INTENTIONAL_DEVELOPER_WORKFLOW_FAILURE\n')
         builder.build('failure', compiler, source, target, expected='nonzero')
         self.assertFalse(target.exists())
         self.assertFalse(target.with_suffix('.state.json').exists())
         self.assertEqual(builder.records[-1]['outcome'], 'EXPECTED_COMPILE_FAILURE')
+
+
+    def test_unrelated_nonzero_compile_is_not_the_intended_failure(self):
+        source = self.base / 'tiny.c'
+        source.write_text('#error INTENTIONAL_DEVELOPER_WORKFLOW_FAILURE\n')
+        target = self.base / 'tiny'
+        target.write_bytes(b'stale')
+        state = target.with_suffix('.state.json')
+        state.write_text('{}')
+        builder = W.IncrementalBuild(self.commands)
+        with (mock.patch.object(self.commands, 'run', return_value=b'other compiler failure'),
+              self.assertRaisesRegex(W.Failure, 'lacks deliberate diagnostic')):
+            builder.build('failure', sys.executable, source, target, expected='nonzero')
+        self.assertEqual(builder.records[-1]['outcome'], 'UNEXPECTED_FAILURE')
+        self.assertFalse(target.exists())
+        self.assertFalse(state.exists())
 
 
 class ProjectWorkflowTest(unittest.TestCase):
