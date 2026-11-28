@@ -277,8 +277,9 @@ def run(image, profile, profile_sha256, output, runtime_root, allow=False):
             checked=assess(data['outer'],row['stage'],row['retirement'],base64.b64decode(row['stdout_b64'],validate=True),base64.b64decode(row['stderr_b64'],validate=True))
             need(row==checked,'complete original command bytes and observed effects join')
         need({n:P.pin(P.read(HERE/n))for n in code_pins}==code_pins,'trusted probe source changed during operation')
-        report.update(status='OBSERVATIONS_RETAINED_NOT_QUALIFICATION',observations=data)
+        report['observations'] = data
         P.verify(out,P.descriptor(observed))
+        report['status'] = 'OBSERVATIONS_RETAINED_NOT_QUALIFICATION'
     except BaseException as error:report['failure']=dict(type=type(error).__name__,message=str(error)[:1000])
     finally:
         state.cleaning=True
