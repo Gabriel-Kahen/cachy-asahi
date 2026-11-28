@@ -156,6 +156,26 @@ def inspect(args):
         runtime_paths={name: str(base / name) for name in ('release', 'development.json', 'development.json.sig', 'public.gpg')})
 
 
+def sync_copy(path, mode):
+    parent = c.directory(path.parent)
+    try:
+        with c.member(parent, path.name) as fd:
+            os.fchmod(fd, mode)
+            os.fsync(fd)
+    finally:
+        os.close(parent)
+
+
+def sync_staging_directories(staging, names):
+    directories = {staging / parent for name in names for parent in Path(name).parents}
+    for path in sorted(directories, key=lambda path: (-len(path.parts), path)):
+        fd = c.directory(path)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+
+
 def publish(staging, parent, output, inspected_inode):
     """Linux atomic fresh-directory publication; no path-based child writes."""
     libc = ctypes.CDLL(None, use_errno=True)
@@ -205,15 +225,16 @@ def assemble(args):
             def write(name, raw):
                 path = staging / name; path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
                 with path.open('xb') as stream:
-                    stream.write(raw); stream.flush(); os.fsync(stream.fileno())
-                path.chmod(0o444)
+                    stream.write(raw); stream.flush()
+                    os.fchmod(stream.fileno(), 0o444); os.fsync(stream.fileno())
             root = c.directory(bundle)
             try:
                 for name, pin in {**release['files'], 'release.json': checked['release_sha256']}.items():
                     c.reference(name, pin)
                     path = staging / 'release' / name; path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
                     actual, _ = c.hash_member(root, name, snapshot=path)
-                    c.need(actual == pin, 'producer payload changed during assembly'); path.chmod(0o444)
+                    c.need(actual == pin, 'producer payload changed during assembly')
+                    sync_copy(path, 0o444)
                 write('release/release.json.sig', c.read_member(root, 'release.json.sig', c.MAX_SIGNATURE))
             finally:
                 os.close(root)
@@ -237,6 +258,7 @@ def assemble(args):
             inspect_args = argparse.Namespace(**{**vars(args), 'kit': str(staging), 'kit_sha256': c.digest(raw)})
             result = inspect(inspect_args)
             c.need(result['metadata_sha256'] == checked['metadata_sha256'], 'producer metadata changed during assembly')
+            sync_staging_directories(staging, files.keys() | links.keys())
             publish(staging, parent, output, inspected_inode)
     finally:
         os.close(parent)

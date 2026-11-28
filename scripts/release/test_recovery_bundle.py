@@ -8,6 +8,7 @@ inventory and CLI behavior, not positive cryptographic integration.
 import argparse
 import contextlib
 import copy
+import errno
 import hashlib
 import importlib.util
 import io
@@ -270,6 +271,20 @@ class BundleTests(unittest.TestCase):
     def test_copy_failure_cleans_private_work_and_never_publishes(self):
         with mock.patch.object(B,'write',side_effect=OSError('original I/O refusal')):
             self.refuse(lambda:B.materialize(self.args))
+        self.assertFalse(self.output.exists())
+        self.assertFalse(list(self.root.glob('.recovery-bundle-*')))
+
+    def test_copied_predecessor_payload_sync_failure_prevents_publication(self):
+        fsync = os.fsync
+        def fail_payload(fd):
+            path = os.readlink(f'/proc/self/fd/{fd}')
+            if '/.recovery-bundle-' in path and path.endswith('/workspace/predecessor/release/base.json'):
+                raise OSError(errno.EIO, 'TEST predecessor payload sync failure')
+            return fsync(fd)
+        with mock.patch.object(os, 'fsync', side_effect=fail_payload):
+            with self.assertRaises(OSError) as error:
+                B.materialize(self.args)
+        self.assertEqual(error.exception.errno, errno.EIO)
         self.assertFalse(self.output.exists())
         self.assertFalse(list(self.root.glob('.recovery-bundle-*')))
 

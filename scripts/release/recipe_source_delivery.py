@@ -8,12 +8,15 @@ An observed revision labels a checkout, while reviewed file hashes bind inputs.
 Archive metadata correspondence does not establish native execution or acceptance.
 """
 import argparse
+import ctypes
 import importlib.util
 import io
 import json
 import os
 from pathlib import Path
 import re
+import secrets
+import shutil
 import sys
 import tarfile
 
@@ -354,24 +357,52 @@ def unpacked(raw, checksum):
 
 
 def write_fresh(output, bodies):
+    """Publish a complete, synced output without replacing any destination."""
     output = Path(output).absolute()
+    rename = getattr(ctypes.CDLL(None, use_errno=True), 'renameat2', None)
+    s.need(rename is not None, 'Linux renameat2 required for fresh output')
+    rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+    rename.restype = ctypes.c_int
+    stage = '.release-export-' + secrets.token_hex(16)
     parent = s.directory(output.parent)
-    fd = None
+    fd = created = None
+    published = False
     try:
-        os.mkdir(output.name, 0o700, dir_fd=parent)
-        created = os.stat(output.name, dir_fd=parent, follow_symlinks=False)
-        fd = os.open(output.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+        os.mkdir(stage, 0o700, dir_fd=parent)
+        created = os.stat(stage, dir_fd=parent, follow_symlinks=False)
+        fd = os.open(stage, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
         opened = os.fstat(fd)
-        s.need((created.st_dev, created.st_ino) == (opened.st_dev, opened.st_ino), 'output directory replaced')
+        s.need(os.path.samestat(created, opened), 'output staging directory replaced')
         for key, raw in sorted(bodies.items()):
             s.need(len(s.relative(key)) == 1, 'flat output required')
             leaf = os.open(key, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=fd)
             with os.fdopen(leaf, 'wb') as stream:
-                stream.write(raw)
+                s.need(stream.write(raw) == len(raw), 'short output write')
+                stream.flush()
+                os.fsync(stream.fileno())
+        os.fsync(fd)
+        s.need(os.path.samestat(created, os.stat(stage, dir_fd=parent, follow_symlinks=False)),
+               'output staging directory replaced')
+        # RENAME_NOREPLACE also refuses a concurrently created empty directory.
+        if rename(parent, os.fsencode(stage), parent, os.fsencode(output.name), 1):
+            error = ctypes.get_errno()
+            raise OSError(error, os.strerror(error), output)
+        published = True
+        os.fsync(parent)
     finally:
-        if fd is not None:
-            os.close(fd)
-        os.close(parent)
+        try:
+            if fd is not None:
+                os.close(fd)
+            if created is not None and not published:
+                try:
+                    current = os.stat(stage, dir_fd=parent, follow_symlinks=False)
+                except FileNotFoundError:
+                    pass
+                else:
+                    if os.path.samestat(created, current):
+                        shutil.rmtree(stage, dir_fd=parent)
+        finally:
+            os.close(parent)
 
 
 def pack(recipe, name, revision, output, archive=None, review=None, review_status=None, synthetic=False):

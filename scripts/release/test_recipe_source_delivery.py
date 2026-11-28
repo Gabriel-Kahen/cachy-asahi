@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Real original recipe round trips; synthetic archive bindings grant no admission."""
 import copy
+import errno
 import gzip
 import importlib.util
 import io
@@ -9,10 +10,12 @@ import json
 import os
 from pathlib import Path
 import shutil
+import stat
 import subprocess
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 HERE = Path(__file__).absolute().parent
 REPO = HERE.parents[1]
@@ -172,6 +175,27 @@ class RecipeDelivery(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             self.pack(name, 'keep')
         self.assertEqual(list(target.iterdir()), [target / 'sentinel'])
+
+    def test_sync_failure_and_concurrent_empty_destination_refuse_fresh_output(self):
+        sync = os.fsync
+        for competing_directory in (False, True):
+            with self.subTest(competing_directory=competing_directory):
+                output = self.work / 'publication'
+
+                def fault(fd):
+                    if not competing_directory:
+                        raise OSError(errno.ENOSPC, 'modeled payload sync failure')
+                    if stat.S_ISDIR(os.fstat(fd).st_mode):
+                        output.mkdir()
+                    sync(fd)
+
+                with patch.object(os, 'fsync', side_effect=fault), self.assertRaises(OSError) as caught:
+                    d.write_fresh(output, {'receipt.json': b'receipt', 'source.tar': b'payload'})
+                self.assertEqual(caught.exception.errno, errno.EEXIST if competing_directory else errno.ENOSPC)
+                self.assertEqual(list(self.work.glob('.release-export-*')), [])
+                self.assertEqual(output.exists(), competing_directory)
+                if competing_directory:
+                    self.assertEqual(list(output.iterdir()), [])
 
     def test_bundle_checksum_manifest_payload_extra_and_trailing_bytes_refused(self):
         name = 'cachy-asahi-session-diagnostics'

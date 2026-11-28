@@ -108,13 +108,17 @@ def dependencies(directory=HERE):
     return sbom, sbom.dependencies(directory)
 
 
+def tar_member(name, size):
+    node = tarfile.TarInfo(relative(name))
+    node.size, node.mode, node.mtime, node.uid, node.gid = size, 0o644, 0, 0, 0
+    return node
+
+
 def tar_bytes(files):
     output = io.BytesIO()
     with tarfile.open(fileobj=output, mode='w', format=tarfile.USTAR_FORMAT) as archive:
         for key, raw in sorted(files.items()):
-            node = tarfile.TarInfo(relative(key))
-            node.size, node.mode, node.mtime, node.uid, node.gid = len(raw), 0o644, 0, 0, 0
-            archive.addfile(node, io.BytesIO(raw))
+            archive.addfile(tar_member(key, len(raw)), io.BytesIO(raw))
     return output.getvalue()
 
 
@@ -332,29 +336,33 @@ def canonical_files(raw, checksum):
     """Authenticate canonical portable TAR bytes without executing its files."""
     need(0 < len(raw) <= MAX_MIRROR and digest(raw) == sha(checksum), 'mirror checksum/bound mismatch')
     need(len(raw) % 512 == 0, 'mirror tar alignment')
-    files = {}; offset = 0
+    files = {}; offset = 0; last = ''
     while offset + 512 <= len(raw) and any(raw[offset:offset + 512]):
-        node = tarfile.TarInfo.frombuf(raw[offset:offset + 512], 'utf-8', 'strict')
-        relative(node.name)
-        need(node.isfile() and node.type == tarfile.REGTYPE and not node.pax_headers and
-             node.name not in files and len(files) < MAX_FILES + 2 and
-             0 <= node.size <= MAX_OBJECT and node.mode == 0o644 and node.uid == node.gid == node.mtime == 0 and
-             not node.linkname and not node.uname and not node.gname, 'noncanonical/unsafe mirror member')
+        header = raw[offset:offset + 512]
+        node = tarfile.TarInfo.frombuf(header, 'utf-8', 'strict')
+        need(last < node.name and len(files) < MAX_FILES + 2 and 0 <= node.size <= MAX_OBJECT,
+             'noncanonical/unsafe mirror member')
+        need(header == tar_member(node.name, node.size).tobuf(format=tarfile.USTAR_FORMAT), 'noncanonical mirror tar')
         start = offset + 512; end = start + node.size
         need(end <= len(raw), 'truncated mirror member')
         files[node.name] = raw[start:end]
+        last = node.name
         offset = start + ((node.size + 511) // 512) * 512
         need(not any(raw[end:offset]), 'nonzero tar padding')
-    need(offset + 1024 <= len(raw) and not any(raw[offset:]), 'mirror tar end/trailing bytes')
-    need(tar_bytes(files) == raw, 'noncanonical mirror tar')
+    # tarfile closes with two zero blocks, then rounds up to a full record.
+    end = offset + 1024
+    need(len(raw) == end + (-end % tarfile.RECORDSIZE) and not any(raw[offset:]), 'mirror tar end/trailing bytes')
     return files
 
 
 def verify(raw, checksum, release_sha256):
     """Authenticate the entire tar before reading its inert object graph."""
+    return _verify_mirror_files(canonical_files(raw, checksum), checksum, release_sha256)
+
+
+def _verify_mirror_files(files, checksum, release_sha256):
     mirror_checksum = checksum
     sha(release_sha256)
-    files = canonical_files(raw, checksum)
     need('mirror.json' in files and 'verify.py' in files, 'mirror metadata/verifier missing')
     mirror = decode(files['mirror.json'])
     need(mirror.get('schema_version') == 1 and type(mirror['schema_version']) is int and
@@ -544,9 +552,13 @@ def history_parts(files, history):
 
 def verify_any(raw, checksum, release_sha256):
     """Verify every recovery release; the requested pin must be retained."""
-    files = canonical_files(raw, checksum)
+    result, _ = _verify_members(canonical_files(raw, checksum), checksum, release_sha256)
+    return result
+
+
+def _verify_members(files, checksum, release_sha256):
     if 'mirror.json' in files:
-        return verify(raw, checksum, release_sha256)
+        return _verify_mirror_files(files, checksum, release_sha256), None
     need('history.json' in files and 'verify.py' in files, 'history metadata/verifier missing')
     history = decode(files['history.json'])
     manifests, bundles = history_parts(files, history)
@@ -554,17 +566,18 @@ def verify_any(raw, checksum, release_sha256):
         verify(bundle, row['mirror_sha256'], row['release_sha256'])
     releases = [row['release_sha256'] for row in history['releases']]
     need(sha(release_sha256) in releases, 'requested release is not retained')
-    return dict(status='VERIFIED_OFFLINE_SOURCE_MIRROR_HISTORY', mirror_sha256=checksum,
+    result = dict(status='VERIFIED_OFFLINE_SOURCE_MIRROR_HISTORY', mirror_sha256=checksum,
         release_sha256=release_sha256, head_release_sha256=history['head_release_sha256'],
         retained_releases=releases, unique_objects=len(history['objects']), stats=history['stats'],
         legal_acceptance=False, native_build_validation='NOT_PERFORMED', hardware_validation='NOT_RUN', release_acceptance='NOT_ADMITTED')
+    return result, manifests
 
 
 def update(previous_raw, previous_sha256, previous_head_release_sha256, root, release_sha256, deps,
            inputs=None, inputs_sha256=None, retained_root=None, directory=HERE):
     """Reuse only verified predecessor objects; append without pruning recovery."""
-    proof = verify_any(previous_raw, previous_sha256, previous_head_release_sha256)
     files = canonical_files(previous_raw, previous_sha256)
+    proof, manifests = _verify_members(files, previous_sha256, previous_head_release_sha256)
     if 'mirror.json' in files:
         previous = decode(files['mirror.json'])
         rows = [dict(release_sha256=previous['release_sha256'], release_id=previous['release_id'],
@@ -574,7 +587,6 @@ def update(previous_raw, previous_sha256, previous_head_release_sha256, root, re
     else:
         need(proof['head_release_sha256'] == previous_head_release_sha256, 'previous head release pin mismatch')
         previous = decode(files['history.json']); rows = list(previous['releases'])
-        manifests, _ = history_parts(files, previous)
         retained = [(files['objects/' + row['manifest']['sha256']], files['objects/' + row['verifier']['sha256']]) for row in rows]
     need(release_sha256 not in {row['release_sha256'] for row in rows}, 'next release is already retained')
     # Validate complete pinned next inputs independently; predecessor data is

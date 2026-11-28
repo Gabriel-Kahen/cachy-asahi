@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Local exact-source mirrors; package archives are synthetic, never executed."""
 import copy
+import errno
 import gzip
 import importlib.util
 import io
@@ -128,6 +129,25 @@ class MirrorTests(unittest.TestCase):
         with self.assertRaisesRegex((ValueError, OSError, KeyError), pattern):
             self.fixture.build()
 
+    def test_payload_enospc_never_publishes_mirror_receipt(self):
+        output = self.root / 'failed-mirror'
+        argv = ['export', '--release-dir', str(self.fixture.root), '--release-sha256',
+                self.fixture.pin, '--output', str(output)]
+        open_file = os.open
+
+        def fail_payload(path, flags, *args, **kwargs):
+            if path == 'mirror.tar' and flags & os.O_WRONLY:
+                raise OSError(errno.ENOSPC, 'modeled mirror payload failure')
+            return open_file(path, flags, *args, **kwargs)
+
+        with (patch.object(m, 'dependencies', return_value=DEPS),
+              patch.object(os, 'open', side_effect=fail_payload),
+              patch('sys.stdout', new_callable=io.StringIO) as stdout):
+            self.assertEqual(m.main(argv), 1)
+        self.assertEqual(json.loads(stdout.getvalue())['status'], 'REFUSED')
+        self.assertFalse((output / 'mirror-receipt.json').exists())
+        self.assertFalse(output.exists())
+
     def test_complete_two_package_deterministic_dedup_and_relocation(self):
         first, manifest, verifier = self.fixture.build()
         self.assertEqual(first, self.fixture.build()[0])
@@ -149,6 +169,20 @@ class MirrorTests(unittest.TestCase):
              patch.object(subprocess,'Popen',side_effect=AssertionError('subprocess forbidden')):
             raw, _, _ = self.fixture.build()
             m.verify(raw,s.digest(raw),self.fixture.pin)
+
+    def test_canonical_readback_without_rebuilding_tar(self):
+        bodies = {'a': b'first', 'b': b'second'}
+        raw = m.tar_bytes(bodies)
+        reordered = raw[1024:2048] + raw[:1024] + raw[2048:]
+        header = bytearray(raw[:512])
+        header[500] = 1
+        header[148:156] = b' ' * 8
+        header[148:156] = ('%06o\0 ' % sum(header)).encode()
+        with patch.object(m, 'tar_bytes', side_effect=AssertionError('verifier rebuilt the tar')):
+            self.assertEqual(m.canonical_files(raw, m.digest(raw)), bodies)
+            for changed in (reordered, bytes(header) + raw[512:], raw[:3072], raw + b'\0' * 10240):
+                with self.subTest(length=len(changed)), self.assertRaises(ValueError):
+                    m.canonical_files(changed, m.digest(changed))
 
     def test_standalone_relocated_cli_verify_and_wrong_pin(self):
         raw, _, verifier=self.fixture.build()
