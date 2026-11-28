@@ -6,7 +6,7 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent
 LEGACY=HERE.parent/'arm16k_perl5423_vm'
 if not LEGACY.is_dir():LEGACY=Path('/legacy')
-SOURCE65_SHA='f787650b1dcd78c4081b544719cd4f1d8d7c67c46da09c495e6c185917c542ac'
+SOURCE65_SHA='d0e5f15ceeb752247961ce0779fa39da630ce24d545007484c4a283e65bb08d7'
 
 
 @lru_cache(None)
@@ -26,7 +26,7 @@ def legacy(name):
 
 
 def source(expected):
- """Require exact source membership and the whole test-amended dependency seal."""
+ """Require exact source membership and the whole maintained dependency seal."""
  lock=HERE/'source.lock.json';raw=lock.read_bytes();pin=dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
  if not (expected==pin or type(expected)is str and expected==pin['sha256']):raise ValueError('exact diagnostic Source lock required')
  value=json.loads(raw);files=value['files'];actual=set()

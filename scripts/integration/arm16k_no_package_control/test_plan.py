@@ -48,12 +48,19 @@ class Controls(unittest.TestCase):
   spec=importlib.util.spec_from_file_location('sealed_plan_support',HERE/'support.py')
   support=importlib.util.module_from_spec(spec);spec.loader.exec_module(support)
   self.assertEqual(support.SOURCE65_SHA,pin['sha256'])
+  source=(HERE/'source.lock.json').read_bytes()
+  source_pin=dict(bytes=len(source),sha256=hashlib.sha256(source).hexdigest())
+  self.assertEqual(support.source(source_pin),source_pin)
+  with self.assertRaisesRegex(ValueError,'external exact closed adapter Source lock'):
+   support.legacy('adapter').source('f787650b1dcd78c4081b544719cd4f1d8d7c67c46da09c495e6c185917c542ac')
   template=json.loads((HERE/'operator-inputs.TEMPLATE.json').read_bytes())
+  self.assertEqual(template,support.local('contracts').input_template())
   self.assertEqual(template['comparison_source65'],pin)
   self.assertIsNone(template['source_lock']);self.assertIsNone(template['nonce'])
   self.assertIsNone(template['kernel']['accepted']);self.assertIsNone(template['baseline']['accepted'])
-  self.assertTrue(P.SOURCE65['production_bytes_unchanged'])
-  self.assertIn('test_probe_readiness.py',P.SOURCE65['test_only_amendment'])
+  self.assertFalse(P.SOURCE65['production_bytes_unchanged'])
+  self.assertEqual(P.SOURCE65['changed_since_author'],
+                   ['controller.py','source.lock.json','test_controls.py','test_probe_readiness.py'])
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

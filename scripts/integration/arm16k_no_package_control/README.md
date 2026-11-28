@@ -10,32 +10,28 @@ An API-compatible substitute with different bytes is refused. The reader is
 12810 bytes / SHA256
 `94a755ab24b940a809f53a78faf90a851ded9f14d28c0fdb9cf75f5e01c59f23`.
 
-The production comparison is Source65 author commit
+The original comparison is Source65 author commit
 `57c0aa8ad61b8128cc7a224030bebbc759a41df3`, family
 `09bd4c22062ca3b4c23019ff3564bd51c860d355`, 65 files/740759 bytes, lock10598 bytes /
 SHA256 `9324c8e79374ba95e5b2ce37e389b3e5732cf6c079ca6857b35205932ad5a61a`.
-Its production bytes and `image.preserve` remain unchanged. The maintained
-65-file dependency has a test-only amendment: two intentional `pidfd_open`
-models use explicit attribute creation, and a negative control verifies that
-the original peer refuses an absent API before process-identity access. The
-readiness fixture also uses a deterministic polling clock, including delayed
-publication coverage, so host scheduling cannot consume its modeled deadline.
-Guest barriers, timeouts and production bytes are unchanged; no test is skipped.
-Only `test_controls.py`, `test_probe_readiness.py` and regenerated
-`source.lock.json` differ from the author family. The whole amended dependency
-is742532 bytes, tree `7ad0d52fdeeeba3314d29201bd28f41766639625`, lock10598 bytes /
-SHA256 `f787650b1dcd78c4081b544719cd4f1d8d7c67c46da09c495e6c185917c542ac`.
+The maintained dependency includes the original peer's `pidfd_open` test
+controls and deterministic readiness fixtures. It also includes the Perl
+controller's terminal-report publication change from `c454d33606` and its
+source reseal from `9613c3501`. Relative to the author family, the changed
+files are `controller.py`, `test_controls.py`, `test_probe_readiness.py` and
+`source.lock.json`. The current dependency has 65 files totaling 744252 bytes,
+tree `37e4cb064448f1233763d538bec9b6a0f98940a3`, and a 10598-byte lock with
+SHA256 `d0e5f15ceeb752247961ce0779fa39da630ce24d545007484c4a283e65bb08d7`.
 The adapter seal, public input template and packet comparison join that exact
-whole dependency pin; A's three production helper pins remain byte-identical.
-This Main rebind records corrected test provenance, not runtime acceptance.
-The earlier `da1c8749…` dependency and `63ca909e…` diagnostic seals remain
-unchanged historical references; Root's frozen old snapshot is not relabelled.
+whole dependency pin. The reader's three production helper pins still match.
+The `da1c8749…`, `f787650b…` and `63ca909e…` seals describe historical
+snapshots. This rebind records maintained source provenance only.
 Case14 is consumed HOLD;
 Root-reported guest PASS/natural exit0 and `/var` mtime drift supply context,
 not acceptance or a proven creator. Nothing reenters case14.
 This public branch starts directly at Main
 `a246137c558001746a8e82f1e3f68720e2a02f8e`, which carried Source56. The
-Source65 production upgrade and explicitly sealed test amendment satisfy both
+Source65 production upgrade and subsequent reseals satisfy both
 the adapter and reader helper pins; no author branch history is merged.
 
 ## Runnable source interfaces
