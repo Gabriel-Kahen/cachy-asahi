@@ -10,6 +10,7 @@ from pathlib import Path
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
+from textwrap import dedent
 import unittest
 from unittest.mock import patch
 
@@ -115,6 +116,32 @@ class ReviewedBuildTests(unittest.TestCase):
                 with patch.object(reviewed.native_arm, 'main', return_value=0) as producer:
                     self.assertEqual(reviewed.main(args), 0)
                 producer.assert_called_once_with(args)
+
+
+class WorkflowRoutingTests(unittest.TestCase):
+    def test_only_maintained_build_selects_the_reviewed_driver(self):
+        path = reviewed.native_arm.ROOT / '.github/workflows/native-arm-build.yml'
+        text = path.read_text()
+        start = text.index('      - name: Authenticate inputs or build in isolated native containers')
+        step = text[start:text.index('      - name: Retain bounded evidence', start)]
+        body = dedent(step.split('        run: |\n', 1)[1])
+        fixture = 'env() { printf "%s\\n" "$@"; }\n'
+        for mode, driver in (('build', 'native_arm_reviewed.py'), ('audit', 'native_arm.py'),
+                             ('integration', 'native_arm.py')):
+            with self.subTest(mode=mode):
+                recipe_lock = ('scripts/ci/setup-0.1.0-4-recipes.lock.json' if mode == 'build'
+                               else 'scripts/ci/recipes.lock.json')
+                settings = {key: 'fixture' for key in ('RUNNER_TEMP', 'RUNNER_ARCH', 'RUNNER_OS', 'GITHUB_SHA',
+                            'GITHUB_REPOSITORY', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'NATIVE_INPUTS_PATH',
+                            'INPUTS_SHA256', 'RECIPES_SHA256', 'INTEGRATION_SHA256')}
+                settings.update(BUILD_MODE=mode, NATIVE_RECIPES_PATH=recipe_lock)
+                result = subprocess.run(['/bin/bash', '--noprofile', '--norc', '-c', fixture + body],
+                                        env=settings, check=True, capture_output=True, text=True, timeout=5)
+                call = result.stdout.splitlines()
+                at = call.index('python3')
+                self.assertEqual(call[at:at + 4], ['python3', '-B', f'scripts/ci/{driver}', mode])
+                self.assertEqual(call[call.index('--recipes') + 1], recipe_lock)
+                self.assertEqual(call[call.index('--recipes-sha256') + 1], settings['RECIPES_SHA256'])
 
 
 if __name__ == '__main__':
