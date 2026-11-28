@@ -26,7 +26,35 @@ These controls have inert coverage. The parity handoff, staged plan, guest
 journal and stopped receipt bind one independently reviewed profile. The
 historical V1 route retains its original input roles and receipt schema.
 
-## Inputs to supply after an accepted build
+## Verified build on November 28
+
+The explicit `parity` profile at `162429209eb90524d5a91733a70ce204086840f2`
+completed one serial offline `makepkg` build on the 357-package Q3 build
+root in emulated AArch64 with 16 KiB pages. The smoke test exercised
+offscreen Qt Widgets painting and the local Wayland server display API.
+The guest reported `PASS complete`. QEMU and the outer container exited
+0, the exact container was absent on both scans, and the original inputs
+verified unchanged. The build evidence set `qt629-parity-build-20261128`
+retains `owner-retirement.INDEPENDENT.json` and the files below.
+[Build source and readback procedure](../qt612_vulkan_md4c_successor/PARITY.md)
+
+| Retained build evidence | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `cachy-asahi-qt612-gui-server-source-reference-6.12.0-4-aarch64.pkg.tar.xz` | 14,333,964 | `d78d8101fac9386f5d2fd2ecc620748ba476c3c94f3041b9487eeb8099617865` |
+| `plan.json` | 58,421 | `23f3c3ab72b49ced5da17cb9aa810354c2b46a653b4bb114f3b160565eb5cc93` |
+| `build-readback.json` | 36,049 | `d3c68f353ea3d4e8cb106eaaa8c744c11028fe67e593d875b29ca84802127e90` |
+
+The plan and readback bind the same `parity` profile and source digest
+`c65c07662f1b0206d15fc0556db2c7d2892f96705977650c67fc703d76f52e31`.
+Stopped-disk readback verified the archive hash, `.BUILDINFO`, `.PKGINFO`,
+all 5,164 `.MTREE` entries and 62 AArch64 ELF objects. Against the prior
+project archive, it verified the exact 31 added files and the new
+`printsupport` directory, with zero removals. It also verified retained
+exports across all 18 Qt libraries, the AT-SPI bridge export and its
+Wayland and XCB imports, CUPS and XCB EGL plugin linkage, and the
+Vulkan/md4c ABI checks. [Independent archive reader](../qt612_vulkan_md4c_successor/arm16k_readback.py)
+
+## Reviewed profile inputs
 
 Create a canonical JSON profile using `C.wire` from `prepare.py`. Preserve
 the exact allowed fields below. Every pin is an object with integer
@@ -37,10 +65,10 @@ the exact allowed fields below. Every pin is an object with integer
 | `kind` | `QT612_ASAHI629_REVIEWED_PARITY_PROFILE_V1` |
 | `official_version` | `6.12.0-3` |
 | `project_version` | `6.12.0-4` |
-| `recipe` | 4,460 bytes and SHA-256 `0fc98bc3f5556b96012efa230d97f5eace3046c0f42984f9fc562040a7af0364` |
-| `project_archive` | Pinned unsigned `-4` archive exported by independent ARM16K build readback |
-| `build_plan` | Original sealed ARM16K full-build `plan.json` |
-| `build_receipt` | Canonical independent full-build readback stdout saved as `build-readback.json` |
+| `recipe` | Retained `PARITY.UNISSUED.json`, 4,460 bytes and SHA-256 `0fc98bc3f5556b96012efa230d97f5eace3046c0f42984f9fc562040a7af0364` |
+| `project_archive` | Retained unsigned `-4` archive pinned above |
+| `build_plan` | Original sealed full-build `plan.json` pinned above |
+| `build_receipt` | Canonical independent `build-readback.json` pinned above |
 | `abi_comparison` | Fresh signed-629 consumer audit saved as `comparison.json`, binding the `-4` archive, official archive and rollback lock |
 | `alpm_prepare` | Fresh mixed-version forward and reverse prepare-only transcript saved as `alpm-prepare.txt` |
 | `test_review` | `signature` and `certificate` pins, uppercase 40-hex primary `fingerprint`, and integer UNIX `not_before` and `not_after` for the fresh TEST certificate |
@@ -72,43 +100,15 @@ time and completed Qt journal. Its cleanup digest must match the canonical
 cleanup facts in the stopped observation. The stopped observation supplies the
 digest of the result disk reviewed by the exporter.
 
-## Seal the candidate archive
+## Compare the candidate on Asahi629
 
-1. Give the parity build its own authenticated-input profile. In
-   `../qt612_vulkan_md4c_successor/arm16k_inputs.py`, bind the canonical
-   `PARITY.UNISSUED.json` instead of the predecessor recipe receipt for that
-   profile. A clean source projection at `f00d72cac` produced 4,460 bytes
-   with SHA-256 `0fc98bc3f5556b96012efa230d97f5eace3046c0f42984f9fc562040a7af0364`.
-   Join the upstream, recipe and dependency pins to the new plan. Verify the
-   original ALARM-signed CUPS and AT-SPI inputs against the recipe and the
-   exact Q3 lock before normal dependency resolution. The Asahi629 lock
-   already has `libcups 2:2.4.20-1` and `at-spi2-core 2.62.1-1`. Keep
-   the original md4c and Vulkan header update and leave the build lock
-   formula unchanged if the signed Q3 inventory confirms those two parity
-   dependencies are already present.
-2. In `arm16k-build.sh`, `arm16k-guest-init.sh` and `arm16k_readback.py`,
-   bind the new profile to
-   `cachy-asahi-qt612-gui-server-source-reference-6.12.0-4-aarch64.pkg.tar.xz`.
-   Seal a fresh ARM64/16 KiB plan and build with the existing offline serial
-   makepkg policy. Verify the retired archive's metadata, stage inventory,
-   content hashes, QtGui AT-SPI bridge, CUPS and XCB EGL plugin linkage,
-   retained Vulkan/md4c checks, and all 31 expected added paths. Bind the
-   result to the new recipe, build nonce and natural retirement receipt.
-   Use the full archive audit report from `162429209eb` with `mtree`,
-   `path_delta`, `libraries` and `atspi_bridge_abi`. The replacement
-   reader requires explicit `profile: parity` and `source_sha256` in both
-   the build plan and the independent readback. It recomputes the source
-   digest over the profile, payload, launcher and actor pins. A historical
-   parity build plan that predates the explicit seal does not qualify.
-   Keep the historical recovery seal with the earlier archive.
-3. Compare the exact candidate to both audited 6.12.0-3 archives. Require
-   normal dependency resolution and the forward and reverse prepare-only
-   transactions against the untouched 629 database. Recompute the ABI scan
-   against the retained consumer set and verify package ownership, SONAMEs,
-   versioned and unversioned references, and expected additions. Record fresh
-   comparison and ALPM transcript pins. In the transcript, replacement adds
-   project `6.12.0-4` and removes official `6.12.0-3`. Restoration does
-   the inverse.
+Compare the exact candidate against both audited 6.12.0-3 archives.
+Require normal dependency resolution and forward and reverse prepare-only
+transactions against the untouched 629-package database. Recompute the ABI
+scan against the retained consumer set and verify package ownership,
+SONAMEs, versioned and unversioned references, and the expected additions.
+Record fresh comparison and ALPM transcript pins. Replacement adds project
+`6.12.0-4` and removes official `6.12.0-3`. Restoration does the inverse.
 
 ## Stage and independently verify a fresh trial
 
@@ -119,9 +119,8 @@ digest of the result disk reviewed by the exporter.
    R132 pins against the existing records. Check the candidate's own
    `.PKGINFO` for the project name, version, AArch64, explicit conflict and
    bare `qt6-base` provision. Join each record to the same exact candidate
-   archive. Measure its size before reusing the 16 MiB media cap. Any
-   required higher ceiling must be finite and consistent across packing,
-   guest rehash and stopped export.
+   archive. The verified archive fits the 16 MiB media cap. Verify the
+   same limit across packing, guest rehash and stopped export.
 2. TEST-sign only the independently accepted `-4` archive. Stage a fresh
    detached signature and public certificate with pinned bytes, primary
    fingerprint and validity bounds. Require a signer distinct from the
@@ -156,5 +155,6 @@ digest of the result disk reviewed by the exporter.
    check automatic XCB selection with GLX available. A scoped software swap
    result and runtime parity require their respective observations.
 
-The `-4` build, archive acceptance, TEST signing, guest trial and runtime
-parity are pending.
+TEST signing, the mixed-version Asahi629 installation and restoration,
+and installed provider parity remain open. Physical validation on both M2
+Air sizes also remains open.
