@@ -380,14 +380,16 @@ def write_bootstrap_session(path, session, context, script, deadline, *, entry_s
     session.sources.guard(deadline.work_end, session.cancelled)
 
 
-def validate_attempt_session(addon, session, context, attempt, package, prerequisite, owned, deadline):
+def validate_attempt_session(addon, session, context, attempt, package, prerequisite, owned, deadline, *, entry_sha256=None):
     deadline.remaining(1)
     session.sources.guard(deadline.work_end, session.cancelled)
     files = json.loads(context['receipt'])['files']
     rows = {name:{key:row[key] for key in ('sha256','mode')} for name,row in files.items()}
     need(rows == session.sources.original_rows, 'original-row-drift')
+    if entry_sha256 is None:
+        entry_sha256 = rows[addon.ENTRY_SOURCE]['sha256']
     record = addon.decode(read_session(addon, attempt / 'provenance.json', deadline))
-    addon.need(record.get('status') == 'built-package-static-pass' and record.get('exit_code') == 0 and (record.get('mode') == 'native') and (record.get('network') == 'none') and (record.get('image') == record.get('image_id') == prerequisite['image_id']) and (record.get('recipe_inputs') == package['build_helper_reviewed_inputs']) and (record.get('source_date_epoch') == prerequisite['epoch']) and (record.get('expected_packages_sha256') == prerequisite['packages_sha256']) and (record.get('entry_script_sha256') == rows['scripts/build/container-entry.sh']['sha256']) and (record.get('clean_environment_id') == owned['name']) and (owned['status'] == 'EXITED') and (owned.get('observed') is True) and (owned['exit_code'] == 0), 'attempt-binding-refused')
+    addon.need(record.get('status') == 'built-package-static-pass' and record.get('exit_code') == 0 and (record.get('mode') == 'native') and (record.get('network') == 'none') and (record.get('image') == record.get('image_id') == prerequisite['image_id']) and (record.get('recipe_inputs') == package['build_helper_reviewed_inputs']) and (record.get('source_date_epoch') == prerequisite['epoch']) and (record.get('expected_packages_sha256') == prerequisite['packages_sha256']) and (record.get('entry_script_sha256') == entry_sha256) and (record.get('clean_environment_id') == owned['name']) and (owned['status'] == 'EXITED') and (owned.get('observed') is True) and (owned['exit_code'] == 0), 'attempt-binding-refused')
     validation = addon.decode(read_session(addon, attempt / 'validation.json', deadline))
     addon.need(validation.get('errors') == [] and len(validation.get('artifacts', [])) == 1, 'attempt-validation-refused')
     required = {'build.log', 'validation.json', 'expected-packages.lock', 'artifacts/packages.lock', 'artifacts/generated.SRCINFO', 'artifacts/environment.txt', 'artifacts/config.sha256', 'artifacts/makepkg.conf', 'artifacts/pacman.conf'}
@@ -856,8 +858,12 @@ def run_zsh(controller, root, output, cache=None, *, session, actor_contract_raw
         script = context['root'] / 'scripts/build/build.py'
         entry = context['root'] / addon.ENTRY_SOURCE
         config.update(base_config=image[0]['Config'])
-        config.update(addon.entry_profile(session.sources.raw['scripts/build/build.py'], entry,
-                                          session.sources.captured_code(entry)))
+        builder_raw = session.sources.raw['scripts/build/build.py']
+        entry_raw = (session.sources.captured_code(entry) if sha(builder_raw) == addon.LEGACY_BUILDER_SHA256
+                     else session.sources.raw[addon.ENTRY_SOURCE])
+        entry_sha256 = sha(entry_raw)
+        config.update(addon.entry_profile(builder_raw, entry, entry_raw,
+                                          reviewed=package['build_helper_reviewed_inputs']))
         result['source_binding']={'contract_sha256':sha(contract_raw),'recipe_inputs':package['build_helper_reviewed_inputs'],
             'packages_sha256':prerequisite['packages_sha256'],'source_commit':controller.commit}
         reviewed=output/'reviewed-inputs.json';save_session(addon,reviewed,package['build_helper_reviewed_inputs'],deadline)
@@ -890,7 +896,8 @@ def run_zsh(controller, root, output, cache=None, *, session, actor_contract_raw
             code,_=supervised_session(addon,argv,env,deadline,360,output/f'attempt-{number}.log',quota_root=output)
             need(code==0,'native-build-failed')
             owned=addon.decode(read_session(addon,lane/'owned.json',deadline))
-            archive=validate_attempt_session(addon,session,context,attempt,package,prerequisite,owned,deadline)
+            archive = validate_attempt_session(addon, session, context, attempt, package, prerequisite, owned, deadline,
+                                               entry_sha256=entry_sha256)
             result['attempts'].append({'status':'PASS','exit_code':code,'archive':archive,'shim_sha256':sha(launcher)})
             result['attempts'][-1]['cleanup']=cleanup_attempt_session(addon,c,deadline)
         need(result['attempts'][0]['archive']['cid']!=result['attempts'][1]['archive']['cid'] and

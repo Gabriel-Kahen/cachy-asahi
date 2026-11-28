@@ -632,6 +632,65 @@ class ValidationTests(unittest.TestCase):
                 run.assert_called_once()
                 self.assertEqual(json.loads((output / 'provenance.json').read_text())['exit_code'], 17)
 
+    def test_builder_checks_private_recipe_copy_before_makepkg(self):
+        recipe = self.recipe()
+        extra = recipe.parent / 'line\nwith \\ spaces and é'
+        extra.write_bytes(b'input with an unusual name\n')
+        reviewed = self.root / 'reviewed.json'
+        inputs = checks.recipe(recipe)['input_sha256']
+        reviewed.write_text(json.dumps(inputs))
+        lock = self.root / 'packages.lock'
+        lock.write_text('base-devel 1-1\n')
+        image = 'sha256:' + 'c' * 64
+        run_fixture = subprocess.run
+        env_name = 'CACHY_ASAHI_RECIPE_INPUTS_SHA256'
+
+        for change in ('none', 'changed-pkgbuild', 'extra-file', 'removed-file', 'symlink', 'missing-pin'):
+            with self.subTest(change=change):
+                output = self.root / change
+                private = output / 'private-copy'
+                argv = ['build.py', str(recipe.parent), '--image', image, '--output', str(output),
+                        '--mode', 'native', '--source-date-epoch', '1', '--expected-packages', str(lock),
+                        '--reviewed-inputs', str(reviewed)]
+
+                def mocked_docker(command, **kwargs):
+                    record = json.loads((output / 'provenance.json').read_text())
+                    self.assertEqual(record['recipe_inputs'], inputs)
+                    staging = output / 'inputs'
+                    if change == 'changed-pkgbuild':
+                        (staging / 'PKGBUILD').write_text('# different inert recipe\n')
+                    elif change == 'extra-file':
+                        (staging / 'extra').write_text('unreviewed local input\n')
+                    elif change == 'removed-file':
+                        (staging / extra.name).unlink()
+                    elif change == 'symlink':
+                        (staging / 'payload').unlink()
+                        (staging / 'payload').symlink_to(recipe.parent / 'payload')
+                    private.mkdir()
+                    entry = command[-2]
+                    functions = entry[entry.index('compare_srcinfo() {'):entry.index('[[ $' + '{CACHY_ASAHI_CONTAINER')]
+                    start = entry.index('cp -R /inputs/. /tmp/work/')
+                    end = entry.index('\n{\n  uname -a', start)
+                    stage = entry[start:end].replace('cp -R /inputs/. /tmp/work/', 'cp -R "$1/." "$2/"')
+                    stage = stage.replace('cd /tmp/work', 'cd "$2"')
+                    expected = next((arg.split('=', 1)[1] for arg in command if arg.startswith(env_name + '=')), '')
+                    if change == 'missing-pin':
+                        expected = ''
+                    completed = run_fixture(['bash', '-euo', 'pipefail', '-c',
+                        functions + stage + '\nprintf "reached makepkg boundary\\n"\n',
+                        'mocked-container-entry', str(staging), str(private)],
+                        env={**os.environ, 'LC_ALL': 'C.UTF-8', env_name: expected}, capture_output=True, timeout=5)
+                    self.assertEqual(completed.returncode == 0, change == 'none', completed.stderr)
+                    self.assertEqual(b'reached makepkg boundary' in completed.stdout, change == 'none')
+                    return subprocess.CompletedProcess(command, 17)
+
+                with patch.object(sys, 'argv', argv), patch.object(build, 'capture', side_effect=[
+                    json.dumps([dict(Architecture='arm64', Os='linux', Id=image)]), 'aarch64'
+                ]), patch.object(build.subprocess, 'run', side_effect=mocked_docker) as run, \
+                     contextlib.redirect_stderr(io.StringIO()):
+                    self.assertEqual(build.main(), 1)
+                run.assert_called_once()
+
     def test_copied_evidence_does_not_count_as_second_execution(self):
         first = self.evidence('first', self.archive())
         second = self.root / 'copied'

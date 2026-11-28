@@ -245,15 +245,23 @@ class CommandTests(unittest.TestCase):
         current = root / 'scripts/build/build.py'
         self.assertEqual(zsh.entry_profile(historic.read_bytes(), legacy['entry'], entry),
                          {'entry': legacy['entry']})
+        old_entry = historic.with_name('container-entry.sh').read_bytes()
+        self.assertEqual(zsh.entry_profile(current.read_bytes(), legacy['entry'], old_entry),
+                         {'entry_script': old_entry.decode('utf-8')})
         captured = {key: value for key, value in legacy.items() if key != 'entry'}
-        captured.update(zsh.entry_profile(current.read_bytes(), legacy['entry'], entry))
+        captured.update(zsh.entry_profile(current.read_bytes(), legacy['entry'], entry,
+                                          reviewed={'PKGBUILD': '1' * 64}))
         argv = list(self.argv)
         at = argv.index(f'type=bind,src={legacy["entry"]},dst=/builder-entry.sh,readonly')
         del argv[at - 1:at + 1]
         argv[-1:] = ['-c', entry.decode('utf-8'), '/builder-entry.sh']
+        item = f"{zsh.RECIPE_INPUTS_ENV}={captured['recipe_inputs_sha256']}"
+        start = argv.index('--mount')
+        argv[start:start] = ['--env', item]
         self.assertEqual(zsh.exact_run(captured, argv)['original'], argv)
         self.assertEqual(zsh.exact_run(legacy, self.argv)['original'], self.argv)
         for config, command in ((captured, self.argv), (legacy, argv),
+                                (captured, [*argv[:start], *argv[start + 2:]]),
                                 (captured, [*argv[:-2], '# changed entry', argv[-1]])):
             with self.assertRaisesRegex(zsh.Refusal, 'docker-run-refused'):
                 zsh.exact_run(config, command)
@@ -317,11 +325,14 @@ class ContainerTests(unittest.TestCase):
     def test_captured_entry_inspection_binds_exact_script_and_three_mounts(self):
         config = dict(self.config)
         entry = Path(config.pop('entry')).read_text()
-        config['entry_script'] = entry
+        config.update(entry_script=entry, recipe_inputs_sha256='1' * 64)
         observed = copy.deepcopy(self.info)
         with self.assertRaisesRegex(zsh.Refusal, 'container-config-refused'):
             zsh.validate_container(config, observed, self.name, self.cid)
         observed['Config']['Cmd'] = ['-c', entry, '/builder-entry.sh']
+        with self.assertRaisesRegex(zsh.Refusal, 'container-env-refused'):
+            zsh.validate_container(config, observed, self.name, self.cid)
+        observed['Config']['Env'].append(zsh.RECIPE_INPUTS_ENV + '=' + '1' * 64)
         with self.assertRaisesRegex(zsh.Refusal, 'container-mount-refused'):
             zsh.validate_container(config, observed, self.name, self.cid)
         observed['Mounts'] = [row for row in observed['Mounts'] if row['Destination'] != '/builder-entry.sh']

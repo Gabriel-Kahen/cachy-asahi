@@ -116,7 +116,7 @@ class BaseStages(unittest.TestCase):
             'recipe_inputs': self.reviewed, 'expected_packages_sha256': b.digest(self.native / 'packages.lock'),
             'clean_environment_id': name_container,
             'command': b.build_container_command(self.root, path, self.controller.image, name_container,
-                                                  entry_script=entry_script),
+                                                  entry_script=entry_script, reviewed=self.reviewed),
             'entry_script_sha256': hashlib.sha256(entry_script).hexdigest() if entry_script is not None else None,
             'artifacts': {name: b.digest(artifacts / name)}, 'files': files})
 
@@ -658,7 +658,8 @@ class BaseStages(unittest.TestCase):
                       ('/expected-packages.lock', attempt / 'expected-packages.lock', False))]
         observed = {'id': identity, 'name': '/' + name, 'image': self.controller.image, 'mounts': mounts}
         if captured:
-            observed.update(entrypoint=['/bin/bash'], cmd=['-c', entry_script.decode('utf-8'), '/builder-entry.sh'])
+            observed.update(entrypoint=['/bin/bash'], cmd=['-c', entry_script.decode('utf-8'), '/builder-entry.sh'],
+                            env=[b.ksm_recipe_environment(entry_script, self.reviewed)])
         else:
             mounts.append({'Type': 'bind', 'Destination': '/builder-entry.sh',
                            'Source': str(self.root / 'scripts/build/container-entry.sh'), 'RW': False})
@@ -675,6 +676,7 @@ class BaseStages(unittest.TestCase):
             elif argv[4] == 'inspect':
                 self.assertIn('"entrypoint":{{json .Config.Entrypoint}}', argv[-1])
                 self.assertIn('"cmd":{{json .Config.Cmd}}', argv[-1])
+                self.assertIn('"env":{{json .Config.Env}}', argv[-1])
                 b.save(Path(log), observed)
             else:
                 self.assertEqual(argv[4:], ['rm', '-f', identity])
@@ -696,25 +698,42 @@ class BaseStages(unittest.TestCase):
         argv, entry_script = b.ksm_builder(self.root)
         self.assertEqual(argv, [b.sys.executable, '-B', str(self.root / 'scripts/build/build.py')])
         self.assertIsNone(entry_script)
+        old_entry = held.with_name('container-entry.sh').read_bytes()
+        self.assertIsNone(b.ksm_recipe_environment(old_entry, self.reviewed))
+        command = b.build_container_command(self.root, self.output, self.controller.image, 'fixture',
+                                            entry_script=old_entry, reviewed=self.reviewed)
+        self.assertEqual(command[-3:], ['-c', old_entry.decode('utf-8'), '/builder-entry.sh'])
+        self.assertFalse(any(arg.startswith(b.RECIPE_INPUTS_ENV + '=') for arg in command))
 
     def test_current_cleanup_requires_captured_receipt_and_exact_inspected_command(self):
         calls, _, _ = self.cleanup_fixture(captured=True)
         # Cleanup uses the captured bytes even if the original file has changed.
         (self.root / 'scripts/build/container-entry.sh').write_bytes(b'# changed entry\n')
-        result = b.cleanup_ksm(self.root, self.output, self.controller.image, entry_script=self.entry_script)
+        result = b.cleanup_ksm(self.root, self.output, self.controller.image,
+                               entry_script=self.entry_script, reviewed=self.reviewed)
         self.assertEqual(result['status'], 'PASS')
         self.assertEqual([argv[4] for argv in calls], ['ls', 'inspect', 'rm', 'ls'])
 
     def test_current_cleanup_refuses_legacy_receipt_before_query(self):
         calls, _, _ = self.cleanup_fixture()
-        result = b.cleanup_ksm(self.root, self.output, self.controller.image, entry_script=self.entry_script)
+        result = b.cleanup_ksm(self.root, self.output, self.controller.image,
+                               entry_script=self.entry_script, reviewed=self.reviewed)
         self.assertEqual(result['status'], 'FAIL')
         self.assertEqual(calls, [])
 
     def test_current_cleanup_never_removes_after_inspected_entry_drift(self):
         calls, _, _ = self.cleanup_fixture(
             lambda row: row.update(cmd=['-c', '# different entry', '/builder-entry.sh']), captured=True)
-        result = b.cleanup_ksm(self.root, self.output, self.controller.image, entry_script=self.entry_script)
+        result = b.cleanup_ksm(self.root, self.output, self.controller.image,
+                               entry_script=self.entry_script, reviewed=self.reviewed)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertNotIn('rm', [argv[4] for argv in calls])
+
+    def test_current_cleanup_never_removes_with_a_duplicate_recipe_digest_environment(self):
+        calls, _, _ = self.cleanup_fixture(
+            lambda row: row['env'].append(b.RECIPE_INPUTS_ENV + '=' + '0' * 64), captured=True)
+        result = b.cleanup_ksm(self.root, self.output, self.controller.image,
+                               entry_script=self.entry_script, reviewed=self.reviewed)
         self.assertEqual(result['status'], 'FAIL')
         self.assertNotIn('rm', [argv[4] for argv in calls])
 

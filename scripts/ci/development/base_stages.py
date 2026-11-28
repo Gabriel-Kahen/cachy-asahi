@@ -34,6 +34,8 @@ LEGACY_KSM_BUILDERS = {
     'e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45',
     'bb1d506ee443102073b4265d848b505afa18a5176af10780de487731529a137f',
 }
+LEGACY_KSM_ENTRY_SHA256 = '89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24'
+RECIPE_INPUTS_ENV = 'CACHY_ASAHI_RECIPE_INPUTS_SHA256'
 KSM_PIN = 'f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44'
 # Lock for the live ARM-C01 sources selected by the dual-source repository packet.
 ARM_PIN = '836826add973c81439071c5a12541e5b1cead66446b1d080f35f9e552f8bb573'
@@ -221,7 +223,8 @@ def verify_ksm_attempt(root, attempt, reviewed, prerequisite, *, entry_script=No
         require(isinstance(name, str) and re.fullmatch(r'cachy-asahi-[0-9a-f]{16}', name) and
                 record.get('entry_script_sha256') == hashlib.sha256(entry_script).hexdigest() and
                 record.get('command') == build_container_command(root, attempt, prerequisite['image_id'], name,
-                                                                 entry_script=entry_script), 'ksm-entry-binding-failed')
+                                                                 entry_script=entry_script, reviewed=reviewed),
+                'ksm-entry-binding-failed')
     validation = read_json(attempt / 'validation.json', **deadline_options(deadline))
     require(validation.get('errors') == [] and len(validation.get('artifacts', [])) == 1, 'ksm-static-validation-failed')
     required = {'build.log', 'validation.json', 'expected-packages.lock', 'artifacts/packages.lock',
@@ -289,15 +292,26 @@ def ksm_builder(root, *, deadline=None):
     return [sys.executable, '-B', '-c', launch], entry
 
 
-def build_container_command(root, attempt, image, name, *, entry_script=None):
+def ksm_recipe_environment(entry_script, reviewed):
+    if entry_script is None or hashlib.sha256(entry_script).hexdigest() == LEGACY_KSM_ENTRY_SHA256:
+        return None
+    require(isinstance(reviewed, dict) and reviewed, 'ksm-reviewed-inputs-required')
+    rows = sorted((os.fsencode(name), checksum) for name, checksum in reviewed.items())
+    raw = b''.join(checksum.encode('ascii') + b'  ./' + name + b'\0' for name, checksum in rows)
+    return RECIPE_INPUTS_ENV + '=' + hashlib.sha256(raw).hexdigest()
+
+
+def build_container_command(root, attempt, image, name, *, entry_script=None, reviewed=None):
     entry_bind = [] if entry_script is not None else [
         '--mount', f'type=bind,src={root / "scripts/build/container-entry.sh"},dst=/builder-entry.sh,readonly']
     entry_args = [] if entry_script is None else ['-c', entry_script.decode('utf-8')]
+    recipe_env = ksm_recipe_environment(entry_script, reviewed)
+    recipe_args = [] if recipe_env is None else ['--env', recipe_env]
     return ['docker', 'run', '--rm', '--name', name, '--pull=never', '--platform', 'linux/arm64',
             '--user', f'{os.getuid()}:{os.getgid()}', '--cap-drop=ALL', '--security-opt=no-new-privileges',
             '--read-only', '--pids-limit', '512', '--memory', '4g', '--cpus', '4', '--network', 'none',
             '--tmpfs', '/tmp:rw,nosuid,nodev,exec,size=4g', '--env', 'CACHY_ASAHI_CONTAINER=1',
-            '--env', 'SOURCE_DATE_EPOCH=' + str(EPOCH),
+            '--env', 'SOURCE_DATE_EPOCH=' + str(EPOCH), *recipe_args,
             '--mount', f'type=bind,src={attempt / "inputs"},dst=/inputs,readonly',
             '--mount', f'type=bind,src={attempt / "artifacts"},dst=/out',
             *entry_bind,
@@ -350,7 +364,7 @@ def defer_cleanup(first_failure=None, cleanup_errors=None):
                 raise CleanupFailure() from errors[0]
 
 
-def cleanup_ksm(root, output, image, *, entry_script=None, deadline=None):
+def cleanup_ksm(root, output, image, *, entry_script=None, reviewed=None, deadline=None):
     """Bind recorded owner argv and observed identity before deleting a container.
 
     The owner writes provenance before Docker run. No provenance means no
@@ -379,7 +393,8 @@ def cleanup_ksm(root, output, image, *, entry_script=None, deadline=None):
             name = record.get('clean_environment_id')
             require(isinstance(name, str) and re.fullmatch(r'cachy-asahi-[0-9a-f]{16}', name), 'ksm-cleanup-ownership-invalid')
             require(record.get('image_id') == image and record.get('image') == image and
-                    record.get('command') == build_container_command(root, attempt, image, name, entry_script=entry_script),
+                    record.get('command') == build_container_command(root, attempt, image, name,
+                                                                     entry_script=entry_script, reviewed=reviewed),
                     'ksm-cleanup-ownership-invalid')
             if entry_script is not None:
                 require(record.get('entry_script_sha256') == hashlib.sha256(entry_script).hexdigest(),
@@ -406,7 +421,7 @@ def cleanup_ksm(root, output, image, *, entry_script=None, deadline=None):
                 require(re.fullmatch(r'[0-9a-f]{12,64}', before), 'ksm-cleanup-list-invalid')
                 observed = read_json(query('inspect', ['container', 'inspect', name, '--format',
                     '{"id":{{json .Id}},"name":{{json .Name}},"image":{{json .Image}},"mounts":{{json .Mounts}},'
-                    '"entrypoint":{{json .Config.Entrypoint}},"cmd":{{json .Config.Cmd}}}']), **deadline_options(deadline))
+                    '"entrypoint":{{json .Config.Entrypoint}},"cmd":{{json .Config.Cmd}},"env":{{json .Config.Env}}}']), **deadline_options(deadline))
                 identity = observed.get('id')
                 require(isinstance(identity, str) and re.fullmatch(r'[0-9a-f]{64}', identity)
                         and identity.startswith(before) and observed.get('name') == '/' + name and observed.get('image') == image,
@@ -419,6 +434,10 @@ def cleanup_ksm(root, output, image, *, entry_script=None, deadline=None):
                     require(observed.get('entrypoint') == ['/bin/bash'] and
                             observed.get('cmd') == ['-c', entry_script.decode('utf-8'), '/builder-entry.sh'],
                             'ksm-cleanup-entry-invalid')
+                    recipe_env = ksm_recipe_environment(entry_script, reviewed)
+                    if recipe_env is not None:
+                        require([value for value in observed.get('env', []) if value.startswith(RECIPE_INPUTS_ENV + '=')]
+                                == [recipe_env], 'ksm-cleanup-recipe-environment-invalid')
                 actual, targets = {}, set()
                 for mount in observed.get('mounts', []):
                     check_deadline(deadline); target = mount.get('Destination')
@@ -451,7 +470,7 @@ def cleanup_ksm(root, output, image, *, entry_script=None, deadline=None):
 
 def run_ksm(controller, root, output, *, deadline=None):
     result = {'stage': 'ksm', 'status': 'FAIL', 'prerequisite': {'status': 'NOT RUN'}, 'public': []}
-    owned, first_failure, entry_script = None, None, None
+    owned, first_failure, entry_script, reviewed = None, None, None, None
     try:
         root, owned, result = start(controller, root, output, 'ksm', **deadline_options(deadline))
         recipe, reviewed = ksm_recipe(root, **deadline_options(deadline))
@@ -512,7 +531,7 @@ def run_ksm(controller, root, output, *, deadline=None):
             cleanup_errors = []
             with defer_cleanup(first_failure, cleanup_errors) as events:
                 try:
-                    cleanup = cleanup_ksm(root, owned, controller.image, entry_script=entry_script,
+                    cleanup = cleanup_ksm(root, owned, controller.image, entry_script=entry_script, reviewed=reviewed,
                                           **deadline_options(deadline))
                 except Exception:
                     cleanup = {'status': 'FAIL', 'error_code': 'ksm-owned-cleanup-failed', 'absence_verified': False}

@@ -625,7 +625,7 @@ class OrchestrationModelTests(unittest.TestCase):
         self.session=SimpleNamespace(job_deadline=1200.0,cancelled=False,
             source_graph={'zsh':{'zsh_addon':addon}},
             sources=SimpleNamespace(root=self.root,raw=raw,grant_pin='b'*64,guard=lambda *_:None,
-                captured_code=lambda path: {self.view / addon.ENTRY_SOURCE: raw[addon.ENTRY_SOURCE]}[path]))
+                captured_code=lambda path: {self.view / addon.ENTRY_SOURCE: b'# different held entry fixture\n'}[path]))
         self.pair={'status':'contents-reproduced','errors':[], 'packages':{
             'cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.zst':{
              'installed_contents_equal':True,'pkginfo_equal':True,'bytes_equal':True,'buildinfo_equal':True}}}
@@ -671,7 +671,8 @@ class OrchestrationModelTests(unittest.TestCase):
             return 0,b''
         return 0,json.dumps(self.pair).encode()
 
-    def archive(self,helper,session,context,attempt,package,prerequisite,owned,deadline):
+    def archive(self,helper,session,context,attempt,package,prerequisite,owned,deadline,*,entry_sha256):
+        self.assertEqual(entry_sha256, adapter.sha(session.sources.raw[addon.ENTRY_SOURCE]))
         number=len(self.archive_calls)+1;self.archive_calls.append(str(attempt))
         return {'name':'model-archive','sha256':'f'*64,'bytes':1,
                 'cid':str(number)*64,'clean_environment_id':f'model-clean-{number}'}
@@ -698,12 +699,13 @@ class OrchestrationModelTests(unittest.TestCase):
         config = json.loads((self.output / 'lane-1/gate.json').read_bytes())
         self.assertEqual(config['entry_script'], entry.decode('utf-8'))
         self.assertNotIn('entry', config)
+        self.assertRegex(config['recipe_inputs_sha256'], r'^[0-9a-f]{64}$')
         self.assertIn(f'build.main(entry_script={entry!r})', (self.output / 'build-1.py').read_text())
         self.assertEqual(self.borrow_calls,[1080.0,1080.0,1080.0,1080.0,1200.0,1200.0])
         self.assertFalse(addon._RECEIPT_FILES)
 
     def test_reused_clean_identity_refuses_before_comparison(self):
-        def repeated(*args):return {'cid':'1'*64,'clean_environment_id':'reused-model'}
+        def repeated(*args,**kwargs):return {'cid':'1'*64,'clean_environment_id':'reused-model'}
         with patch.object(adapter,'validate_attempt_session',side_effect=repeated):result=self.run_model()
         self.assertEqual(result['status'],'FAIL')
         self.assertEqual(result['first_failure'],'clean-pair-identity-refused')
@@ -941,7 +943,8 @@ class GateProfileModelTests(unittest.TestCase):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
         root=Path(self.tmp.name);attempt=root/'attempt'
         self.config={'actor_env':{},'image':'sha256:'+'a'*64,'uid':1000,'gid':1001,'epoch':1,
-            'attempt':str(attempt),'entry_script':'# captured inert entry\n','cidfile':str(root/'cid'),
+            'attempt':str(attempt),'entry_script':'# captured inert entry\n','recipe_inputs_sha256':'3'*64,
+            'cidfile':str(root/'cid'),
             'owned':str(root/'owned.json'),'endpoint':'unix:///inert/socket','daemon_id':'model-daemon',
             'stage_end':1200.0,'work_end':1080.0,'gate_end':270.0}
         self.name='cachy-asahi-'+'b'*16;self.cid='c'*64;self.reply=self.cid
@@ -949,7 +952,8 @@ class GateProfileModelTests(unittest.TestCase):
             '--user','1000:1001','--cap-drop=ALL','--security-opt=no-new-privileges','--read-only',
             '--pids-limit','512','--memory','4g','--cpus','4','--network','none',
             '--tmpfs','/tmp:rw,nosuid,nodev,exec,size=4g','--env','CACHY_ASAHI_CONTAINER=1',
-            '--env','SOURCE_DATE_EPOCH=1','--mount',f'type=bind,src={attempt}/inputs,dst=/inputs,readonly',
+            '--env','SOURCE_DATE_EPOCH=1','--env',f'{addon.RECIPE_INPUTS_ENV}=' + '3'*64,
+            '--mount',f'type=bind,src={attempt}/inputs,dst=/inputs,readonly',
             '--mount',f'type=bind,src={attempt}/artifacts,dst=/out','--mount',
             f'type=bind,src={attempt}/expected-packages.lock,dst=/expected-packages.lock,readonly',
             '--entrypoint','/bin/bash',self.config['image'],'-c',self.config['entry_script'],'/builder-entry.sh']

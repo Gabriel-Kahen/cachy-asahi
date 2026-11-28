@@ -73,6 +73,13 @@ def bind_artifact(reviewed, report, recipe_hash):
     return errors
 
 
+def recipe_inputs_digest(hashes):
+    """Hash the same NUL-delimited sha256sum inventory as the container."""
+    rows = sorted((os.fsencode(name), checksum) for name, checksum in hashes.items())
+    return hashlib.sha256(b''.join(checksum.encode('ascii') + b'  ./' + name + b'\0'
+                                   for name, checksum in rows)).hexdigest()
+
+
 def main(*, entry_script=None):
     """Build with the checkout entry or bytes supplied by a source-pinning caller."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -147,6 +154,7 @@ def main(*, entry_script=None):
                    '--pids-limit', '512', '--memory', '4g', '--cpus', '4',
                    '--network', args.network, '--tmpfs', '/tmp:rw,nosuid,nodev,exec,size=4g',
                    '--env', 'CACHY_ASAHI_CONTAINER=1', '--env', f'SOURCE_DATE_EPOCH={args.source_date_epoch}',
+                   '--env', f'CACHY_ASAHI_RECIPE_INPUTS_SHA256={recipe_inputs_digest(snapshot["input_sha256"])}',
                    '--mount', f'type=bind,src={inputs},dst=/inputs,readonly',
                    '--mount', f'type=bind,src={artifacts},dst=/out',
                    '--mount', f'type=bind,src={expected_lock},dst=/expected-packages.lock,readonly',

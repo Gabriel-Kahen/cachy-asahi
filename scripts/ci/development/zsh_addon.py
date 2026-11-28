@@ -49,6 +49,8 @@ META = {'.PKGINFO', '.BUILDINFO', '.MTREE'}
 ENTRY_SOURCE = 'scripts/build/container-entry.sh'
 # The original Zsh source packet selects the historical bind-mount builder.
 LEGACY_BUILDER_SHA256 = 'e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45'
+LEGACY_ENTRY_SHA256 = '89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24'
+RECIPE_INPUTS_ENV = 'CACHY_ASAHI_RECIPE_INPUTS_SHA256'
 MAX_FILE = 8 * 1024**2
 MAX_TOTAL = 64 * 1024**2
 
@@ -993,10 +995,24 @@ class SourceAuthority(importlib.abc.MetaPathFinder):
         return native.main(argv, integration_consumers=consume)
 
 
-def entry_profile(builder, path, entry):
+def entry_profile(builder, path, entry, *, reviewed=None):
     if sha(builder) == LEGACY_BUILDER_SHA256:
         return {'entry': str(path)}
-    return {'entry_script': entry.decode('utf-8')}
+    profile = {'entry_script': entry.decode('utf-8')}
+    if sha(entry) != LEGACY_ENTRY_SHA256:
+        need(isinstance(reviewed, dict) and reviewed, 'docker-reviewed-inputs-required')
+        rows = sorted((os.fsencode(name), checksum) for name, checksum in reviewed.items())
+        raw = b''.join(checksum.encode('ascii') + b'  ./' + name + b'\0' for name, checksum in rows)
+        profile['recipe_inputs_sha256'] = sha(raw)
+    return profile
+
+
+def recipe_environment(config):
+    if 'recipe_inputs_sha256' not in config:
+        return {}
+    pin = config['recipe_inputs_sha256']
+    need('entry_script' in config and type(pin) is str and HEX.fullmatch(pin), 'docker-recipe-input-digest-invalid')
+    return {RECIPE_INPUTS_ENV: pin}
 
 
 def entry_command(config):
@@ -1015,11 +1031,12 @@ def exact_run(config, argv):
     attempt = Path(config['attempt'])
     entry_args = entry_command(config)
     entry_bind = ['--mount', f'type=bind,src={config["entry"]},dst=/builder-entry.sh,readonly'] if 'entry' in config else []
+    recipe_env = [arg for key, value in recipe_environment(config).items() for arg in ('--env', f'{key}={value}')]
     expected = ['run', '--rm', '--name', name, '--pull=never', '--platform', 'linux/arm64',
                 '--user', f"{config['uid']}:{config['gid']}", '--cap-drop=ALL', '--security-opt=no-new-privileges',
                 '--read-only', '--pids-limit', '512', '--memory', '4g', '--cpus', '4', '--network', 'none',
                 '--tmpfs', '/tmp:rw,nosuid,nodev,exec,size=4g', '--env', 'CACHY_ASAHI_CONTAINER=1',
-                '--env', f"SOURCE_DATE_EPOCH={config['epoch']}",
+                '--env', f"SOURCE_DATE_EPOCH={config['epoch']}", *recipe_env,
                 '--mount', f'type=bind,src={attempt / "inputs"},dst=/inputs,readonly',
                 '--mount', f'type=bind,src={attempt / "artifacts"},dst=/out',
                 *entry_bind,
@@ -1046,6 +1063,7 @@ def validate_container(config, info, name, cid):
     base_env = config['base_config'].get('Env') or []
     env = dict(v.split('=', 1) for v in base_env)
     env.update(CACHY_ASAHI_CONTAINER='1', SOURCE_DATE_EPOCH=str(config['epoch']))
+    env.update(recipe_environment(config))
     need(c.get('Env') is not None and len(c['Env']) == len(env) and
          dict(v.split('=', 1) for v in c['Env']) == env, 'container-env-refused')
     need(h.get('NetworkMode') == 'none' and h.get('ReadonlyRootfs') is True and h.get('Privileged') is False and
@@ -1365,7 +1383,8 @@ def run_zsh(controller, root, output, cache=None, *, authority):
         entry_raw = read(entry)
         need(sha(entry_raw) == authority.packet['initial_source_files'][ENTRY_SOURCE]['sha256'],
              'entry-source-pin-drift')
-        config.update(entry_profile(authority.bytes(script), entry, entry_raw))
+        config.update(entry_profile(authority.bytes(script), entry, entry_raw,
+                                    reviewed=package['build_helper_reviewed_inputs']))
         result['actor_binding'] = {k: config[k] for k in ('image', 'endpoint', 'daemon_id', 'docker_sha256', 'socket_identity',
                                                        'python_sha256', 'uid', 'gid', 'epoch')}
         result['source_binding'] = {'contract_sha256': sha(contract_bytes), 'recipe_inputs': package['build_helper_reviewed_inputs'],
