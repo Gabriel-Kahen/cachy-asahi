@@ -4,6 +4,7 @@
 import argparse
 from collections import defaultdict
 from contextlib import contextmanager
+import errno
 from functools import cmp_to_key
 import hashlib
 import gzip
@@ -347,32 +348,44 @@ def apply(cache, database, policy, plan, plan_sha256, selected):
             qname = '.package-cache-' + secrets.token_hex(12);quarantine = str(paths[0] / qname)
             os.mkdir(qname, 0o700, dir_fd=fds[0])
             qfd = os.open(qname, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fds[0]);held = os.fstat(qfd)
+            claim = None
             try:
                 for name in selected:
                     guard(paths, fds);lock_guard()
                     need(same_archive(record(fds[0], name), candidates[name]), 'selected archive changed: ' + name)
+                    # Record the sole pending claim before rename can be interrupted.
+                    claim = name
                     os.rename(name, name, src_dir_fd=fds[0], dst_dir_fd=qfd)
                     need(same_archive(record(qfd, name), candidates[name], moved=True), 'claimed archive replaced/changed: ' + name)
                     guard(paths, fds);lock_guard()
                     current = os.stat(qname, dir_fd=fds[0], follow_symlinks=False);held = os.fstat(qfd)
                     need((current.st_dev, current.st_ino) == (held.st_dev, held.st_ino), 'quarantine replaced')
                     mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM})
-                    try:os.unlink(name, dir_fd=qfd);deleted.append(name)
+                    try:
+                        os.unlink(name, dir_fd=qfd)
+                        deleted.append(name)
+                        claim = None
                     finally:signal.pthread_sigmask(signal.SIG_SETMASK, mask)
             finally:
-                # Restore without overwriting a concurrent replacement; uncertain
-                # bytes stay in the private quarantine for explicit inspection.
+                # Restore the known leaf directly. A directory listing can omit
+                # entries added after the held directory was opened on Btrfs.
                 active = sys.exc_info()[1]
                 try:
-                    for name in os.listdir(qfd):
+                    if claim is not None:
                         try:
-                            os.link(name, name, src_dir_fd=qfd, dst_dir_fd=fds[0], follow_symlinks=False)
-                            os.unlink(name, dir_fd=qfd)
-                        except OSError:pass
-                    if not os.listdir(qfd):
-                        current = os.stat(qname, dir_fd=fds[0], follow_symlinks=False)
-                        need((current.st_dev, current.st_ino) == (held.st_dev, held.st_ino), 'quarantine cleanup uncertain; replacement retained')
-                        os.rmdir(qname, dir_fd=fds[0]);quarantine = None
+                            os.link(claim, claim, src_dir_fd=qfd, dst_dir_fd=fds[0], follow_symlinks=False)
+                            os.unlink(claim, dir_fd=qfd)
+                        except OSError:
+                            pass
+                    current = os.stat(qname, dir_fd=fds[0], follow_symlinks=False)
+                    need((current.st_dev, current.st_ino) == (held.st_dev, held.st_ino), 'quarantine cleanup uncertain; replacement retained')
+                    try:
+                        os.rmdir(qname, dir_fd=fds[0])
+                    except OSError as error:
+                        if error.errno not in (errno.ENOTEMPTY, errno.EEXIST):
+                            raise
+                    else:
+                        quarantine = None
                 except (OSError, Error) as error:
                     if active is not None:active.add_note(str(error))
                     else:raise

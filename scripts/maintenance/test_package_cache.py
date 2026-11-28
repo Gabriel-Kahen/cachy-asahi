@@ -231,6 +231,33 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(self.archives[2].read_bytes(),b'foreign replacement')
         self.assertFalse((self.db/'db.lck').exists())
 
+    def test_cancelled_claim_restores_known_leaf_and_preserves_unexpected_sibling(self):
+        candidate = self.archives[2]
+        original = candidate.read_bytes()
+        plan = self.preview()
+        rename = c.os.rename
+
+        def interrupt(source, target, **kwargs):
+            rename(source, target, **kwargs)
+            fd = os.open('unexpected', os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600,
+                         dir_fd=kwargs['dst_dir_fd'])
+            with os.fdopen(fd, 'wb') as stream:
+                stream.write(b'foreign quarantine bytes')
+            raise KeyboardInterrupt('cancelled after claim')
+
+        with mock.patch.object(c.os, 'rename', side_effect=interrupt):
+            with self.assertRaises(c.ApplyError) as failure:
+                self.apply(plan, [candidate.name])
+        self.assertTrue(failure.exception.cancelled)
+        self.assertEqual(failure.exception.deleted, [])
+        self.assertEqual(candidate.read_bytes(), original)
+        self.assertEqual(candidate.stat().st_nlink, 1)
+        self.assertFalse((self.cache / 'unexpected').exists())
+        quarantine = Path(failure.exception.quarantine)
+        self.assertEqual(list(quarantine.iterdir()), [quarantine / 'unexpected'])
+        self.assertEqual((quarantine / 'unexpected').read_bytes(), b'foreign quarantine bytes')
+        self.assertFalse((self.db / 'db.lck').exists())
+
     def test_restore_collision_preserves_both_replacements_and_reports_quarantine(self):
         plan=self.preview();name=self.archives[2].name;original=c.os.rename
         def replace(source,target,**kwargs):
