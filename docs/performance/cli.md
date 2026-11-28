@@ -43,6 +43,7 @@ The config has these fields:
 | `execution_context` | `physical`, `virtual`, `emulated` or `unknown`; nonphysical runs are nonacceptance |
 | `change` | Nonempty strings `variable`, `baseline`, `candidate`, `rationale`; reference/candidate values differ |
 | `argv` | String array; first item is absolute executable path; no shell interpolation |
+| `argv_file_operands` | Optional list of unique zero-based `argv` indexes after the executable that name pinned file operands |
 | `inputs` | File paths including the executable, workload driver, source/data manifests and other necessary inputs, pinned by SHA-256 |
 | `env` | Explicit string-to-string environment overrides; inherited environment is also fingerprinted per trial |
 | `variant_env` | Optional object with `baseline` and `candidate` mappings; each changes exactly the sole `change.environment_key` to its declared `change.baseline` or `change.candidate` string |
@@ -63,6 +64,16 @@ retrievable sources/artifacts; hashing a manifest does not inspect its listed
 files automatically. Pin all required executable/data files, or a reviewed
 immutable artifact containing them. The baseline file records versions but does
 not capture installed file contents or configuration changes by itself.
+
+When `argv_file_operands` is present, only the listed arguments are bound to
+file paths. Each index identifies a whole operand such as `input.dat` or the
+value inside an argument such as `--input=input.dat`. The path must match an
+entry in `inputs` or `variant_inputs`. Relative operands resolve from the plan's
+declaration directory. For an argument vector with three tokens after the
+executable, `"driver.py"`, `"--input=input.dat"`, and `"--mode=fast"`, use
+`[1, 2]` to bind the driver and input while preserving `--mode=fast`. An
+explicit empty list preserves every argument as written. Declarations that
+omit the field continue to bind relative arguments by matching pinned paths.
 
 A fixed pinned driver can consume one declared `CFLAGS` value, or one `CC` value
 pointing to an immutable compiler per variant. The driver, common argv and inputs

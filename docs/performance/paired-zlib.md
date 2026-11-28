@@ -32,7 +32,7 @@ python3 -B scripts/benchmarks/paired_zlib_v2.py prepare \
   --payload-bytes 33554432 --iterations 8 --output /absolute/new-plan
 ```
 
-These paths describe future operator inputs, not supplied hardware evidence. Preparation invokes the original exact-artifact config adapter, pins the paired wrapper as an additional source input, and freezes the plan with `paired_zlib: "exact-arm"` through the existing hardware/state gate checks. It runs no workload. The original config is retained next to the augmented config and plan.
+These paths describe future operator inputs, not supplied hardware evidence. Preparation invokes the original exact-artifact config adapter, pins the paired wrapper as an additional source input, and freezes the plan with `paired_zlib: "exact-arm"` through the existing hardware/state gate checks. The augmented config explicitly binds the driver, archive manifest, corpus manifest and held-out corpus file with `argv_file_operands`. Payload size and iteration operands remain literal. Preparation runs no workload and retains the original config next to the augmented config and plan.
 
 ## Run and interpret
 

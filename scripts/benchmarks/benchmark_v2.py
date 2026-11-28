@@ -190,6 +190,11 @@ def validate_config(config):
         raise Invalid("inputs must pin workload sources/data/executable")
     if argv[0] not in config["inputs"]:
         raise Invalid("executable must be included in pinned inputs")
+    if "argv_file_operands" in config:
+        indexes = config["argv_file_operands"]
+        if (type(indexes) is not list or any(type(i) is not int or not 0 < i < len(argv) for i in indexes)
+                or len(set(indexes)) != len(indexes)):
+            raise Invalid("argv_file_operands must contain unique argument indexes after the executable")
     if not isinstance(config.get("env", {}), dict) or any(
             not isinstance(k, str) or not k or not isinstance(v, str) or "=" in k or "\0" in k + v
             for k, v in config.get("env", {}).items()):
@@ -364,13 +369,27 @@ def input_paths(config, binding, declared_from):
 
 
 def workload_argv(plan):
-    """Use the exact pinned access paths for declared relative file operands."""
+    """Bind file operands to pinned access paths without altering explicit-mode literals."""
     config = plan["config"]
     declared_from = Path(plan["declared_from"])
     inputs = set(config["inputs"])
     for paths in config.get("variant_inputs", {}).values():
         inputs.update(paths)
     pinned_paths = {declared_from / path for path in inputs}
+
+    if "argv_file_operands" in config:
+        argv = list(config["argv"])
+        for index in config["argv_file_operands"]:
+            argument = argv[index]
+            prefix = ""
+            if argument.startswith("-"):
+                option, separator, argument = argument.partition("=")
+                prefix = option + separator
+            path = declared_from / argument
+            if not argument or path not in pinned_paths:
+                raise Invalid(f"argv_file_operands index {index} must name a pinned input path")
+            argv[index] = prefix + str(path)
+        return argv
 
     def bind(value):
         path = Path(value)
@@ -414,6 +433,8 @@ def freeze(config_path, baseline_path, candidate_path, output):
             "config": config, "declared_from": str(declared_from), "inputs": list(pins.values()), "states": identities,
             "baseline_binding": states["baseline"], "candidate_binding": states["candidate"],
             "optimization_acceptance": "NOT RUN"}
+    if "argv_file_operands" in config:
+        workload_argv(plan)
     write_json(output, plan)
 
 
@@ -441,6 +462,8 @@ def load_plan(path):
     states = {variant: plan[f"{variant}_binding"] for variant in ("baseline", "candidate")}
     if canonical(plan.get("states")) != canonical(plan_states(config, states)):
         raise Invalid("plan states differ from pinned captures")
+    if "argv_file_operands" in config:
+        workload_argv(plan)
     return plan
 
 

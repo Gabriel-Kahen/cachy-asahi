@@ -265,6 +265,32 @@ class V2SourceTests(unittest.TestCase):
         self.assertEqual(json.loads(session_file.read_bytes()), failure)
         self.assertEqual(list(self.root.iterdir()), [session_file])
 
+    def test_prepare_declares_only_maintained_file_operands(self):
+        from test_zlib_workload import ZlibWorkloadTests
+
+        case = ZlibWorkloadTests()
+        case.setUp()
+        self.addCleanup(case.doCleanups)
+        args, operator = case.fixture()
+        operator['order'] = P2.ORDER
+        args.operator_config.write_text(json.dumps(operator))
+        args.baseline_state = args.candidate_state = self.root / 'state.json'
+        args.output = self.root / 'prepared'
+        variant, source, _ = P2.Z.EXPERIMENTS[args.experiment]
+        pin = (variant, source, P2.Z.sha(args.archive_manifest.read_bytes()))
+        with patch.dict(P2.Z.EXPERIMENTS, {args.experiment: pin}), patch.object(P2.B, 'freeze') as freeze:
+            P2.prepare(args)
+        config_path = args.output / 'config.json'
+        config = P2.B.read_json(config_path)
+        original = P2.B.read_json(args.output / 'original-config.json')
+        self.assertNotIn('argv_file_operands', original)
+        self.assertEqual(config['argv_file_operands'], [2, 5, 7, 9])
+        paths = [config['argv'][index] for index in config['argv_file_operands']]
+        self.assertEqual([Path(path).name for path in paths],
+                         ['zlib_workload.py', args.archive_manifest.name, 'manifest.json', 'heldout-source.bin'])
+        self.assertTrue(set(paths) <= set(config['inputs']))
+        freeze.assert_called_once_with(config_path, args.baseline_state, args.candidate_state, args.output / 'plan.json')
+
     def test_expanded_payload_hash_is_reused_with_per_slot_validation(self):
         heldout = b'modeled held-out data'
         payload = (heldout * 2)[:len(heldout) + 3]

@@ -137,7 +137,7 @@ class PlanTests(unittest.TestCase):
         plan = runner.load_plan(self.plan_path)
         self.assertEqual(plan["declared_from"], str(self.root))
 
-    def relative_workload_trial(self):
+    def relative_workload_trial(self, *, explicit=False):
         declared = self.root / "declaration"
         work = self.root / "work"
         for path in (declared, work):
@@ -147,6 +147,11 @@ class PlanTests(unittest.TestCase):
         self.config["inputs"].append("driver.py")
         self.config["variant_inputs"] = {"baseline": ["data.bin"]}
         self.config["argv"] += ["./driver.py", "--data=data.bin", "--output", "result.bin"]
+        if explicit:
+            (declared / "fast").write_text("unrelated pinned file")
+            self.config["inputs"].append("fast")
+            self.config["argv"] += ["--mode=fast", "fast"]
+            self.config["argv_file_operands"] = [1, 2]
         original = Path.cwd()
         try:
             os.chdir(declared)
@@ -180,6 +185,46 @@ class PlanTests(unittest.TestCase):
         self.write(output / "trial.json", record)
         with self.assertRaisesRegex(runner.Invalid, "differing argv"):
             runner.compare(self.plan_path, [output], self.root / "comparison.json")
+
+    def test_explicit_file_operands_leave_colliding_literals_unchanged(self):
+        declared, work, output, call = self.relative_workload_trial(explicit=True)
+        expected = [sys.executable, str(declared / "driver.py"), "--data=" + str(declared / "data.bin"),
+                    "--output", "result.bin", "--mode=fast", "fast"]
+        self.assertEqual(call[:2], (expected, work))
+        self.assertEqual(runner.read_json(output / "trial.json")["argv"], expected)
+        record = runner.read_json(output / "trial.json")
+        record["argv"][-2] = "--mode=" + str(declared / "fast")
+        self.write(output / "trial.json", record)
+        with self.assertRaisesRegex(runner.Invalid, "differing argv"):
+            runner.compare(self.plan_path, [output], self.root / "comparison.json")
+
+    def test_explicit_empty_file_operands_leave_all_arguments_literal(self):
+        config = self.config | {"inputs": [sys.executable, "fast"], "argv": [sys.executable, "--mode=fast", "fast"],
+                                "argv_file_operands": []}
+        runner.validate_config(config)
+        self.assertEqual(runner.workload_argv({"config": config, "declared_from": str(self.root)}), config["argv"])
+
+    def test_invalid_file_operand_indexes_and_unpinned_paths_fail_freeze(self):
+        self.config["argv"].append("--data=missing")
+        for indexes in (None, [0], [True], [-1], [2], [1, 1]):
+            with self.subTest(indexes=indexes):
+                self.config["argv_file_operands"] = indexes
+                with self.assertRaisesRegex(runner.Invalid, "unique argument indexes"):
+                    self.freeze()
+        self.config["argv_file_operands"] = [1]
+        with self.assertRaisesRegex(runner.Invalid, "must name a pinned input path"):
+            self.freeze()
+        self.assertFalse(self.plan_path.exists())
+
+    def test_loading_refuses_added_file_operand_for_literal_option(self):
+        self.config["argv"].append("--literal")
+        self.config["argv_file_operands"] = []
+        self.freeze()
+        plan = runner.read_json(self.plan_path)
+        plan["config"]["argv_file_operands"] = [1]
+        self.write(self.plan_path, plan)
+        with self.assertRaisesRegex(runner.Invalid, "must name a pinned input path"):
+            runner.load_plan(self.plan_path)
 
 
 if __name__ == "__main__":

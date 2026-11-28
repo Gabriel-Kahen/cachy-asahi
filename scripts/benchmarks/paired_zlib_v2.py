@@ -45,6 +45,7 @@ finally:
 ABBA = ['baseline', 'candidate', 'candidate', 'baseline']
 BAAB = ['candidate', 'baseline', 'baseline', 'candidate']
 ORDER = ABBA + BAAB + ABBA
+ARM_ARGV_FILE_OPERANDS = (2, 5, 7, 9)
 
 
 def need(ok, why):
@@ -146,6 +147,8 @@ def validate(plan, control_only, *, replay=False):
              and s['m2_air_size'] in ('13-inch', '15-inch') for s in plan['states'].values()),
          'exact 16K M2 Air state required')
     argv = c['argv']
+    need(set(c.get('argv_file_operands', [])) == set(ARM_ARGV_FILE_OPERANDS),
+         'exact zlib workload requires explicit driver, archive and corpus file operands')
     need(argv[1:4] == ['-B', str(Path(Z.__file__).resolve()), 'run']
          and (replay or argv[0] == str(Path(sys.executable).resolve())),
          'unchanged zlib workload driver required')
@@ -346,6 +349,7 @@ def prepare(args):
     config_args.output = output / 'original-config.json'
     c = Z.prepare_config(config_args)
     c['paired_zlib'] = 'exact-arm'
+    c['argv_file_operands'] = list(ARM_ARGV_FILE_OPERANDS)
     balanced(c['order'])
     need(c['minimum_trials'] >= 6, 'six measured trials per variant required')
     # Original-config records the unchanged artifact adapter and historical pure
