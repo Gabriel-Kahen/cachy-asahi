@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - .github/bootstrap/**
       - .github/workflows/repository-handoff-source.yml
       - .github/workflows/native-arm-development.yml
       - scripts/ci/development/**
@@ -41,3 +42,4 @@ jobs:
             python3 -I -B -S -m unittest discover -s scripts/ci/development -p "$suite"
           done
           python3 -I -B -S -m unittest discover -s scripts/port/repository-native-handoff -p 'test_*.py'
+          python3 -I -B -S -m unittest discover -s .github/bootstrap -p 'test_*_v3.py'
