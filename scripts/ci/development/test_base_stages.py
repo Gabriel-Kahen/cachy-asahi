@@ -66,6 +66,10 @@ class BaseStages(unittest.TestCase):
         shutil.copyfile(self.real_root / 'scripts/checks/package_checks.py', checks / 'package_checks.py')
         ci = self.root / 'scripts/ci'; ci.mkdir()
         shutil.copyfile(self.real_root / 'scripts/ci/integration_export.py', ci / 'integration_export.py')
+        build = self.root / 'scripts/build'; build.mkdir()
+        for name in ('build.py', 'container-entry.sh'):
+            shutil.copyfile(self.real_root / 'scripts/build' / name, build / name)
+        self.entry_script = (build / 'container-entry.sh').read_bytes()
         self.recipe, self.reviewed = b.ksm_recipe(self.root)
         self.package = {'errors': [], 'elf': [], 'metadata': {'.PKGINFO': {'pkgname': [b.KSM], 'pkgver': ['0.1.0-1'],
             'arch': ['any'], 'license': ['GPL-2.0-or-later'], 'depend': ['python>=3.11']},
@@ -89,12 +93,12 @@ class BaseStages(unittest.TestCase):
             if Path(argv[2]).name == 'compare.py':
                 b.save(log, self.compare)
                 return 0
-            attempt = Path(argv[argv.index('--output') + 1]); self.attempt(attempt)
+            attempt = Path(argv[argv.index('--output') + 1]); self.attempt(attempt, entry_script=self.entry_script)
             Path(log).write_text('bounded driver output')
             return 0
         self.command.side_effect = command
 
-    def attempt(self, path):
+    def attempt(self, path, *, entry_script=None):
         path.mkdir(); artifacts = path / 'artifacts'; artifacts.mkdir()
         shutil.copytree(self.recipe, path / 'inputs')
         name = b.KSM + '-0.1.0-1-any.pkg.tar.zst'
@@ -111,7 +115,9 @@ class BaseStages(unittest.TestCase):
             'image': self.controller.image, 'image_id': self.controller.image, 'source_date_epoch': b.EPOCH,
             'recipe_inputs': self.reviewed, 'expected_packages_sha256': b.digest(self.native / 'packages.lock'),
             'clean_environment_id': name_container,
-            'command': b.build_container_command(self.root, path, self.controller.image, name_container),
+            'command': b.build_container_command(self.root, path, self.controller.image, name_container,
+                                                  entry_script=entry_script),
+            'entry_script_sha256': hashlib.sha256(entry_script).hexdigest() if entry_script is not None else None,
             'artifacts': {name: b.digest(artifacts / name)}, 'files': files})
 
     def arm_inputs(self):
@@ -189,6 +195,8 @@ class BaseStages(unittest.TestCase):
         self.assertEqual(result['status'], 'PASS'); self.assertEqual(len(self.calls), 3)
         self.assertEqual([row[1] for row in self.calls], [360, 360, 120])
         for argv, _ in self.calls[:2]:
+            self.assertEqual(argv[2], '-c')
+            self.assertIn(f'entry_script={self.entry_script!r}', argv[3])
             self.assertIn('--mode', argv); self.assertEqual(argv[argv.index('--image') + 1], self.controller.image)
             self.assertEqual(argv[argv.index('--timeout') + 1], '300')
             self.assertEqual(argv[argv.index('--network') + 1], 'none')
@@ -637,17 +645,23 @@ class BaseStages(unittest.TestCase):
         with self.assertRaises(ValueError):
             b.verify_export(public)
 
-    def cleanup_fixture(self, mutation=None, removal_reply=True, absent=True):
+    def cleanup_fixture(self, mutation=None, removal_reply=True, absent=True, *, captured=False):
         self.ksm_inputs(); self.output.mkdir()
-        attempt = self.output / 'attempt-1'; self.attempt(attempt)
+        attempt = self.output / 'attempt-1'
+        entry_script = self.entry_script if captured else None
+        self.attempt(attempt, entry_script=entry_script)
         provenance = b.read_json(attempt / 'provenance.json')
         name = provenance['clean_environment_id']; identity = 'c' * 64
         mounts = [{'Type': 'bind', 'Destination': target, 'Source': str(source), 'RW': writable}
                   for target, source, writable in (('/inputs', attempt / 'inputs', False),
                       ('/out', attempt / 'artifacts', True),
-                      ('/builder-entry.sh', self.root / 'scripts/build/container-entry.sh', False),
                       ('/expected-packages.lock', attempt / 'expected-packages.lock', False))]
         observed = {'id': identity, 'name': '/' + name, 'image': self.controller.image, 'mounts': mounts}
+        if captured:
+            observed.update(entrypoint=['/bin/bash'], cmd=['-c', entry_script.decode('utf-8'), '/builder-entry.sh'])
+        else:
+            mounts.append({'Type': 'bind', 'Destination': '/builder-entry.sh',
+                           'Source': str(self.root / 'scripts/build/container-entry.sh'), 'RW': False})
         if mutation:
             mutation(observed)
         calls, lists = [], []
@@ -659,6 +673,8 @@ class BaseStages(unittest.TestCase):
                 lists.append(argv)
                 Path(log).write_text(identity if len(lists) == 1 or not absent else '')
             elif argv[4] == 'inspect':
+                self.assertIn('"entrypoint":{{json .Config.Entrypoint}}', argv[-1])
+                self.assertIn('"cmd":{{json .Config.Cmd}}', argv[-1])
                 b.save(Path(log), observed)
             else:
                 self.assertEqual(argv[4:], ['rm', '-f', identity])
@@ -672,6 +688,35 @@ class BaseStages(unittest.TestCase):
         result = b.cleanup_ksm(self.root, self.output, self.controller.image)
         self.assertEqual(result['status'], 'PASS'); self.assertTrue(result['containers'][0]['absence_verified'])
         self.assertEqual([argv[4] for argv in calls], ['ls', 'inspect', 'rm', 'ls'])
+
+    def test_ksm_held_builder_keeps_historical_entry_transport(self):
+        self.ksm_inputs()
+        held = self.real_root / 'scripts/ci/maintained-native/native/scripts/build/build.py'
+        shutil.copyfile(held, self.root / 'scripts/build/build.py')
+        argv, entry_script = b.ksm_builder(self.root)
+        self.assertEqual(argv, [b.sys.executable, '-B', str(self.root / 'scripts/build/build.py')])
+        self.assertIsNone(entry_script)
+
+    def test_current_cleanup_requires_captured_receipt_and_exact_inspected_command(self):
+        calls, _, _ = self.cleanup_fixture(captured=True)
+        # Cleanup uses the captured bytes even if the original file has changed.
+        (self.root / 'scripts/build/container-entry.sh').write_bytes(b'# changed entry\n')
+        result = b.cleanup_ksm(self.root, self.output, self.controller.image, entry_script=self.entry_script)
+        self.assertEqual(result['status'], 'PASS')
+        self.assertEqual([argv[4] for argv in calls], ['ls', 'inspect', 'rm', 'ls'])
+
+    def test_current_cleanup_refuses_legacy_receipt_before_query(self):
+        calls, _, _ = self.cleanup_fixture()
+        result = b.cleanup_ksm(self.root, self.output, self.controller.image, entry_script=self.entry_script)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(calls, [])
+
+    def test_current_cleanup_never_removes_after_inspected_entry_drift(self):
+        calls, _, _ = self.cleanup_fixture(
+            lambda row: row.update(cmd=['-c', '# different entry', '/builder-entry.sh']), captured=True)
+        result = b.cleanup_ksm(self.root, self.output, self.controller.image, entry_script=self.entry_script)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertNotIn('rm', [argv[4] for argv in calls])
 
     def test_cleanup_wrong_image_name_mount_or_duplicate_never_removes(self):
         for change in (lambda row: row.update(image='sha256:' + 'd' * 64),
@@ -709,12 +754,13 @@ class BaseStages(unittest.TestCase):
             shutil.rmtree(self.output); shutil.rmtree(self.root); self.root.mkdir()
 
     def test_killed_parent_build_leak_is_checked_and_removed_before_cancel_propagates(self):
-        calls, _, query = self.cleanup_fixture()
+        calls, _, query = self.cleanup_fixture(captured=True)
         shutil.rmtree(self.output)
         def command(argv, log, timeout, **options):
             if argv[0] == 'docker':
                 return query(argv, log, timeout, **options)
-            self.attempt(Path(argv[argv.index('--output') + 1])); Path(log).write_text('cancelled owner')
+            self.attempt(Path(argv[argv.index('--output') + 1]), entry_script=self.entry_script)
+            Path(log).write_text('cancelled owner')
             raise KeyboardInterrupt()
         self.command.side_effect = command
         with self.assertRaises(KeyboardInterrupt):

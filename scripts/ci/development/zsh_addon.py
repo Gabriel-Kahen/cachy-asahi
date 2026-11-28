@@ -46,6 +46,9 @@ HEX = re.compile(r'[0-9a-f]{64}\Z')
 IMAGE = re.compile(r'sha256:[0-9a-f]{64}\Z')
 NAME = re.compile(r'cachy-asahi-[0-9a-f]{16}\Z')
 META = {'.PKGINFO', '.BUILDINFO', '.MTREE'}
+ENTRY_SOURCE = 'scripts/build/container-entry.sh'
+# The original Zsh source packet selects the historical bind-mount builder.
+LEGACY_BUILDER_SHA256 = 'e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45'
 MAX_FILE = 8 * 1024**2
 MAX_TOTAL = 64 * 1024**2
 
@@ -990,10 +993,28 @@ class SourceAuthority(importlib.abc.MetaPathFinder):
         return native.main(argv, integration_consumers=consume)
 
 
+def entry_profile(builder, path, entry):
+    if sha(builder) == LEGACY_BUILDER_SHA256:
+        return {'entry': str(path)}
+    return {'entry_script': entry.decode('utf-8')}
+
+
+def entry_command(config):
+    if 'entry_script' in config:
+        script = config['entry_script']
+        need('entry' not in config and type(script) is str and script and '\x00' not in script,
+             'docker-entry-profile-invalid')
+        return ['-c', script, '/builder-entry.sh']
+    need(type(config.get('entry')) is str, 'docker-entry-profile-invalid')
+    return ['/builder-entry.sh']
+
+
 def exact_run(config, argv):
     need(len(argv) > 4 and argv[:3] == ['run', '--rm', '--name'] and NAME.fullmatch(argv[3]), 'docker-run-refused')
     name = argv[3]
     attempt = Path(config['attempt'])
+    entry_args = entry_command(config)
+    entry_bind = ['--mount', f'type=bind,src={config["entry"]},dst=/builder-entry.sh,readonly'] if 'entry' in config else []
     expected = ['run', '--rm', '--name', name, '--pull=never', '--platform', 'linux/arm64',
                 '--user', f"{config['uid']}:{config['gid']}", '--cap-drop=ALL', '--security-opt=no-new-privileges',
                 '--read-only', '--pids-limit', '512', '--memory', '4g', '--cpus', '4', '--network', 'none',
@@ -1001,12 +1022,15 @@ def exact_run(config, argv):
                 '--env', f"SOURCE_DATE_EPOCH={config['epoch']}",
                 '--mount', f'type=bind,src={attempt / "inputs"},dst=/inputs,readonly',
                 '--mount', f'type=bind,src={attempt / "artifacts"},dst=/out',
-                '--mount', f'type=bind,src={config["entry"]},dst=/builder-entry.sh,readonly',
+                *entry_bind,
                 '--mount', f'type=bind,src={attempt / "expected-packages.lock"},dst=/expected-packages.lock,readonly',
-                '--entrypoint', '/bin/bash', config['image'], '/builder-entry.sh']
+                '--entrypoint', '/bin/bash', config['image'], *entry_args]
     need(argv == expected and IMAGE.fullmatch(config['image']) and config['uid'] > 0 and config['gid'] >= 0, 'docker-run-refused')
+    paths = ['attempt', 'cidfile']
+    if 'entry' in config:
+        paths.append('entry')
     need(all(Path(config[k]).is_absolute() and '..' not in Path(config[k]).parts and
-             ',' not in config[k] and '\n' not in config[k] for k in ('attempt', 'entry', 'cidfile')), 'docker-bind-path-invalid')
+             ',' not in config[k] and '\n' not in config[k] for k in paths), 'docker-bind-path-invalid')
     return {'name': name, 'original': argv, 'create': ['create', '--cidfile', config['cidfile'], *argv[2:]]}
 
 
@@ -1015,7 +1039,7 @@ def validate_container(config, info, name, cid):
          info.get('Name') == '/' + name and info.get('Image') == config['image'], 'container-identity-refused')
     c, h = info['Config'], info['HostConfig']
     need(c.get('Image') == config['image'] and c.get('User') == f"{config['uid']}:{config['gid']}" and
-         c.get('Entrypoint') == ['/bin/bash'] and c.get('Cmd') == ['/builder-entry.sh'] and
+         c.get('Entrypoint') == ['/bin/bash'] and c.get('Cmd') == entry_command(config) and
          c.get('WorkingDir', '') == config['base_config'].get('WorkingDir', '') and
          c.get('Tty') is False and c.get('OpenStdin') is False and c.get('StdinOnce') is False,
          'container-config-refused')
@@ -1038,16 +1062,17 @@ def validate_container(config, info, name, cid):
          'container-resource-refused')
     attempt = Path(config['attempt'])
     expected = {'/inputs': (str(attempt / 'inputs'), False), '/out': (str(attempt / 'artifacts'), True),
-                '/builder-entry.sh': (config['entry'], False),
                 '/expected-packages.lock': (str(attempt / 'expected-packages.lock'), False)}
+    if 'entry' in config:
+        expected['/builder-entry.sh'] = (config['entry'], False)
     mounts = info.get('Mounts', [])
-    need(len(mounts) == 4 and {m['Destination'] for m in mounts} == set(expected), 'container-mount-refused')
+    need(len(mounts) == len(expected) and {m['Destination'] for m in mounts} == set(expected), 'container-mount-refused')
     for mount in mounts:
         need(mount.get('Type') == 'bind' and type(mount.get('RW')) is bool and
              (mount.get('Source'), mount.get('RW')) == expected[mount['Destination']] and
              mount.get('Propagation') in ('rprivate', ''), 'container-mount-refused')
     declared = h.get('Mounts', [])
-    need(len(declared) == 4 and {m['Target'] for m in declared} == set(expected), 'container-declared-mount-refused')
+    need(len(declared) == len(expected) and {m['Target'] for m in declared} == set(expected), 'container-declared-mount-refused')
     for mount in declared:
         need(mount.get('Type') == 'bind' and type(mount.get('ReadOnly', False)) is bool and
              (mount.get('Source'), not mount.get('ReadOnly', False)) == expected[mount['Target']] and
@@ -1335,7 +1360,12 @@ def run_zsh(controller, root, output, cache=None, *, authority):
         need(len(image) == 1 and image[0]['Id'] == config['image'] and image[0]['Architecture'] == 'arm64' and
              image[0]['Os'] == 'linux', 'same-base-image-required')
         config['base_config'] = image[0]['Config']
-        config['entry'] = str(authority.view / 'scripts/build/container-entry.sh')
+        script = authority.view / 'scripts/build/build.py'
+        entry = authority.view / ENTRY_SOURCE
+        entry_raw = read(entry)
+        need(sha(entry_raw) == authority.packet['initial_source_files'][ENTRY_SOURCE]['sha256'],
+             'entry-source-pin-drift')
+        config.update(entry_profile(authority.bytes(script), entry, entry_raw))
         result['actor_binding'] = {k: config[k] for k in ('image', 'endpoint', 'daemon_id', 'docker_sha256', 'socket_identity',
                                                        'python_sha256', 'uid', 'gid', 'epoch')}
         result['source_binding'] = {'contract_sha256': sha(contract_bytes), 'recipe_inputs': package['build_helper_reviewed_inputs'],
@@ -1367,9 +1397,8 @@ def run_zsh(controller, root, output, cache=None, *, authority):
                 stream.write(launcher)
             shim.chmod(0o755)
             env = {'PATH': str(lane) + ':/usr/bin:/bin', 'HOME': os.environ['HOME'], 'LC_ALL': 'C', 'PYTHONDONTWRITEBYTECODE': '1'}
-            script = authority.view / 'scripts/build/build.py'
             bootstrap = output / f'build-{attempt_number}.py'
-            write_bootstrap(bootstrap, authority, script)
+            write_bootstrap(bootstrap, authority, script, entry_script=config.get('entry_script'))
             argv = [sys.executable, '-I', '-B', str(bootstrap), str(Path(root) / package['source_root']),
                     '--image', config['image'], '--mode', 'native', '--network', 'none', '--source-date-epoch', str(config['epoch']),
                     '--expected-packages', prerequisite['packages_lock'], '--reviewed-inputs', str(reviewed), '--timeout', '300', '--output', str(attempt)]
@@ -1538,11 +1567,14 @@ def revoke(output, result):
     return rows
 
 
-def write_bootstrap(path, authority, script):
+def write_bootstrap(path, authority, script, *, entry_script=None):
     """Embed the closed build/compare/checker graph, never reopen source/PYC."""
     modules = {name: {'path': str(authority.mapping[name]), 'data': authority.bytes(authority.mapping[name])}
                for name in ('build', 'compare', 'package_checks')}
     need(str(script) == modules[Path(script).stem]['path'], 'bootstrap-script-refused')
+    start = 'exec(compile(r["data"],p,"exec"),{"__name__":"__main__","__file__":p})\n'
+    if Path(script).stem == 'build' and entry_script is not None:
+        start = f'import build\nraise SystemExit(build.main(entry_script={entry_script.encode("utf-8")!r}))\n'
     content = ('import sys,importlib.abc,importlib.util,pathlib\n'
                f'M={modules!r}\n'
                f'ROOTS={[str(authority.root), str(authority.view)]!r}\n'
@@ -1562,7 +1594,7 @@ def write_bootstrap(path, authority, script):
                '  return None\n'
                'sys.meta_path.insert(0,F())\n'
                f'r=M[{Path(script).stem!r}];p=r["path"];sys.argv[0]=p\n'
-               'exec(compile(r["data"],p,"exec"),{"__name__":"__main__","__file__":p})\n')
+               + start)
     need(len(content.encode()) <= MAX_FILE, 'bootstrap-bound')
     with Path(path).open('x') as stream:
         stream.write(content)
