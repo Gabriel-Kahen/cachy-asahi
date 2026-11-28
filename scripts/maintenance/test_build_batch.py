@@ -454,14 +454,18 @@ class BuilderBoundaryTests(unittest.TestCase):
                 item = tarfile.TarInfo(name)
                 item.mode, item.size = 0o644, len(data)
                 stream.addfile(item, io.BytesIO(data))
-        for name in ('environment.txt', 'config.sha256', 'makepkg.conf', 'pacman.conf', 'generated.SRCINFO'):
+        for name in ('environment.txt', 'config.sha256', 'makepkg.conf', 'pacman.conf'):
             (artifacts / name).write_text('HOST synthetic evidence\n')
+        (artifacts / 'generated.SRCINFO').write_text('pkgbase = alpha\n' + ''.join(
+            f'\t{key} = {value}\n' for key, values in metadata.items()
+            if key != 'pkgname' for value in values
+        ) + '\npkgname = alpha\n')
         lock = Path(self.task['expected_packages']).read_bytes()
         (artifacts / 'packages.lock').write_bytes(lock)
         (self.output / 'expected-packages.lock').write_bytes(lock)
         (self.output / 'build.log').write_text('HOST synthetic builder log\n')
-        (self.output / 'validation.json').write_bytes(m.encoded(dict(errors=[])))
-        self.record.update(status='built-package-static-pass', mode=self.task['mode'], network='none',
+        (self.output / 'validation.json').write_bytes(m.encoded(dict(artifacts=[build.package(archive)], errors=[])))
+        self.record.update(status='built-package-static-pass', exit_code=0, mode=self.task['mode'], network='none',
             source_date_epoch=self.task['source_date_epoch'], recipe_inputs=self.task['recipe_inputs'], recipe_metadata=metadata,
             expected_packages_sha256=self.task['expected_packages_sha256'],
             entry_script_sha256=m.digest(m.ROOT / 'scripts/build/container-entry.sh'),
@@ -482,10 +486,17 @@ class BuilderBoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'admitted build inputs'):
             m.Builder().verify(self.task, self.output)
 
+    def test_nonzero_exit_refused_by_production_verifier(self):
+        self.evidence()
+        self.record['exit_code'] = 1
+        self.save()
+        with self.assertRaisesRegex(ValueError, 'zero build exit code required'):
+            m.Builder().verify(self.task, self.output)
+
     def test_tampered_archive_refused(self):
         archive = self.evidence()
         archive.write_text('tampered')
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'missing/changed evidence artifacts/alpha'):
             m.Builder().verify(self.task, self.output)
 
 
