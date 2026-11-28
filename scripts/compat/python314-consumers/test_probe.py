@@ -10,6 +10,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location(
     'python314_consumer_probe', Path(__file__).resolve().with_name('probe.py'))
@@ -27,7 +28,7 @@ class SafetyControls(unittest.TestCase):
         original = self.root / 'original'
         original.mkdir()
         output = original / 'must-not-exist'
-        result = subprocess.run(['/usr/bin/python3', '-B', str(probe.HERE / 'probe.py'),
+        result = subprocess.run([sys.executable, '-B', str(probe.HERE / 'probe.py'),
                                  '--origin', str(original), '--output', str(output)],
                                 capture_output=True, text=True, timeout=10)
         self.assertNotEqual(result.returncode, 0)
@@ -39,7 +40,7 @@ class SafetyControls(unittest.TestCase):
         original.mkdir()
         alias = self.root / 'alias'
         alias.symlink_to(original, target_is_directory=True)
-        result = subprocess.run(['/usr/bin/python3', '-B', str(probe.HERE / 'probe.py'),
+        result = subprocess.run([sys.executable, '-B', str(probe.HERE / 'probe.py'),
                                  '--origin', str(original), '--output', str(alias / 'new')],
                                 capture_output=True, text=True, timeout=10)
         self.assertIn('output must be outside input evidence', result.stderr)
@@ -73,11 +74,64 @@ class SafetyControls(unittest.TestCase):
         runner = probe.Runner(self.root)
         runner.deadline = time.monotonic() + 0.3
         with self.assertRaises(subprocess.TimeoutExpired):
-            runner.run(['/usr/bin/python3', '-I', '-S', '-c',
+            runner.run([sys.executable, '-I', '-S', '-c',
                         'import os,time; print(os.getpid(), flush=True); time.sleep(10)'])
         pid = int((self.root / 'logs/00.txt').read_text())
         with self.assertRaises(ProcessLookupError):
             os.kill(pid, 0)
+
+    def test_zero_exit_with_live_descendant_refuses_and_retires_group(self):
+        runner = probe.Runner(self.root)
+        code = ('import os,time\n'
+                'from pathlib import Path\n'
+                'child = os.fork()\n'
+                'if child == 0:\n'
+                '    until = time.monotonic() + 10\n'
+                '    while time.monotonic() < until and not Path("release-test-child").exists():\n'
+                '        time.sleep(.01)\n'
+                'else:\n'
+                '    print(child, flush=True)\n')
+
+        def live(pid):
+            try:
+                return (Path('/proc') / str(pid) / 'stat').read_text().rsplit(')', 1)[1].split()[0] not in ('Z', 'X')
+            except FileNotFoundError:
+                return False
+
+        try:
+            with self.assertRaisesRegex(probe.Refusal, 'owned process group|descendants'):
+                runner.run([sys.executable, '-I', '-S', '-c', code])
+        finally:
+            try:
+                pid = int((self.root / 'logs/00.txt').read_text())
+                retired = not live(pid)
+            finally:
+                (self.root / 'release-test-child').touch()
+            deadline = time.monotonic() + 2
+            while live(pid) and time.monotonic() < deadline:
+                time.sleep(.01)
+            self.assertTrue(retired, 'runner returned with live owned descendant')
+        self.assertFalse(runner.commands)
+
+    def test_clean_group_preserves_allowed_exit_and_output(self):
+        runner = probe.Runner(self.root)
+        with patch.object(probe.os, 'killpg', wraps=os.killpg) as group:
+            result = runner.run([sys.executable, '-I', '-S', '-c', 'print("fixture"); raise SystemExit(3)'], allowed=(3,))
+        self.assertEqual(result, (3, 'fixture\n'))
+        self.assertEqual(runner.commands[0]['exit'], 3)
+        self.assertTrue(group.called)
+        self.assertTrue(all(call.args[1] == 0 for call in group.call_args_list))
+
+    def test_still_present_group_refuses_with_bounded_wait(self):
+        runner = probe.Runner(self.root)
+        started = time.monotonic()
+        with patch.object(probe.os, 'killpg') as group:
+            with self.assertRaisesRegex(probe.Refusal, 'owned process group absence unverified'):
+                runner.run([sys.executable, '-I', '-S', '-c', 'pass'])
+        self.assertLess(time.monotonic() - started, 4)
+        self.assertTrue(group.called)
+        self.assertTrue(all(call.args[1] == 0 for call in group.call_args_list))
+        self.assertFalse(runner.commands)
 
     def test_foreign_archive_refused_before_extraction(self):
         evidence = self.root / 'evidence'
