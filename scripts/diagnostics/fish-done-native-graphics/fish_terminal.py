@@ -4,6 +4,7 @@ import errno,fcntl,hashlib,os,pty,re,resource,select,signal,subprocess,termios,t
 from pathlib import Path
 
 COMMANDS={0:'command sleep 5.25',7:"command sh -c 'sleep 5.25; exit 7'"}
+STATUS=rb'(0|[1-9][0-9]{0,2})'
 INIT='''set -g fish_history ''
 set -g __fdm_prompt 0
 source /work/done/usr/share/cachy-asahi/fish-done/opt-in.fish
@@ -24,6 +25,10 @@ def need(ok,why):
     if not ok:raise ValueError(why)
 
 
+def marker_line(pattern):
+    return re.compile(rb'^'+pattern+rb'\r?\n',re.MULTILINE)
+
+
 class Terminal:
     def __init__(self,env):
         need(str(os.geteuid())==env.get('CACHY_NATIVE_UID') and env.get('PATH')=='/usr/bin' and
@@ -40,7 +45,7 @@ class Terminal:
         except BaseException:
             os.close(self.master);self.closed=True;raise
         finally:os.close(slave)
-        try:self.wait(b'FDM_PROMPT_1_',15)
+        try:self.wait(b'FDM_PROMPT_1_'+STATUS,15)
         except BaseException:
             self.close();raise
 
@@ -57,20 +62,28 @@ class Terminal:
             if b'\x1b[0c' in raw:self.send('\x1b[?1;2c')
             if b'\x1b[6n' in raw:self.send('\x1b[1;1R')
 
-    def wait(self,marker,seconds):
+    def wait(self,marker,seconds,*,start=0):
+        pattern=marker_line(marker)
         until=time.monotonic()+seconds
-        while marker not in self.output:
+        while (match:=pattern.search(self.output,start)) is None:
             need(self.process.poll() is None,'interactive Fish exited before continuation')
             need(time.monotonic()<until,'Fish interactive continuation deadline');self.pump()
+        return match
 
     def start(self,outcome):
         need(outcome in COMMANDS,'fixed foreground case required');self.send(COMMANDS[outcome]+'\n')
 
     def continuation(self,outcome):
-        self.wait(('FDM_PROMPT_2_'+str(outcome)).encode(),15)
-        self.send('__fdm_continue $status\n');self.wait(('FDM_CONT_'+str(outcome)).encode(),5)
-        self.wait(b'FDM_PROMPT_3_',5)
-        return dict(pid=self.process.pid,command=COMMANDS[outcome],outcome=outcome,prompt_status=outcome,caller_continuation=outcome)
+        prompt_status=int(self.wait(b'FDM_PROMPT_2_'+STATUS,15)[1])
+        need(prompt_status==outcome,'Fish prompt status differs from the requested outcome')
+        start=len(self.output)
+        self.send('__fdm_continue $status\n')
+        continued=self.wait(b'FDM_CONT_'+STATUS,5,start=start)
+        caller_status=int(continued[1])
+        need(caller_status==outcome,'Fish caller status differs from the requested outcome')
+        self.wait(b'FDM_PROMPT_3_'+STATUS,5,start=continued.end())
+        return dict(pid=self.process.pid,command=COMMANDS[outcome],outcome=outcome,
+                    prompt_status=prompt_status,caller_continuation=caller_status)
 
     def finish(self):
         self.send('exit 0\n');until=time.monotonic()+5
@@ -104,12 +117,12 @@ RETIRE_COMMAND=("not functions --query __done_job_$__fdm_job; or exit 95; "
 
 
 def watched_pid(raw):
-    rows=re.findall(rb'(?:^|[\r\n])FDM_WATCH_([1-9][0-9]{0,9})_0(?=[\r\n]|$)',raw)
+    rows=marker_line(rb'FDM_WATCH_([1-9][0-9]{0,9})_0').findall(raw)
     need(len(rows)==1,'one successful real watch registration required');return int(rows[0])
 
 
 def retired_pid(raw):
-    rows=re.findall(rb'(?:^|[\r\n])FDM_BG_RETIRED_([1-9][0-9]{0,9})(?=[\r\n]|$)',raw)
+    rows=marker_line(rb'FDM_BG_RETIRED_([1-9][0-9]{0,9})').findall(raw)
     need(len(rows)==1,'one exact watched job retirement marker required');return int(rows[0])
 
 
@@ -135,7 +148,8 @@ def verify_background(watch,fish_pid,raw,retired):
     need(watched_pid(raw)==child['pid'] and retired_pid(raw)==child['pid'],
          'actual watch registration/retirement bytes required')
     markers=[('FDM_WATCH_'+str(child['pid'])+'_0').encode(),b'FDM_PROMPT_2_0',b'FDM_CONT_0',('FDM_BG_RETIRED_'+str(child['pid'])).encode()]
-    need(all(m in raw for m in markers) and [raw.index(m) for m in markers]==sorted(raw.index(m) for m in markers),
+    lines=[marker_line(marker).search(raw) for marker in markers]
+    need(all(lines) and [line.start() for line in lines]==sorted(line.start() for line in lines),
          'watch, prompt, independent caller and retirement order differs')
     need(type(retired) is dict and retired.get('child')==child and retired.get('handler_absent') is True and
          retired.get('pid_absent') is True and retired.get('process_group_absent') is True,
