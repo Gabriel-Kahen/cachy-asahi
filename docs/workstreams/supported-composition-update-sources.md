@@ -1,5 +1,91 @@
 # Maintenance recipe custody and source correspondence
 
+## Forward recipe custody, November 28, 2026
+
+Fresh detached-signature checks verified both retained AArch64 archives
+against the pinned Arch Linux ARM build key
+`68B3537F39A313B3E574D06777193F152BDBE6A6`. Their extracted BUILDINFO
+records reproduced the two held recipe digests in the
+[November 25 table](#r132-custody-recheck-november-25-2026).
+The exact-version public Git recipes and the documented Plugbuild checksum
+append both differed from the signed AArch64 digests. A fresh local check
+hashed 9,569 named files and 10 workunit recipe bodies without a match.
+The live workunits still served Python `3.14.10-1` and Perl `5.44.0-1`.
+[Python workunit](https://archlinuxarm.org/builder/work/core-python.tgz)
+· [Perl workunit](https://archlinuxarm.org/builder/work/core-perl.tgz)
+
+### Bounded ARMv7 lead
+
+ISCAS returned HTTP 206 for bytes 0–262143 of each inspected archive.
+BUILDINFO was readable from the prefixes. Full ARMv7 archive signature
+verification remains open.
+
+- ARMv7 Python `3.14.8-1` from `xu1` reported the full recipe digest
+  from the signed AArch64 `n1` archive. The `python-tests` split archives
+  agreed on both architectures. Either builder's retained inputs are
+  a lead for the final recipe.
+- ARMv7 Perl `5.42.3-1` from `xu4` reported
+  `6d68cd401a858911b2b72d52c27052b734707a770a320fbef2f747b2a638eea7`.
+  The documented Plugbuild append reproduced this digest from Arch commit
+  `0264e08d302d7ae91c53d8bb78b9a7753c0ab67f` in 10,355 bytes. The signed
+  AArch64 Perl archive from Seattle has the different digest in the
+  November 25 table, so custody still depends on the Seattle build inputs.
+
+[ARMv7 mirror](https://mirror.iscas.ac.cn/archlinuxarm/armv7h/core/)
+· [AArch64 mirror](https://mirror.iscas.ac.cn/archlinuxarm/aarch64/core/)
+
+Both AArch64 recipes remain held. The final build-time PKGBUILDs, or the
+original queued workunits with verbatim `makepkg -g` output, are the
+remaining inputs for the [signed recipe reader](../../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes).
+The upstream draft at
+`~/.cache/cachy-asahi-r132-plugbuild-custody-20261118/actual/upstream-query.DRAFT.md`
+remains unsent.
+
+### Project replacement candidates remain on hold
+
+The retained candidate archives were rehashed and their BUILDINFO recipe
+digests matched the checked-in project recipes.
+
+| Project candidate | Archive bytes | Archive SHA-256 | BUILDINFO recipe SHA-256 |
+| --- | ---: | --- | --- |
+| [Python 3.14.8-1.1](../../packages/port/python3148-source-candidate/PKGBUILD) | 12,909,216 | `45b1f1791eaf19412c0bb151dc23daa00318d235e5624d433ce4b32ed2209049` | `30c8d332c80dbd2b34ac950ae46a4ead14526005ba90b33cc0efcf9cb03731fd` |
+| [Perl 5.42.3-1.3](../../packages/port/perl5423-repro-candidate/PKGBUILD) | 22,071,176 | `647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22` | `cf0df8990ac83f48a4c29978c932922108f0e01cb6d052209934da5b01af4068` |
+
+- Python passed one full-profile native AArch64 4 KiB build and a TEST-signed
+  emulated AArch64 16 KiB swap and rollback on the 626 → 628 → 626 inventory.
+  The same compiled consumer ran before and during the swap, and headless Tcl
+  exercised `_tkinter` on the candidate. The 629-package rollback lock has
+  neither Tcl nor Tk. A full-profile trial needs explicit signed Tcl/Tk
+  operands and their reverse removal. The prior trial retained both at
+  `8.6.16-1`. The project package retains the `python3` and
+  `python-externally-managed` provisions and omits the two matching ALARM
+  `replaces` entries. A second clean native Python build remains pending.
+  [Python qualification](../validation/python3148-native-r4-and-asahi628-20261118.md)
+- Perl passed two byte-identical native AArch64 4 KiB builds, a separate
+  TEST-signed native ARM4K swap and rollback, and an emulated ARM16K lifecycle
+  on a separate guest inventory. The project package omits the
+  `detect-old-perl-modules.hook` and its helper script and both
+  `/etc/profile.d/perlbin` scripts for sh and csh. Both ALARM versions carry
+  these files. The archive adds `bzip2` and `zlib` dependencies and changes
+  the `perl-scalar-list-utils` provision from `1.68_01` to `1.69` relative
+  to ALARM `5.42.3-1`. Resolve those differences and verify installed vendor
+  and site XS consumers on Asahi629.
+  [Native pair](../validation/perl5423-native-arm4k-pair-20261115.md)
+  · [Native lifecycle](../validation/perl5423-native-installed-lifecycle-20261115.md)
+  · [Emulated lifecycle](../validation/perl5423-emulated-arm16k-lifecycle-20261117.md)
+
+Both candidates remain **HOLD / UNAPPROVED** and unselected. A separately
+reviewed Asahi629 plan must bind the exact candidate and rollback archives,
+prepare both ALPM transactions, and review dependency, provider, file and
+hook differences. The signed emulated ARM16K trial needs consumer probes
+before the swap, on the candidate and after restoration, with independent
+readback of all 362 protected boot and mount entries and the exact
+629-package rollback lock. The checked lock has SHA-256
+`f335e8430a1d6f8463e95e16524cf78fc224c24fb31cf8717723370490bae9fa`.
+Complete corresponding-source and license review, physical M2 validation
+and release approval remain open.
+[Asahi629 rollback evidence](supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
+
 ## R132 custody recheck, November 25, 2026
 
 Four of the six signed maintenance archives have exact PKGBUILD bytes.
