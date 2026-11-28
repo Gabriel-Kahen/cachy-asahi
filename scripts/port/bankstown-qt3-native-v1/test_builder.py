@@ -32,10 +32,13 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 CHECKER = 'scripts/checks/package_checks.py'
 BUILD = 'scripts/build/build.py'
+CONTAINER_ENTRY = 'scripts/build/container-entry.sh'
 HELD_FIXTURES = {
     CHECKER: (ROOT / 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
               / 'scripts/ci/llhttp-reference-native-source/base/runtime' / CHECKER),
     BUILD: ROOT / 'scripts/ci/maintained-native/native' / BUILD,
+    CONTAINER_ENTRY: (ROOT / 'scripts/ci/bankstown-qt3-source79-local-data/inputs/held-source72'
+                      / 'container-entry.sh'),
 }
 spec = importlib.util.spec_from_file_location('bankstown_builder_model', HERE / 'builder.py')
 B = importlib.util.module_from_spec(spec)

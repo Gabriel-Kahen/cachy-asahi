@@ -90,8 +90,10 @@ class Controls(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'STABLE_WHOLE_INPUT_PIN'):
             R.read(drift, {k:row[k] for k in ('bytes','sha256')}, row['mode'])
 
-    def test_retained_build_runner_matches_original_source72_role(self):
-        self.read_held_source72_role('scripts/build/build.py')
+    def test_retained_build_helpers_match_original_source72_roles(self):
+        for member in ('scripts/build/build.py', 'scripts/build/container-entry.sh'):
+            with self.subTest(member=member):
+                self.read_held_source72_role(member)
 
     def test_both_automatic_events_watch_every_pinned_operand(self):
         repo=HERE.parents[2]

@@ -21,6 +21,8 @@ READER = 'scripts/ci/bankstown-qt3-hosted-reader-v1/source79/reader.py'
 # Source72 records these roles before the live scripts changed.
 HELD_SOURCE72_MEMBERS = {
     'scripts/build/build.py': 'scripts/ci/maintained-native/native/scripts/build/build.py',
+    'scripts/build/container-entry.sh': (
+        'scripts/ci/bankstown-qt3-source79-local-data/inputs/held-source72/container-entry.sh'),
     'scripts/checks/package_checks.py': (
         'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/'
         'scripts/ci/llhttp-reference-native-source/base/runtime/scripts/checks/package_checks.py'),
