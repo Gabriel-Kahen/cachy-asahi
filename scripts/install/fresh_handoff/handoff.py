@@ -145,6 +145,9 @@ def inspect_inputs(candidate, recovery, chosen, states):
     versions = {name: {key: rows[name][key] for key in ('version', 'arch')} for name in protected}
     need(versions == recovery_selection['protected_versions'],
          'candidate/predecessor protected platform differs; coordinated platform change held')
+    release = C.decode(R.pinned(candidate / 'release/release.json', checked['release_sha256']))
+    need(set(protected).isdisjoint(package['name'] for package in release['packages']),
+         'candidate signed overlay contains a protected platform package')
     return checked, prior
 
 
