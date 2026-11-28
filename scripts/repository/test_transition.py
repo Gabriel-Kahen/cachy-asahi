@@ -45,11 +45,11 @@ class SourceLoadingTests(unittest.TestCase):
         prefix.start()
         self.addCleanup(prefix.stop)
 
-    def write_source_update(self, path):
-        path.write_bytes(b'REVISION = "one"\n')
+    def write_source_update(self, path, source=b''):
+        path.write_bytes(source + b'\nREVISION = "one"\n')
         original = path.stat()
         py_compile.compile(str(path), doraise=True, invalidation_mode=py_compile.PycInvalidationMode.TIMESTAMP)
-        path.write_bytes(b'REVISION = "two"\n')
+        path.write_bytes(source + b'\nREVISION = "two"\n')
         os.utime(path, ns=(original.st_atime_ns, original.st_mtime_ns))
 
     def test_rotation_loads_current_enrollment_source(self):
@@ -66,6 +66,21 @@ class SourceLoadingTests(unittest.TestCase):
         self.write_source_update(self.repository / 'rotate.py')
         transition = module('test_transition_source_update', entry)
         self.assertEqual((transition.T.REVISION, transition.load_rotation().REVISION), ('two', 'two'))
+
+    def test_refresh_loads_current_rotation_and_enrollment_sources(self):
+        entry = self.repository / 'refresh.py'
+        shutil.copyfile(HERE / entry.name, entry)
+        self.write_source_update(self.repository / 'rotate.py', (HERE / 'rotate.py').read_bytes())
+        self.write_source_update(self.repository / 'enroll.py')
+        refresh = module('test_refresh_source_update', entry)
+        self.assertEqual((refresh.R.REVISION, refresh.E.REVISION), ('two', 'two'))
+
+    def test_revoke_loads_current_enrollment_source(self):
+        entry = self.repository / 'revoke.py'
+        shutil.copyfile(HERE / entry.name, entry)
+        self.write_source_update(self.repository / 'enroll.py')
+        revoke = module('test_revoke_source_update', entry)
+        self.assertEqual(revoke.E.REVISION, 'two')
 
 
 class TransitionTests(unittest.TestCase):
