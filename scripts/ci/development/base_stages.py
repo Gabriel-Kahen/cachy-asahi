@@ -30,7 +30,8 @@ from common import (base_prerequisite, check_deadline, command, copy_regular, di
 
 KSM = 'cachy-asahi-ksmctl'
 KSM_PIN = 'f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44'
-ARM_PIN = '8e0d982e136f8f1c79bebbeca8448f48a8466e95dbb8695042e7528a26f731ca'
+# Lock for the live ARM-C01 sources selected by the dual-source repository packet.
+ARM_PIN = '836826add973c81439071c5a12541e5b1cead66446b1d080f35f9e552f8bb573'
 EXPORT_PIN = '1ae8aded5ab461b280ca1ff82047f6766d58efacf7a09c83dc84515ac7d2216c'
 ZLIB_URL = 'https://zlib.net/fossils/zlib-1.3.2.tar.gz'
 ZLIB_SHA = 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16'

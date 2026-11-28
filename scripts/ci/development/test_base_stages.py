@@ -295,12 +295,35 @@ class BaseStages(unittest.TestCase):
         self.assertFalse((public / 'attempt-1-driver.log').exists())
         self.assertFalse(any(b'PRIVATE_FIXTURE' in p.read_bytes() for p in public.rglob('*') if p.is_file()))
 
+    def test_arm_lock_accepts_current_checkout_without_running_stage(self):
+        path = self.real_root / 'scripts/experiments/stage.lock.json'
+        self.assertEqual(b.arm_lock(self.real_root), path)
+        arm, lock = b.arm_policy()
+        self.assertEqual(Path(arm.__file__), self.real_root / 'scripts/experiments/arm_c01.py')
+        self.assertEqual(lock, b.read_json(path))
+        self.command.assert_not_called()
+        self.fetch.assert_not_called()
+
+    def test_arm_lock_byte_drift_refused_before_fetch_or_command(self):
+        self.arm_inputs()
+        lock = self.root / 'scripts/experiments/stage.lock.json'
+        with lock.open('ab') as stream:
+            stream.write(b'\n')
+        with self.assertRaisesRegex(ValueError, '^arm-source-lock-drift$'):
+            b.arm_lock(self.root)
+        self.assertEqual(b.run_arm(self.controller, self.root, self.output, self.cache)['status'], 'FAIL')
+        b.fetch_zlib.assert_not_called()
+        self.command.assert_not_called()
+
     def test_arm_success_uses_explicit_base_mode_and_retains_only_owner_public_bundles(self):
         self.arm_inputs()
         result = b.run_arm(self.controller, self.root, self.output, self.cache)
         self.assertEqual(result['status'], 'PASS'); argv, timeout = self.calls[0]
         self.assertEqual(timeout, 1000); self.assertNotIn('--handoff-dir', argv)
         self.assertEqual(argv[argv.index('--base-packages') + 1], argv[argv.index('--expected-packages') + 1])
+        locked_source = Path(argv[argv.index('--lock') + 1])
+        self.assertEqual(b.digest(locked_source), argv[argv.index('--lock-sha256') + 1])
+        self.assertEqual(locked_source.read_bytes(), b.arm_lock(self.root).read_bytes())
         self.assertEqual(result['execution'], 'base-only-correctness')
         self.assertEqual(set(result['public']), {str(self.owner / name) for name in ('public', 'public-status', 'public-artifacts')}
                          | {str(self.output / name) for name in ('public', 'adapter-status')})
@@ -314,8 +337,11 @@ class BaseStages(unittest.TestCase):
                 path.chmod(0o755)
             else:
                 path.write_bytes(saved + b'\n# drift\n')
+            with self.assertRaisesRegex(ValueError, '^arm-source-drift$'):
+                b.arm_lock(self.root)
             self.assertEqual(b.run_arm(self.controller, self.root, self.output, self.cache)['status'], 'FAIL')
-            self.assertEqual(self.calls, [])
+            b.fetch_zlib.assert_not_called()
+            self.command.assert_not_called()
             path.write_bytes(saved); path.chmod(0o644); shutil.rmtree(self.output)
 
     def test_arm_failed_receipt_cleanup_receiver_or_manifest_never_pass(self):
