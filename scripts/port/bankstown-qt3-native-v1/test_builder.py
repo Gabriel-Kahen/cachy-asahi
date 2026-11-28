@@ -31,8 +31,12 @@ sys.addaudithook(fence)
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 CHECKER = 'scripts/checks/package_checks.py'
-HELD_CHECKER = (ROOT / 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
-                / 'scripts/ci/llhttp-reference-native-source/base/runtime' / CHECKER)
+BUILD = 'scripts/build/build.py'
+HELD_FIXTURES = {
+    CHECKER: (ROOT / 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
+              / 'scripts/ci/llhttp-reference-native-source/base/runtime' / CHECKER),
+    BUILD: ROOT / 'scripts/ci/maintained-native/native' / BUILD,
+}
 spec = importlib.util.spec_from_file_location('bankstown_builder_model', HERE / 'builder.py')
 B = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(B)
@@ -103,9 +107,10 @@ class Fixture:
         self.source, self.output = root / 'source', root / 'output'
         self.source.mkdir()
         self.materials = {}
-        for path in B.HELD:
-            source = HELD_CHECKER if path == CHECKER else ROOT / path
-            self.add(path, source.read_bytes())
+        for path, expected in B.HELD.items():
+            source = HELD_FIXTURES.get(path, ROOT / path)
+            pin = self.add(path, source.read_bytes())
+            B.need(pin['sha256'] == expected, 'MODEL held helper pin differs: ' + path)
         for name in ('admission.py', 'profile.py', 'builder.py', 'entry.sh'):
             self.add(B.PREFIX + name, (HERE / name).read_bytes())
         guard = self.materials[B.RECIPE + 'build_guard.py']['sha256']
