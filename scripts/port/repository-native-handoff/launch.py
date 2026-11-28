@@ -110,11 +110,13 @@ def read(path, limit=1024**2):
             os.close(fd)
 
 
-def write_new(path, raw):
+def write_new(path, raw, *, on_create=None):
     path = Path(path).absolute()
     with directory(path.parent) as parent:
         fd = os.open(path.name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
         try:
+            if on_create is not None:
+                on_create(inode(os.fstat(fd)))
             view = memoryview(raw)
             while view:
                 count = os.write(fd, view); need(count > 0, 'short private write'); view = view[count:]
@@ -175,18 +177,13 @@ def publish_status(path, raw, state, mask, receipt):
         descriptors.callback(remove_empty_slot, parent, name)
         slot = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
         descriptors.callback(os.close, slot)
-        try:
-            write_new(staged, raw)
-        except BaseException:
-            # Only this invocation can have opened its unpublished staging name.
-            try:
-                os.unlink(staged.name, dir_fd=slot)
-            except FileNotFoundError:
-                pass
-            raise
-        expected = inode(os.stat(staged.name, dir_fd=slot, follow_symlinks=False))
+        created = []
         published = False
         try:
+            write_new(staged, raw, on_create=created.append)
+            expected, = created
+            need(inode(os.stat(staged.name, dir_fd=slot, follow_symlinks=False)) == expected,
+                 'staged sidecar identity drift')
             state.check_publication(mask)
             rename_new(slot, staged.name, parent, path.name)
             published = True
@@ -199,10 +196,11 @@ def publish_status(path, raw, state, mask, receipt):
             # Commit here. A subsequent signal belongs to the caller once unmasked.
             state.check_publication(mask)
         except BaseException:
-            try:
-                withdraw_status(parent, path.name, slot, staged.name, expected, published)
-            except (OSError, Refused) as error:
-                receipt['sidecar_revocation_error_type'] = type(error).__name__
+            if created:
+                try:
+                    withdraw_status(parent, path.name, slot, staged.name, created[0], published)
+                except (OSError, Refused) as error:
+                    receipt['sidecar_revocation_error_type'] = type(error).__name__
             raise
 
 
@@ -258,6 +256,8 @@ def cancellation_handlers(state, *, run_mask=None):
         signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
         for number, handler in original.items():
             for _ in range(2):
+                # Restoring SIG_IGN discards signals queued under the launcher handler.
+                state.observe_pending(run_mask)
                 try:
                     signal.signal(number, handler)
                 except BaseException as fault:

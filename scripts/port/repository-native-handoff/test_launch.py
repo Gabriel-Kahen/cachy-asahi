@@ -280,6 +280,41 @@ class LaunchTests(unittest.TestCase):
         self.assertEqual(old,{n:signal.getsignal(n)for n in launch.SIGNALS})
         self.assertFalse((self.root/'container.launcher.json').exists())
 
+    def test_queued_sigint_survives_restoration_of_ignored_caller_disposition(self):
+        receipt_path = self.private / ('launch-' + 'a' * 32) / 'receipt.json'
+        fsync, sigmask = launch.os.fsync, signal.pthread_sigmask
+        fsynced, blocked = [], []
+
+        def sync(fd):
+            fsync(fd)
+            if Path(os.readlink(f'/proc/self/fd/{fd}')) == receipt_path and not fsynced:
+                self.assertEqual(launch.decode(receipt_path.read_bytes())['status'], 'PASS')
+                fsynced.append(True)
+
+        def mask(how, signals):
+            previous = sigmask(how, signals)
+            if fsynced and how == signal.SIG_BLOCK and launch.SIGNALS <= set(signals):
+                blocked.append(True)
+                # The first block ends write deferral. The second guards handler restoration.
+                if len(blocked) == 2:
+                    self.assertNotEqual(signal.getsignal(signal.SIGINT), signal.SIG_IGN)
+                    os.kill(os.getpid(), signal.SIGINT)
+                    self.assertIn(signal.SIGINT, signal.sigpending())
+            return previous
+
+        original = signal.signal(signal.SIGINT, signal.SIG_IGN)
+        try:
+            with (mock.patch.object(launch.os, 'fsync', side_effect=sync),
+                  mock.patch.object(signal, 'pthread_sigmask', side_effect=mask), self.assertRaises(launch.Refused)):
+                self.execute()
+            self.assertEqual(signal.getsignal(signal.SIGINT), signal.SIG_IGN)
+        finally:
+            signal.signal(signal.SIGINT, original)
+        receipt = launch.decode(receipt_path.read_bytes())
+        self.assertEqual(receipt['status'], 'FAIL')
+        self.assertTrue(receipt['cancelled'])
+        self.assertFalse((self.root / 'container.launcher.json').exists())
+
     def test_staged_sidecar_file_fsync_failure_never_publishes(self):
         sidecar = self.root / 'container.launcher.json'
         original = launch.os.fsync
@@ -309,6 +344,25 @@ class LaunchTests(unittest.TestCase):
         self.assertEqual(error.exception.receipt['status'], 'FAIL')
         self.assertEqual(sidecar.read_bytes(), b'preexisting leaf')
         self.assertEqual(list(self.root.glob('.launcher-*')), [])
+
+    def test_staging_collision_preserves_the_foreign_leaf(self):
+        mkdir = launch.os.mkdir
+        injected = []
+
+        def put_foreign_leaf(name, mode=0o777, *, dir_fd=None):
+            mkdir(name, mode, dir_fd=dir_fd)
+            if str(name).startswith('.launcher-'):
+                leaf = self.root / name / 'status.json'
+                leaf.write_bytes(b'foreign staging leaf')
+                injected.append(leaf)
+
+        with mock.patch.object(launch.os, 'mkdir', side_effect=put_foreign_leaf), self.assertRaises(launch.Refused) as error:
+            self.execute()
+        self.assertEqual(error.exception.receipt['status'], 'FAIL')
+        self.assertEqual(error.exception.receipt['publication_error_type'], 'FileExistsError')
+        self.assertEqual(len(injected), 1)
+        self.assertEqual(injected[0].read_bytes(), b'foreign staging leaf')
+        self.assertFalse((self.root / 'container.launcher.json').exists())
 
     def test_late_signal_during_withdrawal_preserves_failed_publication(self):
         sidecar = self.root / 'container.launcher.json'
@@ -399,9 +453,9 @@ class LaunchTests(unittest.TestCase):
 
     def test_public_write_failure_retains_only_failed_private_receipt(self):
         original=launch.write_new
-        def writer(path,raw):
+        def writer(path,raw,**options):
             if Path(path)==self.root/'container.log':raise OSError('MODELED publication failure')
-            return original(path,raw)
+            return original(path,raw,**options)
         with mock.patch.object(launch,'write_new',side_effect=writer),self.assertRaises(launch.Refused):self.execute()
         receipt=launch.decode((self.private/('launch-'+'a'*32)/'receipt.json').read_bytes())
         self.assertEqual(receipt['status'],'FAIL');self.assertEqual(receipt['cleanup'],'PASS')
