@@ -297,28 +297,7 @@ jobs:
           if [[ "$COMPONENT" == support-package || "$COMPONENT" == support-package2 ]]; then
             # Both adapters verify the original transport hashes. Use the exact
             # retained package copies and run the current controls in isolation.
-            python -B -S -Werror::ResourceWarning - "$suite" <<'PYTHON'
-          from pathlib import Path
-          import shutil
-          import subprocess
-          import sys
-          import tempfile
-
-          suite = Path(sys.argv[1])
-          tools = Path('packages/tools')
-          with tempfile.TemporaryDirectory(prefix='support-source-') as temporary:
-              root = Path(temporary)
-              release = root / suite.parent
-              release.mkdir(parents=True)
-              frozen = tools / 'cachy-asahi-release-tools'
-              for name in ('recipe_source_delivery.py', 'source_delivery.py'):
-                  shutil.copy2(frozen / name, release / name)
-              for name in ('support_source_delivery_v1.py', 'support_source_delivery_v2.py', suite.name):
-                  shutil.copy2(suite.parent / name, release / name)
-              for name in ('cachy-asahi-support', 'cachy-asahi-support2'):
-                  shutil.copytree(tools / name, root / tools / name)
-              subprocess.run([sys.executable, '-B', '-S', '-Werror::ResourceWarning', root / suite], check=True)
-          PYTHON
+            python -B -S -Werror::ResourceWarning scripts/release/support_source_delivery_fixture.py "${suite##*/}"
           else
             python -B -S -Werror::ResourceWarning "$suite"
           fi

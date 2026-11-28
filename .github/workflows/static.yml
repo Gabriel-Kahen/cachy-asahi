@@ -812,15 +812,26 @@ jobs:
           FROZEN_SETUP_RECIPE_SOURCE: ${{ github.workspace }}/.ci-inputs/historical-inventory-input-basis
         run: |
           python3 -B - <<'PY'
+          from contextlib import nullcontext
           import importlib.util, tempfile, unittest
           from pathlib import Path
-          spec = importlib.util.spec_from_file_location('measurement_components', 'scripts/ci/measurement-tools-components-v1.py')
-          measurement = importlib.util.module_from_spec(spec); spec.loader.exec_module(measurement)
+          def load(name, path):
+              spec = importlib.util.spec_from_file_location(name, path)
+              module = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              return module
+          measurement = load('measurement_components', 'scripts/ci/measurement-tools-components-v1.py')
+          support = load('support_source_fixture', 'scripts/release/support_source_delivery_fixture.py')
+          root = Path.cwd()
           for directory in ('scripts/release', 'scripts/release/install_inventory', 'scripts/client', 'scripts/benchmarks'):
-              suite = unittest.TestLoader().discover(directory, pattern='test_*.py')
               with tempfile.TemporaryDirectory(prefix='static-measurement-source-') as temporary:
-                  with measurement.discovered_source_fixture(suite, Path.cwd(), Path(temporary)):
-                      result = unittest.TextTestRunner(verbosity=2).run(suite)
+                  work = Path(temporary)
+                  discovery = (support.discovery_loader(root, work / 'support')
+                               if directory == 'scripts/release' else nullcontext(unittest.TestLoader()))
+                  with discovery as loader:
+                      suite = loader.discover(directory, pattern='test_*.py')
+                      with measurement.discovered_source_fixture(suite, root, work):
+                          result = unittest.TextTestRunner(verbosity=2).run(suite)
               if not result.wasSuccessful() or result.skipped or result.testsRun == 0:
                   raise SystemExit(f'{directory}: failures, skips, or empty suite')
           PY
