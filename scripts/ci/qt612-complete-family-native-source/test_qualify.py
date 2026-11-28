@@ -245,10 +245,11 @@ class Controls(unittest.TestCase):
     def test_held_normal_package_report_matches_generic_inspector_MODEL(self):
         path, row, inputs = self.model_archive()
         row['filename'] = path.name
-        framework = HERE.parents[2]
+        # The Source95 runtime retains the framework bytes pinned by this family.
+        held_framework = (HERE.parents[2]/'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
+                          /'scripts/ci/llhttp-reference-native-source/base/runtime')
         name = 'scripts/checks/package_checks.py'
-        held = (framework/'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
-                /'scripts/ci/llhttp-reference-native-source/base/runtime'/name)
+        held = held_framework/name
         raw = C.M.stream(held, LOCK['framework_files'][name], {}, collect=True)
         scope = dict(__name__='held_normal_package_checks_MODEL', __file__=str(held))
         exec(compile(raw, str(held), 'exec'), scope)
@@ -264,8 +265,9 @@ class Controls(unittest.TestCase):
         # Execute the pinned compare function with an explicit MODEL
         # verify seam; this checks its schema, never a genuine native pair.
         compare_name = 'scripts/build/compare_v2.py'
-        compare_raw = C.M.stream(framework/compare_name, LOCK['framework_files'][compare_name], {}, collect=True)
-        tree = ast.parse(compare_raw, str(framework/compare_name))
+        held_compare = held_framework/compare_name
+        compare_raw = C.M.stream(held_compare, LOCK['framework_files'][compare_name], {}, collect=True)
+        tree = ast.parse(compare_raw, str(held_compare))
         function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == 'compare')
         model = dict(clean_environment_id='MODEL-1', image='sha256:'+'a'*64, image_id='sha256:'+'a'*64,
             mode='native', source_date_epoch=1, recipe_inputs=inputs, recipe_metadata=row['metadata'],
@@ -273,7 +275,7 @@ class Controls(unittest.TestCase):
         def verify(root):
             return dict(model, clean_environment_id=Path(root).name), {path.name: report}
         environment = dict(Path=Path, verify=verify, PACKAGE_METADATA=scope['PACKAGE_METADATA'])
-        exec(compile(ast.Module(body=[function], type_ignores=[]), str(framework/compare_name), 'exec'), environment)
+        exec(compile(ast.Module(body=[function], type_ignores=[]), str(held_compare), 'exec'), environment)
         compared = environment['compare'](self.root/'MODEL-1', self.root/'MODEL-2')
         self.assertEqual(set(compared), {'status', 'errors', 'packages', 'hardware_status', 'independence_limit'})
         self.assertEqual(compared['status'], 'contents-reproduced')
