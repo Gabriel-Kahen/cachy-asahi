@@ -755,6 +755,64 @@ class InstallerConstructorSourceTests(unittest.TestCase):
         cls.fixture = test_repository_handoff.CapturedGraphFixtures;cls.fixture.setUpClass()
         cls.addClassCleanup(cls.fixture.doClassCleanups)
 
+    def test_dual_source_constructor_binds_real_roots_and_holds_current_launcher(self):
+        import hashlib
+        import time
+        import test_repository_handoff
+
+        with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules,{}):
+            base = Path(temporary)
+            root, original, grant = test_repository_handoff.split_source_fixture(self.fixture,base)
+            output = base / 'controller-output'
+            cache = base / 'controller-cache'
+            grant['original_view']['root'] = str(output/'repository-handoff'/'original-view')
+            original_lock = json.loads((original/controller.packet.INITIAL).read_bytes())
+            identity = {key:grant['original_view'][key] for key in controller.packet.ORIGINAL_SOURCE}
+            source_packet = {'schema_version':3,'composition':controller.packet.COMPOSITION,
+                             'source_files':grant['source_files'],'initial_source_files':original_lock['source_files'],
+                             'original_source':identity}
+            modules = {}
+            for name in ('common','packet','captured_dual_source_controller'):
+                name_on_disk = 'controller' if name == 'captured_dual_source_controller' else name
+                path = root / 'scripts/ci/development' / (name_on_disk + '.py')
+                module = ModuleType(name)
+                module.__file__ = str(path)
+                sys.modules[name] = modules[name] = module
+                exec(compile(path.read_bytes(),module.__file__,'exec'),module.__dict__)
+            parent = modules['captured_dual_source_controller']
+            grant['callbacks'] = {'existing_consumers':{'path':'scripts/ci/development/controller.py',
+                'module':parent.__name__,'qualname':'Development.consume'},
+                **{role:{'path':'scripts/ci/development/repository_authority.py','module':'development_repository_authority',
+                         'qualname':'RootCallbacks.'+role} for role in ('public_receiver','authority_provider')}}
+            encode = self.fixture.a.encoded
+            sha = lambda raw:hashlib.sha256(raw).hexdigest()
+            runtime = {'cli_sha256':'b'*64,'endpoint_identity':{'model':'NO ACTOR'},'env':{}}
+            runtime_raw = encode(runtime)
+            grant['actor_contract_sha256'] = sha(runtime_raw)
+            pins = parent.packet.original_invocation_pins(source_packet)
+            argv = parent.original_argv(output,cache,pins)
+            grant['initial_invocation_sha256'] = sha(encode({'argv':argv,'output':str(output/'repository-handoff')}))
+            raw = encode(grant)
+            deadline = time.monotonic()+60
+            args = (root,source_packet,raw,sha(raw),runtime_raw,output,cache,deadline)
+            environment = {'GITHUB_SHA':grant['source_commit'],'GITHUB_RUN_ID':grant['run_id'],
+                           'GITHUB_RUN_ATTEMPT':grant['run_attempt']}
+            with patch.dict(parent.os.environ,environment):
+                with self.assertRaisesRegex(ValueError,'disjoint-original-source-required'):
+                    parent.composed_sources(root,source_packet,raw,sha(raw),runtime_raw,output,original/'cache',
+                                            deadline,original_root=original,source_only=True)
+                with self.assertRaisesRegex(ValueError,'original-runner-refused'):
+                    parent.composed_sources(*args,original_root=original)
+                self.assertNotIn('development_repository_handoff',sys.modules)
+                session, callbacks, actual, selected = parent.composed_sources(*args,original_root=original,source_only=True)
+                self.assertEqual(session.sources.root,root)
+                self.assertEqual(sha((original/controller.packet.ORIGINAL_RUNNER).read_bytes()),identity['runner_sha256'])
+                self.assertEqual(callbacks.handoff_binding()['integration_lock_sha256'],pins[controller.packet.INITIAL])
+                self.assertEqual((actual,selected),(runtime,argv))
+            self.assertFalse(session.used)
+            self.assertFalse(output.exists())
+            self.assertFalse(cache.exists())
+
     def test_actual_source_constructor_propagates_closed_installer_mode_before_allocation(self):
         import copy,hashlib,time,types
         sources = self.fixture.sources;root = self.fixture.root;modules = {}
@@ -918,6 +976,83 @@ class ClockContractTests(unittest.TestCase):
         self.assertTrue(controller.CANCELLED)
         self.assertTrue(any('composed-boundary-finalization-failed' in str(call) for call in report.call_args_list))
         controller.CANCELLED=False
+
+
+class OriginalSourceBootstrapTests(unittest.TestCase):
+    def setUp(self):
+        self.clock = ClockContractTests()
+        self.clock.setUp()
+        self.addCleanup(self.clock.doCleanups)
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.checkout = self.root / 'live'
+        self.original = self.root / 'original'
+        self.checkout.mkdir()
+        self.original.mkdir()
+        self.args = self.clock.boundary_args()
+        self.args.original_source_root = self.original
+        self.args.output = self.root / 'output'
+        self.args.cache = self.root / 'cache'
+        self.identity = {'source_commit':'a'*40,'integration_lock_sha256':'b'*64,
+                         'source_rows_sha256':'c'*64,'runner_sha256':'d'*64}
+        self.packet = {'schema_version':3,'composition':controller.packet.COMPOSITION,'metadata_pins':{},
+                       'original_source':self.identity}
+        self.invocation = {'scripts/ci/integration.lock.json':self.identity['integration_lock_sha256']}
+
+    def test_check_only_authenticates_both_roots_and_private_inputs_without_allocation(self):
+        import os
+        owner = SimpleNamespace(composition=controller.packet.COMPOSITION)
+        captures = []
+
+        def capture(path, pin, kind, limit):
+            captures.append(kind)
+            return self.clock.raw(self.clock.value) if kind == 'DEVELOPMENT_CLOCK' else b'INERT'
+
+        with patch.object(controller,'ROOT',self.checkout), patch.object(controller.Path,'cwd',return_value=self.checkout), \
+             patch.object(controller,'private_input',side_effect=capture), \
+             patch.object(controller.packet,'original_invocation_pins',return_value=self.invocation), \
+             patch.object(controller.packet,'preflight_composed',return_value=self.packet) as preflight, \
+             patch.object(controller,'composed_sources',return_value=(owner,None,None,None)) as sources, \
+             patch.object(controller,'Development') as actors, patch.object(controller,'close_boundary',return_value=False), \
+             patch.object(controller.signal,'getitimer',return_value=(0.0,0.0)), patch.object(controller.signal,'signal'), \
+             patch.object(controller.signal,'setitimer'), patch('builtins.print') as report:
+            self.assertEqual(controller.composed_main(self.args,self.invocation,entry=self.clock.entry),0)
+            preflight.assert_called_once_with(self.checkout,self.args.packet,self.args.development_sha256,
+                os.environ.get('GITHUB_SHA',''),composition=controller.packet.COMPOSITION,original_root=self.original)
+        self.assertEqual(captures,['DEVELOPMENT_CLOCK','DEVELOPMENT_EXECUTION_GRANT','DEVELOPMENT_RUNTIME_CONTRACT'])
+        self.assertEqual(sources.call_args.kwargs,{'composition':controller.packet.COMPOSITION,
+                         'original_root':self.original,'source_only':True})
+        actors.assert_not_called()
+        report.assert_called_once_with('dual-source development inputs verified; execution NOT RUN')
+        self.assertFalse(self.args.output.exists())
+        self.assertFalse(self.args.cache.exists())
+
+    def test_original_grant_identity_and_path_are_bound_to_the_authenticated_packet(self):
+        view = dict(self.identity,source_root=str(self.original))
+        grant = {'schema_version':3,'original_view':view}
+        controller.bind_original_source(self.packet,grant,self.original)
+        for field, value in (('source_root',str(self.checkout)),('source_commit','e'*40),
+                             ('integration_lock_sha256','e'*64),('source_rows_sha256','e'*64),
+                             ('runner_sha256','e'*64)):
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError,'composed-original-source-refused'):
+                controller.bind_original_source(self.packet,dict(grant,original_view=dict(view,**{field:value})),self.original)
+        with self.assertRaisesRegex(ValueError,'composed-grant-refused'):
+            controller.bind_original_source(self.packet,dict(grant,schema_version=2),self.original)
+
+    def test_original_root_flag_selects_only_composed_successor_packet(self):
+        argv = ['--inputs-sha256','a'*64,'--recipes-sha256','b'*64,'--integration-sha256','c'*64,
+                '--development-sha256','d'*64,'--cache',str(self.args.cache),'--output',str(self.args.output),
+                '--check-only','--original-source-root',str(self.original)]
+        with patch.object(controller.packet,'preflight') as legacy:
+            with self.assertRaisesRegex(ValueError,'original-source-root-requires-composition'):
+                controller.main(argv)
+            legacy.assert_not_called()
+        with patch.object(controller,'composed_main',return_value=0) as dispatch:
+            self.assertEqual(controller.main(argv+['--composition',controller.packet.COMPOSITION]),0)
+        args = dispatch.call_args.args[0]
+        self.assertEqual(args.original_source_root,self.original)
+        self.assertEqual(args.packet,controller.ROOT/controller.packet.DUAL_LOCK)
 
 
 class PhaseSchemaTests(unittest.TestCase):

@@ -560,6 +560,162 @@ class InitialInvocationFixtures(unittest.TestCase):
                 with self.assertRaises(adapter.Refused):session.execute(changed,{},contract)
                 self.assertFalse(output.exists())
 
+def split_source_fixture(fixture, parent):
+    project = PATH.parents[3]
+    live, original = parent/'live', parent/'historical'
+    live.mkdir(mode=0o700)
+    original.mkdir(mode=0o700)
+    grant = copy.deepcopy(fixture.grant)
+    initial = graph_fixture['original_lock'](project)
+    policy = grant['policy_path']
+    for name in sorted(grant['source_files']):
+        parent_root = fixture.root if name == policy else project
+        raw, mode = graph_fixture['checkout_input'](parent_root, name)
+        target = live/name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(raw)
+        target.chmod(mode)
+        grant['source_files'][name] = {'sha256':adapter.digest(raw),'mode':mode}
+    for name in (*initial['source_files'],adapter.INITIAL_PATH):
+        raw, mode = graph_fixture['historical_input'](project, name)
+        target = original/name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(raw)
+        target.chmod(mode)
+    grant['schema_version'] = 3
+    for row in grant['maps'].values():
+        row['sha256'] = grant['source_files'][row['path']]['sha256']
+    grant['original_view'].update(
+        schema_version=2, full_source_root=str(live), root=str(parent/'output'/'original-view'),
+        source_root=str(original), source_commit=adapter.HISTORICAL_COMMIT,
+        runner_sha256=adapter.ORIGINAL_RUNNER_SHA256,
+    )
+    return live, original, grant
+
+
+class DualSourceFixtures(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.base = CapturedGraphFixtures
+        cls.addClassCleanup(cls.base.doClassCleanups)
+        cls.base.setUpClass()
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix='handoff-dual-source-')
+        self.addCleanup(temporary.cleanup)
+        parent = Path(temporary.name)
+        self.live, self.original, self.grant = split_source_fixture(self.base, parent)
+        self.output = parent/'output'
+        self.deadline = time.monotonic()+60
+
+    def preflight(self, module=adapter):
+        raw = adapter.encoded(self.grant)
+        return module.preflight(self.live, raw, adapter.digest(raw),
+                                deadline=self.deadline, original_root=self.original)
+
+    def replace_live(self, name, raw):
+        (self.live/name).write_bytes(raw)
+        self.grant['source_files'][name]['sha256'] = adapter.digest(raw)
+
+    def test_validates_and_copies_original_graph_while_phase_uses_live_graph(self):
+        sources = self.preflight()
+        name = graph_fixture['RELEASE']
+        self.assertNotEqual(sources.raw[name], sources.historical_raw[name])
+        self.assertFalse(self.output.exists())
+        owner = sources.module('handoff_dual_source_test','scripts/ci/development/repository_handoff.py')
+        sources = self.preflight(owner)
+        entry = sources.module('handoff_dual_entry',owner.PREFIXES['runtime']+'/entry.py')
+        maps = self.grant['maps']
+        runtime, _ = entry.authenticated(self.live/maps['runtime']['path'],maps['runtime']['sha256'],
+            deadline=self.deadline, source_root=self.live/owner.PREFIXES['runtime'])
+        loaded = {}
+        for role in ('collector','phase'):
+            path = owner.PREFIXES[role]+'/entry.py'
+            loaded[role], _ = entry.dependency_entry(
+                self.live,path,self.grant['source_files'][path]['sha256'],
+                maps[role]['path'],maps[role]['sha256'],deadline=self.deadline,phase=role=='phase',
+            )
+        session = owner.Session(sources,self.output,job_deadline=self.deadline)
+        self.output.mkdir(mode=0o700)
+        view = self.output/'original-view'
+        session.prepare_view(view)
+        self.assertEqual((view/name).read_bytes(),sources.historical_raw[name])
+        receipt = session.verify_view(self.deadline)
+        self.assertEqual(receipt['files'][name]['source_node'],list(sources.historical_identities[name]))
+        self.assertEqual(receipt['selection'],self.grant['original_view'])
+        session.used = True  # Source-only registration, as in the legacy graph fixture.
+        session.source_graph = {'entry':entry,'runtime':runtime,**loaded,'original':{},'original_aliases':{}}
+        with patch.dict(sys.modules,{owner.__name__:owner}):
+            sources.source_graph(session,capture=True)
+            session.original_scope = entry.original_modules(view,view/owner.INITIAL_PATH,owner.INITIAL,
+                deadline=self.deadline,verification_deadline=self.deadline)
+            with session.original_scope as original:
+                session.source_graph.update(original=original,original_aliases={
+                    'repository_projection.inventory':original['repository_projection'].inventory,
+                    'desktop_projection.policy':original['desktop_projection'].policy})
+                sources.source_graph(session,capture=True)
+                path = 'scripts/ci/integration.py'
+                self.assertIs(session.original_context(deadline=self.deadline)['original']['integration'],
+                              original['integration'])
+                self.assertEqual(sources.captured_code(view/path),sources.historical_raw[path])
+                self.assertEqual(sources.captured_code(self.live/path),sources.raw[path])
+
+    def test_refuses_swapped_roots_and_rebound_wrong_family(self):
+        name = graph_fixture['RELEASE']
+        raw = adapter.encoded(self.grant)
+        with self.assertRaisesRegex(adapter.Refused,'^grant-refused$'):
+            adapter.preflight(self.original,raw,adapter.digest(raw),deadline=self.deadline,original_root=self.live)
+        live_raw, original_raw = (self.live/name).read_bytes(), (self.original/name).read_bytes()
+        self.replace_live(name,original_raw)
+        with self.assertRaisesRegex(adapter.Refused,'^source-refused$'):
+            self.preflight()
+        self.replace_live(name,live_raw)
+        (self.original/name).write_bytes(live_raw)
+        with self.assertRaisesRegex(adapter.Refused,'^source-refused$'):
+            self.preflight()
+        self.assertFalse(self.output.exists())
+
+    def test_refuses_same_byte_inode_drift_in_either_root(self):
+        name = graph_fixture['RELEASE']
+        for root in (self.live,self.original):
+            with self.subTest(root=root):
+                sources = self.preflight()
+                path = root/name
+                replacement = path.with_suffix('.replacement')
+                replacement.write_bytes(path.read_bytes())
+                replacement.chmod(0o755)
+                os.replace(replacement,path)
+                with self.assertRaisesRegex(adapter.Refused,'^source-refused$'):
+                    sources.guard(self.deadline)
+                self.assertFalse(self.output.exists())
+
+    def test_runner_binding_requires_both_reviewed_runtime_pins(self):
+        with self.assertRaisesRegex(adapter.Refused,'^original-runner-refused$'):
+            self.preflight().require_original_runner()
+        names = (('launch.py','ORIGINAL_PIN'),('producer.py','SOURCE_SHA256'))
+        runtime = adapter.PREFIXES['runtime']
+        map_row = self.grant['maps']['runtime']
+        manifest = json.loads((self.live/map_row['path']).read_bytes())
+        # Staged hypothetical successor map. No runtime actor is constructed.
+        for name, field in names:
+            path = runtime+'/'+name
+            raw = (self.live/path).read_bytes()
+            current = adapter.source_literals(raw,{field})[field].encode()
+            self.assertEqual(raw.count(current),1)
+            self.replace_live(path,raw.replace(current,adapter.ORIGINAL_RUNNER_SHA256.encode()))
+            manifest[name] = self.grant['source_files'][path]
+            self.replace_live(map_row['path'],adapter.encoded(manifest))
+            map_row['sha256'] = self.grant['source_files'][map_row['path']]['sha256']
+            if field == 'ORIGINAL_PIN':
+                with self.assertRaisesRegex(adapter.Refused,'^original-runner-refused$'):
+                    self.preflight().require_original_runner()
+        self.preflight().require_original_runner()
+        self.grant['original_view']['runner_sha256'] = '0'*64
+        with self.assertRaisesRegex(adapter.Refused,'^grant-refused$'):
+            self.preflight()
+        self.assertFalse(self.output.exists())
+
+
 class LivePhaseGraphFixtures(unittest.TestCase):
     def test_live_phase_loads_only_its_own_release_predecessor(self):
         project = PATH.parents[3]

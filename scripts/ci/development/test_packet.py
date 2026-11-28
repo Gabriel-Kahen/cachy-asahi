@@ -4,6 +4,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import runpy
 import shutil
 import stat
 import subprocess
@@ -89,9 +90,9 @@ class Base(unittest.TestCase):
         self.value = json.loads(self.packet_path.read_bytes())
         return self.value
 
-    def git_fixture(self, root=None):
+    def git_fixture(self, root=None, *, packet_relative=packet.LOCK):
         root = root or self.root
-        names = set(self.value['source_files']) | {packet.LOCK}
+        names = set(self.value['source_files']) | {packet_relative}
         self.blobs, self.tree = {}, {}
         for name in names:
             path = root / name; data = path.read_bytes()
@@ -485,6 +486,135 @@ class ComposedTests(Base):
             self.packet_path.unlink();self.freeze()
         self.write('scripts/virtual/unknown.pyc',b'cache')
         with self.assertRaisesRegex(packet.PacketError,'source-python-cache-refused'):self.check()
+
+
+class DualSourceTests(unittest.TestCase):
+    """Exact historical bytes and live checkout selections; only live Git is modeled."""
+
+    release = 'scripts/release/release.py'
+
+    @classmethod
+    def setUpClass(cls):
+        project = Path(__file__).resolve().parents[3]
+        fixture = runpy.run_path(str(Path(__file__).with_name('repository_graph_fixture.py')))
+        initial = fixture['original_lock'](project)
+        cls.historical = {
+            name: fixture['historical_input'](project, name)
+            for name in (packet.INITIAL, *initial['source_files'])
+        }
+        cls.live = {
+            name: fixture['checkout_input'](project, name)
+            for name in packet.composed_paths(initial, split=True)
+        }
+
+    def stage(self, parent, data):
+        for name, (raw, mode) in data.items():
+            target = parent / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(raw)
+            target.chmod(mode)
+        parent.chmod(0o700)
+
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.original = Path(temp.name) / 'historical'
+        self.root = Path(temp.name) / 'live'
+        self.stage(self.original, self.historical)
+        self.stage(self.root, self.live)
+        self.packet_path = self.root / packet.DUAL_LOCK
+        self.stage_lock = self.root / 'scripts/experiments/stage.lock.json'
+        self.pins = {name: packet.read(self.root / name)[1]['sha256'] for name in packet.COMPOSED_PINS}
+
+    def freeze(self):
+        # Model the separately reviewed stage ledger without changing the checkout.
+        stage = packet.decode(self.stage_lock.read_bytes())
+        stage['source_files'] = {
+            name: packet.read(self.stage_lock.parent / name)[1] for name in stage['source_files']
+        }
+        self.stage_lock.write_bytes((json.dumps(stage, sort_keys=True) + '\n').encode())
+        self.pins[self.stage_lock.relative_to(self.root).as_posix()] = digest(self.stage_lock.read_bytes())
+        self.packet_sha = self.freeze_with_current_pins()
+        self.value = packet.decode(self.packet_path.read_bytes())
+
+    def freeze_with_current_pins(self):
+        return packet.freeze_composed(
+            self.root, self.packet_path, self.original / packet.INITIAL,
+            packet.ORIGINAL_SOURCE['integration_lock_sha256'], self.pins, original_root=self.original,
+        )
+
+    def check(self, **options):
+        options.setdefault('original_root', self.original)
+        return packet.preflight_composed(
+            self.root, self.packet_path, self.packet_sha, COMMIT, self.pins, **options,
+        )
+
+    def git_fixture(self):
+        return Base.git_fixture(self, packet_relative=packet.DUAL_LOCK)
+
+    def test_dual_uses_independent_pins_and_git_committed_packet(self):
+        self.freeze()
+        self.assertEqual(self.value['schema_version'], 3)
+        self.assertEqual(self.value['original_source'], packet.ORIGINAL_SOURCE)
+        self.assertEqual(len(self.value['source_files']), 259)
+        self.assertNotEqual(self.value['initial_source_files'][self.release], self.value['source_files'][self.release])
+        original_pins = packet.original_invocation_pins(self.value)
+        self.assertEqual(set(original_pins), set(packet.ORIGINAL_METADATA))
+        for name in original_pins:
+            self.assertEqual(original_pins[name], digest((self.original / name).read_bytes()))
+            self.assertEqual(self.value['metadata_pins'][name], digest((self.root / name).read_bytes()))
+        with self.git_fixture():
+            self.assertEqual(self.check(), self.value)
+            del self.tree[packet.DUAL_LOCK]
+            with self.assertRaisesRegex(packet.PacketError, '^git-packet-binding-drift$'):
+                self.check()
+
+    def test_refuses_wrong_missing_aliased_and_nonprivate_original_root(self):
+        self.freeze()
+        alias = self.original.with_name('alias')
+        alias.symlink_to(self.original)
+        swapped = self.original.with_name('swapped')
+        self.stage(swapped, self.live)
+        with self.assertRaisesRegex(packet.PacketError, '^original-lock-binding-drift$'):
+            self.check(original_root=swapped)
+        with self.assertRaisesRegex(packet.PacketError, '^original-root-required$'):
+            self.check(original_root=None)
+        for path in (self.root, alias, self.original.parent / 'missing'):
+            with self.subTest(path=path.name), self.assertRaisesRegex(packet.PacketError, '^original-root-refused$'):
+                self.check(original_root=path)
+        self.original.chmod(0o755)
+        with self.assertRaisesRegex(packet.PacketError, '^original-root-refused$'):
+            self.check()
+
+    def test_refuses_release_swap_and_runner_bytes_or_authority_drift(self):
+        self.freeze()
+        for name in (self.release, packet.ORIGINAL_RUNNER):
+            with self.subTest(name=name):
+                target = self.original / name
+                target.write_bytes(self.live[name][0])
+                with self.assertRaisesRegex(packet.PacketError, '^original-source-map-drift$'):
+                    self.check()
+                target.write_bytes(self.historical[name][0])
+        (self.root / self.release).write_bytes(self.historical[self.release][0])
+        with self.assertRaisesRegex(packet.PacketError, '^packet-source-map-drift$'):
+            self.check()
+        value = dict(self.value, original_source={**self.value['original_source'], 'runner_sha256': 'f' * 64})
+        self.packet_path.write_bytes((json.dumps(value, sort_keys=True) + '\n').encode())
+        self.packet_sha = digest(self.packet_path.read_bytes())
+        with self.assertRaisesRegex(packet.PacketError, '^original-source-binding-drift$'):
+            self.check()
+
+    def test_dual_preserves_the_live_experiment_stage_binding(self):
+        self.freeze()
+        self.packet_path.unlink()
+        stage = packet.decode(self.stage_lock.read_bytes())
+        name = next(iter(stage['source_files']))
+        stage['source_files'][name]['sha256'] = 'f' * 64
+        self.stage_lock.write_bytes((json.dumps(stage, sort_keys=True) + '\n').encode())
+        self.pins[self.stage_lock.relative_to(self.root).as_posix()] = digest(self.stage_lock.read_bytes())
+        with self.assertRaisesRegex(packet.PacketError, '^experiment-source-binding-drift$'):
+            self.freeze_with_current_pins()
+        self.assertFalse(self.packet_path.exists())
 
 
 if __name__ == '__main__':

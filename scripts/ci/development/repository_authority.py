@@ -370,7 +370,9 @@ class RootCallbacks:
             need(os.environ.get(env) == grant.get(key), 'grant-refused')
         rows = grant.get('source_files'); need(type(rows) is dict and OWN in rows and HANDOFF in rows, 'grant-refused')
         handoff = load_module(root, '_repository_authority_handoff', HANDOFF, rows[HANDOFF], deadline)
-        sources = handoff.preflight(root, self._grant_raw, self._grant_pin, deadline=deadline)
+        view = grant.get('original_view')
+        original_root = view.get('source_root') if grant.get('schema_version') == 3 and type(view) is dict else None
+        sources = handoff.preflight(root, self._grant_raw, self._grant_pin, deadline=deadline, original_root=original_root)
         need(grant['original_view']['root'] == str(Path(self._output)/'original-view'),'grant-refused')
         need(grant['maps']['phase']['sha256'] == PHASE_MAP and
              rows[PHASE+'/gate.py']['sha256'] == PHASE_GATE, 'source-refused')
@@ -396,6 +398,10 @@ class RootCallbacks:
             need(session.sources.root == root and session.sources.grant == grant and
                  session.sources.grant_pin == self._grant_pin and str(session.output) == self._output
                  and session.job_deadline == self._deadline, 'context-refused')
+            if original_root is not None:
+                need(session.sources.historical_root == sources.historical_root and
+                     session.sources.historical_node == sources.historical_node and
+                     session.sources.historical_identities == sources.historical_identities, 'context-refused')
         return grant, sources, handoff
 
     def handoff_binding(self):
@@ -428,10 +434,11 @@ class RootCallbacks:
              decode(context['receipt'])['selection'] == grant['original_view'] and
              type(controller) is context['original']['integration'].Controller,'context-refused')
         session.sources.source_graph(session)
+        original_raw = sources.historical_raw if grant['schema_version'] == 3 else sources.raw
         authenticate_class(controller, 'Controller', context['root']/'scripts/ci/integration.py',
-                           sources.raw['scripts/ci/integration.py'], registered=False)
+                           original_raw['scripts/ci/integration.py'], registered=False)
         need(controller.commit == grant['source_commit'] and controller.image == session.job['image_id']
-             and controller.cancelled is False and controller.lock == decode(sources.raw['scripts/ci/integration.lock.json'])
+             and controller.cancelled is False and controller.lock == decode(original_raw['scripts/ci/integration.lock.json'])
             and controller.work == controller.out/'work' and controller.public == controller.out/'public'
              and controller.source == controller.work/'source' and controller.generated == controller.work/'fixtures', 'context-refused')
         need(all(session.job.get(key) == grant[key] for key in ('source_commit','recipe_source_commit','run_id','run_attempt'))
