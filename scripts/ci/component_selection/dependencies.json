@@ -107,7 +107,7 @@
     "scripts/benchmarks/platform_metrics.py": "2e26de67439401ecd7e19918f9014ff5f5e55ccd36f47a44857980f0cb444ea4",
     "scripts/benchmarks/process_group_memory.py": "ab822ca4ae6ef82ddc58c45186c0d0f4e923d8a6048b0546d7ef000eb45ef87f",
     "scripts/benchmarks/test_benchmark_owned_rss.py": "7e59bb2143d97dbaf6e942b5be6ed69db144a72c163eac6731742b580e47ef1b",
-    "scripts/benchmarks/test_benchmark_platform_metrics.py": "ba8e9e8035c42adaa93524eb40f28861ebc82b071e5557d651b561cd045a9389",
+    "scripts/benchmarks/test_benchmark_platform_metrics.py": "dd247ab0ac89db8a6f2d4e6f63a1423c31d926567892349f501f8bf1d3289cf7",
     "scripts/benchmarks/test_platform_metrics.py": "55daa109524e92c9f6cf78903c7ab5050e25393fcf4e989a76c81397c3938c9a",
     "scripts/build/mirror_consumer.py": "62065519882118b7cb8d072db83a8d1685d268748ae76b127ffc7004141405fc",
     "scripts/build/test_mirror_consumer.py": "a378f3d178a4ab2c992651ba093999e91ca8ae2f201b53b4524dd93bd8cf7633",
