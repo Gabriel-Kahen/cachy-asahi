@@ -27,8 +27,12 @@ REASONS = ('observed', 'total-deadline', 'local-endpoint-unavailable', 'local-en
            'launch-failed', 'read-failed', 'malformed-or-unsupported-output', 'interface-unavailable',
            'not-exposed-by-selected-interface', 'reaping-policy-incompatible', 'reaping-policy-unverified',
            'child-reservation-lost', 'child-reservation-unverified', 'cleanup-incomplete')
-MEMBERS = {'summary.txt', 'reports/session.json', 'reports/doctor.json', 'reports/doctor-before.json',
-           'reports/doctor-after.json', 'reports/doctor-comparison.json', 'reports/health.json'}
+COMPARISON_REPORTS = {'doctor-before', 'doctor-after', 'doctor-comparison'}
+REPORTS = {'session', 'doctor', 'health'} | COMPARISON_REPORTS
+MEMBERS = {'summary.txt'} | {f'reports/{name}.json' for name in REPORTS}
+IMPLEMENTATIONS = dict(support_bundle='scripts/support/support_bundle.py',
+                       doctor='packages/tools/cachy-asahi-doctor2/cachy-asahi-doctor',
+                       session='scripts/hardware/session_probe.py')
 LIMITATION = ('Supplied observations and release identity are operator records. Hashes bind bytes, not truth. '
               'No collection, authentication replay, repair, upload, native build, installed lifecycle, '
               'physical M2, recovery, performance or release acceptance is established.\n')
@@ -74,6 +78,20 @@ def decode(raw):
 def hex_value(value, lengths=(64,)):
     require(type(value) is str and len(value) in lengths and re.fullmatch('[0-9a-f]+', value))
     return value
+
+
+def release_identity(release_id, release_sha256, source_commit):
+    require(type(release_id) is str and re.fullmatch('[A-Za-z0-9][A-Za-z0-9._+-]{0,95}', release_id))
+    return dict(release_id=release_id, release_sha256=hex_value(release_sha256),
+                source_commit=hex_value(source_commit, (40, 64)))
+
+
+def validate_pin(receipt, path=None):
+    fields(receipt, 'bytes sha256' if path is None else 'bytes sha256 path')
+    require(type(receipt['bytes']) is int and 0 < receipt['bytes'] <= MAX_INPUT)
+    hex_value(receipt['sha256'])
+    if path is not None:
+        require(receipt['path'] == path)
 
 
 def count(value, maximum=1000000):
@@ -143,10 +161,10 @@ def load_current(relative, name):
 
 def service(value):
     fields(value, 'LoadState ActiveState SubState')
-    require(value['LoadState'] in LOAD and value['ActiveState'] in ACTIVE)
-    require(type(value['SubState']) is str and re.fullmatch('[a-z-]{1,64}', value['SubState']))
-    # SubState is free text in the producer; retain only two finite enums.
-    return {key: value[key] for key in ('LoadState', 'ActiveState')}
+    require(all(type(item) is str and re.fullmatch('[a-z-]{1,64}', item) for item in value.values()))
+    # Keep two finite enums even when the session probe observes a new state.
+    return {key: value[key] if value[key] in allowed else 'unknown'
+            for key, allowed in (('LoadState', LOAD), ('ActiveState', ACTIVE))}
 
 
 def doctor_projection(validated):
@@ -413,15 +431,27 @@ def publish(directory, members):
         os.close(parent)
 
 
+def summary_bytes(identity, reports):
+    lines = ['Offline support bundle', 'Release: ' + identity['release_id'], 'Release SHA256: ' + identity['release_sha256'],
+             'Source commit: ' + identity['source_commit'], 'Release identity is operator supplied. Doctor observations are not release-bound.']
+    for name, raw in sorted(reports.items()):
+        value = decode(raw)
+        lines.append(name + ': ' + (value.get('status') or json.dumps(value.get('coverage', {}), sort_keys=True)))
+        if 'change_count' in value:
+            lines.append('  Changed observations: ' + str(value['change_count']))
+        for check, row in value.get('checks', {}).items():
+            lines.append('  ' + check + ': ' + row.get('state', row.get('status', 'unknown')) +
+                         (' ' + json.dumps(row['value'], sort_keys=True) if row.get('value') is not None else ''))
+    return ('\n'.join(lines) + '\n\n' + LIMITATION).encode()
+
+
 def create(args):
-    identity = dict(release_id=args.release_id, release_sha256=hex_value(args.release_sha256),
-                    source_commit=hex_value(args.source_commit, (40, 64)))
-    require(type(identity['release_id']) is str and re.fullmatch('[A-Za-z0-9][A-Za-z0-9._+-]{0,95}', identity['release_id']))
+    identity = release_identity(args.release_id, args.release_sha256, args.source_commit)
     require(bool(args.doctor_before) == bool(args.doctor_after))
     require(not args.doctor_comparison or args.doctor_before)
     require(any((args.session, args.doctor, args.doctor_before, args.health)))
     retained, inputs, members = {}, {}, {}
-    dependencies = dict(support_bundle=dict(path='scripts/support/support_bundle.py', **pin(read_file(__file__))))
+    dependencies = dict(support_bundle=dict(path=IMPLEMENTATIONS['support_bundle'], **pin(read_file(__file__))))
     def selected(name, ref):
         path, checksum = ref
         hex_value(checksum)
@@ -432,7 +462,7 @@ def create(args):
         return decode(raw)
     doctor = None
     if args.doctor or args.doctor_before:
-        doctor, receipt = load_current('packages/tools/cachy-asahi-doctor2/cachy-asahi-doctor', 'support_doctor')
+        doctor, receipt = load_current(IMPLEMENTATIONS['doctor'], 'support_doctor')
         dependencies['doctor'] = receipt
     if args.doctor:
         members['reports/doctor.json'] = encoded(doctor_projection(doctor.validate_report(selected('doctor', args.doctor))))
@@ -450,22 +480,12 @@ def create(args):
             change_count=comparison['change_count'], unchanged_count=comparison['unchanged_count'],
             coverage=comparison['coverage'], changes=changes))
     if args.session:
-        producer, receipt = load_current('scripts/hardware/session_probe.py', 'support_session')
+        producer, receipt = load_current(IMPLEMENTATIONS['session'], 'support_session')
         dependencies['session'] = receipt
         members['reports/session.json'] = encoded(session_projection(selected('session', args.session), producer, identity))
     if args.health:
         members['reports/health.json'] = encoded(health_projection(selected('health', args.health), identity))
-    lines = ['Offline support bundle', 'Release: ' + identity['release_id'], 'Release SHA256: ' + identity['release_sha256'],
-             'Source commit: ' + identity['source_commit'], 'Release identity is operator supplied. Doctor observations are not release-bound.']
-    for name, raw in sorted(members.items()):
-        value = decode(raw)
-        lines.append(name + ': ' + (value.get('status') or json.dumps(value.get('coverage', {}), sort_keys=True)))
-        if 'change_count' in value:
-            lines.append('  Changed observations: ' + str(value['change_count']))
-        for check, row in value.get('checks', {}).items():
-            lines.append('  ' + check + ': ' + row.get('state', row.get('status', 'unknown')) +
-                         (' ' + json.dumps(row['value'], sort_keys=True) if row.get('value') is not None else ''))
-    members['summary.txt'] = ('\n'.join(lines) + '\n\n' + LIMITATION).encode()
+    members['summary.txt'] = summary_bytes(identity, members)
     manifest = dict(schema_version=1, tool='cachy-asahi-support-bundle', release=identity, inputs=inputs,
                     implementation_dependencies=dependencies, members={k: pin(v) for k, v in sorted(members.items())},
                     scope='FINITE_SANITIZED_SUPPLIED_OBSERVATIONS', limitations=LIMITATION.strip())
@@ -475,10 +495,43 @@ def create(args):
         require(read_file(path) == raw)
     for receipt in dependencies.values():
         root = next(p for p in Path(__file__).resolve().parents if (p / 'scripts/hardware/session_probe.py').is_file())
-        path = Path(__file__) if receipt['path'] == 'scripts/support/support_bundle.py' else root / receipt['path']
+        path = Path(__file__) if receipt['path'] == IMPLEMENTATIONS['support_bundle'] else root / receipt['path']
         require(pin(read_file(path)) == {k: receipt[k] for k in ('bytes', 'sha256')})
     publish(args.output_dir, {'support-bundle.tar': archive, 'SHA256SUMS': (digest(archive) + '  support-bundle.tar\n').encode()})
     return pin(archive)
+
+
+def verify_inventory(inventory, members):
+    fields(inventory, 'schema_version tool release inputs implementation_dependencies members scope limitations')
+    require(type(inventory['schema_version']) is int and inventory['schema_version'] == 1
+            and inventory['tool'] == 'cachy-asahi-support-bundle' and inventory['scope'] == 'FINITE_SANITIZED_SUPPLIED_OBSERVATIONS'
+            and inventory['limitations'] == LIMITATION.strip())
+    fields(inventory['release'], 'release_id release_sha256 source_commit')
+    identity = release_identity(**inventory['release'])
+
+    reports = {name: raw for name, raw in members.items() if name.startswith('reports/')}
+    report_names = {name.removeprefix('reports/').removesuffix('.json') for name in reports}
+    require(report_names and (not report_names & COMPARISON_REPORTS or COMPARISON_REPORTS <= report_names))
+    inputs = inventory['inputs']
+    # The comparison projection is derived. Its reviewed original is optional.
+    require(type(inputs) is dict and report_names - {'doctor-comparison'} <= inputs.keys() <= report_names)
+    for receipt in inputs.values():
+        validate_pin(receipt)
+
+    dependencies = inventory['implementation_dependencies']
+    expected = {'support_bundle'}
+    if 'session' in report_names:
+        expected.add('session')
+    if report_names & {'doctor', 'doctor-before'}:
+        expected.add('doctor')
+    require(type(dependencies) is dict and dependencies.keys() == expected)
+    for name, receipt in dependencies.items():
+        validate_pin(receipt, IMPLEMENTATIONS[name])
+
+    require(inventory['members'] == {k: pin(v) for k, v in members.items() if k != 'inventory.json'})
+    for receipt in inventory['members'].values():
+        validate_pin(receipt)
+    require(members['summary.txt'] == summary_bytes(identity, reports))
 
 
 def verify(args):
@@ -492,12 +545,7 @@ def verify(args):
                     and not info.uname and not info.gname and not info.pax_headers)
             members[info.name] = archive.extractfile(info).read(MAX_INPUT + 1)
     require('inventory.json' in members and 'summary.txt' in members and archive_bytes(members) == raw)
-    inventory = decode(members['inventory.json'])
-    fields(inventory, 'schema_version tool release inputs implementation_dependencies members scope limitations')
-    require(type(inventory['schema_version']) is int and inventory['schema_version'] == 1
-            and inventory['tool'] == 'cachy-asahi-support-bundle' and inventory['scope'] == 'FINITE_SANITIZED_SUPPLIED_OBSERVATIONS'
-            and inventory['limitations'] == LIMITATION.strip())
-    require(inventory['members'] == {k: pin(v) for k, v in members.items() if k != 'inventory.json'})
+    verify_inventory(decode(members['inventory.json']), members)
     if args.extract_to:
         publish(args.extract_to, members)
     return pin(raw)

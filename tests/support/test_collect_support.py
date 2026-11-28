@@ -90,6 +90,26 @@ class Collection(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertEqual([p.name for p in self.output.iterdir()], ['keep'])
 
+    def test_unfamiliar_session_states_stay_in_private_original(self):
+        report = F.session_fixture()
+        row = next(r for r in report['checks'] if r['check'] == 'user/pipewire.service')
+        row['value'] = F.S.properties(b'LoadState=unfamiliar-load\nActiveState=unfamiliar-active\nSubState=dead\n',
+                                     F.S.SERVICE_PROPERTIES)
+        self.replace_collect('scripts/hardware/session_probe.py', report)
+
+        result = self.cli()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        private = (self.output / 'session.private.json').read_bytes()
+        self.assertEqual(private, B.encoded(report))
+        receipt = B.decode((self.output / 'collection.json').read_bytes())
+        self.assertEqual(receipt['inputs']['session'], B.pin(private))
+        with tarfile.open(self.output / 'share/support-bundle.tar') as tar:
+            projected = tar.extractfile('reports/session.json').read()
+            summary = tar.extractfile('summary.txt').read()
+        self.assertNotIn(b'unfamiliar-', projected + summary)
+        self.assertEqual(B.decode(projected)['checks'][row['check']],
+                         dict(state='checked', reason='observed', value=dict(LoadState='unknown', ActiveState='unknown')))
+
     def test_failed_second_producer_retains_first_and_durable_failure(self):
         self.replace_collect('scripts/hardware/session_probe.py', code='raise ValueError("PRIVATE-SECRET")')
         result = self.cli()

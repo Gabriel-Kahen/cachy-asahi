@@ -164,6 +164,58 @@ class BundleTests(unittest.TestCase):
             self.assertEqual((code, out), (2, ''))
             self.assertFalse((self.root / 'extracted').exists())
 
+    def test_verify_refuses_inconsistent_inventory(self):
+        path, _ = self.created()
+        members = self.members(path)
+        original = B.decode(members['inventory.json'])
+        cases = {
+            'null release': lambda v: v.update(release=None),
+            'invalid release label': lambda v: v['release'].update(release_id='invalid label'),
+            'invalid source commit': lambda v: v['release'].update(source_commit='b' * 39),
+            'invalid release digest': lambda v: v['release'].update(release_sha256='z' * 64),
+            'release differs from summary': lambda v: v['release'].update(release_id='different-release'),
+            'missing original': lambda v: v['inputs'].pop('session'),
+            'unexpected original': lambda v: v['inputs'].update(extra=B.pin(b'fixture')),
+            'invalid input size': lambda v: v['inputs']['doctor'].update(bytes=True),
+            'invalid input digest': lambda v: v['inputs']['health'].update(sha256='z' * 64),
+            'missing implementation': lambda v: v['implementation_dependencies'].pop('doctor'),
+            'invalid implementation path': lambda v: v['implementation_dependencies']['session'].update(path='other.py'),
+        }
+        for name, change in cases.items():
+            with self.subTest(name=name):
+                inventory = copy.deepcopy(original)
+                change(inventory)
+                members['inventory.json'] = B.encoded(inventory)
+                self.assert_verification_refused(path, members)
+
+    def test_verify_requires_reports_and_complete_comparison(self):
+        path, _ = self.created()
+        original = self.members(path)
+        for reports in ((), ('doctor-before',), ('doctor-before', 'doctor-after'), ('doctor-comparison',)):
+            with self.subTest(reports=reports):
+                members = {}
+                for name in reports:
+                    key = 'reports/' + name + '.json'
+                    members[key] = original[key]
+                members['summary.txt'] = B.summary_bytes(IDENTITY, members)
+                inventory = B.decode(original['inventory.json'])
+                inventory['members'] = {k: B.pin(v) for k, v in members.items()}
+                inventory['inputs'] = {k: v for k, v in inventory['inputs'].items() if k in reports}
+                inventory['implementation_dependencies'].pop('session')
+                if not reports:
+                    inventory['implementation_dependencies'].pop('doctor')
+                members['inventory.json'] = B.encoded(inventory)
+                self.assert_verification_refused(path, members)
+
+    def assert_verification_refused(self, path, members):
+        raw = B.archive_bytes(members)
+        path.write_bytes(raw)
+        checksum = B.digest(raw)
+        output = self.root / ('extracted-' + checksum)
+        code, out, _ = self.call(['verify', '--archive', str(path), '--sha256', checksum, '--extract-to', str(output)])
+        self.assertEqual((code, out), (2, ''))
+        self.assertFalse(output.exists())
+
     def test_tar_traversal_duplicate_link_metadata_refused(self):
         path, _ = self.created()
         original = self.members(path)
@@ -255,9 +307,14 @@ class BundleTests(unittest.TestCase):
 
     def test_optional_inputs_and_argument_dependencies(self):
         original = self.inputs
-        for name in ('session', 'doctor', 'health'):
-            self.inputs = {name: original[name]}
-            self.created(name + '-only')
+        groups = (('session',), ('doctor',), ('health',), ('doctor-before', 'doctor-after'),
+                  ('doctor-before', 'doctor-after', 'doctor-comparison'))
+        for names in groups:
+            with self.subTest(names=names):
+                self.inputs = {name: original[name] for name in names}
+                path, checksum = self.created('-'.join(names) + '-only')
+                with patch.object(B, 'load_current', side_effect=AssertionError('verification must stay standalone')):
+                    self.assertEqual(self.call(['verify', '--archive', str(path), '--sha256', checksum])[0], 0)
         for name in ('doctor-after', 'doctor-comparison'):
             self.inputs = {name: original[name]}
             self.assertEqual(self.call(self.arguments())[0], 2)
@@ -303,6 +360,17 @@ class BundleTests(unittest.TestCase):
         self.assertTrue(projection['checks']['renderer/wayland-gles-client']['value']['software_renderer_hint'])
         self.assertEqual(projection['checks']['audio/graph']['value']['node_state_counts'], {'error': 1})
         self.assertNotIn('PRIVATE', json.dumps(projection))
+
+    def test_session_service_state_requires_bounded_producer_tokens(self):
+        value = session_fixture()
+        row = next(r for r in value['checks'] if r['check'] == 'user/pipewire.service')
+        for field, unexpected in (('LoadState', 12), ('ActiveState', 'invalid token'), ('SubState', 'a' * 65)):
+            with self.subTest(field=field):
+                old = row['value'][field]
+                row['value'][field] = unexpected
+                with self.assertRaises(ValueError):
+                    B.session_projection(value, S, IDENTITY)
+                row['value'][field] = old
 
     def test_health_nested_unknown_fields_refused(self):
         value = health_fixture()
