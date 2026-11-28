@@ -19,6 +19,7 @@ import time
 
 COLLECTOR_SHA256 = '5975d376fa7b1b7321d4b663f1aea030539e4fdd073c671f5c2cfcf3e86ca2b3'
 OWNER_SHA256 = '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
+OWNED_RSS_OWNER_SHA256 = 'bd1c18c0c8f05462d3d175fceaeda559f422cc1cfd40dfce6244e71df482d42d'
 SCHEMA = 'benchmark-platform-metrics-v1'
 MAX_OUTPUT_BYTES = 512 * 1024
 MAX_SUMMARY_BYTES = 4 * 1024**2
@@ -41,24 +42,37 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def dependencies():
+def _owner_pin(owned_rss):
+    return OWNED_RSS_OWNER_SHA256 if owned_rss else OWNER_SHA256
+
+
+def _reviewed_path(name, path, expected):
+    need(path.is_file() and not path.is_symlink() and digest(path) == expected,
+         name + ' differs from reviewed source pin')
+    return path
+
+
+def _collector_path():
+    return _reviewed_path('collector', Path(__file__).resolve().with_name('platform_metrics.py'), COLLECTOR_SHA256)
+
+
+def dependencies(*, owned_rss=False):
     here = Path(__file__).resolve().parent
-    paths = {'collector': here / 'platform_metrics.py',
-             'owner': here.parent / 'virtual/owned_process.py'}
-    for key, expected in (('collector', COLLECTOR_SHA256), ('owner', OWNER_SHA256)):
-        need(paths[key].is_file() and not paths[key].is_symlink() and digest(paths[key]) == expected,
-             key + ' differs from reviewed source pin')
-    return paths
+    owner = here / 'benchmark_owned_process_v2.py' if owned_rss else here.parent / 'virtual/owned_process.py'
+    return {'collector': _collector_path(), 'owner': _reviewed_path('owner', owner, _owner_pin(owned_rss))}
 
 
-def load_dependencies():
-    modules = {}
-    for name, path in dependencies().items():
-        spec = importlib.util.spec_from_file_location('platform_sidecar_' + name, path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        modules[name] = module
-    return modules['collector'], modules['owner']
+def _load_source(name, path):
+    spec = importlib.util.spec_from_file_location('platform_sidecar_' + name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_dependencies(*, owned_rss=False):
+    """Load the platform collector and the selected workload owner."""
+    paths = dependencies(owned_rss=owned_rss)
+    return _load_source('collector', paths['collector']), _load_source('owner', paths['owner'])
 
 
 def validate_config(config, timeout):
@@ -71,8 +85,8 @@ def validate_config(config, timeout):
          math.ceil((timeout + RETIREMENT_SECONDS) / interval) + 3 <= 10000, 'platform capture duration/sample bound')
 
 
-def source_paths():
-    return [Path(__file__).resolve(), *dependencies().values()]
+def source_paths(*, owned_rss=False):
+    return [Path(__file__).resolve(), *dependencies(owned_rss=owned_rss).values()]
 
 
 def machine(collector):
@@ -83,9 +97,9 @@ def machine(collector):
             'kernel_release': os.uname().release, 'page_bytes': os.sysconf('SC_PAGE_SIZE')}
 
 
-def binding_check(capture, samples, binding):
+def binding_check(capture, samples, binding, *, owned_rss=False):
     need(capture['schema'] == SCHEMA and capture['completed'] is True, 'incomplete/unsupported platform capture')
-    need(capture['collector_sha256'] == COLLECTOR_SHA256 and capture['owner_sha256'] == OWNER_SHA256,
+    need(capture['collector_sha256'] == COLLECTOR_SHA256 and capture['owner_sha256'] == _owner_pin(owned_rss),
          'capture source mismatch')
     need(capture['machine_before'] == capture['machine_after'] == binding['machine_before'] == binding['machine_after'],
          'capture/workload machine or boot mismatch')
@@ -118,14 +132,21 @@ def snapshot_duration(row):
     return (row['end']['monotonic_ns'] - row['start']['monotonic_ns']) / 1e9
 
 
-def execute(argv, cwd, env, directory, timeout, legacy_interval, config, summarize_legacy):
+def execute(argv, cwd, env, directory, timeout, legacy_interval, config, summarize_legacy, *, rss_interval=None):
     global _active, _unresolved
     need(threading.current_thread() is threading.main_thread(), 'main thread required')
     need(os.geteuid() != 0, 'root workload refused')
     need(_active is None or not _active.is_alive(), 'previous platform sampler still blocked; end this process')
     need(_unresolved is None, 'prior owned wait remains unresolved; no further workloads')
     validate_config(config, timeout)
-    collector, owner = load_dependencies()
+    owned_rss = rss_interval is not None
+    if owned_rss:
+        need(type(rss_interval) in (int, float) and .01 <= rss_interval <= 60 and
+             math.ceil((timeout + RETIREMENT_SECONDS) / rss_interval) + 1 <= 4096,
+             'owned RSS interval/retained sample bound')
+    # The v1 RSS caller uses the default loader with a no-argument owner facade.
+    collector, owner = load_dependencies(owned_rss=True) if owned_rss else load_dependencies()
+    owner_options = {'rss_interval': rss_interval} if owned_rss else {}
     identity = machine(collector)
     inventory = collector.discover()
     interval = config['interval_seconds']
@@ -160,7 +181,7 @@ def execute(argv, cwd, env, directory, timeout, legacy_interval, config, summari
     launch_error = None
     spawn_timeout = False
     capture = {'schema': SCHEMA, 'completed': False, 'machine_before': identity,
-               'collector_sha256': COLLECTOR_SHA256, 'owner_sha256': OWNER_SHA256,
+               'collector_sha256': COLLECTOR_SHA256, 'owner_sha256': _owner_pin(owned_rss),
                'adapter_sha256': digest(Path(__file__)), 'max_gap_seconds': collector.sampling_max_gap(interval),
                'interval_seconds_requested': interval}
     collector.fresh_file(raw / 'started.json', collector.encoded(capture))
@@ -183,14 +204,14 @@ def execute(argv, cwd, env, directory, timeout, legacy_interval, config, summari
             spawn_timeout = remaining <= 0
             # No poll/wait/context-manager/finally signal after custody transfer.
             result = owner.supervise(child, cap=max(.001, remaining) + RETIREMENT_SECONDS,
-                                     retirement=RETIREMENT_SECONDS, grace=.1)
+                                     retirement=RETIREMENT_SECONDS, grace=.1, **owner_options)
         except BaseException as failure:
             launch_error = type(failure).__name__ + ': ' + str(failure)[:200]
             # Only a Popen never accepted by supervise can still have this state.
             # A transferred UNKNOWN/unreaped Popen disables _child_created; a reaped
             # one has a real returncode. Neither is numerically touched here.
             if child is not None and child.returncode is None and child._child_created:
-                result = owner.supervise(child, cap=1.0, retirement=RETIREMENT_SECONDS, grace=.1)
+                result = owner.supervise(child, cap=1.0, retirement=RETIREMENT_SECONDS, grace=.1, **owner_options)
             else:
                 raise
         finally:
@@ -237,7 +258,7 @@ def execute(argv, cwd, env, directory, timeout, legacy_interval, config, summari
     capture.update(completed=accounting['error'] is None and result['reaped'], supervision=serial_result,
                    log_scope='stdout.txt contains bounded combined stdout/stderr in observed order; stderr.txt empty')
     try:
-        binding_check(capture, samples, binding)
+        binding_check(capture, samples, binding, owned_rss=owned_rss)
         summary = collector.summarize(inventory, samples, capture['max_gap_seconds'],
                                       binding['start']['monotonic_ns'], binding['end']['monotonic_ns'])
         summary_data = collector.encoded(summary)
@@ -259,7 +280,7 @@ def execute(argv, cwd, env, directory, timeout, legacy_interval, config, summari
             'timing_scope': 'spawn through owned group retirement; includes concurrent platform logging overhead; setup/final snapshot excluded',
             'platform_metrics': {'schema': SCHEMA, 'binding': binding, 'capture': 'platform-metrics/capture.json',
                                  'summary': 'platform-metrics/summary.json', 'source_pins': {
-                                     'collector_sha256': COLLECTOR_SHA256, 'owner_sha256': OWNER_SHA256,
+                                     'collector_sha256': COLLECTOR_SHA256, 'owner_sha256': _owner_pin(owned_rss),
                                      'adapter_sha256': digest(Path(__file__))},
                                  'legacy_interval_seconds_ignored': legacy_interval,
                                  'overhead_scope': 'concurrent read/log costs included; no with/without logging estimate',
@@ -280,18 +301,19 @@ def _raw_caps(collector, owned_rss):
 
 def raw_files(directory, *, owned_rss=False):
     """Read the platform trial's raw-hash artifacts once as bounded regular files."""
-    collector, _ = load_dependencies()
+    collector = _load_source('collector', _collector_path())
     directory = Path(directory)
     return {name: collector.ordinary(directory / name, cap)
             for name, cap in _raw_caps(collector, owned_rss).items()}
 
 
-def verify_trial(directory, trial, config=None, *, raw=None):
-    """Replay the platform summary, optionally using the caller's raw_files snapshot."""
-    collector, _ = load_dependencies()
+def verify_trial(directory, trial, config=None, *, raw=None, owned_rss=False):
+    """Replay the platform summary. owned_rss selects the versioned owner pin."""
+    collector, _ = load_dependencies(owned_rss=owned_rss)
     directory = Path(directory)
-    owned_rss = 'owned_rss' in trial
-    caps = _raw_caps(collector, owned_rss)
+    has_rss = 'owned_rss' in trial
+    need(not owned_rss or has_rss, 'versioned platform RSS requires an owned RSS trial receipt')
+    caps = _raw_caps(collector, has_rss)
     if raw is not None:
         need(isinstance(raw, Mapping) and raw.keys() == caps.keys() and
              all(type(raw[name]) is bytes and len(raw[name]) <= cap for name, cap in caps.items()),
@@ -302,21 +324,22 @@ def verify_trial(directory, trial, config=None, *, raw=None):
 
     need(trial.get('platform_metrics', {}).get('schema') == SCHEMA, 'trial lacks declared platform capture')
     need(trial['platform_metrics']['source_pins'] == {'collector_sha256': COLLECTOR_SHA256,
-         'owner_sha256': OWNER_SHA256, 'adapter_sha256': digest(Path(__file__))}, 'trial platform source mismatch')
+         'owner_sha256': _owner_pin(owned_rss), 'adapter_sha256': digest(Path(__file__))}, 'trial platform source mismatch')
     capture = json.loads(read('platform-metrics/capture.json'))
     need(capture['adapter_sha256'] == digest(Path(__file__)), 'capture adapter source mismatch')
     need(capture['worker_stopped'] is True and capture['sampling']['error'] is None, 'capture worker incomplete')
     supervision = capture['supervision']
+    need(not owned_rss or 'rss' in supervision, 'versioned platform capture lacks owned RSS observations')
     need(supervision['reaped'] is True and supervision['ownership'] == 'REAPED' and
          supervision['exit'] == trial['returncode'] and trial['sampling_status']['workload_reaped'] is True,
          'trial/capture wait result mismatch')
     if trial.get('valid') is True:
-        census = 'RESERVED_LEADER_ONLY' if owned_rss else 'EMPTY_TWICE'
+        census = 'RESERVED_LEADER_ONLY' if has_rss else 'EMPTY_TWICE'
         need(type(supervision['exit']) is type(trial['returncode']) is int and supervision['exit'] == 0 and
              supervision['passed'] is True and supervision['timeout'] is False and supervision['signals'] == [] and
              supervision['error'] is None and trial['error'] is None and supervision['output_complete'] is True and
              capture['unresolved_wait_pid'] is None and capture['spawn_timeout'] is False and
-             supervision['group_census'] == census and ('rss' in supervision) == owned_rss,
+             supervision['group_census'] == census and ('rss' in supervision) == has_rss,
              'valid trial contradicts platform workload retirement')
     interval = capture['interval_seconds_requested']
     validate_config({'interval_seconds': interval}, 1)
@@ -339,7 +362,7 @@ def verify_trial(directory, trial, config=None, *, raw=None):
          end == binding['end']['monotonic_ns'], 'trial/platform clock mismatch')
     need(trial['cwd'] == binding['cwd'] and hashlib.sha256(collector.encoded(trial['argv'])).hexdigest() == binding['argv_sha256'],
          'trial/platform workload mismatch')
-    binding_check(capture, samples, binding)
+    binding_check(capture, samples, binding, owned_rss=owned_rss)
     sampling = capture['sampling']
     need(type(sampling['bytes']) is int and sampling['bytes'] == len(samples_data) and
          collector.encoded(sampling['snapshot_seconds']) == collector.encoded([snapshot_duration(row) for row in samples]),
