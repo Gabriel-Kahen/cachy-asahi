@@ -318,8 +318,8 @@ class EntryTests(unittest.TestCase):
 
 class DependencyGraphTests(unittest.TestCase):
     """Load actual copied, pinned sources; never invoke a package/native actor."""
-    PINS = {'collector': '122c49dd921d22a46f280b2940f2d4a7dfdee7e1a1459a5d7a4a4cd6dd9cc581',
-            'phase': 'e320a92f166303c3e6fcbbad00af2b7fe998666c9e9d7d2ea571dcfc01311932'}
+    PINS = {'collector': 'c35c2946579e08a803e2522340eac7d559f0aee8b95bd617e301ed2e959678cc',
+            'phase': '22f97cb051428d02b145522788a1fe22729f17d1ccb167b868bd53dde99a863d'}
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
