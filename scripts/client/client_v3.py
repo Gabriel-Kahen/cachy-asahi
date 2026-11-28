@@ -563,49 +563,67 @@ def build(args):
     output, bundle = absolute(args.output), absolute(args.bundle)
     need(not output.is_relative_to(bundle), 'envelope output must be outside the unchanged release bundle')
     raw = encoded(value)
+    temporary = f'.envelope-{secrets.token_hex(16)}.tmp'
     parent = directory(output.parent)
-    created = None
+    fd = created = None
+
+    def unlink_owned(name):
+        try:
+            current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+        except FileNotFoundError:
+            return False
+        if not os.path.samestat(current, created):
+            return False
+        os.unlink(name, dir_fd=parent)
+        return True
+
     try:
         info = os.fstat(parent)
         need(info.st_uid == os.geteuid() and not (stat.S_IMODE(info.st_mode) & 0o022), 'output parent must be caller-owned and not group/world writable')
-        fd = os.open(output.name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
-        with os.fdopen(fd, 'wb') as stream:
-            created = os.fstat(stream.fileno())
-            os.fchmod(stream.fileno(), 0o600)
+        fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
+        with os.fdopen(fd, 'wb', closefd=False) as stream:
+            created = os.fstat(fd)
+            os.fchmod(fd, 0o600)
             stream.write(raw)
             stream.flush()
-            os.fsync(stream.fileno())
-            synced = os.fstat(stream.fileno())
-            os.fsync(parent)
-            try:
-                selected = directory(output.parent)
-            except OSError as error:
-                raise Error('output parent path changed during envelope build') from error
-            try:
-                current = os.fstat(selected)
-                need((info.st_dev, info.st_ino) == (current.st_dev, current.st_ino),
-                     'output parent path changed during envelope build')
-                need(current.st_uid == os.geteuid() and not current.st_mode & 0o022,
-                     'output parent owner/mode changed during envelope build')
-                visible = os.stat(output.name, dir_fd=selected, follow_symlinks=False)
-                need(identity(visible) == identity(synced) and visible.st_nlink == 1
-                     and visible.st_uid == os.geteuid() and stat.S_IMODE(visible.st_mode) == 0o600,
-                     'output file changed during envelope build')
-            finally:
-                os.close(selected)
+            os.fsync(fd)
+            os.link(temporary, output.name, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
+            need(unlink_owned(temporary), 'temporary output changed during envelope build')
+            published = os.fstat(fd)
+        os.fsync(parent)
+        try:
+            selected = directory(output.parent)
+        except OSError as error:
+            raise Error('output parent path changed during envelope build') from error
+        try:
+            current = os.fstat(selected)
+            need(os.path.samestat(info, current), 'output parent path changed during envelope build')
+            need(current.st_uid == os.geteuid() and not current.st_mode & 0o022,
+                 'output parent owner/mode changed during envelope build')
+            visible = os.stat(output.name, dir_fd=selected, follow_symlinks=False)
+            need(os.path.samestat(visible, published), 'output file changed during envelope build')
+            need(read_member(selected, output.name, len(raw), private=True) == raw,
+                 'output file changed during envelope build')
+        finally:
+            os.close(selected)
+        visible = output.lstat()
+        need(identity(visible) == identity(published) and visible.st_nlink == 1,
+             'output file changed during envelope build')
+        need(os.path.samestat(info, output.parent.lstat()), 'output parent path changed during envelope build')
     except BaseException as error:
         if created is not None:
-            try:
-                current = os.stat(output.name, dir_fd=parent, follow_symlinks=False)
-                if (current.st_dev, current.st_ino) == (created.st_dev, created.st_ino):
-                    os.unlink(output.name, dir_fd=parent)
-                    os.fsync(parent)
-            except FileNotFoundError:
-                pass
-            except OSError as cleanup_error:
-                error.add_note('envelope cleanup uncertainty: ' + type(cleanup_error).__name__)
+            for name in (output.name, temporary):
+                try:
+                    if unlink_owned(name) and name == output.name:
+                        os.fsync(parent)
+                except OSError as cleanup_error:
+                    error.add_note('envelope cleanup uncertainty: ' + type(cleanup_error).__name__)
         raise
     finally:
+        if fd is not None:
+            # Keep the inode pinned until rollback has compared ownership.
+            with contextlib.suppress(OSError):
+                os.close(fd)
         os.close(parent)
     return {'status': 'unsigned-development-envelope', 'signature_created': False, 'path': str(output), 'sha256': digest(raw)}
 

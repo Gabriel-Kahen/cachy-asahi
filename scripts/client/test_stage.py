@@ -481,6 +481,81 @@ class StageTests(unittest.TestCase):
         self.assertEqual(list(self.root.iterdir()), [target])
         self.assertEqual(target.read_bytes(), b'foreign data')
 
+    def test_receipt_parent_replacement_after_directory_sync_refuses_success(self):
+        parent = self.root / 'out'
+        parent.mkdir(mode=0o700)
+        target = parent / 'receipt.json'
+        detached = self.root / 'detached'
+        actual_sync = s.os.fsync
+
+        def replace_after_sync(fd):
+            actual_sync(fd)
+            if stat.S_ISDIR(os.fstat(fd).st_mode) and not detached.exists():
+                parent.rename(detached)
+                parent.mkdir(mode=0o700)
+                (parent / 'sentinel').write_bytes(b'foreign data')
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=replace_after_sync):
+            with self.assertRaisesRegex(ValueError, 'receipt-parent-changed'):
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertFalse(target.exists())
+        self.assertEqual(list(detached.iterdir()), [])
+        self.assertEqual((parent / 'sentinel').read_bytes(), b'foreign data')
+
+    def test_receipt_same_length_edit_after_directory_sync_refuses_success(self):
+        target = self.root / 'receipt.json'
+        actual_sync = s.os.fsync
+
+        def edit_after_sync(fd):
+            actual_sync(fd)
+            if stat.S_ISDIR(os.fstat(fd).st_mode) and target.exists():
+                target.write_bytes(target.read_bytes().replace(b'PASS', b'FAIL'))
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=edit_after_sync):
+            with self.assertRaisesRegex(ValueError, 'receipt-file-changed'):
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_receipt_signal_while_closing_committed_directory_keeps_success(self):
+        target = self.root / 'receipt.json'
+        value = {'status': 'PASS'}
+        actual_close = s.os.close
+        delivered = []
+
+        def cancel_on_close(fd):
+            directory = stat.S_ISDIR(os.fstat(fd).st_mode)
+            actual_close(fd)
+            if directory and target.exists():
+                delivered.append(signal.SIGTERM)
+                signal.raise_signal(signal.SIGTERM)
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'close', side_effect=cancel_on_close):
+            s.finalize_receipt(target, value)
+            self.assertFalse(s.CANCELLED)
+        self.assertEqual(delivered, [signal.SIGTERM])
+        self.assertEqual(value, {'status': 'PASS'})
+        self.assertEqual(json.loads(target.read_bytes()), value)
+
+    def test_receipt_signal_during_visible_readback_publishes_fail(self):
+        target = self.root / 'receipt.json'
+        value = {'status': 'PASS'}
+        actual_read = s.read
+        delivered = []
+
+        def cancel_during_read(path):
+            data = actual_read(path)
+            if not delivered:
+                delivered.append(signal.SIGTERM)
+                signal.raise_signal(signal.SIGTERM)
+            return data
+
+        with s.cancellation_handlers(), mock.patch.object(s, 'read', side_effect=cancel_during_read):
+            s.finalize_receipt(target, value)
+            self.assertTrue(s.CANCELLED)
+        self.assertEqual(delivered, [signal.SIGTERM])
+        self.assertEqual(value, {'status': 'FAIL', 'cancelled': True})
+        self.assertEqual(json.loads(target.read_bytes()), value)
+
     def test_receipt_publish_refuses_existing_output(self):
         target = self.root / 'receipt.json'
         target.write_bytes(b'foreign data')

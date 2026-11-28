@@ -152,6 +152,67 @@ class Controls(unittest.TestCase):
     c.build(args)
   self.assertEqual(result['sha256'], hashlib.sha256(output.read_bytes()).hexdigest())
 
+ def test_build_hides_leaf_until_file_sync_and_returns_digest_of_visible_bytes(self):
+  parent, output, args = self.build_output_fixture()
+  sync = os.fsync
+  visible_at_sync = []
+
+  def edit_visible_leaf_after_sync(fd):
+   sync(fd)
+   if stat.S_ISREG(os.fstat(fd).st_mode):
+    visible_at_sync.append(output.exists())
+    if output.exists():
+     output.write_bytes(output.read_bytes().replace(b'dev.fixture', b'dev.changed'))
+
+  with patch.object(c, 'describe', return_value=(self.actual, {'signer': self.key}, b'')), \
+       patch.object(c.os, 'fsync', edit_visible_leaf_after_sync):
+   result = c.build(args)
+  self.assertEqual(result['sha256'], hashlib.sha256(output.read_bytes()).hexdigest())
+  self.assertEqual(visible_at_sync, [False])
+  self.assertEqual(list(parent.iterdir()), [output])
+
+ def test_build_refuses_same_length_edit_after_directory_sync(self):
+  parent, output, args = self.build_output_fixture()
+  sync = os.fsync
+  modified = []
+
+  def edit_after_sync(fd):
+   sync(fd)
+   if stat.S_ISDIR(os.fstat(fd).st_mode) and output.exists():
+    raw = output.read_bytes()
+    replacement = raw.replace(b'dev.fixture', b'dev.changed')
+    self.assertNotEqual(raw, replacement)
+    self.assertEqual(len(raw), len(replacement))
+    output.write_bytes(replacement)
+    modified.append(True)
+
+  with patch.object(c, 'describe', return_value=(self.actual, {'signer': self.key}, b'')), \
+       patch.object(c.os, 'fsync', edit_after_sync):
+   with self.assertRaisesRegex(c.Error, 'output file changed during envelope build'):
+    c.build(args)
+  self.assertEqual(modified, [True])
+  self.assertEqual(list(parent.iterdir()), [])
+
+ def test_build_refuses_same_length_edit_to_staged_bytes_at_file_sync(self):
+  parent, _, args = self.build_output_fixture()
+  sync = os.fsync
+
+  def edit_staging_after_sync(fd):
+   sync(fd)
+   if stat.S_ISREG(os.fstat(fd).st_mode):
+    staged, = parent.iterdir()
+    raw = staged.read_bytes()
+    replacement = raw.replace(b'dev.fixture', b'dev.changed')
+    self.assertNotEqual(raw, replacement)
+    self.assertEqual(len(raw), len(replacement))
+    staged.write_bytes(replacement)
+
+  with patch.object(c, 'describe', return_value=(self.actual, {'signer': self.key}, b'')), \
+       patch.object(c.os, 'fsync', edit_staging_after_sync):
+   with self.assertRaisesRegex(c.Error, 'output file changed during envelope build'):
+    c.build(args)
+  self.assertEqual(list(parent.iterdir()), [])
+
  def test_build_refuses_leaf_replacement_and_keeps_foreign_file(self):
   parent, output, args = self.build_output_fixture()
   replacement = self.base / 'foreign'

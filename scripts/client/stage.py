@@ -96,6 +96,7 @@ TEST_IDS = frozenset({
 
 SIGNALS = {signal.SIGTERM, signal.SIGINT}
 CANCELLED = False
+RECEIPT_COMMITTED = False
 
 
 class Cancelled(KeyboardInterrupt):
@@ -104,15 +105,17 @@ class Cancelled(KeyboardInterrupt):
 
 def interrupt(*_):
     global CANCELLED
-    CANCELLED = True
-    raise Cancelled()
+    if not RECEIPT_COMMITTED:
+        CANCELLED = True
+        raise Cancelled()
 
 
 @contextmanager
 def defer_signals():
     def remember(*_):
         global CANCELLED
-        CANCELLED = True
+        if not RECEIPT_COMMITTED:
+            CANCELLED = True
     previous = {sig: signal.signal(sig, remember) for sig in SIGNALS}
     try:
         yield
@@ -123,14 +126,16 @@ def defer_signals():
 
 @contextmanager
 def cancellation_handlers():
-    global CANCELLED
+    global CANCELLED, RECEIPT_COMMITTED
     CANCELLED = False
+    RECEIPT_COMMITTED = False
     previous = {sig: signal.signal(sig, interrupt) for sig in SIGNALS}
     try:
         yield
     finally:
         for sig, handler in previous.items():
             signal.signal(sig, handler)
+        RECEIPT_COMMITTED = False
 
 
 def need(ok, reason):
@@ -361,7 +366,8 @@ def run_tests(home):
 
 def finalize_receipt(path, report):
     """Sync evidence privately before publication and retire failed publications."""
-    path = Path(path)
+    global RECEIPT_COMMITTED
+    path = Path(path).absolute()
 
     def unlink_owned(name, info):
         try:
@@ -375,7 +381,9 @@ def finalize_receipt(path, report):
 
     with defer_signals():
         parent = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        complete = False
         try:
+            parent_info = os.fstat(parent)
             while True:
                 cancelled = CANCELLED
                 if cancelled:
@@ -384,10 +392,11 @@ def finalize_receipt(path, report):
                 need(len(data) <= LIMIT, 'receipt-byte-bound')
                 temporary = f'.{path.name}.{os.urandom(12).hex()}.tmp'
                 fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
-                with os.fdopen(fd, 'wb') as stream:
-                    info = os.fstat(fd)
-                    complete = False
-                    try:
+                info = None
+                try:
+                    with os.fdopen(fd, 'wb', closefd=False) as stream:
+                        info = os.fstat(fd)
+                        os.fchmod(fd, 0o600)
                         stream.write(data)
                         stream.flush()
                         os.fsync(fd)
@@ -395,18 +404,42 @@ def finalize_receipt(path, report):
                             continue
                         os.link(temporary, path.name, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
                         unlink_owned(temporary, info)
-                        os.fsync(parent)
-                        if not CANCELLED or cancelled:
-                            complete = True
-                            return
+                        published = os.fstat(fd)
+                    os.fsync(parent)
+                    need(os.path.samestat(path.parent.lstat(), parent_info), 'receipt-parent-changed')
+                    need(read(path) == data, 'receipt-file-changed')
+                    visible = path.lstat()
+                    need(os.path.samestat(visible, published) and visible.st_nlink == 1
+                         and visible.st_size == published.st_size and visible.st_mtime_ns == published.st_mtime_ns
+                         and visible.st_ctime_ns == published.st_ctime_ns
+                         and stat.S_IMODE(visible.st_mode) == 0o600, 'receipt-file-changed')
+                    need(os.path.samestat(path.parent.lstat(), parent_info), 'receipt-parent-changed')
+                    # Close the cancellation window before checking the last latched signal.
+                    # The synced, verified receipt is authoritative during descriptor release.
+                    RECEIPT_COMMITTED = True
+                    if CANCELLED and not cancelled:
+                        RECEIPT_COMMITTED = False
+                        continue
+                    complete = True
+                    return
+                finally:
+                    try:
+                        if not complete and info is not None:
+                            if unlink_owned(path.name, info):
+                                # Preserve the original failure after rolling back the visible receipt.
+                                with suppress(OSError):
+                                    os.fsync(parent)
+                            unlink_owned(temporary, info)
                     finally:
-                        if not complete and unlink_owned(path.name, info):
-                            # Preserve the original failure after rolling back the visible receipt.
-                            with suppress(OSError):
-                                os.fsync(parent)
-                        unlink_owned(temporary, info)
+                        # Keep the inode pinned until rollback has compared ownership.
+                        with suppress(OSError):
+                            os.close(fd)
         finally:
-            os.close(parent)
+            if complete:
+                with suppress(OSError):
+                    os.close(parent)
+            else:
+                os.close(parent)
 
 
 def worker(args):
