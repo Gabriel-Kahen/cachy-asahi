@@ -6,7 +6,7 @@ No image building, downloads, package installation, signing-key export or CI dis
 Only a sanitized receipt leaves the disposable container; no raw test logs do.
 """
 import argparse
-from contextlib import contextmanager, redirect_stderr, redirect_stdout
+from contextlib import contextmanager, redirect_stderr, redirect_stdout, suppress
 import hashlib
 import importlib.util
 import json
@@ -360,26 +360,53 @@ def run_tests(home):
 
 
 def finalize_receipt(path, report):
-    """Only structured evidence; a signal during write/fsync cannot leave PASS."""
-    def encode():
-        data = json.dumps(report, indent=2, sort_keys=True).encode() + b'\n'
-        need(len(data) <= LIMIT, 'receipt-byte-bound')
-        return data
+    """Sync evidence privately before publication and retire failed publications."""
+    path = Path(path)
+
+    def unlink_owned(name, info):
+        try:
+            current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+        except FileNotFoundError:
+            return False
+        if not os.path.samestat(current, info):
+            return False
+        os.unlink(name, dir_fd=parent)
+        return True
+
     with defer_signals():
-        if CANCELLED:
-            report.update(status='FAIL', cancelled=True)
-        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
-        with os.fdopen(fd, 'wb') as stream:
-            stream.write(encode())
-            stream.flush()
-            os.fsync(stream.fileno())
-            if CANCELLED and (report['status'] != 'FAIL' or report.get('cancelled') is not True):
-                report.update(status='FAIL', cancelled=True)
-                stream.seek(0)
-                stream.truncate()
-                stream.write(encode())
-                stream.flush()
-                os.fsync(stream.fileno())
+        parent = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            while True:
+                cancelled = CANCELLED
+                if cancelled:
+                    report.update(status='FAIL', cancelled=True)
+                data = json.dumps(report, indent=2, sort_keys=True).encode() + b'\n'
+                need(len(data) <= LIMIT, 'receipt-byte-bound')
+                temporary = f'.{path.name}.{os.urandom(12).hex()}.tmp'
+                fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
+                with os.fdopen(fd, 'wb') as stream:
+                    info = os.fstat(fd)
+                    complete = False
+                    try:
+                        stream.write(data)
+                        stream.flush()
+                        os.fsync(fd)
+                        if CANCELLED and not cancelled:
+                            continue
+                        os.link(temporary, path.name, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
+                        unlink_owned(temporary, info)
+                        os.fsync(parent)
+                        if not CANCELLED or cancelled:
+                            complete = True
+                            return
+                    finally:
+                        if not complete and unlink_owned(path.name, info):
+                            # Preserve the original failure after rolling back the visible receipt.
+                            with suppress(OSError):
+                                os.fsync(parent)
+                        unlink_owned(temporary, info)
+        finally:
+            os.close(parent)
 
 
 def worker(args):

@@ -4,6 +4,7 @@
 import argparse
 import ast
 import copy
+import errno
 import hashlib
 import importlib.util
 import json
@@ -11,6 +12,7 @@ import os
 from pathlib import Path
 import platform
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
@@ -436,6 +438,74 @@ class StageTests(unittest.TestCase):
             s.finalize_receipt(target, value)
         self.assertEqual(value['status'], 'FAIL')
         self.assertEqual(json.loads(target.read_bytes())['status'], 'FAIL')
+
+    def test_receipt_file_sync_eio_publishes_no_pass(self):
+        target = self.root / 'worker-receipt.json'
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=OSError(errno.EIO, 'fixture')):
+            with self.assertRaises(OSError) as failed:
+                s.finalize_receipt(target, receipt())
+        self.assertEqual(failed.exception.errno, errno.EIO)
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_receipt_directory_sync_eio_rolls_back_owned_publication(self):
+        target = self.root / 'receipt.json'
+        actual_sync = s.os.fsync
+
+        def fail_directory(fd):
+            if stat.S_ISDIR(os.fstat(fd).st_mode):
+                raise OSError(errno.EIO, 'fixture')
+            actual_sync(fd)
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=fail_directory):
+            with self.assertRaises(OSError) as failed:
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertEqual(failed.exception.errno, errno.EIO)
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_receipt_failed_sync_preserves_replaced_publication(self):
+        target = self.root / 'receipt.json'
+        replacement = self.root / 'foreign'
+        replacement.write_bytes(b'foreign data')
+        actual_sync = s.os.fsync
+
+        def replace_during_sync(fd):
+            if stat.S_ISDIR(os.fstat(fd).st_mode) and replacement.exists():
+                replacement.replace(target)
+                raise OSError(errno.EIO, 'fixture')
+            actual_sync(fd)
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=replace_during_sync):
+            with self.assertRaises(OSError) as failed:
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertEqual(failed.exception.errno, errno.EIO)
+        self.assertEqual(list(self.root.iterdir()), [target])
+        self.assertEqual(target.read_bytes(), b'foreign data')
+
+    def test_receipt_publish_refuses_existing_output(self):
+        target = self.root / 'receipt.json'
+        target.write_bytes(b'foreign data')
+        with s.cancellation_handlers(), self.assertRaises(FileExistsError):
+            s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertEqual(list(self.root.iterdir()), [target])
+        self.assertEqual(target.read_bytes(), b'foreign data')
+
+    def test_receipt_cancellation_during_directory_sync_publishes_fail(self):
+        target = self.root / 'receipt.json'
+        actual_sync = s.os.fsync
+        cancelled = False
+
+        def cancel_on_directory(fd):
+            nonlocal cancelled
+            if stat.S_ISDIR(os.fstat(fd).st_mode) and not cancelled:
+                cancelled = True
+                signal.raise_signal(signal.SIGTERM)
+            actual_sync(fd)
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=cancel_on_directory):
+            s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertTrue(cancelled)
+        self.assertEqual(list(self.root.iterdir()), [target])
+        self.assertEqual(json.loads(target.read_bytes()), {'status': 'FAIL', 'cancelled': True})
 
     def test_inspection_handles_reported_tmpfs_without_accepting_extra_mount(self):
         value = self.container()

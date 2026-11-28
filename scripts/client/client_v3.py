@@ -323,29 +323,29 @@ class Verifier:
         self.home.mkdir(mode=0o700)
         self.keyring = self.temp / 'external-public.gpg'
         self.keyring.write_bytes(keyring)
-        self.count = 0
         need(shutil.which('gpg'), 'preinstalled GPG required')
 
     def verify(self, data_path, signature):
-        self.count += 1
-        path = self.temp / f'signature-{self.count}'
-        path.write_bytes(signature)
-        argv = ['gpg', '--batch', '--no-tty', '--no-options', '--homedir', str(self.home), '--no-default-keyring',
-                '--keyring', str(self.keyring), '--no-auto-key-retrieve', '--no-auto-key-import',
-                '--auto-key-locate', 'clear', '--disable-dirmngr', '--no-autostart', '--no-auto-check-trustdb',
-                '--status-fd', '1', '--verify', str(path), str(data_path)]
         env = {'PATH': os.environ.get('PATH', os.defpath), 'HOME': str(self.home), 'GNUPGHOME': str(self.home), 'LC_ALL': 'C'}
-        result = subprocess.run(argv, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
+        with tempfile.NamedTemporaryFile(prefix='signature-', dir=self.temp) as detached:
+            detached.write(signature)
+            detached.flush()
+            argv = ['gpg', '--batch', '--no-tty', '--no-options', '--homedir', str(self.home), '--no-default-keyring',
+                    '--keyring', str(self.keyring), '--no-auto-key-retrieve', '--no-auto-key-import',
+                    '--auto-key-locate', 'clear', '--disable-dirmngr', '--no-autostart', '--no-auto-check-trustdb',
+                    '--status-fd', '1', '--verify', detached.name, str(data_path)]
+            result = subprocess.run(argv, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
         need(result.returncode == 0 and len(result.stdout) + len(result.stderr) <= MAX_JSON, 'GPG rejected detached signature')
         return signature_status(result.stdout, self.signer, self.now)
 
     def bundle(self, root, ref, signature_sha256):
-        path = self.temp / f'target-{self.count + 1}'
-        actual, _ = hash_member(root, ref['path'], snapshot=path)
-        need(actual == ref['sha256'], 'signed target changed after bundle inspection')
-        signature = read_member(root, ref['path'] + '.sig', MAX_SIGNATURE)
-        need(digest(signature) == signature_sha256, 'signature bytes changed after release payload inspection')
-        return self.verify(path, signature)
+        with tempfile.TemporaryDirectory(prefix='target-', dir=self.temp) as work:
+            path = Path(work) / 'payload'
+            actual, _ = hash_member(root, ref['path'], snapshot=path)
+            need(actual == ref['sha256'], 'signed target changed after bundle inspection')
+            signature = read_member(root, ref['path'] + '.sig', MAX_SIGNATURE)
+            need(digest(signature) == signature_sha256, 'signature bytes changed after release payload inspection')
+            return self.verify(path, signature)
 
 
 @contextlib.contextmanager
@@ -436,6 +436,17 @@ def commit(root, value):
                 pass
 
 
+def verification_scratch():
+    path = absolute(tempfile.gettempdir())
+    # GPG reopens our snapshots by path. Every ancestor must protect the next name.
+    for ancestor in (*reversed(path.parents), path):
+        info = ancestor.lstat()
+        need(stat.S_ISDIR(info.st_mode) and info.st_uid in {0, os.geteuid()}
+             and (not info.st_mode & 0o022 or info.st_mode & stat.S_ISVTX),
+             'verification scratch path must have trusted directory ownership and modes')
+    return path
+
+
 def verify(args, *, now=None):
     live_clock = now is None
     if live_clock:
@@ -452,11 +463,13 @@ def verify(args, *, now=None):
         against_state(old, metadata, metadata_sha, now, args.minimum_sequence)
         signature = read_path(args.signature, MAX_SIGNATURE)
         keyring = read_path(args.public_keyring, MAX_KEYRING)
-        temp = stack.enter_context(tempfile.TemporaryDirectory(prefix='cachy-asahi-client-verify-', dir='/tmp'))
+        temp = stack.enter_context(tempfile.TemporaryDirectory(prefix='cachy-asahi-client-verify-',
+                                                               dir=verification_scratch()))
         verifier = Verifier(temp, keyring, signer, now)
         snapshot = Path(temp) / 'metadata.json'
         snapshot.write_bytes(metadata_raw)
         receipt = verifier.verify(snapshot, signature)
+        snapshot.unlink()
         root = directory(args.bundle)
         stack.callback(os.close, root)
         actual, release, release_raw = describe(root)
@@ -465,6 +478,7 @@ def verify(args, *, now=None):
         release_snapshot = Path(temp) / 'release.json'
         release_snapshot.write_bytes(release_raw)
         verifier.verify(release_snapshot, read_member(root, 'release.json.sig', MAX_SIGNATURE))
+        release_snapshot.unlink()
         for ref in actual['targets']['databases'] + actual['targets']['packages']:
             verifier.bundle(root, ref, release['files'][ref['path'] + '.sig'])
         stack.close()
@@ -548,25 +562,52 @@ def build(args):
     need(value['signer'] == release['signer'], 'builder signer differs from release record')
     output, bundle = absolute(args.output), absolute(args.bundle)
     need(not output.is_relative_to(bundle), 'envelope output must be outside the unchanged release bundle')
+    raw = encoded(value)
     parent = directory(output.parent)
-    created = False
+    created = None
     try:
         info = os.fstat(parent)
         need(info.st_uid == os.geteuid() and not (stat.S_IMODE(info.st_mode) & 0o022), 'output parent must be caller-owned and not group/world writable')
         fd = os.open(output.name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
-        created = True
         with os.fdopen(fd, 'wb') as stream:
-            stream.write(encoded(value))
+            created = os.fstat(stream.fileno())
+            os.fchmod(stream.fileno(), 0o600)
+            stream.write(raw)
             stream.flush()
             os.fsync(stream.fileno())
-        os.fsync(parent)
-    except BaseException:
-        if created:
-            os.unlink(output.name, dir_fd=parent)
+            synced = os.fstat(stream.fileno())
+            os.fsync(parent)
+            try:
+                selected = directory(output.parent)
+            except OSError as error:
+                raise Error('output parent path changed during envelope build') from error
+            try:
+                current = os.fstat(selected)
+                need((info.st_dev, info.st_ino) == (current.st_dev, current.st_ino),
+                     'output parent path changed during envelope build')
+                need(current.st_uid == os.geteuid() and not current.st_mode & 0o022,
+                     'output parent owner/mode changed during envelope build')
+                visible = os.stat(output.name, dir_fd=selected, follow_symlinks=False)
+                need(identity(visible) == identity(synced) and visible.st_nlink == 1
+                     and visible.st_uid == os.geteuid() and stat.S_IMODE(visible.st_mode) == 0o600,
+                     'output file changed during envelope build')
+            finally:
+                os.close(selected)
+    except BaseException as error:
+        if created is not None:
+            try:
+                current = os.stat(output.name, dir_fd=parent, follow_symlinks=False)
+                if (current.st_dev, current.st_ino) == (created.st_dev, created.st_ino):
+                    os.unlink(output.name, dir_fd=parent)
+                    os.fsync(parent)
+            except FileNotFoundError:
+                pass
+            except OSError as cleanup_error:
+                error.add_note('envelope cleanup uncertainty: ' + type(cleanup_error).__name__)
         raise
     finally:
         os.close(parent)
-    return {'status': 'unsigned-development-envelope', 'signature_created': False, 'path': str(output), 'sha256': digest(encoded(value))}
+    return {'status': 'unsigned-development-envelope', 'signature_created': False, 'path': str(output), 'sha256': digest(raw)}
 
 
 def main():

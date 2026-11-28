@@ -1,5 +1,5 @@
 """NEW temporary-filesystem client state binding controls; crypto is mocked."""
-import argparse,contextlib,hashlib,json,os,stat,sys,tempfile,types,unittest
+import argparse,contextlib,hashlib,json,os,stat,subprocess,sys,tempfile,types,unittest
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -109,5 +109,121 @@ class Controls(unittest.TestCase):
   def refusal():self.replace_state();raise primary
   with self.assertRaises(c.Error)as caught:self.verify(c,refusal)
   self.assertIs(caught.exception,primary);self.assert_detached_preserved()
+
+ def build_output_fixture(self):
+  parent = self.base / 'output'
+  parent.mkdir(mode=0o700)
+  output = parent / 'envelope.json'
+  now = datetime.now(timezone.utc)
+  args = argparse.Namespace(bundle=str(self.bundle), output=str(output), namespace='dev.fixture',
+                            sequence=2, signer=self.key, issued_utc=c.utc(now - timedelta(seconds=1)),
+                            expires_utc=c.utc(now + timedelta(hours=1)))
+  return parent, output, args
+
+ def test_build_refuses_replaced_output_parent_after_sync(self):
+  parent, output, args = self.build_output_fixture()
+  detached = self.base / 'detached-output'
+  parent_inode = parent.stat().st_ino
+  sync = os.fsync
+
+  def replace_after_sync(fd):
+   sync(fd)
+   if os.fstat(fd).st_ino == parent_inode and not detached.exists():
+    parent.rename(detached)
+    parent.mkdir(mode=0o700)
+    (parent / 'sentinel').write_bytes(b'external replacement')
+
+  with patch.object(c, 'describe', return_value=(self.actual, {'signer': self.key}, b'')), \
+       patch.object(c.os, 'fsync', replace_after_sync):
+   with self.assertRaisesRegex(c.Error, 'output parent path changed during envelope build'):
+    c.build(args)
+  self.assertFalse(output.exists())
+  self.assertFalse((detached / output.name).exists())
+  self.assertEqual((parent / 'sentinel').read_bytes(), b'external replacement')
+
+ def test_build_keeps_exclusive_private_output_and_matching_digest(self):
+  _, output, args = self.build_output_fixture()
+  with patch.object(c, 'describe', return_value=(self.actual, {'signer': self.key}, b'')):
+   result = c.build(args)
+   self.assertEqual(result['path'], str(output))
+   self.assertEqual(stat.S_IMODE(output.stat().st_mode), 0o600)
+   self.assertEqual(result['sha256'], hashlib.sha256(output.read_bytes()).hexdigest())
+   with self.assertRaises(FileExistsError):
+    c.build(args)
+  self.assertEqual(result['sha256'], hashlib.sha256(output.read_bytes()).hexdigest())
+
+ def test_build_refuses_leaf_replacement_and_keeps_foreign_file(self):
+  parent, output, args = self.build_output_fixture()
+  replacement = self.base / 'foreign'
+  replacement.write_bytes(b'external replacement')
+  parent_inode = parent.stat().st_ino
+  sync = os.fsync
+  def replace_after_sync(fd):
+   sync(fd)
+   if os.fstat(fd).st_ino == parent_inode and replacement.exists():
+    replacement.replace(output)
+  with patch.object(c, 'describe', return_value=(self.actual, {'signer': self.key}, b'')), \
+       patch.object(c.os, 'fsync', replace_after_sync):
+   with self.assertRaisesRegex(c.Error, 'output file changed during envelope build'):
+    c.build(args)
+  self.assertEqual(output.read_bytes(), b'external replacement')
+
+ def test_each_bundle_signature_and_target_is_retired_before_the_next(self):
+  scratch = self.base / 'verification'
+  scratch.mkdir(mode=0o700)
+  verifier = c.Verifier(scratch, b'TEST-MOCKED-KEYRING', self.key, self.now)
+  retained = {'gpg-home', 'external-public.gpg'}
+  root = c.directory(self.bundle)
+  self.addCleanup(os.close, root)
+  detached_sig = b'TEST-MOCKED-SIGNATURE'
+  for number in range(3):
+   name = f'payload-{number}'
+   data = str(number).encode()
+   (self.bundle / name).write_bytes(data)
+   (self.bundle / (name + '.sig')).write_bytes(detached_sig)
+   ref = {'path': name, 'sha256': c.digest(data)}
+   with patch.object(c.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, b'', b'')) as gpg, \
+        patch.object(c, 'signature_status', return_value={'primary_fingerprint': self.key}):
+    verifier.bundle(root, ref, c.digest(detached_sig))
+   self.assertEqual({path.name for path in scratch.iterdir()}, retained)
+   self.assertTrue(all(not Path(path).exists() for path in gpg.call_args.args[0][-2:]))
+  with self.assertRaisesRegex(c.Error, 'signed target changed'):
+   verifier.bundle(root, {'path': 'payload-0', 'sha256': 'f'*64}, c.digest(detached_sig))
+  self.assertEqual({path.name for path in scratch.iterdir()}, retained)
+  with patch.object(c.subprocess, 'run', return_value=subprocess.CompletedProcess([], 1, b'', b'')):
+   with self.assertRaisesRegex(c.Error, 'GPG rejected'):
+    verifier.bundle(root, {'path': 'payload-0', 'sha256': c.digest(b'0')}, c.digest(detached_sig))
+  self.assertEqual({path.name for path in scratch.iterdir()}, retained)
+
+ def test_verify_uses_configured_scratch_directory(self):
+  # Redirect the frozen reproduction away from /tmp while recording its request.
+  scratch = self.base / 'scratch'
+  scratch.mkdir(mode=0o700)
+  make_temp = tempfile.TemporaryDirectory
+  requested = []
+  def record(*args, **kwargs):
+   requested.append(Path(kwargs.get('dir') or tempfile.gettempdir()))
+   return make_temp(*args, **{**kwargs, 'dir': scratch})
+  with patch.dict(os.environ, {'TMPDIR': str(scratch)}), patch.object(tempfile, 'tempdir', None), \
+       patch.object(c.tempfile, 'TemporaryDirectory', side_effect=record):
+   self.verify(c)
+  self.assertEqual(requested, [scratch])
+  self.assertEqual(list(scratch.iterdir()), [])
+
+ def test_verify_refuses_untrusted_scratch_ancestors(self):
+  unsafe = self.base / 'shared'
+  child = unsafe / 'private'
+  child.mkdir(parents=True)
+  unsafe.chmod(0o777)
+  with patch.object(tempfile, 'gettempdir', return_value=str(child)):
+   with self.assertRaisesRegex(c.Error, 'scratch path must have trusted directory ownership'):
+    self.verify(c)
+  self.assertEqual(list(child.iterdir()), [])
+  alias = self.base / 'alias'
+  alias.symlink_to(child, target_is_directory=True)
+  with patch.object(tempfile, 'gettempdir', return_value=str(alias)):
+   with self.assertRaisesRegex(c.Error, 'scratch path must have trusted directory ownership'):
+    self.verify(c)
+
  def tearDown(self):self.assertEqual(ATTEMPTS,[])
 if __name__=='__main__':unittest.main(argv=[sys.argv[0],*rest])
