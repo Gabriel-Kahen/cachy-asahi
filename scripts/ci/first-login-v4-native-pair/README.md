@@ -41,6 +41,7 @@ slice=scripts/ci/first-login-v4-native-pair
 bash -n "$slice/hosted.sh"
 bash -n "$slice/container.sh"
 python3 -I -B "$slice/test_verify.py" -v
+python3 -I -B "$slice/test_hosted.py" -v
 bash "$slice/hosted.sh" source "$PINNED_CHECKOUT" "$NEW_OUTPUT_DIRECTORY"
 ```
 

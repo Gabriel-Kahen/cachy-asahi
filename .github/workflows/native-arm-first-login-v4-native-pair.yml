@@ -35,6 +35,7 @@ jobs:
           bash -n "$SLICE/hosted.sh"
           bash -n "$SLICE/container.sh"
           python3 -I -B "$SLICE/test_verify.py"
+          python3 -I -B "$SLICE/test_hosted.py"
           bash "$SLICE/hosted.sh" source "$GITHUB_WORKSPACE/pinned-recipes" "$RUNNER_TEMP/first-login-v4-pair"
       - name: Prepare one native build image and run two clean offline lanes
         timeout-minutes: 38

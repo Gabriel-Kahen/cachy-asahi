@@ -69,13 +69,78 @@ done < "$supplement/supplement.sha256"
 readonly mount_spec="type=bind,src=$output/input,dst=/input,readonly"
 readonly -a limits=(--platform linux/arm64 --cpus 1 --memory 768m --memory-swap 768m --pids-limit 128
                     --security-opt no-new-privileges --entrypoint /bin/bash --user 0:0)
-containers=()
-image=
+run="${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}"
+[[ $run =~ ^[0-9]+-[0-9]+$ ]]
+read -r nonce < /proc/sys/kernel/random/uuid
+readonly owner="first-login-v4-${run}-${nonce}"
+readonly label=org.cachy-asahi.first-login-v4-owner
+readonly provision_name="$owner-provision"
+readonly image_tag="cachy-asahi-first-login-v4-build:$owner"
+readonly -a lanes=(lane-1 lane-2)
+pending_create=
+pending_commit=
+printf 'resource_owner=%s\nbuild_image_tag=%s\n' "$owner" "$image_tag" >> "$output/public/runner.txt"
+
+container_ids() {
+    docker container ls --all --no-trunc --quiet --filter "name=^/$1$"
+}
+
+cleanup_container() {
+    local name=$1 id identity remaining
+    id=$(container_ids "$name") || return 1
+    if [[ -z $id ]]; then
+        # A request that lost its reply could still be in flight on the daemon.
+        [[ $pending_create != "$name" ]]
+        return
+    fi
+    [[ $id =~ ^[0-9a-f]{64}$ ]] || return 1
+    identity=$(docker container inspect --format "{{.Name}} {{index .Config.Labels \"$label\"}}" "$id") || return 1
+    [[ $identity == "/$name $owner" ]] || return 1
+    docker container rm --force "$id" || :
+    remaining=$(container_ids "$name") || return 1
+    [[ -z $remaining ]]
+}
+
+image_ids() {
+    docker image ls --all --no-trunc --quiet --filter "$1" | sort -u
+}
+
+cleanup_image() {
+    local id tagged identity remaining
+    id=$(image_ids "label=$label=$owner") || return 1
+    tagged=$(image_ids "reference=$image_tag") || return 1
+    [[ -z $tagged || $tagged == "$id" ]] || return 1
+    if [[ -z $id ]]; then
+        [[ -z $pending_commit ]]
+        return
+    fi
+    [[ $id =~ ^sha256:[0-9a-f]{64}$ ]] || return 1
+    identity=$(docker image inspect --format "{{index .Config.Labels \"$label\"}}" "$id") || return 1
+    [[ $identity == "$owner" ]] || return 1
+    docker image rm --no-prune "$id" || :
+    remaining=$(image_ids "label=$label=$owner") || return 1
+    tagged=$(image_ids "reference=$image_tag") || return 1
+    [[ -z $remaining && -z $tagged ]]
+}
+
 cleanup() {
-    local status=$? failed=0
+    local status=$? failed=0 name remaining
     trap - EXIT
-    for id in "${containers[@]}"; do docker rm -f "$id" || failed=1; done
-    if [[ -n $image ]]; then docker image rm "$image" || failed=1; fi
+    for name in "$owner-lane-2" "$owner-lane-1" "$provision_name"; do
+        if ! cleanup_container "$name"; then
+            printf 'Could not confirm cleanup of container %s\n' "$name" >&2
+            failed=1
+        fi
+    done
+    if ! remaining=$(docker container ls --all --no-trunc --quiet --filter "label=$label=$owner") ||
+        [[ -n $remaining ]]; then
+        printf 'Could not confirm absence of containers owned by %s\n' "$owner" >&2
+        failed=1
+    fi
+    if ! cleanup_image; then
+        printf 'Could not confirm cleanup of image %s\n' "$image_tag" >&2
+        failed=1
+    fi
     printf 'build_exit=%s\ncleanup_exit=%s\n' "$status" "$failed" > "$output/public/cleanup.txt"
     if (( status == 0 && failed != 0 )); then exit "$failed"; fi
     exit "$status"
@@ -84,23 +149,34 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-provisioner="$(docker create "${limits[@]}" --network none --mount "$mount_spec" \
+pending_create=$provision_name
+provisioner="$(docker create "${limits[@]}" --name "$pending_create" --label "$label=$owner" \
+    --network none --mount "$mount_spec" \
     --mount "type=bind,src=$supplement,dst=/seed,readonly" \
     "$base_image" /input/container.sh provision)"
-containers+=("$provisioner")
+[[ $provisioner =~ ^[0-9a-f]{64}$ ]]
+pending_create=
 docker start --attach "$provisioner" 2>&1 | tee "$output/public/provision.log"
 test "$(docker inspect --format '{{.State.ExitCode}}' "$provisioner")" = 0
 docker cp "$provisioner:/work/base-packages.txt" "$output/public/base-packages.txt"
-image="$(docker commit --pause=false "$provisioner")"
+tagged=$(image_ids "reference=$image_tag")
+test -z "$tagged"
+pending_commit=$image_tag
+image="$(docker commit --pause=false --change "LABEL $label=$owner" "$provisioner" "$image_tag")"
+[[ $image =~ ^sha256:[0-9a-f]{64}$ ]]
+pending_commit=
 test "$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$image")" = linux/arm64
 printf '%s\n' "$image" > "$output/public/build-image.txt"
 
-for lane in lane-1 lane-2; do
+for lane in "${lanes[@]}"; do
     destination="$output/public/$lane"
     mkdir -- "$destination"
-    id="$(docker create "${limits[@]}" --network none --mount "$mount_spec" \
+    pending_create="$owner-$lane"
+    id="$(docker create "${limits[@]}" --name "$pending_create" --label "$label=$owner" \
+        --network none --mount "$mount_spec" \
         "$image" /input/container.sh build)"
-    containers+=("$id")
+    [[ $id =~ ^[0-9a-f]{64}$ ]]
+    pending_create=
     actual="$(docker inspect --format '{{.Id}} {{.Image}} {{.HostConfig.NetworkMode}} {{.HostConfig.Privileged}}' "$id")"
     test "$actual" = "$id $image none false"
     printf '%s\n' "$actual" > "$destination/container.txt"
