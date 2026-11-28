@@ -11,6 +11,7 @@ import io
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import signal
 import socket
@@ -80,6 +81,17 @@ def directory_leaf_fixture(root, check='PATH_IDENTITY', scope='ROOT', component=
         except ValueError as refused: error = refused
     if error is None: raise AssertionError('original private directory predicate did not refuse')
     return error, acquired, closed
+
+
+class WorkflowBootstrapTests(unittest.TestCase):
+    def test_native_workflow_pins_match_checkout(self):
+        workflow = (ROOT / '.github/workflows/native-arm-updater.yml').read_text()
+        files = {'STAGE_SHA256': 'stage.py', 'SOURCE_SHA256': 'source.py', 'INTAKE_SHA256': 'intake.py',
+                 'READY_SHA256': 'reviewed-source.json'}
+        for pin, filename in files.items():
+            with self.subTest(pin=pin):
+                found = re.findall(rf'^      {pin}: ([0-9a-f]{{64}})$', workflow, re.MULTILINE)
+                self.assertEqual(found, [hashlib.sha256((HERE / filename).read_bytes()).hexdigest()])
 
 
 class StageTests(unittest.TestCase):
