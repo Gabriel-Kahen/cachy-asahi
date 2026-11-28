@@ -134,14 +134,14 @@
       "sha256": "0a8acb85e398a4aa875ce4b38877181d07f5a3bb7e39eb02ec5021cc5400c71a"
     },
     "scripts/port/kernel-native-stage/test_worker.py": {
-      "bytes": 28957,
+      "bytes": 31962,
       "mode": 420,
-      "sha256": "1284d56632dc8978dd52da61138f6401d6445361b1f732f2db2c07d3d9147525"
+      "sha256": "7d5d2e7af028ef8dcceed1df8724e51c75ffb192cfa63325e7c74436cbb9e1a3"
     },
     "scripts/port/kernel-native-stage/worker.py": {
-      "bytes": 25493,
+      "bytes": 27843,
       "mode": 493,
-      "sha256": "0c7c72343f0102c76a3f77e769e4ca2c29ad976322a34ee30d51746139e23b7b"
+      "sha256": "4dee4e9a88c98fea1d56cbacfa45445399ae604fec37280ac008a96ff0090133"
     }
   },
   "purpose": "KERNEL-NATIVE-C01",

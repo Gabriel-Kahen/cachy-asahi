@@ -15,7 +15,7 @@ import packet_v2
 MANIFEST = 'scripts/port/kernel-native-job-v3/packet.lock.json'
 MANIFEST_LIMIT = 1024**2
 KERNEL_LOCK = 'scripts/port/kernel-native-job-v3/stage.lock.json'
-KERNEL_SHA = 'b225e993c991b02866582f2bfdc81f18575cd755bba716831011f5bea3189cec'
+KERNEL_SHA = 'ec2125c80d59fbe235018bb05b80c6a3157287543d4caf05ffb494ae8d76f47e'
 PARENT_SHA = '2fd77c8d22c322008f9f43d9b574fd797d6bd52be4ab26463699a165134ce9c6'
 BUILD_HELPERS = {
     'scripts/build/build.py': ('3063936c1cd7369a14919e6491b100281d7ada0515ef87f1f176d7bdb4403dca', 0o644),

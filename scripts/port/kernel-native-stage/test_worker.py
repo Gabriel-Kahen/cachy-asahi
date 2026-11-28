@@ -4,6 +4,7 @@ import copy
 from contextlib import contextmanager, ExitStack
 import hashlib
 import json
+import stat
 from pathlib import Path
 import subprocess
 import tempfile
@@ -22,18 +23,26 @@ class ProvisionFlow(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name); self.inputs = self.root / 'inputs'; self.inputs.mkdir()
         self.real_path = Path
-        self.packet = b'archive'; self.sig = b'signature'
-        (self.inputs / 'tool.pkg').write_bytes(self.packet); (self.inputs / 'tool.pkg.sig').write_bytes(self.sig)
-        common.save(self.inputs / 'contract.json', {'base_inventory': 'base 1\n'})
+        self.packet, self.sig, self.key = b'archive', b'signature', b'public-key'
+        self.payloads = {'tool.pkg': self.packet, 'tool.pkg.sig': self.sig, 'archlinuxarm.gpg': self.key}
+        rows = {}
+        for name, data in self.payloads.items():
+            (self.inputs / name).write_bytes(data)
+            rows[name] = {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)}
+        self.contract_path = self.inputs / 'contract.json'
+        pin = common.save(self.contract_path, {'base_inventory': 'base 1\n', 'inputs': rows})
+        self.contract = common.load(self.contract_path, pin)
         self.signer = '6' * 40
-        self.dependencies = {'packages': [{'name': 'tool', 'filename': 'tool.pkg', 'sha256': hashlib.sha256(self.packet).hexdigest(),
-            'signature_sha256': hashlib.sha256(self.sig).hexdigest()}], 'signer_fingerprint': self.signer,
-            'expected_inventory': 'base 1\ntool 2\n'}
+        self.dependencies = {'packages': [{'name': 'tool', 'filename': 'tool.pkg',
+            'sha256': rows['tool.pkg']['sha256'], 'size': rows['tool.pkg']['bytes'],
+            'signature_sha256': rows['tool.pkg.sig']['sha256'], 'signature_size': rows['tool.pkg.sig']['bytes']}],
+            'signer_fingerprint': self.signer, 'expected_inventory': 'base 1\ntool 2\n'}
+        self.scratch = self.root / 'tmp'; self.scratch.mkdir()
         self.labels = []; self.installed = False
         self.log_dir = self.root / 'logs'; self.log_dir.mkdir()
 
     def path(self, value):
-        if str(value).startswith('/tmp/'):
+        if str(value) == '/tmp' or str(value).startswith('/tmp/'):
             return self.real_path(self.root / str(value).lstrip('/'))
         if str(value).startswith('/usr/share/') or str(value).startswith('/etc/'):
             return self.root / 'nonexistent-hooks'
@@ -49,12 +58,15 @@ class ProvisionFlow(unittest.TestCase):
         (self.log_dir / log).open('xb').close()
         return subprocess.CompletedProcess(argv, 0, data)
 
+    def provision(self, report, run=None):
+        runner = types.SimpleNamespace(log_dir=self.log_dir, run=run or self.command_run)
+        with (patch.object(worker, 'Path', side_effect=self.path), patch.object(worker, 'INPUTS', self.inputs),
+              patch.object(worker, 'load', side_effect=AssertionError('unexpected contract reread'))):
+            worker.provision(runner, report, self.dependencies, self.contract)
+
     def test_distinct_inventory_logs_allow_complete_provision(self):
-        (self.root / 'tmp').mkdir()
-        runner = type('Runner', (), {'log_dir': self.log_dir, 'run': self.command_run})()
         report = {'commands': []}
-        with patch.object(worker, 'Path', side_effect=self.path), patch.object(worker, 'INPUTS', self.inputs):
-            worker.provision(runner, report, self.dependencies)
+        self.provision(report)
         self.assertIn('inventory-before.log', self.labels)
         self.assertIn('inventory-after.log', self.labels)
         self.assertEqual(len(self.labels), len(set(self.labels)))
@@ -63,12 +75,55 @@ class ProvisionFlow(unittest.TestCase):
         self.assertTrue(self.installed)
 
     def test_wrong_crypto_signer_blocks_install(self):
-        (self.root / 'tmp').mkdir()
         self.dependencies['signer_fingerprint'] = '7' * 40
-        runner = type('Runner', (), {'log_dir': self.log_dir, 'run': self.command_run})()
-        with patch.object(worker, 'Path', side_effect=self.path), patch.object(worker, 'INPUTS', self.inputs):
-            with self.assertRaises(ValueError): worker.provision(runner, {'commands': []}, self.dependencies)
+        with self.assertRaisesRegex(ValueError, 'signature signer/status differs'):
+            self.provision({'commands': []})
         self.assertFalse(self.installed)
+
+    def test_install_uses_verified_private_pair_and_authenticated_inventory_after_source_drift(self):
+        verified = []
+        def run(argv, **kwargs):
+            if '--import' in argv:
+                key = Path(argv[-1])
+                self.assertEqual(key.read_bytes(), self.key)
+                self.assertEqual(key.parent.parent, self.scratch)
+                self.assertEqual(stat.S_IMODE(key.parent.stat().st_mode), 0o700)
+                self.assertEqual(stat.S_IMODE(key.stat().st_mode), 0o600)
+            if '--verify' in argv:
+                sig, archive = map(Path, argv[-2:])
+                self.assertEqual(archive.parent.parent, self.scratch)
+                self.assertEqual(sig, archive.with_name(archive.name + '.sig'))
+                self.assertEqual((archive.read_bytes(), sig.read_bytes()), (self.packet, self.sig))
+                verified.extend((archive, sig))
+                (self.inputs / archive.name).write_bytes(b'inert replacement archive')
+                replacement = self.inputs / 'signature-replacement'
+                replacement.write_bytes(b'inert replacement signature')
+                replacement.replace(self.inputs / sig.name)
+                common.save(self.contract_path, {'base_inventory': 'different 1\n'})
+            if '-U' in argv:
+                archive, sig = verified
+                self.assertEqual(Path(argv[-1]), archive)
+                self.assertEqual((archive.read_bytes(), sig.read_bytes()), (self.packet, self.sig))
+                self.assertIn('--noscriptlet', argv)
+            return self.command_run(argv, **kwargs)
+        report = {'commands': []}
+        self.provision(report, run)
+        self.assertEqual(report['base_inventory']['sha256'], hashlib.sha256(b'base 1\n').hexdigest())
+        self.assertTrue(self.installed)
+        self.assertFalse(verified[0].parent.exists())
+
+    def test_source_drift_before_private_capture_blocks_all_commands(self):
+        for name, data in self.payloads.items():
+            with self.subTest(name=name):
+                source = self.inputs / name
+                source.write_bytes(bytes([data[0] ^ 1]) + data[1:])
+                try:
+                    with self.assertRaisesRegex(ValueError, 'private provision input pin differs'):
+                        self.provision({'commands': []})
+                    self.assertEqual(self.labels, [])
+                    self.assertFalse(list(self.scratch.glob('verified-packages-*')))
+                finally:
+                    source.write_bytes(data)
 
 
 BINDING = {'nonce': 'a'*32, 'action': 'baseline', 'contract_sha256': 'b'*64, 'worker_sha256': 'c'*64}

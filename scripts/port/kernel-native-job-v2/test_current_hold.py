@@ -23,7 +23,7 @@ LEGACY_PARENT_SHA = '3cc6631797d804086686e88ddd2240455561420430bedb4ea6e4ce9eade
 SUCCESSOR_PYTHON = {packet.PREFIX + name for name in ('packet_v3.py', 'child_launch.py')}
 SUCCESSOR_CHANGES = {*packet_v3.BUILD_HELPERS, packet.WORKFLOW, packet.DOCUMENT,
                      *(packet.KERNEL + name for name in ('broker.py', 'common.py', 'stage.py',
-                                                         'test_broker.py', 'test_stage.py')),
+                                                         'test_broker.py', 'test_stage.py', 'worker.py', 'test_worker.py')),
                      *(packet.PREFIX + name for name in ('job.py', 'packet.py', 'packet_v2.py',
                                                          'runtime.py', 'test_packet.py', 'test_public.py'))}
 
