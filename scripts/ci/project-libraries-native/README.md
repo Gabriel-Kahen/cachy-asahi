@@ -214,6 +214,18 @@ ten pinned files. The input-only run verifies all 249 original signatures,
 the signed rootfs inventory, the five extension signatures and the two
 matching materializations of the reviewed project recipes.
 
+The maintained producer stages the 89 files selected at
+`4e5493cbd384feaae027abb476437c90b7c07cba`. The existing packet manifest
+verifies the byte count, SHA-256 and mode of every staged file, including
+the retained Source95 package checker. The hosted jobs fetch the source
+commit into their shallow Git checkout. To run the maintained controls in a
+local shallow checkout, fetch the same commit first.
+
+```sh
+git fetch --no-tags --no-recurse-submodules --depth=1 origin 4e5493cbd384feaae027abb476437c90b7c07cba
+python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/project-libraries-native -p 'test_maintained_*.py'
+```
+
 The native lane builds JBIG twice on the untouched 341-package image. It
 then replaces JBIG and adds five build dependencies in a private
 346-package image for two TIFF builds. Each pair must be byte-identical,

@@ -144,6 +144,11 @@ jobs:
         timeout-minutes: 1
         shell: bash
         run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Fetch the locked maintained producer source
+        timeout-minutes: 5
+        run: |
+          git fetch --quiet --no-tags --no-recurse-submodules --no-write-fetch-head --depth=1 \
+            origin 4e5493cbd384feaae027abb476437c90b7c07cba
       - name: Stage the pinned maintained baseline carriers
         id: maintained-base
         timeout-minutes: 4

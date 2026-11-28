@@ -414,6 +414,8 @@ jobs:
       - name: Check JBIG and TIFF input and lifecycle controls
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
+          git fetch --quiet --no-tags --no-recurse-submodules --no-write-fetch-head --depth=1 \
+            origin 4e5493cbd384feaae027abb476437c90b7c07cba
           lane=scripts/ci/project-libraries-native
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane" -p 'test_build622.py'
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane" -p 'test_maintained_*.py'

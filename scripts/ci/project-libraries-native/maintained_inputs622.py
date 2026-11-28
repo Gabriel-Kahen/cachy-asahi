@@ -11,7 +11,7 @@ import subprocess
 import sys
 from types import SimpleNamespace
 
-from inputs622 import PROJECT, ROOT, command, read_pin, require, stage_object, stage_set
+from inputs622 import GuardFailure, PROJECT, ROOT, command, read_pin, require, stage_object, stage_set
 
 
 LOCK_SHA256 = "74bf957c5c579b4cb1a6523df11d265ab9f44450c3a71c226b4b9b7a3b65f89b"
@@ -80,23 +80,52 @@ def packet_tools(contract):
     return module_bytes(path, body)
 
 
+def producer_git(*args):
+    try:
+        return command(["git", "--no-replace-objects", "-c", "protocol.allow=never", *args],
+                       cwd=ROOT, timeout=10).stdout
+    except subprocess.CalledProcessError as error:
+        raise GuardFailure("missing or unreadable maintained producer Git object") from error
+
+
 def stage_producer(scratch, contract, packet):
     name = KERNEL_PACKET + ".lock.json"
     manifest = packet.load(ROOT / name, contract["references"][name]["sha256"])["files"]
-    recipes = packet.load(ROOT / packet.RECIPES_LOCK, contract["recipe_lock_sha256"])
+    reference = contract["reference_commit"]
+    require(re.fullmatch(r"[0-9a-f]{40}", reference), "exact maintained producer reference")
+    selected = set(packet.HELPERS) | {INPUTS, packet.RECIPES_LOCK}
+    table = producer_git("ls-tree", "-rlz", "--full-tree", reference, "--",
+                         *sorted(selected | packet.RECIPE_BASES))
+    blobs = {}
+    for entry in table.split(b"\0")[:-1]:
+        header, leaf = entry.split(b"\t", 1)
+        git_mode, kind, oid, size = header.split()
+        name = leaf.decode("ascii")
+        pin = manifest.get(name)
+        require(pin and kind == b"blob" and git_mode in (b"100644", b"100755")
+                and int(git_mode, 8) == (stat.S_IFREG | pin["mode"]) and int(size) == pin["bytes"],
+                f"maintained producer byte/mode pin: {name}")
+        blobs[name] = oid.decode("ascii")
+
+    require(packet.RECIPES_LOCK in blobs, "exact maintained original recipe lock")
+    recipe_lock = producer_git("cat-file", "blob", blobs[packet.RECIPES_LOCK])
+    require(packet.sha(recipe_lock) == contract["recipe_lock_sha256"], "exact maintained original recipe lock")
+    recipes = packet.decode(recipe_lock)
     require(set(recipes) == packet.RECIPE_BASES and sum(map(len, recipes.values())) == packet.RECIPE_COUNT,
             "exact maintained original recipe closure")
-    selected = set(packet.HELPERS) | {INPUTS, packet.RECIPES_LOCK}
     for directory, leaves in recipes.items():
-        require(packet.walk(ROOT / directory) == set(leaves), "maintained producer recipe membership")
         selected.update(directory + "/" + str(packet.relative(leaf)) for leaf in leaves)
+    require(selected == blobs.keys(), "maintained producer exact source membership")
 
     output = scratch / "maintained-producer-source"
     output.mkdir(mode=0o700)
     for name in sorted(selected):
-        source = ROOT / packet.relative(HELD_CHECKER if name == CHECKER else name)
-        raw, mode = packet.capture(source)
-        require(packet.row(raw, mode) == manifest[name], "maintained producer byte/mode pin")
+        mode = manifest[name]["mode"]
+        if name == CHECKER:
+            raw, mode = packet.capture(ROOT / HELD_CHECKER)
+        else:
+            raw = recipe_lock if name == packet.RECIPES_LOCK else producer_git("cat-file", "blob", blobs[name])
+        require(packet.row(raw, mode) == manifest[name], f"maintained producer byte/mode pin: {name}")
         target = output / name
         target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         with target.open("xb") as stream:
@@ -192,12 +221,13 @@ def prepare_maintained(args, scratch, report):
     local = private_directory(full if full is not None else retained)
     official = private_directory(args.maintained_extension_cache)
     report["phase"] = "maintained-inputs"
-    inputs = packet.load(ROOT / INPUTS, baseline["input_lock_sha256"])
+    source = stage_producer(scratch, baseline, packet)
+    inputs = packet.load(source / INPUTS, baseline["input_lock_sha256"])
     pins = transport_pins(inputs)
     selected = selected_cache_pins(local, baseline, pins, full=full is not None)
     extensions = extension_pins()
     require(cache_names(official) == extensions.keys(), "exact maintained extension membership")
-    prepared = PreparedMaintained(stage_producer(scratch, baseline, packet), scratch / "alarm-cache",
+    prepared = PreparedMaintained(source, scratch / "alarm-cache",
                                   scratch / "maintained-extension", scratch / "expected341.lock",
                                   scratch / "expected346.lock", scratch / "recipes")
     stage_set(prepared.cache, selected, local)

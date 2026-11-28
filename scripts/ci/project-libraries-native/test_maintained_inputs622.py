@@ -21,7 +21,9 @@ class MaintainedInputs(unittest.TestCase):
         self.spec = maintained.locked()
         self.binding = self.spec["baseline"]
         self.packet = maintained.packet_tools(self.binding)
-        self.inputs = self.packet.load(maintained.ROOT / maintained.INPUTS, self.binding["input_lock_sha256"])
+        raw = maintained.producer_git("cat-file", "blob", f"{self.binding['reference_commit']}:{maintained.INPUTS}")
+        self.assertEqual(self.packet.sha(raw), self.binding["input_lock_sha256"])
+        self.inputs = self.packet.decode(raw)
         self.pins = maintained.transport_pins(self.inputs)
 
     def prepared(self):
@@ -36,7 +38,7 @@ class MaintainedInputs(unittest.TestCase):
         self.assertEqual(len(maintained.extension_pins()), 10)
         self.assertEqual(sum(pin["bytes"] for pin in maintained.extension_pins().values()), 24202822)
         item = self.prepared()
-        files = {p.relative_to(item.producer_source).as_posix() for p in item.producer_source.rglob("*") if p.is_file()}
+        files = self.packet.walk(item.producer_source)
         self.assertEqual(len(files), 89)
         self.assertIn(maintained.PRODUCER, files)
         self.assertIn(self.packet.RECIPES_LOCK, files)
@@ -44,6 +46,24 @@ class MaintainedInputs(unittest.TestCase):
         self.assertFalse(any(name.startswith(self.packet.KERNEL) for name in files))
         self.assertEqual(self.packet.capture(item.producer_source / maintained.CHECKER),
                          self.packet.capture(maintained.ROOT / maintained.HELD_CHECKER))
+        lock = maintained.KERNEL_PACKET + ".lock.json"
+        rows = self.packet.load(maintained.ROOT / lock, self.binding["references"][lock]["sha256"])["files"]
+        self.assertEqual({name: self.packet.row(*self.packet.capture(item.producer_source / name)) for name in files},
+                         {name: rows[name] for name in files})
+
+    def test_producer_rejects_historical_git_helper_mode_drift(self):
+        git = maintained.producer_git
+
+        def git_with_drift(*args):
+            raw = git(*args)
+            if args[0] != "ls-tree":
+                return raw
+            return b"\0".join(row.replace(b"100644 ", b"100755 ", 1)
+                              if row.endswith(b"\tscripts/build/build.py") else row for row in raw.split(b"\0"))
+
+        with patch.object(maintained, "producer_git", side_effect=git_with_drift):
+            with self.assertRaisesRegex(ValueError, r"producer byte/mode pin: scripts/build/build\.py"):
+                maintained.stage_producer(self.root, self.binding, self.packet)
 
     def test_producer_rejects_same_size_checker_drift(self):
         held = maintained.ROOT / maintained.HELD_CHECKER
