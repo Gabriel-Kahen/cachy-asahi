@@ -43,7 +43,10 @@ class SignedHook(unittest.TestCase):
         raw=release.encoded(self.recipe);self.recipe_path.write_bytes(raw);self.digest=release.sha(raw)
     def test_new_profile_plan_loads_five_packages_without_actor(self):
         result=release.plan(self.recipe_path,self.digest)
-        self.assertEqual(result['binding']['sources']['signed_archive_intake']['sha256'],release.SIGNED_SHA)
+        sources = result['binding']['sources']
+        self.assertEqual(sources['signed_archive_intake']['sha256'], release.SIGNED_SHA)
+        helper = 'scripts/release/offline_kit.py'
+        self.assertEqual(sources['public'], dict(path=helper, sha256=release.sha((path.parents[2] / helper).read_bytes())))
         self.assertIn('NO_ARCHIVE_OR_NATIVE_ACTOR',result['status'])
     def test_policy_pin_refusal_before_image_dispatch(self):
         self.policy['selection_sha256']='0'*64

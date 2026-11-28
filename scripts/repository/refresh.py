@@ -10,9 +10,11 @@ import signal
 import subprocess
 import tempfile
 
-spec = importlib.util.spec_from_file_location('refresh_rotation', Path(__file__).with_name('rotate.py'))
+rotation_path = Path(__file__).with_name('rotate.py')
+spec = importlib.util.spec_from_file_location('refresh_rotation', rotation_path)
 R = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(R)
+# Python -B can still read an existing bytecode cache.
+exec(compile(rotation_path.read_bytes(), str(rotation_path), 'exec'), vars(R))
 E = R.E
 
 

@@ -6,13 +6,99 @@ corresponding source and checksums. The shell overlay passed a combined
 disposable Arch install, activation, removal and reinstall. The production
 repository and physical M2 hardware validation remain open.
 
+**November 25, 2026.** The original November 22 QtGui run passed independent
+readback with the corrected ELF reader. It linked QtGui and QtDBus in the
+pinned 356-package emulated AArch64 16 KiB guest and preserved QtCore.
+[QtGui evidence](validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
+
+**November 26, 2026.** Updater 4.4.2-3 passed a configured TEST-signed
+upgrade and a separate package-signature refusal on emulated AArch64 with
+16 KiB pages. The refusal committed no ALPM package transaction and
+preserved the installed package state and pending records. Both guests passed
+independent readback and retirement. The supported Asahi transaction and
+physical M2 checks remain open.
+[Updater validation](validation/updater-q3-emulated-arm16k-20261126.md)
+
+**November 26, 2026.** JBIG and TIFF each produced two byte-identical native
+AArch64 archives on the reviewed maintained 341-package baseline and its
+private TIFF build extension. The exact signed pair replaced and restored
+both original providers on the maintained baseline. The unchanged
+`tificc` and the TIFF/JBIG roundtrip passed all three checkpoints. The run
+used 4 KiB pages and verified owned cleanup. The supported Asahi installation,
+physical M2 behavior and distribution review remain open.
+[Maintained build and migration evidence](validation/project-libraries-native-20261125.md#reviewed-maintained-baseline-on-november-26-2026)
+
+**November 26, 2026.** The native AArch64 kernel baseline and candidate for
+[#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) both built and
+passed output verification at `4e5493cbd384feaae027abb476437c90b7c07cba`.
+The same run passed signed dependency acquisition, the toolchain probe and
+cleanup. The bounded public receipt SHA-256 is
+`149a6612fdd113ec01bb4d9d0c9d4d19a8f650982f7aed20363524d0a361d46a`.
+The workflow retained status only. Kernel boot, installation, physical M2
+behavior and performance remain open.
+[Native run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45784522085)
+
+**November 26, 2026.** Qtbase 6.12 completed the full `all` target in the
+emulated AArch64 guest with 16 KiB pages. Independent readback verified 18
+shared libraries, 1,216 distinct Ninja timing and command tuples, and an
+idle target after the build. The scope and container both retired. The
+separate package guest assembled a verified Qtbase 6.12.0-2 archive. The
+exact TEST-signed package passed install, reinstall, removal, fresh install
+and final removal on the 356-package Q3 baseline. Independent readers
+accepted all three cases, including genuine pacman refusals for a tampered
+signature and an unknown signer.
+[Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
+· [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
+· [Installed lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
+
+**November 27, 2026.** The earlier Asahi629 rehearsal passed TEST-signed
+installation and reversal (261 → 629 → 629) in an emulated AArch64 guest
+with 16 KiB pages and the generic R132 kernel. A separate, renewed Preview
+TEST transport passed independent signature and payload verification.
+[Earlier installation and reversal](workstreams/supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
+
+**November 28, 2026.** With the renewed inputs, both Asahi629 package
+transactions completed in the disposable AArch64 16 KiB guest. The
+exported rollback lock had 629 matching rows and all 362 protected paths
+matched. The surrounding JBIG/TIFF trial held before provider replacement
+when GTK SDK metadata required a newer GIO than the restored image supplies.
+An archive audit separately found two required GTK relocations unavailable
+in the retained GLib package.
+[Renewed-input transaction evidence](workstreams/supported-composition-maintenance.md#november-28-renewed-input-transaction-evidence)
+
+The scoped Qtbase 6.12.0-3 TEST-signed swap on the earlier Asahi629 rollback
+inventory passed replacement, software rendering probes before and during
+replacement, and restoration of the original package and inventory.
+Post-restoration runtime remains **NOT RUN**.
+[6.12.0-3 guest trial](../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27)
+
+**November 28, 2026.** The sealed Qtbase 6.12.0-4 parity profile completed
+its offline build and smoke test in emulated AArch64 with 16 KiB pages.
+Independent stopped-disk readback verified the 14,333,964-byte archive,
+its package metadata and ABI checks. QEMU and the outer container exited
+normally. The subsequent offline ABI comparison and TEST signing passed.
+Mixed-version guest installation and restoration, and physical M2
+qualification remain open.
+[6.12.0-4 parity trial](../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md)
+
+Draft PR #625 at `598a3dd77184f74935f71cb07c48c4411b6c44e4` recorded 309
+successful jobs and one skipped cache-seed job. Stacked draft PR #626 at
+`95711a241e1830b07c4940fa1de3d5cadde3bef1` recorded 82 successful jobs
+and one skipped cache-seed job. Its dedicated registration job verified
+265 Git source rows and passed 11 cleanup models and 37 receiver controls.
+Trusted launch, peer Data issuance, native ABI, guest and installed
+qualification for that preflight remain open.
+[PR #625](https://github.com/Gabriel-Kahen/cachy-asahi/pull/625)
+· [PR #626](https://github.com/Gabriel-Kahen/cachy-asahi/pull/626)
+· [Hosted source registration](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46123698986/job/140913515557)
+
 Track current engineering follow-ups in
 [GitHub Issues](https://github.com/Gabriel-Kahen/cachy-asahi/issues).
 The [historical execution log](backlog.md) records earlier decisions and
 evidence. The [branch archive](https://github.com/Gabriel-Kahen/cachy-asahi/tree/archive/branches-2026-11-22)
 maps original GitHub branch names to their exact commits.
 
-## Release status on November 18, 2026
+## Earlier component validation
 
 | Area | Verified scope |
 | --- | --- |
@@ -23,7 +109,7 @@ maps original GitHub branch names to their exact commits.
 | Fish upgrade and rollback, emulated AArch64 with 16 KiB pages | The ordinary user exercised the CDPATH regression before, during and after a TEST-signed 0.1.0-1 → 0.1.0-2 → 0.1.0-1 sequence. The restored guest matched all 583 package versions. The 0.1.0-2 archive has an explicit development candidate selector. [Guest validation](validation/native-fish-md4c-reproducibility-20261118.md#signed-fish-upgrade-and-rollback) · [Candidate selection](../scripts/integration/fish_config_overlay583/README.md#select-the-rehearsed-development-candidate) |
 | Asahi maintenance, emulated AArch64 with 16 KiB pages | R132 ran signed transactions on the exact Asahi Minimal filesystem copy with a generic kernel. The inventory changed 261 → 626 → 626. The reverse transaction restored the original Python, NetworkManager and Perl versions and retained all 365 additions. The guest restored the original initramfs and matched all 362 boot and mount entries. The proposal remains unapproved. [R132 validation](validation/asahi626-maintenance-emulated-arm16k-20261118.md) |
 | Python 3.14.8 | One independently verified native AArch64 4 KiB build supplied the TEST-signed package for an emulated ARM16K upgrade and rollback. The original compiled consumer ran on both Python versions, `_tkinter` passed, and the guest restored all 626 package versions and the original Python library bytes. [Native build and guest rehearsal](validation/python3148-native-r4-and-asahi628-20261118.md) |
-| Qtbase 6.12, emulated AArch64 with 16 KiB pages | Q3 verified the signed dependency transactions, reached the exact 356-package inventory and passed ordinary-user configure against system md4c. The Markdown importer compiled and QtCore linked with 16 KiB-compatible load segments. QtGui and the full build remain open. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md) · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md) |
+| Qtbase 6.12, emulated AArch64 with 16 KiB pages | Q3 verified the signed dependency transactions, reached the exact 356-package inventory and passed ordinary-user configure against system md4c. The Markdown importer compiled and QtCore linked with 16 KiB-compatible load segments. [Q3 validation](validation/qtbase612-emulated-arm16k-configure-20261118.md) · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md) |
 
 Both Current606 R16 desktop cases passed on the same source under emulated
 AArch64 with 16 KiB pages. The minimal and overlay guests each preserved
@@ -34,9 +120,12 @@ evidence retention steps completed in 64 and 63 seconds.
 · [Earlier R15 export deadline](validation/current606-minimal-emulated-arm16k-r15-20261119.md)
 
 Production repository staging with an approved release signer, stable
-promotion, installed Asahi kernel boot and recovery, both physical M2 Air
-sizes, and final-system performance and power measurements remain open.
-[Release acceptance contract](release/interface.md#stable-gate-envelope-version-1)
+promotion, default Asahi boot and recovery, both physical M2 Air sizes, and
+final-system performance and power measurements remain open. The stock Asahi
+kernel reached installed systemd in a separate emulated boot with an
+auxiliary initramfs.
+[Direct stock-kernel boot](validation/asahi626-maintenance-emulated-arm16k-20261118.md#direct-stock-kernel-boot-with-an-auxiliary-initramfs)
+· [Release acceptance contract](release/interface.md#stable-gate-envelope-version-1)
 
 ## Earlier validation
 
@@ -3430,8 +3519,9 @@ acceptance is granted by their local test counts or source reviews.
 
 - Access to both physical M2 Air reference machines and independent evidence
   for their installation and recovery checks. [Hardware validation](hardware-validation.md)
-- Final supported Asahi composition and platform selection, including installed
-  Asahi kernel boot, coordinated updates, and boot and session recovery.
+- Final supported Asahi composition and platform selection, including default
+  boot with the stock Asahi initramfs, coordinated updates, and boot and
+  session recovery.
   [Asahi maintenance rehearsal](validation/asahi626-maintenance-emulated-arm16k-20261118.md)
 - Corresponding-source and license coverage for the release set. Two of the six
   signed R132 maintenance recipes still need exact build-time bytes.

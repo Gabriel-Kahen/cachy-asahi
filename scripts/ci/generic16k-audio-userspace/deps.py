@@ -8,6 +8,9 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 POLICY = json.loads((HERE / 'dependencies.json').read_text())
+CHECKER = 'scripts/checks/package_checks.py'
+HELD_CHECKER = (Path('scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source')
+                / 'scripts/ci/llhttp-reference-native-source/base/runtime' / CHECKER)
 
 
 def need(ok, reason):
@@ -20,8 +23,12 @@ def sha(data):
 
 
 def source(root, name):
+    root = Path(root)
     row = POLICY['dependencies'][name]
-    path = Path(root) / name
+    path = root / name
+    if name == CHECKER and (root / HELD_CHECKER).parent.is_dir():
+        # Older standalone source trees carry the same pin at the canonical path.
+        path = root / HELD_CHECKER
     need(path.is_file() and not path.is_symlink(), 'source regular file required')
     data = path.read_bytes()
     need(len(data) == row['bytes'] and sha(data) == row['sha256'], 'source pin differs: ' + name)

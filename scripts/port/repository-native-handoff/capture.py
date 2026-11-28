@@ -277,10 +277,12 @@ def parents(root, name, *, deadline):
                 os.close(fd)
 
 
-def capture_files(selections, output, *, deadline, cancelled=None, index=True):
+def capture_files(selections, output, *, deadline, cancelled=None, index=True, expected_bytes=None):
     """Explicit finite map only; caller supplies named actual paths, never a walk."""
     need(type(selections) is dict and 0 < len(selections) <= COUNT, 'capture-count')
     need(type(index) is bool and (not index or 'capture.json' not in selections), 'capture-index-name')
+    expected_bytes = {} if expected_bytes is None else expected_bytes
+    need(expected_bytes.keys() <= selections.keys(), 'capture-expected-selection')
     output = Path(output).absolute()
     need(not output.exists() and not output.is_symlink(), 'fresh-capture')
     with directory(output.parent, deadline=deadline) as fd:
@@ -297,6 +299,7 @@ def capture_files(selections, output, *, deadline, cancelled=None, index=True):
         for name, source in selections.items():
             current(); relative(name)
             data = read(source, deadline=deadline)
+            need(name not in expected_bytes or data == expected_bytes[name], 'capture-expected-bytes')
             need(not PRIVATE.search(data), 'private-content')
             total += len(data); need(total <= TOTAL_LIMIT, 'capture-total')
             target = output / name
@@ -306,7 +309,11 @@ def capture_files(selections, output, *, deadline, cancelled=None, index=True):
             current()
         for name, source in selections.items():
             current()
-            need(read(source, deadline=deadline) == read(output / name, deadline=deadline), 'capture-source-drift')
+            source_bytes = read(source, deadline=deadline)
+            copied_bytes = read(output / name, deadline=deadline)
+            need(source_bytes == copied_bytes, 'capture-source-drift')
+            row = result[name]
+            need(len(copied_bytes) == row['bytes'] and digest(copied_bytes) == row['sha256'], 'capture-readback-drift')
         receipt = {'schema_version': 1, 'purpose': 'pending-private-repository-capture', 'status': 'PENDING',
                    'files': result, 'native_admission': 'NOT RUN'}
         current()

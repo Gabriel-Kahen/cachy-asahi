@@ -1,6 +1,13 @@
 # Local release CLI and evidence contract
 
-Status: implemented and exercised on x86_64 Linux with **synthetic packages and ephemeral keys**. No real overlay was built, installed, hardware-tested, promoted, or published. The coordinator selected the root MIT license; package licenses still require their own audits. M3 remains incomplete.
+The local CLI tests use synthetic packages and ephemeral keys on x86_64 Linux.
+The November 25 TEST rehearsal staged the actual Preview 1 archives against
+a historical package inventory. [Local signed staging evidence](../validation/b08-b09-signed-staging-20261125.md)
+· [Published unsigned Preview 1](overlay-preview-1.md)
+
+Production publication, stable promotion, and physical M2 acceptance remain
+open. The project uses the root MIT license for original material. Upstream
+packages retain their own license review requirements.
 
 `python3 scripts/release/release.py --help` describes four local operations. Requirements are Python 3.11+, installed `repo-add`, `bsdtar`, `vercmp`, and GnuPG. No dependencies are downloaded or installed by this CLI. Tests use only synthetic local archives. No production key or project identity is generated. Inputs contain no secrets; a signing custodian runs this tool outside untrusted build execution.
 
@@ -20,7 +27,14 @@ These are examples, not a configured endpoint or an instruction to modify a runn
 
 `stage` verifies all supplied hashes, parses package archives without executing recipes/hooks, checks the complete dependency transaction, signs each package and both repository databases, and creates a signed `release.json`. `repo-add` embeds the matching package signatures; database names, versions, architectures, filenames, hashes and relations are compared back to the artifacts. Verification repeats those checks and checks the exact file set and managed symlinks. Staging permits clearly labeled native/cross/emulated/synthetic results and an absent project license so blocked work remains inspectable. Staging conveys no installation approval.
 
-`promote` verifies and freezes the staged bytes and validated gate object, checks every required gate, signs a separate promotion record, retains a copy under `stable/ID`, and switches `stable/current` by local atomic symlink replacement. It never uploads or publishes. Downgrades of a package present in the preceding selection are rejected. `verify --channel stable` also verifies the signed promotion record and rechecks the gates. There is no boolean approval override.
+After a `SIGTERM` during staging, check for the release under `staging/ID`.
+If it exists, run `verify` on that ID. If it is absent, retry staging with the
+original inputs. The CLI removes its temporary staging tree during shutdown and
+preserves a release that already reached the final rename.
+
+`promote` verifies and freezes the staged bytes and validated gate object, checks every required gate, signs a separate promotion record, retains a copy under `stable/ID`, and switches `stable/current` by local atomic symlink replacement. It never uploads or publishes. Downgrades of a package present in the preceding selection are rejected.
+
+`verify` requires the signed bundle's release ID to match the requested ID in either channel. Each observed package archive digest must match the signed file map and the digest recorded for its build provenance. In the stable channel, verification also binds the signed promotion record to that release ID and manifest, then rechecks the gates. There is no boolean approval override.
 
 `withdraw` creates a signed local incident record, removes `stable/current` if it names the affected release, and prevents normal verification or subsequent promotion of that ID. It retains every archive and record. It does not regenerate a public endpoint, contact clients, revoke a key, repair installed packages, or automatically select an older base/overlay combination. See [recovery policy](recovery.md).
 
@@ -35,11 +49,15 @@ LOCAL_STORAGE/
   stable/current -> ID      # local selection only
   promotions/ID.json{,.sig}  # signed frozen gates and release checksum
   withdrawals/ID.json{,.sig} # signed incident/recovery text; artifacts retained
+  .promotion-pending/ID/     # private signed record pair during publication
+  .withdrawal-pending/ID/    # private signed record pair during publication
 ```
 
 Names use letters/digits then letters/digits, `.`, `_`, `+`, or `-`; `current` is reserved. Existing release IDs are never overwritten. All releases are retained: no prune/delete command is supplied. Package `.pkg.tar.gz`, `.pkg.tar.xz` and `.pkg.tar.zst` inputs are supported. Parent managed directories and input files may not be symlinks. Only the normal repo-add basename symlinks are retained inside a bundle.
 
-Atomic selection is a local visibility property. There is no power-loss durability claim, multi-host transaction, public anti-replay protocol, or storage-capacity automation. A failure after retaining a stable copy but before selection leaves an inactive retained copy; inspect signed records and repair the local selection under operator control, or use a new release ID. Never infer that this state is a tested machine recovery.
+Atomic selection is a local visibility property. After an interrupted promotion or withdrawal, rerun the same command with the original release ID and gate evidence or incident reason. The tool verifies the private signed record, checks it against the requested inputs and reuses only byte-identical published record members. It completes missing publication steps before switching or removing the local selection. A legacy partial record without its signed pair still refuses and requires operator inspection. An interrupted withdrawal with only its published signature also blocks normal release verification.
+
+This recovery covers abrupt process termination on controlled local storage. Power-loss durability, multi-host publication, public replay protection and installed-machine recovery require separate evidence.
 
 ## Staging specification, version 1
 
@@ -182,7 +200,10 @@ Each package’s provenance `build.snapshot_id` identifies its actual build inve
 
 ## Scope boundaries and remaining work
 
-Original project licensing is resolved by root `LICENSE`; upstream license resolution, native build inputs/builds and exact-machine results remain separate gates. A stable bundle can be prepared only after all required evidence exists. Publishing endpoint configuration, public trust bootstrap/distribution, capacity enforcement, signing-custody establishment, authenticated key rotation/revocation deployment, stale-metadata client protection, freshness/security review of upstream pins, and actual machine recovery remain operator/integration tasks. No public release exists.
+Original project licensing is resolved by root `LICENSE`; upstream license resolution, native build inputs/builds and exact-machine results remain separate gates. A stable bundle can be prepared only after all required evidence exists. Publishing endpoint configuration, public trust bootstrap/distribution, capacity enforcement, signing-custody establishment, authenticated key rotation/revocation deployment, stale-metadata client protection, freshness/security review of upstream pins, and actual machine recovery remain operator/integration tasks.
+
+[Overlay Preview 1](overlay-preview-1.md) is publicly available as unsigned local
+archives. Production repository publication and stable promotion remain open.
 
 The build comparison tool currently supports content equality as well as byte equality. Use its `--require-bytes` mode for this release contract. Content-only results must remain explicitly blocked rather than being silently promoted. Shared-manifest proposals: record selected package names, immutable base inventory hash/snapshot, protected package names, coordinated exact versions, supported exact models, release/provenance/evidence hashes and promotion state. The coordinator alone edits shared manifests.
 

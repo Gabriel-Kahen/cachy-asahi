@@ -22,8 +22,10 @@ HERE = Path(__file__).resolve().parent
 HARNESS = HERE / "test-upstream.py"
 HARNESS_SHA = "8e499516cbf77f8c8d5f272e20865acf5f1e979f3890af04d4705ba153c464f3"
 PATCH = HERE / "behavior.patch"
-PATCH_SHA = "29fb848c84049f62d07cbf96cbe01f55e473ed6d790b045fda5ece539e57e29e"
+PATCH_SHA = "352b797f6529bd3afc9fd70db31694ee439b4fe3ed4555d4cc441bfd9e8a46bb"
 FULL_UPGRADE_SHA = "103c965d6d7b86b558b3fc686975a3a649de3cc2e0b94f7dee608c7bdaeaef0a"
+COMMON_SHA = "3d3de36e22e509c2be638eb128c98ee90328dc2c93fe881e6a2a72093be347d9"
+ENTRY_SHA = "b8857c72cf720c97361537dd13a5ae76bf2177e31eeef08f30aa4f6ff1eef010"
 if hashlib.sha256(HARNESS.read_bytes()).hexdigest() != HARNESS_SHA:
     raise SystemExit("Frozen upstream harness changed")
 spec = importlib.util.spec_from_file_location("upstream", HARNESS)
@@ -39,9 +41,10 @@ class PatchedBehavior(upstream.UpstreamBehavior):
 
     def setUp(self):
         super().setUp()
-        data = (upstream.SOURCE / "src/lib/full_upgrade.sh").read_bytes()
-        self.assertEqual(hashlib.sha256(data).hexdigest(), FULL_UPGRADE_SHA)
-        (self.lib / "full_upgrade.sh").write_bytes(data)
+        for path, digest in (("lib/full_upgrade.sh", FULL_UPGRADE_SHA), ("lib/common.sh", COMMON_SHA)):
+            data = (upstream.SOURCE / "src" / path).read_bytes()
+            self.assertEqual(hashlib.sha256(data).hexdigest(), digest)
+            (self.lib / Path(path).name).write_bytes(data)
         patch = PATCH.read_bytes()
         self.assertEqual(hashlib.sha256(patch).hexdigest(), PATCH_SHA)
         destinations = [line[6:] for line in patch.decode().splitlines()
@@ -49,6 +52,7 @@ class PatchedBehavior(upstream.UpstreamBehavior):
         self.assertEqual(set(destinations), {
             "src/lib/notification.sh", "src/lib/check.sh",
             "src/lib/flatpak_unused_packages.sh", "src/lib/full_upgrade.sh",
+            "src/lib/common.sh",
         })
         result = subprocess.run(
             [shutil.which("patch"), "--batch", "--forward", "--fuzz=0", "-p3", "-i", str(PATCH)],
@@ -121,8 +125,9 @@ info_msg() { record success_message; }
         self.assertEqual(result.returncode, 0)
         self.assertEqual(self.logs(), ["systemctl\t--user\tenable\t--now\tarch-update.timer", "success_message"])
 
-    def run_repository_check(self, status=0, output="fixture-package 1 -> 2\n", no_version=""):
-        return self.run_lib("check", '''
+    def run_repository_check(self, status=0, output="fixture-package 1 -> 2\n", no_version="",
+                             optional_mocks="", entry="check", **extra):
+        return self.run_lib(entry, '''
 checkupdates_db_tmpdir_prefix="$XDG_RUNTIME_DIR/checkupdates-"
 checkupdates() {
     record checkupdates "$@"
@@ -130,7 +135,7 @@ checkupdates() {
     printf '%s' "$CHECK_OUTPUT"
     return "$CHECK_EXIT"
 }
-''', CHECK_EXIT=str(status), CHECK_OUTPUT=output, no_version=no_version)
+''' + optional_mocks, CHECK_EXIT=str(status), CHECK_OUTPUT=output, no_version=no_version, **extra)
 
     def test_repository_check_pending_preserves_versions_and_optional_results(self):
         result = self.run_repository_check()
@@ -195,6 +200,193 @@ checkupdates() { record checkupdates; printf 'unexpected fallback result\\n'; }
         self.assertEqual(self.logs(), ["error"])
         self.assertEqual({path.name: (path.read_bytes(), path.stat().st_mtime_ns)
                           for path in self.state.iterdir()}, before)
+
+    def run_optional_check(self, **extra):
+        return self.run_repository_check(status=2, output="", optional_mocks=r'''
+set -- --check
+aur_fixture() {
+    record "$1" "$2" "$LC_ALL"
+    printf '%s' "${AUR_OUTPUT:-}"
+    printf '%s' "${AUR_ERROR:-}" >&2
+    if [[ ${AUR_EXIT:-0} == signal ]]; then kill -TERM "$BASHPID"; fi
+    return "${AUR_EXIT:-0}"
+}
+paru() { aur_fixture paru "$@"; }
+yay() { aur_fixture yay "$@"; }
+pikaur() { aur_fixture pikaur "$@"; }
+flatpak() {
+    record flatpak "$@"
+    case "$*" in
+        'list --user') printf '%s' "${FLATPAK_USER_APPS-fixture user app}" ;;
+        'list --system') printf '%s' "${FLATPAK_SYSTEM_APPS:-}" ;;
+        'update --appstream') ;;
+        'mask') printf '%s' "${MASKS:-}" ;;
+        'remote-ls --updates --columns=application,version' | \
+        'remote-ls --updates --columns=name,version' | \
+        'remote-ls --updates --columns=name') printf '%s' "${FLATPAK_OUTPUT:-}" ;;
+        'list --columns=application,name') printf '%s' "${FLATPAK_NAMES:-}" ;;
+        *) blocked flatpak "$@" ;;
+    esac
+    if [[ "$1" == "${FAIL_FLATPAK:-}" || "$*" == "${FAIL_FLATPAK:-}" ]]; then
+        if [[ ${FLATPAK_EXIT:-1} == signal ]]; then (kill -TERM "$BASHPID"); return $?; fi
+        return "${FLATPAK_EXIT:-1}"
+    fi
+}
+''', **extra)
+
+    def check_state(self):
+        return {path.name: (path.read_bytes(), path.stat().st_mtime_ns) for path in self.state.iterdir()}
+
+    def assert_optional_failure_preserves_state(self, **extra):
+        for name in ("last_updates_check", "current_updates_check", "tray_icon", "last_updates_check_time"):
+            (self.state / name).write_text("previous " + name + "\n")
+        before = self.check_state()
+        self.calls.write_text("")
+        result = self.run_optional_check(**extra)
+        self.assertEqual(result.returncode, 20, result.stderr)
+        self.assertEqual(self.logs()[-1], "error")
+        self.assertEqual(self.check_state(), before)
+
+    def test_aur_check_failure_or_interruption_preserves_previous_state(self):
+        for helper, status, output, error in (
+            ("pikaur", "1", "", ""),
+            ("paru", "1", "", "request failed\n"),
+            ("yay", "1", "partial 1 -> 2\n", ""),
+            ("paru", "127", "", ""),
+            ("yay", "signal", "partial 1 -> 2\n", ""),
+        ):
+            with self.subTest(helper=helper, status=status):
+                self.assert_optional_failure_preserves_state(
+                    aur_helper=helper, AUR_EXIT=status, AUR_OUTPUT=output, AUR_ERROR=error)
+                self.assertEqual(self.logs(), ["checkupdates", f"{helper}\t-Qua\tC", "error"])
+
+    def test_flatpak_check_failure_or_interruption_preserves_previous_state(self):
+        for step, masked, status in (
+            ("list --user", False, "1"), ("list --system", False, "1"),
+            ("update", False, "1"), ("mask", False, "1"),
+            ("remote-ls", False, "1"), ("remote-ls", True, "1"),
+            ("list", True, "1"), ("remote-ls", True, "signal"),
+        ):
+            with self.subTest(step=step, masked=masked, status=status):
+                self.assert_optional_failure_preserves_state(
+                    FAIL_FLATPAK=step, FLATPAK_EXIT=status, flatpak_support="flatpak",
+                    MASKS="org.fixture.Masked*\n" if masked else "",
+                    FLATPAK_OUTPUT="org.fixture.Pending\t2\n" if masked else "",
+                    FLATPAK_NAMES="org.fixture.Pending Pending App\n",
+                    aur_helper="pikaur", AUR_OUTPUT="new-aur 1 -> 2\n")
+                self.assertTrue(self.logs()[-2].startswith("flatpak\t" + step.replace(" ", "\t")))
+
+    def test_first_run_optional_failure_creates_no_state(self):
+        for path in self.state.iterdir():
+            path.unlink()
+        for extra in ({"aur_helper": "pikaur", "AUR_EXIT": "1"},
+                      {"flatpak_support": "flatpak", "FAIL_FLATPAK": "remote-ls"}):
+            with self.subTest(extra=extra):
+                self.assertEqual(self.run_optional_check(**extra).returncode, 20)
+                self.assertEqual(list(self.state.iterdir()), [])
+
+    def test_disabled_optional_sources_are_skipped(self):
+        result = self.run_optional_check(aur_helper="paru", flatpak_support="flatpak",
+                                         no_aur="true", no_flatpak="true")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.logs(), ["checkupdates"])
+        self.assertEqual((self.state / "last_updates_check").read_text(), "aur pending\nflatpak pending\n")
+
+    def test_flatpak_without_installed_apps_clears_stale_updates(self):
+        (self.state / "last_updates_check_aur").write_bytes(b"")
+        result = self.run_optional_check(flatpak_support="flatpak", FLATPAK_USER_APPS="")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.logs(), ["checkupdates", "flatpak\tlist\t--user", "flatpak\tlist\t--system"])
+        self.assertEqual((self.state / "last_updates_check_flatpak").read_bytes(), b"")
+        self.assertEqual((self.state / "last_updates_check").read_text().strip(), "")
+        self.assertEqual((self.state / "tray_icon").read_text(), "up-to-date\n")
+
+    def test_system_only_flatpaks_still_query_for_updates(self):
+        result = self.run_optional_check(flatpak_support="flatpak", FLATPAK_USER_APPS="",
+                                         FLATPAK_SYSTEM_APPS="fixture system app",
+                                         FLATPAK_OUTPUT="System App\t2\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("flatpak\tremote-ls\t--updates\t--columns=name,version", self.logs())
+        self.assertEqual((self.state / "last_updates_check_flatpak").read_text(), "System App 2\n")
+
+    def prepare_flatpak_check_entry(self):
+        data = (upstream.SOURCE / "src/arch-update.sh").read_bytes()
+        self.assertEqual(hashlib.sha256(data).hexdigest(), ENTRY_SHA)
+        (self.lib / "arch-update.sh").write_bytes(data)
+        (self.bin / "gettext.sh").write_text('eval_gettext() { printf "%s" "$1"; }\n')
+        (self.bin / "rm").symlink_to(shutil.which("rm"))
+        config = self.root / "config/arch-update"
+        config.mkdir()
+        (config / "arch-update.conf").write_text("NoAUR\nNoColor\nNoNotification\n")
+        state = self.state / "arch-update"
+        state.mkdir()
+        for path in self.state.glob("last_updates_check_*"):
+            path.rename(state / path.name)
+        self.state = state
+
+    def test_check_entry_preserves_state_when_flatpak_discovery_fails(self):
+        self.prepare_flatpak_check_entry()
+        before = self.check_state()
+        result = self.run_optional_check(entry="arch-update", FAIL_FLATPAK="list --system",
+                                         FLATPAK_USER_APPS="", ARCH_UPDATE_LIBDIR=str(self.lib))
+        self.assertEqual(result.returncode, 20, result.stderr)
+        self.assertIn("previous check state has been preserved", result.stderr)
+        self.assertEqual(self.logs(), ["checkupdates", "flatpak\tlist\t--user", "flatpak\tlist\t--system"])
+        self.assertEqual(self.check_state(), before)
+
+    def test_check_entry_clears_stale_updates_when_flatpak_discovery_succeeds_empty(self):
+        self.prepare_flatpak_check_entry()
+        (self.state / "last_updates_check_aur").write_bytes(b"")
+        result = self.run_optional_check(entry="arch-update", FLATPAK_USER_APPS="",
+                                         ARCH_UPDATE_LIBDIR=str(self.lib))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.logs(), ["checkupdates", "flatpak\tlist\t--user", "flatpak\tlist\t--system"])
+        self.assertEqual((self.state / "last_updates_check_flatpak").read_bytes(), b"")
+        self.assertEqual((self.state / "last_updates_check").read_text().strip(), "")
+        self.assertEqual((self.state / "tray_icon").read_text(), "cachy-update-blue\n")
+
+    def test_empty_optional_success_clears_previous_pending_state(self):
+        for helper, status, output, error in (
+            ("paru", "1", "", ""), ("yay", "1", "", ""),
+            ("pikaur", "0", "", "reading metadata\n"),
+            ("paru", "0", "ignored-fixture 1 -> 2 [ignored]\n", ""),
+        ):
+            with self.subTest(helper=helper, output=output):
+                for kind in ("aur", "flatpak"):
+                    (self.state / f"last_updates_check_{kind}").write_text(kind + " pending\n")
+                result = self.run_optional_check(aur_helper=helper, AUR_EXIT=status, AUR_OUTPUT=output,
+                                                 AUR_ERROR=error, flatpak_support="flatpak")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                for kind in ("aur", "flatpak"):
+                    self.assertEqual((self.state / f"last_updates_check_{kind}").read_bytes(), b"")
+                self.assertEqual((self.state / "tray_icon").read_text(), "up-to-date\n")
+
+    def test_optional_check_success_preserves_format_masks_and_no_version(self):
+        for masked in (False, True):
+            for no_version in ("", "true"):
+                with self.subTest(masked=masked, no_version=no_version):
+                    self.calls.write_text("")
+                    result = self.run_optional_check(
+                        aur_helper="paru", AUR_OUTPUT="  fixture-aur   1 -> 2\nignored 1 -> 2 [ignored]\n",
+                        flatpak_support="flatpak", no_version=no_version,
+                        MASKS=" org.fixture.Masked*\n" if masked else "",
+                        FLATPAK_NAMES="org.fixture.App Fixture App\n",
+                        FLATPAK_OUTPUT=("org.fixture.MaskedOne\t1\norg.fixture.App\t2\norg.fixture.Fallback\t3\n"
+                                        if masked else "Fixture App\n" if no_version else "Fixture App\t2\n"))
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    aur = "fixture-aur\n" if no_version else "fixture-aur 1 -> 2\n"
+                    flatpak = "Fixture App\n" if no_version else "Fixture App 2\n"
+                    if masked:
+                        flatpak += "org.fixture.Fallback\n" if no_version else "org.fixture.Fallback 3\n"
+                    self.assertEqual((self.state / "last_updates_check").read_text(), aur + flatpak)
+                    self.assertEqual((self.state / "tray_icon").read_text(), "updates-available\n")
+                    columns = "application,version" if masked else "name" if no_version else "name,version"
+                    calls = ["checkupdates", "paru\t-Qua\tC", "flatpak\tlist\t--user", "flatpak\tlist\t--system",
+                             "flatpak\tupdate\t--appstream", "flatpak\tmask",
+                             f"flatpak\tremote-ls\t--updates\t--columns={columns}"]
+                    if masked:
+                        calls.append("flatpak\tlist\t--columns=application,name")
+                    self.assertEqual(self.logs(), calls)
 
     def test_flatpak_decline_calls_no_uninstall(self):
         # Override original behavior: declining makes no Flatpak command call.

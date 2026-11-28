@@ -1,6 +1,7 @@
 name: current606-onboarding-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/current606-onboarding-source/**
       - .github/workflows/current606-onboarding-source.yml

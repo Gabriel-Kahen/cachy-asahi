@@ -211,6 +211,19 @@ class SignedArchiveControls(unittest.TestCase):
                           (armor(binary).replace(b'PUBLIC',b'PRIVATE'),'public-key-armor-only')]:
             with self.subTest(error=error),self.assertRaisesRegex(ValueError,error):subject.public_only(raw,check)
 
+    def test_offline_kit_pin_drift_refuses_before_extracting_parser(self):
+        helper = self.projection / subject.PINS['public'][0]
+        read = subject.read
+
+        def drifted(operand, *args, **kwargs):
+            raw = read(operand, *args, **kwargs)
+            return raw + b'\n' if Path(operand) == helper else raw
+
+        with patch.object(subject, 'read', side_effect=drifted), patch.object(subject, 'extracted') as extract:
+            with self.assertRaisesRegex(ValueError, 'input-or-source-pin'):
+                subject.sources()
+            extract.assert_not_called()
+
     def test_reused_signature_parser_accepts_sha2_primary(self):
         parsed=self.services['signature_status'](signature(),SIGNER,datetime.fromtimestamp(NOW,timezone.utc))
         self.assertEqual(parsed,dict(primary_fingerprint=SIGNER,signing_fingerprint=SIGNER,hash_algorithm='10'))

@@ -6,6 +6,7 @@ on:
       - 'scripts/ci/gnu-source-parent-source/prepare.py'
       - '.github/workflows/gnu-cleanup-query-source.yml'
   push:
+    branches: ['**']
     paths:
       - 'scripts/ci/gnu-cleanup-query-source/**'
       - 'scripts/ci/gnu-source-parent-source/prepare.py'

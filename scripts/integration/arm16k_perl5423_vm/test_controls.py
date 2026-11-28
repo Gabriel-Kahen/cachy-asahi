@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Fenced synthetic DATA only. Never Docker, VM, GPG, ALPM, compiler or network."""
-import ast,copy,ctypes,hashlib,importlib.util,json,os,struct,sys,tempfile,time,unittest
+import ast,copy,ctypes,hashlib,importlib.util,json,os,signal,struct,sys,tempfile,time,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -85,6 +85,24 @@ def modeled_home():
  return reseal(a)
 
 class Controls(unittest.TestCase):
+ def test_terminal_report_refuses_term_during_prepare_and_boot_writes(self):
+  cancel=K.helper('reference_controller.py').Cancellation;original=Path.write_bytes
+  for status in ('PREPARED_NOT_BOOTED','PASS_EMULATED_ARM16K_PERL5423_DATA_ONLY'):
+   with self.subTest(status=status),tempfile.TemporaryDirectory() as d:
+    out=Path(d);report=dict(status=status,owned_container_absence_verified=True)
+    state=cancel();state.cleaning=True
+    def write(path,body):
+     self.assertFalse((out/'report.json').exists())
+     if json.loads(body)['status']==status:signal.raise_signal(signal.SIGTERM)
+     return original(path,body)
+    with patch.object(Path,'write_bytes',write):
+     state.__enter__()
+     C.publish_report(out,report,state,K.canonical)
+    self.assertEqual(report['status'],'HOLD_CLEANUP_OR_CANCELLED')
+    self.assertEqual(report['cancelled_signals'],[signal.SIGTERM])
+    self.assertEqual((out/'report.json').read_bytes(),K.canonical(report))
+    self.assertEqual(list(out.iterdir()),[out/'report.json'])
+
  def test_actual_scope_name_capture_survives_material_loop_name_rebinding(self):
   import types
   source=ast.parse((HERE/'controller.py').read_bytes());node=next(n for n in ast.walk(source)if isinstance(n,ast.ClassDef)and n.name=='Scope');name='cachy-perl5423-a9b3e6c2974deadcf05ed9a5';labels={'MODEL':'LABEL'};mounts={('bind','/MODEL','/work',True)};r=modeled()[4]

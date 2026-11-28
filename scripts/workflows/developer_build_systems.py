@@ -86,7 +86,8 @@ class Project:
 
     def inputs(self):
         return dict(sources={n: ordinary_pin(self.source / n) for n in NAMES},
-                    tools={n: file_pin(self.tools[n]) for n in NEEDS[self.backend]})
+                    tools={n: file_pin(self.tools[n]) for n in NEEDS[self.backend]},
+                    compiler_targets={n: str(Path(self.tools[n]).resolve(strict=True)) for n in ('cc', 'c++')})
 
     def artifacts(self):
         rows = {}
@@ -311,8 +312,10 @@ class Project:
         self.run('changed-run', EDITED); self.test('changed-test')
         self.change('greeting.cpp', edited + b'\n#error INTENTIONAL_COMPILE_FAILURE\n')
         self.build('broken-build', 'nonzero')
-        if self.artifacts() != changed:
-            raise Failure('failed compile did not retain previous products')
+        failed = self.artifacts()
+        # Clang may delete the old object for the source that failed to compile.
+        if failed != changed and failed != {n: row for n, row in changed.items() if n != cpp_objects[0]}:
+            raise Failure('failed compile changed unaffected products')
         self.refuse_stale('compile-failure-refusal')
         self.change('greeting.cpp', edited)
         self.build('compile-recovery-build'); self.run('compile-recovery-run', EDITED)
@@ -382,14 +385,24 @@ def run(output, tool_path=os.defpath, timeout=30, total=240):
             if found is None:
                 report['tools'][name] = dict(status='MISSING', workflow='NOT_RUN')
                 continue
-            resolved = str(Path(found).resolve()); tools[name] = resolved
-            raw = commands.run('version-' + name.replace('+', 'p'), [resolved, '--version'], output)
+            resolved = str(Path(found).resolve(strict=True))
+            # Preserve the compiler driver mode selected by the invocation name.
+            tools[name] = found if name in ('cc', 'c++') else resolved
+            raw = commands.run('version-' + name.replace('+', 'p'), [tools[name], '--version'], output)
+            if str(Path(tools[name]).resolve(strict=True)) != resolved:
+                raise Failure('tool invocation changed during version probe: ' + name)
             report['tools'][name] = dict(status='PRESENT', path=found, resolved=resolved,
                                          file=file_pin(resolved), version=raw.decode(errors='replace').splitlines())
         # Meson uses these exact compiler paths; CMake receives equivalent cache argv.
         if 'cc' in tools and 'c++' in tools:
             commands.env.update(compiler_environment(tools))
         project_workflows(commands, tools, output, report['project_workflows'])
+        for name in ('cc', 'c++'):
+            if name in tools:
+                tool = report['tools'][name]
+                if (str(Path(tools[name]).resolve(strict=True)) != tool['resolved']
+                        or file_pin(tool['resolved']) != tool['file']):
+                    raise Failure('compiler binding changed during workflow: ' + name)
         statuses = [r['status'] for r in report['project_workflows'].values()]
         report['status'] = ('PASS_AVAILABLE_LOCAL_WORKFLOWS' if 'PASS_REAL_PROJECT_WORKFLOW' in statuses
                             else 'NOT_RUN_NO_BUILD_SYSTEM')

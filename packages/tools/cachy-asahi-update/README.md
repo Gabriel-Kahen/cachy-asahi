@@ -1,6 +1,6 @@
 # Cachy-update development package
 
-This candidate preserves the full upstream updater and compiled tray. It has no
+The 4.4.2-3 candidate preserves the full upstream updater and compiled tray. It has no
 automatic activation, global autostart file, package install hook or enabled user
 timer. It is **not accepted for Apple system updates or release installation**.
 This is source/recipe integration only: native package builds, installation and
@@ -43,6 +43,10 @@ the source checks do not bind a later rolling-repository pacman/AUR transaction.
 
 `--check --enable` explicitly enables the user timer and propagates failure;
 ordinary `--check` does not enable it. No activation is part of package creation.
+An optional AUR or Flatpak query failure preserves that backend's prior update
+state and prevents the check from publishing an all-clear result. Successful
+discovery of an empty Flatpak installation clears stale Flatpak updates without
+contacting its remotes.
 
 Build acceptance requires the completed source/artwork/Cargo license audit, a
 reviewed offline vendor closure and build scripts, and a separately frozen native
@@ -53,9 +57,9 @@ pacman-contrib, archlinux-contrib and xdg-utils. Package dependencies remain int
 their complete actual target transaction is **NOT RUN**. A private compiled
 artifact does not establish runtime dependency availability or installation
 acceptance. The coordinator runs two isolated, network-disabled native builds
-and retains artifacts/provenance. Source checks comprise 19 unchanged
-upstream characterizations, 38 behavior-patch cases and 47 synthetic policy/mock
-integration cases; they execute no real updater or host services. 16K-page
+and retains artifacts/provenance. Source checks exercise upstream behavior,
+the behavior patch and synthetic policy integration without invoking host
+services. 16K-page
 loading, real private-D-Bus tray/menu tests, package lifecycle and M2
 update/recovery remain separate gates.
 

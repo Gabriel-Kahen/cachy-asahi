@@ -144,6 +144,20 @@ class TransportTests(unittest.TestCase):
                      'trust_changed', 'state_changed', 'network_used'):
             self.assertIs(result[flag], False)
 
+    def test_release_helper_digest_drift_refused_before_import(self):
+        release = t.ROOT / 'scripts/release/release.py'
+        read_bytes = Path.read_bytes
+
+        def changed(path):
+            raw = read_bytes(path)
+            return bytes([raw[0] ^ 1]) + raw[1:] if path == release else raw
+
+        with mock.patch.object(Path, 'read_bytes', changed), \
+             mock.patch.object(importlib.util, 'spec_from_file_location') as loader:
+            with self.assertRaisesRegex(ValueError, r'^dependency changed: scripts/release/release\.py$'):
+                t.pinned_copy()
+            loader.assert_not_called()
+
     def test_deterministic_complete_source_roundtrip_aliases_and_relocation(self):
         self.generation(sources=True)
         before, key = self.snapshot(self.endpoint), self.keyring.read_bytes()

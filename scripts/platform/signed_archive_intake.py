@@ -36,7 +36,7 @@ HEX = re.compile(r'[0-9a-f]{64}\Z')
 PINS = {
     'intake': ('scripts/platform/archive_intake.py', 'dfc6e2d429b654359075bd135969c5948b12dd81db67f522ae46e1be61911a67'),
     'client': ('scripts/client/client.py', '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7'),
-    'public': ('scripts/release/offline_kit.py', '8f9cdb4ad26525fb1c4c906a752f56e8115a3c39b8aa758dd86dca7d032f54b3'),
+    'public': ('scripts/release/offline_kit.py', 'e250b43fdcfeea8bf94c9f430e19b46387255d0df92d3a77e5bcfd3abc537376'),
     'owned': ('scripts/virtual/owned_process.py', '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'),
     'image_bridge': ('scripts/platform/metadata_gated_ext4.py', '467cbb9562189b79926deb9d15d9b027d7c73d2a27ba07bc01d6740941567227'),
     'verifier': ('scripts/platform/verify_staging.py', '279201558a90ea6e429822fc7d5b63827e6bd47ef022f8aef3126109bdfaa711')}

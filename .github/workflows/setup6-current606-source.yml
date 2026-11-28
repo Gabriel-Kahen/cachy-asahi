@@ -3,6 +3,7 @@ on:
   pull_request:
     paths: ['scripts/ci/setup6-current606-source/**', '.github/workflows/setup6-current606-source.yml']
   push:
+    branches: [main]
     paths: ['scripts/ci/setup6-current606-source/**', '.github/workflows/setup6-current606-source.yml']
   workflow_dispatch:
 permissions:

@@ -75,6 +75,28 @@ class CaptureTests(unittest.TestCase):
         source.write_bytes(b'-----BEGIN PGP PRIVATE KEY BLOCK-----\n')
         with self.assertRaises(c.Refused): c.capture_files({'raw/source.txt': source}, self.root / 'bad', deadline=self.end)
         with self.assertRaises(c.Refused): c.relative('TEST-revocation.asc')
+    def test_matching_source_and_copy_drift_refuses_before_index(self):
+        source = self.root / 'container-launcher.json'
+        output = self.root / 'capture'
+        name = 'raw/container-launcher.json'
+        accepted = c.encoded({'status': 'PASS'})
+        replaced = c.encoded({'status': 'FAIL'})
+        source.write_bytes(accepted)
+        write_atomic = c.write_atomic
+
+        def replace_after_copy(path, *args, **kwargs):
+            record = write_atomic(path, *args, **kwargs)
+            if path == output / name:
+                source.write_bytes(replaced)
+                path.write_bytes(replaced)
+            return record
+
+        with patch.object(c, 'write_atomic', side_effect=replace_after_copy):
+            with self.assertRaisesRegex(c.Refused, 'capture-readback-drift'):
+                c.capture_files({name: source}, output, deadline=self.end, expected_bytes={name: accepted})
+        self.assertEqual(source.read_bytes(), (output / name).read_bytes())
+        self.assertEqual(source.read_bytes(), replaced)
+        self.assertFalse((output / 'capture.json').exists())
     def test_real_signal_records_cancel_and_restores_pair(self):
         old = {s: signal.getsignal(s) for s in c.SIGNALS}
         with self.assertRaises(c.Cancelled):

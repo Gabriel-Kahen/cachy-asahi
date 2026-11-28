@@ -11,14 +11,14 @@ mode. This proposal neither repacks that package nor rewrites its profile/pins.
 V2 changes the source and timing/instrumentation contract, so prepare a fresh
 plan and a fresh complete trial block. Do not edit a historical plan, replace a
 pinned file in place, mix v1/v2 trials, or relabel an old block. V2 plans bind the
-new execution layer and shared owner; loading a historical plan for execution
+new execution layer and its exact wait owner; loading a historical plan for execution
 through v2 is refused. Historical offline comparison uses the matching retained
 original entrypoint and exact original inputs.
 
 New plans use schema version 2 and `record_type="frozen-experiment-plan-v2"`.
 The original entrypoint refuses these plans too, so a v2 plan cannot accidentally
 select its old legacy executor. The v2 execution binding pins the new runner,
-retirement adapter and exact shared owner; moving or changing them requires a
+retirement adapter and benchmark wait owner; moving or changing them requires a
 fresh declaration. Original inputs are never rewritten to satisfy those pins.
 
 | New work | Entrypoint |
@@ -38,8 +38,8 @@ The retained historical benchmark pin in an original zlib config records the
 unchanged artifact adapter's preparation/import dependency, not permission to
 execute its retired run branch.
 
-The coordinator retains exclusive wait ownership while using the shared
-`owned_process.py`: WNOWAIT reserves the leader through the last possible group
+The coordinator retains exclusive wait ownership through
+`benchmark_owned_process_v2.py`. WNOWAIT reserves the leader through the last possible group
 signal, then one raw reap supplies actual status. No logger/sensor thread signals
 the child or receives a child PID. ECHILD/lost custody is UNKNOWN, not exit zero;
 no later numeric child probe/signal can repair it. Unresolved waits and blocked
@@ -56,8 +56,11 @@ shared mappings and is an observed maximum, not a true peak. It excludes members
 that leave the original group/session. Missing, exited-only, partial or failed
 observations never become zero or usable guardrail data. Sensor readings retain
 their units, identity and missing-data rules; missing thermal/power data cannot
-satisfy a declared guardrail. The comparator replays the raw evidence rather
-than accepting a caller-written summary.
+satisfy a declared guardrail. Child membership changes between RSS scans leave
+both RSS metrics unavailable. If the workload and retirement otherwise finish
+cleanly, its timing can still be compared. A declared RSS guardrail then makes
+the comparison incomplete. The comparator replays the raw evidence and verifies
+the derived summary.
 
 The owner bounds combined stdout/stderr to 512KiB. V2 records that combined
 observed-order stream in `stdout.txt`, an empty `stderr.txt`, and an explicit log
@@ -71,7 +74,7 @@ equivalence is claimed.
 The new raw file is `owned-retirement.json`. The writer and offline replay enforce
 4096 sensor rows, 128KiB per sensor line, 16MiB total sensor bytes, a 16MiB owned
 receipt, and ordinary no-symlink files; FIFOs are rejected without blocking.
-The shared owner's separate RSS sample/member/time limits still apply. Partial
+The wait owner's separate RSS sample/member/time limits still apply. Partial
 capture or a blocked writer never becomes usable telemetry. The sampler owns and
 eventually closes its log FD even if a bounded join reports it still blocked.
 

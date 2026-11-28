@@ -33,7 +33,7 @@ def fdt(identity):
     return struct.pack('>10I', 0xd00dfeed, strings + len(names), 56, strings, 40, 17, 16, 0, len(names), len(body)) + b'\0' * 16 + body + names
 
 
-def elf_bytes(text, module=False, modinfo=b'', export='kernel_export'):
+def elf_bytes(text, module=False, modinfo=b'', export='kernel_export', extra_sections=()):
     # Real ELF encodings, synthetic code/data: no execution or build claim.
     sections = [('','',0,0,0,0,0,0), ('.text',text,1,6,0 if module else TEXT_ADDR,16,0,0)]
     if module:
@@ -52,6 +52,7 @@ def elf_bytes(text, module=False, modinfo=b'', export='kernel_export'):
     sections += [('.symtab',bytes(symbols),2,0,0,8,24,symindex + 1), ('.strtab',strings,3,0,0,1,0,0)]
     if module:
         sections += [('.rela.text',struct.pack('<QQq',0,0,0),4,0,0,8,24,symindex)]
+    sections.extend(extra_sections)
     names = b'\0'
     for row in sections[1:]:
         names += row[0].encode() + b'\0'
@@ -78,12 +79,16 @@ def elf_bytes(text, module=False, modinfo=b'', export='kernel_export'):
     return bytes(data)
 
 
-def flat_kernel_bytes(text, data_lma=0x8000, readonly_kind=1):
+def flat_kernel_bytes(text, data_lma=0x8000, readonly_kind=1, relocations=()):
     """Source-shaped section projection: removed note, zero gaps, data and BSS."""
     payload = b'owned_data_block'
-    readonly = {1:b'owned_readonly_block',3:b'\0owned_dynamic_string\0',
-                4:struct.pack('<QQq',TEXT_ADDR+64,0,0),11:b'\0'*24}[readonly_kind]
-    readonly_name = {1:'.rodata',3:'.dynstr',4:'.rela.dyn',11:'.dynsym'}[readonly_kind]
+    if readonly_kind == 4:
+        readonly = b''.join(struct.pack('<QQq', *row) for row in relocations or [(TEXT_ADDR+64, 0, 0)])
+    elif readonly_kind == 19:
+        readonly = b''.join(struct.pack('<Q', word) for word in relocations)
+    else:
+        readonly = {1:b'owned_readonly_block',3:b'\0owned_dynamic_string\0',11:b'\0'*24}[readonly_kind]
+    readonly_name = {1:'.rodata',3:'.dynstr',4:'.rela.dyn',11:'.dynsym',19:'.relr.dyn'}[readonly_kind]
     note = struct.pack('<III',4,4,3) + b'GNU\0' + b'abcd'
     raw = bytearray(0xc000 + len(payload))
     raw[0x4000:0x4000+len(text)] = text
@@ -95,7 +100,7 @@ def flat_kernel_bytes(text, data_lma=0x8000, readonly_kind=1):
                 ('.note.gnu.build-id',7,2,TEXT_ADDR+0x4000,0x8000,len(note),0,0,4,0),
                 (readonly_name,readonly_kind,2,TEXT_ADDR+0x4020,0x8020,len(readonly),
                  8 if readonly_kind==4 else 9 if readonly_kind==11 else 0,0 if readonly_kind==4 else 1 if readonly_kind==11 else 0,
-                 16,24 if readonly_kind in (4,11) else 0),
+                 16,{4:24,11:24,19:8}.get(readonly_kind,0)),
                 ('.data',1,3,TEXT_ADDR+0x8000,0xc000,len(payload),0,0,16,0),
                 ('.bss',8,3,TEXT_ADDR+0x8000+len(payload),len(raw),0x8000-len(payload),0,0,16,0)]
     symbols = bytearray(24); strings = b'\0'
@@ -144,8 +149,8 @@ class BuildChecks(unittest.TestCase):
         mock = patch.object(verifier,'source_evidence',return_value=IDENTITIES)
         mock.start(); self.addCleanup(mock.stop)
 
-    def outputs(self):
-        build = self.root / 'build'; build.mkdir()
+    def outputs(self, build_name='build', *, first_depends='', first_metadata=()):
+        build = self.root / build_name; build.mkdir()
         (build / '.config').write_text(self.text)
         release = '7.1.13-ARCH-cachy-asahi-kernel-c01'
         for name, content in {'include/config/kernel.release':release + '\n',
@@ -163,9 +168,11 @@ class BuildChecks(unittest.TestCase):
         symvers = ['0x00000000\tkernel_export\tvmlinux\tEXPORT_SYMBOL\t\n']
         for index, name in enumerate(modules):
             modname = Path(name).stem.replace('-','_')
+            depends = first_depends if index == 0 else ''
             modinfo = b'\0'.join((b'name=' + modname.encode(),
                                  b'vermagic=' + (release + ' SMP preempt mod_unload aarch64').encode(),
-                                 b'license=GPL',b'depends=')) + b'\0'
+                                 b'license=GPL', b'depends=' + depends.encode(),
+                                 *(first_metadata if index == 0 else ()))) + b'\0'
             path = build / name; path.parent.mkdir(parents=True,exist_ok=True)
             path.write_bytes(elf_bytes(b'\x1f\x20\x03\xd5' * 4,module=True,modinfo=modinfo,export='module_export_' + str(index)))
             symvers.append('0x00000000\tmodule_export_' + str(index) + '\t' + name[:-3] + '\tEXPORT_SYMBOL_GPL\tAPPLE\n')
@@ -198,6 +205,171 @@ class BuildChecks(unittest.TestCase):
         self.assertEqual(len(result['modules']),3)
         self.assertEqual(result['export_count'],4)
         self.assertEqual(set(result['embedded_config_sha256'].values()),{hashlib.sha256(self.text.encode()).hexdigest()})
+
+    def test_module_display_metadata_accepts_utf8_and_formatting(self):
+        build = self.outputs(first_metadata=(
+            'author=Martin Povišer'.encode(), 'description=Driver – audio\n\tparameters'.encode(),
+            b'parm=debug:0=off\n\t1=on',
+        ))
+        checkpoints = []
+        result = verifier.verify_outputs(build, self.source, self.expected, checkpoint=checkpoints.append)
+        self.assertEqual(result['status'], 'BUILD_OUTPUT_STRUCTURE_VERIFIED')
+        module_checks = ['MODULE_ELF', 'MODULE_INFO', 'DIGESTS'] * len(result['modules'])
+        self.assertEqual(checkpoints, ['SOURCE', 'CONFIG', 'RELEASE', 'IMAGE', 'INVENTORY', 'SYMBOLS', 'VMLINUX',
+                                       *module_checks, 'APPLE_DTBS', 'DIGESTS'])
+
+    def test_module_metadata_refuses_invalid_text_and_non_ascii_structural_fields(self):
+        for index, entry in enumerate((b'author=invalid\xff', b'description=skip\x1b',
+                                       b'parm=debug:line\rbreak', b'license=GPL\t',
+                                       'licensé=GPL'.encode(), 'license=é'.encode(), 'alias=é'.encode())):
+            build = self.outputs(f'build-{index}', first_metadata=(entry,))
+            checkpoints = []
+            with self.subTest(entry=entry), self.assertRaisesRegex(ValueError, '^module metadata text invalid$') as caught:
+                verifier.verify_outputs(build, self.source, self.expected, checkpoint=checkpoints.append)
+            self.assertIs(type(caught.exception), ValueError)
+            self.assertEqual(checkpoints[-1], 'MODULE_INFO')
+
+    def test_image_end_in_the_pinned_post_bss_reserve_and_export_bounds(self):
+        build = self.outputs()
+        elf = build / 'vmlinux'
+        image = build / 'arch/arm64/boot/Image'
+        with verifier.ELF(elf, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+            start = reader.loads[0]['offset']
+            symbols = reader.symbols['offset']
+        end = symbols + 2 * 24
+        symbol = symbols + 3 * 24
+        self.mutate(image, 16, '<Q', 0x10000)
+        self.mutate(elf, start + 16, '<Q', 0x10000)
+        self.mutate(elf, end + 8, '<Q', TEXT_ADDR + 0x10000)
+        self.assertEqual(self.verify(build)['image_effective_bytes'], 0x10000)
+        good, good_image = elf.read_bytes(), image.read_bytes()
+        for offset, fmt, value, failure in (
+                (end + 8, '<Q', TEXT_ADDR + 0x20000, 'Image size/entry differ'),
+                (end + 16, '<Q', 8, 'Image size/entry differ'),
+                (end + 4, '<B', 0x11, 'Image size/entry differ'),
+                (end + 5, '<B', 2, 'Image size/entry differ'),
+                (end + 6, '<H', 1, 'defined symbol outside allocated section')):
+            with self.subTest(offset=offset, value=value), self.assertRaisesRegex(ValueError, failure):
+                elf.write_bytes(good)
+                self.mutate(elf, offset, fmt, value)
+                self.verify(build)
+        elf.write_bytes(good)
+        self.mutate(elf, 120 + 40, '<Q', 0x10000)
+        with self.assertRaisesRegex(ValueError, 'defined symbol outside allocated section'):
+            self.verify(build)
+        elf.write_bytes(good)
+        self.mutate(image, 16, '<Q', 0x11000)
+        self.mutate(elf, start + 16, '<Q', 0x11000)
+        self.mutate(elf, end + 8, '<Q', TEXT_ADDR + 0x11000)
+        with self.assertRaisesRegex(ValueError, 'defined symbol outside allocated section'):
+            self.verify(build)
+        image.write_bytes(good_image)
+        elf.write_bytes(good)
+        self.mutate(elf, symbol + 6, '<H', 2)
+        self.mutate(elf, symbol + 8, '<Q', TEXT_ADDR + 0x10000)
+        self.mutate(elf, symbol + 16, '<Q', 0)
+        with self.assertRaisesRegex(ValueError, 'defined symbol outside allocated section') as caught:
+            self.verify(build)
+        fact = caught.exception.symbol_range
+        self.assertEqual((fact['role'], fact['elf_type'], fact['failure_count']), ('arm64-image-reference', 3, 1))
+        self.assertEqual(fact['samples'][0]['symbol_class'], 'OTHER')
+        self.assertEqual(fact['samples'][0]['symbol_sha256'], hashlib.sha256(b'kernel_export').hexdigest())
+        self.assertEqual(fact['samples'][0]['section']['name_class'], '.bss')
+        self.assertNotIn('kernel_export', repr(fact))
+
+    def test_symbol_range_holds_first_two_and_reports_incomplete_scan(self):
+        elf = self.outputs() / 'vmlinux'
+        with verifier.ELF(elf, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+            symbols = reader.symbols['offset']
+        for index in (1, 2, 3):
+            self.mutate(elf, symbols + index * 24 + 8, '<Q', TEXT_ADDR + 0x10000)
+        for poison in (False, True):
+            if poison:
+                self.mutate(elf, symbols + 3 * 24 + 5, '<B', 4)
+            with self.assertRaisesRegex(ValueError, 'defined symbol outside allocated section') as caught:
+                with verifier.ELF(elf, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+                    reader.definitions({'_text', '_end', 'kernel_export'})
+            fact = caught.exception.symbol_range
+            self.assertEqual(fact['failure_count'], 2 if poison else 3)
+            self.assertIs(fact['scan_complete'], not poison)
+            self.assertEqual([row['symbol_class'] for row in fact['samples']], ['_text', '_end'])
+
+    def test_module_copied_sections_allow_pinned_linker_packing_and_keep_raw_guards(self):
+        raw = bytearray(elf_bytes(b'owned_module', module=True))
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        text, descriptor, symbols, relocs = (shoff + index * 64 for index in (1, 3, 4, 6))
+        struct.pack_into('<Q', raw, text + 48, 128)
+        struct.pack_into('<Q', raw, descriptor + 48, 64)
+        path = self.root / 'module.ko'
+        path.write_bytes(raw)
+        with verifier.ELF(path, 1, 1024**3, module_ordinal=17) as reader:
+            self.assertEqual(reader.by_name['.text']['offset'], 64)
+            self.assertEqual(reader.by_name['.gnu.linkonce.this_module']['offset'] % 8, 0)
+        desc_off = struct.unpack_from('<Q', raw, descriptor + 24)[0]
+        sym_off = struct.unpack_from('<Q', raw, symbols + 24)[0]
+        rela_off = struct.unpack_from('<Q', raw, relocs + 24)[0]
+        cases = (
+            ([(text + 24, 63), (text + 32, len(raw))], 'OFFSET_BEFORE_HEADER', '.text'),
+            ([(text + 32, len(raw))], 'FILE_RANGE', '.text'),
+            ([(descriptor + 24, desc_off + 1)], 'FILE_OFFSET_ALIGNMENT', '.gnu.linkonce.this_module'),
+            ([(symbols + 24, sym_off + 1), (symbols + 48, 1)], 'FILE_OFFSET_ALIGNMENT', '.symtab'),
+            ([(relocs + 24, rela_off + 1), (relocs + 48, 1)], 'FILE_OFFSET_ALIGNMENT', '.rela.text'),
+        )
+        for changes, failed, name in cases:
+            altered = bytearray(raw)
+            for offset, value in changes:
+                struct.pack_into('<Q', altered, offset, value)
+            path.write_bytes(altered)
+            with self.subTest(name=name, failed=failed), self.assertRaisesRegex(ValueError, 'ELF section file geometry invalid') as caught:
+                verifier.ELF(path, 1, 1024**3, module_ordinal=17)
+            fact = caught.exception.section_geometry
+            self.assertEqual((fact['role'], fact['module_ordinal'], fact['failed_check']), ('module', 17, failed))
+            self.assertEqual(fact['section']['name_class'], 'OTHER' if name == '.rela.text' else name)
+            self.assertEqual(fact['section']['name_sha256'], hashlib.sha256(name.encode()).hexdigest())
+        struct.pack_into('<Q', raw, descriptor + 24, 64)
+        path.write_bytes(raw)
+        with self.assertRaisesRegex(ValueError, 'overlapping ELF section/header file ranges'):
+            verifier.ELF(path, 1, 1024**3)
+
+    def test_unallocated_dwarf_aranges_uses_pinned_linker_file_alignment(self):
+        raw = bytearray(elf_bytes(bytes(632), module=True, extra_sections=(
+            ('.debug_aranges', bytes(192), 1, 0, 0, 8, 0, 0),
+        )))
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        header = shoff + 7 * 64
+        offset = struct.unpack_from('<Q', raw, header + 24)[0]
+        self.assertEqual(offset, 1336)
+        struct.pack_into('<Q', raw, header + 48, 16)
+        path = self.root / 'module.ko'
+        path.write_bytes(raw)
+        with verifier.ELF(path, 1, 1024**3, module_ordinal=150) as reader:
+            self.assertEqual(reader.by_name['.debug_aranges']['align'], 16)
+        for field, replacement, reason in ((8, 0x800, 'FILE_OFFSET_ALIGNMENT'),
+                                            (16, 16, 'FILE_OFFSET_ALIGNMENT'),
+                                            (24, offset + 1, 'FILE_OFFSET_ALIGNMENT'),
+                                            (32, len(raw), 'FILE_RANGE')):
+            changed = bytearray(raw)
+            struct.pack_into('<Q', changed, header + field, replacement)
+            path.write_bytes(changed)
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, 'ELF section file geometry invalid') as caught:
+                verifier.ELF(path, 1, 1024**3, module_ordinal=150)
+            self.assertEqual(caught.exception.section_geometry['failed_check'], reason)
+        path.write_bytes(raw.replace(b'.debug_aranges\0', b'.debug_fixture\0', 1))
+        with self.assertRaisesRegex(ValueError, 'ELF section file geometry invalid') as caught:
+            verifier.ELF(path, 1, 1024**3, module_ordinal=150)
+        self.assertEqual(caught.exception.section_geometry['file_alignment'], 16)
+
+    def test_linked_image_keeps_declared_section_file_alignment(self):
+        raw = bytearray(elf_bytes(b'owned_instruction_fixture' * 4))
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        struct.pack_into('<Q', raw, shoff + 64 + 48, 32768)
+        path = self.root / 'vmlinux'
+        path.write_bytes(raw)
+        with self.assertRaisesRegex(ValueError, 'ELF section file geometry invalid') as caught:
+            verifier.ELF(path, 3, 4 * 1024**3, artifact_role='arm64-image-reference')
+        fact = caught.exception.section_geometry
+        self.assertEqual(fact['role'], 'arm64-image-reference')
+        self.assertEqual(fact['file_alignment'], 32768)
 
     def test_old_minimal_false_positive_dtbs_refused(self):
         build = self.outputs(); path = build / 'arch/arm64/boot/dts/apple/t8112-j413.dtb'
@@ -259,11 +431,131 @@ class BuildChecks(unittest.TestCase):
 
     def test_elf_wx_alignment_entry_segments_refused(self):
         build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
-        for offset,fmt,value in [(68,'<I',7),(112,'<Q',4096),(88,'<Q',TEXT_ADDR+1),(24,'<Q',TEXT_ADDR+0x4000),
+        for offset,fmt,value in [(112,'<Q',2048),(88,'<Q',TEXT_ADDR+1),(24,'<Q',TEXT_ADDR+0x4000),
                                  (96,'<Q',2**32),(104,'<Q',1),(136,'<Q',TEXT_ADDR)]:
             with self.subTest(offset=offset):
                 path.write_bytes(original); self.mutate(path,offset,fmt,value)
                 with self.assertRaises(ValueError): self.verify(build)
+
+        path.write_bytes(original)
+        shoff = struct.unpack_from('<Q', original, 40)[0]
+        self.mutate(path, shoff + 64 + 8, '<Q', 7)
+        with self.assertRaisesRegex(ValueError, 'ELF writable executable section refused'):
+            self.verify(build)
+
+    def test_refused_permission_value_changes_only_the_closed_diagnostic(self):
+        build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
+        for flags in (0, 1, 2, 3, 8, 15, 0xffffffff):
+            with self.subTest(flags=flags):
+                path.write_bytes(original); self.mutate(path, 68, '<I', flags)
+                with self.assertRaises(ValueError) as caught:
+                    self.verify(build)
+                label = 'PERMISSIONS_RWX' if flags == 7 else 'PERMISSIONS_OTHER'
+                self.assertEqual(caught.exception.args, ('16K ELF load geometry/permissions required; WX refused [' + label + ']',))
+        path.write_bytes(original)
+        self.assertEqual(self.verify(build)['status'], 'BUILD_OUTPUT_STRUCTURE_VERIFIED')
+
+    def test_check001_reports_first_false_conjunct_without_operands(self):
+        build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
+        cases = (
+            ('ALIGN_MIN', ((112, 2048),)),
+            ('ALIGN_POWER_TWO', ((112, 6144),)),
+            ('VA_ALIGN', ((80, TEXT_ADDR + 8),)),
+            ('PA_ALIGN', ((88, 0x100008),)),
+            ('VA_16K', ((112, 4096), (80, TEXT_ADDR + 4096))),
+            ('PA_16K', ((112, 4096), (88, 0x101000))),
+            ('PERMISSIONS_OTHER', ((68, 0),)),
+            ('MEMORY_SIZE', ((96, 0), (104, 0))),
+        )
+        for label, changes in cases:
+            with self.subTest(label=label):
+                path.write_bytes(original)
+                for offset, value in changes:
+                    self.mutate(path, offset, '<I' if offset == 68 else '<Q', value)
+                with self.assertRaises(ValueError) as caught:
+                    self.verify(build)
+                self.assertEqual(caught.exception.args, ('16K ELF load geometry/permissions required; WX refused [' + label + ']',))
+        path.write_bytes(original)
+        self.assertEqual(self.verify(build)['status'], 'BUILD_OUTPUT_STRUCTURE_VERIFIED')
+
+    def test_image_reference_rwx_is_explicit_and_default_elf_remains_strict(self):
+        build = self.outputs(); path = build / 'vmlinux'
+        self.mutate(path, 68, '<I', 7)
+        for role in (None, 'elf'):
+            with self.subTest(role=role):
+                options = {} if role is None else {'artifact_role': role}
+                with self.assertRaisesRegex(ValueError, 'PERMISSIONS_RWX'):
+                    with verifier.ELF(path, 3, 4 * 1024**3, **options): pass
+        with verifier.ELF(path, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+            self.assertEqual(reader.loads[0]['flags'], 7)
+            self.assertEqual(reader.entry, TEXT_ADDR)
+        self.assertEqual(self.verify(build)['status'], 'BUILD_OUTPUT_STRUCTURE_VERIFIED')
+
+    def test_image_reference_keeps_finite_flags_and_file_backed_executable_entry(self):
+        build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
+        for flags in (0, 1, 2, 3, 8, 15, 0x80000007, 0xffffffff):
+            with self.subTest(flags=flags):
+                path.write_bytes(original); self.mutate(path, 68, '<I', flags)
+                with self.assertRaisesRegex(ValueError, 'PERMISSIONS_OTHER'):
+                    self.verify(build)
+        for flags in (4, 6):
+            with self.subTest(non_executable_entry=flags):
+                path.write_bytes(original); self.mutate(path, 68, '<I', flags)
+                with self.assertRaisesRegex(ValueError, 'ELF entry must be in file-backed executable load'):
+                    self.verify(build)
+        path.write_bytes(original); self.mutate(path, 68, '<I', 7)
+        self.mutate(path, 24, '<Q', TEXT_ADDR + 0x4000)
+        with self.assertRaisesRegex(ValueError, 'ELF entry must be in file-backed executable load'):
+            self.verify(build)
+
+    def test_image_reference_role_rejects_unknown_subclass_and_module_context(self):
+        build = self.outputs(); path = build / 'vmlinux'
+        class Role(str): pass
+        for role in ('vmlinux', 'kernel', '', None, True, Role('arm64-image-reference')):
+            with self.subTest(role=role):
+                with self.assertRaisesRegex(ValueError, 'valid config-selected AArch64 ELF type/version/header required'):
+                    with verifier.ELF(path, 3, 4 * 1024**3, artifact_role=role): pass
+        module = self.root / 'module.ko'
+        module.write_bytes(elf_bytes(b'\x00'*4, module=True, modinfo=b'license=GPL\0'))
+        with self.assertRaisesRegex(ValueError, 'valid config-selected AArch64 ELF type/version/header required'):
+            with verifier.ELF(module, 1, 1024**3, artifact_role='arm64-image-reference'): pass
+        with verifier.ELF(module, 1, 1024**3): pass
+
+    def test_image_reference_rwx_preserves_complete_section_projection(self):
+        raw, image = flat_kernel_bytes(b'\x00'*128)
+        raw = bytearray(raw)
+        struct.pack_into('<H', raw, 56, 1)
+        struct.pack_into('<IIQQQQQQ', raw, 64, 1, 7, 0x4000, TEXT_ADDR, 0x100000,
+                         0x8000+len(b'owned_data_block'), 0x10000, 0x4000)
+        path = self.root / 'merged-vmlinux'; path.write_bytes(raw)
+        target = self.root / 'Image'; target.write_bytes(image)
+        with self.assertRaisesRegex(ValueError, 'PERMISSIONS_RWX'):
+            with verifier.ELF(path, 3, 4 * 1024**3): pass
+        with verifier.ELF(path, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+            self.assertEqual(verifier.image_relation(reader, target, TEXT_ADDR)['status'], 'IMAGE_ELF_BYTES_VERIFIED')
+            for offset in (64, 0x2000, len(image)-1):
+                changed = bytearray(image); changed[offset] ^= 1; target.write_bytes(changed)
+                with self.assertRaises(ValueError): verifier.image_relation(reader, target, TEXT_ADDR)
+        target.write_bytes(image + b'\0')
+        with verifier.ELF(path, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+            with self.assertRaisesRegex(ValueError, 'Image length differs'):
+                verifier.image_relation(reader, target, TEXT_ADDR)
+
+    def test_small_declared_elf_alignment_keeps_16k_layout(self):
+        build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
+        for alignment in (4096, 8192, 16384):
+            with self.subTest(alignment=alignment):
+                path.write_bytes(original); self.mutate(path,112,'<Q',alignment)
+                self.assertEqual(self.verify(build)['status'], 'BUILD_OUTPUT_STRUCTURE_VERIFIED')
+                if alignment < 16384:
+                    with self.assertRaisesRegex(ValueError, 'ALIGN_MIN'):
+                        verifier.ELF(path, 3, 4 * 1024**3)
+        for field in (80, 88):
+            with self.subTest(field=field):
+                path.write_bytes(original); self.mutate(path,112,'<Q',4096)
+                self.mutate(path,field,'<Q',(TEXT_ADDR if field == 80 else 0x100000)+4096)
+                with self.assertRaisesRegex(ValueError,'16K ELF load geometry'):
+                    self.verify(build)
 
     def test_image_body_byte64_mutation_rejected_despite_unchanged_vmlinux(self):
         build = self.outputs(); image = build / 'arch/arm64/boot/Image'
@@ -369,6 +661,22 @@ class BuildChecks(unittest.TestCase):
         build = self.outputs(); order = build / 'modules.order'; name = order.read_text().splitlines()[0]
         order.write_text('\n'.join(order.read_text().splitlines()[1:])+'\n'); (build / (name[:-2]+'.ko')).unlink()
         with self.assertRaises(ValueError): self.verify(build)
+
+    def test_modpost_dependencies_preserve_provider_basename(self):
+        module, provider, _ = verifier.APPLE_MODULES.values()
+        build = self.outputs(first_depends=Path(provider).stem)
+        result = self.verify(build)
+        self.assertEqual(result['modules'][module]['name'], Path(module).stem.replace('-', '_'))
+        self.assertEqual(result['modules'][provider]['name'], Path(provider).stem.replace('-', '_'))
+
+    def test_modpost_dependencies_require_distinct_other_inventory_entries(self):
+        module, provider, _ = (Path(path).stem for path in verifier.APPLE_MODULES.values())
+        for case, depends in (('unknown', 'absent-provider'), ('self', module),
+                              ('duplicate', f'{provider},{provider}'), ('alias', provider.replace('-', '_'))):
+            with self.subTest(case=case):
+                build = self.outputs(case, first_depends=depends)
+                with self.assertRaisesRegex(ValueError, 'module dependencies outside actual inventory'):
+                    self.verify(build)
 
     def test_module_arch_type_vermagic_name_descriptor_relocation_refused(self):
         build = self.outputs(); path = build / next(iter(verifier.APPLE_MODULES.values())); original = path.read_bytes()
@@ -568,6 +876,284 @@ class SourceBindings(unittest.TestCase):
                 self.assertEqual(verifier.source_evidence(source),IDENTITIES)
                 path.write_text(path.read_text().replace('2023','2024'))
                 with self.assertRaises(ValueError): verifier.source_evidence(source)
+
+
+class RelocationConjunctDiagnosticTests(unittest.TestCase):
+    """Exact ordered CHECK_002 block over owned scalar metadata; no ELF replay."""
+    @classmethod
+    def setUpClass(cls):
+        import ast
+        tree=ast.parse(Path(verifier.__file__).read_bytes())
+        owner=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='ELF')
+        parse=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='parse')
+        branch=next(n for n in ast.walk(parse) if isinstance(n,ast.If) and ast.unparse(n.test)=="row['type'] in (4, 9)")
+        cls.block=branch.body[:7]
+        cls.tree=ast
+
+    def check(self,row,kind,role,section_type=2):
+        node=self.tree.parse('def check(self,row,shnum,kind,artifact_role):\n pass').body[0]
+        node.body=self.block;namespace={'harness':harness}
+        exec(compile(self.tree.fix_missing_locations(self.tree.Module([node],[])),'<exact-relocation-block>','exec',dont_inherit=True),namespace)
+        namespace['check'](SimpleNamespace(sections=[{'type':0},{'type':section_type},{'type':1}]),row,3,kind,role)
+
+    def test_exact_first_failed_conjunct_per_reachable_artifact_role(self):
+        cases=(('TYPE_RELA',dict(type=9),2),('ENTRY_SIZE',dict(entsize=16),2),
+               ('SIZE_MULTIPLE',dict(size=25),2),('SYMBOL_TABLE_TYPE',{},1),
+               ('TARGET_INDEX',dict(info=3),2))
+        for kind,role,label in ((2,'arm64-image-reference','IMAGE_REFERENCE'),(1,'elf','RELOCATABLE'),(2,'elf','ELF')):
+            for check,updates,linked in cases:
+                row=dict(type=4,entsize=24,size=24,link=1,info=1);row.update(updates)
+                with self.subTest(role=label,check=check),self.assertRaisesRegex(ValueError,r'\['+label+'_'+check+r'\]$'):
+                    self.check(row,kind,role,linked)
+        with self.assertRaisesRegex(ValueError,r'\[RELOCATABLE_MODULE_TARGET\]$'):
+            self.check(dict(type=4,entsize=24,size=24,link=1,info=0),1,'elf')
+
+    def test_valid_metadata_and_ordered_first_failure(self):
+        for kind,role in ((2,'arm64-image-reference'),(3,'arm64-image-reference'),(1,'elf'),(2,'elf'),(3,'elf')):
+            self.check(dict(type=4,entsize=24,size=0,link=1,info=1),kind,role)
+        for kind in (2,3):self.check(dict(type=4,entsize=24,size=0,link=1,info=0),kind,'elf')
+        seen=[]
+        class Observed(dict):
+            def __getitem__(self,key):seen.append(key);return super().__getitem__(key)
+        with self.assertRaisesRegex(ValueError,r'\[RELOCATABLE_TYPE_RELA\]$'):
+            self.check(Observed(type=9,entsize=0,size=1,link=1,info=3),1,'elf',1)
+        self.assertEqual(seen,['type'])
+
+
+class ImageRelativeRelocationTests(unittest.TestCase):
+    """Owned synthetic bytes only: no relocation application or native acceptance."""
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
+        self.path = Path(self.tmp.name) / 'reference.elf'
+
+    def fixture(self, offset=TEXT_ADDR+0x8000, info=1027, *, kind=3, flags=2, link=0, target=0):
+        raw,image = flat_kernel_bytes(b'owned_instruction_fixture'*4,readonly_kind=4)
+        raw,image = bytearray(raw),bytearray(image)
+        shoff = struct.unpack_from('<Q',raw,40)[0]
+        struct.pack_into('<H',raw,16,kind)
+        struct.pack_into('<Q',raw,shoff+3*64+8,flags)
+        struct.pack_into('<II',raw,shoff+3*64+40,link,target)
+        payload = struct.pack('<QQq',offset,info,0)
+        raw[0x8020:0x8038] = payload; image[0x4020:0x4038] = payload
+        return raw,image
+
+    def read(self, raw, role='arm64-image-reference', kind=3):
+        self.path.write_bytes(raw)
+        return verifier.ELF(self.path,kind,4*1024**3,artifact_role=role)
+
+    def test_symbol_free_relative_virtual_targets_and_unaligned_nobits(self):
+        for kind in (2,3):
+            for offset in (TEXT_ADDR,TEXT_ADDR+1,TEXT_ADDR+0x8000,TEXT_ADDR+0x8001,
+                           TEXT_ADDR+0x9000,TEXT_ADDR+0x9001,TEXT_ADDR+0xfff7,TEXT_ADDR+0xfff8):
+                with self.subTest(kind=kind,offset=offset):
+                    raw,_ = self.fixture(offset,kind=kind)
+                    with self.read(raw,kind=kind) as elf:
+                        self.assertEqual(elf.by_name['.rela.dyn']['link'],0)
+                        self.assertEqual(elf.symbols['type'],2)
+
+    def test_nonrelocatable_image_retains_existing_type_checks(self):
+        for info in (0,257,1025,1026,1028,1032,0xffffffff,(1<<32)|1027,(0xffffffff<<32)|1027):
+            with self.subTest(info=info):
+                raw,_ = self.fixture(info=info, kind=2)
+                with self.assertRaisesRegex(ValueError,'ELF relocation index/offset invalid'):
+                    self.read(raw, kind=2)
+
+    def test_null_linked_image_rela_skips_zero_offset_none_and_verifies_next_entry(self):
+        entries = [(TEXT_ADDR + 1, 1027, 0), (0, 0, 55), (TEXT_ADDR + 0x9011, 1027, 0)]
+        raw, image = flat_kernel_bytes(b'owned_instruction_fixture' * 4, readonly_kind=4, relocations=entries)
+        raw = bytearray(raw)
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        struct.pack_into('<I', raw, shoff + 3 * 64 + 40, 0)
+        output = Path(self.tmp.name) / 'Image'; output.write_bytes(image)
+        with self.read(raw) as elf:
+            projection = verifier.image_relation(elf, output, TEXT_ADDR)
+        self.assertIn('.rela.dyn', [row['name'] for row in projection['copied_sections']])
+        struct.pack_into('<Q', raw, 0x8020 + 2 * 24, 0)
+        with self.assertRaisesRegex(ValueError, 'ELF relocation index/offset invalid'):
+            self.read(raw)
+
+    def test_hosted_nonrelative_types_are_projected_and_only_relative_writes_are_checked(self):
+        entries = [(0, 0, 0), (TEXT_ADDR + 0x8008, 0x1c00000401, 0),  # Hosted GLOB_DAT
+                   (TEXT_ADDR + 0x8010, 0x1b00000101, 0),  # Hosted ABS64
+                   (TEXT_ADDR + 0x9001, 1027, 0)]
+        raw, image = flat_kernel_bytes(b'owned_instruction_fixture' * 4, readonly_kind=4, relocations=entries)
+        raw = bytearray(raw)
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        struct.pack_into('<I', raw, shoff + 3 * 64 + 40, 0)
+        output = Path(self.tmp.name) / 'Image'
+        output.write_bytes(image)
+        with self.read(raw) as elf:
+            projection = verifier.image_relation(elf, output, TEXT_ADDR)
+        self.assertIn('.rela.dyn', [row['name'] for row in projection['copied_sections']])
+        summary = {'entries': 4, 'types': [[0, 1, 0, 0], [257, 1, 1, 1],
+                    [1025, 1, 1, 1], [1027, 1, 1, 0]], 'overflow': [0, 0, 0]}
+        for index in (1, 2):
+            altered = bytearray(image)
+            altered[0x4028 + index * 24] ^= 1
+            output.write_bytes(altered)
+            with self.assertRaisesRegex(ValueError, 'Image body differs') as caught:
+                with self.read(raw) as elf:
+                    verifier.image_relation(elf, output, TEXT_ADDR)
+            self.assertEqual(caught.exception.rela_table, summary)
+        struct.pack_into('<Q', raw, 0x8020 + 3 * 24, TEXT_ADDR + 0xfffc)
+        with self.assertRaisesRegex(ValueError, 'ELF relocation index/offset invalid') as caught:
+            self.read(raw)
+        self.assertEqual(caught.exception.relocation_failure['section']['entry_index'], 3)
+        self.assertEqual(caught.exception.rela_table['types'][-1], [1027, 1, 0, 0])
+
+    def test_summary_includes_entries_after_first_failure_and_bounds_distinct_types(self):
+        entries = [(TEXT_ADDR + 0x8000, (1 << 32) | 1027, 0)]
+        entries += [(2**64 - 1, number, 0) for number in range(1, 11)]
+        raw, _ = flat_kernel_bytes(b'owned_instruction_fixture' * 4, readonly_kind=4, relocations=entries)
+        raw = bytearray(raw)
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        struct.pack_into('<I', raw, shoff + 3 * 64 + 40, 0)
+        with self.assertRaisesRegex(ValueError, 'ELF relocation index/offset invalid') as caught:
+            self.read(raw)
+        self.assertEqual(caught.exception.relocation_failure['section']['entry_index'], 0)
+        table = caught.exception.rela_table
+        self.assertEqual(table['entries'], 11)
+        self.assertEqual(table['types'], [[number, 1, 0, 0] for number in range(1, 8)] + [[1027, 1, 1, 1]])
+        self.assertEqual(table['overflow'], [3, 0, 0])
+
+    def test_relr_direct_and_chained_bitmaps_and_projection(self):
+        # The second bitmap starts 63 words after the first, in mapped NOBITS.
+        raw, image = flat_kernel_bytes(b'owned_instruction_fixture' * 4, readonly_kind=19,
+                                       relocations=[TEXT_ADDR + 0x9000, 3, 5, TEXT_ADDR + 0x8000])
+        output = Path(self.tmp.name) / 'Image'; output.write_bytes(image)
+        with self.read(raw) as elf:
+            projection = verifier.image_relation(elf, output, TEXT_ADDR)
+        self.assertIn('.relr.dyn', [row['name'] for row in projection['copied_sections']])
+        altered = bytearray(image); altered[0x4020] ^= 1; output.write_bytes(altered)
+        with self.read(raw) as elf, self.assertRaisesRegex(ValueError, 'Image body differs'):
+            verifier.image_relation(elf, output, TEXT_ADDR)
+
+    def test_relr_rejects_invalid_metadata_and_unmapped_writes(self):
+        for words in ([3], [TEXT_ADDR - 2], [TEXT_ADDR + 0xfff8, 3], [TEXT_ADDR + 0xfffa]):
+            with self.subTest(words=words):
+                raw, _ = flat_kernel_bytes(b'owned_instruction_fixture' * 4, readonly_kind=19, relocations=words)
+                with self.assertRaisesRegex(ValueError, 'AArch64 Image RELR offset invalid'):
+                    self.read(raw)
+        raw, _ = flat_kernel_bytes(b'owned_instruction_fixture' * 4, readonly_kind=19,
+                                   relocations=[TEXT_ADDR + 0x9000])
+        raw = bytearray(raw)
+        shoff = struct.unpack_from('<Q', raw, 40)[0]
+        struct.pack_into('<Q', raw, shoff + 3 * 64 + 56, 16)
+        with self.assertRaisesRegex(ValueError, 'AArch64 Image RELR metadata invalid'):
+            self.read(raw)
+
+    def test_null_link_requires_exact_image_context_and_allocated_whole_image_table(self):
+        for updates in (dict(flags=0),dict(target=1),dict(link=9)):
+            raw,_ = self.fixture(**updates)
+            with self.subTest(updates=updates),self.assertRaisesRegex(ValueError,'SYMBOL_TABLE_TYPE'):
+                self.read(raw)
+        raw,_ = self.fixture()
+        with self.assertRaisesRegex(ValueError,'ELF_SYMBOL_TABLE_TYPE'):
+            self.read(raw,role='elf')
+        raw = bytearray(elf_bytes(b'owned_module',module=True))
+        shoff = struct.unpack_from('<Q',raw,40)[0]
+        # .rela.text is section six in the maintained module fixture.
+        struct.pack_into('<Q',raw,shoff+6*64+8,2)
+        struct.pack_into('<II',raw,shoff+6*64+40,0,0)
+        with self.assertRaisesRegex(ValueError,'RELOCATABLE_SYMBOL_TABLE_TYPE'):
+            self.read(raw,role='elf',kind=1)
+
+    def test_relative_destination_requires_full_eight_bytes_in_allocated_memory(self):
+        for offset in (0,TEXT_ADDR-1,TEXT_ADDR+0x100,TEXT_ADDR+0x401c,
+                       TEXT_ADDR+0xfff9,TEXT_ADDR+0x10000,2**64-4):
+            with self.subTest(offset=offset):
+                raw,_ = self.fixture(offset)
+                with self.assertRaisesRegex(ValueError,'ELF relocation index/offset invalid'):
+                    self.read(raw)
+
+    def test_symbol_table_still_required_and_rela_shape_still_checked(self):
+        raw,_ = self.fixture(); shoff=struct.unpack_from('<Q',raw,40)[0]
+        cases=((shoff+8*64+4,'<I',1,'bounded actual ELF symbol table required'),
+               (shoff+3*64+4,'<I',9,'TYPE_RELA'),
+               (shoff+3*64+56,'<Q',16,'ENTRY_SIZE'),
+               (shoff+3*64+32,'<Q',23,'SIZE_MULTIPLE'))
+        for position,fmt,value,error in cases:
+            altered=bytearray(raw);struct.pack_into(fmt,altered,position,value)
+            with self.subTest(error=error),self.assertRaisesRegex(ValueError,error):
+                self.read(altered)
+
+    def test_linked_symbol_relocations_keep_existing_index_and_table_checks(self):
+        raw,_ = flat_kernel_bytes(b'owned_instruction_fixture'*4,readonly_kind=4)
+        for role in ('elf','arm64-image-reference'):
+            with self.read(raw,role=role): pass
+            altered=bytearray(raw);struct.pack_into('<Q',altered,0x8028,100<<32)
+            with self.assertRaisesRegex(ValueError,'ELF relocation index/offset invalid'):
+                self.read(altered,role=role)
+            altered=bytearray(raw);shoff=struct.unpack_from('<Q',altered,40)[0]
+            struct.pack_into('<Q',altered,shoff+8*64+56,16)
+            with self.assertRaisesRegex(ValueError,'bounded actual ELF symbol table required'):
+                self.read(altered,role=role)
+
+    def test_relative_table_remains_in_complete_image_projection(self):
+        raw,image = self.fixture(); output=Path(self.tmp.name)/'Image';output.write_bytes(image)
+        with self.read(raw) as elf:
+            result=verifier.image_relation(elf,output,TEXT_ADDR)
+        self.assertIn('.rela.dyn',[s['name'] for s in result['copied_sections']])
+        image[0x4020] ^= 1;output.write_bytes(image)
+        with self.read(raw) as elf,self.assertRaisesRegex(ValueError,'Image body differs from vmlinux allocated section'):
+            verifier.image_relation(elf,output,TEXT_ADDR)
+
+    def test_symbol_free_path_preserves_section_wx_and_load_geometry_gates(self):
+        raw,_=self.fixture();shoff=struct.unpack_from('<Q',raw,40)[0]
+        altered=bytearray(raw);struct.pack_into('<Q',altered,shoff+3*64+8,7)
+        with self.assertRaisesRegex(ValueError,'ELF writable executable section refused'):
+            self.read(altered)
+        altered=bytearray(raw);struct.pack_into('<Q',altered,64+48,8192)
+        struct.pack_into('<Q',altered,64+16,TEXT_ADDR+8192)
+        with self.assertRaisesRegex(ValueError,'VA_16K'):
+            self.read(altered)
+
+
+
+class RelocationDiagnosticTests(unittest.TestCase):
+    setUp = ImageRelativeRelocationTests.setUp
+    fixture = ImageRelativeRelocationTests.fixture
+    read = ImageRelativeRelocationTests.read
+    def test_null_link_failure_operands_are_original_and_closed(self):
+        for kind, info, offset, failed in ((2, 1028, TEXT_ADDR+0x8001, 'INFO_RELATIVE'),
+                                          (3, (1<<32)|1027, TEXT_ADDR+0x8001, 'INFO_RELATIVE'),
+                                          (3, 1027, TEXT_ADDR+0xfff9, 'ALLOCATED_RANGE')):
+            raw,_ = self.fixture(offset=offset, info=info, kind=kind)
+            with self.assertRaises(ValueError) as caught:
+                self.read(raw, kind=kind)
+            error=caught.exception; self.assertIs(type(error), ValueError)
+            self.assertEqual(str(error), 'ELF relocation index/offset invalid')
+            fact=error.relocation_failure
+            self.assertEqual((fact['branch'], fact['failed_check']), ('NULL_LINK_RELATIVE', failed))
+            self.assertEqual((fact['offset'], fact['info']), (offset, info))
+            self.assertEqual(fact['role'], 'arm64-image-reference')
+            self.assertEqual(fact['section']['link'], 0)
+            self.assertIsNone(fact['symbol_count']); self.assertIsNone(fact['target_size'])
+            if failed == 'ALLOCATED_RANGE':
+                self.assertEqual(fact['allocated']['full_count'], 0)
+                self.assertEqual(fact['allocated']['start_count'], 1)
+            self.assertNotIn(str(self.path), repr(fact))
+
+    def test_linked_failure_keeps_symbol_index_and_module_offset_separate(self):
+        raw,_ = flat_kernel_bytes(b'owned_instruction_fixture'*4,readonly_kind=4)
+        altered=bytearray(raw);struct.pack_into('<Q',altered,0x8028,100<<32)
+        with self.assertRaises(ValueError) as caught:
+            self.read(altered,role='elf')
+        fact=caught.exception.relocation_failure
+        self.assertEqual((fact['branch'],fact['failed_check']), ('LINKED_SYMBOL','SYMBOL_INDEX'))
+        self.assertEqual(fact['info']>>32,100)
+        self.assertIsNone(fact['allocated']);self.assertIsNone(fact['load'])
+        self.assertIsNone(fact['target_size'])
+        raw=bytearray(elf_bytes(b'owned_module',module=True));shoff=struct.unpack_from('<Q',raw,40)[0]
+        target=struct.unpack_from('<I',raw,shoff+6*64+44)[0]
+        size=struct.unpack_from('<Q',raw,shoff+target*64+32)[0]
+        rela=struct.unpack_from('<Q',raw,shoff+6*64+24)[0]
+        struct.pack_into('<Q',raw,rela,size)
+        with self.assertRaises(ValueError) as caught:
+            self.read(raw,role='elf',kind=1)
+        fact=caught.exception.relocation_failure
+        self.assertEqual(fact['failed_check'],'MODULE_OFFSET')
+        self.assertEqual((fact['offset'],fact['target_size']), (size,size))
 
 
 if __name__ == '__main__':

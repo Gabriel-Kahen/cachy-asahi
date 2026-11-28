@@ -102,8 +102,8 @@ def write(root, name, raw):
     with path.open('xb') as stream:
         stream.write(raw)
         stream.flush()
+        os.fchmod(stream.fileno(), 0o400)
         os.fsync(stream.fileno())
-    path.chmod(0o400)
 
 
 def selection(raw):
@@ -343,7 +343,7 @@ def materialize(args):
                     target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
                     actual, _ = C.hash_member(source, name, snapshot=target)
                     C.need(actual == pin, 'predecessor changed during copy')
-                    target.chmod(0o400)
+                    K.sync_copy(target, 0o400)
             finally:
                 os.close(source)
             for name, target in links.items():
@@ -380,6 +380,7 @@ def materialize(args):
             write(staging, RECEIPT, receipt_raw)
             checked = verify(argparse.Namespace(**{**vars(args), 'workspace': str(staging),
                                                     'receipt_sha256': C.digest(receipt_raw)}))
+            K.sync_staging_directories(staging, files.keys() | links.keys())
             K.publish(staging, parent, output, (inode.st_dev, inode.st_ino))
     finally:
         os.close(parent)

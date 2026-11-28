@@ -113,6 +113,7 @@ def benchmark(baseline, candidate, *, record=None, values=MAX_VALUES, repeats=4,
             result = outcome(functions[role], raw, sections)
             elapsed = time.perf_counter_ns() - start
             need(result == expected, 'timed parser outcome changed')
+            del result
             rows.append(dict(repeat=repeat, role=role, elapsed_ns=elapsed))
     need(all(read(paths[k], MAX_SOURCE) == v for k, v in sources.items()), 'parser source changed during benchmark')
     if record_path is not None:

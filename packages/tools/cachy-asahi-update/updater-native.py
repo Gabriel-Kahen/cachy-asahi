@@ -31,8 +31,7 @@ PINS = {
     'scripts/port/updater-extension/builder-extension.lock.json': '287b627528f3fd9cf4a63ef3a3bbf269e83f83d35c87dd3b3efd69e91a92a56f',
     'scripts/port/updater-extension/extension-receipt.json': 'f48c3fa41de8df649260e3c16fa3361f0c4b65e28c70e431baee8d887bcf4490',
     'scripts/port/updater-extension/expected-packages.lock': '5c72ffef2fadecc631861ef12ab7f48e083694a402d0428a395da64fa592dcee',
-    # Runtime pin awaits a coordinator-reviewed checkpoint; tests use retained data.
-    'scripts/ci/native_arm.py': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898',
+    'scripts/ci/native_arm.py': '8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba',
 }
 TOOLS = ('cargo', 'rustc', 'rustdoc', 'pacman', 'gcc', 'cc', 'ld', 'pkg-config',
          'make', 'scdoc', 'git', 'python', 'bash', 'makepkg', 'readelf')

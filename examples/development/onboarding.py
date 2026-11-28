@@ -156,12 +156,12 @@ def prepare(work, source, revision):
 
     work.mkdir(mode=0o700)
     checkout = work / "checkout"
-    # Configure the local server as well as the client to avoid copying unused blobs.
-    git(source, "clone", "--no-local", "--no-checkout", "--depth=1", "--no-tags", "--filter=blob:none",
-        "--sparse", f"--upload-pack={LOCAL_UPLOAD}", "-c", f"remote.origin.uploadpack={LOCAL_UPLOAD}",
-        "--", str(source), str(checkout))
-    if git(checkout, "rev-parse", "HEAD").decode().strip() != commit:
-        git(checkout, "fetch", "--no-tags", "--depth=1", "--filter=blob:none", "origin", commit)
+    object_format = git(source, "rev-parse", "--show-object-format").decode().strip()
+    git(source, "init", f"--object-format={object_format}", "--", str(checkout))
+    git(checkout, "remote", "add", "--no-tags", "origin", str(source))
+    # Filter the initial pack and subsequent lazy blob fetches from the local source.
+    git(checkout, "config", "remote.origin.uploadpack", LOCAL_UPLOAD)
+    git(checkout, "fetch", "--depth=1", "--filter=blob:none", "origin", commit)
     git(checkout, "sparse-checkout", "set", EXAMPLE.rsplit("/", 1)[0])
     git(checkout, "checkout", "--detach", commit)
     raw = example(checkout)

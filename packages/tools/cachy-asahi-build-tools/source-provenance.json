@@ -113,16 +113,17 @@
         "all_other_functions_and_protected_constants_held": true,
         "changed_existing_functions": [
           "literal_metadata",
-          "main"
+          "main",
+          "recipe"
         ],
         "path": "scripts/checks/package_checks.py",
         "sha256": "314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a",
         "source": "29c640b52e67d97be8670200f26a17dc1e1def87"
       },
-      "bytes": 22139,
+      "bytes": 22240,
       "installed_path": "/usr/lib/cachy-asahi-build-tools/trusted/scripts/checks/package_checks.py",
       "local_source": "package_checks.py",
-      "sha256": "fe305b58881c9fbcb53b351ee05aac1cb606f9e569a49f2485dd1892ab616168",
+      "sha256": "a9d4c0ff953fb9999b2b55633e305e30f585cd9e8cfa92fa945a92eb3b368288",
       "source_commit": null,
       "source_path": "scripts/checks/package_checks_v2.py"
     },
@@ -139,5 +140,5 @@
       "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
     }
   },
-  "version": "0.1.1-1"
+  "version": "0.1.1-2"
 }

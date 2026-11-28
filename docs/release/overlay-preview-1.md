@@ -71,18 +71,22 @@ validate the new file before using the base's session launcher. See the
 
 ## Remove and recover
 
-If you tried the desktop template, return to the original session first.
+If you activated the desktop template, return to the original session first.
 With setup still installed, preview and apply deactivation as the original
-ordinary user. Keep any files reported as edited. If setup reports an interrupted
-transaction, follow its printed recovery commands before removal.
+ordinary user. List only components you activated for this preview. The example
+lists both shells. Add `hyprland` to both commands if you activated it. Keep any
+files reported as edited. If setup reports an interrupted transaction, follow
+its printed recovery commands before removal.
 
 ```sh
-cachy-asahi-setup remove
-cachy-asahi-setup remove --apply
+cachy-asahi-setup remove --components fish zsh
+cachy-asahi-setup remove --components fish zsh --apply
 ```
 
-Preview the package removal, then remove the preview packages that you installed.
-Add `cachy-asahi-hyprland-settings` to both commands if you installed it.
+Preview the package removal, then remove the packages that you installed for
+this preview. Adjust the list to keep packages already in use, including
+`cachy-asahi-setup` if it still manages other components. Add
+`cachy-asahi-hyprland-settings` if you installed it for this preview.
 
 ```bash
 packages=(cachy-asahi-first-login cachy-asahi-setup cachy-asahi-fish-config cachy-asahi-zsh-config)

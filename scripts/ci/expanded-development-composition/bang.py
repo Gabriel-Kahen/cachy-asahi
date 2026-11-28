@@ -4,6 +4,8 @@ import ast
 import inspect
 import json
 from pathlib import Path
+import subprocess
+import sys
 import types
 import contract as C
 import inputs
@@ -13,6 +15,16 @@ SOURCES={
  ('__history_previous_command.fish','__history_previous_command_arguments.fish','opt-in.fish')}
 SOURCES['usr/share/cachy-asahi/fish-bang-bang/README.md']='usage.md'
 SOURCES.update({'usr/share/licenses/'+C.UPGRADE+'/'+n:n for n in ('NOTICE','LICENSE.upstream','LICENSE.project')})
+COMPARATOR='scripts/build/compare.py'
+BUILD_HELPERS={COMPARATOR,'scripts/build/build.py','scripts/build/container-entry.sh','scripts/checks/package_checks.py'}
+
+
+def held_comparator(source,policy):
+    helpers=policy['bang_build_helpers']
+    C.need(type(helpers) is dict and set(helpers)==BUILD_HELPERS,'exact held bang build helpers required')
+    for name,ref in helpers.items():
+        C.checked(source,dict(path=name,**ref))
+    return source/COMPARATOR
 
 
 def recipe(source,policy,checks):
@@ -45,6 +57,7 @@ def payload(report,source,name):
 
 
 def build(source,code,out,base,image,lock,epoch,policy,execute):
+    comparator=held_comparator(source,policy)
     checks,bind=inputs.tools(code);reviewed=recipe(source,policy,checks)
     original=C.load('expanded_accepted_builder',code/'scripts/ci/welcome-native/run.py')
     text=inspect.getsource(original.build)
@@ -62,11 +75,15 @@ def build(source,code,out,base,image,lock,epoch,policy,execute):
     containers=[]
     pair=[namespace['build'](source,out,base,image,lock,C.UPGRADE,side,epoch,execute,containers,checks,bind)
           for side in ('a','b')]
-    comparison=C.load('expanded_build_compare',code/'scripts/build/compare.py').compare(*(r['directory'] for r in pair))
-    C.need(comparison['status']=='contents-reproduced' and not comparison['errors'] and
+    # The held Welcome builder emits its own validation record. Isolate the
+    # compatible comparator so its imports resolve from the same checkout.
+    result=subprocess.run([sys.executable,'-I','-B',str(comparator),'--require-bytes',
+                          *(str(r['directory']) for r in pair)],capture_output=True,text=True,timeout=60)
+    comparison=json.loads(result.stdout)
+    C.need(result.returncode==0 and comparison['status']=='contents-reproduced' and not comparison['errors'] and
            len(comparison['packages'])==1 and all(r['bytes_equal'] and r['buildinfo_equal'] and
            r['installed_contents_equal'] and r['pkginfo_equal'] for r in comparison['packages'].values()),
-           'bang2 whole bytes/BUILDINFO/payload differ')
+           'bang2 whole bytes/BUILDINFO/payload differ: '+str(comparison['errors']))
     original.save(out/'bang-comparison.json',comparison)
     first=pair[0]['archive'];report=checks.package(first)
     return dict(name=C.UPGRADE,version=C.NEW,pair_status='PASS_BYTES_AND_BUILDINFO_IDENTICAL',root=str(out),

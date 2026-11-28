@@ -18,6 +18,8 @@ signature authentication.
 Before importing author code, the driver verifies the whole source lock, exact
 15-file source namespace/modes, four maintained engine source pins, bootstrap
 metadata pin and 41 original recipe leaves. The source author's code is unchanged.
+The driver stages verified operands in a private source tree, using the checker
+held in LLHTTP Source95 at its original path.
 The catalog directory must contain only three single-link 0644 exact pinned files.
 Aliases, missing/extra files and body changes refuse before parsing.
 

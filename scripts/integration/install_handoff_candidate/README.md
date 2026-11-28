@@ -4,8 +4,8 @@ This adapter installs, reinstalls and removes the exact existing handoff package
 inside one new pinned, offline x86_64 Docker container. It does not grant native
 ARM, Asahi/M2, production trust, boot recovery or release acceptance.
 
-The package, launcher, finite runtime and verifiers remain unchanged. The adapter
-reuses the byte-identical `scripts/integration/lifecycle.py` process supervisor,
+The package, launcher and verifiers retain their recorded behavior. The adapter
+copies the current `scripts/integration/lifecycle.py` process supervisor,
 cleanup machinery and actual environment observations. Its new contract is
 explicitly `host-x86_64-disposable-docker`; it neither changes nor spoofs the
 existing native-aarch64 lifecycle admission.
@@ -15,8 +15,12 @@ existing native-aarch64 lifecycle admission.
 - Image: `sha256:30cfe09952ef8d9bfabd64224185c97021b260d47bb83941fec5bae7bdd16145` (already present; never pulled).
 - Package: `cachy-asahi-install-handoff 0.1.0-1`, 184625 bytes,
   `cf34935122855ca6aaa02f4c11987d53530e0e729c03698fa03aa1586ffac59e`.
-- Unchanged lifecycle source SHA-256:
+- Historical installed-trial lifecycle source SHA-256:
   `c3223a1bd4002683071f4442e1f5b9caf439c68c4e231da10039cc9cebcdb52b`.
+  The current source and `prepare.py` use
+  `1f4d8763e3380f700b75e0a2be4980eb3a0550977280db7997c655d50f842e73`;
+  its revised cleanup passed source controls, but this adapter has not been
+  rerun as an installed trial with those bytes.
 - Runtime/verifier source: `1c4c455b486fd0b0f1c7ae587130a2c05e7a9560`;
   package delivery: `282364173f497f1052267c3901dda395dd59e03f`.
 

@@ -6,10 +6,13 @@ on:
       - scripts/release/endpoint_copy_v1/copy_endpoint.py
       - scripts/client/endpoint.py
       - scripts/client/client.py
+      - scripts/client/test_endpoint.py
       - scripts/release/export_repository.py
       - scripts/release/release.py
       - scripts/release/source_delivery.py
       - scripts/release/offline_kit.py
+      - scripts/release/test_export_repository.py
+      - scripts/release/test_release.py
       - .github/workflows/endpoint-transport-source.yml
   push:
     branches: [main]
@@ -18,10 +21,13 @@ on:
       - scripts/release/endpoint_copy_v1/copy_endpoint.py
       - scripts/client/endpoint.py
       - scripts/client/client.py
+      - scripts/client/test_endpoint.py
       - scripts/release/export_repository.py
       - scripts/release/release.py
       - scripts/release/source_delivery.py
       - scripts/release/offline_kit.py
+      - scripts/release/test_export_repository.py
+      - scripts/release/test_release.py
       - .github/workflows/endpoint-transport-source.yml
   workflow_dispatch:
 permissions:
@@ -39,10 +45,12 @@ jobs:
           python-version: '3.14'
       - name: Provision existing TEST-signature and archive tools on disposable runner
         run: |
-          sudo apt-get -o APT::Update::Error-Mode=any update
-          sudo apt-get install --yes --no-install-recommends gnupg libarchive-tools pacman-package-manager makepkg
+          apt_sources=(-o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources
+                       -o Dir::Etc::sourceparts=- -o Acquire::Retries=2)
+          sudo apt-get "${apt_sources[@]}" -o APT::Update::Error-Mode=any update
+          sudo apt-get "${apt_sources[@]}" install --yes --no-install-recommends gnupg libarchive-tools pacman-package-manager makepkg
           for tool in gpg bsdtar vercmp repo-add; do command -v "$tool"; done
-      - name: Run pinned transport round trips and hostile archive controls without skips
+      - name: Run live transport round trips and hostile archive controls without skips
         run: |
           python -I -B -Werror::ResourceWarning - <<'PYTHON'
           import importlib.util, sys, unittest
@@ -53,6 +61,6 @@ jobs:
           sys.modules[spec.name] = tests
           spec.loader.exec_module(tests)
           result = unittest.TextTestRunner(verbosity=2).run(unittest.TestLoader().loadTestsFromModule(tests))
-          if not result.wasSuccessful() or result.skipped or result.testsRun < 22:
+          if not result.wasSuccessful() or result.skipped or result.testsRun < 23:
               raise SystemExit('failures, skips, or missing controls')
           PYTHON

@@ -33,8 +33,13 @@ class CommandsTests(unittest.TestCase):
         pid = int(pidfile.read_text())
         self.addCleanup(self.stop_if_alive, pid)
         deadline = time.monotonic() + 3
-        while Path(f'/proc/{pid}/stat').exists():
-            raw = Path(f'/proc/{pid}/stat').read_bytes()
+        proc_stat = Path(f'/proc/{pid}/stat')
+        while True:
+            try:
+                raw = proc_stat.read_bytes()
+            except (FileNotFoundError, ProcessLookupError):
+                # The adopted descendant may already have been reaped.
+                break
             if raw.rsplit(b')', 1)[1].split()[0] == b'Z':
                 break
             self.assertLess(time.monotonic(), deadline, 'descendant survived timeout cleanup')

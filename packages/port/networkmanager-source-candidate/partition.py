@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Partition one private DESTDIR, retaining every leaf and explicit OVS move."""
+"""Partition and verify one private DESTDIR, including directory modes."""
 import argparse
 import hashlib
 import json
@@ -23,45 +23,98 @@ def owner(path):
     return 'networkmanager',path
 
 
-def leaf(path):
-    s=path.lstat();mode=stat.S_IMODE(s.st_mode)
-    assert not mode&0o6000,path
-    if path.is_symlink():
-        target=os.readlink(path);assert not Path(target).is_absolute(),path
-        return {'kind':'symlink','mode':mode,'target':target}
-    assert stat.S_ISREG(s.st_mode) and s.st_nlink>=1,path
-    return {'kind':'file','mode':mode,'bytes':s.st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+def node(path):
+    info = path.lstat()
+    mode = stat.S_IMODE(info.st_mode)
+    assert not mode & 0o6000, path
+    if stat.S_ISDIR(info.st_mode):
+        return {'kind': 'directory', 'mode': mode}
+    if stat.S_ISLNK(info.st_mode):
+        target = os.readlink(path)
+        assert not Path(target).is_absolute(), path
+        return {'kind': 'symlink', 'mode': mode, 'target': target}
+    assert stat.S_ISREG(info.st_mode), path
+    with path.open('rb') as stream:
+        digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+    return {'kind': 'file', 'mode': mode, 'bytes': info.st_size, 'sha256': digest}
 
 
-def partition(stage,output):
-    stage=stage.resolve(strict=True);assert stage!=Path('/') and not output.exists()
-    assert (stage/'usr').is_dir()
+def directory(path):
+    assert stat.S_ISDIR(path.lstat().st_mode), path
+    return path.resolve(strict=True)
+
+
+def inventory(root):
+    root = directory(root)
+    entries = {}
+    pending = [root]
+    while pending:
+        for path in pending.pop().iterdir():
+            details = node(path)
+            if details['kind'] == 'directory':
+                pending.append(path)
+            elif details['kind'] == 'symlink':
+                assert path.resolve().is_relative_to(root), path
+            entries[path.relative_to(root).as_posix()] = details
+    return dict(sorted(entries.items()))
+
+
+def projection(stage):
+    entries = inventory(stage)
+    assert entries.get('usr', {}).get('kind') == 'directory', stage
+    records = []
+    expected = {name: {} for name in PACKAGES}
+    for rel, details in entries.items():
+        assert not rel.startswith(('etc/resolv.conf', 'usr/share/libalpm/hooks/', 'etc/pacman',
+                                   'boot/', 'var/lib/pacman/')), rel
+        is_dir = details['kind'] == 'directory'
+        if not is_dir:
+            assert not rel.startswith(('etc/NetworkManager/system-connections/', 'var/lib/NetworkManager/')), rel
+        package, dest = owner(rel + '/' if is_dir else rel)
+        dest = dest.rstrip('/')
+        assert dest not in expected[package], (package, dest)
+        expected[package][dest] = details
+        records.append({'source': rel, 'package': package, 'destination': dest, **details})
+    for paths in expected.values():
+        for rel in tuple(paths):
+            for parent in Path(rel).parents:
+                if parent != Path('.'):
+                    details = paths.setdefault(parent.as_posix(), {'kind': 'directory', 'mode': 0o755})
+                    assert details['kind'] == 'directory', parent
+    report = {'schema_version': 2, 'version': '1.58.1-2.1', 'source_sha256': SOURCE_SHA, 'records': records,
+              'OVS_dropin_policy': 'retained as docs example; no new automatic OVS service dependency',
+              'system_mutation': False, 'native_ARM': 'NOT RUN'}
+    return report, expected
+
+
+def partition(stage, output):
+    stage = directory(stage)
+    assert stage != Path('/'), stage
+    assert not output.exists() and not output.is_symlink() and not output.resolve().is_relative_to(stage), output
+    report, expected = projection(stage)
     output.mkdir(mode=0o700)
-    for name in PACKAGES:(output/name).mkdir(mode=0o700)
-    records=[]
-    for path in sorted(stage.rglob('*')):
-        rel=path.relative_to(stage).as_posix()
-        assert not rel.startswith(('etc/resolv.conf','usr/share/libalpm/hooks/','etc/pacman','boot/','var/lib/pacman/')),rel
-        if path.is_symlink():assert path.resolve().is_relative_to(stage),rel
-        if path.is_dir() and not path.is_symlink():
-            package,dest=owner(rel+'/')
-            target=output/package/dest.rstrip('/');target.mkdir(parents=True,exist_ok=True);target.chmod(stat.S_IMODE(path.stat().st_mode))
-            continue
-        assert not rel.startswith(('etc/NetworkManager/system-connections/','var/lib/NetworkManager/')),rel
-        package,dest=owner(rel);target=output/package/dest
-        target.parent.mkdir(parents=True,exist_ok=True);assert not target.exists() and not target.is_symlink()
-        details=leaf(path)
-        if details['kind']=='symlink':target.symlink_to(details['target'])
-        else:shutil.copyfile(path,target);target.chmod(details['mode'])
-        records.append({'source':rel,'package':package,'destination':dest,**details})
-    result={'schema_version':1,'version':'1.58.1-2.1','source_sha256':SOURCE_SHA,'records':records,
-            'OVS_dropin_policy':'retained as docs example; no new automatic OVS service dependency',
-            'system_mutation':False,'native_ARM':'NOT RUN'}
-    (output/'ownership.json').write_text(json.dumps(result,sort_keys=True,indent=2)+'\n')
-    verify(output)
-    return result
-
-
+    output.chmod(0o700)
+    for name, paths in expected.items():
+        package = output / name
+        package.mkdir(mode=0o700)
+        package.chmod(0o700)
+        for rel, details in sorted(paths.items()):
+            if details['kind'] == 'directory':
+                (package / rel).mkdir(mode=0o700)
+    for record in report['records']:
+        target = output / record['package'] / record['destination']
+        if record['kind'] == 'symlink':
+            target.symlink_to(record['target'])
+        elif record['kind'] == 'file':
+            shutil.copyfile(stage / record['source'], target)
+            target.chmod(record['mode'])
+    for name, paths in expected.items():
+        for rel, details in sorted(paths.items(), reverse=True):
+            if details['kind'] == 'directory':
+                (output / name / rel).chmod(details['mode'])
+    (output / 'ownership.json').write_text(json.dumps(report, sort_keys=True, indent=2) + '\n')
+    check_split(output, report, expected)
+    return report
 
 def require_layout(output):
     required={
@@ -74,29 +127,50 @@ def require_layout(output):
         for rel in paths:assert (output/name/rel).is_file(),(name,rel)
     assert any((output/'networkmanager-docs/usr/share/gtk-doc').rglob('*.html')),'built API documentation required'
     connections=output/'networkmanager/etc/NetworkManager/system-connections'
-    assert connections.is_dir() and stat.S_IMODE(connections.stat().st_mode)==0o700
+    assert connections.is_dir() and not connections.is_symlink() and stat.S_IMODE(connections.stat().st_mode)==0o700
     assert not list(connections.iterdir()),'no packaged connections'
     assert not (output/'networkmanager'/OVS).exists(),'no new OVS service dependency'
     for name in PACKAGES:
         assert not any((output/name/'usr/share/polkit-1/rules.d').glob('*'))
 
 
-def verify(output):
-    output=output.resolve(strict=True)
-    result=json.loads((output/'ownership.json').read_text());assert result['version']=='1.58.1-2.1' and result['source_sha256']==SOURCE_SHA
-    expected={name:{}for name in PACKAGES}
-    for row in result['records']:
-        expected[row['package']][row['destination']]={k:row[k]for k in row if k not in ('source','package','destination')}
-    for name in PACKAGES:
-        actual={p.relative_to(output/name).as_posix():leaf(p)for p in (output/name).rglob('*')if p.is_symlink()or p.is_file()}
-        assert actual==expected[name],name
-        for rel in actual:
-            p=output/name/rel
-            if p.is_symlink():assert p.resolve().is_relative_to(output/name),rel
+def check_split(output, report, expected):
+    assert {path.name for path in output.iterdir()} == {*PACKAGES, 'ownership.json'}, output
+    receipt = output / 'ownership.json'
+    assert stat.S_ISREG(receipt.lstat().st_mode), receipt
+    assert json.loads(receipt.read_text()) == report, 'current staged tree differs from split receipt'
+    for name, paths in expected.items():
+        package = output / name
+        assert node(package) == {'kind': 'directory', 'mode': 0o700}, package
+        assert inventory(package) == paths, package
     require_layout(output)
-    return {'split_leaves':{name:len(rows)for name,rows in expected.items()},'source_sha256':SOURCE_SHA}
 
 
-if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--stage',type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--verify',action='store_true');args=p.parse_args()
-    print(json.dumps(verify(args.output)if args.verify else partition(args.stage,args.output),sort_keys=True))
+def verify(stage, output, package=None, destination=None):
+    output = directory(output)
+    report, expected = projection(stage)
+    check_split(output, report, expected)
+    if destination is not None:
+        assert package in PACKAGES, package
+        destination = directory(destination)
+        assert not any(destination.iterdir()), destination
+        shutil.copytree(output / package, destination, symlinks=True, dirs_exist_ok=True)
+        assert node(destination) == {'kind': 'directory', 'mode': 0o700}, destination
+        assert inventory(destination) == expected[package], destination
+    return {'split_leaves': {name: sum(row['kind'] != 'directory' for row in paths.values())
+                             for name, paths in expected.items()}, 'source_sha256': SOURCE_SHA}
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--stage', required=True, type=Path)
+    parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--verify', action='store_true')
+    parser.add_argument('--package', choices=PACKAGES)
+    parser.add_argument('--copy-to', type=Path)
+    args = parser.parse_args()
+    if (args.package is None) != (args.copy_to is None) or (args.package is not None and not args.verify):
+        parser.error('--package and --copy-to must be supplied together with --verify')
+    result = (verify(args.stage, args.output, args.package, args.copy_to)
+              if args.verify else partition(args.stage, args.output))
+    print(json.dumps(result, sort_keys=True))

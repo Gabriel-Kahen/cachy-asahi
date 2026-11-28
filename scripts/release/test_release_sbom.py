@@ -3,6 +3,7 @@
 # Copyright (c) 2026 cachy-asahi contributors
 """Bounded original fixtures; no remote, installation or hardware actors."""
 import copy
+import errno
 import gzip
 import hashlib
 import importlib.util
@@ -305,6 +306,27 @@ class SBOMTests(unittest.TestCase):
         self.refresh(); self.refused('credential-bearing')
         self.prov['sources'] = [dict(url='https://example.invalid/demo', sha256='a' * 64)] * 2
         self.refresh(); self.refused('duplicate/conflicting source')
+
+    def test_payload_enospc_never_publishes_coverage(self):
+        import sys
+
+        output = self.root / 'failed-sbom'
+        argv = ['release-sbom', '--release-dir', str(self.release), '--release-sha256',
+                self.pin, '--output', str(output)]
+        open_file = os.open
+
+        def fail_payload(path, flags, *args, **kwargs):
+            if path == 'sbom.spdx.json' and flags & os.O_WRONLY:
+                raise OSError(errno.ENOSPC, 'modeled SBOM payload failure')
+            return open_file(path, flags, *args, **kwargs)
+
+        with (patch.object(sbom, 'dependencies', return_value=DEPS), patch.object(sys, 'argv', argv),
+              patch.object(os, 'open', side_effect=fail_payload),
+              patch.object(sys, 'stdout', new_callable=io.StringIO) as stdout):
+            self.assertEqual(sbom.main(), 1)
+        self.assertEqual(json.loads(stdout.getvalue())['status'], 'REFUSED')
+        self.assertFalse((output / 'coverage.json').exists())
+        self.assertFalse(output.exists())
 
     def test_cli_fresh_output_and_no_overwrite_or_output_on_refusal(self):
         # Stage the intended canonical layout; helper files remain unchanged.

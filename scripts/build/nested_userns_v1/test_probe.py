@@ -234,7 +234,7 @@ class Controls(unittest.TestCase):
             pending=[];cleaning=False
             def __enter__(self):return self
             def __exit__(self,*args):pass
-        for case in ('pass','denied','missing-binaries'):
+        for case in ('pass','denied','missing-binaries','changed-policy'):
             denied=case=='denied'
             with self.subTest(case=case),tempfile.TemporaryDirectory()as tmp:
                 out=Path(tmp)/'fresh';state={'created':False,'removed':False};calls=[]
@@ -256,6 +256,10 @@ class Controls(unittest.TestCase):
                             if stage=='mapped-root':value['bwrap_parent'].update(uid=os.getuid(),gid=os.getgid());value.update(uid_map=f'0 {os.getuid()} 1\n',gid_map=f'0 {os.getgid()} 1\n')
                             observations.append(M.assess(outer,stage,retirement(1)if denied else retirement(),b''if denied else json.dumps(value).encode(),b'Operation not permitted\n'if denied else b''))
                         stdout=json.dumps(dict(kind='NESTED_NAMESPACE_PREFLIGHT_DATA_V1',outer=outer,binaries={}if case=='missing-binaries'else binaries(),binary_qualification=None,context_qualification=None,observations=observations,children_absent_twice=True)).encode()
+                        if case=='changed-policy':
+                            retained=output/'nested-seccomp.json'
+                            retained.chmod(0o600)
+                            retained.write_bytes(b'{}')
                     elif original[1:3]==['container','rm']:state['removed']=True
                     elif original[1]=='wait':stdout=b'0\n'
                     self.assertLessEqual(len(stdout),per_stream)
@@ -266,6 +270,15 @@ class Controls(unittest.TestCase):
                 self.assertTrue(report['cleanup']['owned_container_absence_verified']);self.assertIsNone(report['namespace_qualification'])
                 if case=='missing-binaries':
                     self.assertEqual(report['status'],'HOLD');self.assertIn('binary observations',report['failure']['message']);self.assertNotIn('observations',report)
+                elif case=='changed-policy':
+                    args=['probe.py','--image','sha256:'+'1'*64,'--profile',str(HERE/'nested-seccomp.json'),
+                          '--profile-sha256',M.P.PROFILE['sha256'],'--output',str(out),'--runtime-root',str(root),'--allow-preflight']
+                    with patch.object(M.sys,'argv',args),patch.object(M,'run',return_value=report):
+                        self.assertEqual(M.main(),2)
+                    self.assertEqual(report['status'],'HOLD')
+                    self.assertIn('exact nested policy SHA-256',report['failure']['message'])
+                    self.assertEqual([r['outcome']for r in report['observations']['observations']],['OBSERVED_REQUIRED_EFFECTS']*2)
+                    self.assertEqual(json.loads((out/'preflight.json').read_bytes()),report)
                 else:
                     self.assertEqual(report['status'],'OBSERVATIONS_RETAINED_NOT_QUALIFICATION')
                     self.assertEqual([r['outcome']for r in report['observations']['observations']],['DENIED'if denied else'OBSERVED_REQUIRED_EFFECTS']*2)

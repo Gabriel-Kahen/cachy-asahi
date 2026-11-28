@@ -58,11 +58,49 @@ class AdoptionControls(unittest.TestCase):
         self.assertFalse(self.output.exists())
 
     def test_changed_pipeline_or_reused_builder_refuses_before_export(self):
-        for name in (P.RECIPE+'/pipeline.py', 'scripts/build/build_v2.py'):
+        for name in (P.RECIPE+'/pipeline.py', 'scripts/build/build_v2.py', 'scripts/build/compare_v2.py'):
             source = self.profile['files'][name]['source']; path = self.root/source; raw = path.read_bytes()
             path.write_bytes(raw+b'\n# changed\n')
             with self.assertRaises(ValueError): P.export(self.output, self.root)
             self.assertFalse(self.output.exists()); path.write_bytes(raw)
+
+    def test_export_uses_frozen_builder_and_comparator(self):
+        names = ('scripts/build/build_v2.py', 'scripts/build/compare_v2.py')
+        for name in names:
+            self.assertNotEqual(self.profile['files'][name]['source'], name)
+            (self.root / name).write_text('# active build helper revision\n')
+        P.export(self.output, self.root)
+        for name in names:
+            self.assertEqual(P.digest((self.output / name).read_bytes()), self.profile['files'][name]['sha256'])
+
+    def test_export_uses_frozen_package_checker(self):
+        name = 'scripts/checks/package_checks.py'
+        retained = self.root / self.profile['files'][name]['source']
+        active = self.root / name
+        active.write_text('# active checker revision\n')
+        expected = 'e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8'
+        P.export(self.output, self.root)
+        self.assertEqual(P.digest((self.output / name).read_bytes()), expected)
+
+        retained.write_text('# changed retained checker\n')
+        with self.assertRaisesRegex(ValueError, 'pinned canonical source differs'):
+            P.checked(self.root)
+
+    def test_export_uses_frozen_source_cache_helper(self):
+        name = 'scripts/maintenance/source_cache.py'
+        retained = self.root / self.profile['files'][name]['source']
+        active = self.root / name
+        active.parent.mkdir(parents=True)
+        active.write_text('# active cache helper revision\n')
+        P.export(self.output, self.root)
+        self.assertEqual(P.digest((self.output / name).read_bytes()),
+                         '3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3')
+        self.assertEqual(P.digest((self.output / 'PGO-SOURCE.json').read_bytes()),
+                         '4733aecfa53b40ba4ed78eee2408978c3523ff5e45f9c55287d295cddb3dfc84')
+
+        retained.write_text('# changed retained cache helper\n')
+        with self.assertRaisesRegex(ValueError, 'pinned canonical source differs: ' + name):
+            P.checked(self.root)
 
     def test_alias_hardlink_fifo_and_mode_changes_refuse(self):
         target = self.root/P.RECIPE/'pipeline.py'; original = target.read_bytes()

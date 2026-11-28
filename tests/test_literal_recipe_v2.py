@@ -120,6 +120,45 @@ class LiteralTests(unittest.TestCase):
             self.assertEqual(result['metadata']['depends'], ['python>=3.12'])
             self.assertFalse((base / '.SRCINFO').exists()); self.assertFalse((base / 'EXECUTED_RECIPE').exists())
 
+    def test_recipe_must_be_present_and_hashed_before_metadata_selection(self):
+        for checker in (OLD, NEW):
+            for name in ('PKGBUILD', 'custom.recipe'):
+                with self.subTest(checker=checker.__name__, name=name), tempfile.TemporaryDirectory() as temp:
+                    base = Path(temp)
+                    self.make_recipe(base, depends='python')
+                    default = base / 'PKGBUILD'
+                    raw = default.read_bytes()
+                    default.unlink()
+                    recipe = base / name
+                    if recipe != default:
+                        default.write_bytes(raw)
+                    srcinfo = base / '.SRCINFO'
+                    checksum = hashlib.sha256((base / 'payload').read_bytes()).hexdigest()
+                    srcinfo.write_text('pkgname = literal-probe\npkgver = 2\npkgrel = 1\n'
+                                       'arch = any\nlicense = MIT\nsource = payload\n'
+                                       f'sha256sums = {checksum}\n')
+                    report = checker.recipe(recipe)
+                    self.assertEqual(report['status'], 'fail')
+                    self.assertIn(f'recipe must be a regular file: {name}', report['errors'])
+                    self.assertEqual(report['metadata'], {})
+                    self.assertNotIn(name, report['input_sha256'])
+
+                    recipe.mkdir()
+                    self.assertEqual(checker.recipe(recipe)['status'], 'fail')
+                    recipe.rmdir()
+                    recipe.write_bytes(raw)
+                    report = checker.recipe(recipe)
+                    self.assertEqual(report['status'], 'static-pass')
+                    self.assertEqual(report['metadata']['pkgver'], ['2'])
+                    self.assertEqual(report['input_sha256'][name], hashlib.sha256(raw).hexdigest())
+
+                    srcinfo.unlink()
+                    report = checker.recipe(recipe)
+                    self.assertEqual(report['status'], 'static-pass')
+                    self.assertEqual(report['metadata']['pkgver'], ['1'])
+                    self.assertEqual(report['input_sha256'][name], hashlib.sha256(raw).hexdigest())
+                    self.assertFalse((base / 'EXECUTED_RECIPE').exists())
+
     def test_single_recipe_cli_reports_success_and_protected_failure_as_data(self):
         with tempfile.TemporaryDirectory() as temp:
             base = Path(temp)

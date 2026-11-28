@@ -7,6 +7,7 @@ operator code; no shell execution is used by the harness, but this is not a sand
 import argparse
 from contextlib import contextmanager
 from datetime import datetime, timezone
+from functools import cache
 import hashlib
 import importlib.util
 import json
@@ -15,12 +16,15 @@ import os
 from pathlib import Path
 import platform
 import queue
+import re
 import signal
 import statistics
 import subprocess
 import sys
+import tempfile
 import threading
 import time
+from types import ModuleType
 
 _memory_spec = importlib.util.spec_from_file_location('process_group_memory', Path(__file__).with_name('process_group_memory.py'))
 process_group_memory = importlib.util.module_from_spec(_memory_spec)
@@ -30,8 +34,13 @@ CLEANUP_SECONDS = 0.25
 _active_sampler = None
 _platform_adapter = None
 _retirement_adapter = None
-OWNED_RETIREMENT_ADAPTER_SHA256 = '0d682260c424abf4207b90cc92607528ae1b17656ebd3093d4e9d3919463748c'
+OWNED_RETIREMENT_ADAPTER_SHA256 = 'b28777c2e2119e4c5bd59f4bad8f084431a3ee9d5d9f866171f339f4ca522345'
 EXECUTION_LAYER = "benchmark-owned-retirement-v2"
+CAPTURE_SOURCE = Path(__file__).resolve().parents[1] / "hardware/capture-baseline.py"
+PAIRED_ZLIB_SOURCE = Path(__file__).resolve().with_name("paired_zlib_v2.py")
+OBSERVED_CONDITIONS_MAX_AGE = 30
+OBSERVED_CONDITIONS_MAX_BYTES = 64 * 1024
+EVIDENCE_MAX_BYTES = 16 * 1024**2
 
 
 class Invalid(ValueError):
@@ -56,6 +65,13 @@ def write_json(path, data):
         output.write("\n")
 
 
+def publish_paired_trial(path, data):
+    with tempfile.TemporaryDirectory(prefix=".trial-", dir=path.parent) as staging:
+        temporary = Path(staging) / path.name
+        write_json(temporary, data)
+        os.link(temporary, path)
+
+
 def now():
     return datetime.now(timezone.utc).isoformat()
 
@@ -73,9 +89,21 @@ def pin_file(path):
 
 
 def check_pin(pin, label):
-    if (str(Path(pin["path"]).resolve(strict=True)) != pin["resolved_path"]
-            or digest(pin["path"]) != pin["sha256"]):
+    path = Path(pin["path"])
+    resolved = path.resolve(strict=True)
+    raw = resolved.read_bytes()
+    if (str(resolved) != pin["resolved_path"] or path.resolve(strict=True) != resolved
+            or hashlib.sha256(raw).hexdigest() != pin["sha256"]):
         raise Invalid(f"{label} changed after declaration: {pin['path']}")
+    return raw
+
+
+@cache
+def capture_source():
+    module = ModuleType("benchmark_baseline_capture")
+    module.__file__ = str(CAPTURE_SOURCE)
+    exec(compile(CAPTURE_SOURCE.read_bytes(), str(CAPTURE_SOURCE), "exec"), vars(module))
+    return module
 
 
 @contextmanager
@@ -97,6 +125,8 @@ def text_file(path):
 
 def state_identity(record):
     """Ignore collection time/operator/desktop status; retain base versions and DB hashes."""
+    if not isinstance(record, dict) or not isinstance(record.get("packages", {}), dict):
+        raise Invalid("expected a capture record and package inventory query")
     packages = record.get("packages", {})
     return {key: record.get(key) for key in (
         "architecture", "machine_model", "device_tree_compatible", "page_size_bytes",
@@ -108,16 +138,14 @@ def state_identity(record):
 
 def live_identity(context):
     try:
-        result = subprocess.run(["pacman", "-Q"], capture_output=True, text=True, timeout=20)
+        result = subprocess.run(["/usr/bin/pacman", "-Q"], capture_output=True, text=True, timeout=20)
         packages = result.stdout.strip() if result.returncode == 0 else None
     except (OSError, subprocess.TimeoutExpired):
         packages = None
     compatible = text_file("/proc/device-tree/compatible")
-    size = None
-    if platform.machine() == "aarch64":
-        ids = (compatible or "").splitlines()
-        size = "13-inch" if "apple,j413" in ids else "15-inch" if "apple,j415" in ids else None
-    return {"architecture": platform.machine(), "machine_model": text_file("/proc/device-tree/model"),
+    architecture = platform.machine()
+    size = capture_source().target_size(architecture, compatible)
+    return {"architecture": architecture, "machine_model": text_file("/proc/device-tree/model"),
             "device_tree_compatible": compatible, "page_size_bytes": os.sysconf("SC_PAGE_SIZE"),
             "kernel": platform.release(), "os_release": text_file("/etc/os-release"),
             "execution_context": context, "m2_air_size": size, "packages": packages,
@@ -139,6 +167,13 @@ def validate_config(config):
             raise Invalid(f"{key}: nonempty identifier required")
     if config.get("execution_context") not in ("physical", "virtual", "emulated", "unknown"):
         raise Invalid("execution_context required")
+    if "paired_zlib" in config:
+        scope = "exact-arm" if config["execution_context"] == "physical" else "control-only"
+        if (config["paired_zlib"] != scope or not isinstance(config.get("inputs"), list)
+                or str(PAIRED_ZLIB_SOURCE) not in config["inputs"]):
+            raise Invalid("paired zlib requires its matching scope and pinned verifier source")
+        if "platform_metrics" in config:
+            raise Invalid("paired zlib requires the ordinary owned-retirement runner")
     change = config.get("change", {})
     for key in ("variable", "baseline", "candidate", "rationale"):
         if not isinstance(change.get(key), str) or not change[key].strip():
@@ -156,6 +191,11 @@ def validate_config(config):
         raise Invalid("inputs must pin workload sources/data/executable")
     if argv[0] not in config["inputs"]:
         raise Invalid("executable must be included in pinned inputs")
+    if "argv_file_operands" in config:
+        indexes = config["argv_file_operands"]
+        if (type(indexes) is not list or any(type(i) is not int or not 0 < i < len(argv) for i in indexes)
+                or len(set(indexes)) != len(indexes)):
+            raise Invalid("argv_file_operands must contain unique argument indexes after the executable")
     if not isinstance(config.get("env", {}), dict) or any(
             not isinstance(k, str) or not k or not isinstance(v, str) or "=" in k or "\0" in k + v
             for k, v in config.get("env", {}).items()):
@@ -265,81 +305,179 @@ def execution_binding():
             'owner': pin_file(adapter.owner_path())}
 
 
-def freeze(config_path, baseline_path, candidate_path, output):
-    config = read_json(config_path)
-    validate_config(config)
-    if "platform_metrics" in config:
-        platform_adapter().validate_config(config["platform_metrics"], config["timeout_seconds"])
-    states = {"baseline": read_json(baseline_path), "candidate": read_json(candidate_path)}
+def package_inventory(value):
+    if not isinstance(value, str) or not value.strip():
+        raise Invalid("package inventories must contain pacman name/version lines")
+    inventory = {}
+    for line in value.splitlines():
+        pair = line.split()
+        if len(pair) != 2 or pair[0] in inventory:
+            raise Invalid("package inventory has malformed or duplicate pacman rows")
+        name, version = pair
+        inventory[name] = version
+    return inventory
+
+
+def plan_states(config, bindings):
+    states = {v: json.loads(check_pin(pin, f"{v} state file")) for v, pin in bindings.items()}
     identities = {v: state_identity(s) for v, s in states.items()}
+    inventories = {}
+    for variant, identity in identities.items():
+        if identity["execution_context"] != config["execution_context"]:
+            raise Invalid("state execution context differs from plan")
+        if config["execution_context"] == "physical":
+            record = states[variant]
+            capture = capture_source()
+            compatible = identity["device_tree_compatible"]
+            size = (capture.exact_target_size(identity["architecture"], compatible)
+                    if isinstance(compatible, str) else None)
+            if (size is None or size != identity["m2_air_size"]
+                    or type(identity["page_size_bytes"]) is not int
+                    or identity["page_size_bytes"] != capture.TARGET_PAGE_SIZE
+                    or type(record.get("schema_version")) is not int or record["schema_version"] != 1
+                    or record.get("record_type") != "environment-baseline"
+                    or record.get("validation_result") != "NOT RUN"):
+                raise Invalid("physical plan needs an exact M2 Air baseline capture with 16 KiB pages")
+            query = record.get("packages", {})
+            if (query.get("command") != ["pacman", "-Q"] or type(query.get("returncode")) is not int
+                    or query["returncode"] != 0):
+                raise Invalid("physical plan needs a successful captured pacman -Q package inventory")
+        if config["execution_context"] == "physical" or identity["packages"] is not None:
+            inventories[variant] = package_inventory(identity["packages"])
     differences = [key for key in identities["baseline"]
                    if identities["baseline"][key] != identities["candidate"][key]]
     if set(differences) != set(config.get("allowed_state_changes", [])):
         raise Invalid(f"state differences {differences} disagree with predeclared allowed_state_changes")
     if "packages" in differences:
-        inventories = {}
-        for variant, identity in identities.items():
-            lines = (identity["packages"] or "").splitlines()
-            if not lines or any(len(line.split()) != 2 for line in lines):
-                raise Invalid("package inventories must contain pacman name/version lines")
-            inventories[variant] = dict(line.split() for line in lines)
+        if inventories.keys() != identities.keys():
+            raise Invalid("package changes need complete baseline and candidate inventories")
         names = set(inventories["baseline"]) | set(inventories["candidate"])
         changed = {name for name in names if inventories["baseline"].get(name) != inventories["candidate"].get(name)}
         if changed != set(config["changed_packages"]):
             raise Invalid(f"unrelated/missing package changes: observed {sorted(changed)}")
-    for identity in identities.values():
-        if identity["execution_context"] != config["execution_context"]:
-            raise Invalid("state execution context differs from plan")
-        if config["execution_context"] == "physical":
-            expected = {"13-inch": "apple,j413", "15-inch": "apple,j415"}.get(identity["m2_air_size"])
-            ids = (identity["device_tree_compatible"] or "").splitlines()
-            if (identity["architecture"] != "aarch64" or expected is None or expected not in ids
-                    or identity["packages"] is None):
-                raise Invalid("physical acceptance plan needs an exact M2 Air record and package inventory")
-    paths = list(config["inputs"])
-    for source in (str(Path(__file__).resolve()), str(Path(process_group_memory.__file__).resolve())):
-        if source not in paths:
-            paths.append(source)
+    return identities
+
+
+def input_paths(config, binding, declared_from):
+    paths = list(config["inputs"]) + [str(CAPTURE_SOURCE), str(Path(process_group_memory.__file__).resolve())]
     for values in config.get("variant_inputs", {}).values():
         paths.extend(values)
     if "platform_metrics" in config:
-        paths.extend(str(p) for p in platform_adapter().source_paths())
-    pins = [pin_file(p) for p in paths]
-    for key in ("state_change_evidence", "hardware_gate_evidence"):
-        if config.get(key):
-            evidence = Path(config[key]).absolute()
-            if key == "hardware_gate_evidence":
-                gates = read_json(evidence)
-                if (gates.get("machine_id") != config["machine_id"] or gates.get("base_id") != config["base_id"]
-                        or gates.get("baseline_functional") != "PASS" or gates.get("recovery") != "PASS"
-                        or not gates.get("evidence") or not gates.get("reviewer")):
-                    raise Invalid("hardware gates are not reviewed PASS evidence for this machine/base")
-            pins.append(pin_file(evidence))
-    for entry in execution_binding().values():
-        if isinstance(entry, dict) and entry['path'] not in {p['path'] for p in pins}:
-            pins.append(entry)
-    plan = {"schema_version": 2, "execution_layer": execution_binding(), "record_type": "frozen-experiment-plan-v2", "frozen_at": now(),
-            "config": config, "inputs": pins, "states": identities,
-            "baseline_binding": pin_file(baseline_path), "candidate_binding": pin_file(candidate_path),
+        paths.extend(str(p) for p in platform_adapter().source_paths(owned_rss='owned_rss' in config))
+    paths.extend(config[key] for key in ("state_change_evidence", "hardware_gate_evidence") if config.get(key))
+    paths.extend(binding[key]["path"] for key in ("runner", "adapter", "owner"))
+    return list(dict.fromkeys(str(declared_from / path) for path in paths))
+
+
+def workload_argv(plan):
+    """Bind file operands to pinned access paths without altering explicit-mode literals."""
+    config = plan["config"]
+    declared_from = Path(plan["declared_from"])
+    inputs = set(config["inputs"])
+    for paths in config.get("variant_inputs", {}).values():
+        inputs.update(paths)
+    pinned_paths = {declared_from / path for path in inputs}
+
+    if "argv_file_operands" in config:
+        argv = list(config["argv"])
+        for index in config["argv_file_operands"]:
+            argument = argv[index]
+            prefix = ""
+            if argument.startswith("-"):
+                option, separator, argument = argument.partition("=")
+                prefix = option + separator
+            path = declared_from / argument
+            if not argument or path not in pinned_paths:
+                raise Invalid(f"argv_file_operands index {index} must name a pinned input path")
+            argv[index] = prefix + str(path)
+        return argv
+
+    def bind(value):
+        path = Path(value)
+        absolute = declared_from / path
+        if value and not path.is_absolute() and absolute in pinned_paths:
+            return str(absolute)
+        return value
+
+    argv = []
+    for argument in config["argv"]:
+        option, separator, value = argument.partition("=")
+        if option.startswith("-"):
+            argv.append(option + separator + bind(value) if separator else argument)
+        else:
+            argv.append(bind(argument))
+    return argv
+
+
+def validate_hardware_gates(config, pins, declared_from):
+    if config.get("hardware_gate_evidence"):
+        path = str(declared_from / config["hardware_gate_evidence"])
+        gates = json.loads(check_pin(pins[path], "hardware gate evidence"))
+        if (gates.get("machine_id") != config["machine_id"] or gates.get("base_id") != config["base_id"]
+                or gates.get("baseline_functional") != "PASS" or gates.get("recovery") != "PASS"
+                or not gates.get("evidence") or not gates.get("reviewer")):
+            raise Invalid("hardware gates are not reviewed PASS evidence for this machine/base")
+
+
+def freeze(config_path, baseline_path, candidate_path, output):
+    config = read_json(config_path)
+    validate_config(config)
+    if "platform_metrics" in config:
+        platform_adapter().validate_config(config["platform_metrics"], config["timeout_seconds"])
+    states = {"baseline": pin_file(baseline_path), "candidate": pin_file(candidate_path)}
+    identities = plan_states(config, states)
+    binding = execution_binding()
+    declared_from = Path.cwd()
+    pins = {path: pin_file(path) for path in input_paths(config, binding, declared_from)}
+    validate_hardware_gates(config, pins, declared_from)
+    plan = {"schema_version": 2, "execution_layer": binding, "record_type": "frozen-experiment-plan-v2", "frozen_at": now(),
+            "config": config, "declared_from": str(declared_from), "inputs": list(pins.values()), "states": identities,
+            "baseline_binding": states["baseline"], "candidate_binding": states["candidate"],
             "optimization_acceptance": "NOT RUN"}
+    if "argv_file_operands" in config:
+        workload_argv(plan)
     write_json(output, plan)
 
 
-def load_plan(path):
-    plan = read_json(path)
+def read_plan(path):
+    return retirement_adapter().ordinary(Path(path).resolve(strict=True), EVIDENCE_MAX_BYTES)
+
+
+def load_plan(path, *, raw=None):
+    plan = json.loads(read_plan(path) if raw is None else raw)
     if plan.get("schema_version") != 2 or plan.get("record_type") != "frozen-experiment-plan-v2":
         raise Invalid("not a supported v2 frozen plan; historical plans must be redeclared")
-    if plan.get('execution_layer') != execution_binding():
+    binding = execution_binding()
+    if plan.get('execution_layer') != binding:
         raise Invalid('v2 execution binding missing/changed; historical plans must be redeclared')
-    validate_config(plan["config"])
-    if "platform_metrics" in plan["config"]:
-        platform_adapter().validate_config(plan["config"]["platform_metrics"], plan["config"]["timeout_seconds"])
+    config = plan["config"]
+    validate_config(config)
+    if "platform_metrics" in config:
+        platform_adapter().validate_config(config["platform_metrics"], config["timeout_seconds"])
     utc_timestamp(plan["frozen_at"])
-    for variant in ("baseline", "candidate"):
-        check_pin(plan[f"{variant}_binding"], f"{variant} state file")
-    for pin in plan["inputs"]:
+    declared_from = Path(plan["declared_from"])
+    if not declared_from.is_absolute():
+        raise Invalid("plan declaration directory must be absolute")
+    pins = {pin["path"]: pin for pin in plan["inputs"]}
+    if pins.keys() != set(input_paths(config, binding, declared_from)) or len(pins) != len(plan["inputs"]):
+        raise Invalid("declared input lacks an exact pin or has an extra or duplicate pin")
+    for pin in pins.values():
         check_pin(pin, "input")
+    validate_hardware_gates(config, pins, declared_from)
+    states = {variant: plan[f"{variant}_binding"] for variant in ("baseline", "candidate")}
+    if canonical(plan.get("states")) != canonical(plan_states(config, states)):
+        raise Invalid("plan states differ from pinned captures")
+    if "argv_file_operands" in config:
+        workload_argv(plan)
     return plan
+
+
+def capture_plan(path, expected_sha256):
+    raw = read_plan(path)
+    sha256 = hashlib.sha256(raw).hexdigest()
+    if expected_sha256 is not None and expected_sha256 != sha256:
+        raise Invalid("frozen plan changed within session")
+    return load_plan(path, raw=raw), sha256
 
 
 def validate_conditions(config, conditions):
@@ -444,7 +582,7 @@ def metrics(samples):
 
 
 # Owner-aware RSS is separately frozen; ordinary/default calls do not select it.
-OWNED_RSS_CORE_SHA256 = '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
+OWNED_RSS_CORE_SHA256 = 'bd1c18c0c8f05462d3d175fceaeda559f422cc1cfd40dfce6244e71df482d42d'
 OWNED_RSS_SCHEMA = 'benchmark-owned-group-rss-v1'
 
 
@@ -460,7 +598,7 @@ def validate_owned_rss(config):
             or not .01 <= interval <= 60
             or math.ceil((config['timeout_seconds'] + .5) / interval) + 1 > 4096):
         raise Invalid('owned RSS interval/retained sample bound')
-    if digest(platform_adapter().dependencies()['owner']) != OWNED_RSS_CORE_SHA256:
+    if digest(platform_adapter().dependencies(owned_rss=True)['owner']) != OWNED_RSS_CORE_SHA256:
         raise Invalid('owned RSS requires Root adoption of the prepared core/pin before freezing')
 
 
@@ -548,22 +686,14 @@ def owned_rss_metrics(rss, start, end, interval):
 
 def execute_owned_rss(config, argv, cwd, environment, output):
     """Pass only the built-in RSS option; no arbitrary PID callback/thread."""
-    from types import SimpleNamespace
     adapter = platform_adapter()
-    collector, owner = adapter.load_dependencies()
+    collector, owner = adapter.load_dependencies(owned_rss=True)
     if digest(owner.__file__) != OWNED_RSS_CORE_SHA256:
         raise Invalid('owner-aware RSS requires the prepared exact core; Root pin adoption is a prerequisite')
     interval = config['owned_rss']['interval_seconds']
-    def supervise(child, **kwargs):
-        return owner.supervise(child, **kwargs, rss_interval=interval)
-    facade = SimpleNamespace(prepare=owner.prepare, supervise=supervise)
-    previous = adapter.load_dependencies
-    adapter.load_dependencies = lambda: (collector, facade)
-    try:
-        result = adapter.execute(argv, cwd, environment, output, config['timeout_seconds'],
-                                 config['sample_seconds'], config['platform_metrics'], metrics)
-    finally:
-        adapter.load_dependencies = previous
+    result = adapter.execute(argv, cwd, environment, output, config['timeout_seconds'],
+                             config['sample_seconds'], config['platform_metrics'], metrics,
+                             rss_interval=interval)
     capture_data = collector.ordinary(output / 'platform-metrics/capture.json', 16 * 1024**2)
     capture = json.loads(capture_data)
     replayable = len(capture_data) <= collector.MAX_LINE
@@ -585,19 +715,22 @@ def execute_owned_rss(config, argv, cwd, environment, output):
     return result
 
 
-def verify_owned_rss(directory, trial, config, legacy):
+def verify_owned_rss(directory, trial, config, legacy, *, raw_files=None):
     """Bind the new raw artifact to the existing source/clock/workload capture."""
-    collector, owner = platform_adapter().load_dependencies()
+    collector, owner = platform_adapter().load_dependencies(owned_rss=True)
     if digest(owner.__file__) != OWNED_RSS_CORE_SHA256:
         raise Invalid('owned RSS core source mismatch')
-    raw = json.loads(collector.ordinary(directory / 'owned-rss.json', 16 * 1024**2))
+    def read(name, cap):
+        return json.loads(raw_files[name] if raw_files is not None else collector.ordinary(directory / name, cap))
+
+    raw = read('owned-rss.json', 16 * 1024**2)
     interval = config['owned_rss']['interval_seconds']
     expected_record = {'schema': OWNED_RSS_SCHEMA, 'owner_sha256': OWNED_RSS_CORE_SHA256,
                        'interval_seconds': interval, 'scope': process_group_memory.SCOPE,
                        'raw': 'owned-rss.json', 'status': raw['observation']['status'], 'capture_replayable': True}
     if trial.get('owned_rss') != expected_record:
         raise Invalid('owned RSS trial declaration differs from frozen/raw evidence')
-    capture = json.loads(collector.ordinary(directory / 'platform-metrics/capture.json', collector.MAX_LINE))
+    capture = read('platform-metrics/capture.json', collector.MAX_LINE)
     if (raw['schema'] != OWNED_RSS_SCHEMA or raw['owner_sha256'] != OWNED_RSS_CORE_SHA256
             or raw['interval_seconds'] != interval
             or raw['monotonic_start_ns'] != trial['monotonic_start_ns']
@@ -617,25 +750,100 @@ def verify_owned_rss(directory, trial, config, legacy):
     return metrics(legacy) | projected
 
 
-def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_metrics=False):
+def paired_step(step, slot, *, measured_only=False):
+    if (type(step) is not dict or set(step) != {"session_id", "phase", "index"}
+            or not isinstance(step["session_id"], str) or not re.fullmatch(r"[0-9a-f]{32}", step["session_id"])
+            or type(step["index"]) is not int or step["index"] < 0
+            or step["phase"] not in ("correctness", "warmup", "measured")
+            or (step["phase"] == "measured" and step["index"] != slot)
+            or (measured_only and step["phase"] != "measured")):
+        raise Invalid("invalid paired zlib trial session, phase or slot")
+    return step
+
+
+def paired_replay(plan):
+    pin = next(pin for pin in plan["inputs"] if pin["path"] == str(PAIRED_ZLIB_SOURCE))
+    module = ModuleType("benchmark_paired_zlib_replay")
+    module.__file__ = str(PAIRED_ZLIB_SOURCE)
+    exec(compile(check_pin(pin, "paired zlib verifier"), module.__file__, "exec"), vars(module))
+    module.validate(plan, plan["config"]["paired_zlib"] == "control-only", replay=True)
+    return module.workload_check(plan)
+
+
+def validate_observed_conditions(conditions, step, receipt, latest_at):
+    if type(receipt) is not dict or set(receipt) != {"requested_at", "received_at", "sha256"}:
+        raise Invalid("paired observed conditions receipt required")
+    observation = conditions.get("observation") if type(conditions) is dict else None
+    if (type(observation) is not dict or set(observation) != (step.keys() | {"observed_at"})
+            or any(type(observation[key]) is not type(value) or observation[key] != value
+                   for key, value in step.items())):
+        raise Invalid("conditions observation differs from the requested session or step")
+    requested, observed, received, latest = map(utc_timestamp, (
+        receipt["requested_at"], observation["observed_at"], receipt["received_at"], latest_at))
+    if not requested <= observed <= received <= latest:
+        raise Invalid("conditions timestamps must follow request, observation, receipt and launch order")
+    if (latest - observed).total_seconds() > OBSERVED_CONDITIONS_MAX_AGE:
+        raise Invalid(f"conditions observation exceeds {OBSERVED_CONDITIONS_MAX_AGE}-second launch age limit")
+
+
+def read_observed_conditions(path):
+    return retirement_adapter().ordinary(path, OBSERVED_CONDITIONS_MAX_BYTES)
+
+
+def check_conditions_pin(data, receipt):
+    if hashlib.sha256(data).hexdigest() != receipt["sha256"]:
+        raise Invalid("retained conditions differ from the accepted observation")
+
+
+def verify_paired_conditions(directory, trial, proof, step, *, required):
+    receipt = proof.get("conditions_receipt")
+    if receipt is None:
+        if required:
+            raise Invalid("physical paired zlib requires observed conditions for this slot")
+        return
+    launch_checked_at = proof["conditions_launch_checked_at"]
+    if not utc_timestamp(trial["started_at"]) <= utc_timestamp(launch_checked_at) <= utc_timestamp(trial["finished_at"]):
+        raise Invalid("conditions launch check falls outside the trial")
+    validate_observed_conditions(trial["conditions"], step, receipt, launch_checked_at)
+    data = read_observed_conditions(directory / "conditions.json")
+    check_conditions_pin(data, receipt)
+    if json.loads(data) != trial["conditions"]:
+        raise Invalid("trial conditions differ from retained observation")
+
+
+def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_metrics=False,
+        paired=None, check_workload=None, conditions_receipt=None, expected_plan_sha256=None):
     if os.geteuid() == 0:
         raise Invalid("root workload execution is refused")
-    plan = load_plan(plan_path)
+    plan, plan_sha256 = capture_plan(plan_path, expected_plan_sha256)
     config = plan["config"]
     if type(platform_metrics) is not bool or platform_metrics != ("platform_metrics" in config):
         raise Invalid("platform metrics flag must match the frozen instrumentation declaration")
     if slot < 0 or slot >= len(config["order"]):
         raise Invalid("slot outside declared order")
+    if "paired_zlib" in config:
+        if not callable(check_workload):
+            raise Invalid("paired zlib trials must run through paired_zlib_v2.py")
+        paired_step(paired, slot)
+        if config["paired_zlib"] == "exact-arm" and conditions_receipt is None:
+            raise Invalid("physical paired zlib requires observed conditions for this slot")
+    elif paired is not None or check_workload is not None or conditions_receipt is not None:
+        raise Invalid("paired zlib execution requires a matching frozen plan")
     variant = config["order"][slot]
     if digest(state_path) != plan[f"{variant}_binding"]["sha256"]:
         raise Invalid("state record does not match frozen variant binding")
     if live_identity(config["execution_context"]) != plan["states"][variant]:
         raise Invalid("live machine/base differs from frozen state; recapture and predeclare a new plan")
-    conditions = read_json(conditions_path)
+    observed = read_observed_conditions(conditions_path) if conditions_receipt is not None else None
+    conditions = json.loads(observed) if observed is not None else read_json(conditions_path)
+    if observed is not None:
+        validate_observed_conditions(conditions, paired, conditions_receipt, now())
+        check_conditions_pin(observed, conditions_receipt)
     validate_conditions(config, conditions)
     cwd = Path(cwd).resolve(strict=True)
     if not cwd.is_dir():
         raise Invalid("cwd must be a caller-selected isolated directory")
+    argv = workload_argv(plan)
     output = Path(output)
     output.mkdir(parents=False, exist_ok=False)
     environment = os.environ.copy()
@@ -645,35 +853,63 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_m
     comparable_env = environment.copy()
     if config.get("variant_env"):
         comparable_env.pop(config["change"]["environment_key"], None)
-    record = {"schema_version": 1, "record_type": "benchmark-trial", "plan_sha256": digest(plan_path),
+    record = {"schema_version": 1, "record_type": "benchmark-trial", "plan_sha256": plan_sha256,
               "slot": slot, "variant": variant, "started_at": now(), "hostname": platform.node(),
               "machine_id": config["machine_id"], "base_id": config["base_id"],
               "workload_id": config["workload_id"], "state": plan["states"][variant],
-              "conditions": conditions, "argv": config["argv"], "cwd": str(cwd),
+              "conditions": conditions, "argv": argv, "cwd": str(cwd),
               "environment_sha256": canonical(environment), "comparable_environment_sha256": canonical(comparable_env),
               "declared_environment": declared_env,
               "execution_label": "M2 physical measurement pending review" if config["execution_context"] == "physical"
               else f"{platform.machine()}/{config['execution_context']} nonacceptance smoke",
               "optimization_acceptance": "NOT RUN"}
+    if paired is not None:
+        record["paired_zlib"] = {"step": paired}
+    if observed is not None:
+        record["paired_zlib"]["conditions_receipt"] = conditions_receipt
+        (output / "conditions.json").write_bytes(observed)
     write_json(output / "started.json", record)
+    if observed is not None:
+        launch_checked_at = now()
+        validate_observed_conditions(conditions, paired, conditions_receipt, launch_checked_at)
+        record["paired_zlib"]["conditions_launch_checked_at"] = launch_checked_at
     if platform_metrics and "owned_rss" in config:
-        result = execute_owned_rss(config, config["argv"], cwd, environment, output)
+        result = execute_owned_rss(config, argv, cwd, environment, output)
     elif platform_metrics:
-        result = platform_adapter().execute(config["argv"], cwd, environment, output,
+        result = platform_adapter().execute(argv, cwd, environment, output,
                                             config["timeout_seconds"], config["sample_seconds"], config["platform_metrics"], metrics)
     else:
-        result = execute(config["argv"], cwd, environment, output, config["timeout_seconds"], config["sample_seconds"])
+        result = execute(argv, cwd, environment, output, config["timeout_seconds"], config["sample_seconds"])
     record.update(result)
     record["finished_at"] = now()
     if platform_metrics:
         record["raw_sha256"] = {str(p.relative_to(output)): digest(p) for p in output.rglob('*')
                                 if p.is_file() and p != output / 'started.json'}
     else:
-        record["raw_sha256"] = {p.name: digest(p) for p in output.iterdir() if p.name != "started.json"}
+        separate_receipts = {"started.json"}
+        if observed is not None:
+            separate_receipts.add("conditions.json")
+        record["raw_sha256"] = {p.name: digest(p) for p in output.iterdir() if p.name not in separate_receipts}
     record["state_after"] = live_identity(config["execution_context"])
     record["valid"] = (result["error"] is None and result["returncode"] == 0
                        and record["state_after"] == record["state"])
-    write_json(output / "trial.json", record)
+    if paired is not None:
+        if record["valid"]:
+            try:
+                adapter = retirement_adapter()
+                stdout = adapter.ordinary(output / "stdout.txt", adapter.MAX_OUTPUT)
+                if hashlib.sha256(stdout).hexdigest() != record["raw_sha256"]["stdout.txt"]:
+                    raise Invalid("paired stdout changed before workload verification")
+                report = check_workload(stdout, variant)
+                if type(report) is not dict:
+                    raise Invalid("paired workload verification did not return a report")
+                record["paired_zlib"]["report"] = report
+            except (OSError, ValueError, KeyError, TypeError) as error:
+                record["valid"] = False
+                record["error"] = f"paired workload verification failed: {str(error)[:400]}"
+        publish_paired_trial(output / "trial.json", record)
+    else:
+        write_json(output / "trial.json", record)
     return 0 if record["valid"] else 2
 
 
@@ -691,34 +927,45 @@ def sensor_identity(sample):
                                 ("power", ("path", "chip_name", "channel_label", "device", "unit")))}
 
 
-def compare(plan_path, directories, output):
-    plan = load_plan(plan_path)
+def compare(plan_path, directories, output, *, expected_plan_sha256=None, expected_trials=None):
+    plan, plan_sha256 = capture_plan(plan_path, expected_plan_sha256)
     config = plan["config"]
-    trials, sensor_ids = [], None
+    argv = workload_argv(plan)
+    platform_reader = platform_adapter() if 'platform_metrics' in config else None
+    retirement = retirement_adapter()
+    trials, trial_bindings, sensor_ids = [], [], None
+    check_workload = paired_replay(plan) if "paired_zlib" in config else None
+    session_id = None
     for directory in directories:
-        directory = Path(directory)
-        trial = read_json(directory / "trial.json")
+        directory = Path(directory).resolve(strict=True)
+        trial_raw = retirement.ordinary(directory / "trial.json", EVIDENCE_MAX_BYTES)
+        trial_sha256 = hashlib.sha256(trial_raw).hexdigest()
+        trial = json.loads(trial_raw)
         if ("owned_rss" in config) != ("owned_rss" in trial):
             raise Invalid("owned RSS instrumentation differs from frozen plan")
         if ("platform_metrics" in config) != ("platform_metrics" in trial):
             raise Invalid("trial instrumentation differs from frozen plan")
-        if "platform_metrics" in config:
-            platform_adapter().verify_trial(directory, trial, config["platform_metrics"])
-        if trial.get("record_type") != "benchmark-trial" or trial.get("plan_sha256") != digest(plan_path):
+        if trial.get("record_type") != "benchmark-trial" or trial.get("plan_sha256") != plan_sha256:
             raise Invalid("differing plan/base/machine/workload binding")
         slot = trial.get("slot")
         if isinstance(slot, bool) or not isinstance(slot, int) or not 0 <= slot < len(config["order"]):
             raise Invalid("invalid trial slot")
+        if expected_trials is not None and expected_trials.get(slot) != trial_sha256:
+            raise Invalid("trial changed since session admission")
         variant = config["order"][slot]
-        for key in ("machine_id", "base_id", "workload_id", "argv"):
+        for key in ("machine_id", "base_id", "workload_id"):
             if trial.get(key) != config[key]:
                 raise Invalid(f"differing {key}")
+        if trial.get("argv") != argv:
+            raise Invalid("differing argv")
         if (trial.get("state") != plan["states"][variant] or trial.get("state_after") != trial.get("state")
                 or trial.get("variant") != variant):
             raise Invalid("differing observed variant machine/base state")
         validate_conditions(config, trial["conditions"])
         if trial.get("valid") is not True or trial.get("returncode") != 0 or trial.get("error") is not None:
             raise Invalid("failed/interrupted workload; retain evidence and declare a new complete block")
+        if (check_workload is not None) != ("paired_zlib" in trial):
+            raise Invalid("paired zlib trial admission differs from frozen plan")
         sampling = trial.get("sampling_status", {})
         if (sampling.get("worker_stopped") is not True or sampling.get("workload_reaped") is not True
                 or sampling.get("error") is not None or sampling.get("dropped_samples") != 0):
@@ -745,23 +992,40 @@ def compare(plan_path, directories, output):
             expected_raw.add('owned-retirement.json')
         if set(trial.get("raw_sha256", {})) != expected_raw:
             raise Invalid("missing raw outputs")
-        bounded_raw = retirement_adapter().raw_files(directory) if 'platform_metrics' not in config else None
+        bounded_raw = (platform_reader.raw_files(directory, owned_rss='owned_rss' in config)
+                       if platform_reader is not None else retirement.raw_files(directory))
         for name, expected in trial["raw_sha256"].items():
-            observed = hashlib.sha256(bounded_raw[name]).hexdigest() if bounded_raw is not None else digest(directory / name)
+            observed = hashlib.sha256(bounded_raw[name]).hexdigest()
             if observed != expected:
                 raise Invalid(f"raw output changed: {name}")
-        telemetry_bytes = bounded_raw['telemetry.jsonl'] if bounded_raw is not None else (directory / "telemetry.jsonl").read_bytes()
-        samples = [json.loads(line) for line in telemetry_bytes.splitlines()]
+        if check_workload is not None:
+            proof = trial["paired_zlib"]
+            if type(proof) is not dict:
+                raise Invalid("invalid paired zlib trial proof")
+            step = paired_step(proof["step"], slot, measured_only=True)
+            if session_id is not None and step["session_id"] != session_id:
+                raise Invalid("paired zlib measurements belong to different sessions")
+            session_id = step["session_id"]
+            verify_paired_conditions(directory, trial, proof, step, required=config["paired_zlib"] == "exact-arm")
+            if proof.get("report") != check_workload(bounded_raw["stdout.txt"], variant):
+                raise Invalid("paired workload report differs from verified stdout")
+        if platform_reader is None:
+            samples = [json.loads(line) for line in bounded_raw['telemetry.jsonl'].splitlines()]
+        else:
+            platform_reader.verify_trial(directory, trial, config['platform_metrics'], raw=bounded_raw,
+                                         owned_rss='owned_rss' in config)
+            samples = [platform_reader.unavailable_legacy(start)]
         if not samples or trial.get("sample_count", len(samples)) != len(samples):
             raise Invalid("missing telemetry samples or differing sample count")
         times = [number(s.get("monotonic_ns"), "sample monotonic_ns", start, end) for s in samples]
         if times != sorted(times):
             raise Invalid("telemetry timestamps are out of order")
-        if 'platform_metrics' not in config:
-            measured = retirement_adapter().verify(directory, trial, config['sample_seconds'], samples,
-                                                    metrics, owned_rss_metrics)
+        if platform_reader is None:
+            measured = retirement.verify(directory, trial, config['sample_seconds'], samples,
+                                         metrics, owned_rss_metrics, raw=bounded_raw)
         else:
-            measured = verify_owned_rss(directory, trial, config, samples) if "owned_rss" in config else metrics(samples)
+            measured = (verify_owned_rss(directory, trial, config, samples, raw_files=bounded_raw)
+                        if 'owned_rss' in config else metrics(samples))
         if trial.get("metrics") != measured:
             raise Invalid("summary differs from raw telemetry")
         for sample in samples:
@@ -770,6 +1034,7 @@ def compare(plan_path, directories, output):
                 raise Invalid("sensor source/chip/channel/device/unit changed within or between trials")
             sensor_ids = identity
         trials.append(trial)
+        trial_bindings.append({"slot": slot, "directory": str(directory), "sha256": trial_sha256})
     trials.sort(key=lambda t: t["slot"])
     if [t["slot"] for t in trials] != list(range(len(config["order"]))):
         raise Invalid("inadequate, duplicate or missing trials; complete predeclared order required")
@@ -815,7 +1080,7 @@ def compare(plan_path, directories, output):
                                            "regression": regression, "budget": budget}
             if regression > budget:
                 failures.append(f"guardrail exceeded: {name}:{key}")
-    result = {"schema_version": 1, "record_type": "preliminary-comparison", "plan_sha256": digest(plan_path),
+    result = {"schema_version": 1, "record_type": "preliminary-comparison", "plan_sha256": plan_sha256,
               "summary_seconds": summary, "median_elapsed_improvement_pct": improvement,
               "guardrails": guardrails, "failures": failures, "missing_guardrail_telemetry": missing,
               "preliminary_result": "FAIL" if failures else "INCOMPLETE" if missing else "MEETS_TIMING_RULE_ONLY",
@@ -823,9 +1088,7 @@ def compare(plan_path, directories, output):
               "limitations": ["No confidence interval or population/performance claim is inferred from medians.",
                               "Operator controls and state-change scope require independent review.",
                               "Frame/interactive latency, power/battery, suspend, sustained thermals, functional and recovery gates require separate physical evidence."],
-              "trial_bindings": [{"slot": t["slot"], "directory": str(Path(d).resolve()),
-                                  "sha256": digest(Path(d) / "trial.json")}
-                                 for d in directories for t in [read_json(Path(d) / "trial.json")]]}
+              "trial_bindings": sorted(trial_bindings, key=lambda binding: binding["slot"])}
     write_json(output, result)
     return 2 if failures or missing else 0
 

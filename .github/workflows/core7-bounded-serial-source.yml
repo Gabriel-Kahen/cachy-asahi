@@ -1,6 +1,7 @@
 name: core7-bounded-serial-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/core7-bounded-serial-source/**
       - .github/workflows/core7-bounded-serial-source.yml

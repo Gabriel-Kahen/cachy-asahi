@@ -6,6 +6,7 @@ on:
       - '.github/workflows/platform-namespace-policy-host-data.yml'
       - '.github/workflows/platform-namespace-policy-source-proposal.yml'
   push:
+    branches: ['**']
     paths:
       - 'scripts/ci/platform-namespace-policy-matrix-source/**'
       - '.github/workflows/platform-namespace-policy-host-data.yml'

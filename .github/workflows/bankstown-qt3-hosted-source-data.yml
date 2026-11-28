@@ -13,9 +13,9 @@ on:
       - 'scripts/ci/first-login-enrollment-native-source/payload/native/**'
       - 'scripts/ci/first-login-enrollment-native-source/profile.json'
       - 'packages/port/bankstown-source-candidate/**'
-      - 'scripts/build/build.py'
+      - 'scripts/ci/maintained-native/native/scripts/build/build.py'
       - 'scripts/build/container-entry.sh'
-      - 'scripts/checks/package_checks.py'
+      - 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/scripts/ci/llhttp-reference-native-source/base/runtime/scripts/checks/package_checks.py'
       - 'scripts/virtual/owned_process.py'
       - 'scripts/port/arm-rust-toolchain-inputs/**'
   push:
@@ -33,9 +33,9 @@ on:
       - 'scripts/ci/first-login-enrollment-native-source/payload/native/**'
       - 'scripts/ci/first-login-enrollment-native-source/profile.json'
       - 'packages/port/bankstown-source-candidate/**'
-      - 'scripts/build/build.py'
+      - 'scripts/ci/maintained-native/native/scripts/build/build.py'
       - 'scripts/build/container-entry.sh'
-      - 'scripts/checks/package_checks.py'
+      - 'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/scripts/ci/llhttp-reference-native-source/base/runtime/scripts/checks/package_checks.py'
       - 'scripts/virtual/owned_process.py'
       - 'scripts/port/arm-rust-toolchain-inputs/**'
   workflow_dispatch:
@@ -94,8 +94,8 @@ jobs:
         if: always()
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
-          Configured per Python: 108 controls, zero fixture skips.
-          This includes 8 local-input controls, 44 original producer controls,
+          Configured per Python: 110 controls, zero fixture skips.
+          This includes 10 local-input controls, 44 original producer controls,
           10 dispatch-constructor controls, 33 frozen Reader controls and 13 Source79
           wrapper controls. The exact Source72/78/79 DATA is locally reconstructed
           using retained catalog bytes, 67 whole-pinned repository operands and

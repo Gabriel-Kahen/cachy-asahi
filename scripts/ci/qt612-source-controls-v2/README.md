@@ -7,7 +7,7 @@ frozen DATA adversarials from:
 
 | Family | Original commit | Logical coverage | Additional executions |
 | --- | --- | ---: | ---: |
-| GUI evidence/lifecycle adapter | `85626d96a95abc0a29d7239c63b8d522150bcb50` | 117 | 117 |
+| GUI evidence/lifecycle adapter with external-provider geometry regression | `85626d96a95abc0a29d7239c63b8d522150bcb50` | 118 | 118 |
 | Producer/transport/GUI projection | `663927a694fcfddda56f32c1eff00701a6395a93` | 114 | 86 |
 | Successor I/O boundary | authored here | 1 test / 10 subcases | 1 |
 
@@ -16,17 +16,24 @@ executed by the baseline. The successor verifies **all six copied files**, their
 whole bodies, sizes, modes and complete namespace against that frozen baseline
 before reusing its coverage. Different bytes/modes or a missing alias refuses;
 no changed suite can silently inherit that result. This is explicit duplicate
-coverage reuse, not skipped unittest cases. The route executes **344 tests with
+coverage reuse, not skipped unittest cases. The route executes **345 tests with
 zero skips** on each of Python **3.12.13** and **3.14.6**.
 
 `inputs.lock.json` pins the complete authored families (baseline CI: 6 entries;
 GUI adapter: 20; producer: 42), the unchanged legacy workflow, seven additional
 public support files, the suite catalog and three new local execution/control
 files. The reused baseline independently checks its 298 frozen recipe/transport
-entries. All those inputs are rechecked after the suites; no C/E/F source family,
-old CI code or shared manifest is modified. A shallow checkout is sufficient;
-this gate compares current file bytes to original Git-derived pins and does not
-fetch or assert historical Git ancestry.
+entries. The successor rechecks the checkout and its temporary source tree after
+the suites. A shallow checkout supplies every required file.
+
+The frozen producer tests read the builder from framework commit
+`620b5b28c4e07cfd23e753bde3de51695a7a7ef8`. The successor verifies the retained
+copy at `packages/tools/cachy-asahi-security-maintenance/build_v2.py` against the
+original size, mode and SHA-256. It places those bytes at
+`scripts/build/build_v2.py` in a temporary tree containing only pinned files.
+The producer and GUI projection tests read that tree, and the report records the
+historical source. The integration checkout keeps the live builder with its
+bounded timeout cleanup.
 
 Each new suite executes in a separate interpreter under a 512 MiB address-space
 cap, 30-second CPU cap and 40-second parent timeout. A permanent audit policy
@@ -57,7 +64,7 @@ are inspected as source data; their previous real operations are not replayed.
 ```sh
 /absolute/python3.12-or-3.14 -I -B -Werror::ResourceWarning \
   scripts/ci/qt612-source-controls-v2/ci.py \
-  --workspace /absolute/composed/checkout \
+  --workspace /absolute/checkout \
   --report /absolute/fresh/report-outside-checkout.json
 ```
 

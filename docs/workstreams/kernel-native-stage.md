@@ -1,31 +1,22 @@
 # Separate native kernel trial
 
-This stage is implemented for review; **native ARM kernel compilation and
-fixture execution remain unaccepted; kernel execution, installation and M2
-validation have not run; performance remains NOT MEASURED**. Actual trial
-38270726379 failed after the outer producer was accepted, without an exported
-first child predicate or evidence establishing a compiler invocation. Cleanup
-FAIL remains authoritative. The source-only
-[child diagnostic correction](kernel-child-diagnostics-correction.md) adds
-finite observations without changing existing timer, broker or image policy.
-Its dependency authentication and
-source/application audits ran locally. It does not change the accepted platform
-tuple, original builder snapshot, boot configuration or shared release manifests.
-The coordinator owns Git integration, workflow integration and dispatch.
+The kernel stage uses the same-job producer receipts and extends its 341-package
+inventory with fifteen signed inputs. Native build-pair acceptance, kernel
+execution, installation, M2 validation and performance measurement remain open.
+The [job guide](kernel-native-job.md) records the historical verifier failure
+and the current archive availability blocker.
 
 ## Frozen inputs
 
 [dependencies.json](../../scripts/port/kernel-native-stage/dependencies.json)
-is a separate, authenticated extension of the original 341-package builder.
-Its SHA256 is
-`cf4d6eaa80ab15f1b1359d161b7b07e187f37df6071e5f628e235cb9689a93d6`.
-The unchanged base inventory SHA256 is
-`89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f`;
-base inputs are
-`3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650`.
-The exact 356-package extended inventory hashes to
-`454cd8783a72751f5a069e9286fa11b79267cc2c1dd9c269693b6859aa234ddd`.
-All 341 original name/version pairs must remain identical.
+binds the extension to the input lock
+`beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f` and base
+inventory `fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25`.
+The exact 356-package inventory hashes to
+`eda383465963d69c366b0890bde1e75236453ff459b9ee96a29cd5fbbf6a3edc`.
+Provisioning preserves all 341 base names and versions and checks the new
+local package database with `pacman -Dk`. The recorded dependency query and
+signature inspection come from the historical data audit.
 
 The fifteen additions are bc 1.08.2-1, clang/compiler-rt/lld/llvm 23.1.1-1,
 dtc 1:1.8.1-1, libgit2 1:1.9.7-1, libxslt 1.1.45-2, libyaml 0.2.5-3,
@@ -81,12 +72,12 @@ python3 -I -B scripts/port/kernel-native-stage/acquisition.py \
 ```
 
 Optional repeated `--reuse-cache /absolute/existing/cache` arguments save
-downloads but do not relax pins. A fresh-network hosted acquisition has not
-run; the actual local acquisition reused all 35 hash-matching inputs,
-reverified signatures and inspected all 100,117 archive members.
+downloads but do not relax pins. A historical local audit reused all 35 hash-matching inputs, reverified
+signatures and inspected 100,117 archive members. The current cold mirror
+probe refuses removed inputs.
 
 [stage.py](../../scripts/port/kernel-native-stage/stage.py) exposes `freeze`
-and `run`. Freeze writes a new development source hash/mode map to the owned
+and `run`. Freeze writes a new development source hash, length and mode map to the owned
 `stage.lock.json`, or to a new ignored artifact path. It is not a signed release
 or a native result. Run requires all of these explicit arguments:
 
@@ -97,15 +88,15 @@ or a native result. Run requires all of these explicit arguments:
 | `--lock`, `--lock-sha256` | Independently reviewed source closure and external pin |
 | `--docker`, `--docker-sha256`, `--endpoint` | Canonical hashed CLI and root-owned local `/run/docker.sock` |
 | `--image` | Exact accepted base image ID, `sha256:…` |
-| `--bootstrap`, `--bootstrap-sha256` | Same-job original image-provisioned receipt |
-| `--accepted-result`, `--accepted-result-sha256` | Original native build PASS receipt with unchanged input/recipe pins |
-| `--base-packages`, `--inputs` | Exact original 341-package inventory and inputs |
+| `--bootstrap`, `--bootstrap-sha256` | Same-job image-provisioned receipt |
+| `--accepted-result`, `--accepted-result-sha256` | Native producer PASS receipt with the current input and recipe pins |
+| `--base-packages`, `--inputs` | Exact 341-package inventory and signed inputs |
 | `--archive`, `--config`, `--patch`, `--bio-baseline`, `--bio-candidate`, `--package-cache`, `--key-dir` | Acquisition's seven pinned paths |
 
 Run checks every source byte and mode against both the lock and the exact Git
-commit before copying its private code snapshot. It uses the existing FDK
-accepted-base validator without modifying it. Original lifecycle acceptance
-is not inferred from that helper's original-build PASS. The original ARM-C01
+commit before copying its private code snapshot. The stage checks the current
+recipe pin, signed input lock, produced inventory and image ID against the
+producer receipts. The original ARM-C01
 run 38218102399 remains overall FAIL; the strict-inflate source correction is
 separate, with lock integration and a corrected native run owned by the coordinator.
 

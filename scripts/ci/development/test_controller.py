@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
+import base64
+import hashlib
+import io
 import json
 from pathlib import Path
+import subprocess
 import sys
+import tarfile
 import tempfile
 from types import ModuleType, SimpleNamespace
 import unittest
@@ -10,6 +15,32 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import controller
 from common import save
+
+
+class DirectEntryTests(unittest.TestCase):
+    def test_direct_entry_exposes_canonical_builtins_before_main(self):
+        script = """
+import builtins
+from pathlib import Path
+import sys
+
+__file__ = sys.argv[1]
+assert __builtins__ is builtins
+sys.path.insert(0, str(Path(__file__).parent))
+
+def stop_before_main(frame, event, _):
+    if event == 'call' and frame.f_code.co_name == 'main' and frame.f_code.co_filename == __file__:
+        assert frame.f_globals['__builtins__'] is vars(builtins)
+        assert frame.f_builtins is vars(builtins)
+        raise SystemExit(0)
+
+sys.settrace(stop_before_main)
+exec(compile(Path(__file__).read_bytes(), __file__, 'exec'))
+raise AssertionError('controller entry did not call main')
+"""
+        result = subprocess.run([sys.executable, '-E', '-s', '-B', '-c', script, controller.__file__],
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
 
 
 class ControllerTests(unittest.TestCase):
@@ -80,6 +111,43 @@ class ControllerTests(unittest.TestCase):
         self.dev.run(self.native(), [])
         self.assertTrue(self.publish())
         self.assertEqual(self.dev.report['status'], 'CAPTURED_REQUIRES_VISUAL_REVIEW')
+
+    def test_virtual_pins_only_live_during_virtual_call(self):
+        pins = {name: f'{index + 1:064x}' for index,name in enumerate(controller.VIRTUAL_NAMES)}
+        source = {'source_files':{'scripts/virtual/'+name:{'sha256':pin} for name,pin in pins.items()}}
+        missing, supplied = object(), {'previous': 'value'}
+        cases = (None, ValueError('modeled adapter failure'), KeyboardInterrupt())
+        for index,error in enumerate(cases):
+            for previous in (missing, supplied):
+                with self.subTest(error=type(error).__name__, prior=previous is supplied):
+                    output = self.root / f'virtual-pin-{index}-{previous is supplied}'
+                    output.mkdir()
+                    development = controller.Development(self.root,output,self.root/'cache',source)
+                    initial = SimpleNamespace(cancelled=False,installed='sha256:'+'a'*64)
+                    if previous is supplied:initial.virtual_packet_sha256 = supplied
+                    before = vars(initial).copy()
+                    ksm, virtual = self.stage('ksm'), self.stage('virtual')
+                    def prior_state():
+                        self.assertEqual(vars(initial),before)
+                        if previous is supplied:self.assertIs(initial.virtual_packet_sha256,supplied)
+                    def run_ksm(*args):
+                        prior_state()
+                        return ksm(*args)
+                    def run_virtual(*args):
+                        self.assertEqual(initial.virtual_packet_sha256,pins)
+                        if error is not None:raise error
+                        return virtual(*args)
+                    with patch.object(self.base,'run_ksm',run_ksm),patch.object(self.virtual,'run_virtual',run_virtual), \
+                            patch.object(development,'recover_public',side_effect=lambda *args:prior_state()):
+                        if isinstance(error,KeyboardInterrupt):
+                            with self.assertRaises(KeyboardInterrupt) as caught:development.consume(initial)
+                            self.assertIs(caught.exception,error)
+                        else:
+                            development.consume(initial)
+                    prior_state()
+                    expected = 'PASS' if error is None else 'FAIL'
+                    self.assertEqual(development.report['stages']['ksm']['status'],'PASS')
+                    self.assertEqual(development.report['stages']['virtual']['status'],expected)
 
     def test_cleanup_failure_is_authoritative(self):
         self.dev.run(self.native(cleanup_pass=False), [])
@@ -228,6 +296,70 @@ class ControllerTests(unittest.TestCase):
         with self.assertRaises(ValueError): controller.public_tree(directory)
         link.unlink(); source.unlink(); os.mkfifo(directory / 'fifo')
         with self.assertRaises(ValueError): controller.public_tree(directory)
+
+
+class RepositoryPublicationTests(unittest.TestCase):
+    phase_name = 'development-repository-handoff-phase-public'
+    accepted = dict.fromkeys(('status','cleanup','restage','input_acceptance'), 'PASS')
+
+    def publication(self, schema, receipt):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name)
+        output = root/'output'
+        unrelated = output/'unrelated'
+        unrelated.mkdir(parents=True)
+        save(unrelated/'result.json', {'status':'PASS'})
+        dev = controller.Development(root,output,root/'cache',{'schema_version':schema})
+        dev.publication_deadline = controller.time.monotonic()+20
+        dev.public.append(unrelated)
+        dev.report.update(initial_integration='PASS', initial_cleanup={'status':'PASS'}, cancelled=False,
+                          repository_handoff=receipt)
+        dev.report['stages'].update({name:{'status':'PASS'} for name in controller.STAGES})
+        return dev
+
+    def publish(self, dev, emitted):
+        return controller.publish(dev,lambda root:(root/'result.json').read_bytes(),
+                                  emit=lambda value, **options:emitted.append(value))
+
+    def test_both_composed_schemas_publish_the_validated_phase_bundle(self):
+        phase_result = b'{"status":"PASS"}\n'
+        for schema in (2,3):
+            with self.subTest(schema=schema):
+                dev = self.publication(schema, self.accepted.copy())
+                emitted = []
+                # Model the actor-free output of the existing Session authority check.
+                with patch.object(controller,'phase_capture',return_value={'result.json':phase_result}) as capture:
+                    self.assertTrue(self.publish(dev,emitted))
+                capture.assert_called_once_with(dev,dev.publication_deadline)
+                archive_bytes = base64.b64decode(emitted[1])
+                self.assertEqual(emitted[0], f'CACHY_ASAHI_EVIDENCE_BEGIN {self.phase_name} '
+                                 f'sha256={hashlib.sha256(archive_bytes).hexdigest()} bytes={len(archive_bytes)}')
+                self.assertEqual(emitted[2], f'CACHY_ASAHI_EVIDENCE_END {self.phase_name}')
+                with tarfile.open(fileobj=io.BytesIO(archive_bytes),mode='r:gz') as archive:
+                    self.assertEqual(archive.extractfile('phase-public/result.json').read(),phase_result)
+                self.assertEqual(dev.report['repository_publication'],'PASS')
+                self.assertEqual(dev.report['status'],'PASS')
+
+    def test_schema_three_pass_labels_cannot_replace_session_capture(self):
+        dev = self.publication(3,self.accepted.copy())
+        emitted = []
+        self.assertFalse(self.publish(dev,emitted))
+        self.assertEqual(dev.report['repository_publication'],'FAIL')
+        self.assertEqual(dev.report['status'],'FAIL')
+        self.assertEqual(dev.report['bundles'][0]['error_code'],'bounded-phase-publication-failed')
+        self.assertEqual(dev.report['bundles'][1]['status'],'PASS')
+        self.assertFalse(any(line.startswith(f'CACHY_ASAHI_EVIDENCE_BEGIN {self.phase_name}') for line in emitted))
+
+    def test_composed_terminal_status_requires_every_handoff_receipt_field(self):
+        for schema in (2,3):
+            for field in self.accepted:
+                with self.subTest(schema=schema,field=field):
+                    dev = self.publication(schema,{**self.accepted,field:'FAIL'})
+                    with patch.object(controller,'phase_capture',return_value={'result.json':b'{}'}):
+                        self.assertFalse(self.publish(dev,[]))
+                    self.assertEqual(dev.report['repository_publication'],'PASS')
+                    self.assertEqual(dev.report['status'],'FAIL')
 
 
 class ComposedForwardingTests(unittest.TestCase):
@@ -691,6 +823,61 @@ class InstallerConstructorSourceTests(unittest.TestCase):
         cls.fixture = test_repository_handoff.CapturedGraphFixtures;cls.fixture.setUpClass()
         cls.addClassCleanup(cls.fixture.doClassCleanups)
 
+    def test_dual_source_constructor_binds_real_roots_and_historical_runner(self):
+        import hashlib
+        import time
+        import test_repository_handoff
+
+        with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules,{}):
+            base = Path(temporary)
+            root, original, grant = test_repository_handoff.split_source_fixture(self.fixture,base)
+            output = base / 'controller-output'
+            cache = base / 'controller-cache'
+            grant['original_view']['root'] = str(output/'repository-handoff'/'original-view')
+            original_lock = json.loads((original/controller.packet.INITIAL).read_bytes())
+            identity = {key:grant['original_view'][key] for key in controller.packet.ORIGINAL_SOURCE}
+            source_packet = {'schema_version':3,'composition':controller.packet.COMPOSITION,
+                             'source_files':grant['source_files'],'initial_source_files':original_lock['source_files'],
+                             'original_source':identity}
+            modules = {}
+            for name in ('common','packet','captured_dual_source_controller'):
+                name_on_disk = 'controller' if name == 'captured_dual_source_controller' else name
+                path = root / 'scripts/ci/development' / (name_on_disk + '.py')
+                module = ModuleType(name)
+                module.__file__ = str(path)
+                sys.modules[name] = modules[name] = module
+                exec(compile(path.read_bytes(),module.__file__,'exec'),module.__dict__)
+            parent = modules['captured_dual_source_controller']
+            grant['callbacks'] = {'existing_consumers':{'path':'scripts/ci/development/controller.py',
+                'module':parent.__name__,'qualname':'Development.consume'},
+                **{role:{'path':'scripts/ci/development/repository_authority.py','module':'development_repository_authority',
+                         'qualname':'RootCallbacks.'+role} for role in ('public_receiver','authority_provider')}}
+            encode = self.fixture.a.encoded
+            sha = lambda raw:hashlib.sha256(raw).hexdigest()
+            runtime = {'cli_sha256':'b'*64,'endpoint_identity':{'model':'NO ACTOR'},'env':{}}
+            runtime_raw = encode(runtime)
+            grant['actor_contract_sha256'] = sha(runtime_raw)
+            pins = parent.packet.original_invocation_pins(source_packet)
+            argv = parent.original_argv(output,cache,pins)
+            grant['initial_invocation_sha256'] = sha(encode({'argv':argv,'output':str(output/'repository-handoff')}))
+            raw = encode(grant)
+            deadline = time.monotonic()+60
+            args = (root,source_packet,raw,sha(raw),runtime_raw,output,cache,deadline)
+            environment = {'GITHUB_SHA':grant['source_commit'],'GITHUB_RUN_ID':grant['run_id'],
+                           'GITHUB_RUN_ATTEMPT':grant['run_attempt']}
+            with patch.dict(parent.os.environ,environment):
+                with self.assertRaisesRegex(ValueError,'disjoint-original-source-required'):
+                    parent.composed_sources(root,source_packet,raw,sha(raw),runtime_raw,output,original/'cache',
+                                            deadline,original_root=original,source_only=True)
+                session, callbacks, actual, selected = parent.composed_sources(*args,original_root=original)
+                self.assertEqual(session.sources.root,root)
+                self.assertEqual(sha((original/controller.packet.ORIGINAL_RUNNER).read_bytes()),identity['runner_sha256'])
+                self.assertEqual(callbacks.handoff_binding()['integration_lock_sha256'],pins[controller.packet.INITIAL])
+                self.assertEqual((actual,selected),(runtime,argv))
+            self.assertFalse(session.used)
+            self.assertFalse(output.exists())
+            self.assertFalse(cache.exists())
+
     def test_actual_source_constructor_propagates_closed_installer_mode_before_allocation(self):
         import copy,hashlib,time,types
         sources = self.fixture.sources;root = self.fixture.root;modules = {}
@@ -854,6 +1041,83 @@ class ClockContractTests(unittest.TestCase):
         self.assertTrue(controller.CANCELLED)
         self.assertTrue(any('composed-boundary-finalization-failed' in str(call) for call in report.call_args_list))
         controller.CANCELLED=False
+
+
+class OriginalSourceBootstrapTests(unittest.TestCase):
+    def setUp(self):
+        self.clock = ClockContractTests()
+        self.clock.setUp()
+        self.addCleanup(self.clock.doCleanups)
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.checkout = self.root / 'live'
+        self.original = self.root / 'original'
+        self.checkout.mkdir()
+        self.original.mkdir()
+        self.args = self.clock.boundary_args()
+        self.args.original_source_root = self.original
+        self.args.output = self.root / 'output'
+        self.args.cache = self.root / 'cache'
+        self.identity = {'source_commit':'a'*40,'integration_lock_sha256':'b'*64,
+                         'source_rows_sha256':'c'*64,'runner_sha256':'d'*64}
+        self.packet = {'schema_version':3,'composition':controller.packet.COMPOSITION,'metadata_pins':{},
+                       'original_source':self.identity}
+        self.invocation = {'scripts/ci/integration.lock.json':self.identity['integration_lock_sha256']}
+
+    def test_check_only_authenticates_both_roots_and_private_inputs_without_allocation(self):
+        import os
+        owner = SimpleNamespace(composition=controller.packet.COMPOSITION)
+        captures = []
+
+        def capture(path, pin, kind, limit):
+            captures.append(kind)
+            return self.clock.raw(self.clock.value) if kind == 'DEVELOPMENT_CLOCK' else b'INERT'
+
+        with patch.object(controller,'ROOT',self.checkout), patch.object(controller.Path,'cwd',return_value=self.checkout), \
+             patch.object(controller,'private_input',side_effect=capture), \
+             patch.object(controller.packet,'original_invocation_pins',return_value=self.invocation), \
+             patch.object(controller.packet,'preflight_composed',return_value=self.packet) as preflight, \
+             patch.object(controller,'composed_sources',return_value=(owner,None,None,None)) as sources, \
+             patch.object(controller,'Development') as actors, patch.object(controller,'close_boundary',return_value=False), \
+             patch.object(controller.signal,'getitimer',return_value=(0.0,0.0)), patch.object(controller.signal,'signal'), \
+             patch.object(controller.signal,'setitimer'), patch('builtins.print') as report:
+            self.assertEqual(controller.composed_main(self.args,self.invocation,entry=self.clock.entry),0)
+            preflight.assert_called_once_with(self.checkout,self.args.packet,self.args.development_sha256,
+                os.environ.get('GITHUB_SHA',''),composition=controller.packet.COMPOSITION,original_root=self.original)
+        self.assertEqual(captures,['DEVELOPMENT_CLOCK','DEVELOPMENT_EXECUTION_GRANT','DEVELOPMENT_RUNTIME_CONTRACT'])
+        self.assertEqual(sources.call_args.kwargs,{'composition':controller.packet.COMPOSITION,
+                         'original_root':self.original,'source_only':True})
+        actors.assert_not_called()
+        report.assert_called_once_with('dual-source development inputs verified; execution NOT RUN')
+        self.assertFalse(self.args.output.exists())
+        self.assertFalse(self.args.cache.exists())
+
+    def test_original_grant_identity_and_path_are_bound_to_the_authenticated_packet(self):
+        view = dict(self.identity,source_root=str(self.original))
+        grant = {'schema_version':3,'original_view':view}
+        controller.bind_original_source(self.packet,grant,self.original)
+        for field, value in (('source_root',str(self.checkout)),('source_commit','e'*40),
+                             ('integration_lock_sha256','e'*64),('source_rows_sha256','e'*64),
+                             ('runner_sha256','e'*64)):
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError,'composed-original-source-refused'):
+                controller.bind_original_source(self.packet,dict(grant,original_view=dict(view,**{field:value})),self.original)
+        with self.assertRaisesRegex(ValueError,'composed-grant-refused'):
+            controller.bind_original_source(self.packet,dict(grant,schema_version=2),self.original)
+
+    def test_original_root_flag_selects_only_composed_successor_packet(self):
+        argv = ['--inputs-sha256','a'*64,'--recipes-sha256','b'*64,'--integration-sha256','c'*64,
+                '--development-sha256','d'*64,'--cache',str(self.args.cache),'--output',str(self.args.output),
+                '--check-only','--original-source-root',str(self.original)]
+        with patch.object(controller.packet,'preflight') as legacy:
+            with self.assertRaisesRegex(ValueError,'original-source-root-requires-composition'):
+                controller.main(argv)
+            legacy.assert_not_called()
+        with patch.object(controller,'composed_main',return_value=0) as dispatch:
+            self.assertEqual(controller.main(argv+['--composition',controller.packet.COMPOSITION]),0)
+        args = dispatch.call_args.args[0]
+        self.assertEqual(args.original_source_root,self.original)
+        self.assertEqual(args.packet,controller.ROOT/controller.packet.DUAL_LOCK)
 
 
 class PhaseSchemaTests(unittest.TestCase):
@@ -1231,14 +1495,15 @@ class EarlyEntryModels(unittest.TestCase):
         def monotonic():events.append('entry');return self.entry
         def parser(*args,**kwargs):events.append('parser');return factory(*args,**kwargs)
         for mode in controller.packet.COMPOSED_MODES:
-            with patch.object(controller.time,'monotonic',side_effect=monotonic), \
+            events.clear()
+            with self.subTest(mode=mode), patch.object(controller.time,'monotonic',side_effect=monotonic), \
                  patch.object(controller,'argparse',SimpleNamespace(ArgumentParser=parser)), \
                  patch.object(controller,'composed_main',return_value=7) as dispatch:
                 self.assertEqual(controller.main(self.cli(mode,self.early)),7)
-            self.assertEqual(dispatch.call_args.kwargs,{'entry':self.entry})
-            self.assertIs(type(dispatch.call_args.args[0].controller_entry_monotonic),float)
-            self.assertEqual(dispatch.call_args.args[0].controller_entry_monotonic,self.early)
-        self.assertEqual(events,['entry','parser','entry','parser'])
+                self.assertEqual(dispatch.call_args.kwargs,{'entry':self.entry})
+                self.assertIs(type(dispatch.call_args.args[0].controller_entry_monotonic),float)
+                self.assertEqual(dispatch.call_args.args[0].controller_entry_monotonic,self.early)
+                self.assertEqual(events,['entry','parser'])
 
     def test_legacy_explicit_flag_refuses_before_any_packet_read(self):
         for early in (self.early,'nan','inf'):

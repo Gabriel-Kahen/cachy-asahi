@@ -5,6 +5,7 @@ on:
       - 'scripts/ci/gnu-source-parent-source/**'
       - '.github/workflows/gnu-source-parent-source.yml'
   push:
+    branches: ['**']
     paths:
       - 'scripts/ci/gnu-source-parent-source/**'
       - '.github/workflows/gnu-source-parent-source.yml'

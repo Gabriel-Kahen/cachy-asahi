@@ -5,12 +5,27 @@ Current implementation route: start with the existing-Asahi overlay, then delive
 ## Evidence available
 
 - Four original opt-in configuration/setup candidates exist. The packaged runtime setup/removal helper is implemented and has local source tests and native package build evidence. Broader CachyOS desktop/shell/settings bundles have explicit source-license, dependency, configuration or platform risks. Kernel-manager and hardware detector remain deferred.
-- The chosen base is Asahi ALARM. Its exact installed transaction, signed retained snapshot and compatibility set have not been captured. Public repository metadata is availability evidence, not a working target result.
+- Asahi ALARM is the base direction. The [original Asahi629 TEST-signed
+  installation and reversal](workstreams/supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
+  ran on the retained Asahi Minimal filesystem in emulated AArch64 with
+  16 KiB pages. Supported composition approval, stock default boot and
+  physical installation and recovery remain open.
 - The development host is x86_64 with Docker. Hosted native ARM CI has executed all four configuration/setup package build pairs and byte comparisons, as recorded in `docs/validation/native-arm.md`. Neither exact Air is verified reachable; the configured Pi connection timed out.
 - Source build/inspection, staging/signing and measurement tooling is locally tested. Native development artifacts exist, but a supported endpoint, production signing custody, independent onboarding, physical recovery and a maintenance release remain unfinished.
 - Ongoing maintainer availability and release incident coverage are unassigned. Agent workers provide bounded engineering capacity; that does not establish a staffed distribution operation.
 
 This evidence supports the overlay as the first delivery stage and a foundation for expanded ARM builds. It does not establish a sustainable full port or official upstream affiliation. Any resource shortfall remains an owned blocker to the long-term goal.
+
+## November 25 package coverage replay
+
+The retained generic ARM metadata resolves 45 desktop roots across 574
+packages. The retained Asahi metadata replay resolved 60 proposed roots and
+four provider bindings across 629 packages after the three proposed maintenance
+updates and addition of the five Preview 1 archives. This composition remains
+unapproved. The proposed inventory still needs a decision on the applicable
+management and shell candidates, the FDK provider for `pipewire-audio`, and the
+exact protected audio and graphics versions. Archive authentication and
+corresponding-source review must follow selection. [Composition tooling](../scripts/port/supported-composition/README.md)
 
 ## Required feasibility audit
 
@@ -41,10 +56,8 @@ Acceptance entry A11 remains unfinished until the implementation/resource plan h
 The coordinator integrated the user's expanded scope revision `506f259` and
 assigned independent M5 coverage, M6 tool functionality, M7 native trial design
 and M8 installation-route audits. Ownership is in `docs/orchestration.md` and
-next actions are in `docs/backlog.md`. A connected native software batch will
-exercise real signed changed-package upgrades, rollback/trust rejection,
-configuration lifecycle, installed payload verification and developer onboarding
-in disposable containers. Source reviews have reproduced corrective findings;
-actual new integration execution remains NOT RUN until those repairs and the
-frozen source handoff pass review. Neither that generic ALARM builder nor its
-inventory establishes the chosen Asahi target transaction.
+next actions are in [the backlog](backlog.md#current-release-gates). Hosted
+native builds, signed disposable transactions and generic QEMU desktop
+trials provide component evidence at their recorded inputs and revisions.
+The supported Asahi installation route and complete target recovery still
+need qualification. [Implementation status](implementation-status.md)

@@ -6,15 +6,15 @@ concurrently, and stores raw readings plus a summary clipped to that workload's
 same-boot monotonic window. It starts no collector subprocess, changes no system
 settings and makes no optimization or M2 acceptance decision.
 
-This mode requires the exact reviewed `scripts/benchmarks/platform_metrics.py`
-SHA256 `bf3d80c3e5a7d8e8a67c393e2cabf19c2a45945fd023628bdb5dcb5b03b2b4f2` and
-`scripts/virtual/owned_process.py` SHA256
-`80547f753dc7d13819d727783c669d10a56b7bf832dc05084b5c4b5302cb79d9`.
-The first collector packet and shared owned-process packet remain separate,
-unchanged inputs. Only the explicit mode imports these modules; ordinary
-benchmark and paired_zlib APIs retain their existing dispatch and behavior.
-New plans pin the modified harness source, as before; old source-bound plans
-must be redeclared rather than bypassing their source checks.
+All platform trials pin `scripts/benchmarks/platform_metrics.py` at SHA256
+`5975d376fa7b1b7321d4b663f1aea030539e4fdd073c671f5c2cfcf3e86ca2b3`.
+Plain platform capture and the v1 caller select `scripts/virtual/owned_process.py`
+at SHA256 `83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f`.
+The adapter's explicit v2 RSS selection uses `scripts/benchmarks/benchmark_owned_process_v2.py`
+at SHA256 `bd1c18c0c8f05462d3d175fceaeda559f422cc1cfd40dfce6244e71df482d42d`.
+Platform capture and replay bind the selected owner digest.
+Frozen plans pin the harness and platform sources. Redeclare plans frozen against
+earlier source revisions before running them with this revision.
 
 ## Declare, freeze, run, compare
 
@@ -82,7 +82,7 @@ component controls is uncontrolled and cannot establish performance differences.
 
 ## Workload ownership and explicit limits
 
-The optional path calls the pinned shared `prepare()` before spawning and
+The optional path calls the selected owner's `prepare()` before spawning and
 transfers the fresh-session child to `supervise()` without `Popen.poll`, `wait`,
 `communicate` or a context-manager reap. The leader remains reserved through all
 final signals; only a real raw wait supplies exit status. ECHILD is UNKNOWN,
@@ -96,21 +96,19 @@ contains that observed stream; `stderr.txt` is empty, with this scope recorded i
 the capture. Output overflow invalidates the workload. Do not use this mode for a
 protocol that requires separate stdout/stderr without a reviewed helper change.
 
-The shared supervisor has no safe in-flight PID sampling hook. Consequently this
-mode emits a clearly unknown legacy telemetry placeholder: root/process-group
-RSS and old thermal/power guardrail fields remain unavailable. Actual platform
-thermal/power records live in the separate capture. Existing RSS or old sensor
-regression guardrails yield INCOMPLETE (or FAIL if another budget fails), while
-optimization acceptance remains NOT RUN. This avoids treating one early RSS
-reading as full workload coverage. The default runner and memory sampler are
-held; restoring those guardrails in this mode requires a separate owner-aware
-sampling interface, not an unguarded PID thread.
+Platform capture emits one canonical legacy telemetry row with unavailable RSS
+and thermal/power fields. Platform thermal and power readings live in the
+separate capture. When configured, the RSS owner records root and group samples
+during supervision. Group membership changes can leave RSS coverage incomplete
+after a clean exit and confirmed retirement. The adapter retains that completed
+lifecycle evidence. The caller may reject incomplete RSS coverage for the trial.
+Optimization acceptance remains NOT RUN.
 
 Sampling is bounded by the collector's attribute/file/sample caps, an interval of
 0.1..10 seconds and a timeout/sample-count admission bound. The owned run budget
-is the frozen workload timeout plus a separate 0.5-second retirement allowance;
-spawn/setup and OS syscall stalls are not hard real-time bounded. A worker that
-does not stop within 0.25 seconds leaves an incomplete, unsealed capture and
+deducts spawn time from the frozen workload timeout and includes a separate
+0.5-second retirement allowance. Setup and OS syscall stalls can delay completion.
+A worker that does not stop within 0.25 seconds leaves an incomplete capture and
 prevents another optional launch while alive. No valid trial is emitted from
 that failure. Sampling errors also preserve raw partial evidence and refuse a
 complete bound capture. No sampler thread can signal or reap a workload.

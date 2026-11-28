@@ -2,7 +2,7 @@
 
 Turn the five responsibilities R1–R5 in [goal.md](goal.md) into a complete, maintained CachyOS-derived ARM distribution on Apple Silicon, beginning with the small overlay defined in [docs/roadmap.md](docs/roadmap.md). Develop independent pieces in parallel, then integrate them through shared package, hardware, and release gates.
 
-The [implementation status](docs/implementation-status.md) records development and validation by package. The current Fish 0.1.0-2 and md4c 0.5.3 candidates have [verified native build pairs](docs/validation/native-fish-md4c-reproducibility-20261118.md). Exact Asahi target integration, supported releases, hardware behavior and performance remain unfinished.
+The [implementation status](docs/implementation-status.md) records development and validation by package. Fish 0.1.0-2 and md4c 0.5.3 have [verified hosted AArch64 build pairs with 4 KiB pages](docs/validation/native-fish-md4c-reproducibility-20261118.md). The [original Asahi629 guest installation and reversal](docs/workstreams/supported-composition-maintenance.md#november-27-offline-installation-and-reversal) exercised a TEST-signed selection in emulated AArch64 with 16 KiB pages. Supported composition approval, physical installation and recovery, production release and final-system measurements remain open.
 
 **Completion rule:** an initial overlay release and a distribution feasibility decision are intermediate results. Completing the goal requires R1–R5 on the same maintained port release and the evidence in section 11, including both M2 Air sizes and published final-system performance/power results. A plan cannot guarantee hardware behavior, access to resources, or upstream agreements; unresolved core requirements remain unfinished work. Official CachyOS recognition is an external outcome, separate from technical acceptance.
 
@@ -143,7 +143,7 @@ Workers may develop independent experiments concurrently. Serialize benchmark ru
 - **M7 / R2–R3:** evaluate M2-specific compiler settings, selected LTO/PGO, compatible kernel changes and defaults. Integrate only measured wins, preserve the validated Asahi platform and a known-good recovery kernel, and test coordinated boot/firmware/kernel/Mesa/audio updates. Publish baseline-versus-final results even if an experiment does not improve performance; no fixed speedup or battery advantage is promised.
 - **M8 / R5:** implement the complete installation path from macOS/Asahi prerequisites to the port's signed package set and first desktop login. Reuse upstream installation components where appropriate; a custom partitioner is not required. Exercise interrupted setup, fresh/existing configuration, trust bootstrap, upgrades and failure recovery on both sizes, with an independent new user.
 - **M9 / R1–R5:** freeze a full-port candidate, repeat section 11 acceptance against that exact artifact/version set, and deliver a subsequent maintained full-port release through the same process. Overlay results carry forward only where their inputs and tested behavior remain applicable; they cannot certify a changed kernel, package set or install route.
-- Give any new installer a separate implementation and hardware acceptance track. Release it only after supported-machine installation and failure recovery are exercised; retain the proven overlay route during development. Record CachyOS collaboration and publication arrangements without implying official status.
+- Give any new installer a separate implementation and hardware acceptance track. Release it only after supported-machine installation and failure recovery are exercised. Keep the documented preview overlay available for development. Record CachyOS collaboration and publication arrangements without implying official status.
 
 **Gate:** R1–R5 and all section 11 requirements pass on the shipped complete port, with sustainable infrastructure, tested installation/recovery and a subsequent release. A coverage/capacity decision or maintained overlay alone cannot pass this gate. Official upstream recognition and support for additional Mac models remain separately tracked outcomes.
 
@@ -164,7 +164,7 @@ Use one coordinator and initially three focused workers, following [docs/agent-w
 - Build independent packages concurrently; order dependent builds by the actual dependency graph. Schedule shared builders, signing, and hardware explicitly.
 - Prepare documentation, benchmark harnesses, release tooling, and upstream reports ahead of their execution gates whenever their inputs are known.
 - Have another worker review each result. Platform-affecting changes need independent review plus integrated hardware checks.
-- Record progress as proposed, source-audited, built, installed, or hardware-tested. Keep blockers and deferred work visible; report no milestone complete without its required evidence.
+- Record the exact source check, build, guest trial, package installation or physical hardware test performed and link its evidence. Keep blockers and deferred work visible; report no milestone complete without its required evidence.
 - At each integration review, reconcile results against the acceptance matrix. A failed check creates a corrective task, followed by the affected check and integrated regression checks. Reassign or redesign blocked work; only an explicit change to the project goal can remove a core requirement. Do not lower frozen acceptance budgets merely to declare success.
 
 | Shared resource | Scheduling rule |
@@ -174,7 +174,7 @@ Use one coordinator and initially three focused workers, following [docs/agent-w
 | Suspend/power/thermal tests | Reserve uninterrupted controlled windows; keep unrelated workloads out of measurement runs |
 | Coordinator and reviewers | Review small artifacts continuously; keep independent audit/build/docs tasks runnable during hardware tests |
 
-**Immediate next batch:** the coordinator closes exact-machine access and captures the chosen Asahi target snapshot/transaction; build and desktop owners reconcile the four native-built candidates with that target before installation. Record each machine's baseline/recovery preparation and exercise the reviewed desktop slice as soon as its dependencies are ready. In parallel, audit M5 package/dependency coverage, M6 applicable Cachy tool functionality, and the M8 installation route. Existing source/build evidence remains recorded; full-port audits need not wait for hardware access, but target acceptance does.
+**Immediate next batch:** resolve the [supported composition and release gates](docs/backlog.md#current-release-gates) and secure access to both M2 Air sizes. Record each machine's baseline and recovery preparation before installing the reviewed desktop slice. Continue M5 package/dependency coverage, M6 tool coverage and M8 installation work in parallel.
 
 ## 11. Full-goal acceptance and evidence
 

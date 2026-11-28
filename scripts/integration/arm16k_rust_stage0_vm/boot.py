@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Separate explicit Root boot; preparation never calls this operational entry."""
 import argparse
+from contextlib import ExitStack
 import importlib.util
 import json
 import os
@@ -19,6 +20,22 @@ HERE=Path(__file__).resolve().parent
 
 def module(name):
     s=importlib.util.spec_from_file_location('rust_stage0_boot_'+name,HERE/(name+'.py'));m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
+
+
+def publish_report(out, report, state):
+    with ExitStack() as files:
+        try:
+            stage = Path(files.enter_context(tempfile.TemporaryDirectory(dir=out))) / 'report.json'
+            if report.get('cleanup_errors') or not report.get('owned_container_absence_verified'):
+                report['status'] = 'HOLD_CLEANUP_OR_CANCELLED'
+            stage.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
+        finally:
+            state.__exit__()
+        # The deferred handler covered staging. Publish only the settled verdict.
+        if state.pending:
+            report.update(status='HOLD_CLEANUP_OR_CANCELLED', cancelled_signals=list(state.pending))
+            stage.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
+        stage.replace(out / 'report.json')
 
 
 def main():
@@ -115,12 +132,11 @@ def main():
                     report['memory_receipts']=M.collect(out,m['nonce'],K.RESOURCES['boot_owner_memory_bytes'])
                     if report['status']=='PASS_EMULATED_ARM16K_RUST_STAGE0_FIXTURE_ONLY':K.need(set(report['memory_receipts'])==set(M.STAGES) and all(v['status']=='OBSERVED' for v in report['memory_receipts'].values()),'complete observed cgroup memory diagnostics required')
                 except BaseException as error:report.setdefault('cleanup_errors',[]).append(dict(step='memory-receipts',category=type(error).__name__,message=str(error)[:1024]))
-                if state.pending or report.get('cleanup_errors') or not report.get('owned_container_absence_verified'):report['status']='HOLD_CLEANUP_OR_CANCELLED'
-                try:(out/'report.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
-                finally:
-                    try:
-                        if route_entered:route.__exit__(None,None,None)
-                    finally:state.__exit__()
+                try:
+                    if route_entered:route.__exit__(None,None,None)
+                except BaseException as error:
+                    report.setdefault('cleanup_errors',[]).append(dict(step='transport',category=type(error).__name__))
+                publish_report(out,report,state)
     return 0 if report['status']=='PASS_EMULATED_ARM16K_RUST_STAGE0_FIXTURE_ONLY' else 1
 
 

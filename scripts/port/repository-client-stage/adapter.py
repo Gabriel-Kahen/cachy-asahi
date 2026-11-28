@@ -26,8 +26,8 @@ import gate
 
 ROOT = Path(__file__).resolve().parents[3]
 SOURCES = {
-    'scripts/release/release.py': '418c850e8a44ae71517e074f86f46f5999f5fe7433ca6798de945f318191a918',
-    'scripts/client/client.py': '3025aa0e167c836e31c949e0915d4ee82a1007dc0fada598b4895240c82f5f97',
+    'scripts/release/release.py': '68ffb4b9af09204d56fe12a400b41994a027618adb98314745ecc2a5835ed45c',
+    'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7',
 }
 ORIGINALS = {'cachy-asahi-hyprland-settings', 'cachy-asahi-fish-config',
              'cachy-asahi-zsh-config', 'cachy-asahi-setup'}

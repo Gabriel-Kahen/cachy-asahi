@@ -10,21 +10,21 @@ import sys
 import types
 
 ROOT = Path(__file__).resolve().parents[3]
-COLLECTOR_MAP_SHA256 = '26eeddc56574c5475df67841c1ac8120900deabe1478f6d1fa7cd290f64f63a9'
+COLLECTOR_MAP_SHA256 = 'c35c2946579e08a803e2522340eac7d559f0aee8b95bd617e301ed2e959678cc'
 COLLECTOR = {
     'entry.py': '5889e0358bd0a04122e6cfcb061337f1dc415b064ba92f46ae47893a5747e0c8',
     'worker.py': '9a513a59da3cbb58d54c236759e3299072e14194e4d297df911072daa241b060',
     'common.py': '92ca41005397c6cccfd70497646c0de1f2ac88a697e0fcbec4165bf5326cfc08',
-    'base.py': '94a8e2898b062a0efd0f567d1f4f472bd04d6ff5a1573cd09f3bf8d1f556cddd',
+    'base.py': 'fd6faba78af6de430e8a42ab7faa79e03dbb85614b754735290c29a0495ab2e0',
     'provenance.py': '42d18ff6cfa68d7d0a704d0612cbf505f8652b5c24bf6ae69d833b43c08ad02b',
     'crypto.py': 'a3568741238738646593b2c972589f4ae92381611c88dea1c1c234c0e59a46f0',
-    'orchestrator.py': '9323498b61d3cedbb0f99bd45564a3f26572ed7e560d75f260eef932c7f957ff',
+    'orchestrator.py': '7bdddd2d5fdeaadc50820d923ba97905d29f585bd0cba10512d4124c586e5ffa',
 }
 PREDECESSORS = {
     'scripts/port/repository-client-stage/gate.py': 'fa39cfd6b5c1a3718f888d3f9fdb51f5bb8e38a7e57a98d1c4c8c570ea70af1e',
-    'scripts/port/repository-client-stage/adapter.py': '69ad53b4bc041d37536ad15a4ced7efa4cb2d61bcd6cb4a62fdfce8a7dbd52ab',
-    'scripts/release/release.py': '418c850e8a44ae71517e074f86f46f5999f5fe7433ca6798de945f318191a918',
-    'scripts/client/client.py': '3025aa0e167c836e31c949e0915d4ee82a1007dc0fada598b4895240c82f5f97',
+    'scripts/port/repository-client-stage/adapter.py': 'af04eed3f1b8ca4c6bce29f5e75b7cee5247ef7bf10c7282b644ffc68ceab2ea',
+    'scripts/release/release.py': '68ffb4b9af09204d56fe12a400b41994a027618adb98314745ecc2a5835ed45c',
+    'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7',
 }
 PREDECESSOR_MODES = {name: (0o755 if name == 'scripts/release/release.py' else 0o644)
                      for name in PREDECESSORS}

@@ -6,6 +6,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import time
@@ -21,8 +22,20 @@ def load(name,path):
 
 P=load('tested_native_preflight',ROOT/'scripts/install/native_preflight.py')
 R=load('tested_native_receiver',ROOT/'scripts/install/native_arm_trial.py')
-# Explicit peer-reviewed issuer fixture, rebinding the previous 7202 bootstrap.
 BASE=ROOT/P.HANDOFF
+ORIGINAL_REVISION='bfaaccaeeee58e86d72d253225d8cd09386147a8'
+BUILDER_INPUTS='scripts/ci/inputs.lock.json'
+GRAPH_REVISION='bcf0cee981ee4b7f7b082f636922c859dc7e0abc'
+
+
+def pinned_fixture(name, digest, *, revision=ORIGINAL_REVISION):
+    raw=(ROOT/name).read_bytes()
+    if P.sha(raw)!=digest:
+        raw=subprocess.run(['git','-C',str(ROOT),'show',revision+':'+name],
+                           check=True,capture_output=True,timeout=10).stdout
+    if P.sha(raw)!=digest:
+        raise AssertionError('frozen fixture pin differs: '+name)
+    return raw
 
 
 def record():
@@ -37,6 +50,30 @@ class AuthorityControls(unittest.TestCase):
     def test_published_issuer_source_authenticates_without_actors(self): P.issuer(self.module,self.raw)
     def test_changed_issuer_bytes_refuse(self):
         with self.assertRaisesRegex(ValueError,'ISSUER_PIN'): P.issuer(self.module,self.raw+b'\n')
+    def test_controller_admits_current_installer_bridge_and_refuses_issuer_drift(self):
+        bridge_raw = (ROOT / P.OWN).read_bytes()
+        with patch.dict(sys.modules), patch.object(sys, 'path', sys.path.copy()):
+            fixture = load('_native_installer_routing_model', ROOT / 'scripts/ci/development/test_controller.py')
+            model = fixture.InstallerRoutingModels()
+            try:
+                model.setUp()
+                name = fixture.controller.INSTALLER_NAME
+                bridge = types.ModuleType(name)
+                bridge.__file__ = str(model.root / P.OWN)
+                exec(compile(bridge_raw, bridge.__file__, 'exec'), vars(bridge))
+                model.sources.raw.update({P.HANDOFF: self.raw, P.OWN: bridge_raw})
+                model.sources.grant['source_files'][P.OWN]['sha256'] = P.sha(bridge_raw)
+                model.sources.graph[P.OWN] = bridge
+                model.session.source_graph['native_preflight'] = bridge
+
+                with patch.dict(sys.modules, {name: bridge}):
+                    self.assertIs(model.dev.installer_module(model.initial), bridge)
+                    with patch.dict(model.sources.raw, {P.HANDOFF: self.raw + b'\n'}):
+                        with self.assertRaisesRegex(ValueError, '^installer-issuer-refused$'):
+                            model.dev.installer_module(model.initial)
+                self.assertFalse((model.output / 'native-install-preflight').exists())
+            finally:
+                model.doCleanups()
     def test_rebound_issuer_method_refuses(self):
         self.module.Session.original_context=lambda *a,**k:{'status':'PASS'}
         with self.assertRaisesRegex(ValueError,'ISSUER_CODE'): P.issuer(self.module,self.raw)
@@ -75,7 +112,7 @@ class SelfNamespaceControls(unittest.TestCase):
         self.raw=(ROOT/P.OWN).read_bytes(); self.pin=P.sha(self.raw)
         handoff=load('_self_namespace_captured_issuer',ROOT/P.HANDOFF)
         self.sources=object.__new__(handoff.Sources); self.sources.root=ROOT
-        self.sources.original_root=None; self.sources.codes={}
+        self.sources.original_root=None; self.sources.historical_root=None; self.sources.codes={}
         self.sources.raw={P.OWN:self.raw,P.HANDOFF:(ROOT/P.HANDOFF).read_bytes()}
         self.module=self.sources.module('_self_namespace_captured_bridge',P.OWN)
     def check(self): self.module.namespace(self.module,self.raw,self.pin)
@@ -384,7 +421,7 @@ class PipelineModels(unittest.TestCase):
         self.root=Path(self.tmp.name); self.source=self.root/'source';self.source.mkdir()
         self.native=self.root/'native';self.native.mkdir();self.view=self.root/'view';self.view.mkdir()
         self.output=self.root/'run';self.commands=[];self.mutation=None;self.closed=False
-        raw=(ROOT/'scripts/ci/inputs.lock.json').read_bytes();lock=json.loads(raw)
+        raw=pinned_fixture(BUILDER_INPUTS,R.INPUTS_SHA);lock=json.loads(raw)
         expected={r['name'][0]:r['version'][0] for r in lock['rootfs_packages']}
         expected.update({r['name']:r['version'] for r in lock['packages']})
         packages=''.join(f'{name} {version}\n' for name,version in sorted(expected.items())).encode()
@@ -392,7 +429,10 @@ class PipelineModels(unittest.TestCase):
         (self.native/'inputs.lock.json').write_bytes(raw);(self.native/'packages.lock').write_bytes(packages)
         self.runtime=dict(cli_sha256='d'*64,endpoint_identity=[0]*6,env={})
         self.controller=types.SimpleNamespace(image='sha256:'+'c'*64,commit='b'*40,native_out=self.native)
-        self.raw={n:(ROOT/n).read_bytes() for n in (P.OWN,*P.SOURCE_PATHS)};self.raw[P.HANDOFF]=BASE.read_bytes()
+        self.raw={n:(ROOT/n).read_bytes() for n in (P.OWN,*P.SOURCE_PATHS)}
+        self.raw[P.HANDOFF]=BASE.read_bytes()
+        runtime=P.SOURCE_PATHS[-1]
+        self.raw[runtime]=pinned_fixture(runtime,R.RUNTIME_SHA,revision=GRAPH_REVISION)
         model=self
         class Sources:
             root=model.source; raw=model.raw
@@ -408,12 +448,26 @@ class PipelineModels(unittest.TestCase):
         def supervise(argv,**kw):
             args=argv[1:];model.commands.append((list(args),kw['deadline']))
             result={'exit_code':0,'stdout':b'','stderr':b''}
+            observation=dict(direct_child_reaped=True,group_disposal_requested=True,forced_teardown=False,cancelled=False)
             if args[0]=='info':result['stdout']=P.encoded({'Architecture':'aarch64','OSType':'linux'})
             elif args[:2]==['image','inspect']:
                 result['stdout']=P.encoded([dict(Id=model.controller.image,Architecture='arm64',Os='linux',Config=P.CONFIG)])
             elif args[0]=='create':
-                cidfile=Path(args[args.index('--cidfile')+1]);cidfile.write_text('a'*64+'\n');result['stdout']=('a'*64+'\n').encode()
+                cidfile=Path(args[args.index('--cidfile')+1])
+                if model.mutation!='create-no-cidfile':
+                    cidfile.write_text('a'*64+'\n')
+                if model.mutation=='create-supervision-failed':
+                    raise ValueError('modeled-create-supervision')
+                if model.mutation=='create-forced':
+                    observation['forced_teardown']=True
+                if model.mutation=='create-nonzero':
+                    result['exit_code']=1
+                if model.mutation not in ('create-no-stdout','create-foreign','create-missing','create-malformed'):
+                    result['stdout']=('a'*64+'\n').encode()
             elif args[:2]==['container','inspect']:
+                if model.mutation=='create-missing':
+                    result['exit_code']=1
+                    return result,observation
                 case=ContainerControls();case.setUp();row=case.row
                 trial=P.strict((model.output/'inputs/trial.json').read_bytes())
                 row.update(Id='a'*64,Name='/cachy-asahi-install-'+'b'*32,Image=trial['image_id'])
@@ -424,8 +478,11 @@ class PipelineModels(unittest.TestCase):
                 if model.mutation in ('PidMode','IpcMode','UTSMode','UsernsMode'):row['HostConfig'][model.mutation]='host'
                 elif model.mutation=='AutoRemove':row['HostConfig']['AutoRemove']=True
                 elif model.mutation=='RestartPolicy':row['HostConfig']['RestartPolicy']={'Name':'always','MaximumRetryCount':0}
+                if model.mutation in ('foreign-container','create-foreign'):
+                    row['Image']='sha256:'+'e'*64
+                if model.mutation=='create-malformed':
+                    row['Id']='a'*12
                 result['stdout']=P.encoded([row])
-                if model.mutation=='foreign-container':row['Image']='sha256:'+'e'*64;result['stdout']=P.encoded([row])
             elif args[0]=='start':
                 if model.mutation=='actor-timeout':raise ValueError('modeled-actor-timeout')
                 trial=P.strict((model.output/'inputs/trial.json').read_bytes());model.assertEqual(trial['phase'],'preflight')
@@ -433,10 +490,11 @@ class PipelineModels(unittest.TestCase):
                 if model.mutation=='actor-nonzero':result['exit_code']=1
             elif args[0]=='rm':
                 if model.mutation=='remove-failed':result['exit_code']=1
+                if model.mutation=='remove-no-result':raise ValueError('modeled-remove-supervision')
             elif args[:2]==['container','ls']:
                 if model.mutation=='still-present':result['stdout']=('a'*64+'\n').encode()
             else:raise AssertionError('unexpected modeled actor: '+str(args))
-            return result,dict(direct_child_reaped=True,group_disposal_requested=True,forced_teardown=False,cancelled=False)
+            return result,observation
         self.session=types.SimpleNamespace(sources=Sources(),composition='installer-preflight',source_graph={
             'entry':None,'runtime':{'transport':types.SimpleNamespace(DockerTransport=CLI,supervise=supervise)},
             'collector':{},'phase':{},'original':{},'original_aliases':{},'native_preflight':P})
@@ -459,6 +517,48 @@ class PipelineModels(unittest.TestCase):
         self.mutation='actor-timeout'
         with self.assertRaisesRegex(ValueError,'modeled-actor-timeout'):self.run_model()
         self.assertEqual(self.commands[-2][0],['rm','-f','a'*64]);self.assertTrue(self.closed)
+    def test_ambiguous_create_retires_bound_id_without_starting(self):
+        failures={'create-no-stdout':'CONTAINER_ID','create-nonzero':'CONTAINER_CREATE','create-forced':'COMMAND_CLEANUP',
+                  'create-supervision-failed':'modeled-create-supervision'}
+        for mutation,reason in failures.items():
+            with self.subTest(mutation=mutation):
+                self.output=self.root/mutation;self.mutation=mutation;self.commands=[];self.closed=False
+                with self.assertRaisesRegex(ValueError,reason) as caught:self.run_model()
+                recovery,remove,absence=[argv for argv,_ in self.commands[3:]]
+                self.assertEqual(recovery,['container','inspect','a'*64])
+                self.assertEqual(remove,['rm','-f','a'*64])
+                self.assertEqual(absence[5],'id='+'a'*64)
+                self.assertFalse(caught.exception.__dict__.get('__notes__'))
+                self.assertTrue(self.closed)
+                self.assertGreater(self.commands[3][1],self.commands[2][1])
+                self.assertLess(self.commands[3][1],self.commands[4][1])
+                self.assertLess(self.commands[4][1],self.commands[5][1])
+    def test_ambiguous_create_retains_uncertainty_on_unbound_lookup(self):
+        for mutation in ('create-foreign','create-missing','create-malformed'):
+            with self.subTest(mutation=mutation):
+                self.output=self.root/mutation;self.mutation=mutation;self.commands=[];self.closed=False
+                with self.assertRaisesRegex(ValueError,'^CONTAINER_ID$') as caught:self.run_model()
+                self.assertEqual(len(self.commands),4)
+                self.assertEqual(self.commands[-1][0],['container','inspect','a'*64])
+                self.assertIn('Container retirement unverified',caught.exception.__notes__[0])
+                self.assertTrue(self.closed)
+    def test_ambiguous_create_without_private_cid_does_not_remove_by_name(self):
+        self.mutation='create-no-cidfile'
+        with self.assertRaisesRegex(FileNotFoundError,'container-id') as caught:self.run_model()
+        self.assertEqual(len(self.commands),3)
+        self.assertIn('Container retirement unverified',caught.exception.__notes__[0])
+        self.assertTrue(self.closed)
+    def test_receiver_runtime_drift_refuses_before_docker(self):
+        self.raw[P.SOURCE_PATHS[-1]]=b'unselected runtime'
+        with self.assertRaisesRegex(ValueError,'^RUNTIME_PIN$'):self.run_model()
+        self.assertEqual(self.commands,[])
+        self.assertFalse(self.output.exists())
+    def test_remove_supervision_failure_still_queries_absence(self):
+        self.mutation='remove-no-result'
+        with self.assertRaisesRegex(ValueError,'^modeled-remove-supervision$') as caught:self.run_model()
+        self.assertEqual(self.commands[-1][0][5],'id='+'a'*64)
+        self.assertIn('absence observed True',caught.exception.__notes__[0])
+        self.assertTrue(self.closed)
     def test_failed_daemon_cleanup_cannot_promote_child_pass(self):
         for mutation in ('remove-failed','still-present','actor-nonzero'):
             with self.subTest(mutation=mutation):
@@ -503,7 +603,6 @@ class LiveGraphBindingControls(unittest.TestCase):
         finally:sys.settrace(previous)
         raise AssertionError('native admission must not complete in a source model')
     def test_selected_issuer_pin_and_captured_graph_reach_only_source_gate(self):
-        self.assertEqual(P.ISSUER_SHA,'b7b665bc8473c010321c88b00cd35350c03677ffadac02fd2a5ab4c16dc0ecce')
         self.assertEqual(P.sha(BASE.read_bytes()),P.ISSUER_SHA)
         self.assertEqual(self.check(),'SOURCE_GATE_ONLY')
         self.assertIsNone(self.session.native_consumer_observation)

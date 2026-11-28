@@ -70,6 +70,7 @@ jobs:
             /examples/development/
             /scripts/integration/development_onboarding_overlay583/
             /scripts/benchmarks/
+            /scripts/hardware/capture-baseline.py
             /scripts/workflows/
             /scripts/virtual/owned_process.py
             /scripts/build/
@@ -85,6 +86,20 @@ jobs:
             /packages/tools/cachy-asahi-dns/
             /packages/tools/cachy-asahi-sysctl/
             /packages/tools/cachy-asahi-topmem/
+      - name: Check out the exact Overlay583 onboarding example
+        if: matrix.lane == 'developer'
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 868f7f4aca866605c69ae911508c4767d2b18280
+          path: .ci-inputs/overlay583-onboarding-example
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /LICENSE
+            /examples/development/README.md
+            /examples/development/hello.c
+            /examples/development/onboarding.py
       - name: Select Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -111,12 +126,14 @@ jobs:
               python -I -B scripts/benchmarks/test_platform_metrics.py -v
               python -I -B scripts/benchmarks/test_benchmark_platform_metrics.py -v
               python -I -B scripts/benchmarks/test_benchmark_owned_rss.py -v
+              python -I -B -Werror::ResourceWarning -m unittest discover -s scripts/benchmarks -p test_benchmark_owned_process_v2.py -v
               python -I -B scripts/benchmarks/test_suspend_drain.py -v
               ;;
             developer)
               python -I -B tests/workflows/test_developer_workflow.py -v
               python -I -B examples/development/test_onboarding.py -v
-              python -I -B -Werror::ResourceWarning scripts/integration/development_onboarding_overlay583/test_capsule.py PortableSourceChecks -v
+              CACHY_ONBOARDING_EXAMPLE_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/overlay583-onboarding-example" \
+                python -I -B -Werror::ResourceWarning scripts/integration/development_onboarding_overlay583/test_capsule.py PortableSourceChecks -v
               python -I -B scripts/workflows/developer_workflow_diagnostics_v2.py --output "$RUNNER_TEMP/developer-workflow" --tool-path "$(dirname "$(command -v python)"):/usr/bin:/bin" --command-timeout 30 --total-timeout 300
               python -I -B -c 'import json,sys; from pathlib import Path; r=json.loads(Path(sys.argv[1]).read_text()); assert r["status"] == "PASS_LOCAL_DEVELOPER_COMPONENT"; assert all(r["project_workflows"][b]["status"] == "PASS_REAL_PROJECT_WORKFLOW" for b in ("make", "ninja")); assert len(r["commands"]) == 63 + sum(r["tools"][b]["status"] == "PRESENT" for b in ("cmake", "meson")); assert all(c["success"] for c in r["commands"])' "$RUNNER_TEMP/developer-workflow/result.json"
               ;;
@@ -141,12 +158,19 @@ jobs:
       run: ${{ steps.select.outputs.run }}
       matrix: ${{ steps.select.outputs.matrix }}
     steps:
-      - name: Checkout bounded depth-two selector source
+      - name: Check out the selector and its workflow inputs
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
           fetch-depth: 2
           fetch-tags: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/ci/component_selection/
+            /.github/workflows/static.yml
+            /.github/workflows/full-port-workflows.yml
+            /.github/workflows/parallel-development-tools.yml
       - name: Check selector failure and coverage controls
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_select.py
@@ -157,12 +181,9 @@ jobs:
         env:
           SELECTION_EVENT: ${{ github.event_name }}
           SELECTION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.event.after }}
           SELECTION_SHA: ${{ github.sha }}
         run: |
-          set -euo pipefail
-          component_diff() {
-            timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
-          }
-          source scripts/ci/component_selection/collect.sh
-          collect_components parallel
+          python3 -I -B scripts/ci/component_selection/select.py --sparse-paths |
+            timeout --kill-after=5s 45s env GIT_TERMINAL_PROMPT=0 git sparse-checkout add --stdin
+          bash scripts/ci/component_selection/collect.sh parallel

@@ -1,0 +1,67 @@
+{
+  "all_actions": 1216,
+  "attached_image_chain_hashes": {
+    "Image": {
+      "bytes": 9019400,
+      "sha256": "36066ded2f5721fd9bb257cebb2e4cb32084f45c3717f4d7a45430fe3cdcc494"
+    },
+    "boot.raw": {
+      "bytes": 1611661312,
+      "sha256": "f34febf4f47978a6b188fccb3c2c23bafeeccda8ad09d02e06005407ecf54ce1"
+    },
+    "core.qcow2": {
+      "bytes": 267386880,
+      "sha256": "65b812f17dfd8bd24e7f1e8e4554f719749ae96c547e4719eb13c307b81188d7"
+    },
+    "gui.qcow2": {
+      "bytes": 750845952,
+      "sha256": "26afc11e8581afe2556be6ae0171c88cd64e755dcff6f9253cdd3cbb26d25ef4"
+    },
+    "scratch.raw": {
+      "bytes": 17179869184,
+      "sha256": "70ca6c345fcf5e5d29d0bb90993d54c17a54164f23b2a6fe839e061b51edca45"
+    }
+  },
+  "captured_files": {
+    "all.log": {
+      "bytes": 2092143,
+      "path": "/home/gabe/.cache/qtbase-full-dry-run-20261125.FK0DZ4UP/all.log",
+      "sha256": "48732e61acb20d36c37d253e3e42a63bcd1986ede207d0f843f7a8d9d1f39ec7"
+    },
+    "free-blocks": {
+      "bytes": 13,
+      "path": "/home/gabe/.cache/qtbase-full-dry-run-20261125.FK0DZ4UP/free-blocks",
+      "sha256": "7981cfee411188a65a6a06b32a209be6e8f421a4062775bf27c41c75b258781d"
+    },
+    "gui.log": {
+      "bytes": 22,
+      "path": "/home/gabe/.cache/qtbase-full-dry-run-20261125.FK0DZ4UP/gui.log",
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    }
+  },
+  "full_build": "NOT RUN",
+  "guest_architecture": "aarch64",
+  "gui_actions": 0,
+  "install": "NOT RUN",
+  "logical_free_bytes": 11558694912,
+  "page_size": 16384,
+  "reports": {
+    "inputs": {
+      "bytes": 2226,
+      "sha256": "2d9e5b0861fd3055f7119a1d5b6b5d195a42165715a0c1c60d944b62e22ae444"
+    },
+    "outer": {
+      "bytes": 762,
+      "sha256": "1bf906fdaa600bec1d9bf3fd29b6269f11b7182f50cddfb3072d0b2e926a7b0b"
+    },
+    "source": {
+      "bytes": 5244,
+      "sha256": "32d61e9b96314177513410e180537a1c79b89367ba54aeea6ff3f98e1b1543eb"
+    }
+  },
+  "status": "PASS_LOCAL_EMULATED_DRY_RUN_ONLY",
+  "top_overlay": {
+    "bytes": 3014656,
+    "sha256": "5aaa4dc3ab2f9e1e0050df63a019c58728016200861fdcfad215f6d53dbf3a42"
+  }
+}

@@ -77,3 +77,40 @@ cases explicitly model only promotion/hardware gate admission; signature,
 release semantics and opted source association checks remain real. Separate API
 and CLI tests use the unchanged real gate and refuse the synthetic release.
 Withdrawal-only API and CLI consumption succeeds without a hardware seam.
+
+## Retained recovery recipient v2
+
+Use `scripts/client/endpoint_v2.py` for a concrete generation produced by
+[retained stable endpoint recovery](retained-selection-recovery.md). Supply the
+resulting generation digest and the independently authenticated signer and keyring.
+
+```sh
+python3 -I -B scripts/client/endpoint_v2.py \
+  --generation /absolute/recovered-generation \
+  --expected-generation FULL_LOWERCASE_RECOVERED_GENERATION_SHA256 \
+  --public-keyring /absolute/authenticated-public.gpg \
+  --signer FULL_AUTHENTICATED_PRIMARY_FINGERPRINT
+```
+
+The generation must contain both `recovery-plan.json` and
+`recovery-plan.json.sig`. The recipient verifies one detached binary-mode
+signature over the exact canonical plan bytes and requires the signed target
+release ID, release and promotion digests, base inventory digest and complete
+withdrawal map to match the independently pinned generation. It verifies
+withdrawal signatures, archive-to-provenance lineage and the target's full stable
+contract, including the existing native and M2 gates.
+The v2 recipient also bounds the recovery plan and selected spec to 4 MiB each.
+
+On success the output includes `authorization_sha256` for the verified plan and
+`previous_selection` for the signer-attested predecessor. The copied recovery
+generation alone contains no independently verified predecessor bundle or live
+endpoint state. The read-only and freshness limits above also apply to v2.
+
+Ordinary and withdrawal-only generations use `endpoint.py`. The v1 copy and
+archive transport commands and the pinned Release Tools 0.4 package accept that
+original format. Use the v2 command on a concrete local recovery generation.
+
+Run `python3 -I -B scripts/client/test_endpoint_v2.py` to exercise an actual
+TEST-signed recovery generation. The positive test models only stable gate
+admission. The unmodified CLI reaches the real gate and refuses the synthetic
+target.

@@ -148,6 +148,8 @@ def run(request_ref, output):
         output_fd = os.open(output.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent_fd)
         s.output_identity(output, parent_fd, output_fd)
         s.save_at(output_fd, "INCOMPLETE", b"Only a completed bundle.json without INCOMPLETE may be compared.\n")
+        os.fsync(output_fd)
+        os.fsync(parent_fd)
         collection = s.run(request["capture_contract"], output / "capture", retain_inputs=True)
         s.output_identity(output, parent_fd, output_fd)
         evidence = s.Reader(maximum=256 * MIB)
@@ -160,12 +162,15 @@ def run(request_ref, output):
         need(input_map["collection"] == collection_ref and len(input_map["files"]) == len(collection["sources"]),
              "collector retained map incomplete")
         source_map = {row["path"]: row for row in collection["sources"]}
+        kernel_source = next((row["source"]["path"] for row in collection["selected_files"]
+                              if row["role"] == "kernel"), None)
         seen = set()
         for row in input_map["files"]:
             need(row["source_path"] in source_map and row["source_path"] not in seen, "collector retention source map refused")
             source = source_map[row["source_path"]]
             need(all(row["retained"][key] == source[key] for key in ("size", "sha256")), "retained source pairing refused")
-            evidence.bound(row["retained"], 32 * MIB)
+            maximum = s.MAX_KERNEL_ASSET_BYTES if row["source_path"] == kernel_source else s.MAX_OTHER_ASSET_BYTES
+            evidence.bound(row["retained"], maximum)
             seen.add(row["source_path"])
         artifacts = {row["role"]: row["artifact"] for field in ("boot_assets", "configuration_backups") for row in target[field]}
         packages = {row["metadata"]["NAME"][0] for row in target["packages"]}
@@ -173,8 +178,8 @@ def run(request_ref, output):
             need(row["role"] in artifacts and (row["owner"]["kind"] != "package" or row["owner"]["id"] in packages),
                  "ownership assertion must name a selected artifact and installed package")
         need(set(recovery_roles) <= set(artifacts), "recovery assertion must name a selected artifact")
-        for artifact in artifacts.values():
-            evidence.bound(artifact, 32 * MIB)
+        for role, artifact in artifacts.items():
+            evidence.bound(artifact, s.selected_asset_limit(role))
         os.mkdir("supplements", mode=0o700, dir_fd=output_fd)
         supplement_fd = os.open("supplements", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=output_fd)
         retained, producer_inputs = {}, []
@@ -234,11 +239,7 @@ def run(request_ref, output):
         s.output_identity(output, parent_fd, output_fd)
         s.save_at(output_fd, "bundle.json", bundle_data)
         evidence.bound(report["bundle_reference"], 8 * MIB)
-        s.output_identity(output, parent_fd, output_fd)
-        os.unlink("INCOMPLETE", dir_fd=output_fd)
-        os.fsync(output_fd)
-        os.fsync(parent_fd)
-        s.output_identity(output, parent_fd, output_fd)
+        s.finish_publication(output, parent_fd, output_fd, "bundle.json")
         return report
     finally:
         if output_fd is not None:

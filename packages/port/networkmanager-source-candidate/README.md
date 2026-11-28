@@ -24,10 +24,15 @@ The complete staged tree is partitioned into four exact-version candidates:
 | `nm-cloud-setup` | Optional cloud helper, units/timer and dispatcher scripts; exact daemon/library dependency |
 | `networkmanager-docs` | Built API HTML and inert OVS unit-drop-in example |
 
-Every staged file/symlink has one owner and a pinned byte/mode record in private
-`src/_split/ownership.json`. The helper refuses extra/tampered split leaves,
-missing required features, escaping links, setuid/setgid payloads, live resolver
-configuration, packaged connection/state files, ALPM hooks and boot/pacman paths.
+Each makepkg packaging invocation stages the current Meson output once in
+`.networkmanager-split`, beside the four package directories. Repackaging
+gets a fresh workspace and stages the completed build again. Before each
+copy, the helper recomputes the ownership records from that private DESTDIR
+and verifies every split file, symlink, directory and mode. It checks the
+copied payload again before the recipe adds its notices and provenance.
+Extra entries, special files, missing required features, escaping links,
+setuid/setgid payloads, live resolver configuration, packaged connection/state
+files, ALPM hooks and boot/pacman paths are refused.
 Each package retains the exact notices and source provenance. Removal removes
 owned payload; pacman's normal backup handling applies to
 `etc/NetworkManager/NetworkManager.conf`. No install script starts/enables a
@@ -110,8 +115,13 @@ The corrected clean run passed **87/87** upstream tests and staged all four
 payloads (634 leaves). After a standalone relative-output verifier fix, the
 current recipe verified sources again and reran build/check/package using the
 unchanged completed source/build (`--noextract --force`): **87/87** again, all
-four unsigned x86_64 archives assembled. Their BUILDINFO hashes match the exact
-current PKGBUILD. Seven local DATA tests pass, including the path regression;
+four unsigned x86_64 archives assembled. Their BUILDINFO hashes match the
+PKGBUILD used in that run. Seven local DATA tests passed, including the path regression;
 21 staged ELF objects were inspected as data for dependency coverage. No package
 was installed. Archive hashes/sizes and the separate clean/follow-up commands
 are recorded in `validation.json`; this is not a bit-reproducibility claim.
+
+The build-scoped split change is covered by local fixtures only. Those
+fixtures exercise the packaging functions with a modeled Meson install,
+stale-stage and stale-cache refusal, mode and namespace validation, and retry
+after failed staging. The archived host build record predates this change.

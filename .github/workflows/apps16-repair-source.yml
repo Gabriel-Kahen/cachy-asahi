@@ -2,6 +2,7 @@
   "name": "Apps16 repair source factory",
   "on": {
     "push": {
+      "branches": ["**"],
       "paths": [
         "scripts/ci/repair16k-inner-diagnostics-source/**",
         "packages/tools/cachy-asahi-apps16/**",

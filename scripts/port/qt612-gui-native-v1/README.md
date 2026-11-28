@@ -79,8 +79,11 @@ metadata. Every installed package has exact version/architecture/provides and
 original archive/signature/provenance/database pins. All used GUI files and
 aliases must match actual package ownership, modes and hashes. Each DT_NEEDED
 edge follows the supplied actual loader lookup to an unambiguous owned provider;
-the transitive closure and normal AArch64 interpreter are checked. Every needed
-GNU version must have a matching visible definition/hash. RPATH, RUNPATH, loader
+the transitive closure and normal AArch64 interpreter are checked. Each retained
+ELF in that closure, including external libraries and the interpreter, must have
+power-of-two load alignment of at least 16 KiB and congruent file and virtual
+addresses at that alignment. Every needed GNU version must have a matching
+visible definition/hash. RPATH, RUNPATH, loader
 audit/filter overrides and uncontrolled loader environment refuse.
 
 The39 normal dependency expressions are passed unchanged to the original

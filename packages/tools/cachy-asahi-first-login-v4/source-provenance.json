@@ -1,0 +1,27 @@
+{
+  "candidate_version": "0.1.0-4",
+  "check_dependencies": [
+    "zsh"
+  ],
+  "graphical_first_login": "NOT RUN",
+  "hardware": "NOT RUN",
+  "implementation_repository": "https://github.com/Gabriel-Kahen/cachy-asahi",
+  "journal_guard_change": "04041b5ae3955f0a32e5da3466af5848db14e1b7",
+  "native_arm": "NOT RUN",
+  "package_archive_build": "NOT RUN",
+  "package_installation": "NOT RUN",
+  "parent_recipe": "packages/tools/cachy-asahi-first-login-v3",
+  "parent_source_commit": "cfc423d3dc425be2ce1013c21074eca2087c631f",
+  "release": "NOT ADMITTED",
+  "runtime_dependencies": [
+    "python>=3.11",
+    "cachy-asahi-setup>=0.3.1-2"
+  ],
+  "schema_version": 1,
+  "setup_fixture": {
+    "delivery": "Check-only; the runtime uses the separately installed Setup executable.",
+    "prepared_sha256": "adfb419090e990705a2d04e2f6ffa167a279b393a65d26a222edced984b640d3",
+    "recipe": "packages/tools/cachy-asahi-setup8-v3/PKGBUILD",
+    "version": "0.3.1-2"
+  }
+}

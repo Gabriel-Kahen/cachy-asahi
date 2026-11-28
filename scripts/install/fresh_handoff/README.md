@@ -142,12 +142,14 @@ false or NOT RUN. There is no flag to promote this into a supported installer.
 Expired metadata or stale receiver policy can make a previously prepared handoff
 fail verification; preserving old files does not waive those checks.
 
-`ACTIONS.txt` orders the journey: macOS backups and the maintained Asahi
-installer; offline handoff validation; recovery retention; coordinator-admitted
-native preflight and full Asahi transaction; authenticated enrollment preview;
-reviewed installation; explicit first-login configuration; retained base session
-and boot/session recovery tests. It names the existing tools and gives only
-first-login read-only/selection preview argv. Native preflight requires its
+`ACTIONS.txt` starts with offline handoff validation and recovery retention
+outside the target. The physical sequence begins with verified macOS backups and
+the maintained installer for the selected Asahi base. The coordinator then
+admits native preflight and the full Asahi transaction before enrollment preview
+and reviewed installation. First-login configuration, testing the retained base
+session, and testing boot and session recovery follow. `ACTIONS.txt` names the
+existing tools and gives first-login inspection and selection preview commands.
+Native preflight requires its
 existing in-process admission. The local transaction worker accepts disposable
 fixture contracts; it is not a live-root installer. Production enrollment and
 installation remain held because this checkout supplies no accepted release

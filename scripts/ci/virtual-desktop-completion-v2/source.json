@@ -1,0 +1,122 @@
+{
+  "maintained": {
+    "candidate_packet_sha256": "04394d95ac79a5f0574d4adaf21f0b473ec264618bbce94961d6fc3c1a82e3ff",
+    "carrier_commit": "a3feeebf5f0f9b1f0bc83ce91d1c9ebabe40b734",
+    "carrier_packet": {
+      "bytes": 95842,
+      "mode": "0644",
+      "sha256": "a989941b2b7c0a342a002838c1c8bc47cec17d4a3a0f767c82b6a8c9bf96825b"
+    },
+    "composition": "repository-svg-maintained-v1",
+    "updated_rows": [
+      "scripts/ci/development/test_virtual_stage.py",
+      "scripts/ci/development/virtual_stage.py",
+      "scripts/virtual/common.py",
+      "scripts/virtual/controller.py",
+      "scripts/virtual/guest.py",
+      "scripts/virtual/prepare.py",
+      "scripts/virtual/run.py",
+      "scripts/virtual/test_controller.py",
+      "scripts/virtual/test_virtual.py"
+    ]
+  },
+  "schema_version": 1,
+  "source_commit": "061ee7b52291815837d8e9f4b542f001aa4730b1",
+  "source_files": {
+    "scripts/ci/development/common.py": {
+      "bytes": 16893,
+      "mode": "0644",
+      "sha256": "a9fd67f8ca192a5d27f95377fae3804a2ae69f6675440b1104c4411a35dc8a12"
+    },
+    "scripts/ci/development/controller.py": {
+      "bytes": 93516,
+      "mode": "0644",
+      "sha256": "26305dfa652c0b87224bbc6f69630449d090266703fe36d97a7a28cc7b05e333"
+    },
+    "scripts/ci/development/test_virtual_stage.py": {
+      "bytes": 183598,
+      "mode": "0644",
+      "sha256": "78e20bf411ab82063da213d8bb4341465f03799065e669f66924a49a57263794"
+    },
+    "scripts/ci/development/virtual_stage.py": {
+      "bytes": 87917,
+      "mode": "0644",
+      "sha256": "c347e4641f5f7d1c8b969a588e598f06d6d22e4ad35d1e6e4c816ee309c51e97"
+    },
+    "scripts/ci/integration_export.py": {
+      "bytes": 10108,
+      "mode": "0644",
+      "sha256": "1ae8aded5ab461b280ca1ff82047f6766d58efacf7a09c83dc84515ac7d2216c"
+    },
+    "scripts/virtual/audit_tooling.py": {
+      "bytes": 7045,
+      "mode": "0644",
+      "sha256": "6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "mode": "0644",
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    },
+    "scripts/virtual/controller.py": {
+      "bytes": 56619,
+      "mode": "0644",
+      "sha256": "99df6ef1b8de25c91506c10e7470c0d8179b9b1a9d7ecb1f95c94b65a5e0eb81"
+    },
+    "scripts/virtual/gbm_probe.c": {
+      "bytes": 14149,
+      "mode": "0644",
+      "sha256": "fe0bb7b15df0bc93c4b5115543619e182ba3dac2ed22d0d8b1ab541d77a72efd"
+    },
+    "scripts/virtual/guest.py": {
+      "bytes": 51563,
+      "mode": "0644",
+      "sha256": "9a328b149dc29c3579f9866de385bca277f77a08e6de5c98f2355bf71eaf9714"
+    },
+    "scripts/virtual/image_decode_probe.c": {
+      "bytes": 10012,
+      "mode": "0644",
+      "sha256": "e5857f60f664ccfeb8a2275396c4a4f8ed6412f14bb5237e71bd34582479ba3a"
+    },
+    "scripts/virtual/image_decode_report.py": {
+      "bytes": 19492,
+      "mode": "0644",
+      "sha256": "377efb140ec7b5e50a18ae3c3d312f31f25676818f45942bde1c3acb5dceaacd"
+    },
+    "scripts/virtual/prepare.py": {
+      "bytes": 23363,
+      "mode": "0644",
+      "sha256": "5a9fbfbbafb56244b6a6c960fa40bbfc574bfd6bb4c3d5338e17082714c69488"
+    },
+    "scripts/virtual/run.py": {
+      "bytes": 32972,
+      "mode": "0644",
+      "sha256": "707b3eae2ff4e83ec9c534346968bf05f5e7d1077484138f2aef27260f3b26ab"
+    },
+    "scripts/virtual/test_controller.py": {
+      "bytes": 45618,
+      "mode": "0644",
+      "sha256": "6592c84ed0cbff1ae999ffb678d79ecf4fb93725683977489a757238b677dabc"
+    },
+    "scripts/virtual/test_desktop_completion.py": {
+      "bytes": 9492,
+      "mode": "0644",
+      "sha256": "bc04f49d935ee1420268f63e5ddecec30ade6e1dbbaf770ea87360da47485914"
+    },
+    "scripts/virtual/test_virtual.py": {
+      "bytes": 94193,
+      "mode": "0644",
+      "sha256": "2b93665ca5cfb5bb25be6525df15a215f068e9fec14c2f654c2e114ce841bbcb"
+    },
+    "scripts/virtual/tooling-audit.json": {
+      "bytes": 323871,
+      "mode": "0644",
+      "sha256": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095"
+    },
+    "scripts/virtual/tooling.lock.json": {
+      "bytes": 31183,
+      "mode": "0644",
+      "sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
+    }
+  }
+}

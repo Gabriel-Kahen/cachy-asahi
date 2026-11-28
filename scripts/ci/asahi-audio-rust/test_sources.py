@@ -66,6 +66,7 @@ class SourceTests(unittest.TestCase):
         self.assertEqual(report['public_hosting'], 'NOT_RUN')
         self.assertEqual(report['compiler_correspondence'], 'NOT_ESTABLISHED')
         self.assertEqual(report['downloader_sha256'], s.sha(HERE.parent / 'native_arm.py'))
+        self.assertEqual(report['checks_sha256'], s.sha(HERE.parents[1] / 'checks/package_checks.py'))
 
     def test_dependency_byte_drift_refused_before_import(self):
         here = self.root / 'subject/scripts/ci/asahi-audio-rust'

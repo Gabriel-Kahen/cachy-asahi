@@ -2,6 +2,7 @@
   "name": "Apps14 repair source factory",
   "on": {
     "push": {
+      "branches": ["**"],
       "paths": [
         "scripts/ci/repair16k-inner-diagnostics-source/**",
         ".github/workflows/apps14-repair-source.yml"

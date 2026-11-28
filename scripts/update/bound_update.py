@@ -114,7 +114,7 @@ def expected_base(snapshot, before, package_map=install.package_map):
     need(set(before) - set(selected) == set(expected) - set(selected)
          and all(before.get(name) == version for name, version in expected.items() if name not in selected),
          'actual copied base differs from authenticated release')
-    need(all(name not in before or before[name] in {expected.get(name), version}
+    need(all(before.get(name) in {expected.get(name), version}
              for name, version in selected.items()), 'selected installed version differs from release baseline')
     return selected
 
@@ -174,12 +174,13 @@ def apply(args, *, adapter=None):
         with tempfile.TemporaryDirectory(prefix='bound-update-', dir=workspace) as temporary:
             work = Path(temporary)
             with snapshot_module.authenticated(args, work, settings) as snapshot:
+                metadata = snapshot['metadata']
                 result['phase'] = 'checkpoint-lock'
                 with client.state_directory(args.state_dir, True) as checkpoint:
                     now = datetime.now(timezone.utc)
-                    client.validate_envelope(snapshot['metadata'], now)
+                    client.validate_envelope(metadata, now)
                     previous_checkpoint = client.checkpoint(checkpoint)
-                    client.against_state(previous_checkpoint, snapshot['metadata'],
+                    client.against_state(previous_checkpoint, metadata,
                                          snapshot['metadata_sha256'], now, settings['minimum_sequence'])
                     keys = public_keys(snapshot, work, settings['signer'])
                     result['phase'] = 'package-manager-lock'
@@ -259,7 +260,11 @@ def apply(args, *, adapter=None):
                         configuration(args.settings, args.settings_sha256)
                         policy_module.read_policy(args.policy, args.policy_sha256)
                         snapshot['recheck']()
-                        client.validate_envelope(snapshot['metadata'], datetime.now(timezone.utc))
+                        # Persist this validated time even if the clock steps during commit.
+                        verified_at = datetime.now(timezone.utc)
+                        client.validate_envelope(metadata, verified_at)
+                        client.against_state(previous_checkpoint, metadata,
+                                             snapshot['metadata_sha256'], verified_at, settings['minimum_sequence'])
                         if adapter is not None:
                             adapter.precommit()
                         result['phase'] = 'commit'
@@ -282,10 +287,9 @@ def apply(args, *, adapter=None):
                         for path, value in payload.items():
                             need(runtime.node(root / path) == value, 'installed payload differs')
                         result.update(before=before, after=after, phase='checkpoint')
-                        metadata = snapshot['metadata']
                         value = {key: metadata[key] for key in ('scope', 'namespace', 'signer', 'sequence', 'issued_utc')}
                         value.update(schema_version=1, metadata_sha256=snapshot['metadata_sha256'],
-                                     release_sha256=snapshot['release_sha256'], verified_utc=client.utc(datetime.now(timezone.utc)))
+                                     release_sha256=snapshot['release_sha256'], verified_utc=client.utc(verified_at))
                         result['checkpoint_changed'] = 'UNKNOWN'
                         try:
                             durable = client.commit(checkpoint, value)

@@ -5,6 +5,7 @@
 import argparse
 import base64
 import copy
+import errno
 import hashlib
 import importlib.util
 import io
@@ -13,10 +14,12 @@ import os
 from pathlib import Path
 import shutil
 import re
+import signal
 import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 import unittest
 from unittest import mock
 
@@ -62,6 +65,306 @@ class RepoAddCapabilityTests(unittest.TestCase):
                 with self.assertRaises(r.Error) as caught:r.add_database("fixture.db.tar.gz", [], "key", {})
                 self.assertIs(caught.exception, error)
                 self.assertEqual(run.call_count, len(preceding) + 1)
+
+
+@unittest.skipUnless(shutil.which("bsdtar"), "bsdtar is required")
+class DatabaseDescriptorTests(unittest.TestCase):
+    def setUp(self):
+        work = tempfile.TemporaryDirectory()
+        self.addCleanup(work.cleanup)
+        self.database = Path(work.name) / "fixture.db.tar.gz"
+
+    def archive(self, entries, mode="w:"):
+        with tarfile.open(self.database, mode) as archive:
+            for name, kind, data in entries:
+                member = tarfile.TarInfo(name)
+                member.type = kind
+                if kind in (tarfile.LNKTYPE, tarfile.SYMTYPE):
+                    member.linkname = "fixture-1-1/files"
+                member.size = len(data)
+                archive.addfile(member, io.BytesIO(data))
+
+    def package_database(self, *, member="./fixture-2:1-1/desc", compressed_size="123", package_body=None):
+        package = dict(name="fixture", version="2:1-1", arch="any", filename="fixture-1-1-any.pkg.tar.zst",
+                       sha256="a" * 64, depend=[], provides=[], conflict=[], replaces=[])
+        archive = self.database.parent / package["filename"]
+        if package_body is not None:
+            archive.write_bytes(package_body)
+            package["sha256"] = r.sha(archive)
+        signature = b"fixture detached signature bytes"
+        archive.with_name(archive.name + ".sig").write_bytes(signature)
+        fields = dict(NAME=package["name"], VERSION=package["version"], ARCH=package["arch"],
+                      FILENAME=package["filename"], SHA256SUM=package["sha256"],
+                      PGPSIG=base64.b64encode(signature).decode("ascii"))
+        if compressed_size is not None:
+            fields["CSIZE"] = compressed_size
+        desc = "".join(f"%{key}%\n{value}\n\n" for key, value in fields.items()).encode()
+        self.archive([(member, tarfile.REGTYPE, desc)], mode="w:gz")
+        return package
+
+    def test_database_binds_descriptor_name_and_epoch_to_package_fields(self):
+        package = self.package_database()
+        r.database_check(self.database.parent, "fixture", [package])
+        for wrong in ("other-2:1-1/desc", "fixture-1-1/desc", "fixture-2:1-1/nested/desc"):
+            with self.subTest(member=wrong):
+                package = self.package_database(member=wrong)
+                with self.assertRaisesRegex(r.Error, "repository database descriptor path mismatch"):
+                    r.database_check(self.database.parent, "fixture", [package])
+
+    def test_database_checks_known_size_without_requiring_index_archive_files(self):
+        package = self.package_database()
+        self.assertFalse((self.database.parent / package["filename"]).exists())
+        r.database_check(self.database.parent, "fixture", [dict(package, size=123)])
+        for compressed_size in ("124", None):
+            with self.subTest(compressed_size=compressed_size):
+                package = self.package_database(compressed_size=compressed_size)
+                r.database_check(self.database.parent, "fixture", [package])
+                with self.assertRaisesRegex(r.Error, "repository database field mismatch: CSIZE"):
+                    r.database_check(self.database.parent, "fixture", [dict(package, size=123)])
+
+    def test_database_cannot_reuse_one_descriptor_for_two_packages(self):
+        package = self.package_database()
+        [(member, desc)] = list(r.database_descriptors(self.database))
+        other = desc.replace(b"%NAME%\nfixture\n", b"%NAME%\nother\n")
+        self.archive([(member, tarfile.REGTYPE, desc), ("other-2:1-1/desc", tarfile.REGTYPE, other)])
+        with self.assertRaisesRegex(r.Error, "repository database package identity mismatch"):
+            r.database_check(self.database.parent, "fixture", [package, package])
+
+    def test_release_verification_uses_size_from_hashed_payload(self):
+        directory = self.database.parent
+        repo = directory / "repo"
+        repo.mkdir()
+        self.database = repo / self.database.name
+        base = directory / "base.json"
+        r.write(base, {})
+        base_pin = {"sha256": r.sha(base)}
+        (directory / "provenance.json").write_bytes(base.read_bytes())
+        body = b"pinned release archive"
+        for size in (str(len(body)), "1"):
+            with self.subTest(compressed_size=size):
+                package = self.package_database(compressed_size=size, package_body=body)
+                artifacts = {"path": package["filename"], "sha256": package["sha256"]}
+                r.write(directory / "spec.json", dict(release_id="fixture", repo_name="fixture",
+                                                        base=base_pin, packages=[{"artifact": artifacts,
+                                                                                 "provenance": base_pin}]))
+                r.write(directory / "release.json", dict(schema_version=1, signer="test", release_id="fixture",
+                                                        files=r.payload_files(directory), symlinks={},
+                                                        packages=[dict(package, provenance="provenance.json")]))
+                with mock.patch.multiple(r, verify_signature=lambda *_: None,
+                                         pkginfo=lambda _: {"name": package["name"]},
+                                         provenance_check=lambda *_: None, dependency_check=lambda *_: None,
+                                         source_associations=lambda *_: None):
+                    if size == "1":
+                        with self.assertRaisesRegex(r.Error, "repository database field mismatch: CSIZE"):
+                            r.verify_release(directory, "test", {})
+                    else:
+                        r.verify_release(directory, "test", {})
+
+    def test_tar_compressions_keep_exact_descriptor_bytes_and_order(self):
+        long_name = "a" * 120 + "-2:1-1/desc"
+        rows = [(long_name, tarfile.REGTYPE, b"first\r\n" * 180),
+                ("./fixture-1-1/", tarfile.DIRTYPE, b""),
+                ("./fixture-1-1/files", tarfile.REGTYPE, b"ignored"),
+                ("./fixture-1-1/desc", tarfile.REGTYPE, b"second\n")]
+        expected = [(long_name, rows[0][2]), ("fixture-1-1/desc", rows[-1][2])]
+        for mode, option in (("w:", None), ("w:gz", None), ("w:bz2", None), ("w:xz", None),
+                             ("w:", "--zstd"), ("w:", "-Z")):
+            with self.subTest(mode=mode, option=option):
+                self.archive(rows, mode)
+                if option:
+                    original = self.database.with_suffix(".tar")
+                    self.database.replace(original)
+                    r.run(["bsdtar", "-cf", self.database, option, f"@{original}"])
+                original_reads = [(name, r.run(["bsdtar", "-xOf", self.database, member]))
+                                  for name, member in r.archive_members(self.database).items()
+                                  if name.endswith("/desc")]
+                self.assertEqual(original_reads, expected)
+                self.assertEqual(list(r.database_descriptors(self.database)), expected)
+
+    def test_rejects_unsafe_duplicate_and_out_of_order_members(self):
+        first = ("fixture-1-1/desc", tarfile.REGTYPE, b"fixture")
+        for name, error in (("../outside/files", "unsafe archive entry"),
+                            ("fixture-1-1//desc", "unsafe archive entry"),
+                            ("./fixture-1-1/desc", "duplicate archive entries")):
+            with self.subTest(name=name):
+                self.archive([first, (name, tarfile.REGTYPE, b"other")])
+                with self.assertRaisesRegex(r.Error, error):
+                    list(r.database_descriptors(self.database))
+        self.archive([first, ("other-1-1/desc", tarfile.REGTYPE, b"other")])
+        listed = r.archive_members(self.database)
+        with mock.patch.object(r, "archive_members", return_value=dict(reversed(listed.items()))):
+            with self.assertRaisesRegex(r.Error, "descriptor members changed or out of order"):
+                list(r.database_descriptors(self.database))
+        with mock.patch.object(r, "archive_members", return_value={**listed, "absent/desc": "absent/desc"}):
+            with self.assertRaisesRegex(r.Error, "descriptor members missing"):
+                list(r.database_descriptors(self.database))
+        self.package_database()
+        with self.assertRaisesRegex(r.Error, "repository database package count mismatch"):
+            r.database_check(self.database.parent, "fixture", [])
+
+    def test_rejects_non_regular_and_truncated_descriptors(self):
+        name = "fixture-1-1/desc"
+        for kind in (tarfile.DIRTYPE, tarfile.LNKTYPE, tarfile.SYMTYPE, tarfile.FIFOTYPE):
+            with self.subTest(kind=kind):
+                self.archive([("fixture-1-1/files", tarfile.REGTYPE, b"fixture"), (name, kind, b"")])
+                with self.assertRaisesRegex(r.Error, "descriptor is not a regular file"):
+                    list(r.database_descriptors(self.database))
+        member = tarfile.TarInfo(name)
+        member.size = 4096
+        self.database.write_bytes(member.tobuf() + b"short")
+        with self.assertRaises(r.Error):
+            list(r.database_descriptors(self.database))
+
+
+class StageTerminationTests(unittest.TestCase):
+    def setUp(self):
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        self.base = Path(folder.name)
+        self.root = self.base / "store"
+        self.home = self.base / "home"
+        self.home.mkdir()
+        self.untouched = self.root / ".staging-unrelated"
+        self.untouched.mkdir(parents=True)
+        (self.untouched / "marker").write_bytes(b"unrelated")
+        stable = self.root / "stable"
+        (stable / "previous").mkdir(parents=True)
+        (stable / "previous/marker").write_bytes(b"selected")
+        (stable / "current").symlink_to("previous")
+        self.destination = self.root / "staging/fixture"
+        self.package = self.base / "fixture-1-1-any.pkg.tar.zst"
+        self.package.write_bytes(b"offline package data")
+        base = self.base / "base.json"
+        provenance = self.base / "provenance.json"
+        for path in (base, provenance):
+            path.write_text("{}")
+
+        def ref(path):
+            return dict(path=path.name, sha256=r.sha(path))
+
+        self.spec = self.base / "spec.json"
+        r.write(self.spec, dict(schema_version=1, target_arch="aarch64", release_id="fixture",
+            repo_name="fixture", source_commit="a" * 40, base=ref(base),
+            packages=[dict(artifact=ref(self.package), provenance=ref(provenance))],
+            policy=dict(supported_models=["m2-air-13"])))
+
+    def stage_cli(self, interrupt):
+        child = """
+import os, signal, sys
+from pathlib import Path
+from unittest import mock
+from test_release import r
+
+mode, root, home, spec, destination, package = sys.argv[1:]
+real_copy, real_rename, real_temporary = r.shutil.copyfile, r.os.rename, r.tempfile.TemporaryDirectory
+
+def temporary(*args, **kwargs):
+    result = real_temporary(*args, **kwargs)
+    if mode == 'create' and kwargs.get('prefix') == '.staging-':
+        os.kill(os.getpid(), signal.SIGTERM)
+    return result
+
+def copy(source, target):
+    result = real_copy(source, target)
+    if mode == 'copy' and str(source) == package:
+        workspace = Path(target).parent.parent
+        assert workspace.parent == Path(root) and workspace.name.startswith('.staging-')
+        os.kill(os.getpid(), signal.SIGTERM)
+    return result
+
+def rename(source, target):
+    result = real_rename(source, target)
+    if mode == 'commit' and str(target) == destination:
+        os.kill(os.getpid(), signal.SIGTERM)
+    return result
+
+def sign(path, *_):
+    Path(str(path) + '.sig').write_bytes(b'inert signature fixture')
+
+def database(path, *_):
+    if mode == 'actor':
+        helper = '''
+import os, signal, sys, time
+from pathlib import Path
+
+stage, database, result = int(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+workspace = database.parent.parent
+time.sleep(.1)
+os.kill(stage, signal.SIGTERM)
+deadline = time.monotonic() + 3
+while workspace.exists() and time.monotonic() < deadline:
+    time.sleep(.01)
+try:
+    database.write_bytes(b'late helper write')
+except FileNotFoundError:
+    observed = 'workspace absent'
+else:
+    observed = 'late write succeeded'
+temporary = result.with_suffix('.tmp')
+temporary.write_text(observed)
+temporary.replace(result)
+'''
+        r.run(['/bin/bash', '-c', '"$@"; exit $?', 'offline-repo-add', sys.executable, '-B', '-c',
+               helper, str(os.getpid()), str(path), str(Path(root).parent / 'helper-result')])
+    path.write_bytes(b'inert database fixture')
+    path.with_name('fixture.files.tar.gz').write_bytes(b'inert file table fixture')
+
+sys.argv = ['release.py', '--root', root, '--gpg-home', home, '--key', 'A' * 40, 'stage', '--spec', spec]
+with mock.patch.object(r.tempfile, 'TemporaryDirectory', temporary), \\
+     mock.patch.object(r.shutil, 'copyfile', copy), mock.patch.object(r.os, 'rename', rename), \\
+     mock.patch.multiple(r, sign=sign, add_database=database, verify_signature=lambda *_: None,
+         database_check=lambda *_: None, dependency_check=lambda *_: None, provenance_check=lambda *_: None,
+         pkginfo=lambda _: dict(name='fixture', version='1-1', arch='any')):
+    try:
+        r.main()
+    except r.Error:
+        sys.exit(1)
+"""
+        return subprocess.run([sys.executable, "-B", "-c", child, interrupt,
+                               str(self.root), str(self.home), str(self.spec),
+                               str(self.destination), str(self.package)],
+                              cwd=Path(__file__).resolve().parent, capture_output=True, timeout=10)
+
+    def assert_unrelated_preserved(self):
+        self.assertEqual(list(self.root.glob(".staging-*")), [self.untouched])
+        self.assertEqual((self.untouched / "marker").read_bytes(), b"unrelated")
+        self.assertEqual(os.readlink(self.root / "stable/current"), "previous")
+        self.assertEqual((self.root / "stable/current/marker").read_bytes(), b"selected")
+
+    def test_term_during_workspace_creation_or_copy_cleans_up_and_allows_retry(self):
+        for point in ("create", "copy"):
+            with self.subTest(point=point):
+                result = self.stage_cli(point)
+                self.assertEqual(result.returncode, -signal.SIGTERM, result.stderr)
+                self.assertFalse(self.destination.exists())
+                self.assert_unrelated_preserved()
+        result = self.stage_cli("none")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue((self.destination / "release.json").is_file())
+        self.assert_unrelated_preserved()
+
+    def test_term_after_commit_keeps_the_staged_release(self):
+        result = self.stage_cli("commit")
+        self.assertEqual(result.returncode, -signal.SIGTERM, result.stderr)
+        self.assert_unrelated_preserved()
+        manifest = self.destination / "release.json"
+        saved = manifest.read_bytes()
+        self.assertEqual((self.destination / "repo" / self.package.name).read_bytes(), self.package.read_bytes())
+        self.assertEqual(self.stage_cli("none").returncode, 1)
+        self.assertEqual(manifest.read_bytes(), saved)
+
+    def test_term_while_waiting_for_repository_actor_cleans_the_staging_path(self):
+        result = self.stage_cli("actor")
+        self.assertEqual(result.returncode, -signal.SIGTERM, result.stderr)
+        helper_result = self.base / "helper-result"
+        deadline = time.monotonic() + 4
+        while not helper_result.exists() and time.monotonic() < deadline:
+            time.sleep(.01)
+        self.assertEqual(helper_result.read_text(), "workspace absent")
+        self.assertFalse(self.destination.exists())
+        self.assert_unrelated_preserved()
+        result = self.stage_cli("none")
+        self.assertEqual(result.returncode, 0, result.stderr)
 
 
 class ReleaseTests(unittest.TestCase):
@@ -333,13 +636,42 @@ class ReleaseTests(unittest.TestCase):
                       (self.directory / 'evidence/fixture-package-review.txt').read_bytes())
 
     def test_signed_stage_and_verify(self):
-        result = self.stage()
+        with mock.patch.object(r, "payload_files", wraps=r.payload_files) as payload:
+            result = self.stage()
+        self.assertEqual(payload.call_count, 2)
         self.assertEqual(result["status"], "local-staging")
         self.assertEqual(result["source_delivery"], "NOT_DECLARED")
         self.assertFalse(result["source_completeness_accepted"])
         self.verify()
         self.assertTrue((self.directory / "repo/fixture.db").is_symlink())
         self.assertTrue((self.directory / "repo/fixture.files.tar.gz.sig").is_file())
+
+    def test_changed_archive_copy_refuses_before_package_parsing_or_signing(self):
+        replacement = self.inputs / "substitute.tar.gz"
+        with tarfile.open(self.archive) as original, tarfile.open(replacement, "w:gz") as target:
+            for entry in original:
+                with original.extractfile(entry) as extracted:
+                    data = extracted.read()
+                if entry.name == "usr/share/fixture/config":
+                    data = b"different fixture contents\n"
+                entry.size = len(data)
+                target.addfile(entry, io.BytesIO(data))
+        self.assertEqual(r.pkginfo(replacement), r.pkginfo(self.archive))
+        self.assertNotEqual(r.sha(replacement), self.digest)
+        copy_file = r.shutil.copyfile
+
+        def copy_changed_archive(source, destination):
+            return copy_file(replacement if source == self.archive else source, destination)
+
+        with mock.patch.object(r.shutil, "copyfile", side_effect=copy_changed_archive), \
+             mock.patch.object(r, "pkginfo") as metadata, mock.patch.object(r, "sign") as signer, \
+             mock.patch.object(r, "add_database") as database:
+            with self.assertRaisesRegex(r.Error, "copied artifact checksum mismatch"):
+                self.stage()
+        for operation in (metadata, signer, database):
+            operation.assert_not_called()
+        self.assertFalse(list(self.root.glob(".staging-*")))
+        self.assertFalse((self.root / "staging/fixture-1").exists())
 
     def test_builder_snapshot_is_independent_and_build_evidence_stays_bound(self):
         provenance = r.load(self.inputs / "provenance.json")
@@ -369,6 +701,23 @@ class ReleaseTests(unittest.TestCase):
             r.write(gate_path, changed)
             with self.subTest(field=field), self.assertRaisesRegex(r.Error, error):
                 r.gates_check(self.directory, manifest, specification, gate_path)
+
+    def test_signed_package_digest_must_match_the_observed_archive_digest(self):
+        self.stage()
+        document = self.directory / "release.json"
+        manifest = r.load(document)
+        package = manifest["packages"][0]
+        name = f"repo/{package['filename']}"
+        self.assertEqual(manifest["files"][name], package["sha256"])
+        # Model an observed archive with a different digest while keeping the
+        # test package, its signature and its build provenance intact.
+        manifest["files"][name] = "0" * 64
+        r.write(document, manifest)
+        document.with_suffix(".json.sig").unlink()
+        r.sign(document, self.key, self.env)
+        with mock.patch.object(r, "payload_files", return_value=manifest["files"]):
+            with self.assertRaisesRegex(r.Error, "artifact digest differs from signed file map"):
+                self.verify()
 
     def test_resigned_database_requires_exact_detached_package_signature(self):
         self.stage()
@@ -698,6 +1047,299 @@ class ReleaseTests(unittest.TestCase):
         r.withdraw(argparse.Namespace(release_id="fixture-1", reason=str(self.inputs / "incident.txt")), self.root, self.key, self.env)
         self.assertFalse((self.root / "stable/current").exists())
         self.assertTrue((self.root / "stable/fixture-1/release.json").exists())
+
+    def modeled_promotion(self, rid="fixture-1"):
+        self.release_spec["release_id"] = rid
+        self.stage()
+        self.put(f"{rid}-gates.json", {"schema_version": 1, "synthetic": True, "release_id": rid,
+                                      "release_sha256": r.sha(self.directory / "release.json")})
+        return argparse.Namespace(release_id=rid, gates=str(self.inputs / f"{rid}-gates.json"))
+
+    def promote_model(self, args, *, activation_fails=False):
+        with r.locked(self.root), mock.patch.object(r, "gates_check", side_effect=lambda *a: r.load(a[-1])):
+            if activation_fails:
+                with mock.patch.object(r.os, "replace", side_effect=OSError("activation interrupted")) as replace:
+                    with self.assertRaisesRegex(OSError, "activation interrupted"):
+                        r.promote(args, self.root, self.key, self.env)
+                link = replace.call_args.args[0]
+                self.assertNotEqual(link.parent, self.root / "stable")
+                self.assertFalse(link.parent.exists())
+            else:
+                return r.promote(args, self.root, self.key, self.env)
+
+    def test_verify_refuses_requested_id_different_from_signed_bundle(self):
+        self.promote_model(self.modeled_promotion())
+        rid, alias = "fixture-1", "fixture-alias"
+        command = [sys.executable, Path(__file__).with_name("release.py"), "--root", self.root,
+                   "--gpg-home", self.home, "--key", self.key, "verify"]
+        staged = json.loads(r.run([*command, "--release-id", rid, "--channel", "staging"]))
+        self.assertEqual(staged["release_id"], rid)
+        with self.assertRaisesRegex(r.Error, "synthetic fixtures cannot enter stable"):
+            r.run([*command, "--release-id", rid, "--channel", "stable"])
+        for channel in ("staging", "stable"):
+            shutil.copytree(self.root / channel / rid, self.root / channel / alias, symlinks=True)
+        history = self.root / "promotions"
+        for suffix in (".json", ".json.sig"):
+            shutil.copyfile(history / (rid + suffix), history / (alias + suffix))
+        for channel in ("staging", "stable"):
+            with self.subTest(channel=channel), self.assertRaisesRegex(r.Error, "path/release identity mismatch"):
+                r.run([*command, "--release-id", alias, "--channel", channel])
+
+    def test_verify_stable_refuses_signed_promotion_for_another_id(self):
+        self.promote_model(self.modeled_promotion())
+        record = self.root / "promotions/fixture-1.json"
+        saved = r.load(record)
+        r.write(record, dict(saved, release_id="different-release"))
+        record.with_suffix(".json.sig").unlink()
+        r.sign(record, self.key, self.env)
+        command = [sys.executable, Path(__file__).with_name("release.py"), "--root", self.root,
+                   "--gpg-home", self.home, "--key", self.key, "verify",
+                   "--release-id", "fixture-1", "--channel", "stable"]
+        with self.assertRaisesRegex(r.Error, "promotion record is not bound to this release"):
+            r.run(command)
+
+    def test_promotion_retry_authenticates_exact_inputs_and_preserves_history(self):
+        self.promote_model(self.modeled_promotion("previous"))
+        args = self.modeled_promotion()
+        self.promote_model(args, activation_fails=True)
+        current = self.root / "stable/current"
+        self.assertEqual(os.readlink(current), "previous")
+        legacy = current.with_name(".current-next")
+        legacy.symlink_to("fixture-1")
+        promotion = self.root / "promotions/fixture-1.json"
+        signature = promotion.with_suffix(".json.sig")
+        originals = {path: path.read_bytes() for path in (promotion, signature)}
+        gate_path = Path(args.gates)
+        original_gates = r.load(gate_path)
+        r.write(gate_path, dict(original_gates, synthetic=1))
+        with self.assertRaisesRegex(r.Error, "gates differ"):
+            self.promote_model(args)
+        r.write(gate_path, original_gates)
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "synthetic fixtures"):
+            r.promote(args, self.root, self.key, self.env)
+        staging = self.directory / "release.json"
+        staged_sig = staging.with_suffix(".json.sig")
+        staged_original, staged_signature = staging.read_bytes(), staged_sig.read_bytes()
+        r.write(staging, dict(json.loads(staged_original), created_utc="2026-01-01T00:00:00+00:00"))
+        staged_sig.unlink()
+        r.sign(staging, self.key, self.env)
+        with self.assertRaisesRegex(r.Error, "release differs from staging"):
+            self.promote_model(args)
+        staging.write_bytes(staged_original)
+        staged_sig.write_bytes(staged_signature)
+        signature.write_bytes(b"corrupt signature")
+        with self.assertRaisesRegex(r.Error, "command failed: gpg"):
+            self.promote_model(args)
+        signature.write_bytes(originals[signature])
+        self.assertEqual(os.readlink(current), "previous")
+        with mock.patch.object(r, "sign", side_effect=AssertionError("retry must not sign")):
+            self.assertEqual(self.promote_model(args)["status"], "local-stable")
+        self.assertEqual(os.readlink(current), "fixture-1")
+        self.assertEqual(os.readlink(legacy), "fixture-1")
+        self.assertEqual({path: path.read_bytes() for path in originals}, originals)
+
+    def test_promotion_retry_rejects_future_time_and_superseded_promotion(self):
+        args = self.modeled_promotion()
+        self.promote_model(args, activation_fails=True)
+        current = self.root / "stable/current"
+        promotion = self.root / "promotions/fixture-1.json"
+        signature = promotion.with_suffix(".json.sig")
+        original, original_signature = promotion.read_bytes(), signature.read_bytes()
+        for timestamp in ("9999-01-01T00:00:00+00:00", "2026-01-01T12:00:00"):
+            with self.subTest(timestamp=timestamp):
+                r.write(promotion, dict(json.loads(original), promoted_utc=timestamp))
+                signature.unlink()
+                r.sign(promotion, self.key, self.env)
+                with self.assertRaisesRegex(r.Error, "invalid promoted_utc timestamp"):
+                    self.promote_model(args)
+                self.assertFalse(current.is_symlink())
+        promotion.write_bytes(original)
+        signature.write_bytes(original_signature)
+        self.promote_model(self.modeled_promotion("successor"))
+        reason = self.inputs / "incident.txt"
+        reason.write_text("Synthetic successor withdrawal.\n")
+        with r.locked(self.root):
+            r.withdraw(argparse.Namespace(release_id="successor", reason=str(reason)), self.root, self.key, self.env)
+        with self.assertRaisesRegex(r.Error, "not newer than stable history"):
+            self.promote_model(args)
+        self.assertFalse(current.is_symlink())
+
+    def test_withdrawal_retry_authenticates_exact_reason_and_unblocks_export(self):
+        self.promote_model(self.modeled_promotion())
+        reason = self.inputs / "incident.txt"
+        reason.write_bytes(b"Synthetic withdrawal.\r\n")
+        args = argparse.Namespace(release_id="fixture-1", reason=str(reason))
+        current = self.root / "stable/current"
+        unlink = Path.unlink
+
+        def interrupt(path, *a, **kw):
+            if path == current:
+                raise OSError("withdrawal interrupted")
+            return unlink(path, *a, **kw)
+
+        with r.locked(self.root), mock.patch.object(Path, "unlink", interrupt):
+            with self.assertRaisesRegex(OSError, "withdrawal interrupted"):
+                r.withdraw(args, self.root, self.key, self.env)
+        record = self.root / "withdrawals/fixture-1.json"
+        signature = record.with_suffix(".json.sig")
+        originals = {path: path.read_bytes() for path in (record, signature)}
+        endpoint = self.base / "endpoint"
+        endpoint.mkdir()
+        export = [sys.executable, Path(__file__).with_name("export_repository.py"), "--root", self.root,
+                  "--endpoint", endpoint, "--gpg-home", self.home, "--key", self.key]
+        with self.assertRaisesRegex(r.Error, "selected release is withdrawn"):
+            r.run(export)
+        reason.write_bytes(b"Synthetic withdrawal.\n")
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "withdrawal differs"):
+            r.withdraw(args, self.root, self.key, self.env)
+        reason.write_bytes(b"Synthetic withdrawal.\r\n")
+        signature.write_bytes(b"corrupt signature")
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "command failed: gpg"):
+            r.withdraw(args, self.root, self.key, self.env)
+        signature.write_bytes(originals[signature])
+        self.assertEqual(os.readlink(current), "fixture-1")
+        with r.locked(self.root), mock.patch.object(r, "sign", side_effect=AssertionError("retry must not sign")):
+            self.assertEqual(r.withdraw(args, self.root, self.key, self.env)["status"], "withdrawn-locally")
+        self.assertFalse(current.is_symlink())
+        self.assertEqual({path: path.read_bytes() for path in originals}, originals)
+        self.assertIsNone(json.loads(r.run(export))["selected_release"])
+
+    def kill_record_publication(self, operation, flag, args, destination):
+        code = """
+import argparse
+import os
+from pathlib import Path
+import signal
+import sys
+from unittest import mock
+from test_release import r
+
+root, home, key, operation, flag, rid, input_path, destination = sys.argv[1:]
+root = Path(root)
+rename = r.rename_noreplace
+
+def interrupt(source, target):
+    if target == Path(destination) or (destination == "completed" and target.name == destination):
+        os.kill(os.getpid(), signal.SIGKILL)
+    rename(source, target)
+
+args = argparse.Namespace(release_id=rid, **{flag: input_path})
+with r.locked(root), mock.patch.object(r, "gates_check", side_effect=lambda *args: r.load(args[-1])):
+    r.rename_noreplace = interrupt
+    getattr(r, operation)(args, root, key, r.gpg_env(home, root))
+"""
+        result = subprocess.run(
+            [sys.executable, "-B", "-c", code, str(self.root), str(self.home), self.key,
+             operation, flag, args.release_id, getattr(args, flag), str(destination)],
+            cwd=Path(__file__).resolve().parent, capture_output=True, timeout=30,
+        )
+        self.assertEqual(result.returncode, -signal.SIGKILL, result.stderr.decode())
+
+    def test_promotion_resumes_partial_journal_without_replacing_colliding_history(self):
+        self.root.chmod(0o2700)
+        args = self.modeled_promotion()
+        destination = self.root / "stable/fixture-1"
+        promotion = self.root / "promotions/fixture-1.json"
+        rename = r.rename_noreplace
+
+        def collision(source, target):
+            if target == destination:
+                destination.mkdir()
+            rename(source, target)
+
+        with mock.patch.object(r, "rename_noreplace", collision), self.assertRaises(FileExistsError) as caught:
+            self.promote_model(args)
+        self.assertEqual(caught.exception.errno, errno.EEXIST)
+        self.assertEqual(list(destination.iterdir()), [])
+        destination.rmdir()
+
+        self.kill_record_publication("promote", "gates", args, promotion)
+        signature = promotion.with_suffix(".json.sig")
+        original = signature.read_bytes()
+        pending = self.root / ".promotion-pending/fixture-1"
+        journal = pending / "record.json"
+        self.assertEqual(journal.with_suffix(".json.sig").read_bytes(), original)
+        self.assertTrue(destination.is_dir())
+        self.assertFalse((destination.parent / "current").is_symlink())
+        signature.write_bytes(b"foreign record")
+        with self.assertRaisesRegex(r.Error, "retained signed record differs"):
+            self.promote_model(args)
+        self.assertEqual(signature.read_bytes(), b"foreign record")
+        signature.write_bytes(original)
+        journal.chmod(0o666)
+        with self.assertRaisesRegex(r.Error, "unsafe pending signed record member"):
+            self.promote_model(args)
+        journal.chmod(0o600)
+        gate_path = Path(args.gates)
+        original_gates = r.load(gate_path)
+        r.write(gate_path, dict(original_gates, foreign=True))
+        with self.assertRaisesRegex(r.Error, "gates differ"):
+            self.promote_model(args)
+        r.write(gate_path, original_gates)
+        retained = pending.with_name("preserved-test-journal")
+        pending.rename(retained)
+        with self.assertRaisesRegex(r.Error, "incomplete or unsafe signed record"):
+            self.promote_model(args)
+        retained.rename(pending)
+        self.assertFalse(promotion.exists())
+        raw = journal.read_bytes()
+        self.kill_record_publication("promote", "gates", args, "completed")
+        self.assertEqual(promotion.read_bytes(), raw)
+        self.assertFalse((destination.parent / "current").is_symlink())
+        with mock.patch.object(r, "sign", side_effect=AssertionError("retry must not sign")):
+            self.assertEqual(self.promote_model(args)["status"], "local-stable")
+        self.assertEqual(promotion.read_bytes(), raw)
+        self.assertEqual(signature.read_bytes(), original)
+        self.assertEqual(os.readlink(destination.parent / "current"), "fixture-1")
+        self.assertFalse(pending.exists())
+
+    def test_withdrawal_resumes_partial_journal_with_exact_reason_and_signature(self):
+        self.root.chmod(0o2700)
+        promotion = self.modeled_promotion()
+        self.promote_model(promotion)
+        reason = self.inputs / "incident.txt"
+        reason.write_bytes(b"Synthetic partial withdrawal.\r\n")
+        args = argparse.Namespace(release_id="fixture-1", reason=str(reason))
+        record = self.root / "withdrawals/fixture-1.json"
+        self.kill_record_publication("withdraw", "reason", args, record)
+        signature = record.with_suffix(".json.sig")
+        original = signature.read_bytes()
+        pending = self.root / ".withdrawal-pending/fixture-1"
+        journal = pending / "record.json"
+        self.assertEqual(journal.with_suffix(".json.sig").read_bytes(), original)
+        raw = journal.read_bytes()
+        current = self.root / "stable/current"
+        self.assertEqual(os.readlink(current), "fixture-1")
+        verify = [sys.executable, Path(__file__).with_name("release.py"), "--root", self.root,
+                  "--gpg-home", self.home, "--key", self.key, "verify", "--release-id", "fixture-1"]
+        with self.assertRaisesRegex(r.Error, "withdrawal incomplete"):
+            r.run(verify)
+        with self.assertRaisesRegex(r.Error, "withdrawal incomplete"):
+            self.promote_model(promotion)
+        reason.write_bytes(b"Synthetic partial withdrawal.\n")
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "withdrawal differs"):
+            r.withdraw(args, self.root, self.key, self.env)
+        reason.write_bytes(b"Synthetic partial withdrawal.\r\n")
+        journal.write_bytes(raw + b"\n")
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "command failed: gpg"):
+            r.withdraw(args, self.root, self.key, self.env)
+        journal.write_bytes(raw)
+        retained = pending.with_name("preserved-test-journal")
+        pending.rename(retained)
+        with r.locked(self.root), self.assertRaisesRegex(r.Error, "incomplete or unsafe signed record"):
+            r.withdraw(args, self.root, self.key, self.env)
+        retained.rename(pending)
+        self.assertEqual(signature.read_bytes(), original)
+        self.assertFalse(record.exists())
+        self.kill_record_publication("withdraw", "reason", args, "completed")
+        self.assertEqual(record.read_bytes(), raw)
+        self.assertEqual(os.readlink(current), "fixture-1")
+        with r.locked(self.root), mock.patch.object(r, "sign", side_effect=AssertionError("retry must not sign")):
+            self.assertEqual(r.withdraw(args, self.root, self.key, self.env)["status"], "withdrawn-locally")
+        self.assertFalse(current.is_symlink())
+        self.assertFalse(pending.exists())
+        self.assertEqual(record.read_bytes(), raw)
+        self.assertEqual(signature.read_bytes(), original)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,39 @@
+name: virtual-desktop-completion-v2-source
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/virtual-desktop-completion-v2-source.yml'
+      - 'scripts/ci/virtual-desktop-completion-v2/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-local-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out the selected desktop successor
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 061ee7b52291815837d8e9f4b542f001aa4730b1
+          path: .ci-inputs/virtual-desktop-completion-v2
+          persist-credentials: false
+      - name: Check out the maintained packet carrier
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: a3feeebf5f0f9b1f0bc83ce91d1c9ebabe40b734
+          path: .ci-inputs/virtual-desktop-maintained-carrier
+          persist-credentials: false
+      - name: Verify source and caller pins
+        run: |
+          python3 -I -B scripts/ci/virtual-desktop-completion-v2/preflight.py \
+            --root "$GITHUB_WORKSPACE/.ci-inputs/virtual-desktop-completion-v2" \
+            --maintained-root "$GITHUB_WORKSPACE/.ci-inputs/virtual-desktop-maintained-carrier"
+      - name: Check terminal UART and caller evidence with local fixtures
+        working-directory: .ci-inputs/virtual-desktop-completion-v2
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/virtual -p test_desktop_completion.py
+          python3 -B -Werror::ResourceWarning scripts/ci/development/test_virtual_stage.py

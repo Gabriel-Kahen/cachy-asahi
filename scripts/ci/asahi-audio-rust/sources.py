@@ -14,7 +14,7 @@ HERE = Path(__file__).resolve().parent
 SOURCE = 'b83c0f539034f10112a2d1e9743810344f13bb9d'
 INPUTS_SHA256 = '049c8a2f2146c9eb12666879947b42b902a51978df867d08459f2c120fe55ec2'
 NATIVE_SHA256 = '8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba'
-CHECKS_SHA256 = '314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a'
+CHECKS_SHA256 = '306ea3dfa1ce4eb14796c0526a8ca9086043bdcb8e6698c0993d640d076f19cd'
 README = f'''Fixed local project-source handoff; consult report.json for this invocation.
 Project Source: https://github.com/Gabriel-Kahen/cachy-asahi/tree/{SOURCE}
 Build entry: https://github.com/Gabriel-Kahen/cachy-asahi/blob/{SOURCE}/scripts/build/container-entry.sh

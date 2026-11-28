@@ -245,6 +245,7 @@ class Adapter:
         self.repair_authorization=dict(plan_sha256=plan_sha256,selected=names,archives=archives,scope='AUTHENTICATED_SAME_VERSION_ORDINARY_FILE_BYTES_OR_MISSING_LEAF_ONLY')
 
     def observe(self,root,budget):
+        self._repair_source_observation=None
         value,state=_measure(root,budget)
         original,source_state=self.source_check()
         if hasattr(self,'repair_names'):reinstall_nodes(original['nodes'],value['nodes'],self.payloads,self.repair_names,self.repair_installed)
@@ -252,7 +253,21 @@ class Adapter:
         capability_map(root,value,budget,self.policy['source_capabilities'])
         need(digest(canonical_state(scan_view(state)))==digest(canonical_state(scan_view(source_state))),'copy-baseline-closure')
         self.comparator.parse(state['aux_bytes'])
+        if hasattr(self,'repair_names') and not hasattr(self,'repair_before'):
+            self._repair_source_observation=(Path(root),value['nodes'],original['nodes'],{'selection','capture'})
         return value
+
+    def _repair_source_nodes(self,nodes,consumer,root=None):
+        # Only the two consumers of this exact before observation may reuse its source.
+        held=getattr(self,'_repair_source_observation',None)
+        if held is not None:
+            observed_root,observed_nodes,source_nodes,remaining=held
+            if nodes is observed_nodes and (root is None or Path(root)==observed_root) and consumer in remaining:
+                remaining.remove(consumer)
+                if not remaining:self._repair_source_observation=None
+                return source_nodes
+            self._repair_source_observation=None
+        return self.source_check()[0]['nodes']
 
     def source_inventory(self,inventory):
         inventory_check(inventory,source=True)
@@ -280,7 +295,7 @@ class Adapter:
         installed={r['name'] for r in inventory['packages']}
         if hasattr(self,'repair_names'):
             need(set(add)==self.repair_names and not remove,'repair-selection-differs-from-authenticated-plan')
-            reinstall_nodes(self.source_check()[0]['nodes'],before,self.payloads,self.repair_names,installed&VERSIONS.keys())
+            reinstall_nodes(self._repair_source_nodes(before,'selection'),before,self.payloads,self.repair_names,installed&VERSIONS.keys())
         else:
             for name in installed&VERSIONS.keys():
                 need(all(before.get(n)==v for n,v in self.payloads[name].items()),'installed-current-candidate-payload')
@@ -317,8 +332,9 @@ class Adapter:
         self.baseline=aux.checkpoint(root,observation,self.limits)
         self.baseline_caps=capability_map(root,observation,self.limits,self.policy['source_capabilities'])
         if hasattr(self,'repair_names'):
-            self.repair_damage=reinstall_nodes(self.source_check()[0]['nodes'],observation['nodes'],self.payloads,self.repair_names,self.repair_installed)
-            self.repair_before={n:row for name in self.repair_names for n in self.payloads[name] if (row:=observation['nodes'].get(n)) is not None}
+            nodes=observation['nodes']
+            self.repair_damage=reinstall_nodes(self._repair_source_nodes(nodes,'capture',root),nodes,self.payloads,self.repair_names,self.repair_installed)
+            self.repair_before={n:row for name in self.repair_names for n in self.payloads[name] if (row:=nodes.get(n)) is not None}
 
 def connect(args,backend,budget):
     values=[getattr(args,n,None) for n in ('full574_policy','full574_policy_sha256','full574_lease','full574_lease_sha256')]

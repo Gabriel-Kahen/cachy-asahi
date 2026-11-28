@@ -464,6 +464,28 @@ class RecipeImageControls(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'incomplete-output-cannot-resume'):
             release.run(self.recipe_path, self.recipe_sha, output, digest)
 
+    def test_parent_sync_failure_blocks_receipt_publication(self):
+        output = self.directory / 'parent-sync-failure'
+        original = release.sync_directory
+
+        def fail_parent_sync(directory):
+            if directory == output.parent:
+                self.assertTrue((output / 'INCOMPLETE.json').is_file())
+                self.assertTrue((output / 'receipt.pending.json').is_file())
+                self.assertFalse((output / 'receipt.json').exists())
+                raise OSError('modeled-output-parent-fsync-failure')
+            original(directory)
+
+        with patch.object(release, 'sync_directory', side_effect=fail_parent_sync):
+            with self.assertRaisesRegex(OSError, 'modeled-output-parent-fsync-failure'):
+                release.run(self.recipe_path, self.recipe_sha, output)
+        self.assertTrue((output / 'INCOMPLETE.json').is_file())
+        self.assertTrue((output / 'failure.json').is_file())
+        self.assertFalse((output / 'receipt.json').exists())
+        digest = release.sha((output / 'receipt.pending.json').read_bytes())
+        with self.assertRaisesRegex(ValueError, 'incomplete-output-cannot-resume'):
+            release.run(self.recipe_path, self.recipe_sha, output, digest)
+
     def test_two_fresh_destinations_share_recipe_binding_and_model_image(self):
         left, a = self.assemble('first')
         right, b = self.assemble('second')

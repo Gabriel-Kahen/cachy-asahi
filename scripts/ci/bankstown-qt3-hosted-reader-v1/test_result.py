@@ -182,9 +182,22 @@ class Composition(unittest.TestCase):
         base = self.root / 'static-MODEL'; base.mkdir(); f = F.Fixture(base)
         result = f.run(F.Executor(f))
         args = (f.output, f.source, f.d, H.pin(f.profile.read_bytes()), result['artifact'], result['commands'], time.monotonic() + 10)
-        self.assertEqual(Q.static_artifacts(*args), result['artifact'])
-        (f.output / 'artifacts/generated.SRCINFO').write_bytes(b'pkgname = stale\n')
-        with self.assertRaises(ValueError): Q.static_artifacts(*args)
+        trusted = self.root / 'trusted-MODEL'
+        for name in B.HELD:
+            source = F.HELD_FIXTURES.get(name, Q.MAIN / name)
+            target = trusted / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(source.read_bytes())
+        with patch.object(Q, 'MAIN', trusted):
+            self.assertEqual(Q.static_artifacts(*args), result['artifact'])
+            checker = trusted / F.CHECKER
+            checker_body = checker.read_bytes()
+            checker.write_bytes(checker_body + b'\n')
+            with self.assertRaisesRegex(ValueError, 'TRUSTED_MAIN_STATIC_HELPER_DIFFERS'):
+                Q.static_artifacts(*args)
+            checker.write_bytes(checker_body)
+            (f.output / 'artifacts/generated.SRCINFO').write_bytes(b'pkgname = stale\n')
+            with self.assertRaises(ValueError): Q.static_artifacts(*args)
 
     def retained_fixture(self):
         F = Q.load('scripts/port/bankstown-qt3-native-v1/test_builder.py')

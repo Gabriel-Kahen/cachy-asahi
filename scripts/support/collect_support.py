@@ -5,7 +5,6 @@ import argparse
 from datetime import datetime, timezone
 import os
 from pathlib import Path
-import re
 import signal
 import sys
 from types import SimpleNamespace, ModuleType
@@ -64,9 +63,7 @@ def write_private(bundle, directory, name, raw, *, replace=False):
 
 def collect(args, bundle=None):
     bundle = bundle or load_bundle()
-    identity = dict(release_id=args.release_id, release_sha256=bundle.hex_value(args.release_sha256),
-                    source_commit=bundle.hex_value(args.source_commit, (40, 64)))
-    bundle.require(re.fullmatch('[A-Za-z0-9][A-Za-z0-9._+-]{0,95}', args.release_id))
+    identity = bundle.release_identity(args.release_id, args.release_sha256, args.source_commit)
     session, session_pin = bundle.load_current('scripts/hardware/session_probe.py', 'collection_session')
     doctor, doctor_pin = bundle.load_current('packages/tools/cachy-asahi-doctor2/cachy-asahi-doctor', 'collection_doctor')
     if args.baseline_sha256:
@@ -102,8 +99,8 @@ def collect(args, bundle=None):
         stage = 'session'
         report = session.collect(dict(declared_model_id=args.model_id, source_revision=args.source_commit,
             baseline_sha256=args.baseline_sha256, execution_context=args.execution_context))
-        bundle.session_projection(report, session, identity)
         raw = bundle.encoded(report)
+        bundle.session_projection(report, session, identity)
         write_private(bundle, output, 'session.private.json', raw)
         receipt['inputs']['session'] = bundle.pin(raw)
         write_private(bundle, output, 'collection.json', bundle.encoded(receipt), replace=True)

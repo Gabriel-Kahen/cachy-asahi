@@ -78,6 +78,10 @@ class PlatformPolicyTests(unittest.TestCase):
             self.authorize()
 
     def test_every_protected_version_change_is_refused_even_coordinated_kernel_transition(self):
+        # Add the held Asahi629 maintenance delta to the synthetic policy context.
+        self.before.update(networkmanager='1.58.1-1', perl='5.42.2-2', python='3.14.7-1')
+        self.after.update(networkmanager='1.58.1-2', perl='5.42.3-1', python='3.14.8-1')
+        self.assertEqual(self.authorize()['decision']['decision'], 'transaction-allowed')
         for name in adapter.protected_names(self.policy):
             with self.subTest(name=name):
                 original = self.after[name]

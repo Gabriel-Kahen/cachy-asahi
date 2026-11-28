@@ -2,6 +2,7 @@
   "name": "current606-welcome8-apps16-inventory-caller60-source",
   "on": {
     "push": {
+      "branches": ["main"],
       "paths": [
         "scripts/ci/current606-welcome7-gui-source/**",
         ".github/workflows/current606-welcome8-apps16-inventory-caller60-source.yml"

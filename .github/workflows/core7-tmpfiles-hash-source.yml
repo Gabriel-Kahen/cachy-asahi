@@ -1,6 +1,7 @@
 name: core7-tmpfiles-hash-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/core7-tmpfiles-hash-source/**
       - .github/workflows/core7-tmpfiles-hash-source.yml

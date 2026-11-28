@@ -22,6 +22,7 @@ r = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(r)
 MAX_FILES, MAX_BYTES = 16384, 8 * 1024**3
 GENERATION = re.compile(r"generations/[0-9a-f]{64}\Z")
+WORKSPACE = re.compile(r"\.(export|selection)-[a-z0-9_]{8}\Z")
 
 
 def encoded(value):
@@ -184,8 +185,29 @@ def generation_check(directory, plan):
               and links == plan["symlinks"], "generation differs from its complete export plan")
 
 
+def interrupted_workspace(path):
+    match = WORKSPACE.fullmatch(path.name)
+    if not match:
+        return False
+    info = path.lstat()
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o777 != 0o700:
+        return False
+    staging = match[1] == "export"
+    expected = path / ("generation" if staging else "current")
+    for child in path.iterdir():
+        if child != expected:
+            return False
+        if staging:
+            managed_directory(child)
+        elif not child.is_symlink() or not GENERATION.fullmatch(os.readlink(child)):
+            return False
+    return True
+
+
 def endpoint_state(endpoint):
-    r.require(set(p.name for p in endpoint.iterdir()) <= {"generations", "current"}, "foreign endpoint entries refused")
+    # These private workspaces are never read as generations or used as selections.
+    r.require(all(p.name in {"generations", "current"} or interrupted_workspace(p) for p in endpoint.iterdir()),
+              "foreign endpoint entries refused")
     generations = endpoint / "generations"
     if generations.exists() or generations.is_symlink():
         managed_directory(generations)
@@ -317,7 +339,8 @@ def materialize(root, endpoint, key, env, previous, plan, sources, recheck, appl
             for parent, directories, names in os.walk(staging, topdown=False):
                 sync_directory(Path(parent))
             os.rename(staging, destination)
-            sync_directory(generations)
+    # A retained generation may come from an interrupted directory sync.
+    sync_directory(generations)
     r.require(endpoint_state(endpoint) == previous, "endpoint selection changed during export")
     recheck()
     target = "generations/" + ident

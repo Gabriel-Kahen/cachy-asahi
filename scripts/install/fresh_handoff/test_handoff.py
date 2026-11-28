@@ -103,9 +103,15 @@ class HandoffTests(unittest.TestCase):
         self.assertFalse(checked['packages_installed'])
         self.assertFalse(checked['release_accepted'])
         self.assertEqual(checked['m2_air_13'], 'NOT RUN')
-        self.assertEqual(len(checked['actions']), 8)
+        self.assertEqual([row['step'] for row in checked['actions']], list(range(1, 9)))
+        self.assertEqual([row['state'] for row in checked['actions'][:4]],
+                         ['OFFLINE_CHECK', 'RETAIN', 'HELD', 'HELD'])
+        self.assertIn('maintained installer', checked['actions'][2]['action'])
         self.assertTrue((relocated/'recovery/recovery/packages/original-00/archive').is_file())
-        self.assertIn('boot/session restoration', (relocated/'ACTIONS.txt').read_text())
+        instructions = (relocated/'ACTIONS.txt').read_text()
+        self.assertLess(instructions.index('1. [OFFLINE_CHECK]'), instructions.index('2. [RETAIN]'))
+        self.assertLess(instructions.index('2. [RETAIN]'), instructions.index('maintained installer'))
+        self.assertIn('boot/session restoration', instructions)
 
     def test_candidate_and_predecessor_use_their_own_checkpoint(self):
         candidate = self.chosen['candidate']

@@ -16,10 +16,10 @@ source=('llvm-project-23.1.1.src.tar.xz' 'reference.py' 'build.sh' 'inputs.json'
 noextract=('llvm-project-23.1.1.src.tar.xz')
 sha256sums=(
   'ebe9be46fe8756d58c5b198ffad0fa2a766257add81a4dc52179bfacc7888ee6'
-  'e66fa8d4fe72bb6c638782136cfb054434c3e8228b1eca2904f5db1f2a62fcc2'
+  '1e3e39b5ac42d60e24b160789a05a6dc272b6a9573bcee4e62bc138ecaa41ca3'
   '6e9bc3fb515d7f39648fe530d96be8dc4347b29693f78e54c29aa3cdfebb5a65'
-  '7f38325ec04a12a58f78d6a9c8f4512fb7160866746dcdc47c557b393dffdc28'
-  'c4142db99239dbb4fedec3fb48fea72ed929bb5fb868330063168511dff3db78'
+  '3a3f6a91ef4b71f672e93d4c8c61087285324e882ed7f7e7a4fddacd0adbb76d'
+  '2fa6491f1f710171d2a8e96e027512497f572b5db29a352c65eee2584cdffac1'
   'b8f5f697f7e16eb59a3fb83868aad10d19c918e212aa196d1716c3df21ee20db'
 )
 

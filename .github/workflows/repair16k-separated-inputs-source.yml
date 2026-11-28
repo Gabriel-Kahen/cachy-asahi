@@ -1,6 +1,7 @@
 name: repair16k-separated-inputs-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/repair16k-separated-inputs-source/**
       - .github/workflows/repair16k-separated-inputs-source.yml

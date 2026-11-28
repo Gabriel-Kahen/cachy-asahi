@@ -249,7 +249,7 @@ class OfflineSourcesTests(unittest.TestCase):
             for name in ('environment.txt', 'config.sha256', 'makepkg.conf', 'pacman.conf'):
                 (artifacts / name).write_text('SYNTHETIC container response\n')
             (artifacts / 'packages.lock').write_text(self.lock.read_text())
-            (artifacts / 'generated.SRCINFO').write_text(''.join(
+            (artifacts / 'generated.SRCINFO').write_text('pkgbase = example\n' + ''.join(
                 f'{key} = {value}\n' for key, values in self.report['metadata'].items() for value in values))
             payload = {'.PKGINFO': b'pkgname = example\npkgbase = example\npkgver = 1-1\narch = aarch64\nlicense = MIT\n',
                 '.BUILDINFO': ('format = 2\npkgname = example\npkgver = 1-1\npkgarch = aarch64\n'

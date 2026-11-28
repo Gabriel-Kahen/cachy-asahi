@@ -10,9 +10,11 @@ import signal
 import subprocess
 import tempfile
 
-spec = importlib.util.spec_from_file_location('repository_enrollment', Path(__file__).resolve().with_name('enroll.py'))
+enrollment_path = Path(__file__).resolve().with_name('enroll.py')
+spec = importlib.util.spec_from_file_location('repository_enrollment', enrollment_path)
 E = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(E)
+# Python -B can still read an existing bytecode cache.
+exec(compile(enrollment_path.read_bytes(), str(enrollment_path), 'exec'), vars(E))
 
 
 def signing_trust(ring, fingerprint, home, name):

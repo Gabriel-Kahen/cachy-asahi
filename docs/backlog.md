@@ -5,6 +5,106 @@ Track active engineering follow-ups in
 The [implementation status](implementation-status.md) records current evidence
 and [acceptance.md](acceptance.md) defines the milestone gates.
 
+## Current release gates
+
+[Overlay Preview 1](release/overlay-preview-1.md) is published with five
+architecture-independent packages and matching source. The preview guide
+records the tested shell lifecycle and the limits of that release. A
+[local TEST-signed pair](validation/b08-b09-signed-staging-20261125.md) changed
+only the Fish package and exercised staging, comparison and withdrawal.
+
+- JBIG/TIFF [#622](https://github.com/Gabriel-Kahen/cachy-asahi/issues/622)
+  passed two byte-identical native AArch64 builds per package on both
+  Minimal206 and the reviewed 341-package baseline. Signed replacement and
+  restoration passed on both with `tificc` installed throughout. Selecting
+  the supported Asahi composition, distribution review and physical 16 KiB
+  testing remain open.
+  [Native build and lifecycle evidence](validation/project-libraries-native-20261125.md)
+- Kernel [#623](https://github.com/Gabriel-Kahen/cachy-asahi/issues/623) passed
+  the hosted native AArch64 baseline and candidate builds at `4e5493cb`. Both
+  builds exited zero and passed output verification. Cleanup removed the
+  run-owned resources and preserved the six pre-existing Docker images. Boot,
+  installation, physical M2 validation and performance remain open.
+  [Passing native run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45784522085)
+  · [Verifier and diagnostics](workstreams/kernel-native-job.md)
+- Updater 4.4.2-3 passed its native AArch64 build pair and all 15 Check and
+  refusal cases after signed installation in a disposable container. Separate
+  emulated AArch64 guests with 16 KiB pages passed a TEST-signed upgrade and a
+  bad-signature refusal with zero commits. Independent readback and retirement
+  passed for both guests. The supported Asahi transaction, coordinated platform
+  update and boot recovery remain open.
+  [Build and installed Check evidence](validation/updater-native-45715088356.md)
+  · [Emulated update and refusal](validation/updater-q3-emulated-arm16k-20261126.md)
+- The [R132 source custody record](../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes)
+  identifies the exact final Perl 5.42.3-1 and Python 3.14.8-1 `PKGBUILD`
+  files still needed to complete source custody for the proposed Asahi
+  composition.
+- The exact stock Asahi kernel booted in offline AArch64 QEMU with 16 KiB
+  pages and an auxiliary initramfs. It verified the original 261-package seed
+  mounted read-only. A second probe reached installed systemd and
+  `basic.target` on a disposable snapshot. Default boot needs the EFI
+  volume missing from the retained seed. Apple firmware, the original
+  initramfs and physical recovery remain open.
+  [Stock-kernel trial](validation/asahi626-maintenance-emulated-arm16k-20261118.md#direct-stock-kernel-boot-with-an-auxiliary-initramfs)
+- The November 27 TEST-signed Asahi629 Preview rehearsal passed in offline
+  emulated AArch64 with 16 KiB pages. The 261 → 629 → 629 transactions
+  restored the original NetworkManager, Perl and Python versions and
+  preserved all 362 protected boot and mount entries. The refreshed TEST
+  transport passed independent public verification of all 767 payload pins.
+  The refreshed inputs also completed both base transactions and restored
+  all 629 package rows and 362 protected paths on November 28. The scoped
+  JBIG/TIFF trial held before replacement on the installed GTK SDK/GIO
+  version requirement. Composition approval remains open.
+  [November 27 rehearsal](workstreams/supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
+  · [Renewed-input transaction evidence](workstreams/supported-composition-maintenance.md#november-28-renewed-input-transaction-evidence)
+- The Q3 Qtbase 6.12 build completed `all` in the replacement 8 GiB emulated
+  AArch64 guest with 16 KiB pages. Independent readback verified 18 linked
+  libraries and 1,216 distinct Ninja timing and command tuples. A separate
+  guest produced the verified Qtbase 6.12.0-2 archive. Its TEST-signed
+  installed lifecycle passed on the Q3 baseline, including database restoration after both
+  removals and separate refusals for a tampered signature and an unknown
+  signer. On the retained R132 inventory, the project archive's
+  `md4c<0.6` requirement is unsatisfied. The installed Qt Quick and Quick
+  Widgets binaries also require nine Vulkan symbols absent from that
+  archive. The Vulkan/md4c 0.6 successor, 6.12.0-3, finished its emulated AArch64
+  16 KiB build. Offline recovery verified the unsigned archive, the final
+  357-package build inventory and the required QtGui ABI. The original
+  guest recorded HOLD after a missing boot utility interrupted the normal
+  export. A separate TEST-signed Asahi629 guest swapped and restored the
+  official provider, including software rendering probes before and during
+  replacement. The 6.12.0-4 parity candidate completed its offline build
+  and smoke test in emulated AArch64 with 16 KiB pages on November 28.
+  Independent stopped-disk readback verified the archive. Offline ABI
+  checks and TEST signing passed. Installed replacement, restoration and
+  the added runtime checks remain open for 6.12.0-4.
+  [Full-build record](../scripts/integration/qt612_full_16k_preflight/README.md)
+  · [Package evidence](../scripts/integration/qt612_full_16k_preflight/PACKAGING.md)
+  · [Installed lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
+  · [R132 replacement checks](../scripts/integration/qt612_installed_16k_preflight/README.md#official-provider-replacement-on-r132)
+  · [Successor build and recovery](../scripts/integration/qt612_vulkan_md4c_successor/README.md#november-27-build-and-offline-package-recovery)
+  · [6.12.0-3 scoped replacement](../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27)
+  · [6.12.0-4 verified parity build](../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md#verified-build-on-november-28)
+- The virtual desktop successor requires a terminal event after guest
+  cleanup, bounded UART EOF, and outer-reader verification before accepting
+  frames. The retained-input run `45731218357` authenticated all 45 tooling objects,
+  ran the generic QEMU desktop and decoded the TEST SVG. The session and seatd
+  exited zero, UART reached EOF, and visual review passed for both original
+  frames. Signed repository transactions and ARM C01 passed in the same run.
+  Later diagnostics passed ALPM baseline collection and found leaked virtual
+  callback state in the repository handoff. The draft corrects that state
+  lifetime and checks the captured ownership projection at receiver entry.
+  End-to-end hosted handoff verification remains open.
+  [Successor admission](workstreams/virtual-desktop-completion-v2-admission.md)
+  · [Installed lifecycle run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45728195500)
+  · [Repository and tooling retry](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45731218357)
+  · [Callback-state diagnostic](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45765388674)
+- Stable overlay promotion requires approval of the supported Asahi
+  composition, production signing custody and repository hosting, and
+  installation and recovery records
+  for both [13-inch](validation/m2-air-13.md) and [15-inch](validation/m2-air-15.md)
+  M2 Air systems. Both sizes also need baseline and final-system measurements
+  for the performance milestone.
+
 ## Historical execution log
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
@@ -356,7 +456,7 @@ software work; physical target absence does not block their preparation.
 | B06 Complete native build pair | Build/validation chat | B00 and each audited recipe | Two independent clean ARM attempts per selected package, actual artifacts and comparisons | NATIVE BUILD PAIRS PASS for all four development candidates at ebd5812; archives byte-identical per pair. Actual Asahi target transaction and installation remain B07 |
 | B07 Exact-model lifecycle/functional closure | Coordinator/desktop + physical operator | Baseline and reviewed slices | All required tests and user-preservation lifecycle on both Air sizes | NOT RUN; retain separate records and serialize each machine's mutation/sleep jobs |
 | B08 Repository/recovery implementation | Release chat | Reviewed artifact interface | Signed local staging, trust/recovery design, fail-closed evidence promotion | IMPLEMENTED; original generic integration and eleven signed repository cases pass. URL/phase corrections adopted at 9340d00; mode correction510e8c3 and all47 source/17 transitive bindings verify. Complete341-package metadata, raw same-job custody and native admission remain open; production promotion and target recovery unaccepted |
-| B09 Real update pair, keys and endpoint | Coordinator/release + custodian/operator | B06/B07 and signing custody | Actual repository bootstrap/install/upgrades, key transition, induced failure/recovery, published supported endpoint | NOT RUN; assign permanent custody and retain a local test release pair first |
+| B09 Real update pair, keys and endpoint | Coordinator/release + custodian/operator | B06/B07 and signing custody | Actual repository bootstrap/install/upgrades, key transition, induced failure/recovery, published supported endpoint | LOCAL TEST PAIR VERIFIED for the Fish version change and signed withdrawal. Production signer and endpoint, supported Asahi update pair, and exact-machine recovery remain open. [Local evidence](validation/b08-b09-signed-staging-20261125.md) |
 | B10 Performance framework | Performance chat | Baseline schema, workload contract | Plan/telemetry/raw trial/compare harness and instrumentation rules | IMPLEMENTED/LOCALLY TESTED; all six independent source findings resolved |
 | B11 Baseline/final measurements | Performance owner + physical operators | Relevant B00 baseline; stable B07/B09 for experiments | Both-size raw reports and frozen practical budgets, including no-winning-tuning case | NOT RUN; reserve controlled windows and calibrated instruments; define budgets from reference before tuning |
 | B12 Independent onboarding/contribution | Coordinator + independent operator | Working reviewed slice and B03 | Complete installed journey and independently exercised contribution | NOT RUN; run from clean prerequisites rather than developer-preconfigured system |

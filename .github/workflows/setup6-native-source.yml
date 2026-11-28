@@ -1,6 +1,7 @@
 name: setup6-native-source
 on:
   push:
+    branches: ['**']
     paths:
       - 'scripts/ci/setup6-native-source/**'
       - '.github/workflows/setup6-native-source.yml'

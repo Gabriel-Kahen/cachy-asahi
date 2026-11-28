@@ -232,10 +232,10 @@ def workflow_identity():
     return values
 
 
-def inventory(path, *, deadline=None):
+def inventory(data, *, deadline=None):
     check_deadline(deadline)
     rows = {}
-    for line in read_regular(path, **deadline_options(deadline)).decode('utf-8').splitlines():
+    for line in data.decode('utf-8').splitlines():
         check_deadline(deadline)
         fields = line.split()
         require(len(fields) == 2 and NAME.fullmatch(fields[0]) and VERSION.fullmatch(fields[1])
@@ -252,15 +252,22 @@ def source_packet(controller, root, *, deadline=None):
             all(isinstance(pin, str) and PIN.fullmatch(pin) for pin in accepted.values()),
             'virtual-source-packet-not-accepted')
     directory = root / 'scripts/virtual'
-    require(all(digest(directory / name, **deadline_options(deadline)) == pin for name, pin in accepted.items()), 'virtual-source-packet-drift')
+    owner = read_regular(directory / 'controller.py', **deadline_options(deadline))
+    require(hashlib.sha256(owner).hexdigest() == accepted['controller.py'] and
+            all(digest(directory / name, **deadline_options(deadline)) == pin
+                for name, pin in accepted.items() if name != 'controller.py'), 'virtual-source-packet-drift')
     # Do not import the owner: its bare common import must never resolve to this
     # adapter's common module. Only literal declarations are read here.
     declarations = {}
-    for node in ast.parse(read_regular(directory / 'controller.py', **deadline_options(deadline)).decode()).body:
+    for node in ast.parse(owner.decode()).body:
         check_deadline(deadline)
         if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
-            if node.targets[0].id in ('LOCK_PIN', 'AUDIT_PIN', 'AUDITOR_PIN', 'CORE', 'ALIASES'):
+            if node.targets[0].id in ('LOCK_PIN', 'AUDIT_PIN', 'AUDITOR_PIN', 'CORE', 'ALIASES', 'COMPATIBLE_BASE_INPUTS'):
                 declarations[node.targets[0].id] = ast.literal_eval(node.value)
+    compatible = declarations.get('COMPATIBLE_BASE_INPUTS', ())
+    require(type(compatible) is tuple and len(compatible) in (0, 2) and
+            all(type(pin) is str and PIN.fullmatch(pin) for pin in compatible) and len(set(compatible)) == len(compatible),
+            'virtual-owner-constants-differ')
     require(declarations.get('ALIASES') == ALIASES and declarations.get('LOCK_PIN') == accepted['tooling.lock.json']
             and declarations.get('AUDIT_PIN') == accepted['tooling-audit.json']
             and declarations.get('AUDITOR_PIN') == accepted['audit_tooling.py'] and
@@ -327,9 +334,12 @@ def preflight(controller, root, *, deadline=None):
              'commit_receipt': handoff / 'commit-receipt.json',
              'tooling_lock': root / 'scripts/virtual/tooling.lock.json',
              'tooling_audit': root / 'scripts/virtual/tooling-audit.json'}
-    hashes = {name: digest(path, **deadline_options(deadline)) for name, path in paths.items()}
-    loaded = {name: inventory(path, **deadline_options(deadline)) if name in ('base_lock', 'installed_lock') else read_json(path, **deadline_options(deadline))
-              for name, path in paths.items()}
+    snapshots = {name: read_regular(path, **deadline_options(deadline)) for name, path in paths.items()}
+    hashes = {name: hashlib.sha256(data).hexdigest() for name, data in snapshots.items()}
+    require(all(hashes[name] == accepted[paths[name].name] for name in ('tooling_lock', 'tooling_audit')),
+            'virtual-source-packet-drift')
+    loaded = {name: inventory(data, **deadline_options(deadline)) if name in ('base_lock', 'installed_lock') else captured_json(data)
+              for name, data in snapshots.items()}
     rows = read_json(work / 'fixtures-raw/archives.json', **deadline_options(deadline))['baseline']
     require(isinstance(rows, list) and len(rows) == 4 and all(isinstance(r, dict) for r in rows)
             and {r.get('name') for r in rows} == OVERLAYS, 'original-four-baseline-required')
@@ -374,7 +384,14 @@ def preflight(controller, root, *, deadline=None):
     lock, audit, upstream = (loaded[n] for n in ('tooling_lock', 'tooling_audit', 'base_inputs_lock'))
     frozen = {r['name'][0]: r['version'][0] for r in upstream['rootfs_packages']}
     frozen.update({r['name']: r['version'] for r in upstream['packages']})
-    require(base == frozen and hashes['base_inputs_lock'] == lock['base_inputs_lock_sha256'], 'authenticated-base-binding-refused')
+    # The original controller holds the authenticated integration lock, including
+    # the historical input selection when the composed packet uses schema 3.
+    selected = controller.lock['source_files']['scripts/ci/inputs.lock.json']['sha256']
+    actual, tooling_base = hashes['base_inputs_lock'], lock['base_inputs_lock_sha256']
+    compatible = constants.get('COMPATIBLE_BASE_INPUTS', ())
+    require(base == frozen and actual == selected and
+            (actual == tooling_base or (actual in compatible and tooling_base in compatible)),
+            'authenticated-base-binding-refused')
     packages = lock['packages']
     require(len(packages) == 21 and len({r['name'] for r in packages}) == 21 and lock['base_package_count'] == 341
             and lock['expected_package_count'] == 362 and

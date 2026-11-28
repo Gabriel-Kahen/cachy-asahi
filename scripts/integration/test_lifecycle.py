@@ -12,7 +12,7 @@ import time
 import tarfile
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 spec = importlib.util.spec_from_file_location('virtual_lifecycle', Path(__file__).with_name('lifecycle.py'))
 lifecycle = importlib.util.module_from_spec(spec)
@@ -497,6 +497,29 @@ class LifecycleTests(unittest.TestCase):
         self.assertTrue(result['cleanup']['reaped'])
         self.assertTrue(result['cleanup']['term_sent'])
         self.assertLess(time.monotonic() - started, 2)
+
+    def test_reaped_command_requires_bounded_group_absence(self):
+        started = time.monotonic()
+        with patch.object(lifecycle.os, 'killpg') as probe:
+            result = self.process("print('completed')", timeout=1)
+        self.assertEqual(result['returncode'], 0)
+        self.assertEqual(result['reason'], 'cleanup-failed')
+        self.assertFalse(result['cleanup']['group_absent'])
+        self.assertTrue(result['cleanup']['reaped'])
+        self.assertTrue(result['cleanup']['errors'])
+        self.assertTrue(probe.called)
+        self.assertTrue(all(call.args == (result['pid'], 0) for call in probe.call_args_list))
+        self.assertLess(time.monotonic() - started, 3)
+
+    def test_lost_wait_identity_never_signals_or_reports_group_absence(self):
+        with patch.object(lifecycle.os, 'waitid', side_effect=ChildProcessError), \
+             patch.object(lifecycle.os, 'waitpid', side_effect=ChildProcessError), \
+             patch.object(lifecycle.os, 'killpg') as signal_group:
+            result = lifecycle.cleanup_group(Mock(pid=2147483000))
+        signal_group.assert_not_called()
+        self.assertFalse(result['reaped'])
+        self.assertFalse(result['group_absent'])
+        self.assertIn('ChildProcessError', result['errors'])
 
     def test_real_term_ignoring_descendant_group_is_killed_without_other_processes(self):
         code = "import os, signal, time; signal.signal(signal.SIGTERM, signal.SIG_IGN); child=os.fork(); print('owned-pid', os.getpid(), flush=True); time.sleep(30)"

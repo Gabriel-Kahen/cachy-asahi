@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
-# Shared checkout verification/selection. No fetch or history expansion.
+# Shared checkout verification and selection. Only a missing push base can be fetched.
 set -euo pipefail
 
 component_selection_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -9,12 +9,27 @@ component_commit_available() {
   [[ "$(timeout 5s git cat-file -t "$1" 2>/dev/null)" == commit ]]
 }
 
+component_push_base_available() {
+  local base=$1
+  if component_commit_available "$base"; then
+    return 0
+  fi
+  timeout --kill-after=5s 20s git fetch --quiet --depth=1 --filter=blob:none \
+    --no-tags --no-recurse-submodules --no-auto-maintenance --no-write-fetch-head \
+    --refmap= origin "$base" &&
+    component_commit_available "$base"
+}
+
+component_diff() {
+  timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
+}
+
 collect_components() {
   local group=${1:?component group required}
   local policy=${2:-"$component_selection_dir/dependencies.json"}
   local event=${SELECTION_EVENT:-} base=${SELECTION_BASE:-} event_head=${SELECTION_HEAD:-}
   local expected_checkout=${SELECTION_SHA:-} checkout='' metadata=''
-  local diff_base='' diff_target='' ready=false
+  local ready=false
   local -a parents=() completeness=()
   local diff="${RUNNER_TEMP:?private runner temporary directory required}/component-name-status.z"
   : > "$diff"
@@ -24,37 +39,30 @@ collect_components() {
         "$event_head" =~ ^[0-9a-f]{40}$ && "$expected_checkout" =~ ^[0-9a-f]{40}$ &&
         "$base" != 0000000000000000000000000000000000000000 ]]; then
     checkout=$(timeout 5s git rev-parse --verify 'HEAD^{commit}' 2>/dev/null) || checkout=''
-    if [[ "$checkout" == "$expected_checkout" ]] &&
-       component_commit_available "$base" && component_commit_available "$event_head"; then
-      if [[ "$event" == pull_request ]]; then
+    if [[ "$checkout" == "$expected_checkout" ]]; then
+      if [[ "$event" == pull_request ]] &&
+         component_commit_available "$base" && component_commit_available "$event_head"; then
         metadata=$(timeout 5s git show -s --no-show-signature --no-notes '--format=%H %P' "$checkout" -- 2>/dev/null) || metadata=''
         read -r -a parents <<< "$metadata"
         if [[ ${#parents[@]} == 3 && "${parents[0]}" == "$checkout" &&
               "${parents[1]}" == "$base" && "${parents[2]}" == "$event_head" ]]; then
-          # The verified merge tree is the checked-out source under test.
-          diff_base=$base; diff_target=$checkout; ready=true
+          ready=true
         fi
-      elif [[ "$checkout" == "$event_head" ]]; then
-        diff_base=$base; diff_target=$event_head; ready=true
+      elif [[ "$event" == push && "$checkout" == "$event_head" ]] &&
+           component_push_base_available "$base"; then
+        ready=true
       fi
     fi
   fi
-  if [[ "$ready" == true ]]; then
-    # Callback's final pipeline runs with explicit pipefail, including inside if.
-    # Nonzero diff/timeout plus apparently valid partial records remains incomplete.
-    if component_diff "$diff_base" "$diff_target" "$diff"; then
-      completeness=(--complete)
-    fi
+  # pipefail keeps a failed or timed-out diff incomplete even if it emits records.
+  if [[ "$ready" == true ]] && component_diff "$base" "$checkout" "$diff"; then
+    completeness=(--complete)
   fi
   python3 -I -B "$component_selection_dir/select.py" --policy "$policy" \
     --source-root "$PWD" --event "$event" --group "$group" --diff "$diff" \
     "${completeness[@]}" --github-output "${GITHUB_OUTPUT:?GitHub output file required}"
 }
 
-# Standalone invocation uses the same bounded pipeline as the workflow callback.
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-  component_diff() {
-    timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
-  }
   collect_components "$@"
 fi

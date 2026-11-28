@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """One private native-GPU session, three unchanged real Done notification cases."""
-import base64,hashlib,json,os,platform,resource,signal,struct,subprocess,sys,time
+import base64,hashlib,json,os,platform,resource,signal,stat,struct,subprocess,sys,time
 from pathlib import Path
 P=Path('/inputs');W=Path('/work')
 sys.path.insert(0,str(P))
@@ -80,17 +80,38 @@ def dbus(method,*args):
  return command(['/usr/bin/busctl','--user','--auto-start=no','--timeout=2s','call','org.freedesktop.DBus','/org/freedesktop/DBus','org.freedesktop.DBus',method,*args]).decode().strip()
 
 def listing():return json.loads(command([str(W/'tools/makoctl'),'list','-j']))
-def image_roi(path):
+def read_frame(path):
+ fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+ with os.fdopen(fd,'rb') as stream:
+  before=os.fstat(fd)
+  O.need(stat.S_ISREG(before.st_mode),'ordinary original frame required')
+  O.need(before.st_size<=8*1024**2,'bounded original frame required')
+  raw=stream.read(before.st_size+1)
+  after=os.fstat(fd)
+ O.need(len(raw)==before.st_size and (before.st_mtime_ns,before.st_ctime_ns)==(after.st_mtime_ns,after.st_ctime_ns),
+        'original frame changed during read')
+ return raw
+
+def image_roi(raw,frame_sha256):
  import re
- raw=path.read_bytes();header=re.match(rb'P6\s+1024\s+768\s+255\s',raw)
- O.need(header is not None and len(raw)==header.end()+1024*768*3,'original native PPM shape')
- rgb=raw[header.end():];points=[];color=capture.COLORS['border']
- for i in range(0,len(rgb),3):
-  if all(abs(rgb[i+c]-color[c])<=6 for c in range(3)):points.append((i//3%1024,i//3//1024))
- if not points:return {'status':'FAIL_NOTIFICATION_PIXELS_ABSENT','frame_sha256':digest(path),'roi_basis':'No border pixels in original first image'}
- x=min(q[0] for q in points);y=min(q[1] for q in points)
- box={'x':x,'y':y,'w':max(q[0] for q in points)-x+1,'h':max(q[1] for q in points)-y+1}
- value=capture.notification_pixels(path,box)
+ width,height=1024,768
+ header=re.match(rb'P6\s+1024\s+768\s+255\s',raw)
+ O.need(header is not None and len(raw)==header.end()+width*height*3,'original native PPM shape')
+ rgb=memoryview(raw)[header.end():]
+ red,green,blue=capture.COLORS['border']
+ red_min,red_max=red-6,red+6
+ green_min,green_max=green-6,green+6
+ blue_min,blue_max=blue-6,blue+6
+ left,top,right,bottom=width,height,-1,-1
+ for pixel in range(width*height):
+  offset=pixel*3
+  if red_min<=rgb[offset]<=red_max and green_min<=rgb[offset+1]<=green_max and blue_min<=rgb[offset+2]<=blue_max:
+   y,x=divmod(pixel,width)
+   left=min(left,x);right=max(right,x);top=min(top,y);bottom=y
+ if bottom<0:return {'status':'FAIL_NOTIFICATION_PIXELS_ABSENT','frame_sha256':frame_sha256,'roi_basis':'No border pixels in original first image'}
+ box={'x':left,'y':top,'w':right-left+1,'h':bottom-top+1}
+ roi=b''.join(rgb[(y*width+left)*3:(y*width+right+1)*3] for y in range(top,bottom+1))
+ value=capture.rgb_receipt(roi,box,frame_sha256)
  value['roi_basis']='Image-derived bounding rectangle of shipped border color on this private empty output; NOT original Hyprland geometry proof'
  return value
 
@@ -147,9 +168,11 @@ try:
   started=time.monotonic_ns();started_us=time.time_ns()//1000
   command(['/usr/bin/grim','-t','ppm','-o',output,str(target)],timeout=2)
   finished_us=time.time_ns()//1000
-  row['capture']={'first':True,'started_us':started_us,'finished_us':finished_us,'elapsed_ms':(time.monotonic_ns()-started)//1000000,'notify_to_started_us':started_us-wire['call']['timestamp-realtime'],'notify_to_finished_us':finished_us-wire['call']['timestamp-realtime'],'bytes':target.stat().st_size,'sha256':digest(target)}
+  elapsed_ms=(time.monotonic_ns()-started)//1000000
+  frame=read_frame(target);frame_sha256=hashlib.sha256(frame).hexdigest()
+  row['capture']={'first':True,'started_us':started_us,'finished_us':finished_us,'elapsed_ms':elapsed_ms,'notify_to_started_us':started_us-wire['call']['timestamp-realtime'],'notify_to_finished_us':finished_us-wire['call']['timestamp-realtime'],'bytes':len(frame),'sha256':frame_sha256}
   O.need(0<=row['capture']['notify_to_finished_us']<=2000000,'first capture within original pre-expiry2s')
-  row['pixels']=image_roi(target)
+  row['pixels']=image_roi(frame,frame_sha256)
   if row['pixels']['status']!='PASS_PIXEL_PRESENCE_PENDING_READABILITY':errors.append(stage+':first notification pixels absent')
   row['caller']=term.continuation(outcome)
   end=time.monotonic()+3.5

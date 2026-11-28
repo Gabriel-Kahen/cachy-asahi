@@ -90,8 +90,10 @@ def resolve(reports, inventory):
         for field in ('conflicts', 'replaces'):
             for dependency in effective_values(data, field):
                 name, operator, version = parse_dep(dependency)
-                if any(satisfies(v, operator, version) for v, _ in providers.get(name, [])):
-                    errors.append(f'{data["pkgname"][0]}: {field} intersects inventory/overlay: {dependency}')
+                pkg_name = data['pkgname'][0]
+                if any((field != 'conflicts' or origin != pkg_name) and satisfies(v, operator, version)
+                       for v, origin in providers.get(name, [])):
+                    errors.append(f'{pkg_name}: {field} intersects inventory/overlay: {dependency}')
 
     order = []
     # All dependency groups must be satisfied; any completed provider satisfies a group.

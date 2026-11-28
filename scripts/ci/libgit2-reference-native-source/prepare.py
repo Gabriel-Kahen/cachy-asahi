@@ -15,8 +15,27 @@ PREFIX='scripts/ci/libgit2-reference-native-source/'
 WORKFLOW='.github/workflows/native-arm-libgit2-reference-source.yml'
 BASE=PREFIX+'base/'
 OWNER=PREFIX+'owner/'
+FROZEN_FRAMEWORK = Path('scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
+                        '/scripts/ci/llhttp-reference-native-source/base')
+FROZEN_FRAMEWORK_INPUTS = (
+    'runtime/scripts/build/build_v2.py',
+    'runtime/scripts/build/compare_v2.py',
+    'runtime/scripts/checks/package_checks.py',
+    'runtime/scripts/maintenance/source_cache.py',
+)
 
 def encoded(value):return (json.dumps(value,indent=2,sort_keys=True)+'\n').encode()
+
+def held_framework_body(root, name, row):
+    if name in FROZEN_FRAMEWORK_INPUTS:
+        # Source95 retains the exact historical inputs pinned by the libgit2 profile.
+        C.need(row['source_path'] == name.removeprefix('runtime/'), 'exact original framework role required: ' + name)
+        source = root / FROZEN_FRAMEWORK / name
+    else:
+        source = root / row['source_path']
+    body = C.read(source)
+    C.need(C.pin(body) == {key: row[key] for key in ('bytes', 'sha256')}, 'exact held framework dependency: ' + name)
+    return body
 
 def archive_closure(raw,proof):
     C.need(C.pin(raw)=={k:proof['archive'][k] for k in ('bytes','sha256')},'exact generated upstream archive')
@@ -67,7 +86,7 @@ def construct(root,recipe_root,archive_path,output,*,dependency_paths=None,depen
     local=('contract.py','entry.py','finish_pair.py','profile.json','admission.TEMPLATE.json','runtime.TEMPLATE.json')
     base_bodies={BASE+n:C.read(HERE/'base'/n) for n in local}
     for name,row in profile['held_inputs'].items():
-        body=C.read(root/row['source_path']);C.need(C.pin(body)=={k:row[k] for k in ('bytes','sha256')},'exact held framework dependency: '+name);base_bodies[BASE+name]=body
+        base_bodies[BASE+name]=held_framework_body(root, name, row)
     for name,body in recipe_bodies.items():base_bodies[BASE+'recipe/'+name]=body
     for name in ('project_test.py','dependency.py','consumer_bridge.py','consumer-interface-pin.json'):base_bodies[BASE+name]=C.read(HERE/name)
     B=C.module(HERE/'consumer_bridge.py','libgit2_consumer_constructor');_,consumer_pin=B.interface(consumer_root)

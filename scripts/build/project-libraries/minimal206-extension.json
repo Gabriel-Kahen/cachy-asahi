@@ -1,0 +1,41 @@
+{
+  "base_lock_path": "held-source/scripts/ci/llhttp-minimal-builder-source/base/expected206.lock",
+  "base_lock_sha256": "303cb32db7378e2cdd5d7645df1dc1f5e7a30fc9ea588f0d2867eede21127e66",
+  "base_package_count": 206,
+  "base_source": "1604862d09fb04e471da03df2e2a98a5c05a77bf",
+  "codec_files": {
+    "libdeflate-1.26-1-aarch64.pkg.tar.xz": {
+      "bytes": 56044,
+      "sha256": "d8798122abe2cdc8f496d7a65904b6c14bfcd4448d31a47629aaeb021d1134e9"
+    },
+    "libdeflate-1.26-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "691e10caba6354a0bb8eb329d6f8a876064d80dc90c320fe3f541e0fed8d67ec"
+    },
+    "libjpeg-turbo-3.2.1-1-aarch64.pkg.tar.xz": {
+      "bytes": 504328,
+      "sha256": "ad4440b30743a353b3fcac655259dae74a956d9ba97da6d02f7c78bbf6a7cf18"
+    },
+    "libjpeg-turbo-3.2.1-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "36ccba866f3bca68e5dca5bd559a87f6af2638ea01b6eeec65a84e33e7b98cee"
+    },
+    "libwebp-1.6.0-2-aarch64.pkg.tar.xz": {
+      "bytes": 239984,
+      "sha256": "0fb38b71173ed214640ab0b6d5ad22d85f884f4d368ca9fef927b51ee43d0f9e"
+    },
+    "libwebp-1.6.0-2-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "89646365f6805ec69f76d7b1e395feff1f044217480bd17798222d54ba44aab9"
+    }
+  },
+  "codec_origin": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/",
+  "codec_versions": {
+    "libdeflate": "1.26-1",
+    "libjpeg-turbo": "3.2.1-1",
+    "libwebp": "1.6.0-2"
+  },
+  "signer_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+  "tiff_lock_sha256": "20fef180b8649bc9162fc3092b228f232b28562dc3c633e70fcbdddd2d37c2e3",
+  "tiff_package_count": 210
+}

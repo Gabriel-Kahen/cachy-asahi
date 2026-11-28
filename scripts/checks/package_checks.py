@@ -112,6 +112,8 @@ def recipe(path):
             hashes[str(item.relative_to(base))] = digest(item)
         elif not item.is_dir():
             errors.append(f'special recipe input forbidden: {item.relative_to(base)}')
+    if path.name not in hashes:
+        errors.append(f'recipe must be a regular file: {path.name}')
     if errors:
         return {'recipe': str(path), 'metadata': {}, 'input_sha256': hashes,
                 'errors': errors, 'review': [], 'status': 'fail'}

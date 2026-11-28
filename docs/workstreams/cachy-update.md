@@ -1,6 +1,16 @@
 # Cachy-update native build candidate
 
-Updated October 12, 2026 (America/New_York). This work owns
+**Current evidence, November 26, 2026.** Updater 4.4.2-3 passed a native
+AArch64 build pair and installed Check and refusal controls. On emulated
+AArch64 with 16 KiB pages it passed a TEST-signed upgrade and a separate
+bad-signature refusal. Supported Asahi updates, boot recovery and physical
+M2 validation remain open.
+[Native Check evidence](../validation/updater-native-45715088356.md)
+· [Emulated update and refusal](../validation/updater-q3-emulated-arm16k-20261126.md)
+
+## October 12 source record
+
+This work owns
 `packages/tools/cachy-asahi-update/**` and this report. Roadmap and package
 inventory were read. Original four recipes/locks, shared manifests, Git and
 workflows were not edited by this worker.

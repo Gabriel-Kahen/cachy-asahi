@@ -19,10 +19,16 @@ or authenticate current signatures.
 
 All67 ordinary repository inputs must match the original Source72 map's complete
 bytes and modes. The baseline alias selects the existing pinned
-`bankstown-qt3-native-profile-v1/expected349.lock`. Prospective477 is derived from
-that349 baseline plus the genuine333 catalog through the maintained inventory
-predicates, requiring the exact recorded9,102-byte result. Provider archives
-remain external. No synthetic/model package metadata replaces these inputs.
+`bankstown-qt3-native-profile-v1/expected349.lock`. The package checker alias
+selects the identical bytes held in the LLHTTP Source95 fixture. The build runner
+uses its maintained-native snapshot. The container entry uses the fixture at
+`inputs/held-source72/container-entry.sh`, byte-identical to Git blob
+`91dae28ec41dece868632362e992619f9b47cc88`. The native builder's static model
+uses the same entry fixture and checks it against the builder's held SHA-256.
+Prospective477 is derived from that349 baseline plus the genuine333 catalog
+through the maintained inventory predicates, requiring the exact recorded9,102-byte result.
+Provider archives remain external. No synthetic/model package metadata replaces
+these inputs.
 
 The driver calls the actual Source72 constructor, the Source78 constructor and
 the workflow-preserving Source79 constructor. It requires the old map, complete
@@ -45,7 +51,7 @@ exact raw length and hash, inputs require stable ordinary single-link files, and
 existing destinations are never adopted. Construction uses512MiB in focused CI;
 its DATA-test bounds do not change any native resource policy.
 
-The dedicated automatic workflow runs108 controls per Python3.12/3.14 with zero
+The dedicated automatic workflow runs109 controls per Python3.12/3.14 with zero
 fixture skips, including the complete local reconstruction and genuine DATA
 checks. It has read-only repository permission and invokes no native actor. The
 separate manual workflow remains the future path for a separately selected actual

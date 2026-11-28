@@ -163,15 +163,16 @@ class Runner:
         self.deadline = time.monotonic() + seconds
         _prctl(36, 1)  # PR_SET_CHILD_SUBREAPER, process-local for group reaping.
 
-    def run(self, argv, timeout=300, limit=MAX_OUTPUT, log=None):
-        return self._run_many([argv], timeout, [log], limit)[0]
+    def run(self, argv, timeout=300, limit=MAX_OUTPUT, log=None, *, pass_fds=()):
+        return self._run_many([argv], timeout, [log], limit, (pass_fds,))[0]
 
-    def run_many(self, commands, timeout, lognames):
+    def run_many(self, commands, timeout, lognames, *, pass_fds=((), ())):
         if type(commands) not in (list, tuple) or len(commands) != 2:
             raise ValueError('parallel-command-count')
-        return self._run_many(commands, timeout, lognames, MAX_OUTPUT)
+        return self._run_many(commands, timeout, lognames, MAX_OUTPUT, pass_fds)
 
-    def _run_many(self, commands, timeout, lognames, limit):
+    def _run_many(self, commands, timeout, lognames, limit, pass_fds):
+        self.parallel_first_failure = None
         if threading.current_thread() is not threading.main_thread() or threading.active_count() != 1:
             raise ValueError('threaded-runner')
         timeout = _seconds(timeout)
@@ -185,6 +186,10 @@ class Runner:
                 raise ValueError('invalid-argv')
             if not argv[0] or sum(len(arg.encode()) + 1 for arg in argv) > 65536:
                 raise ValueError('invalid-argv')
+        if (type(pass_fds) is not tuple or len(pass_fds) != len(commands)
+                or any(type(fds) is not tuple or len(fds) > 1
+                       or any(type(fd) is not int or fd < 3 for fd in fds) for fds in pass_fds)):
+            raise ValueError('invalid-passed-descriptors')
         paths = []
         for name in lognames:
             if name is None:
@@ -221,6 +226,7 @@ class Runner:
                     parent = os.getpid()
                     process = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                         stderr=subprocess.STDOUT, env=self.env, start_new_session=True, close_fds=True,
+                        pass_fds=pass_fds[index],
                         preexec_fn=lambda: _child_setup(parent, mask, min(timeout, remaining)))
                     processes.append(process)  # Track before delivering pending cancellation.
                 finally:
@@ -230,6 +236,8 @@ class Runner:
             while True:
                 codes = [process.poll() for process in processes]
                 if all(code is not None for code in codes) or any(code not in (None, 0) for code in codes):
+                    if len(codes) == 2 and any(code not in (None, 0) for code in codes):
+                        self.parallel_first_failure = tuple(codes)
                     break
                 left = end - time.monotonic()
                 if left <= 0:

@@ -1,14 +1,16 @@
 # Local developer workflow component
 
-`scripts/workflows/developer_workflow.py` runs a finite, offline user-space
+`scripts/workflows/developer_workflow_diagnostics_v2.py` runs a finite, offline user-space
 journey on Linux. It contributes reusable software evidence for M6/D05 and M8
 installed usability. It grants no milestone or installed-system acceptance.
+The entry point loads the pinned v1 runner at `scripts/workflows/developer_workflow.py`
+and retains its exact source bytes for historical consumers.
 
 From a source checkout with Python 3, Git, a C compiler (`cc`), a C++ compiler
 (`c++`), and Vim already installed:
 
 ```console
-python3 -I -B scripts/workflows/developer_workflow.py --output /absolute/new/private/developer-result
+python3 -I -B scripts/workflows/developer_workflow_diagnostics_v2.py --output /absolute/new/private/developer-result
 python3 -I -B tests/workflows/test_developer_workflow.py
 ```
 
@@ -29,10 +31,11 @@ User Git configuration, templates, signing and hooks are excluded. Git traffic i
 local-file-only; no network repository or preexisting project code is executed.
 It then builds and runs C and C++, skips each unchanged build, edits each message
 with isolated noninteractive Vim, and verifies changed source, executable hash
-and output. Each language must reject an intentional `#error`; old executable
-and successful-build state are invalidated before compilation. Restoring the
-source must yield a working rebuild. Every compile attempt retains exact source
-bytes, source/compiler pins, arguments and its outcome in `builds.json`.
+and output. Each language must fail with the diagnostic from the intentional
+`#error`. The runner invalidates the old executable and successful build state
+before compilation. Restoring the source must yield a working rebuild. Every
+compile attempt retains exact source bytes, source/compiler pins, arguments and
+its outcome in `builds.json`.
 
 The incremental adapter compares content and compiler/argv fingerprints rather
 than mtimes. It is a tiny single-source builder. It does not validate dependency
@@ -48,8 +51,8 @@ private path is explicitly inserted only by the isolated test harness.
 
 ## Real Make and Ninja project workflows
 
-The original C/C++/Python journey remains unchanged. Its command count is
-recorded as `base_command_count` before project execution. On the current host,
+The runner records the C/C++/Python journey's command count as
+`base_command_count` before project execution. On the current host,
 the original 33 commands are followed by 15 Make and 15 Ninja commands.
 
 Each backend gets a fresh copy of the tiny original MIT fixture in
@@ -145,8 +148,10 @@ subprograms are not locked. Retained raw logs and directories are private inputs
 for review and may contain absolute paths.
 
 `result.json` records actual architecture, kernel, page size, UID, interpreter
-identity, tool frontend bytes/hashes and version output, fixture/runner/core
-pins, build evidence and limitations. Exit 0 means only
+identity, compiler invocation paths, resolved tool bytes and hashes, version
+output, fixture pins, both runner pins, supervisor pin, build evidence and
+limitations. Failed runs print a bounded escaped JSON summary to stderr and
+retain the complete private receipt. Exit 0 means only
 `PASS_LOCAL_DEVELOPER_COMPONENT`; exit 2 means missing tools, failed work or
 unknown retirement. A 4K x86 host result is not native ARM, 16K, installed Asahi,
 M2, independent-user, graphical editor, terminal, package-rebuild, performance or
@@ -159,7 +164,7 @@ Copy these proposed paths into the reviewed target source checkout, including
 the pinned supervisor and fixtures. As the ordinary target user, run:
 
 ```console
-python3 -I -B scripts/workflows/developer_workflow.py --output /absolute/new/private/arm-developer-result --tool-path /usr/bin:/bin --command-timeout 30 --total-timeout 300
+python3 -I -B scripts/workflows/developer_workflow_diagnostics_v2.py --output /absolute/new/private/arm-developer-result --tool-path /usr/bin:/bin --command-timeout 30 --total-timeout 300
 python3 -I -B tests/workflows/test_developer_workflow.py
 ```
 

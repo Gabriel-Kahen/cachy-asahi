@@ -1,6 +1,7 @@
 name: repair16k-copy-cost-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/repair16k-inner-diagnostics-source/**
       - .github/workflows/repair16k-copy-cost-source.yml

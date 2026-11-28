@@ -8,10 +8,15 @@
     "setup.py": "scripts/setup8/setup.py",
     "config_migrate.py": "scripts/setup8/config_migrate.py",
     "test_config_migrate.py": "scripts/setup8/test_config_migrate.py",
-    "cachy-asahi-repository": "scripts/repository/enroll.py",
+    "cachy-asahi-repository": "packages/tools/cachy-asahi-repository-enrollment/enroll.py",
     "repository-enrollment.md": "docs/repository-enrollment.md",
     "configuration-migrations.md": "docs/port/configuration-migrations.md",
     "LICENSE": "LICENSE"
+  },
+  "repository_enrollment_origin": {
+    "canonical_path": "scripts/repository/enroll.py",
+    "source_commit": "e178aba248f6ba75e460f0e4f1cfc8c582df45c4",
+    "scope": "The checkout guard uses the retained enrollment source for this Setup8 payload."
   },
   "input_sha256": {
     "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
@@ -30,7 +35,7 @@
     "test_config_migrate.original.py": "d13365d34fa86b34c1465fc6f2aa249c6214e6ba64b20a0b04621346f842ae1f",
     "test_config_migrate.py": "5aa67f40379c77eac07238c3b58e6ebd20128a9ee85d642c686cc51791db4d23",
     "test_delivery.py": "e07fd35837b5d1b7239fdd42313e11f72e0133d7ac8359a528c019c0c57bd7d2",
-    "test_package.py": "56f1aa644dc416759a732cecd8f79b8b28b719dd0d921b8a4054b881866dedca"
+    "test_package.py": "cd88371e099df1cdd1d9c88f583595847d39b025a846aa992802e32e31ea1bb8"
   },
   "test_adapter": {
     "before": "CONTRACT_DIR = next(p / 'scripts/setup' for p in HERE.parents\n                    if (p / 'scripts/setup/setup.py').is_file())",

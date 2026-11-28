@@ -184,13 +184,13 @@
       "bytes": 13242,
       "mode": 420,
       "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43",
-      "source": "scripts/build/build_v2.py"
+      "source": "scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/scripts/ci/llhttp-reference-native-source/base/runtime/scripts/build/build_v2.py"
     },
     "scripts/build/compare_v2.py": {
       "bytes": 5963,
       "mode": 420,
       "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b",
-      "source": "scripts/build/compare_v2.py"
+      "source": "scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/scripts/ci/llhttp-reference-native-source/base/runtime/scripts/build/compare_v2.py"
     },
     "scripts/build/container-entry-v2.sh": {
       "bytes": 2447,
@@ -208,7 +208,7 @@
       "bytes": 17706,
       "mode": 420,
       "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
-      "source": "scripts/checks/package_checks.py"
+      "source": "scripts/checks/measurement_tools_package_checks_original_v1.py"
     },
     "scripts/experiments/test_zlib_pgo_guest.py": {
       "bytes": 9336,
@@ -232,7 +232,7 @@
       "bytes": 14253,
       "mode": 420,
       "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3",
-      "source": "scripts/maintenance/source_cache.py"
+      "source": "scripts/experiments/zlib_pgo102-view/scripts/maintenance/source_cache.py"
     },
     "scripts/release/source_delivery.py": {
       "bytes": 16456,

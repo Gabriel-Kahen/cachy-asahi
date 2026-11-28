@@ -21,7 +21,7 @@ TOTAL_LIMIT = 64 * 1024**2
 INITIAL = 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31'
 POLICY = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
 LICENSE = '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
-PHASE_MAP = '5718ca6cda60d7f6c02952cba7e92ff46666e20f8252ce7c1cdf722825ec2e43'
+PHASE_MAP = '22f97cb051428d02b145522788a1fe22729f17d1ccb167b868bd53dde99a863d'
 PHASE_GATE = 'c6d37e45f7452b5d058a8b69622a36de3d73842d5cf20c799c9631e59853be2a'
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 OWN = 'scripts/ci/development/repository_authority.py'
@@ -370,7 +370,9 @@ class RootCallbacks:
             need(os.environ.get(env) == grant.get(key), 'grant-refused')
         rows = grant.get('source_files'); need(type(rows) is dict and OWN in rows and HANDOFF in rows, 'grant-refused')
         handoff = load_module(root, '_repository_authority_handoff', HANDOFF, rows[HANDOFF], deadline)
-        sources = handoff.preflight(root, self._grant_raw, self._grant_pin, deadline=deadline)
+        view = grant.get('original_view')
+        original_root = view.get('source_root') if grant.get('schema_version') == 3 and type(view) is dict else None
+        sources = handoff.preflight(root, self._grant_raw, self._grant_pin, deadline=deadline, original_root=original_root)
         need(grant['original_view']['root'] == str(Path(self._output)/'original-view'),'grant-refused')
         need(grant['maps']['phase']['sha256'] == PHASE_MAP and
              rows[PHASE+'/gate.py']['sha256'] == PHASE_GATE, 'source-refused')
@@ -396,6 +398,10 @@ class RootCallbacks:
             need(session.sources.root == root and session.sources.grant == grant and
                  session.sources.grant_pin == self._grant_pin and str(session.output) == self._output
                  and session.job_deadline == self._deadline, 'context-refused')
+            if original_root is not None:
+                need(session.sources.historical_root == sources.historical_root and
+                     session.sources.historical_node == sources.historical_node and
+                     session.sources.historical_identities == sources.historical_identities, 'context-refused')
         return grant, sources, handoff
 
     def handoff_binding(self):
@@ -428,10 +434,11 @@ class RootCallbacks:
              decode(context['receipt'])['selection'] == grant['original_view'] and
              type(controller) is context['original']['integration'].Controller,'context-refused')
         session.sources.source_graph(session)
+        original_raw = sources.historical_raw if grant['schema_version'] == 3 else sources.raw
         authenticate_class(controller, 'Controller', context['root']/'scripts/ci/integration.py',
-                           sources.raw['scripts/ci/integration.py'], registered=False)
+                           original_raw['scripts/ci/integration.py'], registered=False)
         need(controller.commit == grant['source_commit'] and controller.image == session.job['image_id']
-             and controller.cancelled is False and controller.lock == decode(sources.raw['scripts/ci/integration.lock.json'])
+             and controller.cancelled is False and controller.lock == decode(original_raw['scripts/ci/integration.lock.json'])
             and controller.work == controller.out/'work' and controller.public == controller.out/'public'
              and controller.source == controller.work/'source' and controller.generated == controller.work/'fixtures', 'context-refused')
         need(all(session.job.get(key) == grant[key] for key in ('source_commit','recipe_source_commit','run_id','run_attempt'))

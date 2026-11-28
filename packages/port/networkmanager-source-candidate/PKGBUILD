@@ -31,7 +31,7 @@ sha256sums=(
  '09660d0f3256e3b3f42ce8aa3f0761e1df7f364cb2bbb4f46b38724770d9d33a'
  '13b8cfe3f2245fbf52ea0f9633870f9598e9da97e1c53d0711c200f3d2f4df02'
  '240b7ff3ad6f26f3148427e23c4c847fc5c77eb79634ea82ccb768aec3aef8f5'
- 'ea0d85241130b5e364b8278de46bfabc6ae4869ebaf988ad6639b36e87f44446'
+ '805327a9302ffabf587bf272ce04ef71ab06e353589202cc8a2940c9139039c8'
  'ebb63102b4b2482cd7e3d4bf608d19f2f858bad61fa0e00cf78b8c7e4ccb5281'
 )
 
@@ -54,22 +54,30 @@ check() {
   dbus-run-session -- meson test -C "$srcdir/build" --num-processes 2 --print-errorlogs
 }
 
-_stage() {
-  python3 -I "$srcdir/check_profile.py" --build "$srcdir/build"
-  if [[ ! -e "$srcdir/_split/ownership.json" ]]; then
-    python3 -I "$srcdir/check_profile.py" --build "$srcdir/build"
-    meson install -C "$srcdir/build" --no-rebuild --destdir "$srcdir/_stage"
-    install -Dm644 "$srcdir/NetworkManager.conf" "$srcdir/_stage/etc/NetworkManager/NetworkManager.conf"
-    install -Dm644 "$srcdir/20-connectivity.conf" "$srcdir/_stage/usr/lib/NetworkManager/conf.d/20-connectivity.conf"
-    chmod 700 "$srcdir/_stage/etc/NetworkManager/system-connections"
-    python3 -I "$srcdir/partition.py" --stage "$srcdir/_stage" --output "$srcdir/_split"
+_stage() (
+  local cache=$1 work
+  python3 -I "$srcdir/check_profile.py" --build "$srcdir/build" || exit
+  if [[ ! -e "$cache" && ! -L "$cache" ]]; then
+    work=$(mktemp -d "$cache.XXXXXXXX") || exit
+    trap 'rm -rf -- "$work"' EXIT
+    meson install -C "$srcdir/build" --no-rebuild --destdir "$work/stage" || exit
+    install -Dm644 "$srcdir/NetworkManager.conf" "$work/stage/etc/NetworkManager/NetworkManager.conf" || exit
+    install -Dm644 "$srcdir/20-connectivity.conf" "$work/stage/usr/lib/NetworkManager/conf.d/20-connectivity.conf" || exit
+    chmod 700 "$work/stage/etc/NetworkManager/system-connections" || exit
+    python3 -I "$srcdir/partition.py" --stage "$work/stage" --output "$work/split" || exit
+    mv -T -- "$work" "$cache" || exit
+    trap - EXIT
   fi
-  python3 -I "$srcdir/partition.py" --verify --output "$srcdir/_split"
-}
+  [[ -d "$cache" && ! -L "$cache" ]]
+)
 
 _payload() {
-  _stage
-  cp -a "$srcdir/_split/$pkgname/." "$pkgdir/"
+  # makepkg clears the shared package parent before each packaging invocation,
+  # including --repackage. The four split functions share only this fresh cache.
+  local cache="${pkgdir%/*}/.networkmanager-split"
+  _stage "$cache" || return
+  python3 -I "$srcdir/partition.py" --stage "$cache/stage" --output "$cache/split" \
+    --verify --package "$pkgname" --copy-to "$pkgdir" || return
   for notice in COPYING COPYING.LGPL COPYING.GFDL LICENSE; do
     install -Dm644 "$srcdir/$notice" "$pkgdir/usr/share/licenses/$pkgname/$notice"
   done

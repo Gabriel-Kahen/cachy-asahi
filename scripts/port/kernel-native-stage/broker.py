@@ -23,6 +23,109 @@ LABEL = 'org.cachy-asahi.kernel-stage.nonce'
 PROBE = 'id -u; id -g; LC_ALL=C pacman -Q | LC_ALL=C sort'
 DESTINATIONS = {'/inputs': True, '/code': True, '/out': False}
 
+# Docker supplies this bootstrap as command data. Compile the same bytes that
+# were authenticated against the pinned contract, including delayed imports.
+WORKER_BOOTSTRAP = """\
+import hashlib
+from importlib.machinery import BuiltinImporter, FrozenImporter, ModuleSpec, PathFinder
+from importlib.util import module_from_spec
+import json
+import os
+from pathlib import Path
+import stat
+import sys
+
+CODE = Path('/code')
+INPUTS = Path('/inputs')
+PREFIX = 'scripts/port/kernel-native-stage/'
+SOURCE = 'scripts/port/kernel-candidates/'
+ENTRY = PREFIX + 'worker.py'
+MODULES = {name: PREFIX + name + '.py' for name in ('common', 'runtime', 'inner_result')}
+ALIASES = {'kernel_regression': PREFIX + 'regression.py',
+           'harness': SOURCE + 'harness.py', 'kernel_output_verifier': SOURCE + 'verify_build.py'}
+LIMIT = 4 * 1024**2
+
+def need(value, reason):
+    if not value:
+        raise ValueError(reason)
+
+def read(root, name, limit, mode):
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    directory = os.open(root, flags)
+    try:
+        *parents, leaf = name.split('/')
+        for part in parents:
+            child = os.open(part, flags, dir_fd=directory)
+            os.close(directory)
+            directory = child
+        fd = os.open(leaf, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory)
+        with os.fdopen(fd, 'rb') as stream:
+            info = os.fstat(fd)
+            need(stat.S_ISREG(info.st_mode) and stat.S_IMODE(info.st_mode) == mode and
+                 info.st_nlink == 1 and info.st_size <= limit, 'kernel worker source metadata differs')
+            body = stream.read(limit + 1)
+            after = os.fstat(fd)
+            need(len(body) == info.st_size and after.st_ctime_ns == info.st_ctime_ns and
+                 after.st_mode == info.st_mode, 'kernel worker source changed while reading')
+            return body
+    finally:
+        os.close(directory)
+
+action, *args = sys.argv[1:]
+pin = args[1] if action == 'provision' else os.environ.get('KERNEL_STAGE_CONTRACT_SHA256')
+contract = read(INPUTS, 'contract.json', LIMIT, 0o600)
+need(hashlib.sha256(contract).hexdigest() == pin, 'kernel worker contract pin differs')
+rows = json.loads(contract)['files']
+sources = {}
+for name in (ENTRY, *MODULES.values(), *ALIASES.values()):
+    row = rows[name]
+    need(0 <= row['bytes'] <= LIMIT and row['mode'] in (0o644, 0o755), 'kernel worker source pin invalid')
+    body = read(CODE, name, row['bytes'], row['mode'])
+    need(len(body) == row['bytes'] and hashlib.sha256(body).hexdigest() == row['sha256'],
+         'kernel worker source pin differs')
+    sources[str(CODE / name)] = body
+
+stdlib = tuple(sys.path)
+
+class CapturedModules:
+    def find_spec(self, name, path=None, target=None):
+        if name in MODULES:
+            return ModuleSpec(name, self, origin=str(CODE / MODULES[name]))
+        search = stdlib if path is None else tuple(
+            item for item in path if any(item.startswith(base + '/') for base in stdlib))
+        return PathFinder.find_spec(name, search)
+
+    def create_module(self, spec):
+        return None
+
+    def exec_module(self, module):
+        module.__file__ = module.__spec__.origin
+        exec(compile(sources[module.__file__], module.__file__, 'exec'), vars(module))
+
+loader = CapturedModules()
+need(not MODULES.keys() & sys.modules.keys(), 'kernel worker module collision')
+sys.meta_path = [BuiltinImporter, FrozenImporter, loader]
+import common
+
+def load_held(name, path):
+    need(name in ALIASES and path == CODE / ALIASES[name], 'kernel worker local import not bound')
+    module = module_from_spec(ModuleSpec(name, loader, origin=str(path)))
+    sys.modules[name] = module
+    loader.exec_module(module)
+    return module
+
+common.module = load_held
+entry = str(CODE / ENTRY)
+sys.argv = [entry, action, *args]
+worker = module_from_spec(ModuleSpec('__main__', loader, origin=entry))
+sys.modules['__main__'] = worker
+loader.exec_module(worker)
+"""
+
+
+def worker_command(action, *binding):
+    return ['-I', '-B', '-S', '-c', WORKER_BOOTSTRAP, action, *binding]
+
 
 def need(condition, code):
     if not condition:
@@ -295,10 +398,11 @@ class Broker:
             action = row['name'][len(prefix):]
             need(action in (('provision',) if self.role == 'provision' else ('probe', 'baseline', 'candidate')),
                  'journal role/action differs')
-            expected_cmd = ['-I', '-B', '/code/scripts/port/kernel-native-stage/worker.py', action]
+            expected_cmd = worker_command(action)
             if self.role == 'provision':
-                need(row['env'] == {} and len(row['cmd']) == 6 and row['cmd'][:4] == expected_cmd and
-                     row['cmd'][4] == self.nonce and re.fullmatch('[0-9a-f]{64}', row['cmd'][5]), 'journal provision command differs')
+                prefix = expected_cmd + [self.nonce]
+                need(row['env'] == {} and len(row['cmd']) == len(prefix) + 1 and row['cmd'][:-1] == prefix and
+                     re.fullmatch('[0-9a-f]{64}', row['cmd'][-1]), 'journal provision command differs')
             else:
                 need(row['cmd'] == expected_cmd and row['env'].get('KERNEL_STAGE_NONCE') == self.nonce and
                      row['env'].get('KERNEL_STAGE_ACTION') == action, 'journal build command differs')
@@ -520,7 +624,7 @@ class Broker:
              env['KERNEL_STAGE_NONCE'] == self.nonce and env['KERNEL_STAGE_ACTION'] == action and
              re.fullmatch('[0-9a-f]{64}', contract_sha or '') and
              env['HOME'] == '/tmp/home' and env['LC_ALL'] == 'C' and env['PATH'] == '/usr/bin:/bin', 'docker-kernel-environment')
-        cmd = ['-I', '-B', '/code/scripts/port/kernel-native-stage/worker.py', action]
+        cmd = worker_command(action)
         if self.role == 'provision':
             # Moby merges missing Env/Labels during commit. Keep provisioner
             # image defaults exact; nonce+contract live in its owned command.

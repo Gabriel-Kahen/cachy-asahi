@@ -151,12 +151,27 @@ def original_argv(output, cache, pins):
 def composed_mode(source_packet, composition):
     require(type(composition) is str and composition in packet.COMPOSED_MODES and
             type(source_packet) is dict and type(source_packet.get('schema_version')) is int and
-            source_packet['schema_version'] == 2 and type(source_packet.get('composition')) is str and
+            source_packet['schema_version'] in (2, 3) and type(source_packet.get('composition')) is str and
             source_packet['composition'] == composition, 'composed-packet-contract-refused')
     return composition
 
 
-def composed_sources(root, source_packet, grant_raw, grant_pin, runtime_raw, output, cache, deadline, *, composition=packet.COMPOSITION):
+def bind_original_source(source_packet, grant, original_root):
+    require(type(grant.get('schema_version')) is int and grant['schema_version'] == source_packet['schema_version'],
+            'composed-grant-refused')
+    if source_packet['schema_version'] == 2:
+        require(original_root is None, 'composed-original-source-refused')
+        return
+    identity = source_packet.get('original_source')
+    view = grant.get('original_view')
+    require(original_root is not None and Path(original_root).is_absolute() and type(identity) is dict and
+            set(identity) == {'source_commit','integration_lock_sha256','source_rows_sha256','runner_sha256'} and
+            type(view) is dict and view.get('source_root') == str(original_root) and
+            all(view.get(key) == value for key,value in identity.items()), 'composed-original-source-refused')
+
+
+def composed_sources(root, source_packet, grant_raw, grant_pin, runtime_raw, output, cache, deadline, *,
+                     composition=packet.COMPOSITION, original_root=None, source_only=False):
     """Authenticate exact packet and explicit per-run contracts before allocation."""
     within(deadline)
     composed_mode(source_packet,composition)
@@ -164,6 +179,12 @@ def composed_sources(root, source_packet, grant_raw, grant_pin, runtime_raw, out
     require(type(grant) is dict and grant.get('source_files') == source_packet['source_files'] and
             grant.get('policy_path') == packet.GENERIC_POLICY and grant.get('license_path') == 'LICENSE' and
             type(runtime) is dict and set(runtime) == {'cli_sha256','endpoint_identity','env'}, 'composed-grant-refused')
+    bind_original_source(source_packet,grant,original_root)
+    require(type(source_only) is bool, 'composed-bootstrap-refused')
+    if original_root is not None:
+        original_root = Path(original_root)
+        require(all(not (path.is_relative_to(original_root) or original_root.is_relative_to(path))
+                    for path in (output,cache)), 'disjoint-original-source-required')
     handoff_path = 'scripts/ci/development/repository_handoff.py'
     raw, row = packet.read(root / handoff_path)
     require(row == source_packet['source_files'][handoff_path], 'composed-source-drift')
@@ -173,13 +194,16 @@ def composed_sources(root, source_packet, grant_raw, grant_pin, runtime_raw, out
     sys.modules[name] = module
     try:
         exec(compile(raw,module.__file__,'exec'),module.__dict__)
-        sources = module.preflight(root,grant_raw,grant_pin,deadline=deadline)
+        original = {} if original_root is None else {'original_root':original_root}
+        sources = module.preflight(root,grant_raw,grant_pin,deadline=deadline,**original)
+        if original_root is not None and not source_only:
+            sources.require_original_runner()
         selected = Development.consume_zsh if composition == packet.ZSH_COMPOSITION else Development.consume
         require(grant['callbacks']['existing_consumers'] == {'path':'scripts/ci/development/controller.py',
                 'module':__name__,'qualname':'Development.' + selected.__name__}, 'composed-callback-refused')
         # Authenticate all actual class methods before creating any output.
         sources.callback('existing_consumers',selected.__get__(object.__new__(Development)),deadline)
-        argv = original_argv(output,cache,source_packet['metadata_pins'])
+        argv = original_argv(output,cache,packet.original_invocation_pins(source_packet))
         session = module.Session(sources,output/'repository-handoff',job_deadline=deadline,cancelled=cancelled,composition=composition)
         session.view_plan(argv)
         require(module.digest(module.encoded({'argv':argv,'output':str(session.output)})) == grant['initial_invocation_sha256'] and
@@ -363,7 +387,7 @@ class Development:
             within(self.deadline)
             signal.setitimer(signal.ITIMER_REAL, self.deadline - time.monotonic())
         require(type(self.composition) is str and self.composition in packet.COMPOSED_MODES, 'composed-packet-contract-refused')
-        if self.deadline is not None and self.packet.get('schema_version') == 2:
+        if self.deadline is not None and self.packet.get('schema_version') in (2, 3):
             composed_mode(self.packet,self.composition)
         if self.composition == packet.INSTALLER_COMPOSITION:
             return self.consume_installer(controller)
@@ -380,8 +404,9 @@ class Development:
         self.callback_entered = True
         virtual_names = VIRTUAL_NAMES
         source_map = self.packet.get('source_files', {})
+        virtual_pins = None
         if all('scripts/virtual/' + name in source_map for name in virtual_names):
-            controller.virtual_packet_sha256 = {name: source_map['scripts/virtual/' + name]['sha256'] for name in virtual_names}
+            virtual_pins = {name: source_map['scripts/virtual/' + name]['sha256'] for name in virtual_names}
         # The initial image is still owned by Controller. It removes it only
         # after this callback returns, including after failed consumers.
         for name, action in (('ksm', run_ksm), ('arm-c01-base', run_arm), ('client', run_client), ('virtual', run_virtual)):
@@ -394,7 +419,23 @@ class Development:
                     require(broad_source_guard(self.repository_session,bound_modules,self.deadline) == observation,
                             'broad-source-identity-drift')
                 kwargs = {'deadline':self.deadline} if self.deadline is not None else {}
-                value = action(controller, self.root, output, **kwargs) if name == 'ksm' else action(controller, self.root, output, self.cache, **kwargs)
+                if name == 'virtual' and virtual_pins is not None:
+                    # The virtual adapter borrows this field only during its call.
+                    state = vars(controller)
+                    missing = object()
+                    previous = state.get('virtual_packet_sha256', missing)
+                    try:
+                        state['virtual_packet_sha256'] = virtual_pins
+                        value = action(controller, self.root, output, self.cache, **kwargs)
+                    finally:
+                        if previous is missing:
+                            state.pop('virtual_packet_sha256', None)
+                        else:
+                            state['virtual_packet_sha256'] = previous
+                elif name == 'ksm':
+                    value = action(controller, self.root, output, **kwargs)
+                else:
+                    value = action(controller, self.root, output, self.cache, **kwargs)
                 if self.deadline is not None:within(self.deadline)
                 if bound_modules is not None:
                     require(broad_source_guard(self.repository_session,bound_modules,self.deadline) == observation,
@@ -636,6 +677,10 @@ class Development:
                     session.sources.grant['source_files'] == self.packet['source_files'], 'composed-session-refused')
             session.sources.class_state(session,'scripts/ci/development/repository_handoff.py',module)
             session.sources.class_state(session.sources,'scripts/ci/development/repository_handoff.py',module)
+            if self.packet['schema_version'] == 3:
+                view = session.sources.grant.get('original_view')
+                original_root = view.get('source_root') if type(view) is dict else None
+                bind_original_source(self.packet,session.sources.grant,original_root)
             session.sources.guard(self.deadline)
             self.repository_session = session
             if self.composition == packet.INSTALLER_COMPOSITION:
@@ -1033,6 +1078,7 @@ def phase_bundle(files, deadline):
 def publish(development, bundle, emit=print):
     """Only existing producers' explicit public selectors reach workflow logs."""
     report = development.report
+    composed = development.packet.get('schema_version') in (2, 3)
     roots = list(development.public)
     native = development.output / 'native'
     if native.is_dir():
@@ -1050,7 +1096,7 @@ def publish(development, bundle, emit=print):
             if path.exists() or initial_status.get('stages', {}).get(stage, {}).get('status') == 'PASS':
                 roots.append(path)
     records = []
-    if development.packet.get('schema_version') == 2:
+    if composed:
         try:
             require(development.publication_deadline is not None,'publication-deadline-required')
             data = phase_bundle(phase_capture(development,development.publication_deadline),development.publication_deadline)
@@ -1092,7 +1138,7 @@ def publish(development, bundle, emit=print):
     stages = report['stages']
     required = (report.get('initial_integration') == 'PASS' and report.get('initial_cleanup', {}).get('status') == 'PASS'
                 and not report.get('cancelled') and report['publication'] == 'PASS')
-    if development.packet.get('schema_version') == 2:
+    if composed:
         repository = report.get('repository_handoff',{})
         required = required and repository.get('status') == repository.get('cleanup') == repository.get('restage') == repository.get('input_acceptance') == 'PASS' and report.get('repository_publication') == 'PASS'
     required = required and all(stages[name]['status'] == 'PASS' for name in STAGES[:-1])
@@ -1219,6 +1265,9 @@ def composed_main(args, pins, *, entry):
             'execution_grant_sha256','runtime_contract','runtime_contract_sha256')), 'composed-bootstrap-required')
     composition = getattr(args,'composition',packet.COMPOSITION)
     require(type(composition) is str and composition in packet.COMPOSED_MODES, 'composed-packet-contract-refused')
+    original_root = getattr(args,'original_source_root',None)
+    require(original_root is None or original_root.is_absolute(), 'composed-original-source-refused')
+    original = {} if original_root is None else {'original_root':original_root}
     clock_raw = private_input(args.clock,args.clock_sha256,'DEVELOPMENT_CLOCK',16*1024)
     deadline, workflow_end = workflow_clock(clock_raw,entry=entry,
         controller_entry=getattr(args,'controller_entry_monotonic',None))
@@ -1229,11 +1278,15 @@ def composed_main(args, pins, *, entry):
     try:
         for sig in previous:signal.signal(sig,interrupt)
         within(deadline);signal.setitimer(signal.ITIMER_REAL,deadline-time.monotonic())
-        source_packet = packet.preflight_composed(ROOT,args.packet,args.development_sha256,os.environ.get('GITHUB_SHA',''),composition=composition)
+        source_packet = packet.preflight_composed(ROOT,args.packet,args.development_sha256,os.environ.get('GITHUB_SHA',''),
+                                                  composition=composition,**original)
         composed_mode(source_packet,composition)
+        dual = source_packet['schema_version'] == 3
+        require(dual == (original_root is not None), 'composed-original-source-refused')
         within(deadline)
-        require(all(source_packet['metadata_pins'].get(name) == pin for name,pin in pins.items()), 'runtime-metadata-pins-drift')
-        if args.check_only:
+        invocation = packet.original_invocation_pins(source_packet)
+        require(all(invocation.get(name) == pin for name,pin in pins.items()), 'runtime-metadata-pins-drift')
+        if args.check_only and not dual:
             print('composed development source packet verified; execution NOT RUN')
             return 0
         grant_raw = private_input(args.execution_grant,args.execution_grant_sha256,'DEVELOPMENT_EXECUTION_GRANT',packet.FILE_LIMIT)
@@ -1246,10 +1299,14 @@ def composed_main(args, pins, *, entry):
                 not output.exists() and not output.is_symlink(), 'fresh-output-required')
         require(not any(a.is_relative_to(b) for a,b in ((output,ROOT),(cache,ROOT),(output,cache),(cache,output))),
                 'disjoint-output-cache-required')
+        if dual:original['source_only'] = args.check_only
         require(Path.cwd().resolve() == ROOT, 'authenticated-checkout-cwd-required')
         session, callbacks, runtime, argv = composed_sources(ROOT,source_packet,grant_raw,args.execution_grant_sha256,
-                                                            runtime_raw,output,cache,deadline,composition=composition)
+                                                            runtime_raw,output,cache,deadline,composition=composition,**original)
         within(deadline)
+        if args.check_only:
+            print('dual-source development inputs verified; execution NOT RUN')
+            return 0
         output.mkdir(mode=0o700);cache.mkdir(mode=0o700,exist_ok=True)
         development = Development(ROOT,output,cache,source_packet,deadline=deadline,composition=composition,
             clock_nonce=packet.decode(clock_raw)['nonce'],runtime_contract=runtime)
@@ -1322,19 +1379,23 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('inputs-sha256', 'recipes-sha256', 'integration-sha256', 'development-sha256'):
         parser.add_argument('--' + name, required=True)
-    parser.add_argument('--packet', type=Path, default=ROOT / 'scripts/ci/development/packet.lock.json')
+    parser.add_argument('--packet', type=Path)
     parser.add_argument('--cache', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--check-only', action='store_true')
     parser.add_argument('--composition',choices=packet.COMPOSED_MODES)
+    parser.add_argument('--original-source-root',type=Path)
     parser.add_argument('--controller-entry-monotonic',type=float)
     for name in ('clock','execution-grant','runtime-contract'):
         parser.add_argument('--'+name,type=Path)
         parser.add_argument('--'+name+'-sha256')
     args = parser.parse_args(argv)
+    if args.packet is None:
+        args.packet = ROOT / (packet.LOCK if args.original_source_root is None else packet.DUAL_LOCK)
     pins = {'scripts/ci/inputs.lock.json': args.inputs_sha256, 'scripts/ci/recipes.lock.json': args.recipes_sha256,
             'scripts/ci/integration.lock.json': args.integration_sha256}
     if args.composition is not None:return composed_main(args,pins,entry=entry)
+    require(args.original_source_root is None, 'original-source-root-requires-composition')
     require(args.controller_entry_monotonic is None, 'controller-entry-requires-composition')
     try:
         source_packet = packet.preflight(ROOT, args.packet, args.development_sha256, os.environ.get('GITHUB_SHA', ''))
@@ -1387,6 +1448,11 @@ def main(argv=None):
 
 
 if __name__ == '__main__':
+    import builtins
+
+    # CPython script entry exposes the module where the source graph expects its dictionary.
+    if __builtins__ is builtins:
+        __builtins__ = vars(builtins)
     try:
         sys.exit(main())
     except (ValueError, OSError, KeyError, TypeError, KeyboardInterrupt):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Finite container worker: provision signed extension or compile one variant."""
+import hashlib
 import os
 from pathlib import Path
 import platform
@@ -9,6 +10,7 @@ import shutil
 import stat
 import subprocess
 import sys
+from tempfile import TemporaryDirectory
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import PREFIX, SOURCE, TOOLS, code_contract, delta_config, digest, inventory, load, module, need, regular, save
@@ -67,6 +69,12 @@ def observe(report, operation, *args, deferred=None, **kwargs):
     except Exception:
         # Ordinary diagnostic faults cannot change the original business path.
         row['write_failed'] = True
+    except BaseException as error:
+        # Non-Exception controls are delivered or retained, never swallowed.
+        row.update(write_failed=True, cancelled=True)
+        report.update(status='FAIL', cancelled=True)
+        if deferred is None: raise
+        deferred.append(error)
 
 
 
@@ -103,7 +111,21 @@ def command(runner, report, label, argv, timeout=60):
             observe(report, inner_result.invalidate)
     report['commands'].append({'label': label, 'argv': argv, 'exit': result.returncode,
                               'log_sha256': digest(runner.log_dir / (label + '.log'))})
-    need(result.returncode == 0, 'command failed: ' + label)
+    try:
+        need(result.returncode == 0, 'command failed: ' + label)
+    except BaseException as first:
+        if type(label) is str and label == 'kernel':
+            if type(result) is subprocess.CompletedProcess and type(result.returncode) is int:
+                if result.returncode != 0:
+                    controls = []
+                    observe_failure(report, first, False, controls)
+                    observe(report, inner_result.compiler_failure, result.stdout,
+                            report['commands'][-1]['log_sha256'], deferred=controls)
+                    if controls:
+                        prior_cause = first.__cause__
+                        causes = ([prior_cause] if prior_cause is not None else []) + controls
+                        first.__cause__ = BaseExceptionGroup('compiler diagnostic controls', causes)
+        raise
     return result.stdout
 
 
@@ -111,49 +133,99 @@ def package_map(runner, report, expected, label='inventory'):
     data = command(runner, report, label, ['/usr/bin/pacman', '--config', '/tmp/query.conf', '-Q'])
     rows = b''.join(sorted(data.splitlines(keepends=True)))
     need(inventory(rows) == inventory(expected.encode()), 'complete builder inventory differs')
-    return {'sha256': __import__('hashlib').sha256(rows).hexdigest(), 'count': len(inventory(rows))}
+    return {'sha256': hashlib.sha256(rows).hexdigest(), 'count': len(inventory(rows))}
 
 
-def provision(runner, report, dependencies):
-    # Cryptographic verification repeats inside the network-off provisioner.
-    home = Path('/tmp/public-gpg'); home.mkdir(mode=0o700)
-    gpg = ['/usr/bin/gpg', '--batch', '--no-options', '--homedir', str(home), '--no-auto-key-retrieve', '--no-autostart']
-    command(runner, report, 'key-import', gpg + ['--import', '/inputs/archlinuxarm.gpg'])
-    statuses = []
-    for index, row in enumerate(dependencies['packages']):
-        archive = INPUTS / row['filename']; sig = archive.with_name(archive.name + '.sig')
-        regular(archive, 800 * 1024**2); regular(sig, 65536)
-        need(digest(archive) == row['sha256'] and digest(sig) == row['signature_sha256'], 'signed package differs')
-        output = command(runner, report, 'signature-' + str(index), gpg + ['--status-fd', '1', '--verify', str(sig), str(archive)])
-        valid = re.findall(rb'^\[GNUPG:\] VALIDSIG (.+)$', output, re.M)
-        need(len(valid) == 1 and valid[0].split()[-1].decode() == dependencies['signer_fingerprint'] and
-             not re.search(rb'\[GNUPG:\] (?:BADSIG|ERRSIG|EXPSIG|EXPKEYSIG|REVKEYSIG)', output), 'signature signer/status differs')
-        statuses.append({'name': row['name'], 'sha256': row['sha256'], 'signature_sha256': row['signature_sha256']})
-    # All15 inspected archives have no hook or scriptlet. Mask existing default
-    # hook identities too; the strict private config registers no repositories.
-    hooks = Path('/tmp/no-hooks'); hooks.mkdir()
-    for directory in ('/usr/share/libalpm/hooks', '/etc/pacman.d/hooks'):
-        for path in Path(directory).glob('*.hook'):
-            need(re.fullmatch(r'[A-Za-z0-9_.+-]+\.hook', path.name), 'hook identity differs')
-            target = hooks / path.name
-            if not target.exists() and not target.is_symlink(): target.symlink_to('/dev/null')
-    # GPG verification above authenticates exact files. Pacman gets an isolated
-    # public-only trusted keyring; no host/default trust or network retrieval.
-    trust = Path('/tmp/ownertrust'); trust.write_text(dependencies['signer_fingerprint'] + ':6:\n')
-    result = runner.run(gpg + ['--import-ownertrust', str(trust)], timeout=30, log='ownertrust.log')
-    need(result.returncode == 0, 'private trust initialization failed')
-    conf = Path('/tmp/install.conf')
-    conf.write_text('[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\nGPGDir = /tmp/public-gpg\nCacheDir = /tmp/package-cache\nHookDir = /tmp/no-hooks\n')
-    Path('/tmp/package-cache').mkdir()
-    before = package_map(runner, report, load(INPUTS / 'contract.json')['base_inventory'], 'inventory-before')
-    command(runner, report, 'install', ['/usr/bin/pacman', '--config', str(conf), '--noconfirm', '--noscriptlet', '-U',
-                                      *(str(INPUTS / row['filename']) for row in dependencies['packages'])], timeout=600)
-    # Package cache/key/trust/config live in tmpfs and cannot enter commit.
-    report['base_inventory'] = before
-    report['installed_inventory'] = package_map(runner, report, dependencies['expected_inventory'], 'inventory-after')
-    report['signatures'] = statuses
-    command(runner, report, 'database-check', ['/usr/bin/pacman', '--config', '/tmp/query.conf', '-Dk'])
-    command(runner, report, 'ldconfig', ['/usr/bin/ldconfig'])
+def copy_verified_input(directory, name, row, limit):
+    size = row['bytes']
+    need(re.fullmatch(r'[A-Za-z0-9@+:_.-]+', name) and name not in ('.', '..') and
+         type(size) is int and 0 < size <= limit, 'invalid private provision input')
+    root_fd = os.open(INPUTS, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=root_fd)
+    finally:
+        os.close(root_fd)
+    target = directory / name
+    hashed = hashlib.sha256()
+    copied = 0
+    with os.fdopen(fd, 'rb') as src:
+        info = os.fstat(src.fileno())
+        need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_size == size,
+             'private provision input metadata differs')
+        with target.open('xb') as dst:
+            os.fchmod(dst.fileno(), 0o600)
+            while block := src.read(min(1024**2, size - copied + 1)):
+                copied += len(block)
+                need(copied <= size, 'private provision input grew during copy')
+                hashed.update(block)
+                dst.write(block)
+    need(copied == size and hashed.hexdigest() == row['sha256'], 'private provision input pin differs')
+    return target
+
+
+def provision(runner, report, dependencies, contract):
+    # The input bind is read-only inside the container. GPG and libalpm need
+    # the same verified copies in the provisioner's private tmpfs.
+    archive_limit = 800 * 1024**2
+    key_name = 'archlinuxarm.gpg'
+    files = {key_name: (contract['inputs'][key_name], 1024**2)}
+    packages = dependencies['packages']
+    need(sum(row['size'] + row['signature_size'] for row in packages) <= archive_limit,
+         'signed extension packet budget exceeded')
+    for row in packages:
+        name = row['filename']
+        for leaf, size, pin, limit in (
+                (name, row['size'], row['sha256'], archive_limit),
+                (name + '.sig', row['signature_size'], row['signature_sha256'], 65536)):
+            expected = {'bytes': size, 'sha256': pin}
+            need(leaf not in files and contract['inputs'].get(leaf) == expected,
+                 'signed extension input contract differs')
+            files[leaf] = expected, limit
+
+    with TemporaryDirectory(prefix='verified-packages-', dir=Path('/tmp')) as location:
+        private = Path(location)
+        staged = {name: copy_verified_input(private, name, row, limit)
+                  for name, (row, limit) in files.items()}
+        home = Path('/tmp/public-gpg'); home.mkdir(mode=0o700)
+        gpg = ['/usr/bin/gpg', '--batch', '--no-options', '--homedir', str(home),
+               '--no-auto-key-retrieve', '--no-autostart']
+        command(runner, report, 'key-import', gpg + ['--import', str(staged[key_name])])
+        archives, statuses = [], []
+        for index, row in enumerate(packages):
+            name = row['filename']
+            archive, sig = str(staged[name]), str(staged[name + '.sig'])
+            output = command(runner, report, 'signature-' + str(index), gpg + ['--status-fd', '1', '--verify', sig, archive])
+            valid = re.findall(rb'^\[GNUPG:\] VALIDSIG (.+)$', output, re.M)
+            need(len(valid) == 1 and valid[0].split()[-1].decode() == dependencies['signer_fingerprint'] and
+                 not re.search(rb'\[GNUPG:\] (?:BADSIG|ERRSIG|EXPSIG|EXPKEYSIG|REVKEYSIG)', output),
+                 'signature signer/status differs')
+            archives.append(archive)
+            statuses.append({'name': row['name'], 'sha256': row['sha256'], 'signature_sha256': row['signature_sha256']})
+        # All15 inspected archives have no hook or scriptlet. Mask existing default
+        # hook identities too; the strict private config registers no repositories.
+        hooks = Path('/tmp/no-hooks'); hooks.mkdir()
+        for directory in ('/usr/share/libalpm/hooks', '/etc/pacman.d/hooks'):
+            for path in Path(directory).glob('*.hook'):
+                need(re.fullmatch(r'[A-Za-z0-9_.+-]+\.hook', path.name), 'hook identity differs')
+                target = hooks / path.name
+                if not target.exists() and not target.is_symlink(): target.symlink_to('/dev/null')
+        # GPG verification above authenticates exact files. Pacman gets an isolated
+        # public-only trusted keyring; no host/default trust or network retrieval.
+        trust = Path('/tmp/ownertrust'); trust.write_text(dependencies['signer_fingerprint'] + ':6:\n')
+        result = runner.run(gpg + ['--import-ownertrust', str(trust)], timeout=30, log='ownertrust.log')
+        need(result.returncode == 0, 'private trust initialization failed')
+        conf = Path('/tmp/install.conf')
+        conf.write_text('[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\nGPGDir = /tmp/public-gpg\nCacheDir = /tmp/package-cache\nHookDir = /tmp/no-hooks\n')
+        Path('/tmp/package-cache').mkdir()
+        before = package_map(runner, report, contract['base_inventory'], 'inventory-before')
+        command(runner, report, 'install', ['/usr/bin/pacman', '--config', str(conf), '--noconfirm', '--noscriptlet', '-U',
+                                          *archives], timeout=600)
+        # Package cache/key/trust/config live in tmpfs and cannot enter commit.
+        report['base_inventory'] = before
+        report['installed_inventory'] = package_map(runner, report, dependencies['expected_inventory'], 'inventory-after')
+        report['signatures'] = statuses
+        command(runner, report, 'database-check', ['/usr/bin/pacman', '--config', '/tmp/query.conf', '-Dk'])
+        command(runner, report, 'ldconfig', ['/usr/bin/ldconfig'])
 
 
 def tools(runner, report):
@@ -164,6 +236,60 @@ def tools(runner, report):
         result[name] = {'path': str(path), 'resolved': str(target), 'sha256': digest(target),
                         'version_output': output.decode('utf-8', errors='strict')[:4096]}
     return result
+
+
+def configuration_delta(verifier, before_path, after_path, policy, report):
+    """Preserve the original two reads, allowlist and failure; add no actor or clock."""
+    before = after = None
+    stage = 'BEFORE_CONFIG_PARSE'
+    try:
+        before = verifier.config(before_path)
+        stage = 'AFTER_CONFIG_PARSE'
+        after = verifier.config(after_path)
+        stage = 'DELTA_COMPARE'
+        return delta_config(before, after, policy)
+    except BaseException as first:
+        controls = []
+        try:
+            observe_failure(report, first, False, controls)
+            observe(report, inner_result.config_failure, stage, before, after, policy, deferred=controls)
+        except BaseException as secondary:
+            row = report.get('inner_diagnostic')
+            if row is not None:
+                row['write_failed'] = True
+                if isinstance(secondary, (Cancelled, KeyboardInterrupt, SystemExit)):
+                    row['cancelled'] = True
+                    report.update(cancelled=True)
+            controls.append(secondary)
+        raise
+
+
+def verify_output_structure(verifier, build, source, config_path, report):
+    """Record a bounded fact for a first failure at the output verifier."""
+    stage = 'SOURCE'
+
+    def checkpoint(next_stage):
+        nonlocal stage
+        stage = next_stage
+
+    try:
+        return verifier.verify_outputs(build, source, config_path, checkpoint=checkpoint)
+    except Exception as first:
+        if type(first) is ValueError:
+            detail, args = inner_result.output_failure, (first,)
+        else:
+            row = report.get('inner_diagnostic')
+            if row is None or row['first_failure'] is not None or isinstance(first, (ImportError, OSError)):
+                raise
+            detail, args = inner_result.output_fault, (first, stage)
+        controls = []
+        observe_failure(report, first, False, controls)
+        observe(report, detail, *args, deferred=controls)
+        if controls:
+            prior = first.__cause__
+            first.__cause__ = BaseExceptionGroup('output diagnostic controls',
+                ([prior] if prior is not None else []) + controls)
+        raise
 
 
 def compile_variant(runner, report, contract, dependencies, action):
@@ -184,12 +310,12 @@ def compile_variant(runner, report, contract, dependencies, action):
     make = ['/usr/bin/make', '-C', str(source), 'O=' + str(build), 'ARCH=arm64',
             'LOCALVERSION=-cachy-asahi-kernel-c01', 'CC=/usr/bin/gcc', 'HOSTCC=/usr/bin/gcc',
             'LD=/usr/bin/ld', 'AS=/usr/bin/as', 'RUSTC=/usr/bin/rustc', 'BINDGEN=/usr/bin/bindgen',
-            'PAHOLE=/usr/bin/pahole', 'CLANG=/usr/bin/clang', 'DTC=/usr/bin/dtc']
+            'PAHOLE=/usr/bin/pahole', 'CLANG=/usr/bin/clang']
     report['source'] = source_result
     observe(report, inner_result.phase, 'CONFIG')
     command(runner, report, 'config', make + ['olddefconfig'], timeout=300)
     observe(report, inner_result.phase, 'CONFIG_DELTA')
-    report['generated_config_delta'] = delta_config(verifier.config(INPUTS / 'embedded-config'), verifier.config(build / '.config'), dependencies['allowed_generated_config_delta'])
+    report['generated_config_delta'] = configuration_delta(verifier, INPUTS / 'embedded-config', build / '.config', dependencies['allowed_generated_config_delta'], report)
     if action == 'candidate':
         observe(report, inner_result.phase, 'PAIRED_CONFIG')
         regular(INPUTS / 'baseline-config', 1024**2)
@@ -199,7 +325,7 @@ def compile_variant(runner, report, contract, dependencies, action):
     observe(report, inner_result.phase, 'KERNEL')
     command(runner, report, 'kernel', make + ['-j2', 'Image', 'modules', 'dtbs'], timeout=7200)
     observe(report, inner_result.phase, 'OUTPUTS')
-    report['structure'] = verifier.verify_outputs(build, source, build / '.config')
+    report['structure'] = verify_output_structure(verifier, build, source, build / '.config', report)
     report['native_kernel_compilation'] = 'PASS'
     report['kernel_execution'] = 'NOT RUN'
 
@@ -235,7 +361,7 @@ def execute(action, nonce=None, contract_sha=None):
         observe(report, inner_result.phase, 'PROFILE')
         report['profile'] = profile(action, contract)
         if action == 'provision':
-            provision(runner, report, dependencies)
+            provision(runner, report, dependencies, contract)
         else:
             observe(report, inner_result.phase, 'INVENTORY')
             report['inventory'] = package_map(runner, report, dependencies['expected_inventory'])
@@ -259,7 +385,7 @@ def execute(action, nonce=None, contract_sha=None):
                 compile_variant(runner, report, contract, dependencies, action)
         report['status'] = 'PASS'
     except BaseException as error:
-        report.update(status='FAIL', cancelled=isinstance(error, (Cancelled, KeyboardInterrupt)), error_type=type(error).__name__)
+        report.update(status='FAIL', cancelled=report.get('cancelled') is True or isinstance(error, (Cancelled, KeyboardInterrupt, SystemExit)), error_type=type(error).__name__)
         try:
             observe_failure(report, error, False, observation_controls)
         except (Cancelled, KeyboardInterrupt, SystemExit) as error:

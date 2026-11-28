@@ -1,6 +1,7 @@
 name: updater607-runtime-cache-argument-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/updater607-runtime-cache-argument-source/**
       - .github/workflows/updater607-runtime-cache-argument-source.yml

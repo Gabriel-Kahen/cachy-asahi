@@ -14,7 +14,7 @@ EXACT = {
 
 
 def evaluate(proposal_ref, contract_ref, contract, reader, output, *, image, protected,
-             catalogs, targets, provenance, tx, prepare, platform):
+             catalogs, targets, provenance, tx, prepare, target_blockers, check_roots, platform):
     need = tx.preview.need
     proposal = reader.document(proposal_ref)
     need(contract_ref is not None and reader.document(contract_ref) == contract, 'exact original composition reference required')
@@ -51,14 +51,12 @@ def evaluate(proposal_ref, contract_ref, contract, reader, output, *, image, pro
     directory = output / 'proposed-maintenance'; directory.mkdir(mode=0o700)
     result = {'schema_version': 1, 'approval_status': 'UNAPPROVED', 'status': 'HOLD',
               'metadata_prepare_status': 'FAIL', 'proposal_reference': proposal_ref, 'changes': changes,
-              'blockers': [], 'holds': [], 'transaction_accepted': False, 'selection_changed': False,
+              'blockers': list(target_blockers(targets, image, selected_catalogs)), 'holds': [],
+              'transaction_accepted': False, 'selection_changed': False,
               'original_root_provider_policy_changed': False, 'platform_policy_changed': False,
               'original_protected_policy_adopted_changes': False, 'native_build': 'NOT RUN',
               'signature_authentication': 'NOT RUN', 'hardware': 'NOT RUN', 'installation': 'NOT RUN'}
     def block(code, **details): result['blockers'].append({'code': code, **details})
-    for row in targets:
-        metadata = image.get(row['name']) if row['repo'] == 'observed-Asahi-base' else selected_catalogs.get(row['repo'], {}).get(row['name'])
-        if not metadata or metadata['VERSION'] != [row['version']]: block('exact-target-pin-unavailable', target=row)
     with tempfile.TemporaryDirectory(prefix='private-supported-composition-', dir=directory) as temporary:
         work = Path(temporary)
         for name in ('root', 'db/sync', 'cache', 'gpg', 'hooks'): (work / name).mkdir(parents=True, mode=0o700)
@@ -85,7 +83,8 @@ def evaluate(proposal_ref, contract_ref, contract, reader, output, *, image, pro
     for name, row in approved_shape.items():
         if final.get(name, {}).get('VERSION') != [row['after']] or origins.get(name) != row['repo']:
             block('proposed-after-not-realized', change=row)
-    result['roots'] = [{**row, 'satisfied': final.get(row['name'], {}).get('VERSION') == [row['version']]} for row in targets]
+    root_checks = check_roots(targets, final, image, selected_catalogs)
+    result['roots'] = list(root_checks.values())
     for row in result['roots']:
         if not row['satisfied']: block('explicit-root-unsatisfied', root=row)
     result['protected'] = [{'name': name, 'before': protected[name], 'proposed': version,
@@ -103,7 +102,7 @@ def evaluate(proposal_ref, contract_ref, contract, reader, output, *, image, pro
     result['provider_bindings'] = []
     for row in contract['providers']:
         metadata = final.get(row['name'])
-        matches = bool(metadata and metadata['VERSION'] == [row['version']]
+        matches = bool(root_checks[row['name']]['satisfied']
                        and tx.tuple_audit.witnesses(row['requirement'], {row['name']: metadata}, versions))
         result['provider_bindings'].append({**row, 'final_witness_matches': matches})
         if not matches: block('final-explicit-provider-unsatisfied', provider=row)

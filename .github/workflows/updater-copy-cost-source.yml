@@ -5,6 +5,7 @@ on:
       - 'scripts/ci/updater-copy-cost-source/**'
       - '.github/workflows/updater-copy-cost-source.yml'
   push:
+    branches: ['**']
     paths:
       - 'scripts/ci/updater-copy-cost-source/**'
       - '.github/workflows/updater-copy-cost-source.yml'

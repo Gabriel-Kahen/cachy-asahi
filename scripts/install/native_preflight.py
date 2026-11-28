@@ -19,7 +19,7 @@ import types
 
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
-ISSUER_SHA = '5a4a6d7cd7a58b40a89428da76fd882ab5d80bb12b6457844354589242469c0e'
+ISSUER_SHA = '42283163b1b78b3660d37714d5e4ff57f5152414f5e292df480f3452140a5529'
 RECEIVER = 'scripts/install/native_arm_trial.py'
 RECEIVER_SHA = 'fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4'
 PROFILE_SHA = 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8'
@@ -248,6 +248,14 @@ def container_binding(rows, cid, name, trial, source, inputs, output):
          {(m.get('Source'),m.get('Destination'),m.get('RW')) for m in mounts}==expected, 'CONTAINER_MOUNTS')
 
 
+def creation_cid(read, path, end):
+    raw,mode,identity=read(path,end,limit=128)
+    cid=raw.removesuffix(b'\n')
+    need(identity[4]==os.getuid() and mode&0o022==0 and re.fullmatch(b'[0-9a-f]{64}',cid),
+         'CONTAINER_ID')
+    return cid.decode('ascii')
+
+
 def accept(result, public_raw, private_raw, receiver, cleanup, end):
     tick(end)
     record = strict(public_raw)
@@ -277,21 +285,24 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
     # Authenticate loaded code and immutable global facts through captured Sources.
     sources.graph_namespace(receiver,RECEIVER,{RECEIVER:receiver},{},{})
     namespace(receiver,sources.raw[RECEIVER],RECEIVER_SHA)
+    need(sha(sources.raw[SOURCE_PATHS[-1]])==receiver.RUNTIME_SHA, 'RUNTIME_PIN')
+    source_read = sources.module('_preflight_issuer',HANDOFF).read
     transport = session.source_graph['runtime']['transport']
     output.mkdir(mode=0o700); inputs=output/'inputs'; inputs.mkdir(mode=0o700)
     child=output/'child'; child.mkdir(mode=0o700)
     need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}',nonce), 'NONCE')
     name='cachy-asahi-install-'+nonce; cli=None; cid=None; cleanup={'remove_exit':None,'absent':False}
+    create_attempted = False
     result=None; failure=None; report=None; command_rows=[]
     def guard(): live(session,controller,end); cli._preflight()
     def command(args, cutoff):
         tick(cutoff); live(session,controller,cutoff); cli._preflight()
+        need(len(command_rows)<8,'COMMAND_COUNT')
+        path=output/('docker-'+str(len(command_rows))+'.json');command_rows.append(path)
         value, observation = transport.supervise(['/proc/self/fd/'+str(cli.fd),*args],env=cli.env,
             deadline=cutoff,limit=1024**2,pass_fds=(cli.fd,),preflight=cli._preflight)
         need(observation['direct_child_reaped'] is True and observation['group_disposal_requested'] is True and
              observation['forced_teardown'] is False and observation['cancelled'] is False, 'COMMAND_CLEANUP')
-        need(len(command_rows)<8,'COMMAND_COUNT')
-        path=output/('docker-'+str(len(command_rows))+'.json');command_rows.append(path)
         with path.open('xb') as stream:
             stream.write(encoded({'argv':args,'result':{'exit_code':value['exit_code'],
                          'stdout':value['stdout'].decode('utf-8','replace'),'stderr':value['stderr'].decode('utf-8','replace')},
@@ -306,8 +317,8 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
                                            daemon.get('OSType')=='linux','NATIVE_LOCAL_DAEMON')
         inspected=command(['image','inspect',controller.image],end-10)
         need(inspected['exit_code']==0,'IMAGE_INSPECT')
-        raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(Path(controller.native_out)/'inputs.lock.json',end)
-        packages,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(Path(controller.native_out)/'packages.lock',end)
+        raw,_,_=source_read(Path(controller.native_out)/'inputs.lock.json',end)
+        packages,_,_=source_read(Path(controller.native_out)/'packages.lock',end)
         image=image_handoff(strict(inspected['stdout']),controller,receiver,raw,packages)
         trial=selection(sources,controller,receiver,image,nonce)
         for path,data in ((inputs/'image.json',encoded(image)),(inputs/'trial.json',encoded(trial))):
@@ -315,32 +326,54 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
             path.chmod(0o600)
         guard(); args=receiver.docker_command(trial,sources.root,inputs,child)
         need(args[3]==name,'CONTAINER_NAME')
-        args[1]='create'; args[2:2]=['--cidfile',str(output/'container-id')]
+        cidfile=output/'container-id'
+        args[1]='create'; args[2:2]=['--cidfile',str(cidfile)]
+        create_attempted = True
         created=command(args[1:],end-10)
         need(created['exit_code']==0,'CONTAINER_CREATE')
-        cid_raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(output/'container-id',end,limit=128)
-        candidate=cid_raw.decode('ascii').strip()
-        need(re.fullmatch('[0-9a-f]{64}',candidate) and created['stdout'].strip()==candidate.encode(), 'CONTAINER_ID')
+        candidate=creation_cid(source_read,cidfile,end)
+        need(created['stdout'].strip()==candidate.encode(), 'CONTAINER_ID')
         cid=candidate
         inspected=command(['container','inspect',candidate],end-10)
         need(inspected['exit_code']==0,'CONTAINER_INSPECT')
         container_binding(strict(inspected['stdout']),candidate,name,trial,sources.root,inputs,child)
-        cid=candidate
         result=command(['start','--attach',cid],end-10)
     except BaseException as error:
         failure=error
     finally:
         if cli is not None:
+            cleanup_errors = []
+            if create_attempted and cid is None:
+                try:
+                    # A Docker-written private CID plus exact daemon readback
+                    # establishes custody even when create did not report success.
+                    candidate=creation_cid(source_read,cidfile,end-6)
+                    found=command(['container','inspect',candidate],end-6)
+                    need(found['exit_code']==0,'CLEANUP_INSPECT')
+                    container_binding(strict(found['stdout']),candidate,name,trial,sources.root,inputs,child)
+                    cid=candidate
+                except BaseException as error:
+                    cleanup_errors.append(error)
             if cid is not None:
                 try:
-                    removed=command(['rm','-f',cid],end-5); cleanup['remove_exit']=removed['exit_code']
+                    removed=command(['rm','-f',cid],end-3); cleanup['remove_exit']=removed['exit_code']
+                except BaseException as error:
+                    cleanup_errors.append(error)
+                try:
                     remaining=command(['container','ls','-a','--no-trunc','--filter','id='+cid,'--format','{{.ID}}'],end)
                     cleanup['absent']=remaining['exit_code']==0 and remaining['stdout']==b''
-                except BaseException as error: failure=failure or error
+                except BaseException as error:
+                    cleanup_errors.append(error)
+            if failure is None and cleanup_errors:
+                failure = cleanup_errors[0]
+            if failure is not None and create_attempted and cleanup != {'remove_exit':0,'absent':True}:
+                reasons = ', '.join(type(error).__name__ for error in cleanup_errors)
+                failure.add_note(f'Container retirement unverified (remove exit {cleanup["remove_exit"]}, '
+                                 f'absence observed {cleanup["absent"]}, errors {reasons or "none"}).')
             try: cli.close()
             except BaseException as error: failure=failure or error
     if failure is None:
-        raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(child/'result.json',end,limit=4096)
+        raw,_,_=source_read(child/'result.json',end,limit=4096)
         report=accept(result,result['stdout'],raw,receiver,cleanup,end)
         live(session,controller,end)
     if failure is not None: raise failure

@@ -320,44 +320,82 @@ ARCHIVE_MEMBERS = 4096
 ARCHIVE_TIMEOUT = 30
 
 
+def child_exited(pid):
+    # Preserve exclusive wait ownership until the last possible group signal.
+    return os.waitid(os.P_PID, pid, os.WEXITED | os.WNOWAIT | os.WNOHANG) is not None
+
+
+def group_has_peers(pid, deadline):
+    """A held terminal leader still counts in killpg(0), so look for peers."""
+    with os.scandir('/proc') as entries:
+        for count, entry in enumerate(entries, 1):
+            if count > 32768 or time.monotonic() >= deadline:
+                raise TimeoutError('process group census limit')
+            if entry.name.isascii() and entry.name.isdecimal() and int(entry.name) != pid:
+                try:
+                    if os.getpgid(int(entry.name)) == pid:
+                        return True
+                except ProcessLookupError:
+                    continue
+    return False
+
+
 def cleanup_group(process):
-    """Only our start_new_session PID/group; bounded TERM, KILL and direct reap."""
-    result = {'term_sent': False, 'kill_sent': False, 'reaped': False, 'errors': []}
-    try:
-        os.killpg(process.pid, signal.SIGTERM)
-        result['term_sent'] = True
-    except ProcessLookupError:
-        pass
-    except OSError as error:
-        result['errors'].append(type(error).__name__)
-    deadline = time.monotonic() + 0.25
-    while time.monotonic() < deadline:
+    """Signal only while the leader is wait-owned, then prove group absence."""
+    result = {'term_sent': False, 'kill_sent': False, 'reaped': False, 'group_absent': False, 'errors': []}
+    pid = process.pid
+    grace = time.monotonic() + 0.25
+    deadline = grace + 1
+
+    def active():
+        return not child_exited(pid) or group_has_peers(pid, deadline)
+
+    def send(sig, field):
+        child_exited(pid)  # ECHILD forbids signaling an ambiguous numeric group.
         try:
-            os.killpg(process.pid, 0)
+            os.killpg(pid, sig)
+            result[field] = True
         except ProcessLookupError:
-            break
-        except OSError:
-            break
-        process.poll()
-        time.sleep(0.01)
+            pass
+
     try:
-        os.killpg(process.pid, signal.SIGKILL)
-        result['kill_sent'] = True
-    except ProcessLookupError:
-        pass
+        if active():
+            send(signal.SIGTERM, 'term_sent')
+            while time.monotonic() < grace and active():
+                time.sleep(0.01)
+            if active():
+                send(signal.SIGKILL, 'kill_sent')
     except OSError as error:
         result['errors'].append(type(error).__name__)
+
     try:
-        process.wait(timeout=1)
-        result['reaped'] = True
-    except (subprocess.TimeoutExpired, OSError) as error:
+        while True:
+            reaped, status = os.waitpid(pid, os.WNOHANG)
+            if reaped == pid:
+                process.returncode = os.waitstatus_to_exitcode(status)
+                result['reaped'] = True
+                break
+            if time.monotonic() >= deadline:
+                raise TimeoutError('process reap limit')
+            time.sleep(0.01)
+        while time.monotonic() < deadline:
+            try:
+                os.killpg(pid, 0)
+            except ProcessLookupError:
+                result['group_absent'] = True
+                break
+            time.sleep(0.01)
+    except OSError as error:
         result['errors'].append(type(error).__name__)
+    if not result['group_absent']:
+        result['errors'].append('process group absence unverified')
     return result
 
 
 def bounded_process(argv, *, timeout, stdout_limit, stderr_limit, env=None, preexec_fn=None, stdin=None):
     """Drain both pipes with byte/time limits; always clean the isolated process group."""
     require(timeout > 0 and stdout_limit > 0 and stderr_limit > 0, 'invalid process resource limits')
+    require(signal.getsignal(signal.SIGCHLD) == signal.SIG_DFL, 'exclusive child wait ownership required')
     started = time.monotonic()
     result = {'reason': 'exit', 'returncode': None, 'stdout': b'', 'stderr': b'', 'pid': None,
               'stdout_seen': 0, 'stderr_seen': 0, 'cleanup': {}}
@@ -379,7 +417,7 @@ def bounded_process(argv, *, timeout, stdout_limit, stderr_limit, env=None, pree
                 os.set_blocking(stream.fileno(), False)
                 selector.register(stream, selectors.EVENT_READ, name)
             deadline = started + timeout
-            while selector.get_map() or process.poll() is None:
+            while selector.get_map() or not child_exited(process.pid):
                 remaining = deadline - time.monotonic()
                 if remaining <= 0:
                     result['reason'] = 'timeout'
@@ -414,7 +452,8 @@ def bounded_process(argv, *, timeout, stdout_limit, stderr_limit, env=None, pree
             selector.close()
             result.update({name: bytes(value) for name, value in buffers.items()})
             result['elapsed_seconds'] = time.monotonic() - started
-    if result['reason'] == 'exit' and result['cleanup'].get('errors'):
+    cleanup = result['cleanup']
+    if result['reason'] == 'exit' and (cleanup.get('group_absent') is not True or cleanup.get('errors')):
         result['reason'] = 'cleanup-failed'
     return result
 

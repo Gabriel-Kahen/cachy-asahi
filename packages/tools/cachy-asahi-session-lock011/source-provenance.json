@@ -11,7 +11,7 @@
     "source_sha256": "9084a6796479d68a1c0955ecdbd8395252e8289d4dbc98f6aeff3a84fe6252f6"
   },
   "changes": [
-    "Separate guard namespace for idle watcher; manual guard identity unchanged.",
+    "Separate guard filename prefix for idle watcher; existing manual guard names retained.",
     "Explicit bounded idle command; fixed notification callback and independent locker lifetime.",
     "Existing run_session, wait_ready and request_suspend implementations retained unchanged."
   ],

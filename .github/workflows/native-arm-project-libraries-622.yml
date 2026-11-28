@@ -1,0 +1,194 @@
+name: Native ARM JBIG and TIFF build pairs (#622)
+on:
+  workflow_dispatch:
+    inputs:
+      reviewed_head:
+        description: Full reviewed workflow checkout SHA
+        required: true
+        type: string
+      lane:
+        description: Select Minimal206 or maintained inputs, native pairs, or provider migration
+        type: choice
+        required: true
+        default: inputs
+        options:
+          - inputs
+          - native
+          - native-migration
+          - maintained-inputs
+          - maintained-native
+  workflow_call:
+    inputs:
+      reviewed_head:
+        required: true
+        type: string
+      lane:
+        required: true
+        type: string
+    secrets:
+      CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY:
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-project-libraries-622
+  cancel-in-progress: false
+jobs:
+  validate-dispatch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Validate the reviewed revision and selected lane
+        shell: bash
+        env:
+          REVIEWED_HEAD: ${{ inputs.reviewed_head }}
+          WORKFLOW_SHA: ${{ github.workflow_sha }}
+          PRIVATE_REPOSITORY: ${{ github.event.repository.private }}
+          PROJECT_LIBRARIES_LANE: ${{ inputs.lane }}
+        run: |
+          if [[ "$GITHUB_REPOSITORY" != Gabriel-Kahen/cachy-asahi || "$PRIVATE_REPOSITORY" != false ||
+                "$GITHUB_EVENT_NAME" != workflow_dispatch ]]; then
+            echo 'Project Libraries requires a manual dispatch in the public upstream repository.' >&2
+            exit 1
+          fi
+          if [[ ! "$REVIEWED_HEAD" =~ ^[0-9a-f]{40}$ || "$REVIEWED_HEAD" != "$GITHUB_SHA" ||
+                "$REVIEWED_HEAD" != "$WORKFLOW_SHA" ]]; then
+            echo 'The reviewed head must be the full SHA of the selected ref and workflow.' >&2
+            exit 1
+          fi
+          case "$PROJECT_LIBRARIES_LANE" in
+            inputs|native|native-migration|maintained-inputs|maintained-native) ;;
+            *)
+              echo 'Unsupported Project Libraries lane.' >&2
+              exit 1
+              ;;
+          esac
+
+  pairs:
+    needs: validate-dispatch
+    if: inputs.lane == 'inputs' || inputs.lane == 'native' || inputs.lane == 'native-migration'
+    runs-on: ubuntu-24.04-arm
+    environment: native-622-inputs
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        timeout-minutes: 5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Resolve exact r12 Minimal206 producer
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git fetch --no-tags --no-recurse-submodules --depth=1 origin refs/heads/codex/llhttp-minimal206-authenticated-source-20261118-r12
+          test "$(git rev-parse FETCH_HEAD)" = 1604862d09fb04e471da03df2e2a98a5c05a77bf
+      - name: Stage the pinned private Git carrier
+        id: carrier
+        shell: bash
+        timeout-minutes: 4
+        env:
+          CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py stage
+      - name: Stage the pinned historical provider and consumer carrier
+        id: historical
+        if: inputs.lane == 'native-migration'
+        shell: bash
+        timeout-minutes: 4
+        env:
+          CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py stage --historical
+      - name: Authenticate inputs and execute the selected lane
+        shell: bash
+        timeout-minutes: 79
+        env:
+          PROJECT_LIBRARIES_LANE: ${{ inputs.lane }}
+          TMPDIR: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          umask 077
+          case "$PROJECT_LIBRARIES_LANE" in
+            inputs) set -- --inputs-only ;;
+            native) set -- ;;
+            native-migration)
+              set -- --historical-cache "$RUNNER_TEMP/libraries622-historical-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+              ;;
+            *) exit 2 ;;
+          esac
+          exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/build622.py "$@" \
+            --retained-cache "$RUNNER_TEMP/libraries622-retained-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Retire the private runner cache
+        if: always() && steps.carrier.outcome == 'success'
+        shell: bash
+        timeout-minutes: 1
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py retire
+      - name: Retire the private historical runner cache
+        if: always() && steps.historical.outcome == 'success'
+        shell: bash
+        timeout-minutes: 1
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py retire --historical
+  maintained-pairs:
+    needs: validate-dispatch
+    if: inputs.lane == 'maintained-inputs' || inputs.lane == 'maintained-native'
+    runs-on: ubuntu-24.04-arm
+    environment: native-622-inputs
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        timeout-minutes: 5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify the exact reviewed checkout
+        timeout-minutes: 1
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Fetch the locked maintained producer source
+        timeout-minutes: 5
+        run: |
+          git fetch --quiet --no-tags --no-recurse-submodules --no-write-fetch-head --depth=1 \
+            origin 4e5493cbd384feaae027abb476437c90b7c07cba
+      - name: Stage the pinned maintained baseline carriers
+        id: maintained-base
+        timeout-minutes: 4
+        env:
+          KERNEL_RETAINED_TRANSPORT: ssh
+          CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
+        shell: bash
+        run: exec /usr/bin/python3 -I -B scripts/port/kernel-native-job/intake.py >/dev/null 2>&1
+      - name: Stage the five pinned maintained builder extension pairs
+        id: maintained-extension
+        timeout-minutes: 4
+        env:
+          CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}
+        shell: bash
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py stage --maintained-extension
+      - name: Authenticate maintained inputs and run the selected lane
+        timeout-minutes: 79
+        env:
+          PROJECT_LIBRARIES_LANE: ${{ inputs.lane }}
+          TMPDIR: ${{ runner.temp }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          case "$PROJECT_LIBRARIES_LANE" in
+            maintained-inputs) set -- --inputs-only ;;
+            maintained-native) set -- --native ;;
+            *) exit 2 ;;
+          esac
+          exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/maintained_build622.py "$@" \
+            --reviewed-head "$GITHUB_SHA" \
+            --retained-cache "$RUNNER_TEMP/kernel623-retained-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/alarm-cache" \
+            --maintained-extension-cache "$RUNNER_TEMP/libraries622-maintained-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Retire the private maintained baseline cache
+        if: always() && steps.maintained-base.outcome && steps.maintained-base.outcome != 'skipped'
+        timeout-minutes: 1
+        shell: bash
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py retire --maintained-base
+      - name: Retire the private maintained builder extension cache
+        if: always() && steps.maintained-extension.outcome && steps.maintained-extension.outcome != 'skipped'
+        timeout-minutes: 1
+        shell: bash
+        run: exec /usr/bin/python3 -I -B scripts/ci/project-libraries-native/carrier622.py retire --maintained-extension

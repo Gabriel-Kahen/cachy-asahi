@@ -27,9 +27,9 @@
       "sha256": "40d8956327ce7404275b408ef571d1ebb2b0de46dfec3c5a74f86ff3a75d4c3b"
     },
     "boot.py": {
-      "bytes": 23775,
+      "bytes": 24449,
       "mode": 420,
-      "sha256": "76f113cb1cd0e0e92142c84421fe260ce5f23cec23956644c302a17b62395025"
+      "sha256": "97fbc5bf83ed461de727adfe1e0fbfff2adf8bffb94554fed9c43e1b92b66be3"
     },
     "case.TEMPLATE.json": {
       "bytes": 1196,
@@ -187,9 +187,9 @@
       "sha256": "2b14bf79f720ecceb2c8797b66230b05b3147ff646e4cc87ad1049bfed1f1471"
     },
     "test_ops.py": {
-      "bytes": 7060,
+      "bytes": 8250,
       "mode": 420,
-      "sha256": "d161ddd41256f5d2b5fe431260c7ed42c42bd3a4aecec72a7c1346b401b96ac4"
+      "sha256": "c8b6298b9e2fc0a827bbfeda64b634acbc4424b059f3e09125f3d0e12add4e58"
     },
     "test_ownership.py": {
       "bytes": 6714,

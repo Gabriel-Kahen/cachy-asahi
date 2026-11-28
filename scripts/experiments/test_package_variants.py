@@ -11,11 +11,14 @@ import json
 import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
+import sys
 import tarfile
 import tempfile
 import unittest
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 import package_variants as p
 
@@ -186,6 +189,145 @@ class Controls(unittest.TestCase):
         self.assertEqual([r['status'] for r in rows], ['FAIL', 'FAIL'])
         self.assertEqual(rows[0]['exit'], 7)
         self.assertIsNone(runner.active)
+
+    def test_command_combined_output_cap_includes_appended_stdout(self):
+        runner = p.Commands(self.root)
+        for extra in (0, 1):
+            argv = [sys.executable, '-B', '-c',
+                    'import sys; sys.stderr.buffer.write(b"x" * (16 * 1024**2 - 1));'
+                    f'sys.stdout.buffer.write(b"x" * {1 + extra})']
+            if extra:
+                with self.assertRaisesRegex(ValueError, 'output bound'):
+                    runner.run('build-over', argv)
+            else:
+                self.assertEqual(runner.run('build-limit', argv), b'x')
+        self.assertEqual([row['status'] for row in runner.rows], ['PASS', 'FAIL'])
+        self.assertEqual((self.root / runner.rows[0]['log']).stat().st_size, 16 * 1024**2)
+        self.assertLessEqual((self.root / runner.rows[1]['log']).stat().st_size, 16 * 1024**2)
+
+    def test_command_excess_stdout_or_stderr_fails_before_retaining_it(self):
+        with patch.object(p, 'STDOUT_LIMIT', 32), patch.object(p, 'LOG_LIMIT', 64):
+            runner = p.Commands(self.root)
+            for stream, size in (('stdout', 33), ('stderr', 65)):
+                with self.subTest(stream=stream), self.assertRaisesRegex(ValueError, 'output bound'):
+                    runner.run(stream, [sys.executable, '-B', '-c',
+                                       f'import sys; sys.{stream}.buffer.write(b"x" * {size})'])
+        for row in runner.rows:
+            self.assertEqual(row['status'], 'FAIL')
+            self.assertLessEqual((self.root / row['log']).stat().st_size, 64)
+
+    def test_command_cancel_during_pass_receipt_rewrites_failure(self):
+        runner = p.Commands(self.root)
+        original_save = p.save
+
+        def save_then_cancel(path, rows):
+            original_save(path, rows)
+            if rows[0]['status'] == 'PASS':
+                runner.cancel()
+
+        with patch.object(p, 'save', side_effect=save_then_cancel), self.assertRaises(KeyboardInterrupt):
+            runner.run('cancelled', [sys.executable, '-B', '-c', 'pass'])
+        row, = json.loads((self.root / 'commands.json').read_bytes())
+        self.assertEqual((row['status'], row['cancelled']), ('FAIL', True))
+        self.assertIsNone(runner.active)
+
+    def test_native_job_cancel_during_final_pass_save_returns_failure(self):
+        context, output, work = [self.root / name for name in ('inputs', 'out', 'work')]
+        context.mkdir()
+        output.mkdir()
+        names = p.VARIANTS
+        variants = {p.name(v): v for v in names}
+        prefixes = {v: self.root / v for v in names}
+        inventory = {}
+        payload = {}
+        paths = {'/inputs': context, '/out': output}
+        for name in ('/.dockerenv', '/usr/lib/libz.so.1', '/usr/lib/libc.so.6', '/usr/bin/pacman', '/etc/pacman.conf'):
+            paths[name] = self.root / Path(name).name
+            paths[name].write_bytes(b'fixture')
+        paths['/builder-disabled-hooks'] = self.root / 'hooks'
+        paths['/builder-disabled-hooks'].mkdir()
+        (context / 'packages.lock').write_bytes(b'')
+        for variant in names:
+            recipe = context / p.PACKAGE_ROOT / p.name(variant)
+            recipe.mkdir(parents=True)
+            for name in (*p.FILES, 'zlib-1.3.2.tar.gz'):
+                (recipe / name).write_bytes(b'pkgrel=1\n')
+            own = prefixes[variant].relative_to('/').as_posix()
+            payload[variant] = {own + '/source/' + name: b'pkgrel=1\n' for name in p.FILES}
+            payload[variant][own + '/source/zlib-1.3.2.tar.gz'] = b'fixture'
+            payload[variant][own + '/build/Makefile'] = b'fixture'
+            payload[variant]['usr/share/licenses/' + p.name(variant) + '/LICENSE.zlib'] = b'notice'
+
+        def members(raw, variant):
+            result = dict(payload[variant])
+            key = prefixes[variant].relative_to('/').as_posix() + '/source/PKGBUILD'
+            if raw == b'pkgrel=2\n':
+                result[key] = raw
+            return result
+
+        def fixture_run(label, argv, **kwargs):
+            if label.startswith('build-'):
+                variant = label.split('-')[1]
+                recipe = (work / 'PKGBUILD').read_bytes()
+                release = 2 if recipe == b'pkgrel=2\n' else 1
+                (work / f'{p.name(variant)}-1.3.2-{release}-aarch64.pkg.tar.xz').write_bytes(recipe)
+                src = work / 'src/zlib-1.3.2'
+                src.mkdir(parents=True)
+                for name in ('Makefile', 'configure.log'):
+                    (src / name).touch()
+            if label.startswith('elf-'):
+                return b'AArch64 libc.so\n LOAD 0x0 0x0 R 0x4000\n'
+            if label.startswith('sections-lto-'):
+                return b'.gnu.lto_'
+            if label.startswith('pacman-'):
+                if '-R' in argv:
+                    for name in argv[argv.index('-R') + 1:]:
+                        inventory.pop(name)
+                        prefixes[variants[name]].rmdir()
+                else:
+                    for archive in map(Path, argv[argv.index('-U') + 1:]):
+                        name = p.name(archive.name.split('-')[0])
+                        inventory[name] = '1.3.2-' + archive.name.split('-')[1][1:]
+                        prefixes[variants[name]].mkdir(exist_ok=True)
+            return b''
+
+        original_read, original_save = p.read, p.save
+
+        def fixture_read(path, *args):
+            for name, version in inventory.items():
+                variant = variants[name]
+                installed = members(b'pkgrel=2\n' if version.endswith('-2') else b'', variant)
+                if str(path)[1:] in installed:
+                    return installed[str(path)[1:]]
+            return original_read(path, *args)
+
+        def save_then_cancel(path, data):
+            original_save(path, data)
+            if data['status'] == 'PASS':
+                signal.raise_signal(signal.SIGTERM)
+
+        runner = p.Commands(output)
+        runner.run = Mock(side_effect=fixture_run)
+        handlers = [signal.getsignal(sig) for sig in (signal.SIGTERM, signal.SIGINT)]
+        with patch.object(p, 'Path', side_effect=lambda value, *parts: paths.get(str(value), Path(value, *parts))), \
+             patch.object(p, 'WORK', work), patch.object(p, 'prefix', side_effect=prefixes.__getitem__), \
+             patch.object(p.platform, 'machine', return_value='aarch64'), patch.object(p.os, 'getuid', return_value=0), \
+             patch.object(p.os, 'geteuid', return_value=0), patch.object(p.os, 'chown'), \
+             patch.dict(p.os.environ, {'CACHY_ASAHI_DISPOSABLE_ZLIB': '1'}), \
+             patch.object(p.pwd, 'getpwnam', return_value=SimpleNamespace(pw_uid=1000, pw_gid=1000)), \
+             patch.object(p, 'verify_context', return_value={'base_commit': 'b' * 40}), \
+             patch.object(p, 'Commands', return_value=runner), patch.object(p, 'inventory', side_effect=lambda *_: dict(inventory)), \
+             patch.object(p, 'read', side_effect=fixture_read), patch.object(p, 'package_members', side_effect=members), \
+             patch.object(p, 'source_material', return_value={'LICENSE': b'notice'}), patch.object(p, 'configured_flags', return_value={}), \
+             patch.object(p, 'workload', return_value={}), patch.object(p, 'save', side_effect=save_then_cancel), \
+             patch.object(p.subprocess, 'Popen', side_effect=AssertionError('actors forbidden')):
+            status = p.native_job(context, 'a' * 64, output)
+
+        result = json.loads((output / 'result.json').read_bytes())
+        self.assertEqual(len(result['phases']), 8, result.get('error'))
+        self.assertEqual((status, result['status'], result['installed_behavior'], result.get('cancelled')),
+                         (1, 'FAIL', 'FAIL', True))
+        self.assertEqual([signal.getsignal(sig) for sig in (signal.SIGTERM, signal.SIGINT)], handlers)
 
     def test_command_expected_rejection_and_preexisting_cancel(self):
         runner = p.Commands(self.root)

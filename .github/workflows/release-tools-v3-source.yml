@@ -25,8 +25,10 @@ jobs:
           python-version: '3.14'
       - name: Provision existing package and TEST-signature tools on the disposable runner
         run: |
-          sudo apt-get -o APT::Update::Error-Mode=any update
-          sudo apt-get install --yes --no-install-recommends zstd gnupg libarchive-tools pacman-package-manager makepkg
+          apt_sources=(-o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources
+                       -o Dir::Etc::sourceparts=- -o Acquire::Retries=2)
+          sudo apt-get "${apt_sources[@]}" -o APT::Update::Error-Mode=any update
+          sudo apt-get "${apt_sources[@]}" install --yes --no-install-recommends zstd gnupg libarchive-tools pacman-package-manager makepkg
           for tool in gpg bsdtar vercmp repo-add makepkg; do command -v "$tool"; done
       - name: Verify all local makepkg source checksums without downloads or dependency installation
         working-directory: packages/tools/cachy-asahi-release-tools-v3

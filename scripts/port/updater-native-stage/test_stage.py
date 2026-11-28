@@ -7,9 +7,11 @@ import copy
 import contextlib
 import errno
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import signal
 import socket
@@ -81,6 +83,17 @@ def directory_leaf_fixture(root, check='PATH_IDENTITY', scope='ROOT', component=
     return error, acquired, closed
 
 
+class WorkflowBootstrapTests(unittest.TestCase):
+    def test_native_workflow_pins_match_checkout(self):
+        workflow = (ROOT / '.github/workflows/native-arm-updater.yml').read_text()
+        files = {'STAGE_SHA256': 'stage.py', 'SOURCE_SHA256': 'source.py', 'INTAKE_SHA256': 'intake.py',
+                 'READY_SHA256': 'reviewed-source.json'}
+        for pin, filename in files.items():
+            with self.subTest(pin=pin):
+                found = re.findall(rf'^      {pin}: ([0-9a-f]{{64}})$', workflow, re.MULTILINE)
+                self.assertEqual(found, [hashlib.sha256((HERE / filename).read_bytes()).hexdigest()])
+
+
 class StageTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='updater-stage-fixture-', dir='/tmp')
@@ -93,7 +106,7 @@ class StageTests(unittest.TestCase):
         self.mode = 'pass'; self.source_drift = False; self.project_fail = False; self.guard_fail = False
         self.create_gpg = False; self.gpg_status = 'PASS'; self.docker_status = 'PASS'
         self.put(PREFIX + 'stage.py', STAGE_BYTES)
-        for name in ('runtime.py', 'source.py'):
+        for name in ('runtime.py', 'source.py', 'seed_archives.py'):
             self.put(PREFIX + name, (HERE / name).read_bytes())
         self.put(PREFIX + 'public_worker.py', (HERE / 'public_worker.py').read_bytes())
         self.put(PREFIX + 'broker.py', b'#!/usr/bin/env python3\n# never executed fixture\n')
@@ -238,6 +251,15 @@ class StageTests(unittest.TestCase):
                         raise self.runtime.RuntimeFailure(item)
                 self.fail('private scan tick must fail')
             stage.save(stdout, {'Architecture': 'aarch64', 'DockerRootDir': str(self.storage)})
+        elif phase == 'seed-archives':
+            source = Path(argv[argv.index('--source') + 1])
+            destination = Path(argv[argv.index('--target') + 1])
+            self.assertEqual(source, self.base / 'retained-cache')
+            self.assertEqual(destination, self.output / 'private/archives')
+            self.assertEqual(Path(argv[3]).read_bytes(), (HERE / 'seed_archives.py').read_bytes())
+            if self.mode == 'seed-fail':
+                raise self.runtime.RuntimeFailure(self.process_receipt('FAIL'))
+            shutil.copytree(source, destination)
         elif phase == 'materialize':
             self.assertIn('--child', argv)
             root = Path(argv[argv.index('--output') + 1])
@@ -266,6 +288,9 @@ class StageTests(unittest.TestCase):
             stage.save(root / 'candidate.json', {'schema_version': 1, 'fixture': True})
         elif phase == 'native-pair':
             root = Path(argv[argv.index('--output') + 1]); root.mkdir(mode=0o700)
+            if 'seed-archives' in self.commands:
+                cache = Path(argv[argv.index('--cache') + 1])
+                self.assertEqual((cache / 'fixture').read_bytes(), b'inert package bytes')
             failed = self.mode == 'native-fail'
             stage.save(root / 'result.json', {'schema_version': 1, 'native_pair': 'FAIL' if failed else 'PASS',
                                              'stage': 'finalized', 'argv': [POISON.decode()]})
@@ -316,6 +341,16 @@ class StageTests(unittest.TestCase):
         self.assertEqual(result['cancelled'], cancelled)
         for row in self.terminal(): self.assertNotEqual(row['status'], 'PASS')
 
+    def test_cli_run_and_recovery_emit_one_result_and_propagate_its_status(self):
+        for mode, operation in (('run', 'pipeline'), ('cleanup', 'recover')):
+            for status, code in (('PASS', 0), ('FAIL', 1), ('CANCELLED', 1)):
+                with self.subTest(mode=mode, status=status):
+                    out = io.StringIO()
+                    with mock.patch.object(stage, operation, return_value={'status':status}), \
+                            contextlib.redirect_stdout(out):
+                        self.assertEqual(stage.main([mode, '--output', str(self.output)]), code)
+                    self.assertEqual(out.getvalue().splitlines(), [json.dumps({'status':status})])
+
     def test_success_is_fixture_only_with_real_cleanup_and_guarded_projection(self):
         result = self.pipeline()
         self.assertEqual(result['status'], 'PASS')
@@ -326,6 +361,101 @@ class StageTests(unittest.TestCase):
         self.assertEqual(result['publication'], 'NOT ACCEPTED')
         self.assertEqual(result['hardware'], 'NOT RUN')
         self.assertTrue(self.guard_inputs)
+
+    def test_retained_cache_handoff_precedes_materialization_and_preserves_source(self):
+        source = self.base / 'retained-cache'
+        source.mkdir(mode=0o700)
+        member = source / 'fixture'
+        member.write_bytes(b'inert package bytes')
+        result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output,
+                                runner=self.fake_run, retained_cache=source)
+        self.assertEqual(result['status'], 'PASS')
+        self.assertEqual(self.commands[:3], ['native-daemon', 'seed-archives', 'materialize'])
+        self.assertTrue(result['private_data_removed'])
+        self.assertEqual(member.read_bytes(), b'inert package bytes')
+
+    def test_retained_seed_failure_prevents_acquisition_and_projects_diagnostic(self):
+        self.mode = 'seed-fail'
+        source = self.base / 'retained-cache'
+        source.mkdir(mode=0o700)
+        result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output,
+                                runner=self.fake_run, retained_cache=source)
+        self.assert_clean_failure(result)
+        self.assertNotIn('native-pair', self.commands)
+        self.assertEqual(self.terminal()[0]['failed_phase'], 'seed-archives')
+        self.assertEqual(self.terminal()[0]['runtime_reason'], 'process-failed')
+
+    def test_installed_check_runs_after_pair_inside_the_owned_scope(self):
+        def installed(private, copied, native, archives, python, run, broker, contract, rows):
+            self.assertEqual(self.commands[-1], 'native-pair')
+            self.assertTrue(native.is_relative_to(private))
+            self.assertTrue(archives.is_relative_to(private))
+            self.assertTrue(copied.is_relative_to(private))
+            self.assertIs(broker, self.broker)
+            return 15
+
+        with mock.patch.object(stage, 'installed_trial', side_effect=installed) as check:
+            result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output,
+                                    runner=self.fake_run, installed_check=True)
+        check.assert_called_once()
+        self.assertEqual(result['status'], 'PASS')
+        self.assertTrue(result['private_data_removed'])
+        expected = self.terminal()[0]
+        self.assertEqual((expected['installed_check'], expected['installed_cases']), ('PASS', 15))
+
+    def test_installed_failure_preserves_independent_pair_evidence(self):
+        with mock.patch.object(stage, 'installed_trial', side_effect=ValueError('inert fixture failure')):
+            result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output,
+                                    runner=self.fake_run, installed_check=True)
+        self.assert_clean_failure(result)
+        self.assertEqual(result['native_compilation'], 'PASS PRIVATE NATIVE PAIR')
+        public = self.terminal()[0]
+        self.assertEqual(public['installed_check'], 'FAIL')
+        self.assertNotIn('installed_cases', public)
+
+    def test_prepare_failure_projects_only_a_known_subphase_and_problem(self):
+        out = self.base / 'prepare.stdout'
+        for phase in ('archive-selection','archive-inspection','archive-controller',
+                      'archive-metadata','archive-provenance','archive-copy'):
+            with self.subTest(phase=phase):
+                record = {'status':'FAIL','phase':phase,'problem':'invalid-input'}
+                out.write_text(json.dumps(record))
+                diagnostic = stage.prepare_failure(out)
+                self.assertEqual(diagnostic, {'phase':phase,'problem':'invalid-input'})
+        result = {'installed_check':'FAIL','failed_phase':'installed-prepare',
+                  'runtime_reason':'process-failed','runtime_returncode':1,
+                  'installed_prepare_failure':diagnostic}
+        self.assertEqual(stage.public_summary(result)['installed_prepare_failure'], diagnostic)
+        with self.assertRaisesRegex(ValueError, 'installed-prepare-diagnostic-context'):
+            stage.public_summary(dict(result, failed_phase='runtime-intake'))
+        out.write_text(json.dumps(dict(record, error='/private/fixture/location')))
+        self.assertEqual(stage.prepare_failure(out), stage.PREPARE_UNAVAILABLE)
+        out.write_text(json.dumps(dict(record, phase='/private/fixture/location')))
+        self.assertEqual(stage.prepare_failure(out), stage.PREPARE_UNAVAILABLE)
+        out.unlink()
+        self.assertEqual(stage.prepare_failure(out), stage.PREPARE_UNAVAILABLE)
+
+    def test_installed_receipt_requires_all_exact_integer_cases_and_preservation(self):
+        exits = {f'inert-case-{i}':0 for i in range(15)}
+        prepared = {'package_sha256': H}
+        nested = {'status':'PASS', 'installed_packages':361, 'pacman_database_preserved':'PASS',
+                  'updater_and_apple_policy_payload_preserved':'PASS', 'real_update_transaction':'NOT RUN',
+                  'cases':{name:{'exit':code} for name,code in exits.items()}}
+        result = {'status':'PASS', 'phase':'completed', 'installation':'PASS-disposable-container',
+                  'dependencies':'PASS-no-waivers', 'pyalpm':'PASS-native-import',
+                  'real_check':'PASS-installed-Check-signed-local-repository', 'test_signing_state_removed':True,
+                  'package_sha256': H, 'hardware':'NOT RUN', 'target_update':'NOT RUN',
+                  'publication':'NOT ACCEPTED', 'check_cases':nested}
+        self.assertEqual(stage.verify_installed_result(result, prepared, exits),15)
+        for key, value in (('package_sha256','b'*64), ('test_signing_state_removed',1)):
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError,'installed-check-receipt'):
+                stage.verify_installed_result(dict(result, **{key:value}),prepared,exits)
+        nested['cases']['inert-case-0']['exit']=False
+        with self.assertRaisesRegex(ValueError,'installed-check-case-results'):
+            stage.verify_installed_result(result,prepared,exits)
+        del nested['cases']['inert-case-0']
+        with self.assertRaisesRegex(ValueError,'installed-check-case-results'):
+            stage.verify_installed_result(result,prepared,exits)
 
     def test_pipeline_tick_failure_has_guarded_finite_diagnostics_and_cleanup(self):
         self.mode = 'tick-scan-fail'; result = self.pipeline()
@@ -1123,8 +1253,25 @@ class StageTests(unittest.TestCase):
 
     def test_recovery_adopts_exact_persisted_private_identity_and_removes_partial_cache(self):
         raw = self.recovery_fixture()
-        result = self.recover()
+        pid = 2147481000
+        self.owner['children'] = [dict(pid=pid, group=pid, start_ticks=2, complete=False)]
+        self.owner['launch_intents'] = [dict(phase='materialize', status='REGISTERED', child_index=0)]
+        stage.save(self.output / 'ownership.json', self.owner)
+        self.owner_sha = stage.digest((self.output / 'ownership.json').read_bytes())
+
+        remove = self.runtime.owned_remove
+        def check_attestation(*args):
+            saved = stage.load(self.output / 'ownership.json')
+            self.assertTrue(saved['children'][0]['complete'])
+            self.assertEqual(saved['launch_intents'][0]['status'], 'ABSENT')
+            return remove(*args)
+
+        with mock.patch.object(stage.os, 'killpg', side_effect=ProcessLookupError) as probe, \
+                mock.patch.object(self.runtime, 'owned_remove', side_effect=check_attestation) as removal:
+            result = self.recover()
+        probe.assert_called_once_with(pid, 0)
         self.assertEqual(result['status'], 'PASS'); self.assertFalse(raw.exists())
+        removal.assert_called_once()
         self.assertFalse((self.output / 'private').exists()); self.assertTrue(self.cleanup_calls)
         self.assertEqual(result['cleanup_status'], 'PASS')
         self.assertEqual(result['native_compilation'], 'NOT ATTESTED BY RECOVERY')
@@ -1134,6 +1281,45 @@ class StageTests(unittest.TestCase):
         self.assertTrue(self.owner['cleanup_verified']); self.assertTrue(self.owner['private_removed'])
         self.assertEqual(self.recover()['status'], 'PASS')
         self.assertEqual(len(self.cleanup_calls), 1)
+
+    def test_recovery_records_absent_sibling_but_blocks_ambiguous_registered_child(self):
+        pid, sibling = 2147481000, 2147481001
+        for reason in ('ambiguous-group-leader', 'reused-process-id'):
+            with self.subTest(reason=reason):
+                self.output = self.base / reason
+                raw = self.recovery_fixture()
+                self.owner['children'] = [dict(pid=p, group=p, start_ticks=2, complete=False)
+                                          for p in (pid, sibling)]
+                self.owner['launch_intents'] = [dict(phase='materialize', status='REGISTERED', child_index=i)
+                                                for i in range(2)]
+                ownership_path = self.output / 'ownership.json'
+                stage.save(ownership_path, self.owner)
+                self.owner_sha = stage.digest(ownership_path.read_bytes())
+
+                def identify(process):
+                    if process == pid and reason == 'reused-process-id':
+                        return dict(pid=pid, start_ticks=3)
+                    raise FileNotFoundError
+
+                with mock.patch.object(stage, 'process_identity', side_effect=identify), \
+                        mock.patch.object(stage.os, 'killpg', side_effect=[ProcessLookupError, None]) as probe:
+                    result = stage.recover(self.root, self.controller, self.controller_sha, self.output, self.owner_sha)
+                self.assertEqual(probe.call_args_list, [mock.call(sibling, 0), mock.call(pid, 0)])
+                self.assertEqual(result['process_cleanup'][-1], dict(status='FAIL', reason_code=reason))
+                self.assertEqual(result['process_cleanup_status'], 'FAIL')
+                self.assertIn('private-removal-blocked', result['cleanup_reasons'])
+                self.assertFalse(result['private_data_removed'])
+                self.assertEqual(raw.read_bytes(), POISON)
+
+                self.owner = stage.load(ownership_path)
+                self.owner_sha = stage.digest(ownership_path.read_bytes())
+                self.assertEqual([row['complete'] for row in self.owner['children']], [False, True])
+                self.assertEqual([row['status'] for row in self.owner['launch_intents']], ['REGISTERED', 'ABSENT'])
+                with mock.patch.object(stage.os, 'killpg', side_effect=ProcessLookupError) as probe:
+                    retried = self.recover()
+                probe.assert_called_once_with(pid, 0)
+                self.assertEqual(retried['status'], 'PASS')
+                self.assertFalse(raw.exists())
 
     def test_recovery_already_cleaned_attested_owner_is_repeatable_noop(self):
         self.recovery_fixture(private=False, attested=True)
@@ -1302,11 +1488,13 @@ class DiskCheckTests(unittest.TestCase):
         return observe
 
 
-    def test_directory_leaf_all_original_sites_and_components_close_every_fd(self):
-        proposal = [('OPEN_FD_IDENTITY', ('ROOT', 'DESCENDANT'), ('DEVICE', 'INODE', 'MODE')),
+    def test_directory_leaf_identity_mismatches_close_every_fd(self):
+        proposal = [('OPEN_FD_IDENTITY', ('ROOT',), ('DEVICE', 'INODE', 'MODE')),
+                    ('OPEN_FD_IDENTITY', ('DESCENDANT',), ('DEVICE', 'INODE')),
                     ('ROOT_PATH_MISSING', ('ROOT',), ('NONE',)),
                     ('LINKED_CHILD_PATH_MISSING', ('DESCENDANT',), ('NONE',)),
-                    ('PATH_IDENTITY', ('ROOT', 'DESCENDANT'), ('DEVICE', 'INODE', 'OWNER', 'MODE')),
+                    ('PATH_IDENTITY', ('ROOT',), ('DEVICE', 'INODE', 'OWNER', 'MODE')),
+                    ('PATH_IDENTITY', ('DESCENDANT',), ('DEVICE', 'INODE', 'OWNER')),
                     ('PATH_NOT_DIRECTORY', ('ROOT', 'DESCENDANT'), ('TYPE',)),
                     ('CHILD_OPEN_REAPPEARED', ('DESCENDANT',), ('NONE',))]
         cases = 0
@@ -1324,7 +1512,90 @@ class DiskCheckTests(unittest.TestCase):
                         for fd in acquired:
                             with self.assertRaises(OSError): os.fstat(fd)
                         cases += 1
-        self.assertEqual(cases, 19)
+        self.assertEqual(cases, 17)
+        for check in ('OPEN_FD_IDENTITY', 'PATH_IDENTITY'):
+            historical = {'availability': 'OBSERVED', 'check': check,
+                          'scope': 'DESCENDANT', 'component': 'MODE'}
+            self.assertEqual(stage.directory_leaf_projection(historical), historical)
+
+    def scan_during_chmod(self, leaf, window, mode):
+        original_mode = stat.S_IMODE(leaf.stat().st_mode)
+        real_open, real_stat, real_fstat = os.open, os.stat, os.fstat
+        initial_stat = descriptor_stat = changed = False
+        opened_fd = None
+
+        def chmod():
+            nonlocal changed
+            leaf.chmod(mode)
+            changed = True
+
+        def open_leaf(path, flags, *args, **kwargs):
+            nonlocal opened_fd
+            if self.name(path) != leaf.name:
+                return real_open(path, flags, *args, **kwargs)
+            self.assertTrue(initial_stat)
+            self.assertTrue(flags & os.O_NOFOLLOW)
+            if window == 'path-stat-to-open':
+                chmod()
+            opened_fd = real_open(path, flags, *args, **kwargs)
+            return opened_fd
+
+        def stat_fd(fd):
+            nonlocal descriptor_stat
+            info = real_fstat(fd)
+            if fd == opened_fd:
+                descriptor_stat = True
+            return info
+
+        def stat_leaf(path, *args, **kwargs):
+            nonlocal initial_stat
+            if self.name(path) == leaf.name:
+                self.assertIs(kwargs.get('follow_symlinks'), False)
+                if initial_stat and window == 'open-to-path-stat' and not changed:
+                    self.assertTrue(descriptor_stat)
+                    chmod()
+                initial_stat = True
+            return real_stat(path, *args, **kwargs)
+
+        try:
+            with mock.patch.object(stage.os, 'open', side_effect=open_leaf), \
+                    mock.patch.object(stage.os, 'stat', side_effect=stat_leaf), \
+                    mock.patch.object(stage.os, 'fstat', side_effect=stat_fd):
+                return stage.disk_check(self.root)
+        finally:
+            leaf.chmod(original_mode)
+            self.assertTrue(changed, 'chmod window was reached')
+
+    def test_permitted_descendant_chmod_in_both_observation_windows(self):
+        leaf = self.root / 'cache'
+        leaf.mkdir(mode=0o700)
+        (leaf / 'payload').write_bytes(b'owned')
+        for window in ('path-stat-to-open', 'open-to-path-stat'):
+            for old_mode, new_mode in ((0o700, 0o755), (0o755, 0o700)):
+                with self.subTest(window=window, old_mode=oct(old_mode), new_mode=oct(new_mode)):
+                    leaf.chmod(old_mode)
+                    self.assertEqual(self.scan_during_chmod(leaf, window, new_mode),
+                                     {'members': 2, 'bytes': 5})
+
+    def test_disallowed_descendant_chmod_in_both_observation_windows(self):
+        leaf = self.root / 'cache'
+        leaf.mkdir(mode=0o700)
+        for mode in (0o600, 0o720, 0o702, 0o1700, 0o2700, 0o4700):
+            with self.subTest(window='initial-path-stat', mode=oct(mode)):
+                leaf.chmod(mode)
+                with self.assertRaisesRegex(ValueError, '^private-directory-permission$'):
+                    stage.disk_check(self.root)
+                leaf.chmod(0o700)
+            for window in ('path-stat-to-open', 'open-to-path-stat'):
+                with self.subTest(window=window, mode=oct(mode)), \
+                        self.assertRaisesRegex(ValueError, '^private-directory-permission$'):
+                    self.scan_during_chmod(leaf, window, mode)
+
+    def test_root_chmod_remains_fatal_in_both_observation_windows(self):
+        for window, reason in (('path-stat-to-open', 'private-root-identity'),
+                               ('open-to-path-stat', 'private-directory-identity')):
+            with self.subTest(window=window), self.assertRaisesRegex(ValueError, '^' + reason + '$'):
+                self.scan_during_chmod(self.root, window, 0o755)
 
     def test_directory_leaf_component_selection_preserves_original_identity_order(self):
         real_stat = os.stat

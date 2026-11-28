@@ -119,7 +119,7 @@ class SignedFixture:
         raw = path.read_bytes()
         return dict(path=str(path), size=len(raw), sha256=self.C.digest(raw))
 
-    def kit(self, owner, role, signer):
+    def kit(self, owner, role, signer, *, protected_overlay=False):
         case = T.ReleaseTests(methodName='runTest')
         case.setUp()
         owner.addCleanup(case.doCleanups)
@@ -131,8 +131,21 @@ class SignedFixture:
         case.release_spec['policy']['protected_packages'] = [self.base[0]['name']]
         case.put('integration.lock.json', dict(schema_version=1, fixture='genuine-signature TEST input; not hardware evidence'))
         case.release_spec['evidence'] = [dict(case.ref('integration.lock.json'), id='integration.lock.json')]
+        if protected_overlay:
+            self.protected_overlay(case)
         case.save_spec()
         bundle = Path(T.r.stage(argparse.Namespace(spec=str(case.spec_path)), case.root, signer, case.env)['path'])
+        if protected_overlay:
+            # The normal producer refuses this policy. Sign the inconsistent TEST
+            # policy here so the receiving boundary must enforce it independently.
+            case.release_spec['policy']['protected_packages'] = [self.base[0]['name']]
+            T.r.write(bundle/'spec.json', case.release_spec)
+            release_path = bundle/'release.json'
+            release = T.r.load(release_path)
+            release['files']['spec.json'] = T.r.sha(bundle/'spec.json')
+            T.r.write(release_path, release)
+            (bundle/'release.json.sig').unlink()
+            T.r.sign(release_path, signer, case.env)
         metadata = case.base / 'development.json'
         now = datetime.now(timezone.utc)
         self.C.build(argparse.Namespace(bundle=str(bundle), output=str(metadata), namespace='dev.test-'+role,
@@ -146,6 +159,21 @@ class SignedFixture:
             namespace='dev.test-'+role, minimum_sequence=1, state_dir=str(self.state),
             lock_evidence='integration.lock.json', output=str(output)))
         return output, result
+
+    def protected_overlay(self, case):
+        name, version, arch = self.base[0]['name'], '2-1', 'aarch64'
+        archive = case.inputs / f'{name}-{version}-{arch}.pkg.tar.gz'
+        raw = (f'pkgname = {name}\npkgver = {version}\narch = {arch}\nlicense = MIT\n'
+               'pkgdesc = Synthetic overlay fixture\nbuilddate = 1700000000\nsize = 0\n').encode()
+        with tarfile.open(archive, 'w:gz') as tar:
+            entry = tarfile.TarInfo('.PKGINFO')
+            entry.size = len(raw)
+            tar.addfile(entry, io.BytesIO(raw))
+        provenance = T.r.load(case.inputs/'provenance.json')
+        provenance.update(artifact_sha256=T.r.sha(archive), package=dict(name=name, version=version, arch=arch))
+        case.put('provenance.json', provenance)
+        case.release_spec['packages'] = [dict(artifact=case.ref(archive.name), provenance=case.ref('provenance.json'))]
+        case.release_spec['policy'].update(selected_packages=[name], protected_packages=[self.base[1]['name']])
 
     def materialize(self):
         result = self.H.R.materialize(self.recovery_args)

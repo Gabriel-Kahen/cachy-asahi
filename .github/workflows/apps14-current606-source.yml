@@ -5,6 +5,7 @@ on:
       - 'scripts/ci/apps8-current606-source/**'
       - '.github/workflows/apps14-current606-source.yml'
   push:
+    branches: ['**']
     paths:
       - 'scripts/ci/apps8-current606-source/**'
       - '.github/workflows/apps14-current606-source.yml'

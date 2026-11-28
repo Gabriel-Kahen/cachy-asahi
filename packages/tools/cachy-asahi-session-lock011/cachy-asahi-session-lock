@@ -53,9 +53,10 @@ def session_environment(environ):
 
 
 @contextmanager
-def session_guard(env, namespace=""):
-    suffix = hashlib.sha256((namespace + env["WAYLAND_DISPLAY"]).encode()).hexdigest()[:16]
-    path = Path(env["XDG_RUNTIME_DIR"]) / f"{NAME}-{suffix}.lock"
+def session_guard(env, *, idle=False):
+    suffix = hashlib.sha256(os.fsencode(env["WAYLAND_DISPLAY"])).hexdigest()[:16]
+    prefix = f"{NAME}-idle" if idle else NAME
+    path = Path(env["XDG_RUNTIME_DIR"]) / f"{prefix}-{suffix}.lock"
     fd = os.open(path, os.O_RDWR | os.O_CREAT | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)
     try:
         info = os.fstat(fd)
@@ -229,7 +230,7 @@ def run_idle(env, cancelled, timeout, ready_timeout=10, *, idle_command=SWAYIDLE
     if cancelled:
         diagnostic("cancelled before idle watcher startup")
         return 1
-    with session_guard(env, "idle:"):
+    with session_guard(env, idle=True):
         process = subprocess.Popen([*idle_command, "-C", "/dev/null", "-w",
                                     "timeout", str(timeout), IDLE_EVENT], env=env,
                                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,

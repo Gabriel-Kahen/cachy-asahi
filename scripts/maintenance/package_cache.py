@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: MIT
 """Preview or explicitly prune an owned package cache; never install packages."""
 import argparse
+from collections import defaultdict
 from contextlib import contextmanager
+import errno
 from functools import cmp_to_key
 import hashlib
 import gzip
@@ -27,8 +29,10 @@ COMPRESSION_ERRORS = (OSError, lzma.LZMAError, zlib.error) + ((zstd.ZstdError,) 
 
 NAME = re.compile(r"[A-Za-z0-9@._+-]+\Z")
 ARCHIVE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._+:-]*\.pkg\.tar\.(?:gz|xz|zst)\Z")
+FULL_VERSION = re.compile(r"(?:[0-9]+:)?[^:/\s\x00-\x1f\x7f-]+-[0-9]+(?:\.[0-9]+)?\Z")
 SHA = re.compile(r"[0-9a-f]{64}\Z")
 MAX_FILES, MAX_ARCHIVE = 4096, 2 * 1024**3
+MAX_DECODED_ARCHIVE = 8 * 1024**3
 
 
 class Error(ValueError):
@@ -100,6 +104,12 @@ def exists(fd, name):
     except FileNotFoundError:return False
 
 
+def full_version(value):
+    # vercmp ignores pkgrel when either operand omits it. Such aliases cannot
+    # define distinct retention groups or prove a rollback archive's identity.
+    return type(value) is str and len(value) <= 256 and value.isascii() and FULL_VERSION.fullmatch(value)
+
+
 def policy_check(policy):
     need(type(policy) is dict and set(policy) == {'schema_version', 'retain_versions', 'known_packages', 'protected'}, 'policy schema')
     need(type(policy['schema_version']) is int and policy['schema_version'] == 1 and
@@ -115,7 +125,7 @@ def policy_check(policy):
     for row in protected:
         need(type(row) is dict and set(row) == {'filename', 'name', 'version', 'arch', 'sha256'} and
              ARCHIVE.fullmatch(row['filename']) and (row['name'], row['arch']) in known and SHA.fullmatch(row['sha256']) and
-             type(row['version']) is str and 0 < len(row['version']) <= 256 and not re.search(r'[\s\x00]', row['version']), 'protected archive identity')
+             full_version(row['version']), 'protected archive identity')
     need(len({r['filename'] for r in protected}) == len(protected), 'duplicate protected filename')
     return known
 
@@ -132,15 +142,50 @@ def archive_metadata(stream, filename):
         return tar_metadata(decoder)
 
 
-def tar_metadata(stream):
+def tar_metadata(decoder):
     deadline, total, names, found = time.monotonic() + 30, 0, set(), None
-    with tarfile.open(fileobj=stream, mode='r|') as archive:
+    limit = MAX_DECODED_ARCHIVE
+    end_seen = False
+
+    class BoundedDecodedStream:
+        remaining = limit
+
+        def read(self, size):
+            need(time.monotonic() < deadline, 'archive inspection deadline')
+            block = decoder.read(min(size, self.remaining + 1))
+            self.remaining -= len(block)
+            need(self.remaining >= 0 and time.monotonic() < deadline, 'decoded archive inspection bound')
+            return block
+
+    class CheckedHeader(tarfile.TarInfo):
+        @classmethod
+        def fromtarfile(cls, archive):
+            nonlocal end_seen
+            try:
+                return super().fromtarfile(archive)
+            except tarfile.EOFHeaderError:
+                end_seen = True
+                raise
+
+        def _proc_pax(self, archive):
+            need(0 <= self.size <= 1024**2, 'extended header byte bound')
+            return super()._proc_pax(archive)
+
+        def _proc_gnulong(self, archive):
+            need(0 <= self.size <= 1024**2, 'extended header byte bound')
+            return super()._proc_gnulong(archive)
+
+    with tarfile.open(fileobj=BoundedDecodedStream(), mode='r|', tarinfo=CheckedHeader) as archive:
         for member in archive:
+            # The reader bounds decompressor output; the next header offset
+            # also bounds the declared member extent before reading its body.
+            need(max(archive.fileobj.tell(), archive.offset) <= limit, 'decoded tar member position bound')
             name = member.name.removeprefix('./').rstrip('/')
             if name in ('', '.') and member.isdir():continue
             need(name and not name.startswith('/') and '..' not in Path(name).parts and name not in names, 'unsafe/duplicate archive member')
+            need(member.size >= 0, 'invalid archive member size')
             names.add(name);total += member.size
-            need(len(names) <= 65536 and total <= 8 * 1024**3 and time.monotonic() < deadline, 'archive inspection bound')
+            need(len(names) <= 65536 and total <= limit and time.monotonic() < deadline, 'archive inspection bound')
             if member.isfile():
                 need(name != '.PKGINFO' or member.size <= 1024**2, 'package metadata exceeds bound')
                 source = archive.extractfile(member);data = bytearray() if name == '.PKGINFO' else None
@@ -148,9 +193,16 @@ def tar_metadata(stream):
                     need(time.monotonic() < deadline, 'archive inspection deadline')
                     if data is not None:data.extend(block)
                 if data is not None:found = bytes(data)
-    while block := stream.read(1024**2):
-        total += len(block)
-        need(total <= 8 * 1024**3 and time.monotonic() < deadline, 'compression trailer bound')
+        # TarFile.next() also returns None for EOF or an invalid header. Read
+        # through its buffer to prove the second zero block and compression EOF.
+        need(end_seen, 'missing tar end marker')
+        tail_start = archive.fileobj.tell()
+        while block := archive.fileobj.read(1024**2):
+            need(archive.fileobj.tell() <= limit, 'decoded tar padding position bound')
+            need(block.count(b'\0') == len(block), 'nonzero bytes after tar end marker')
+        end = archive.fileobj.tell()
+        need(end - tail_start >= tarfile.BLOCKSIZE and end % tarfile.BLOCKSIZE == 0,
+             'incomplete tar end marker or padding')
     need(found is not None, 'package metadata missing')
     fields = {}
     for line in found.decode().splitlines():
@@ -158,8 +210,8 @@ def tar_metadata(stream):
             key, value = line.split(' = ', 1);fields.setdefault(key, []).append(value)
     need(all(len(fields.get(k, [])) == 1 for k in ('pkgname', 'pkgver', 'arch')), 'package metadata identity')
     name, version, arch = (fields[k][0] for k in ('pkgname', 'pkgver', 'arch'))
-    need(NAME.fullmatch(name) and arch in ('any', 'aarch64') and 0 < len(version) <= 256 and
-         not re.search(r'[\s\x00]', version) and fields.get('license'), 'unsupported package metadata')
+    need(NAME.fullmatch(name) and arch in ('any', 'aarch64') and full_version(version) and
+         fields.get('license'), 'unsupported package metadata')
     return {'name': name, 'version': version, 'arch': arch}
 
 
@@ -187,26 +239,47 @@ def version_compare(left, right):
     return int(process.stdout.strip())
 
 
+def classify_versions(rows, protected, retain):
+    by_version = defaultdict(list)
+    for row in rows:
+        by_version[row['package']['version']].append(row)
+    versions = sorted(sorted(by_version), key=cmp_to_key(version_compare), reverse=True)
+    groups = []
+    for version in versions:
+        if not groups or version_compare(groups[-1][0], version) != 0:
+            groups.append([])
+        groups[-1].append(version)
+
+    for index, group in enumerate(groups):
+        if protected.intersection(group):
+            action = 'protected'
+        else:
+            action = 'retained' if index < retain else 'candidate'
+        for version in group:
+            for row in by_version[version]:
+                row['action'] = action
+
+
 def plan_for(paths, fds, policy):
     known = policy_check(policy);guard(paths, fds)
     names = sorted(os.listdir(fds[0]));need(len(names) <= MAX_FILES, 'cache member bound')
     entries = [record(fds[0], name) for name in names]
     by_name = {row['filename']: row for row in entries}
+    protected = defaultdict(set)
     for pin in policy['protected']:
         row = by_name.get(pin['filename'], {})
         need(row.get('package') == {k: pin[k] for k in ('name', 'version', 'arch')} and row.get('sha256') == pin['sha256'], 'protected rollback archive missing/changed: ' + pin['filename'])
-    for package, arch in sorted(known):
-        rows = [row for row in entries if row.get('package', {}).get('name') == package and row['package']['arch'] == arch]
-        versions = sorted({row['package']['version'] for row in rows}, key=cmp_to_key(version_compare), reverse=True)
-        retained = []
-        for version in versions:
-            if not any(version_compare(version, kept) == 0 for kept in retained):retained.append(version)
-            if len(retained) == policy['retain_versions']:break
-        protected = [p['version'] for p in policy['protected'] if (p['name'], p['arch']) == (package, arch)]
-        for row in rows:
-            version = row['package']['version']
-            row['action'] = 'protected' if any(version_compare(version, p) == 0 for p in protected) else \
-                'retained' if any(version_compare(version, p) == 0 for p in retained) else 'candidate'
+        protected[pin['name'], pin['arch']].add(pin['version'])
+
+    scopes = defaultdict(list)
+    for row in entries:
+        if 'package' in row:
+            package = row['package']
+            scope = package['name'], package['arch']
+            if scope in known:
+                scopes[scope].append(row)
+    for scope, rows in scopes.items():
+        classify_versions(rows, protected[scope], policy['retain_versions'])
     guard(paths, fds)
     return {'schema_version': 1, 'purpose': 'package-cache-preview', 'cache': str(paths[0]), 'database': str(paths[1]),
             'directory_ids': [{'dev': os.fstat(fd).st_dev, 'ino': os.fstat(fd).st_ino} for fd in fds],
@@ -275,32 +348,44 @@ def apply(cache, database, policy, plan, plan_sha256, selected):
             qname = '.package-cache-' + secrets.token_hex(12);quarantine = str(paths[0] / qname)
             os.mkdir(qname, 0o700, dir_fd=fds[0])
             qfd = os.open(qname, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fds[0]);held = os.fstat(qfd)
+            claim = None
             try:
                 for name in selected:
                     guard(paths, fds);lock_guard()
                     need(same_archive(record(fds[0], name), candidates[name]), 'selected archive changed: ' + name)
+                    # Record the sole pending claim before rename can be interrupted.
+                    claim = name
                     os.rename(name, name, src_dir_fd=fds[0], dst_dir_fd=qfd)
                     need(same_archive(record(qfd, name), candidates[name], moved=True), 'claimed archive replaced/changed: ' + name)
                     guard(paths, fds);lock_guard()
                     current = os.stat(qname, dir_fd=fds[0], follow_symlinks=False);held = os.fstat(qfd)
                     need((current.st_dev, current.st_ino) == (held.st_dev, held.st_ino), 'quarantine replaced')
                     mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM})
-                    try:os.unlink(name, dir_fd=qfd);deleted.append(name)
+                    try:
+                        os.unlink(name, dir_fd=qfd)
+                        deleted.append(name)
+                        claim = None
                     finally:signal.pthread_sigmask(signal.SIG_SETMASK, mask)
             finally:
-                # Restore without overwriting a concurrent replacement; uncertain
-                # bytes stay in the private quarantine for explicit inspection.
+                # Restore the known leaf directly. A directory listing can omit
+                # entries added after the held directory was opened on Btrfs.
                 active = sys.exc_info()[1]
                 try:
-                    for name in os.listdir(qfd):
+                    if claim is not None:
                         try:
-                            os.link(name, name, src_dir_fd=qfd, dst_dir_fd=fds[0], follow_symlinks=False)
-                            os.unlink(name, dir_fd=qfd)
-                        except OSError:pass
-                    if not os.listdir(qfd):
-                        current = os.stat(qname, dir_fd=fds[0], follow_symlinks=False)
-                        need((current.st_dev, current.st_ino) == (held.st_dev, held.st_ino), 'quarantine cleanup uncertain; replacement retained')
-                        os.rmdir(qname, dir_fd=fds[0]);quarantine = None
+                            os.link(claim, claim, src_dir_fd=qfd, dst_dir_fd=fds[0], follow_symlinks=False)
+                            os.unlink(claim, dir_fd=qfd)
+                        except OSError:
+                            pass
+                    current = os.stat(qname, dir_fd=fds[0], follow_symlinks=False)
+                    need((current.st_dev, current.st_ino) == (held.st_dev, held.st_ino), 'quarantine cleanup uncertain; replacement retained')
+                    try:
+                        os.rmdir(qname, dir_fd=fds[0])
+                    except OSError as error:
+                        if error.errno not in (errno.ENOTEMPTY, errno.EEXIST):
+                            raise
+                    else:
+                        quarantine = None
                 except (OSError, Error) as error:
                     if active is not None:active.add_note(str(error))
                     else:raise

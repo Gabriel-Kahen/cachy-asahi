@@ -64,11 +64,16 @@ class ValidationTests(unittest.TestCase):
     def evidence(self, name, artifact):
         directory = self.root / name
         (directory / 'artifacts').mkdir(parents=True)
-        (directory / 'inputs').mkdir()
+        inputs = directory / 'inputs'
+        shutil.copytree(self.recipe().parent, inputs)
         dest = directory / 'artifacts' / artifact.name
         dest.write_bytes(artifact.read_bytes())
-        (directory / 'inputs' / 'PKGBUILD').write_text('reviewed')
-        recipe_hash = checks.digest(directory / 'inputs' / 'PKGBUILD')
+        reviewed = checks.recipe(inputs / 'PKGBUILD')
+        srcinfo = 'pkgbase = example\n' + ''.join(
+            f'\t{key} = {value}\n' for key, values in reviewed['metadata'].items()
+            if key != 'pkgname' for value in values
+        ) + '\npkgname = example\n'
+        recipe_hash = reviewed['input_sha256']['PKGBUILD']
         rewritten = dest.with_suffix('.new')
         with tarfile.open(dest) as source, tarfile.open(rewritten, 'w') as target:
             for member in source:
@@ -80,14 +85,19 @@ class ValidationTests(unittest.TestCase):
                 member.size = len(content)
                 target.addfile(member, io.BytesIO(content) if member.isfile() else None)
         rewritten.replace(dest)
-        for file_name in ('build.log', 'validation.json', 'expected-packages.lock', 'artifacts/packages.lock',
-                     'artifacts/generated.SRCINFO', 'artifacts/environment.txt', 'artifacts/config.sha256',
-                     'artifacts/makepkg.conf', 'artifacts/pacman.conf'):
+        for file_name in ('build.log', 'artifacts/environment.txt', 'artifacts/config.sha256',
+                          'artifacts/makepkg.conf', 'artifacts/pacman.conf'):
             (directory / file_name).write_text('synthetic fixture')
+        (directory / 'artifacts/generated.SRCINFO').write_text(srcinfo)
+        (directory / 'validation.json').write_text(json.dumps({'artifacts': [checks.package(dest)], 'errors': []}))
+        for file_name in ('expected-packages.lock', 'artifacts/packages.lock'):
+            (directory / file_name).write_text('base-devel 1-1\n')
         record = {'status': 'built-package-static-pass', 'image': 'digest', 'image_id': 'id',
-                  'mode': 'native', 'clean_environment_id': name, 'source_date_epoch': 1, 'recipe_metadata': {'pkgname': ['example'], 'pkgver': ['1'], 'pkgrel': ['1'], 'arch': ['any'], 'license': ['MIT']},
-                  'expected_packages_sha256': 'lock', 'entry_script_sha256': 'entry',
-                  'recipe_inputs': {'PKGBUILD': checks.digest(directory / 'inputs' / 'PKGBUILD')},
+                  'exit_code': 0, 'network': 'none',
+                  'mode': 'emulated', 'clean_environment_id': name, 'source_date_epoch': 1,
+                  'recipe_metadata': reviewed['metadata'],
+                  'expected_packages_sha256': checks.digest(directory / 'expected-packages.lock'), 'entry_script_sha256': 'entry',
+                  'recipe_inputs': reviewed['input_sha256'],
                   'artifacts': {artifact.name: checks.digest(dest)},
                   'files': {str(p.relative_to(directory)): checks.digest(p) for p in directory.rglob('*')
                             if p.is_file() and not p.is_relative_to(directory / 'inputs')}}

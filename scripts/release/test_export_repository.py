@@ -7,6 +7,7 @@ import fcntl
 import importlib.util
 import os
 from pathlib import Path
+import signal
 import shutil
 import subprocess
 import sys
@@ -92,6 +93,71 @@ class ExportTests(unittest.TestCase):
         provenance["recipe_sha256"] = recipe["sha256"]
         self.put("provenance.json", provenance)
         self.release_spec["packages"][0]["provenance"] = self.ref("provenance.json")
+
+    def interrupt_export(self, phase):
+        worker = """
+import os
+import signal
+import sys
+from unittest import mock
+import test_export_repository as tests
+
+e = tests.e
+phase, *args = sys.argv[1:]
+copy_file, replace = e.copy_file, e.os.replace
+
+def copy_and_kill(*args):
+    copy_file(*args)
+    os.kill(os.getpid(), signal.SIGKILL)
+
+def replace_and_kill(*args):
+    if phase == "after-selection":
+        replace(*args)
+    os.kill(os.getpid(), signal.SIGKILL)
+
+with mock.patch.object(e.r, "gates_check", side_effect=lambda *args: e.r.load(args[-1])):
+    if phase == "copy":
+        e.copy_file = copy_and_kill
+    else:
+        e.os.replace = replace_and_kill
+    e.export(*args, apply=True)
+"""
+        result = subprocess.run(
+            [sys.executable, "-B", "-c", worker, phase, str(self.root), str(self.endpoint),
+             str(self.home), self.key], cwd=HERE, capture_output=True, timeout=30,
+        )
+        self.assertEqual(result.returncode, -signal.SIGKILL, result.stderr.decode())
+
+    def test_apply_retries_after_kill_during_copy_and_around_pointer_switch(self):
+        self.endpoint.chmod(0o2700)
+        self.promote()
+        first = self.export()
+        self.promote("fixture-2")
+        planned = self.export(False)
+        second = "generations/" + planned["generation"]
+        for phase, selected, prefix in (("copy", first["selection"], ".export-"),
+                                        ("before-selection", first["selection"], ".selection-"),
+                                        ("after-selection", second, ".selection-")):
+            with self.subTest(phase=phase):
+                self.interrupt_export(phase)
+                current = self.endpoint / "current"
+                self.assertEqual(os.readlink(current), selected)
+                self.assertTrue(any(path.name.startswith(prefix) for path in self.endpoint.iterdir()))
+                before = self.snapshot(self.endpoint)
+                self.assertEqual(self.export(False)["generation"], planned["generation"])
+                self.assertEqual(self.snapshot(self.endpoint), before)
+        self.assertEqual(self.export()["selection"], second)
+        self.assertEqual(len(list((self.endpoint / "generations").iterdir())), 2)
+
+    def test_interrupted_workspace_patterns_keep_refusing_foreign_entries(self):
+        self.promote()
+        stage = self.endpoint / ".export-1234abcd"
+        stage.symlink_to(self.inputs, target_is_directory=True)
+        self.unchanged_failure(self.export)
+        stage.unlink()
+        stage.mkdir(mode=0o700)
+        (stage / "foreign").write_bytes(b"keep this")
+        self.unchanged_failure(self.export)
 
     def test_plan_preserves_source_and_empty_destination(self):
         self.promote()
@@ -351,6 +417,47 @@ class ExportTests(unittest.TestCase):
                 self.export()
         self.assertEqual(calls, 2)
         self.assertEqual(self.snapshot(self.endpoint), before)
+
+    def test_retry_syncs_retained_generation_before_selecting(self):
+        self.promote()
+        first = self.export()
+        self.promote("fixture-2")
+        planned = self.export(False)
+        generations = self.endpoint / "generations"
+        retained = generations / planned["generation"]
+        current = self.endpoint / "current"
+        real_sync, real_select = e.sync_directory, e.select
+
+        def fail_generation_sync(path):
+            if path == generations:
+                self.assertTrue(retained.is_dir())
+                raise OSError("injected generations sync failure after rename")
+            real_sync(path)
+
+        with mock.patch.object(e, "sync_directory", side_effect=fail_generation_sync):
+            with self.assertRaisesRegex(OSError, "^injected generations sync failure after rename$"):
+                self.export()
+        self.assertEqual(os.readlink(current), first["selection"])
+        self.assertEqual(e.generation_plan(retained), planned["plan"])
+
+        events = []
+
+        def record_sync(path):
+            if path == generations:
+                events.append("sync generations")
+            real_sync(path)
+
+        def record_selection(endpoint, target):
+            events.append("select current")
+            return real_select(endpoint, target)
+
+        with (mock.patch.object(e, "sync_directory", side_effect=record_sync),
+              mock.patch.object(e, "select", side_effect=record_selection),
+              mock.patch.object(e, "copy_file", side_effect=AssertionError("retained generation copied again"))):
+            result = self.export()
+        self.assertEqual(events, ["sync generations", "select current"])
+        self.assertEqual(os.readlink(current), f"generations/{planned['generation']}")
+        self.assertFalse(result["durability_uncertain"])
 
     def test_post_commit_sync_failure_reports_materialized_uncertainty(self):
         self.promote()

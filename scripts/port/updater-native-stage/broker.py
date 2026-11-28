@@ -29,7 +29,30 @@ CONTROLLER_HASH_ENV = 'CACHY_ASAHI_BROKER_CONTROLLER_SHA256'
 IMAGE = re.compile(r'sha256:[0-9a-f]{64}')
 WORKER = re.compile(r'cachy-asahi-updater-([0-9a-f]{32})')
 QUERY_BYTES = 1024 * 1024
+# Worker provenance indexes the retained source closure. Match the public evidence reader.
+PROVENANCE_BYTES = 4 * 1024**2
 COMMAND_SECONDS = 1800
+INSTALLED_SECONDS = 360
+INSTALLED_PIN = '--env=CACHY_ASAHI_UPDATER_CAPSULE_SHA256='
+INSTALLED_CAPS = ('CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETGID', 'SETUID', 'SYS_CHROOT', 'SETFCAP')
+INSTALLED_DEPENDENCIES = (
+    'archlinux-contrib-20261009-1-any.pkg.tar.xz',
+    'htmlq-0.4.0-3-aarch64.pkg.tar.xz',
+    'pacman-contrib-1.13.1-1-aarch64.pkg.tar.xz',
+    'pyalpm-0.12.0-1-aarch64.pkg.tar.xz',
+    'xdg-utils-1.2.1-2-any.pkg.tar.xz',
+)
+INSTALLED_MEMBERS = {
+    '': {'inside.py', 'runtime.json', 'updater.pkg.tar.xz', 'compiler-packages.lock',
+         'expected-installed-packages.lock', 'archlinuxarm.gpg'},
+    'dependencies': {name + suffix for name in INSTALLED_DEPENDENCIES for suffix in ('', '.sig')},
+    'real-check': {'real-check.py', 'optional_cases.py'},
+}
+INSTALLED_SCRIPT_PINS = {
+    'inside.py': '33777bd7a36acddf47da94699a76ef11c4354681dde1619e63f3da92484f20f1',
+    'real-check/real-check.py': '9d6fd88405134d2d89baf029c6d185214ba1b029657690717dc4e8f9d340d205',
+    'real-check/optional_cases.py': 'b8a13e0689389ef3adeaad32abd787fc7cb5a651335652604674e04f5d46048b',
+}
 PROC_ROOT = Path('/proc')
 
 
@@ -615,6 +638,88 @@ def mounts(c, values, name, image, env):
          sha(regular(found['/expected-packages.lock'])) == controller.get('builder_inventory_sha256'), 'worker-readonly-input-binding')
 
 
+def installed_name_prefix(c):
+    return 'cachy-asahi-stage-' + c['nonce'] + '-'
+
+
+def installed_candidate(c, args):
+    return args[:2] == ['run', '--name'] and len(args) > 2 and args[2].startswith(installed_name_prefix(c))
+
+
+def installed_argv(c, nonce, image, capsule_sha256):
+    need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}', nonce), 'installed-nonce')
+    need(type(image) is str and IMAGE.fullmatch(image), 'installed-image')
+    need(type(capsule_sha256) is str and re.fullmatch('[0-9a-f]{64}', capsule_sha256), 'installed-pin')
+    inputs = Path(c['root']) / 'installed/inputs'
+    need(',' not in str(inputs), 'installed-mount-path')
+    return ['run', '--name', installed_name_prefix(c) + nonce, '--pull=never',
+            '--platform=linux/arm64', '--user=0:0', '--network=none', '--ipc=private',
+            '--cap-drop=ALL', '--security-opt=no-new-privileges',
+            *('--cap-add=' + name for name in INSTALLED_CAPS), '--pids-limit=256',
+            '--memory=2g', '--cpus=2', '--tmpfs=/tmp:rw,nosuid,nodev,exec,size=512m',
+            '--mount', f'type=bind,src={inputs},dst=/inputs,readonly',
+            '--env=CACHY_ASAHI_UPDATER_RUNTIME=' + nonce, INSTALLED_PIN + capsule_sha256,
+            '--entrypoint=/usr/bin/python3', image, '-I', '-B', '/inputs/inside.py']
+
+
+def installed_capsule(c, nonce, image, digest):
+    base = Path(c['root']) / 'installed'
+    raw = regular(under(c, str(base / 'launch.json')), private=True)
+    need(sha(raw) == digest, 'installed-launch-pin')
+    marker = load(raw)
+    need(type(marker) is dict and set(marker) == {'schema_version', 'nonce', 'image_id', 'files'}
+         and type(marker['schema_version']) is int and marker['schema_version'] == 1
+         and marker['nonce'] == nonce and marker['image_id'] == image
+         and type(marker['files']) is dict, 'installed-launch-binding')
+    inputs = base / 'inputs'
+    seen = set()
+    for folder, files in INSTALLED_MEMBERS.items():
+        directory = under(c, str(inputs / folder))
+        need(directory.is_dir() and stat.S_IMODE(directory.stat().st_mode) == 0o700, 'installed-private-directory')
+        names = files if folder else files | (INSTALLED_MEMBERS.keys() - {''})
+        actual = set()
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                need(entry.name in names, 'installed-members')
+                actual.add(entry.name)
+        need(actual == names, 'installed-members')
+        for file in files:
+            path = under(c, str(directory / file))
+            relative = path.relative_to(inputs).as_posix()
+            limit = 64 * 1024**2 if relative == 'updater.pkg.tar.xz' else QUERY_BYTES
+            need(marker['files'].get(relative) == sha(regular(path, limit)), 'installed-member-pin')
+            seen.add(relative)
+    need(marker['files'].keys() == seen, 'installed-member-index')
+    need(all(marker['files'].get(name) == pin for name, pin in INSTALLED_SCRIPT_PINS.items()),
+         'installed-script-pin')
+    native = Path(c['root']) / 'native'
+    pair = load(regular(under(c, str(native / 'result.json'))))
+    need(type(pair) is dict and pair.get('native_pair') == 'PASS'
+         and pair.get('image_id') == image, 'installed-pair-binding')
+    for attempt in (1, 2):
+        path = under(c, str(native / f'build-{attempt}/provenance.json'))
+        provenance = load(regular(path, PROVENANCE_BYTES))
+        need(type(provenance) is dict
+             and provenance.get('native_compilation') == 'PASS-private-native-package-static-checks'
+             and provenance.get('image_id') == image
+             and provenance.get('package_sha256') == marker['files']['updater.pkg.tar.xz'],
+             'installed-package-binding')
+
+
+def installed_plan(c, args, data):
+    need(len(args) >= 7, 'installed-command')
+    name, image = args[2], args[-4]
+    nonce = name.removeprefix(installed_name_prefix(c))
+    hashes = [arg.removeprefix(INSTALLED_PIN) for arg in args if arg.startswith(INSTALLED_PIN)]
+    need(len(hashes) == 1 and args == installed_argv(c, nonce, image, hashes[0]), 'installed-command')
+    need(any(row['image_id'] == image and row['status'] == 'PASS' for row in data['builds']),
+         'unowned-installed-image')
+    need(not any(row['name'] == name for row in data['containers']), 'container-name-claim')
+    installed_capsule(c, nonce, image, hashes[0])
+    return ['run', '--label', LABEL + '=' + c['nonce'], *args[1:]], (
+        'container', {'name': name, 'image_id': image, 'status': 'INTENT'})
+
+
 def plan(c, args, data):
     need(type(args) is list and 1 <= len(args) <= 96 and all(type(a) is str and 0 < len(a) <= 4096 and '\x00' not in a and '\n' not in a for a in args), 'docker-argv')
     if args in (['info', '--format', '{{.Architecture}}'], ['info', '--format', '{{json .}}'], ['version'], ['context', 'inspect']): return args, None
@@ -626,6 +731,8 @@ def plan(c, args, data):
         return ['build', '--label', LABEL + '=' + c['nonce'], *args[1:]], ('build', row)
     if args[:1] == ['run']:
         need(len(data['containers']) < 32, 'container-count')
+        if installed_candidate(c, args):
+            return installed_plan(c, args, data)
         if args[1:8] == ['--rm', '--pull=never', '--network=none', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only', '--entrypoint=/bin/cat']:
             need(len(args) == 10 and args[-1] == '/builder-packages.lock' and args[-2] in image_ids(data), 'inventory-run-shape')
             name = 'cachy-asahi-stage-' + c['nonce'] + '-' + uuid.uuid4().hex
@@ -684,7 +791,10 @@ def invoke(controller, args):
             if args[:1] == ['inspect']: container_owned(c, args[1], signals)
             persist()  # Durable resource intent before any mutating command.
             try:
-                seconds = COMMAND_SECONDS if args[0] == 'build' or args[0] == 'run' and '--rm' not in args else 60
+                if installed_candidate(c, args):
+                    seconds = INSTALLED_SECONDS
+                else:
+                    seconds = COMMAND_SECONDS if args[0] == 'build' or args[0] == 'run' and '--rm' not in args else 60
                 if args[0] in ('build', 'run'): storage_check(c, create=True)
                 code, _ = execute(c, rewritten, signals, seconds=seconds)
                 record.update(status='PASS' if code == 0 else 'FAIL', exit_code=code)

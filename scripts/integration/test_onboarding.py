@@ -290,40 +290,52 @@ class OnboardingTests(unittest.TestCase):
     def test_sigterm_runs_bounded_pty_cleanup_and_retains_diagnostics(self):
         output = self.root / "signal-evidence"
         output.mkdir()
-        code = """import importlib.util,json,os,signal,sys
+        child = """import os,signal,sys
+from pathlib import Path
+print('PTY ready',flush=True)
+if not sys.stdin.readline():
+    raise SystemExit('PTY acknowledgement missing')
+pending=Path('ready.pending')
+pending.write_text(str(os.getpid()))
+pending.replace('ready.pid')
+signal.pause()
+"""
+        code = """import importlib.util,signal,sys
 from pathlib import Path
 s=importlib.util.spec_from_file_location('onboarding',sys.argv[1]);o=importlib.util.module_from_spec(s);s.loader.exec_module(o)
 signal.signal(signal.SIGTERM,o.interrupt)
 out=Path(sys.argv[2]);env={'HOME':str(out),'PATH':'/usr/bin:/bin','TERM':'dumb'}
-runner=o.Commands(out,env,out,timeout=.6)
-work=[sys.executable,'-c','import os,time;print(os.getpid(),flush=True);time.sleep(.8)']
-try:runner.run('signal',work,terminal=True)
+runner=o.Commands(out,env,out,timeout=15)
+work=[sys.executable,'-I','-c',sys.argv[3]]
+try:runner.run('signal',work,terminal=True,prompt_response=('PTY ready','\\n'))
 except o.Failure:pass
 """
-        wrapper = subprocess.Popen([sys.executable, "-I", "-B", "-c", code, str(Path(o.__file__).resolve()), str(output)],
+        wrapper = subprocess.Popen([sys.executable, "-I", "-B", "-c", code, str(Path(o.__file__).resolve()), str(output), child],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
-            # Wait until the handler and controlled child are established; no real shell/HOME.
-            deadline = o.time.monotonic() + .4
-            pid = None
-            while o.time.monotonic() < deadline:
-                children = Path(f"/proc/{wrapper.pid}/task/{wrapper.pid}/children")
-                if children.exists() and children.read_text().strip():
-                    pid = int(children.read_text().split()[0])
-                    break
+            # The child publishes its PID only after Commands has captured the PTY output.
+            ready = output / "ready.pid"
+            deadline = o.time.monotonic() + 5
+            while not ready.is_file() and wrapper.poll() is None and o.time.monotonic() < deadline:
                 o.time.sleep(.005)
-            self.assertIsNotNone(pid)
+            self.assertTrue(ready.is_file(), "controlled child did not acknowledge the PTY")
+            pid = int(ready.read_text())
             wrapper.terminate()
-            stdout, stderr = wrapper.communicate(timeout=1)
+            stdout, stderr = wrapper.communicate(timeout=5)
             self.assertEqual(wrapper.returncode, 0, stdout + stderr)
             record = json.loads((output / "journey-commands.json").read_text())[0]
             self.assertIn("Interrupted", record["error"])
             self.assertFalse(record["success"])
+            self.assertIn(b"PTY ready", (output / record["stdout_file"]).read_bytes())
             self.assertFalse(Path(f"/proc/{pid}").exists())
         finally:
             if wrapper.poll() is None:
-                wrapper.kill()
-            wrapper.communicate(timeout=1)
+                wrapper.terminate()
+                try:
+                    wrapper.communicate(timeout=5)
+                except subprocess.TimeoutExpired:
+                    wrapper.kill()
+                    wrapper.communicate(timeout=5)
 
     def test_repeated_cancellation_during_cleanup_cannot_skip_evidence_or_handler_restore(self):
         import signal

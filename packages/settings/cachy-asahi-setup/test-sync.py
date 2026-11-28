@@ -140,9 +140,13 @@ class SyncTests(unittest.TestCase):
                 self.run_check(source=source, default=True)
                 self.copy.write_bytes(b"packaged drift\n")
                 self.assertIn("packaged helper", self.run_check(False, source=source))
+                if source == "repository":
+                    self.assertIn("canonical helper", self.run_check(False, source=source, default=True))
                 self.copy.write_bytes(self.canonical.read_bytes())
                 self.canonical.write_bytes(b"canonical drift\n")
                 self.assertIn("canonical helper", self.run_check(False, source=source))
+                if source == "repository":
+                    self.run_check(source=source, default=True)
                 self.canonical.write_bytes(self.copy.read_bytes())
                 entry["canonical_path"] = "scripts/setup/wrong.py"
                 self.write_record()

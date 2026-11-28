@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2026 cachy-asahi contributors
-"""Bounded source closure for the original producer and frozen kernel controller."""
+"""Bounded source closure for the reviewed producer and kernel controller."""
 import hashlib
 import json
 import os
@@ -11,13 +11,18 @@ import stat
 
 PREFIX = 'scripts/port/kernel-native-job/'
 KERNEL = 'scripts/port/kernel-native-stage/'
+KERNEL_LOCK = KERNEL + 'stage.lock.json'
 WORKFLOW = '.github/workflows/native-arm-kernel.yml'
 DOCUMENT = 'docs/workstreams/kernel-native-job.md'
-KERNEL_SHA = 'a5d8257f34f2c36cef1d8d16d9f07cd511bcfb36c8467b46d2a868dd586e2ffb'
-INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
-RECIPES_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
+RECIPES_LOCK = PREFIX + 'recipes.lock.json'
+INTAKE_SOURCE = PREFIX + 'intake.py'
+NATIVE349_FILES = 'scripts/ci/native349-pinned-input-carrier/expected-files.json'
+KERNEL_SHA = 'dbc2681bc42971f5214070a08d67e76c36bdb714979c762d0e56e15e0071d584'
+INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+RECIPES_SHA = '56c53699b1c9a493798a071a537ae17d5b892ffa9618ca99a3465985a51fcef8'
+BASE_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 EPOCH = 1791748800
-RECIPE_COUNT, KERNEL_COUNT = 71, 29
+RECIPE_COUNT, KERNEL_COUNT = 76, 28
 MAX_FILES, MAX_FILE, MAX_TOTAL = 256, 8 * 1024**2, 32 * 1024**2
 RECIPE_BASES = {'packages/desktop/cachy-asahi-hyprland-settings',
                 'packages/settings/cachy-asahi-setup',
@@ -25,16 +30,20 @@ RECIPE_BASES = {'packages/desktop/cachy-asahi-hyprland-settings',
                 'packages/shells/cachy-asahi-zsh-config'}
 # Audited build-mode closure: native_arm imports package_checks; build/compare
 # import package_checks and build; build mounts container-entry. setup_sync reads
-# canonical setup and its MIT license. Integration mode is deliberately absent.
+# canonical setup and its MIT license; Setup prepare also checks two enrolled
+# repository inputs. Integration mode is deliberately absent.
 HELPERS = {
-    'scripts/ci/native_arm.py': ('a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 0o644),
-    'scripts/checks/package_checks.py': ('e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8', 0o644),
+    'scripts/ci/native_arm.py': ('8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba', 0o644),
+    'scripts/checks/package_checks.py': ('314e8b4a0920b3f6d93619fc74ad1d63a6210d1b17b925618451b493d2610a1a', 0o644),
     'scripts/build/build.py': ('e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45', 0o644),
-    'scripts/build/compare.py': ('d75d9177cb741d7ae8e13466aa4b9e96587470b88749735ef2923f9a4446748d', 0o644),
+    'scripts/build/compare.py': ('4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd', 0o644),
     'scripts/build/container-entry.sh': ('89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24', 0o644),
-    'scripts/setup/setup.py': ('a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2', 0o755),
+    'scripts/setup/setup.py': ('d33c87447afdc4dfebd55efb4ca9c8882ee1b091f9727390db1fd002c05f7817', 0o644),
+    'scripts/repository/enroll.py': ('38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f', 0o644),
+    'docs/repository-enrollment.md': ('67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4', 0o644),
     'LICENSE': ('51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 0o644),
     'AGENTS.md': ('a95eaf775ac935ebdfe6b9c89aad9382639671aecdaab91503e1453d4782a056', 0o644),
+    NATIVE349_FILES: ('1564360abf5695b19c132de971750311ab017189dd7b11b38b969d5445faf70b', 0o644),
 }
 
 
@@ -133,24 +142,28 @@ def walk(root, ignore_cache=False):
 
 def closure(root):
     root = Path(root)
-    kernel = load(root / (KERNEL + 'stage.lock.json'), KERNEL_SHA)
-    recipes = load(root / 'scripts/ci/recipes.lock.json', RECIPES_SHA)
+    kernel = load(root / KERNEL_LOCK, KERNEL_SHA)
+    recipes = load(root / RECIPES_LOCK, RECIPES_SHA)
     inputs = load(root / 'scripts/ci/inputs.lock.json', INPUTS_SHA)
-    need(type(kernel.get('files')) is dict and len(kernel['files']) == KERNEL_COUNT and
+    need(kernel.get('schema_version') == 2 and kernel.get('purpose') == 'KERNEL-NATIVE-C01' and
+         kernel.get('development_only') is True and kernel.get('base_inputs_sha256') == INPUTS_SHA and
+         kernel.get('base_inventory_sha256') == BASE_SHA and kernel.get('recipes_sha256') == RECIPES_SHA and
+         type(kernel.get('files')) is dict and len(kernel['files']) == KERNEL_COUNT and
          inputs.get('source_date_epoch') == EPOCH and len(inputs.get('packages', [])) == 248 and
          set(recipes) == RECIPE_BASES and sum(len(v) for v in recipes.values()) == RECIPE_COUNT,
          'producer-scope')
-    files = set(kernel['files']) | set(HELPERS) | {KERNEL + 'stage.lock.json',
-            'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json', WORKFLOW, DOCUMENT}
+    files = set(kernel['files']) | set(HELPERS) | {KERNEL_LOCK,
+            'scripts/ci/inputs.lock.json', RECIPES_LOCK, INTAKE_SOURCE, WORKFLOW, DOCUMENT}
     for base, rows in recipes.items():
         relative(base)
         need(type(rows) is dict and walk(root / base) == set(rows), 'producer-recipe-set')
         files.update(base + '/' + str(relative(name)) for name in rows)
     job_files = walk(root / PREFIX, ignore_cache=True)
-    # The coordinator's external-pin map excludes itself. No other JSON/binary
-    # can enter the executable closure through this directory.
-    job_files.discard('packet.lock.json')
-    need(job_files and all(name.endswith('.py') and '/' not in name for name in job_files), 'packet-own-file')
+    # The externally pinned packet excludes itself. The recipe lock was
+    # admitted above, so the remaining job directory can only add Python.
+    job_files.difference_update({'packet.lock.json', 'recipes.lock.json'})
+    need(INTAKE_SOURCE.removeprefix(PREFIX) in job_files and
+         all(name.endswith('.py') and '/' not in name for name in job_files), 'packet-own-file')
     files.update(PREFIX + name for name in job_files)
     need(len(files) <= MAX_FILES, 'packet-file-count')
     for name in files:
@@ -164,8 +177,7 @@ def row(data, mode):
 
 def frozen(rows, kernel, recipes):
     for name, expected in kernel['files'].items():
-        need(rows[name]['sha256'] == expected['sha256'] and rows[name]['mode'] == expected['mode'],
-             'frozen-kernel-drift')
+        need(rows[name] == expected, 'frozen-kernel-drift')
     for name, (digest, mode) in HELPERS.items():
         need(rows[name]['sha256'] == digest and rows[name]['mode'] == mode, 'frozen-producer-drift')
     for base, expected in recipes.items():
@@ -180,6 +192,11 @@ def preview(root):
     need(sum(v['bytes'] for v in rows.values()) <= MAX_TOTAL, 'packet-total-bound')
     frozen(rows, kernel, recipes)
     return {'schema_version': 1, 'files': rows}
+
+
+def git_command(root):
+    return ['/usr/bin/git', '--no-replace-objects', '-c', 'core.hooksPath=/dev/null',
+            '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C', str(root)]
 
 
 def verify(root, manifest_path, manifest_sha, commit, runner, output, workflow_sha=None):
@@ -208,8 +225,7 @@ def verify(root, manifest_path, manifest_sha, commit, runner, output, workflow_s
         total += value['bytes']
     need(total <= MAX_TOTAL, 'packet-total-bound')
     frozen(manifest['files'], kernel, recipes)
-    command = ['/usr/bin/git', '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false',
-               '--no-optional-locks', '-C', str(root)]
+    command = git_command(root)
     head = runner.run(command + ['rev-parse', '--verify', 'HEAD'], timeout=10, limit=4096)
     need(head.returncode == 0 and head.stdout == (commit + '\n').encode(), 'packet-HEAD')
     output.mkdir(mode=0o700)

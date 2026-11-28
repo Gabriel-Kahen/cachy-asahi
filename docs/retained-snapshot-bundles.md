@@ -74,10 +74,11 @@ only the four known legacy source keys or those four plus this known producer,
 and requires the producer manifest/receipt and absence of `INCOMPLETE`. Different
 producer source identities remain incompatible baselines.
 
-Legacy `target_snapshot.run(contract_ref, output)` and its CLI remain unchanged.
-The new keyword `retain_inputs=True` is the bounded adapter used by the producer;
-the complete bundle command is the supported path into offline comparison.
-The collector and producer each limit original inputs to 64 MiB. Output rechecks
+Use the complete bundle command to produce the inputs for offline comparison.
+The producer calls `target_snapshot.run` with `retain_inputs=True` to keep the
+collector's input bytes. The selected `kernel` asset can be up to 64 MiB and
+other selected assets can be up to 32 MiB each. The collector and producer each
+limit original inputs to 64 MiB. Output rechecks
 are bounded to 256 MiB, JSON to 8 MiB, recovery receipts to 32 and aggregate
 recovery package rows to 4096. Stable readers enforce the existing 60-second
 deadlines. Larger packets need a reviewed extension.

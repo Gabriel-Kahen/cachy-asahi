@@ -3,6 +3,7 @@ from contextlib import contextmanager
 import ast
 import importlib.util
 import copy
+import hashlib
 import json
 import os
 import signal
@@ -226,11 +227,12 @@ class JobContracts(unittest.TestCase):
         row = {'Id': self.image, 'Architecture': 'arm64', 'Os': 'linux'}
         fake.call.side_effect = [SimpleNamespace(returncode=0, stdout=json.dumps([row]).encode()),
             SimpleNamespace(returncode=0, stdout=b''), SimpleNamespace(returncode=1, stdout=b'No such image')]
-        phases = []; self.parallel_override = None
+        phases = []; self.parallel_override = None; self.first_parallel_exit = None
         self.child_receipt_change = None; self.child_exit = 0
         def runner(seconds, env, logs):
             instance = Mock(deadline=job.snapshot_clock() + seconds); instance.run_many.return_value = [SimpleNamespace(returncode=0), SimpleNamespace(returncode=0)]
             if seconds == job.PARALLEL and self.parallel_override is not None:
+                instance.parallel_first_failure = self.first_parallel_exit
                 if isinstance(self.parallel_override, BaseException): instance.run_many.side_effect = self.parallel_override
                 else: instance.run_many.return_value = self.parallel_override
             instance.run.return_value = SimpleNamespace(returncode=0, stdout=b'')
@@ -272,6 +274,19 @@ class JobContracts(unittest.TestCase):
         for item in self.patches: item.start(); self.addCleanup(item.stop)
         return fake, phases
 
+    def test_successor_packet_path_selects_reviewed_verifier_before_native_work(self):
+        import packet_v2
+
+        self.args.packet = self.root / packet_v2.MANIFEST
+        docker, _ = self.controller_fixture()
+        with patch.object(packet_v2, 'verify', side_effect=ValueError('unreviewed checker')) as verify:
+            self.assertEqual(job.execute(self.args), 1)
+        self.assertEqual(verify.call_args.args[:4],
+                         (self.root, self.args.packet, self.args.packet_sha256, self.args.source_commit))
+        job.packet.verify.assert_not_called()
+        docker.info.assert_not_called()
+        self.failure_receipts('source', 'SOURCE_REJECTED')
+
     def failure_receipts(self, phase, reason, cancelled=False):
         public_record = job.packet.load(self.args.output / 'public/status.json')
         private_record = job.packet.load(self.args.output / 'private/result.json')
@@ -282,6 +297,74 @@ class JobContracts(unittest.TestCase):
         self.assertEqual(job.public.project(json.dumps(public_record).encode(), self.args.source_commit,
             self.args.packet_sha256, 'success'), public_record)
         return public_record, private_record
+
+    def test_retained_inputs_stage_is_rechecked_and_only_reaches_expected_child_caches(self):
+        _, phases = self.controller_fixture()
+        original = job.runtime.Runner
+        private = self.args.output / 'private'
+        values = {job.intake.OPT_IN: '1', job.intake.OUTCOME_ENV: 'success', job.intake.TRANSPORT_ENV: 'https',
+                  'RUNNER_TEMP': str(self.root), 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1'}
+        lane_bodies = {'alarm-cache': b'producer', 'extension': b'extension'}
+        pins = {lane + '.sig': (lane, len(body), hashlib.sha256(body).hexdigest())
+                for lane, body in lane_bodies.items()}
+        source = job.intake.runner_output(values)
+        source.mkdir()
+        for name, (lane, _, _) in pins.items():
+            (source / lane).mkdir()
+            (source / lane / name).write_bytes(lane_bodies[lane])
+
+        def runner(seconds, env, logs):
+            instance = original(seconds, env, logs)
+            for secret in (job.intake.URL_ENV, job.intake.SSH_ENV, job.intake.OPT_IN):
+                self.assertNotIn(secret, env)
+            if seconds == job.PARALLEL:
+                def children(commands, **kwargs):
+                    producer, acquisition = commands
+                    self.assertEqual(producer[producer.index('--cache') + 1], str(private / 'alarm-cache'))
+                    self.assertEqual(acquisition[-2], '--reuse-cache')
+                    for lane, path in (('alarm-cache', private / 'alarm-cache'), ('extension', Path(acquisition[-1]))):
+                        self.assertEqual({p.name: p.read_bytes() for p in path.iterdir()}, {lane + '.sig': lane_bodies[lane]})
+                    return [SimpleNamespace(returncode=0, stdout=b'')] * 2
+                instance.run_many.side_effect = children
+            return instance
+
+        with patch.dict(os.environ, values), patch.object(job.intake, 'MEMBERS', pins), \
+                patch.object(job.runtime, 'Runner', side_effect=runner):
+            self.assertEqual(job.execute(self.args), 0)
+        parallel = next(instance for seconds, instance in phases if seconds == job.PARALLEL)
+        parallel.run_many.assert_called_once()
+        self.assertEqual(list(private.glob('retained-inputs-*')), [])
+        self.assertNotIn(str(source), (self.args.output / 'public/status.json').read_text())
+
+    def test_retained_fetch_failure_stops_before_either_child(self):
+        _, phases = self.controller_fixture()
+        with patch.dict(os.environ, {job.intake.OPT_IN: '1', job.intake.OUTCOME_ENV: 'failure'}):
+            self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('source', 'RETAINED_INPUTS_REJECTED')
+        self.assertEqual(status['producer_exit']['kind'], 'NOT_RUN')
+        self.assertEqual(status['acquisition_exit']['kind'], 'NOT_RUN')
+        self.assertEqual([seconds for seconds, _ in phases], [job.SETUP, job.CLEANUP])
+        self.assertFalse((self.args.output / 'private/alarm-cache').exists())
+
+    def test_skipped_intake_does_not_consume_runner_stage(self):
+        with patch.dict(os.environ, {job.intake.OPT_IN: ''}), patch.object(job.intake, 'materialize') as stage:
+            with job.retained_input_cache(self.root) as reuse:
+                self.assertIsNone(reuse)
+        stage.assert_not_called()
+
+    def test_cancelled_stage_copy_discards_partial_inputs_without_promoting(self):
+        private = self.root / 'private'; private.mkdir(mode=0o700)
+
+        def refuse(source, staged, files):
+            (staged / 'partial').touch()
+            raise job.runtime.Cancelled(signal.SIGTERM)
+
+        values = {job.intake.OPT_IN: '1', job.intake.OUTCOME_ENV: 'success', job.intake.TRANSPORT_ENV: 'https',
+                  'RUNNER_TEMP': str(self.root), 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1'}
+        with patch.dict(os.environ, values), patch.object(job.intake, 'materialize', side_effect=refuse):
+            with self.assertRaises(job.runtime.Cancelled), job.retained_input_cache(private):
+                self.fail('cancelled intake must refuse both caches')
+        self.assertEqual(list(private.iterdir()), [])
 
     def test_actual_child_nonzero_retains_inner_predicate_and_outer_first_failure(self):
         self.controller_fixture(); self.child_exit = 1
@@ -414,6 +497,24 @@ class JobContracts(unittest.TestCase):
                 self.assertEqual(status['cleanup'], 'FAIL')
                 self.assertEqual(status['producer'], 'FAIL' if codes[0] else 'NOT RUN')
                 self.assertEqual(status['baseline'], 'NOT RUN')
+        self.assertFalse(any(seconds == job.KERNEL_ENVELOPE for seconds, _ in phases))
+
+    def test_only_producer_first_collects_native_producer_failure_data(self):
+        _, phases = self.controller_fixture()
+        for index, first in enumerate(((1, None), (None, -2), (1, -2))):
+            with self.subTest(first=first):
+                self.next_output(index)
+                self.first_parallel_exit = first
+                command = job.producer_command(self.args.output / 'private/source', self.args.output / 'private')
+                self.parallel_override = [subprocess.CompletedProcess(command, 1, b''),
+                                          SimpleNamespace(returncode=-2, stdout=b'')]
+                self.assertEqual(job.execute(self.args), 1)
+                value, _ = self.failure_receipts('parallel', 'BOTH_CHILDREN_EXIT')
+                self.assertEqual(value['cleanup'], 'FAIL')
+                if first == (1, None):
+                    self.assertEqual(value['producer_failure']['availability'], 'UNAVAILABLE')
+                else:
+                    self.assertNotIn('producer_failure', value)
         self.assertFalse(any(seconds == job.KERNEL_ENVELOPE for seconds, _ in phases))
 
     def test_parallel_exceptions_are_finite_unobserved_and_do_not_export_secret_text(self):
@@ -1350,6 +1451,121 @@ class ModernResourceChildTests(unittest.TestCase):
         self.assertEqual(observed['diagnostics'],frozen)
         with patch.object(job.packet,'read',side_effect=AssertionError('no second capture')):job.public.child_validate_public(frozen)
         self.assertEqual(frozen['operation']['first_failure']['resource_mismatch'],{'field':'Memory','kind':'TYPE'})
+
+
+class AcquisitionFailureObservation(unittest.TestCase):
+    def record(self, nonce='a'*32):
+        return dict(schema_version=1,purpose='kernel-acquisition-failure',binding_sha256=hashlib.sha256(nonce.encode()).hexdigest(),phase='PACKAGE_FETCH',input_ordinal=0,error_kind='DATA_REFUSAL',refusal='HTTP_CHILD')
+
+    def output(self, record):
+        return b'KERNEL_ACQUISITION_FAILURE_V1 '+json.dumps(record,sort_keys=True,separators=(',',':')).encode()+b'\n'
+
+    def test_exact_process_binding_and_record_hash(self):
+        status={};record=self.record();raw=self.output(record)
+        job.observe_acquisition_failure(status,SimpleNamespace(stdout=raw),'a'*32)
+        group=status['acquisition_failure'];self.assertEqual(group['availability'],'VERIFIED')
+        self.assertEqual(group['diagnostic'],record);self.assertEqual(group['sha256'],hashlib.sha256(raw.split(b' ',1)[1]).hexdigest())
+
+    def test_missing_wrong_binding_duplicate_private_and_noncanonical_refuse(self):
+        record=self.record();raw=self.output(record)
+        cases=[(b'private exception /home/secret\n','UNAVAILABLE'),(self.output(self.record('b'*32)),'REFUSED'),
+            (raw+raw,'REFUSED'),(self.output(dict(record,raw='/private')),'REFUSED'),
+            (b'KERNEL_ACQUISITION_FAILURE_V1 '+json.dumps(record).encode()+b'\n','REFUSED'),
+            (self.output(dict(record,input_ordinal=True)),'REFUSED')]
+        for output,availability in cases:
+            status={'first_failed_phase':'parallel','failure_reason':'BOTH_CHILDREN_EXIT','cleanup':'FAIL'}
+            held=dict(status);job.observe_acquisition_failure(status,SimpleNamespace(stdout=output),'a'*32)
+            self.assertEqual(status['acquisition_failure']['availability'],availability)
+            self.assertTrue(all(status[k]==v for k,v in held.items()));self.assertIsNone(status['acquisition_failure']['diagnostic'])
+
+    def test_capture_controls_propagate_without_replacing_status(self):
+        class Result:
+            @property
+            def stdout(self):raise job.runtime.Cancelled(15)
+        status={'first_failed_phase':'parallel','cleanup':'FAIL'}
+        with self.assertRaises(job.runtime.Cancelled):job.observe_acquisition_failure(status,Result(),'a'*32)
+        self.assertEqual(status,{'first_failed_phase':'parallel','cleanup':'FAIL'})
+
+
+class ProducerFailureObservation(unittest.TestCase):
+    def setUp(self):
+        workspace = tempfile.TemporaryDirectory()
+        self.addCleanup(workspace.cleanup)
+        self.snapshot = Path(__file__).resolve().parents[3]
+        private = Path(workspace.name)
+        self.producer = private / 'producer'
+        self.producer.mkdir()
+        self.command = job.producer_command(self.snapshot, private)
+        self.record = {'status': 'failed', 'mode': 'build', 'native_build': 'NOT RUN',
+                       'hardware_validation': 'NOT RUN', 'reviewed_inputs_sha256': job.packet.INPUTS_SHA,
+                       'reviewed_recipes_sha256': job.packet.RECIPES_SHA,
+                       'bootstrap_script_sha256': job.packet.HELPERS['scripts/ci/native_arm.py'][0],
+                       'error': 'private /home/secret-log content'}
+
+    def result(self):
+        job.save(self.producer / 'result.json', self.record)
+        return subprocess.CompletedProcess(self.command, 1, b'private prior output\n' +
+                                           json.dumps(self.record, sort_keys=True).encode() + b'\n')
+
+    def acquisition(self):
+        lock = job.packet.load(self.snapshot / 'scripts/ci/inputs.lock.json', job.packet.INPUTS_SHA)
+        payloads = [lock['rootfs'], *lock['packages']]
+        rows = {item['filename']: dict(expected_sha256=item['sha256'], expected_bytes=item['size'], status='PASS')
+                for item in [*lock['keyring_files'], *payloads]}
+        rows.update({item['filename'] + '.sig': dict(expected_sha256=item['signature_sha256'],
+                    expected_bytes=item['signature_size'], status='PASS') for item in payloads})
+        return dict(schema_version=1, acquisition='PASS', signature_authentication='NOT RUN',
+                    counts={'total': len(rows), 'pass': len(rows), 'fail': 0, 'pending': 0}, inputs=rows)
+
+    def observe(self, result):
+        before = {'failure_reason': 'BOTH_CHILDREN_EXIT', 'first_failed_phase': 'parallel', 'cleanup': 'FAIL'}
+        status = dict(before)
+        job.observe_producer_failure(status, result, self.command, self.snapshot, self.producer)
+        group = status.pop('producer_failure')
+        self.assertEqual(status, before)
+        self.assertNotIn('private', json.dumps(group))
+        return group
+
+    def test_counts_closed_failure_categories_from_pinned_input_inventory(self):
+        acquired = self.acquisition()
+        rows = iter(acquired['inputs'].values())
+        for message, code in [('HTTP failure', 404), ('HTTP failure', 503), ('HTTPS transport failure', None)]:
+            next(rows).update(status='FAIL', error_type='AcquisitionError', error=message, http_status=code)
+        next(rows).update(status='FAIL', error_type='ValueError',
+                          error='transport, cache or pinned-byte validation failed')
+        acquired.update(acquisition='FAIL', counts={'total': 501, 'pass': 497, 'fail': 4, 'pending': 0})
+        job.save(self.producer / 'acquisition.json', acquired)
+        group = self.observe(self.result())
+        self.assertEqual(group['availability'], 'VERIFIED')
+        self.assertEqual(group['diagnostic']['phase'], 'ACQUISITION')
+        self.assertEqual(group['diagnostic']['counts'], {'pass': 497, 'fail': 4, 'pending': 0})
+        self.assertEqual(group['diagnostic']['failure_kinds'], dict.fromkeys(job.public.PRODUCER_FAILURE_KINDS, 1))
+
+    def test_distinguishes_missing_before_acquisition_audit_and_build(self):
+        self.assertEqual(self.observe(subprocess.CompletedProcess(self.command, 1, b''))['availability'], 'UNAVAILABLE')
+        group = self.observe(self.result())
+        self.assertEqual(group['diagnostic']['phase'], 'BEFORE_ACQUISITION')
+        self.assertIsNone(group['diagnostic']['counts'])
+        job.save(self.producer / 'acquisition.json', self.acquisition())
+        self.assertEqual(self.observe(self.result())['diagnostic']['phase'], 'INPUT_AUDIT')
+        self.record['verified_signed_packages'] = 248
+        self.assertEqual(self.observe(self.result())['diagnostic']['phase'], 'BUILD')
+
+    def test_refuses_wrong_command_result_echo_input_pin_and_tally(self):
+        result = self.result()
+        for wrong in (subprocess.CompletedProcess([*self.command, '--extra'], 1, result.stdout),
+                      subprocess.CompletedProcess(self.command, -2, result.stdout),
+                      subprocess.CompletedProcess(self.command, 1, result.stdout + b'not final\n')):
+            self.assertEqual(self.observe(wrong)['availability'], 'REFUSED')
+        for field, value in (('expected_sha256', 'a' * 64), ('status', 'PENDING'), ('expected_bytes', True)):
+            acquired = self.acquisition()
+            next(iter(acquired['inputs'].values()))[field] = value
+            job.save(self.producer / 'acquisition.json', acquired)
+            with self.subTest(field=field):
+                self.assertEqual(self.observe(result)['availability'], 'REFUSED')
+        self.record['error'] = 'changed private error'
+        job.save(self.producer / 'result.json', self.record)
+        self.assertEqual(self.observe(result)['availability'], 'REFUSED')
 
 
 if __name__ == '__main__': unittest.main()

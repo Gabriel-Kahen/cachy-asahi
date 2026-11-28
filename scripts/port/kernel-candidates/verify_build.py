@@ -15,14 +15,18 @@ import zlib
 
 import harness
 
+R_AARCH64_RELATIVE = 1027
+ARM64_SEGMENT_ALIGN = 64 * 1024
+MAX_IMAGE_MEMORY = 512 * 1024**2
+
 
 def config_bytes(raw):
     harness.need(len(raw) <= LIMIT_CONFIG, 'bounded config bytes required')
     text = raw.decode('utf-8')
     settings = {}
     for line in text.splitlines():
-        match = re.fullmatch(r'(CONFIG_[A-Z0-9_]+)=(.*)', line)
-        disabled = re.fullmatch(r'# (CONFIG_[A-Z0-9_]+) is not set', line)
+        match = re.fullmatch(r'(CONFIG_[A-Za-z0-9_]+)=(.*)', line)
+        disabled = re.fullmatch(r'# (CONFIG_[A-Za-z0-9_]+) is not set', line)
         if match or disabled:
             name = (match or disabled)[1]
             harness.need(name not in settings, 'duplicate config setting')
@@ -174,20 +178,25 @@ def verify_dtb(path, expected):
 
 class ELF:
     """Bounded ELF64 reader; never execute tools or map a multi-GiB ELF into RAM."""
-    def __init__(self, path, kind, cap):
+    def __init__(self, path, kind, cap, *, artifact_role='elf', module_ordinal=None):
         harness.regular(path, cap)
         self.path, self.size = path, path.stat().st_size
+        self.elf_type, self.artifact_role = kind, artifact_role
+        self.module_ordinal = module_ordinal
+        self.rela_table = None
         self.stream = path.open('rb')
         try:
-            self.parse(kind)
-        except BaseException:
-            self.stream.close()
+            self.parse(kind, artifact_role=artifact_role)
+        except BaseException as error:
+            self.__exit__(type(error), error, error.__traceback__)
             raise
 
     def __enter__(self):
         return self
 
-    def __exit__(self, *unused):
+    def __exit__(self, error_type, error, _):
+        if error_type is ValueError and self.rela_table is not None:
+            error.rela_table = self.rela_table
         self.stream.close()
 
     def read(self, offset, size, cap=128 * 1024**2):
@@ -197,7 +206,12 @@ class ELF:
         harness.need(len(data) == size, 'ELF short read')
         return data
 
-    def parse(self, kind):
+    def parse(self, kind, *, artifact_role='elf'):
+        # Only the Source-bound Image projection caller selects this artifact role.
+        harness.need(type(artifact_role) is str and artifact_role in ('elf', 'arm64-image-reference') and
+                     (artifact_role == 'elf' or kind in (2, 3)),
+                     'valid config-selected AArch64 ELF type/version/header required')
+        kernel_image = artifact_role == 'arm64-image-reference'
         header = self.read(0, 64)
         ident = header[:16]
         harness.need(ident[:7] == b'\x7fELF\x02\x01\x01' and ident[7] in (0, 3) and ident[8] == 0 and not any(ident[9:]),
@@ -223,8 +237,7 @@ class ELF:
                              (row['align'] in (0, 1) or row['align'] & (row['align'] - 1) == 0), 'ELF section name/link/alignment invalid')
                 self.by_name[name] = row
                 if row['type'] != 8 and row['size']:
-                    harness.need(row['offset'] >= 64 and row['offset'] + row['size'] <= self.size and
-                                 row['offset'] % max(1, row['align']) == 0, 'ELF section file geometry invalid')
+                    self.check_section_file_geometry(row)
                     ranges.append((row['offset'], row['offset'] + row['size']))
                 harness.need(not (row['flags'] & 1 and row['flags'] & 4), 'ELF writable executable section refused')
         self.loads = []
@@ -239,12 +252,21 @@ class ELF:
                 harness.need(off + filesz <= self.size and filesz <= memsz and va + memsz <= 2**64 and pa + memsz <= 2**64,
                              'ELF segment range invalid')
                 if ptype == 1:
-                    harness.need(align >= 16384 and align & (align - 1) == 0 and va % align == off % align and pa % align == off % align and
-                                 perm in (4, 5, 6) and memsz > 0, '16K ELF load geometry/permissions required; WX refused')
+                    minimum_alignment = 4096 if kernel_image else 16384
+                    harness.need(align >= minimum_alignment, '16K ELF load geometry/permissions required; WX refused [ALIGN_MIN]')
+                    harness.need(align & (align - 1) == 0, '16K ELF load geometry/permissions required; WX refused [ALIGN_POWER_TWO]')
+                    harness.need(va % align == off % align, '16K ELF load geometry/permissions required; WX refused [VA_ALIGN]')
+                    harness.need(pa % align == off % align, '16K ELF load geometry/permissions required; WX refused [PA_ALIGN]')
+                    harness.need(va % 16384 == off % 16384, '16K ELF load geometry/permissions required; WX refused [VA_16K]')
+                    harness.need(pa % 16384 == off % 16384, '16K ELF load geometry/permissions required; WX refused [PA_16K]')
+                    harness.need(perm in ((4, 5, 6, 7) if kernel_image else (4, 5, 6)),
+                                 '16K ELF load geometry/permissions required; WX refused [PERMISSIONS_RWX]' if perm == 7 else
+                                 '16K ELF load geometry/permissions required; WX refused [PERMISSIONS_OTHER]')
+                    harness.need(memsz > 0, '16K ELF load geometry/permissions required; WX refused [MEMORY_SIZE]')
                     self.loads.append({'offset': off, 'addr': va, 'paddr': pa, 'filesz': filesz, 'memsz': memsz, 'alignment': align, 'flags': perm})
                 elif ptype == 0x6474e551:
                     harness.need(not perm & 1, 'executable ELF stack refused')
-            harness.need(self.loads and any(p['flags'] == 5 and p['addr'] <= self.entry < p['addr'] + p['filesz'] for p in self.loads),
+            harness.need(self.loads and any(p['flags'] in ((5, 7) if kernel_image else (5,)) and p['addr'] <= self.entry < p['addr'] + p['filesz'] for p in self.loads),
                          'ELF entry must be in file-backed executable load')
             loads = sorted(self.loads, key=lambda p: p['addr'])
             harness.need(all(a['addr'] + a['memsz'] <= b['addr'] for a, b in zip(loads, loads[1:])), 'overlapping ELF load memory ranges')
@@ -264,43 +286,241 @@ class ELF:
         self.symbols = sym
         for row in self.sections:
             if row['type'] in (4, 9):
-                harness.need(row['type'] == 4 and row['entsize'] == 24 and row['size'] % 24 == 0 and
-                             self.sections[row['link']]['type'] in (2, 11) and row['info'] < shnum and
-                             (kind != 1 or row['info'] > 0), 'AArch64 ELF RELA metadata invalid')
+                relocation_role = 'IMAGE_REFERENCE' if artifact_role == 'arm64-image-reference' else 'RELOCATABLE' if kind == 1 else 'ELF'
+                harness.need(row['type'] == 4, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_TYPE_RELA]')
+                harness.need(row['entsize'] == 24, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_ENTRY_SIZE]')
+                harness.need(row['size'] % 24 == 0, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_SIZE_MULTIPLE]')
+                harness.need(self.sections[row['link']]['type'] in (2, 11) or
+                             (artifact_role == 'arm64-image-reference' and kind in (2, 3) and
+                              row['link'] == 0 and row['info'] == 0 and
+                              row['flags'] & 2 and row['name'] == '.rela.dyn'),
+                             'AArch64 ELF RELA metadata invalid [' + relocation_role + '_SYMBOL_TABLE_TYPE]')
+                harness.need(row['info'] < shnum, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_TARGET_INDEX]')
+                harness.need(kind != 1 or row['info'] > 0, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_MODULE_TARGET]')
+                relative = row['link'] == 0
                 linked = self.sections[row['link']]
-                harness.need(linked['entsize'] == 24 and linked['size'] % 24 == 0, 'relocation symbol table invalid')
+                if not relative:
+                    harness.need(linked['entsize'] == 24 and linked['size'] % 24 == 0, 'relocation symbol table invalid')
                 target = self.sections[row['info']]
+                if relative and kind == 3:
+                    self.verify_image_rela(row, linked, target)
+                    continue
                 for pos in range(0, row['size'], 24 * 4096):
                     raw = self.read(row['offset'] + pos, min(24 * 4096, row['size'] - pos))
-                    for offset, info, _ in struct.iter_unpack('<QQq', raw):
-                        harness.need(info >> 32 < linked['size'] // 24 and (kind != 1 or offset < target['size']), 'ELF relocation index/offset invalid')
+                    for entry_index, (offset, info, _) in enumerate(struct.iter_unpack('<QQq', raw), pos // 24):
+                        if relative:
+                            if offset == info == 0:
+                                continue
+                            valid = info == R_AARCH64_RELATIVE and self.relative_destination(offset)
+                        else:
+                            valid = info >> 32 < linked['size'] // 24 and (kind != 1 or offset < target['size'])
+                        if not valid:
+                            self.relocation_refusal(artifact_role, kind, row, entry_index, offset, info, linked, target)
+        if kernel_image and (relr := self.by_name.get('.relr.dyn')) is not None:
+            self.verify_relr(relr)
+
+    def check_section_file_geometry(self, section):
+        offset, size = section['offset'], section['size']
+        alignment = self.section_file_alignment(section)
+        if offset < 64:
+            failed = 'OFFSET_BEFORE_HEADER'
+        elif offset + size > self.size:
+            failed = 'FILE_RANGE'
+        elif offset % alignment:
+            failed = 'FILE_OFFSET_ALIGNMENT'
+        else:
+            return
+        name = section['name']
+        known = ('.text', '.rodata', '.data', '.data..percpu', '.gnu.linkonce.this_module',
+                 '.BTF', '.BTF.base', '.BTF_ids', '.symtab', '.strtab', '.shstrtab', '.modinfo',
+                 '__versions', '__version_ext_crcs', '__version_ext_names')
+        fact = {key: section[key] for key in ('index', 'type', 'flags', 'addr', 'offset', 'size', 'align')}
+        fact.update(name_class=name if name in known else 'OTHER',
+                    name_sha256=hashlib.sha256(name.encode('ascii')).hexdigest())
+        error = ValueError('ELF section file geometry invalid')
+        error.section_geometry = {'role': 'module' if self.elf_type == 1 else self.artifact_role,
+                                  'elf_type': self.elf_type, 'module_ordinal': self.module_ordinal,
+                                  'file_bytes': self.size, 'file_alignment': alignment,
+                                  'failed_check': failed, 'section': fact}
+        raise error
+
+    def section_file_alignment(self, section):
+        alignment = max(1, section['align'])
+        if self.elf_type == 1 and section['type'] in (2, 4):
+            return max(8, alignment)
+        if (self.elf_type == 1 and section['type'] == 1 and section['flags'] == 0 and
+                section['addr'] == 0 and section['name'] == '.debug_aranges'):
+            # The pinned linker can emit this DWARF section at an eight-byte file boundary.
+            return min(8, alignment)
+        # Pinned GNU ld -r can pack allocated PROGBITS at eight-byte file
+        # boundaries. Linux applies sh_addralign when allocating the copy.
+        # Keep declared file alignment for non-PROGBITS and raw metadata.
+        if (self.elf_type == 1 and section['type'] == 1 and section['flags'] & 2 and section['addr'] == 0 and
+                section['name'] not in ('.BTF', '.BTF.base', '.BTF_ids', '__versions',
+                                        '__version_ext_crcs', '__version_ext_names')):
+            # The loader reads the descriptor before copying it.
+            return 8 if section['name'] == '.gnu.linkonce.this_module' else min(8, alignment)
+        return alignment
+
+    def verify_image_rela(self, section, linked, target):
+        """Check the writes made by the pinned ET_DYN Image relocator."""
+        types, overflow, first_failure = {}, [0, 0, 0], None
+        for pos in range(0, section['size'], 24 * 4096):
+            raw = self.read(section['offset'] + pos, min(24 * 4096, section['size'] - pos))
+            for index, (offset, info, _) in enumerate(struct.iter_unpack('<QQq', raw), pos // 24):
+                relocation_type = info & 0xffffffff
+                mapped = self.relative_destination(offset)
+                if relocation_type not in types and len(types) < 8:
+                    types[relocation_type] = [0, 0, 0]
+                counts = types.get(relocation_type, overflow)
+                counts[0] += 1
+                counts[1] += mapped
+                counts[2] += mapped and offset % 8 == 0
+                # relocate_kernel() skips every other low-32-bit type before
+                # it reads the slot. A writing RELATIVE still requires the
+                # canonical zero symbol index and eight mapped bytes.
+                if relocation_type == R_AARCH64_RELATIVE and (info != relocation_type or not mapped):
+                    if first_failure is None:
+                        first_failure = index, offset, info
+        self.rela_table = {'entries': section['size'] // 24,
+                           'types': [[kind, *types[kind]] for kind in sorted(types)],
+                           'overflow': overflow}
+        if first_failure is not None:
+            index, offset, info = first_failure
+            self.relocation_refusal('arm64-image-reference', 3, section, index, offset, info, linked, target)
+
+    def relative_destination(self, offset):
+        return any(s['flags'] & 2 and s['addr'] <= offset and offset + 8 <= s['addr'] + s['size']
+                   for s in self.sections) and any(
+            p['addr'] <= offset and offset + 8 <= p['addr'] + p['memsz'] for p in self.loads)
+
+    def verify_relr(self, row):
+        # Treat an empty linker-script section as absent. A populated table must
+        # have the format consumed between __pi_relr_start and __pi_relr_end.
+        if not row['size']:
+            return
+        harness.need(row['type'] == 19 and row['flags'] == 2 and
+                     row['link'] == row['info'] == 0 and row['align'] >= 8 and
+                     row['addr'] % 8 == 0 and row['entsize'] == 8 and row['size'] % 8 == 0,
+                     'AArch64 Image RELR metadata invalid')
+        cursor = None
+        error = 'AArch64 Image RELR offset invalid'
+        for pos in range(0, row['size'], 8 * 4096):
+            raw = self.read(row['offset'] + pos, min(8 * 4096, row['size'] - pos))
+            for (entry,) in struct.iter_unpack('<Q', raw):
+                if entry & 1 == 0:
+                    harness.need(self.relative_destination(entry), error)
+                    cursor = entry + 8
+                    continue
+                harness.need(cursor is not None and cursor + 63 * 8 <= 2**64, error)
+                bitmap = entry >> 1
+                while bitmap:
+                    bit = bitmap & -bitmap
+                    harness.need(self.relative_destination(cursor + (bit.bit_length() - 1) * 8), error)
+                    bitmap ^= bit
+                cursor += 63 * 8
+
+    def relocation_refusal(self, role, kind, row, entry_index, offset, info, linked, target):
+        """Failure-only numeric operands from the original parsed objects; no IO."""
+        def ranges(rows, allocated):
+            starts, full, first = 0, 0, None
+            for index, item in enumerate(rows):
+                if allocated and not item['flags'] & 2:
+                    continue
+                address, size = item['addr'], item['size' if allocated else 'memsz']
+                if address <= offset < address + size:
+                    starts += 1
+                    if first is None:
+                        first = {'index': index, 'address': address, 'size': size}
+                    if offset + 8 <= address + size:
+                        full += 1
+            return {'start_count': starts, 'full_count': full, 'first_start': first}
+        relative = row['link'] == 0
+        allocated = ranges(self.sections, True) if relative else None
+        load = ranges(self.loads, False) if relative else None
+        failed = ('INFO_RELATIVE' if info != R_AARCH64_RELATIVE else 'ALLOCATED_RANGE' if not allocated['full_count']
+                  else 'LOAD_RANGE') if relative else ('SYMBOL_INDEX' if info >> 32 >= linked['size'] // 24 else 'MODULE_OFFSET')
+        error = ValueError('ELF relocation index/offset invalid')
+        error.relocation_failure = {'role': role, 'elf_type': kind,
+            'branch': 'NULL_LINK_RELATIVE' if relative else 'LINKED_SYMBOL', 'failed_check': failed,
+            'section': {**{key: row[key] for key in ('index', 'type', 'flags', 'link', 'info')}, 'entry_index': entry_index},
+            'offset': offset, 'info': info, 'symbol_count': None if relative else linked['size'] // 24,
+            'target_size': target['size'] if not relative and kind == 1 else None,
+            'allocated': allocated, 'load': load}
+        raise error
 
     def section_bytes(self, name, cap=128 * 1024**2):
         row = self.by_name.get(name)
         harness.need(row and row['type'] != 8, 'ELF file-backed section required: ' + name)
         return self.read(row['offset'], row['size'], cap)
 
-    def definitions(self, wanted):
+    def definitions(self, wanted, *, image_end=None):
+        if image_end is not None:
+            harness.need(self.artifact_role == 'arm64-image-reference' and
+                         64 < image_end - self.entry <= MAX_IMAGE_MEMORY,
+                         'Image size/entry differ from vmlinux _text/_end')
         row = self.symbols
         strings = self.sections[row['link']]
         names = self.read(strings['offset'], strings['size'])
         harness.need(names and names[0] == names[-1] == 0, 'ELF symbol strings invalid')
-        found = {}
-        for pos in range(0, row['size'], 24 * 4096):
-            raw = self.read(row['offset'] + pos, min(24 * 4096, row['size'] - pos))
-            for nameoff, info, other, section, value, size in struct.iter_unpack('<IBBHQQ', raw):
-                name = cstring(names, nameoff).decode('ascii')
-                harness.need(other & ~3 == 0 and (section < len(self.sections) or section in (0xfff1, 0xfff2)), 'ELF symbol section/visibility invalid')
-                if name in wanted and section and info >> 4 in (1, 2):
+        found, samples = {}, []
+        failure_count = 0
+        scan_complete = True
+        try:
+            for pos in range(0, row['size'], 24 * 4096):
+                raw = self.read(row['offset'] + pos, min(24 * 4096, row['size'] - pos))
+                for nameoff, info, other, section, value, size in struct.iter_unpack('<IBBHQQ', raw):
+                    name = cstring(names, nameoff).decode('ascii')
+                    harness.need(other & ~3 == 0 and (section < len(self.sections) or section in (0xfff1, 0xfff2)), 'ELF symbol section/visibility invalid')
+                    if name not in wanted or not section or info >> 4 not in (1, 2):
+                        continue
                     harness.need(section != 0xfff2 and name not in found, 'ambiguous/common defined export')
+                    end_anchor = name == '_end' and image_end is not None
+                    if end_anchor:
+                        harness.need(info == 0x10 and other == 0 and size == 0 and value == image_end,
+                                     'Image size/entry differ from vmlinux _text/_end')
                     if section != 0xfff1:
                         sec = self.sections[section]
-                        harness.need(sec['flags'] & 2 and size <= sec['size'] and
-                                     ((value <= sec['size'] and value + size <= sec['size']) if self.entry == 0 else
-                                      (sec['addr'] <= value and value + size <= sec['addr'] + sec['size'])), 'defined symbol outside allocated section')
+                        lower = 0 if self.entry == 0 else sec['addr']
+                        in_section = (sec['flags'] & 2 and size <= sec['size'] and
+                                      lower <= value and value + size <= lower + sec['size'])
+                        if not (in_section or (end_anchor and self.image_end_after_bss(value, sec))):
+                            failure_count += 1
+                            if len(samples) < 2:
+                                samples.append(self.symbol_range_sample(name, info, value, size, sec))
                     found[name] = {'value': value, 'size': size, 'section': section, 'type': info & 15}
+        except (OSError, ValueError):
+            if not failure_count:
+                raise
+            scan_complete = False
+        if failure_count:
+            error = ValueError('defined symbol outside allocated section')
+            error.symbol_range = {'role': 'module' if self.elf_type == 1 else self.artifact_role,
+                                  'elf_type': self.elf_type, 'section_offset': self.entry == 0,
+                                  'failure_count': failure_count, 'scan_complete': scan_complete,
+                                  'samples': samples}
+            raise error
         harness.need(set(found) == set(wanted), 'export/kernel symbol missing from actual ELF: ' + ','.join(sorted(set(wanted) - set(found))[:10]))
         return found
+
+    def image_end_after_bss(self, value, section):
+        # The pinned linker script advances dot beyond .bss for reserved page
+        # tables and the early stack, then aligns it before assigning _end.
+        return (self.elf_type == 3 and section['name'] == '.bss' and section['type'] == 8 and
+                section['flags'] & 3 == 3 and value % ARM64_SEGMENT_ALIGN == 0 and
+                section['addr'] + section['size'] <= value and
+                all(load['addr'] + load['memsz'] <= value for load in self.loads))
+
+    @staticmethod
+    def symbol_range_sample(name, info, value, size, section):
+        section_names = ('.bss', '.sbss', '.head.text', '.text', '.rodata', '.data',
+                         '.data..percpu', '.gnu.linkonce.this_module')
+        section_fact = {key: section[key] for key in ('index', 'type', 'flags', 'addr', 'size')}
+        section_fact['name_class'] = section['name'] if section['name'] in section_names else 'OTHER'
+        return {'symbol_class': name if name in ('_text', '_end', '__this_module') else 'OTHER',
+                'symbol_sha256': hashlib.sha256(name.encode('ascii')).hexdigest(),
+                'binding': info >> 4, 'type': info & 15, 'value': value, 'size': size,
+                'section': section_fact}
 
 
 def embedded_config(path, expected):
@@ -504,84 +724,108 @@ def image_efi_header(path, header, settings, effective_size):
     harness.need(ranges[0][1] <= ranges[1][0] and executable, 'EFI section overlap/entry invalid')
 
 
-def verify_outputs(build, source, expected_config=None):
+def verify_outputs(build, source, expected_config=None, *, checkpoint=lambda _: None):
+    checkpoint('SOURCE')
     source_link_check = source_links(source)
     identities = source_evidence(source)
+    checkpoint('CONFIG')
     harness.regular(build / '.config', LIMIT_CONFIG)
     cfg = (build / '.config').read_bytes()
     settings = config_bytes(cfg)
     harness.need(settings.get('CONFIG_MODULES') == settings.get('CONFIG_IKCONFIG') == 'y' and settings.get('CONFIG_CPU_BIG_ENDIAN', 'n') == 'n',
                  'built-in IKCONFIG and little-endian module-enabled kernel required')
     comparison = verify_config(expected_config, build / '.config') if expected_config is not None else None
+    checkpoint('RELEASE')
     release_path = build / 'include/config/kernel.release'; harness.regular(release_path, 256)
     release_raw = release_path.read_text()
     harness.need(re.fullmatch(r'7\.1\.13[-A-Za-z0-9._+]*\n', release_raw), 'bounded source-version kernel.release required')
     release = release_raw[:-1]
     uts = build / 'include/generated/utsrelease.h'; harness.regular(uts, 512)
     harness.need(uts.read_text() == '#define UTS_RELEASE "' + release + '"\n', 'UTS_RELEASE differs from kernel.release')
+    checkpoint('IMAGE')
     image, elf = build / 'arch/arm64/boot/Image', build / 'vmlinux'
     harness.regular(image, 256 * 1024**2)
     with image.open('rb') as stream:
         header = stream.read(64)
     harness.need(len(header) == 64 and header[56:60] == b'ARM\x64', 'ARM64 Image header required')
     offset, size, flags, r2, r3, r4 = struct.unpack_from('<6Q', header, 8)
-    harness.need(offset == r2 == r3 == r4 == 0 and flags == 12 and 64 < image.stat().st_size <= size <= 512 * 1024**2,
+    harness.need(offset == r2 == r3 == r4 == 0 and flags == 12 and 64 < image.stat().st_size <= size <= MAX_IMAGE_MEMORY,
                  'source-bound little-endian16K Image size/offset/reserved/placement flags required')
     harness.need(struct.unpack_from('<I', header, 4)[0] & 0xfc000000 == 0x14000000, 'Image entry branch required')
     image_efi_header(image, header, settings, size)
     image_config = embedded_config(image, cfg)
+    checkpoint('INVENTORY')
     order, module_bytes = module_inventory(build)
     required = {path for key, path in APPLE_MODULES.items() if settings.get(key) == 'm'}
     harness.need(required <= {name[:-2] + '.ko' for name in order}, 'configured Apple audio modules missing')
     owners = {'vmlinux'} | {name[:-2] for name in order}
+    checkpoint('SYMBOLS')
     exports = symvers(build, owners, settings)
     by_owner = {owner: set() for owner in owners}
     for symbol, owner in exports:
         by_owner[owner].add(symbol)
-    with ELF(elf, 3 if settings.get('CONFIG_RELOCATABLE') == 'y' else 2, 4 * 1024**3) as reader:
-        definitions = reader.definitions(by_owner['vmlinux'] | {'_text', '_end'})
+    checkpoint('VMLINUX')
+    with ELF(elf, 3 if settings.get('CONFIG_RELOCATABLE') == 'y' else 2, 4 * 1024**3,
+             artifact_role='arm64-image-reference') as reader:
+        definitions = reader.definitions(by_owner['vmlinux'] | {'_text', '_end'}, image_end=reader.entry + size)
         text, end = definitions['_text']['value'], definitions['_end']['value']
         harness.need(reader.entry == text and text >= 0xffff000000000000 and end - text == size, 'Image size/entry differ from vmlinux _text/_end')
         head_load = next(p for p in reader.loads if p['addr'] <= text < p['addr'] + p['filesz'])
         harness.need(reader.read(head_load['offset'] + text - head_load['addr'], 64) == header, 'Image header differs from vmlinux bytes')
         relation = image_relation(reader, image, text)
         loads = reader.loads
-    elf_config = embedded_config(elf, cfg)
-    modules, expected_magic = {}, vermagic(release, settings)
-    modnames = {Path(name).stem.replace('-', '_') for name in order}
-    harness.need(len(modnames) == len(order), 'ambiguous module names')
-    for name in order:
-        path = build / (name[:-2] + '.ko')
-        with ELF(path, 1, 1024**3) as reader:
-            definitions = reader.definitions(by_owner[name[:-2]] | {'__this_module'})
-            harness.need(reader.by_name.get('.text', {}).get('flags', 0) & 4 and
-                         reader.by_name.get('.gnu.linkonce.this_module', {}).get('flags', 0) & 3 == 3 and
-                         definitions['__this_module']['section'] == reader.by_name['.gnu.linkonce.this_module']['index'], 'actual module code/descriptor required')
-            raw = reader.section_bytes('.modinfo', LIMIT_CONFIG)
-            harness.need(raw and raw[-1] == 0, 'terminated module metadata required')
-            info = {}
-            for row in raw.split(b'\0'):
-                if not row:
-                    continue
-                harness.need(b'=' in row, 'module metadata key/value required')
-                key, value = row.decode('ascii').split('=', 1)
-                harness.need(re.fullmatch(r'[A-Za-z0-9_]+', key) and all(32 <= ord(c) < 127 for c in value), 'module metadata text invalid')
-                info.setdefault(key, []).append(value)
-            expected_name = Path(name).stem.replace('-', '_')
-            harness.need(info.get('vermagic') == [expected_magic] and info.get('name') == [expected_name] and
-                         info.get('license') and len(info.get('depends', [])) == 1, 'module vermagic/name/license/dependency metadata invalid')
-            depends = info['depends'][0].split(',') if info['depends'][0] else []
-            harness.need(len(set(depends)) == len(depends) and set(depends) <= modnames - {expected_name}, 'module dependencies outside actual inventory')
-        modules[name[:-2] + '.ko'] = {'sha256': harness.digest(path), 'bytes': path.stat().st_size, 'name': expected_name, 'vermagic': expected_magic}
-    dtbs = {name: verify_dtb(build / 'arch/arm64/boot/dts/apple' / name, identity) for name, identity in identities.items()}
-    return {'status': 'BUILD_OUTPUT_STRUCTURE_VERIFIED', 'source_commit': SOURCE_COMMIT, 'source_evidence_sha256': SOURCE_PINS, 'source_links': source_link_check,
-            'image_sha256': relation['sha256'], 'image_effective_bytes': size, 'image_flags': flags, 'image_elf_relation': relation,
-            'vmlinux_sha256': harness.digest(elf), 'elf_loads': loads, 'apple_dtbs': dtbs,
-            'generated_config_sha256': hashlib.sha256(cfg).hexdigest(), 'config_comparison': comparison,
-            'embedded_config_sha256': {'Image': image_config, 'vmlinux': elf_config}, 'kernelrelease': release,
-            'module_symvers_sha256': harness.digest(build / 'Module.symvers'), 'export_count': len(exports),
-            'modules_order_sha256': harness.digest(build / 'modules.order'), 'modules': modules, 'module_bytes': module_bytes,
-            'hardware_validation': 'NOT RUN', 'performance': 'NOT MEASURED', 'runtime_correctness': 'NOT RUN'}
+        elf_config = embedded_config(elf, cfg)
+        modules, expected_magic = {}, vermagic(release, settings)
+        module_stems = {Path(name).stem for name in order}
+        harness.need(len({stem.replace('-', '_') for stem in module_stems}) == len(order), 'ambiguous module names')
+        for ordinal, name in enumerate(order):
+            checkpoint('MODULE_ELF')
+            path = build / (name[:-2] + '.ko')
+            with ELF(path, 1, 1024**3, module_ordinal=ordinal) as reader:
+                definitions = reader.definitions(by_owner[name[:-2]] | {'__this_module'})
+                harness.need(reader.by_name.get('.text', {}).get('flags', 0) & 4 and
+                             reader.by_name.get('.gnu.linkonce.this_module', {}).get('flags', 0) & 3 == 3 and
+                             definitions['__this_module']['section'] == reader.by_name['.gnu.linkonce.this_module']['index'], 'actual module code/descriptor required')
+                checkpoint('MODULE_INFO')
+                raw = reader.section_bytes('.modinfo', LIMIT_CONFIG)
+                harness.need(raw and raw[-1] == 0, 'terminated module metadata required')
+                info = {}
+                for row in raw.split(b'\0'):
+                    if not row:
+                        continue
+                    key, separator, payload = row.partition(b'=')
+                    harness.need(separator, 'module metadata key/value required')
+                    harness.need(re.fullmatch(rb'[A-Za-z0-9_]+', key), 'module metadata text invalid')
+                    display = key in (b'author', b'description', b'parm')
+                    try:
+                        value = payload.decode('utf-8' if display else 'ascii')
+                    except UnicodeDecodeError:
+                        raise ValueError('module metadata text invalid') from None
+                    harness.need(value.isprintable() or (display and value.replace('\t', '').replace('\n', '').isprintable()),
+                                 'module metadata text invalid')
+                    info.setdefault(key.decode('ascii'), []).append(value)
+                stem = Path(name).stem
+                expected_name = stem.replace('-', '_')
+                harness.need(info.get('vermagic') == [expected_magic] and info.get('name') == [expected_name] and
+                             info.get('license') and len(info.get('depends', [])) == 1, 'module vermagic/name/license/dependency metadata invalid')
+                depends = info['depends'][0].split(',') if info['depends'][0] else []
+                # Pinned modpost emits the original provider basename in depends.
+                providers = set(depends)
+                harness.need(len(providers) == len(depends) and stem not in providers and providers <= module_stems,
+                             'module dependencies outside actual inventory')
+            checkpoint('DIGESTS')
+            modules[name[:-2] + '.ko'] = {'sha256': harness.digest(path), 'bytes': path.stat().st_size, 'name': expected_name, 'vermagic': expected_magic}
+        checkpoint('APPLE_DTBS')
+        dtbs = {name: verify_dtb(build / 'arch/arm64/boot/dts/apple' / name, identity) for name, identity in identities.items()}
+        checkpoint('DIGESTS')
+        return {'status': 'BUILD_OUTPUT_STRUCTURE_VERIFIED', 'source_commit': SOURCE_COMMIT, 'source_evidence_sha256': SOURCE_PINS, 'source_links': source_link_check,
+                'image_sha256': relation['sha256'], 'image_effective_bytes': size, 'image_flags': flags, 'image_elf_relation': relation,
+                'vmlinux_sha256': harness.digest(elf), 'elf_loads': loads, 'apple_dtbs': dtbs,
+                'generated_config_sha256': hashlib.sha256(cfg).hexdigest(), 'config_comparison': comparison,
+                'embedded_config_sha256': {'Image': image_config, 'vmlinux': elf_config}, 'kernelrelease': release,
+                'module_symvers_sha256': harness.digest(build / 'Module.symvers'), 'export_count': len(exports),
+                'modules_order_sha256': harness.digest(build / 'modules.order'), 'modules': modules, 'module_bytes': module_bytes,
+                'hardware_validation': 'NOT RUN', 'performance': 'NOT MEASURED', 'runtime_correctness': 'NOT RUN'}
 
 
 def pinned_bytes(path, pin):

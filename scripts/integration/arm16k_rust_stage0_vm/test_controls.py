@@ -33,6 +33,25 @@ def result_fields(epoch):
 
 
 class Controls(unittest.TestCase):
+    def test_terminal_report_refuses_term_during_private_write(self):
+        boot=load('boot');cancel=K.helper('reference_controller.py').Cancellation
+        passed='PASS_EMULATED_ARM16K_RUST_STAGE0_FIXTURE_ONLY'
+        original=Path.write_text
+        with tempfile.TemporaryDirectory() as d:
+            out=Path(d);report=dict(status=passed,owned_container_absence_verified=True)
+            state=cancel();state.cleaning=True
+            def write(path,body):
+                self.assertFalse((out/'report.json').exists())
+                if json.loads(body)['status']==passed:signal.raise_signal(signal.SIGTERM)
+                return original(path,body)
+            with patch.object(Path,'write_text',write):
+                state.__enter__()
+                boot.publish_report(out,report,state)
+            self.assertEqual(report['status'],'HOLD_CLEANUP_OR_CANCELLED')
+            self.assertEqual(report['cancelled_signals'],[signal.SIGTERM])
+            self.assertEqual(json.loads((out/'report.json').read_bytes()),report)
+            self.assertEqual(list(out.iterdir()),[out/'report.json'])
+
     def test_templates_unbound_and_root_authority_refuses(self):
         a=K.load(HERE/'authority.TEMPLATE.json')
         self.assertIsNone(a['issued_by']);self.assertFalse(a['allow_prepare']);self.assertFalse(a['allow_boot'])

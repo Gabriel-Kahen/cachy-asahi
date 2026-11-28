@@ -86,7 +86,22 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.component-selection.result == 'success' && needs.component-selection.outputs.matrix || '{"include":[{"component":"image","python":"3.12"},{"component":"signed-intake","python":"3.12"},{"component":"signed-image","python":"3.12"},{"component":"sbom","python":"3.12"},{"component":"source-mirror","python":"3.12"},{"component":"source-mirror-update","python":"3.12"},{"component":"desktop","python":"3.12"},{"component":"app-runtime","python":"3.12"},{"component":"app-inputs","python":"3.12"},{"component":"python","python":"3.12"},{"component":"python-extension","python":"3.12"},{"component":"build-systems","python":"3.12"},{"component":"pgo-source","python":"3.12"},{"component":"app-window","python":"3.12"},{"component":"mirror-builder","python":"3.12"},{"component":"debugger","python":"3.12"},{"component":"support-bundle","python":"3.12"},{"component":"support-collection","python":"3.12"},{"component":"recovery-bundle","python":"3.12"},{"component":"security-operation","python":"3.12"},{"component":"advisory-cache","python":"3.12"},{"component":"support-package2","python":"3.12"},{"component":"security-maintenance-package","python":"3.12"},{"component":"orphans03","python":"3.12"},{"component":"support-package","python":"3.12"},{"component":"image","python":"3.14"},{"component":"signed-intake","python":"3.14"},{"component":"signed-image","python":"3.14"},{"component":"sbom","python":"3.14"},{"component":"source-mirror","python":"3.14"},{"component":"source-mirror-update","python":"3.14"},{"component":"desktop","python":"3.14"},{"component":"app-runtime","python":"3.14"},{"component":"app-inputs","python":"3.14"},{"component":"python","python":"3.14"},{"component":"python-extension","python":"3.14"},{"component":"build-systems","python":"3.14"},{"component":"pgo-source","python":"3.14"},{"component":"app-window","python":"3.14"},{"component":"mirror-builder","python":"3.14"},{"component":"debugger","python":"3.14"},{"component":"support-bundle","python":"3.14"},{"component":"support-collection","python":"3.14"},{"component":"recovery-bundle","python":"3.14"},{"component":"security-operation","python":"3.14"},{"component":"advisory-cache","python":"3.14"},{"component":"support-package2","python":"3.14"},{"component":"security-maintenance-package","python":"3.14"},{"component":"orphans03","python":"3.14"},{"component":"support-package","python":"3.14"}]}') }}
     steps:
+      - name: Checkout only the SBOM source and fixture dependencies
+        if: matrix.component == 'sbom'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/release/test_release_sbom.py
+            /scripts/release/release_sbom.py
+            /scripts/release/source_delivery.py
+            /scripts/release/recipe_source_delivery.py
+            /scripts/update/archive_stream.py
+            /scripts/virtual/owned_process.py
       - name: Checkout complete canonical component closure
+        if: matrix.component != 'sbom'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
@@ -115,8 +130,11 @@ jobs:
             /packages/tools/cachy-asahi-maintenance/
             /packages/tools/cachy-asahi-orphans/
             /packages/tools/cachy-asahi-orphans03/
+            /packages/tools/cachy-asahi-release-tools/recipe_source_delivery.py
+            /packages/tools/cachy-asahi-release-tools/source_delivery.py
             /packages/tools/cachy-asahi-support/
             /packages/tools/cachy-asahi-support2/
+            /packages/tools/cachy-asahi-support3/
             /packages/tools/cachy-asahi-security-maintenance/
             /tests/test_orphans03_adoption.py
             /packages/tools/cachy-asahi-session-diagnostics/
@@ -219,8 +237,10 @@ jobs:
       - name: Install exact Noble security planning version and archive tools
         if: matrix.component == 'security-operation' || matrix.component == 'security-maintenance-package'
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y libarchive-tools libalpm13t64=13.0.2-6ubuntu2 makepkg=6.0.2-6ubuntu2
+          apt_sources=(-o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources
+                       -o Dir::Etc::sourceparts=- -o Acquire::Retries=2)
+          sudo apt-get "${apt_sources[@]}" -o APT::Update::Error-Mode=any update
+          sudo apt-get "${apt_sources[@]}" install --no-install-recommends -y libarchive-tools libalpm13t64=13.0.2-6ubuntu2 makepkg=6.0.2-6ubuntu2
           command -v bsdtar
           command -v vercmp
           test "$(vercmp '1:1.0' '1.0')" -gt 0
@@ -228,8 +248,10 @@ jobs:
       - name: Prepare complete Noble namespace prerequisites for support package
         if: matrix.component == 'support-package' || matrix.component == 'support-package2'
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y bubblewrap
+          apt_sources=(-o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources
+                       -o Dir::Etc::sourceparts=- -o Acquire::Retries=2)
+          sudo apt-get "${apt_sources[@]}" -o APT::Update::Error-Mode=any update
+          sudo apt-get "${apt_sources[@]}" install --no-install-recommends -y bubblewrap
           command -v bwrap
           test -x /usr/bin/python3
           # The corrected fixture preserves real host /lib and optional /lib64; no host-layout mutation.
@@ -272,12 +294,27 @@ jobs:
             security-maintenance-package) suite=scripts/release/test_security_maintenance_source_delivery_v2.py ;;
             *) exit 2 ;;
           esac
-          python -B -S -Werror::ResourceWarning "$suite"
+          if [[ "$COMPONENT" == support-package || "$COMPONENT" == support-package2 ]]; then
+            # Both adapters verify the original transport hashes. Use the exact
+            # retained package copies and run the current controls in isolation.
+            python -B -S -Werror::ResourceWarning scripts/release/support_source_delivery_fixture.py "${suite##*/}"
+          else
+            python -B -S -Werror::ResourceWarning "$suite"
+          fi
       - name: Install hosted build-system prerequisites
         if: matrix.component == 'build-systems' || matrix.component == 'python-extension'
+        timeout-minutes: 7
         run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y cmake meson ninja-build build-essential
+          set -euo pipefail
+          # A stalled mirror previously consumed the entire 15-minute job.
+          apt_get=(sudo -n timeout --verbose --kill-after=15s 180s apt-get
+            -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources
+            -o Dir::Etc::sourceparts=-
+            -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20
+            -o Acquire::Retries=2
+          )
+          "${apt_get[@]}" -o APT::Update::Error-Mode=any update
+          "${apt_get[@]}" install --no-install-recommends -y cmake meson ninja-build build-essential
       - name: Run both standalone real build-system journeys
         if: matrix.component == 'build-systems'
         env:
@@ -433,6 +470,11 @@ jobs:
           run_support_fixture 2>&1 | tee "$RUNNER_TEMP/support-package-tests.log"
           grep -q 'Ran 8 tests' "$RUNNER_TEMP/support-package-tests.log"
           if grep -q 'skipped' "$RUNNER_TEMP/support-package-tests.log"; then exit 1; fi
+      - name: Check support 0.2.0-2 source and transport
+        if: matrix.component == 'support-package2'
+        run: |
+          python -I -B packages/tools/cachy-asahi-support3/check_package.py
+          python -I -B -Werror::ResourceWarning scripts/release/test_support_source_delivery_v3.py
       - name: Observe the real support2 namespace permission boundary
         if: matrix.component == 'support-package2'
         run: |
@@ -517,12 +559,19 @@ jobs:
       run: ${{ steps.select.outputs.run }}
       matrix: ${{ steps.select.outputs.matrix }}
     steps:
-      - name: Checkout bounded depth-two selector source
+      - name: Check out the selector and its workflow inputs
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
           fetch-depth: 2
           fetch-tags: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/ci/component_selection/
+            /.github/workflows/static.yml
+            /.github/workflows/full-port-workflows.yml
+            /.github/workflows/parallel-development-tools.yml
       - name: Check selector failure and coverage controls
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_select.py
@@ -533,12 +582,9 @@ jobs:
         env:
           SELECTION_EVENT: ${{ github.event_name }}
           SELECTION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.event.after }}
           SELECTION_SHA: ${{ github.sha }}
         run: |
-          set -euo pipefail
-          component_diff() {
-            timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
-          }
-          source scripts/ci/component_selection/collect.sh
-          collect_components full-port
+          python3 -I -B scripts/ci/component_selection/select.py --sparse-paths |
+            timeout --kill-after=5s 45s env GIT_TERMINAL_PROMPT=0 git sparse-checkout add --stdin
+          bash scripts/ci/component_selection/collect.sh full-port

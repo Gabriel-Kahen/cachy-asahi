@@ -15,7 +15,9 @@ import re
 import signal
 from types import SimpleNamespace
 import sys
+import tempfile
 import time
+from uuid import uuid4
 
 def _load(name, filename):
     spec = importlib.util.spec_from_file_location(name, Path(__file__).with_name(filename))
@@ -43,6 +45,7 @@ finally:
 ABBA = ['baseline', 'candidate', 'candidate', 'baseline']
 BAAB = ['candidate', 'baseline', 'baseline', 'candidate']
 ORDER = ABBA + BAAB + ABBA
+ARM_ARGV_FILE_OPERANDS = (2, 5, 7, 9)
 
 
 def need(ok, why):
@@ -59,7 +62,10 @@ def ordinary(path, cap=2 * 1024**2):
 
 
 def pin(path):
-    raw = ordinary(path)
+    return captured_pin(path, ordinary(path))
+
+
+def captured_pin(path, raw):
     return dict(path=str(path), bytes=len(raw), sha256=Z.sha(raw))
 
 
@@ -69,24 +75,60 @@ def balanced(order):
                  for i in range(0, len(order), 4)), '12..40 alternating ABBA/BAAB slots required')
 
 
-def workload_report(path, expected, control_only):
-    r = json.loads(ordinary(path))
-    need(r.get('status') == 'PASS' and r.get('optimization_acceptance') == 'NOT RUN'
+def workload_report(raw, expected, control_only):
+    r = json.loads(raw)
+    need(type(r) is dict and r.get('status') == 'PASS' and r.get('optimization_acceptance') == 'NOT RUN'
          and r.get('hardware_validation') == 'NOT RUN', 'successful scoped workload report required')
     need(r.get('minigzip') == expected and r.get('minigzip_sha256') == Z.sha(Z.file_bytes(Path(expected))),
          'executed artifact identity differs')
-    need(type(r.get('checks')) is list and len(r['checks']) == r.get('iterations')
-         and 1 <= len(r['checks']) <= 32 and r.get('compression_level') == 6
-         and all(c.get('iteration') == i and c.get('decoded_sha256') == r.get('payload_sha256')
+    Z.bounds(r.get('payload_bytes'), r.get('iterations'))
+    need(all(isinstance(r.get(key), str) and re.fullmatch('[a-f0-9]{64}', r[key])
+             for key in ('payload_sha256', 'heldout_sha256')), 'complete workload/corpus digests required')
+    need(type(r.get('checks')) is list and len(r['checks']) == r['iterations']
+         and type(r.get('compression_level')) is int and r['compression_level'] == 6
+         and all(type(c) is dict and type(c.get('iteration')) is int and c['iteration'] == i
+                 and c.get('decoded_sha256') == r['payload_sha256']
+                 and isinstance(c.get('encoded_sha256'), str)
                  and re.fullmatch('[a-f0-9]{64}', c.get('encoded_sha256', ''))
                  for i, c in enumerate(r['checks'])), 'complete per-iteration correctness report required')
-    need(r.get('control_only') is True if control_only else r.get('experiment') in Z.EXPERIMENTS,
+    need(r.get('control_only') is True if control_only else
+         r.get('control_only', False) is False and r.get('experiment') in Z.EXPERIMENTS,
          'explicit fixture or original ARM experiment scope required')
     return r
 
 
-def validate(plan, control_only):
+def workload_check(plan):
+    config = plan['config']
+    control_only = config['paired_zlib'] == 'control-only'
+    identity = payload_sha256 = None
+    if not control_only:
+        values = dict(zip(config['argv'][4::2], config['argv'][5::2]))
+        corpus = Path(values['--corpus-manifest'])
+        archive = Path(values['--archive-manifest'])
+        size, iterations = int(values['--payload-bytes']), int(values['--iterations'])
+
+    def check(raw, variant):
+        nonlocal identity, payload_sha256
+        report = workload_report(raw, config['change'][variant], control_only)
+        if not control_only:
+            experiment, _, heldout = Z.materials(corpus.parent.parent, archive)
+            if payload_sha256 is None:
+                payload_sha256 = Z.sha((heldout * ((size + len(heldout) - 1) // len(heldout)))[:size])
+            need(report['experiment'] == experiment and report['heldout_sha256'] == Z.sha(heldout)
+                 and report['payload_sha256'] == payload_sha256 and report['payload_bytes'] == size
+                 and report['iterations'] == iterations, 'original workload output joins differ')
+        observed = tuple(report[key] for key in ('payload_sha256', 'payload_bytes', 'heldout_sha256', 'iterations'))
+        need(identity is None or observed == identity, 'paired workload/corpus identity differs')
+        identity = observed
+        return report
+
+    return check
+
+
+def validate(plan, control_only, *, replay=False):
     c = plan['config']
+    need(c.get('paired_zlib') == ('control-only' if control_only else 'exact-arm'),
+         'paired workload verification scope must be frozen')
     need(str(Path(__file__).resolve()) in c['inputs'], 'paired runner source must be frozen')
     declared = set(c['inputs']) | {p for paths in c.get('variant_inputs', {}).values() for p in paths}
     declared |= {str(Path(B.__file__).resolve()), str(Path(B.process_group_memory.__file__).resolve())}
@@ -96,19 +138,22 @@ def validate(plan, control_only):
     need(c.get('variant_env') == {v: {'ZLIB_MINIGZIP': c['change'][v]} for v in ('baseline', 'candidate')}
          and c['change'].get('environment_key') == 'ZLIB_MINIGZIP', 'sole artifact environment delta required')
     for v in ('baseline', 'candidate'):
-        need(c.get('variant_inputs', {}).get(v) == [c['change'][v]] and os.access(c['change'][v], os.X_OK),
+        need(c.get('variant_inputs', {}).get(v) == [c['change'][v]] and (replay or os.access(c['change'][v], os.X_OK)),
              'exact executable variant pin required')
-    need(not any(k.startswith(('LD_', 'DYLD_', 'QEMU_')) for k in os.environ)
+    need((replay or not any(k.startswith(('LD_', 'DYLD_', 'QEMU_')) for k in os.environ))
          and not any(k.startswith(('LD_', 'DYLD_', 'QEMU_')) for k in c.get('env', {})), 'loader/emulation override refused')
     if control_only:
         need(c['execution_context'] != 'physical', 'control-only cannot represent physical measurement')
         return
-    need(c['execution_context'] == 'physical' and platform.machine() == 'aarch64', 'physical native ARM required')
+    need(c['execution_context'] == 'physical' and (replay or platform.machine() == 'aarch64'), 'physical native ARM required')
     need(all(s['architecture'] == 'aarch64' and s['page_size_bytes'] == 16384
              and s['m2_air_size'] in ('13-inch', '15-inch') for s in plan['states'].values()),
          'exact 16K M2 Air state required')
     argv = c['argv']
-    need(argv[:4] == [str(Path(sys.executable).resolve()), '-B', str(Path(Z.__file__).resolve()), 'run'],
+    need(set(c.get('argv_file_operands', [])) == set(ARM_ARGV_FILE_OPERANDS),
+         'exact zlib workload requires explicit driver, archive and corpus file operands')
+    need(argv[1:4] == ['-B', str(Path(Z.__file__).resolve()), 'run']
+         and (replay or argv[0] == str(Path(sys.executable).resolve())),
          'unchanged zlib workload driver required')
     keys = ['--archive-manifest', '--corpus-manifest', '--input', '--payload-bytes', '--iterations']
     need(len(argv) == 14 and argv[4::2] == keys, 'closed zlib argv required')
@@ -118,7 +163,9 @@ def validate(plan, control_only):
     need(corpus == root / 'corpus/manifest.json' and Path(values['--input']) == root / 'corpus/heldout-source.bin',
          'original held-out corpus paths required')
     Z.bounds(int(values['--payload-bytes']), int(values['--iterations']))
-    required = {str(Path(sys.executable).resolve()), str(Path(__file__).resolve()), str(Path(Z.__file__).resolve()), str(Path(B.__file__).resolve()), str(corpus), str(root / 'corpus/heldout-source.bin'), values['--archive-manifest']}
+    required = {argv[0], str(Path(__file__).resolve()), str(Path(Z.__file__).resolve()),
+                str(Path(B.__file__).resolve()), str(Path(_legacy.__file__).resolve()),
+                str(corpus), str(root / 'corpus/heldout-source.bin'), values['--archive-manifest']}
     need(required <= set(c['inputs']), 'workload/artifact/corpus source pins required')
     need(c['change']['baseline'] == str(root / 'baseline-1/minigzip')
          and c['change']['candidate'] == str(root / (Z.EXPERIMENTS[experiment][0] + '-1/minigzip')),
@@ -135,20 +182,42 @@ def schedule(config, blocks):
 
 
 def save_session(output, value):
-    temp = output / '.session.json.tmp'
-    with temp.open('x') as stream:
-        json.dump(value, stream, indent=2, sort_keys=True, allow_nan=False)
-        stream.write('\n')
-    temp.replace(output / 'session.json')
+    with tempfile.TemporaryDirectory(prefix='.session-', dir=output) as staging:
+        temp = Path(staging) / 'session.json'
+        with temp.open('x') as stream:
+            json.dump(value, stream, indent=2, sort_keys=True, allow_nan=False)
+            stream.write('\n')
+        temp.replace(output / 'session.json')
+
+
+def wait_for_observation(path, config, step, requested_at, deadline):
+    while True:
+        remaining = deadline - time.monotonic()
+        need(remaining > 0, 'session deadline waiting for conditions: ' + path.name)
+        try:
+            raw = B.read_observed_conditions(path)
+        except FileNotFoundError:
+            time.sleep(min(.25, remaining))
+            continue
+        received_at = B.now()
+        receipt = dict(requested_at=requested_at, received_at=received_at, sha256=Z.sha(raw))
+        conditions = json.loads(raw)
+        B.validate_observed_conditions(conditions, step, receipt, received_at)
+        B.validate_conditions(config, conditions)
+        return receipt, dict(path=str(path), bytes=len(raw), **receipt)
 
 
 def run(args):
     need(os.getuid() == os.geteuid() > 0, 'ordinary nonroot measurement only')
     plan_path = args.plan.absolute()
-    ordinary(plan_path)
-    plan = B.load_plan(plan_path)
+    plan_raw = ordinary(plan_path)
+    plan_pin = captured_pin(plan_path, plan_raw)
+    plan = B.load_plan(plan_path, raw=plan_raw)
     validate(plan, args.control_only)
     c = plan['config']
+    mode = args.conditions_mode
+    need(mode == 'observed' or (mode == 'prewritten' and args.control_only),
+         'physical paired zlib requires observed conditions; prewritten mode is control-only')
     steps = schedule(c, args.warmup_blocks)
     B.number(args.session_seconds, 'session_seconds', c['timeout_seconds'] + 2, 14400)
     output = args.output.absolute()
@@ -158,20 +227,26 @@ def run(args):
          and not output.is_relative_to(conditions_root) and not conditions_root.is_relative_to(output),
          'ordinary separate conditions directory required')
     conditions = {}
-    for step in steps:
-        path = conditions_root / (step['name'] + '.json')
-        B.validate_conditions(c, json.loads(ordinary(path)))
-        conditions[step['name']] = (path, pin(path))
+    if mode == 'prewritten':
+        for step in steps:
+            path = conditions_root / (step['name'] + '.json')
+            raw = ordinary(path)
+            B.validate_conditions(c, json.loads(raw))
+            conditions[step['name']] = dict(path=str(path), bytes=len(raw), sha256=Z.sha(raw))
     need(signal.getitimer(signal.ITIMER_REAL) == (0.0, 0.0), 'session requires its own inactive deadline timer')
     output.mkdir(mode=0o700)
-    (output / 'plan.json').write_bytes(ordinary(plan_path))
-    session = dict(schema_version=1, status='RUNNING', plan=pin(plan_path), started_at=B.now(),
+    (output / 'plan.json').write_bytes(plan_raw)
+    session = dict(schema_version=1, session_id=uuid4().hex, status='RUNNING', plan=plan_pin, started_at=B.now(),
+                   conditions_mode=mode, session_seconds=args.session_seconds,
                    scope='CONTROL_ONLY' if args.control_only else 'EXACT_ARM_PAIRED_MEASUREMENT_PENDING_REVIEW',
                    schedule=steps, completed=[], warmups_excluded=True, environment_sha256=B.canonical(dict(os.environ)),
                    hardware_validation='NOT RUN', optimization_acceptance='NOT RUN', release='NOT ADMITTED',
                    limitations=['Elapsed includes Python, startup, file I/O, verification and telemetry.',
                                 'Conditions are operator declarations; missing sensors remain unavailable.',
                                 'No population, energy, final-system or model-wide gain is inferred.'])
+    if mode == 'observed':
+        session['conditions_max_age_seconds'] = B.OBSERVED_CONDITIONS_MAX_AGE
+        session['conditions_max_bytes'] = B.OBSERVED_CONDITIONS_MAX_BYTES
     cpu = B.text_file('/proc/cpuinfo') or ''
     fields = {'processor', 'model name', 'CPU architecture', 'CPU implementer', 'CPU part', 'Features', 'Hardware'}
     B.write_json(output / 'environment.json', dict(architecture=platform.machine(), kernel=platform.release(),
@@ -182,45 +257,59 @@ def run(args):
     session['environment'] = pin(output / 'environment.json')
     save_session(output, session)
     started, measured = time.monotonic(), []
+    measured_pins = {}
+    launch_deadline = started + args.session_seconds - c['timeout_seconds'] - 2
     previous_alarm = signal.getsignal(signal.SIGALRM)
     def expired(*_):
         raise KeyboardInterrupt('paired session deadline')
     signal.signal(signal.SIGALRM, expired)
     signal.setitimer(signal.ITIMER_REAL, args.session_seconds)
     try:
+        check_workload = workload_check(plan)
         for step in steps:
-            need(time.monotonic() - started + c['timeout_seconds'] + 2 <= args.session_seconds,
+            need(time.monotonic() <= launch_deadline,
                  'session deadline: retain completed and partial evidence')
             need(pin(plan_path) == session['plan'], 'frozen plan changed within session')
-            condition, binding = conditions[step['name']]
-            need(pin(condition) == binding, 'conditions changed after schedule validation')
             work, raw = output / (step['name'] + '-work'), output / step['name']
             work.mkdir(mode=0o700)
             state = Path(plan[step['variant'] + '_binding']['path'])
-            need(B.run(plan_path, step['slot'], state, condition, work, raw) == 0, 'failed workload: ' + step['name'])
-            report = workload_report(raw / 'stdout.txt', c['change'][step['variant']], args.control_only)
-            if not args.control_only:
-                values = dict(zip(c['argv'][4::2], c['argv'][5::2]))
-                corpus = Path(values['--corpus-manifest'])
-                experiment, _, heldout = Z.materials(corpus.parent.parent, Path(values['--archive-manifest']))
-                size = int(values['--payload-bytes'])
-                payload = (heldout * ((size + len(heldout) - 1) // len(heldout)))[:size]
-                need(report['experiment'] == experiment and report['heldout_sha256'] == Z.sha(heldout)
-                     and report['payload_sha256'] == Z.sha(payload) and report['payload_bytes'] == size
-                     and report['iterations'] == int(values['--iterations']), 'original workload output joins differ')
-            if session['completed']:
-                previous = session['completed'][0]['workload']
-                need(all(report[k] == previous[k] for k in ('payload_sha256', 'payload_bytes', 'heldout_sha256', 'iterations')),
-                     'paired workload/corpus identity differs')
-            session['completed'].append(dict(**step, conditions=binding, trial=pin(raw / 'trial.json'), workload=report))
+            binding_step = dict(session_id=session['session_id'], phase=step['phase'], index=step['index'])
+            condition = conditions_root / (step['name'] + '.json')
+            receipt = None
+            if mode == 'observed':
+                requested_at = B.now()
+                session['awaiting_conditions'] = dict(**binding_step, name=step['name'], variant=step['variant'],
+                                                      slot=step['slot'], filename=condition.name, requested_at=requested_at)
+                save_session(output, session)
+                receipt, binding = wait_for_observation(condition, c, binding_step, requested_at, launch_deadline)
+            else:
+                binding = conditions[step['name']]
+                need(pin(condition) == binding, 'conditions changed after schedule validation')
+            need(time.monotonic() <= launch_deadline,
+                 'session deadline: insufficient time to start ' + step['name'])
+            status = B.run(plan_path, step['slot'], state, condition, work, raw,
+                           paired=binding_step, check_workload=check_workload, conditions_receipt=receipt,
+                           expected_plan_sha256=plan_pin['sha256'])
+            trial_path = raw / 'trial.json'
+            trial_raw = ordinary(trial_path)
+            trial = json.loads(trial_raw)
+            trial_pin = captured_pin(trial_path, trial_raw)
+            need(status == 0, 'failed workload: ' + step['name'] + ': ' + (trial.get('error') or 'invalid trial'))
+            report = trial['paired_zlib']['report']
+            session.pop('awaiting_conditions', None)
+            session['completed'].append(dict(**step, conditions=binding, trial=trial_pin, workload=report))
             if step['phase'] == 'measured':
                 measured.append(raw)
+                measured_pins[step['slot']] = trial_pin['sha256']
             save_session(output, session)
-        comparison_code = B.compare(plan_path, measured, output / 'comparison.json')
-        session['preliminary_result'] = B.read_json(output / 'comparison.json')['preliminary_result']
+        comparison_code = B.compare(plan_path, measured, output / 'comparison.json',
+                                    expected_plan_sha256=plan_pin['sha256'], expected_trials=measured_pins)
+        comparison_path = output / 'comparison.json'
+        comparison_raw = ordinary(comparison_path)
+        session['preliminary_result'] = json.loads(comparison_raw)['preliminary_result']
         session['comparison_exit_code'] = comparison_code
         session.update(status='COMPLETE_CONTROL_ONLY' if args.control_only else 'COMPLETE_PAIRED_MEASUREMENT_PENDING_REVIEW',
-                       comparison=pin(output / 'comparison.json'), finished_at=B.now())
+                       comparison=captured_pin(comparison_path, comparison_raw), finished_at=B.now())
     except BaseException as error:
         session.update(status='FAIL', error_type=type(error).__name__, error=str(error)[:512], finished_at=B.now())
     finally:
@@ -271,6 +360,8 @@ def prepare(args):
     config_args = SimpleNamespace(**vars(args))
     config_args.output = output / 'original-config.json'
     c = Z.prepare_config(config_args)
+    c['paired_zlib'] = 'exact-arm'
+    c['argv_file_operands'] = list(ARM_ARGV_FILE_OPERANDS)
     balanced(c['order'])
     need(c['minimum_trials'] >= 6, 'six measured trials per variant required')
     # Original-config records the unchanged artifact adapter and historical pure
@@ -301,6 +392,8 @@ def main(argv=None):
         runner.add_argument('--' + name, type=Path, required=True)
     runner.add_argument('--warmup-blocks', type=int, default=1)
     runner.add_argument('--session-seconds', type=float, default=7200)
+    runner.add_argument('--conditions-mode', choices=('observed', 'prewritten'), default='observed',
+                        help='request fresh observations for each slot, or use prewritten control fixtures')
     runner.add_argument('--control-only', action='store_true')
     def interrupted(*_):
         raise KeyboardInterrupt('paired session interrupted')

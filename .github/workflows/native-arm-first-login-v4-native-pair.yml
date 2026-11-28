@@ -1,0 +1,53 @@
+name: native-arm-first-login-v4-native-pair
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-first-login-v4-native-pair
+  cancel-in-progress: false
+jobs:
+  pair:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 45
+    env:
+      SLICE: scripts/ci/first-login-v4-native-pair
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/ci/first-login-v4-native-pair
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 289e009831f6d00a5401059aeb1199bd834c3ebf
+          path: pinned-recipes
+          persist-credentials: false
+          sparse-checkout: |
+            packages/tools/cachy-asahi-setup8-v3
+            packages/tools/cachy-asahi-first-login-v4
+      - name: Verify pinned recipes and run focused source controls
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          bash -n "$SLICE/hosted.sh"
+          bash -n "$SLICE/container.sh"
+          python3 -I -B "$SLICE/test_verify.py"
+          python3 -I -B "$SLICE/test_hosted.py"
+          bash "$SLICE/hosted.sh" source "$GITHUB_WORKSPACE/pinned-recipes" "$RUNNER_TEMP/first-login-v4-pair"
+      - name: Prepare one native build image and run two clean offline lanes
+        timeout-minutes: 38
+        shell: bash
+        run: bash "$SLICE/hosted.sh" build "$GITHUB_WORKSPACE/pinned-recipes" "$RUNNER_TEMP/first-login-v4-pair"
+      - name: Retain build receipts, logs and both candidate pairs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 3
+        with:
+          name: first-login-v4-native-pair-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/first-login-v4-pair/public/
+          if-no-files-found: ignore
+          retention-days: 14
+          include-hidden-files: true

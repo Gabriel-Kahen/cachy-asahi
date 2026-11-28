@@ -345,7 +345,7 @@ def write_bytes(path, raw, deadline, executable=False):
         deadline.remaining(1)
 
 
-def write_bootstrap_session(path, session, context, script, deadline):
+def write_bootstrap_session(path, session, context, script, deadline, *, entry_script=None):
     """Embed captured build/compare/checker bytes; never load the old authority."""
     session.sources.guard(deadline.work_end, session.cancelled)
     selected = {'build':'scripts/build/build.py', 'compare':'scripts/build/compare.py',
@@ -354,6 +354,9 @@ def write_bootstrap_session(path, session, context, script, deadline):
                for name,relative in selected.items()}
     name = Path(script).stem
     need(name in ('build','compare') and str(script) == modules[name]['path'], 'bootstrap-script-refused')
+    start = 'exec(compile(r["data"],p,"exec"),{"__name__":"__main__","__file__":p})\n'
+    if name == 'build' and entry_script is not None:
+        start = f'import build\nraise SystemExit(build.main(entry_script={entry_script.encode("utf-8")!r}))\n'
     content = ('import sys,importlib.abc,importlib.util,pathlib\n'
         f'M={modules!r}\nROOTS={[str(session.sources.root),str(context["root"])]!r}\n'
         'class L(importlib.abc.Loader):\n'
@@ -372,19 +375,21 @@ def write_bootstrap_session(path, session, context, script, deadline):
         '  return None\n'
         'sys.meta_path.insert(0,F())\n'
         f'r=M[{name!r}];p=r["path"];sys.argv[0]=p\n'
-        'exec(compile(r["data"],p,"exec"),{"__name__":"__main__","__file__":p})\n').encode()
+        + start).encode()
     write_bytes(path, content, deadline)
     session.sources.guard(deadline.work_end, session.cancelled)
 
 
-def validate_attempt_session(addon, session, context, attempt, package, prerequisite, owned, deadline):
+def validate_attempt_session(addon, session, context, attempt, package, prerequisite, owned, deadline, *, entry_sha256=None):
     deadline.remaining(1)
     session.sources.guard(deadline.work_end, session.cancelled)
     files = json.loads(context['receipt'])['files']
     rows = {name:{key:row[key] for key in ('sha256','mode')} for name,row in files.items()}
     need(rows == session.sources.original_rows, 'original-row-drift')
+    if entry_sha256 is None:
+        entry_sha256 = rows[addon.ENTRY_SOURCE]['sha256']
     record = addon.decode(read_session(addon, attempt / 'provenance.json', deadline))
-    addon.need(record.get('status') == 'built-package-static-pass' and record.get('exit_code') == 0 and (record.get('mode') == 'native') and (record.get('network') == 'none') and (record.get('image') == record.get('image_id') == prerequisite['image_id']) and (record.get('recipe_inputs') == package['build_helper_reviewed_inputs']) and (record.get('source_date_epoch') == prerequisite['epoch']) and (record.get('expected_packages_sha256') == prerequisite['packages_sha256']) and (record.get('entry_script_sha256') == rows['scripts/build/container-entry.sh']['sha256']) and (record.get('clean_environment_id') == owned['name']) and (owned['status'] == 'EXITED') and (owned.get('observed') is True) and (owned['exit_code'] == 0), 'attempt-binding-refused')
+    addon.need(record.get('status') == 'built-package-static-pass' and record.get('exit_code') == 0 and (record.get('mode') == 'native') and (record.get('network') == 'none') and (record.get('image') == record.get('image_id') == prerequisite['image_id']) and (record.get('recipe_inputs') == package['build_helper_reviewed_inputs']) and (record.get('source_date_epoch') == prerequisite['epoch']) and (record.get('expected_packages_sha256') == prerequisite['packages_sha256']) and (record.get('entry_script_sha256') == entry_sha256) and (record.get('clean_environment_id') == owned['name']) and (owned['status'] == 'EXITED') and (owned.get('observed') is True) and (owned['exit_code'] == 0), 'attempt-binding-refused')
     validation = addon.decode(read_session(addon, attempt / 'validation.json', deadline))
     addon.need(validation.get('errors') == [] and len(validation.get('artifacts', [])) == 1, 'attempt-validation-refused')
     required = {'build.log', 'validation.json', 'expected-packages.lock', 'artifacts/packages.lock', 'artifacts/generated.SRCINFO', 'artifacts/environment.txt', 'artifacts/config.sha256', 'artifacts/makepkg.conf', 'artifacts/pacman.conf'}
@@ -850,7 +855,15 @@ def run_zsh(controller, root, output, cache=None, *, session, actor_contract_raw
         image=json.loads(docker.call(['image','inspect',config['image']]))
         need(len(image)==1 and image[0]['Id']==config['image'] and image[0]['Architecture']=='arm64' and
              image[0]['Os']=='linux','same-base-image-required')
-        config.update(base_config=image[0]['Config'],entry=str(context['root']/'scripts/build/container-entry.sh'))
+        script = context['root'] / 'scripts/build/build.py'
+        entry = context['root'] / addon.ENTRY_SOURCE
+        config.update(base_config=image[0]['Config'])
+        builder_raw = session.sources.raw['scripts/build/build.py']
+        entry_raw = (session.sources.captured_code(entry) if sha(builder_raw) == addon.LEGACY_BUILDER_SHA256
+                     else session.sources.raw[addon.ENTRY_SOURCE])
+        entry_sha256 = sha(entry_raw)
+        config.update(addon.entry_profile(builder_raw, entry, entry_raw,
+                                          reviewed=package['build_helper_reviewed_inputs']))
         result['source_binding']={'contract_sha256':sha(contract_raw),'recipe_inputs':package['build_helper_reviewed_inputs'],
             'packages_sha256':prerequisite['packages_sha256'],'source_commit':controller.commit}
         reviewed=output/'reviewed-inputs.json';save_session(addon,reviewed,package['build_helper_reviewed_inputs'],deadline)
@@ -874,7 +887,8 @@ def run_zsh(controller, root, output, cache=None, *, session, actor_contract_raw
             shim=lane/'docker';write_bytes(shim,launcher,deadline,True)
             env={**config['actor_env'],'PATH':str(lane)+':/usr/bin:/bin','PYTHONDONTWRITEBYTECODE':'1'}
             bootstrap=output/f'build-{number}.py'
-            write_bootstrap_session(bootstrap,session,context,context['root']/'scripts/build/build.py',deadline)
+            write_bootstrap_session(bootstrap, session, context, script, deadline,
+                                    entry_script=config.get('entry_script'))
             argv=[sys.executable,'-I','-B',str(bootstrap),str(root/package['source_root']),
                 '--image',config['image'],'--mode','native','--network','none','--source-date-epoch',str(config['epoch']),
                 '--expected-packages',prerequisite['packages_lock'],'--reviewed-inputs',str(reviewed),
@@ -882,7 +896,8 @@ def run_zsh(controller, root, output, cache=None, *, session, actor_contract_raw
             code,_=supervised_session(addon,argv,env,deadline,360,output/f'attempt-{number}.log',quota_root=output)
             need(code==0,'native-build-failed')
             owned=addon.decode(read_session(addon,lane/'owned.json',deadline))
-            archive=validate_attempt_session(addon,session,context,attempt,package,prerequisite,owned,deadline)
+            archive = validate_attempt_session(addon, session, context, attempt, package, prerequisite, owned, deadline,
+                                               entry_sha256=entry_sha256)
             result['attempts'].append({'status':'PASS','exit_code':code,'archive':archive,'shim_sha256':sha(launcher)})
             result['attempts'][-1]['cleanup']=cleanup_attempt_session(addon,c,deadline)
         need(result['attempts'][0]['archive']['cid']!=result['attempts'][1]['archive']['cid'] and

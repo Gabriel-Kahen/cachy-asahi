@@ -13,8 +13,10 @@ import sys
 HERE = Path(__file__).resolve().parent
 PREFIX = 'scripts/port/kernel-native-stage/'
 SOURCE = 'scripts/port/kernel-candidates/'
-BASE_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
-INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
+BASE_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
+INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+RECIPES_SHA = '56c53699b1c9a493798a071a537ae17d5b892ffa9618ca99a3465985a51fcef8'
+EPOCH = 1791748800
 TOOLS = ('gcc', 'g++', 'ld', 'as', 'ar', 'nm', 'objcopy', 'objdump', 'readelf', 'ranlib',
          'make', 'rustc', 'bindgen', 'pahole', 'dtc', 'clang', 'llvm-config', 'python3')
 
@@ -67,6 +69,7 @@ def save(path, value):
     with os.fdopen(fd, 'wb') as stream:
         stream.write(data); stream.flush(); os.fsync(stream.fileno())
     os.replace(temp, path)
+    return hashlib.sha256(data).hexdigest()
 
 
 def inventory(data):
@@ -90,8 +93,11 @@ def code_contract(root, files):
     for name, row in files.items():
         need(re.fullmatch(r'[A-Za-z0-9_./-]+', name) and '..' not in Path(name).parts and not Path(name).is_absolute(),
              'relative code name required')
-        path = Path(root) / name; regular(path)
-        need(digest(path) == row['sha256'] and stat.S_IMODE(path.stat().st_mode) == row['mode'], 'code snapshot differs: ' + name)
+        path = Path(root) / name
+        regular(path)
+        info = path.stat()
+        need(info.st_size == row['bytes'] and stat.S_IMODE(info.st_mode) == row['mode'] and
+             digest(path) == row['sha256'], 'code snapshot differs: ' + name)
 
 
 def delta_config(before, after, policy):

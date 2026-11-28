@@ -46,6 +46,8 @@ class PacketTests(unittest.TestCase):
                            'scripts/ci/native_arm.py': b'fixture native helper\n',
                            packet.PREFIX + 'packet.py': b'fixture packet helper\n',
                            packet.PREFIX + 'runtime.py': b'fixture runtime\n',
+                           packet.INTAKE_SOURCE: b'fixture intake\n',
+                           packet.NATIVE349_FILES: b'fixture carrier pins\n',
                            packet.WORKFLOW: b'fixture workflow\n',
                            packet.DOCUMENT: b'fixture doc\n'}.items():
             write(name, data, 0o755 if name.endswith('.sh') else 0o644)
@@ -59,18 +61,22 @@ class PacketTests(unittest.TestCase):
             write(base + '/PKGBUILD', data)
             self.recipes[base] = {'PKGBUILD': packet.sha(data)}
         native = 'scripts/ci/native_arm.py'
-        self.kernel = {'schema_version': 1, 'files': {
-                native: {'sha256': packet.sha(self.contents[native]), 'mode': 0o644}}}
-        write(packet.KERNEL + 'stage.lock.json', self.json_bytes(self.kernel))
-        write('scripts/ci/recipes.lock.json', self.json_bytes(self.recipes))
+        write(packet.RECIPES_LOCK, self.json_bytes(self.recipes))
         write('scripts/ci/inputs.lock.json', self.json_bytes({
                 'source_date_epoch': packet.EPOCH, 'packages': [{} for _ in range(248)]}))
+        self.kernel = {'schema_version': 2, 'purpose': 'KERNEL-NATIVE-C01', 'development_only': True,
+                'base_inputs_sha256': packet.sha(self.contents['scripts/ci/inputs.lock.json']),
+                'base_inventory_sha256': packet.BASE_SHA,
+                'recipes_sha256': packet.sha(self.contents[packet.RECIPES_LOCK]),
+                'files': {native: packet.row(self.contents[native], 0o644)}}
+        write(packet.KERNEL + 'stage.lock.json', self.json_bytes(self.kernel))
         # The self-referential lock is excluded from the packet file set.
         write(packet.PREFIX + 'packet.lock.json', b'{}\n')
         self.helper_pins = {name: (packet.sha(self.contents[name]), (self.root / name).stat().st_mode & 0o777)
-                            for name in ('LICENSE', 'AGENTS.md', 'scripts/setup/setup.py', 'scripts/ci/native_arm.py')}
+                            for name in ('LICENSE', 'AGENTS.md', 'scripts/setup/setup.py', 'scripts/ci/native_arm.py',
+                                         packet.NATIVE349_FILES)}
         self.pins = {'HELPERS': self.helper_pins, 'RECIPE_COUNT': 4, 'KERNEL_COUNT': 1, 'KERNEL_SHA': packet.sha(self.contents[packet.KERNEL + 'stage.lock.json']),
-                     'RECIPES_SHA': packet.sha(self.contents['scripts/ci/recipes.lock.json']),
+                     'RECIPES_SHA': packet.sha(self.contents[packet.RECIPES_LOCK]),
                      'INPUTS_SHA': packet.sha(self.contents['scripts/ci/inputs.lock.json'])}
         patcher = mock.patch.multiple(packet, **self.pins)
         patcher.start()
@@ -92,18 +98,18 @@ class PacketTests(unittest.TestCase):
 
     def run_git(self, argv, **kwargs):
         self.commands.append(argv)
-        self.assertEqual(argv[:7], ['/usr/bin/git', '-c', 'core.hooksPath=/dev/null', '-c',
-                                  'core.fsmonitor=false', '--no-optional-locks', '-C'])
-        self.assertEqual(argv[7], str(self.root))
-        if argv[8] == 'rev-parse':
-            self.assertEqual(argv[9:], ['--verify', 'HEAD'])
+        self.assertEqual(argv[:8], ['/usr/bin/git', '--no-replace-objects', '-c', 'core.hooksPath=/dev/null',
+                                  '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C'])
+        self.assertEqual(argv[8], str(self.root))
+        if argv[9] == 'rev-parse':
+            self.assertEqual(argv[10:], ['--verify', 'HEAD'])
             return subprocess.CompletedProcess(argv, 0, (self.commit + '\n').encode())
-        if argv[8] == 'show':
-            name = argv[9].removeprefix(self.commit + ':')
-            self.assertEqual(argv[9], self.commit + ':' + name)
+        if argv[9] == 'show':
+            name = argv[10].removeprefix(self.commit + ':')
+            self.assertEqual(argv[10], self.commit + ':' + name)
             return subprocess.CompletedProcess(argv, 0, self.contents[name])
-        self.assertEqual(argv[8:12], ['ls-tree', '--format=%(objectmode)', self.commit, '--'])
-        name = argv[12]
+        self.assertEqual(argv[9:13], ['ls-tree', '--format=%(objectmode)', self.commit, '--'])
+        name = argv[13]
         return subprocess.CompletedProcess(argv, 0,
                 ('100' + oct(self.manifest['files'][name]['mode'])[2:] + '\n').encode())
 
@@ -147,7 +153,7 @@ class PacketTests(unittest.TestCase):
             self.assertFalse(output.exists())
 
     def test_original_locks_must_keep_exact_pins(self):
-        for index, name in enumerate(('scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
+        for index, name in enumerate(('scripts/ci/inputs.lock.json', packet.RECIPES_LOCK,
                                      packet.KERNEL + 'stage.lock.json')):
             path = self.root / name
             path.write_bytes(self.contents[name] + b' ')
@@ -156,6 +162,21 @@ class PacketTests(unittest.TestCase):
                 self.verify(output)
             self.assertFalse(output.exists())
             path.write_bytes(self.contents[name])
+
+    def test_stage_must_bind_same_inputs_and_exact_source_length(self):
+        name = 'scripts/ci/native_arm.py'
+        lock = self.root / packet.KERNEL / 'stage.lock.json'
+        for field, error in (('base_inputs_sha256', 'producer-scope'), ('bytes', 'frozen-kernel-drift')):
+            malformed = copy.deepcopy(self.kernel)
+            if field == 'bytes':
+                malformed['files'][name]['bytes'] += 1
+            else:
+                malformed[field] = 'a' * 64
+            data = self.json_bytes(malformed)
+            lock.write_bytes(data)
+            with self.subTest(field=field), mock.patch.object(packet, 'KERNEL_SHA', packet.sha(data)):
+                with self.assertRaisesRegex(ValueError, error):
+                    packet.preview(self.root)
 
     def test_manifest_pin_duplicate_keys_and_nonfinite_numbers_are_refused(self):
         for data in (self.json_bytes(self.manifest) + b' ',
@@ -187,9 +208,9 @@ class PacketTests(unittest.TestCase):
         for change in ('blob', 'mode', 'exit'):
             def drift(argv, **kwargs):
                 result = self.run_git(argv, **kwargs)
-                if change == 'blob' and argv[8] == 'show':
+                if change == 'blob' and argv[9] == 'show':
                     result.stdout = b'different committed source'
-                elif change == 'mode' and argv[8] == 'ls-tree':
+                elif change == 'mode' and argv[9] == 'ls-tree':
                     result.stdout = b'100777\n'
                 elif change == 'exit':
                     result.returncode = 1
@@ -201,7 +222,7 @@ class PacketTests(unittest.TestCase):
         name = 'scripts/setup/setup.py'
         def drift(argv, **kwargs):
             result = self.run_git(argv, **kwargs)
-            if argv[8] == 'ls-tree' and argv[-1] == name:
+            if argv[9] == 'ls-tree' and argv[-1] == name:
                 (self.root / name).write_bytes(b'mid-copy drift')
             return result
         with self.assertRaisesRegex(ValueError, 'packet-copy-race'):
@@ -288,7 +309,7 @@ class PacketTests(unittest.TestCase):
                 self.verify()
         def different_head(argv, **kwargs):
             result = self.run_git(argv, **kwargs)
-            if argv[8] == 'rev-parse':
+            if argv[9] == 'rev-parse':
                 result.stdout = ('b' * 40 + '\n').encode()
             return result
         with self.assertRaisesRegex(ValueError, 'packet-HEAD'):

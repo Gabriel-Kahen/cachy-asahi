@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-setup
+pkgver=0.3.1
+pkgrel=2
+pkgdesc='Explicit setup status and hash-pinned per-user configuration migration'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'gnupg' 'pacman')
+makedepends=('patch')
+checkdepends=('fish')
+optdepends=('cachy-asahi-hyprland-settings: optional desktop template'
+            'cachy-asahi-fish-config: optional Fish template'
+            'cachy-asahi-zsh-config: optional Zsh template'
+            'cachy-asahi-fish-bang-bang: explicit optional Fish history expansion'
+            'cachy-asahi-fish-autopair: explicit optional Fish pairing'
+            'cachy-asahi-fish-done: explicit optional Fish completion notifications'
+            'cachy-asahi-zsh-autosuggestions: explicit optional Zsh history suggestions'
+            'cachy-asahi-zsh-syntax-highlighting: explicit optional Zsh highlighting'
+            'cachy-asahi-zsh-history-substring-search: explicit optional Zsh substring search')
+# Exact local snapshots of Setup8 0.3.0-1 from 6eb7c9df3bbd1c035f305df659132668ced64116,
+# plus the Fish quoting and journal guard patches, documentation and tests.
+source=('LICENSE'
+        'NOTICE'
+        'README.md'
+        'cachy-asahi-config-migrate'
+        'cachy-asahi-repository'
+        'config_migrate.py'
+        'configuration-migrations.md'
+        'fish-quoting.patch'
+        'journal-guard.patch'
+        'repository-enrollment.md'
+        'setup.py'
+        'test_config_migrate.py'
+        'test_fish_quoting.py')
+sha256sums=(
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+    'c47e845e85522c77bfc40b8a0d0e4a7cb44d0e4aa7ebfb244168bca8f604c9b1'
+    'b2691db311b23f1c313027cbd15a0ab7eee2e3814076a4c4ca45d9480e375426'
+    '844b5c01b49552ea5aaef19a7ced8637f49d1f5126c37f4c14471620d0951cc2'
+    '38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f'
+    '1368a1fa0586d946f33945b0be7e5c1deb4fe929509e34a81d55cfb9f5cb800b'
+    'c6c8d325fdfa7e2371591b0e9862f0b8baf802065a8e00bfea1b55db0bc8ae19'
+    '30592061cbb97b88db0bda9f63574f1252d1792c12048c12cc173ec1477713d7'
+    '3f5b15b5097d26ec20a2b65b8760a791aa67b55868a6eb41c20554116d1cd69b'
+    '67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4'
+    '724a37c9832d607455aeda1d929f0ee265ce268aecb64be5e00065c1edf85cf0'
+    '5aa67f40379c77eac07238c3b58e6ebd20128a9ee85d642c686cc51791db4d23'
+    'd356d5de126e6723fcbc85b16f95d746c6d86dc299580ede2657e0e1979c7641'
+)
+
+prepare() {
+    local tree="$srcdir/setup8-v3"
+    install -Dm644 "$srcdir/setup.py" "$srcdir/config_migrate.py" \
+        "$srcdir/test_config_migrate.py" -t "$tree" || return
+    patch --batch --forward --fuzz=0 -d "$tree" -p1 < "$srcdir/fish-quoting.patch" || return
+    patch --batch --forward --fuzz=0 -d "$tree" -p1 < "$srcdir/journal-guard.patch" || return
+    (
+        cd "$tree" &&
+            sha256sum --check --strict <<'DIGESTS'
+adfb419090e990705a2d04e2f6ffa167a279b393a65d26a222edced984b640d3  setup.py
+ea1dec790d06927679e006cf1a5dd254da1fda36e18f9f0f8f0b5ab444e960ce  config_migrate.py
+DIGESTS
+    )
+}
+
+check() (
+    local staged
+    staged=$(mktemp -d "$srcdir/setup8-stage.XXXXXX") || return
+    trap 'rm -rf -- "$staged"' EXIT
+    pkgdir="$staged" package || return
+    python -I -B -Werror::ResourceWarning "$srcdir/setup8-v3/test_config_migrate.py" -v || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_fish_quoting.py" \
+        --stage "$staged/usr" --legacy-root "$srcdir" -v
+)
+
+package() {
+    local tree="$srcdir/setup8-v3"
+    [[ -n $pkgdir && $pkgdir != / ]] || return 1
+    install -Dm755 "$tree/setup.py" "$pkgdir/usr/bin/cachy-asahi-setup" || return
+    install -Dm755 "$srcdir/cachy-asahi-repository" "$pkgdir/usr/bin/cachy-asahi-repository" || return
+    install -Dm755 "$srcdir/cachy-asahi-config-migrate" "$pkgdir/usr/bin/cachy-asahi-config-migrate" || return
+    install -Dm644 "$tree/setup.py" "$tree/config_migrate.py" -t "$pkgdir/usr/lib/cachy-asahi/setup8" || return
+    install -Dm644 "$srcdir/README.md" "$srcdir/repository-enrollment.md" "$srcdir/configuration-migrations.md" \
+        -t "$pkgdir/usr/share/doc/$pkgname" || return
+    install -Dm644 "$srcdir/NOTICE" "$srcdir/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname"
+}

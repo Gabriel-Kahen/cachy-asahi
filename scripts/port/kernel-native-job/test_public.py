@@ -11,12 +11,14 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import stat
 import subprocess
+import sys
 import tempfile
 import textwrap
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
@@ -176,6 +178,12 @@ class DiagnosticTests(unittest.TestCase):
                                      producer_exit={'kind': 'NOT_RUN', 'code': None}, daemon_baseline=initial_baseline())
                         value['daemon_baseline']['preservation'] = 'UNVERIFIED'
                         if reason == 'DAEMON_CONTAINERS_PRESENT': value['daemon_baseline']['initial_container_count'] = 1
+                    if reason == 'RETAINED_INPUTS_REJECTED':
+                        not_run = {'kind': 'NOT_RUN', 'code': None}
+                        value.update(schema_version=4, phase='cleanup', cleanup='FAIL', producer='NOT RUN',
+                            kernel_probe='NOT RUN', baseline='NOT RUN', candidate='NOT RUN', native_compilation='NOT RUN',
+                            producer_exit=not_run, acquisition_exit=not_run, daemon_baseline=initial_baseline(),
+                            kernel_child={'availability': 'NOT_RUN', 'exit': not_run, 'diagnostics': None})
                     if phase == 'producer' and reason == 'PRODUCER_BASELINE_ID_COLLISION':
                         value.update(cleanup='FAIL', producer='FAIL')
                         value['daemon_baseline']['producer_mutation'] = 'COMPLETE_REJECTED'
@@ -595,17 +603,16 @@ class BootstrapTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name) / 'source'; self.root.mkdir()
         self.ns = bootstrap()
+        sources = {self.ns['JOB'], *self.ns['MODULES'].values()}
         for name in self.ns['REQUIRED']:
             path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes((ROOT / name).read_bytes() if name in
-                            {self.ns['PUBLIC'], self.ns['JOB'], 'scripts/port/kernel-native-job/packet.py',
-                             'scripts/port/kernel-native-job/runtime.py'} else
-                             (name + '\n').encode())
+            path.write_bytes((ROOT / name).read_bytes() if name in sources else (name + '\n').encode())
             path.chmod(0o755 if name == self.ns['JOB'] else 0o644)
         self.rows = {name: {'bytes': len((self.root / name).read_bytes()),
                     'sha256': hashlib.sha256((self.root / name).read_bytes()).hexdigest(),
                     'mode': stat.S_IMODE((self.root / name).stat().st_mode)} for name in self.ns['REQUIRED']}
         self.packet = self.root / self.ns['PACKET']
+        self.packet.parent.mkdir(exist_ok=True)
         self.write_packet()
         self.git('init', '-q'); self.git('add', '.')
         self.git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-q', '-m', 'fixture')
@@ -631,6 +638,12 @@ class BootstrapTests(unittest.TestCase):
         captured = self.source()
         self.assertEqual(set(captured), self.ns['REQUIRED'])
         self.assertEqual(captured[self.ns['PUBLIC']], (self.root / self.ns['PUBLIC']).read_bytes())
+
+    def test_legacy_packet_cannot_supply_current_preflight(self):
+        legacy = self.root / 'scripts/port/kernel-native-job/packet.lock.json'
+        self.packet.rename(legacy)
+        with self.assertRaises(FileNotFoundError):
+            self.source()
 
     def test_live_source_byte_and_mode_changes_refused(self):
         path = self.root / self.ns['PUBLIC']; data = path.read_bytes()
@@ -692,6 +705,11 @@ class BootstrapTests(unittest.TestCase):
         target.parent.mkdir(parents=True)
         value = receipt(); value.update(source_commit=self.commit, packet_sha256=self.pin)
         target.write_bytes(encoded(value))
+        staged = Path(self.temp.name) / 'kernel623-retained-123-1'
+        staged.mkdir(mode=0o700)
+        unowned = Path(self.temp.name) / 'other-run-data'
+        unowned.write_bytes(b'unchanged')
+        (staged / 'input-link').symlink_to(unowned)
         environment = {'KERNEL_BOOTSTRAP_MODE': 'public', 'GITHUB_WORKSPACE': str(self.root),
                        'GITHUB_SHA': self.commit, 'KERNEL_JOB_PACKET_SHA256': self.pin,
                        'GITHUB_RUN_ID': '123', 'GITHUB_RUN_ATTEMPT': '1', 'KERNEL_NATIVE_OUTCOME': 'success'}
@@ -700,6 +718,8 @@ class BootstrapTests(unittest.TestCase):
             self.ns['main']()
         self.assertEqual(stop.exception.code, 0)
         self.assertEqual(json.loads(output.getvalue()), value)
+        self.assertFalse(staged.exists())
+        self.assertEqual(unowned.read_bytes(), b'unchanged')
 
     def snapshot(self):
         modes = {}
@@ -709,7 +729,7 @@ class BootstrapTests(unittest.TestCase):
     def test_timestamp_valid_root_caches_cannot_execute_in_clean_bootstrap(self):
         marker = self.root / 'malicious-cache-executed'
         cache_bytes = {}
-        for name in ('packet', 'runtime', 'public'):
+        for name in ('intake', 'packet', 'packet_v2', 'runtime', 'public'):
             source = self.root / f'scripts/port/kernel-native-job/{name}.py'
             info = source.stat()
             code = compile(f'from pathlib import Path\nPath({str(marker)!r}).write_text("EXECUTED")\nraise SystemExit(97)\n', str(source), 'exec')
@@ -767,17 +787,117 @@ class BootstrapTests(unittest.TestCase):
         text = WORKFLOW.read_text()
         for expected in ('workflow_dispatch:', "github.repository == 'Gabriel-Kahen/cachy-asahi'", 'github.event.repository.private == false',
                          'runs-on: ubuntu-24.04-arm', 'contents: read', 'group: native-arm-kernel', 'cancel-in-progress: false',
-                         'persist-credentials: false', '--deadline 20760', 'if: always()', 'run: *trusted-bootstrap',
+                         'persist-credentials: false', "'--deadline', '20760'", 'if: always()', 'run: *trusted-bootstrap',
                          'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'):
             self.assertIn(expected, text)
         for forbidden in ('upload-artifact', 'actions/cache', 'sudo', 'apt-get', 'docker system prune', 'schedule:', 'pull_request:', 'push:'):
             self.assertNotIn(forbidden, text)
-        self.assertEqual(5 + 5 + 346 + 3 + 1, 360)
-        self.assertNotIn('default:', text)
+        self.assertEqual(sum(map(int, re.findall(r'^        timeout-minutes: (\d+)$', text, re.M))) + 1, 360)
+        self.assertNotIn('default:', text.split('      retained_inputs:')[0])
+        self.assertIn('type: boolean\n        default: false', text)
+        before, retained = text.split('        id: retained\n', 1)
+        retained, after = retained.split('      - name: Execute finite producer', 1)
+        self.assertIn('if: inputs.retained_inputs', retained)
+        for transport, secret in (('https', 'KERNEL_NATIVE_RETAINED_INPUTS_URL'),
+                                  ('ssh', 'CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY')):
+            self.assertNotIn(secret, before + after)
+            self.assertIn(f"inputs.retained_transport == '{transport}' && secrets.{secret} || ''", retained)
+        self.assertIn('!cancelled() && steps.preflight.outcome', after)
+        self.assertIn('steps.retained.outcome', after)
+        self.assertIn('KERNEL_BOOTSTRAP_MODE: retained', retained)
+        self.assertIn('KERNEL_BOOTSTRAP_MODE: native', after)
+        self.assertIn('run: *trusted-bootstrap', retained)
+        self.assertIn('run: *trusted-bootstrap', after.split('      - name: Publish only', 1)[0])
         self.assertIn("exec(compile(captured[PUBLIC]", text)
-        self.assertIn('"$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/job.py"', text)
-        self.assertIn("stream.write('KERNEL_JOB_BOOTSTRAP_SOURCE='", text)
+        self.assertNotIn('KERNEL_JOB_BOOTSTRAP_SOURCE', text)
+        self.assertNotIn('KERNEL_JOB_PACKET_PATH', text)
 
+
+class LaunchCustodyTests(unittest.TestCase):
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory(prefix='kernel-launch-')
+        self.addCleanup(temp.cleanup)
+        self.root = Path(temp.name)
+        self.ns = bootstrap()
+        self.entry = self.ns['JOB']
+        self.helper = self.ns['MODULES']['packet_v3']
+        self.captured = dict.fromkeys(self.ns['MODULES'].values(), b'# fixture\n')
+        self.captured[self.entry] = b'import packet_v3\nraise SystemExit(packet_v3.RESULT)\n'
+        self.captured[self.helper] = b'RESULT = 73\n'
+        self.modes = dict.fromkeys(self.captured, 0o644)
+        self.modes[self.entry] = 0o755
+        modules = patch.dict(sys.modules)
+        modules.start()
+        self.addCleanup(modules.stop)
+        for name in self.ns['MODULES']:
+            sys.modules.pop(name, None)
+
+    def snapshot(self, attempt='1'):
+        return self.ns['clean_snapshot'](self.root, '1', attempt, self.captured, self.modes)
+
+    def test_launch_refuses_changes_to_the_copied_entry_or_import(self):
+        for attempt, name in enumerate((self.entry, self.helper), 1):
+            with self.subTest(name=name):
+                source = self.snapshot(str(attempt))
+                (source / name).write_bytes(b'# changed fixture bytes\n')
+                with self.assertRaisesRegex(ValueError, '^boundary$'):
+                    self.ns['launch'](source, self.captured, self.modes, self.entry, [])
+
+    def test_launch_executes_captured_bytes_after_copy_recheck(self):
+        source = self.snapshot()
+        read = self.ns['read']
+        replaced = set()
+
+        def read_then_replace(path, *args):
+            body = read(path, *args)
+            if path in (source / self.entry, source / self.helper):
+                path.write_bytes(b'# changed fixture bytes\n')
+                replaced.add(path.relative_to(source).as_posix())
+            return body
+
+        with patch.dict(self.ns, read=read_then_replace), self.assertRaises(SystemExit) as exit_:
+            self.ns['launch'](source, self.captured, self.modes, self.entry, [])
+        self.assertEqual(exit_.exception.code, 73)
+        self.assertEqual(replaced, {self.entry, self.helper})
+
+    def test_entry_path_insertion_does_not_enable_unlisted_imports(self):
+        name = 'kernel_launch_fixture_module'
+        self.captured[self.entry] = (
+            b'import sys\nfrom pathlib import Path\n'
+            b'sys.path.insert(0, str(Path(__file__).parent))\n'
+            b'import kernel_launch_fixture_module\n'
+        )
+        source = self.snapshot()
+        (source / self.entry).with_name(name + '.py').write_bytes(b'VALUE = 1\n')
+        with self.assertRaises(ModuleNotFoundError) as failure:
+            self.ns['launch'](source, self.captured, self.modes, self.entry, [])
+        self.assertEqual(failure.exception.name, name)
+
+    def test_retained_and_native_modes_recapture_before_launch(self):
+        snapshot = self.root / 'artifacts/kernel-native-job/bootstrap-1-2/source'
+        for mode, entry in (('retained', self.ns['INTAKE']), ('native', self.entry)):
+            with self.subTest(mode=mode):
+                environment = {'KERNEL_BOOTSTRAP_MODE': mode, 'GITHUB_WORKSPACE': str(self.root),
+                               'RUNNER_TEMP': str(self.root), 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '2',
+                               'GITHUB_SHA': COMMIT, 'KERNEL_JOB_PACKET_SHA256': PIN,
+                               'KERNEL_DOCKER_SHA256': 'c' * 64}
+                calls = Mock()
+
+                def source(root, commit, pin, modes):
+                    self.assertEqual((root, commit, pin), (self.root, COMMIT, PIN))
+                    modes.update(self.modes)
+                    calls.capture()
+                    return self.captured
+
+                with patch.dict(self.ns, source=source, launch=calls.launch), patch.dict(os.environ, environment):
+                    self.ns['main']()
+                self.assertEqual([item[0] for item in calls.mock_calls], ['capture', 'launch'])
+                root, captured, modes, selected, args = calls.launch.call_args.args
+                self.assertEqual((root, captured, modes, selected), (snapshot, self.captured, self.modes, entry))
+                if mode == 'native':
+                    self.assertEqual(args[args.index('--packet') + 1], str(self.root / self.ns['PACKET']))
+                else:
+                    self.assertEqual(args, [])
 
 
 class Schema4ChildTests(unittest.TestCase):
@@ -920,6 +1040,26 @@ class InnerFailurePublicTests(unittest.TestCase):
                                  'diagnostics': evidence.project(row)}
         return value
 
+    def test_refused_permission_subclass_is_a_closed_public_value(self):
+        for code in ('CHECK_001_PERMISSIONS_RWX', 'CHECK_001_PERMISSIONS_OTHER'):
+            fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': code}
+            self.assertEqual(public.validate_output_fact(fact), fact)
+            with self.assertRaises(ValueError):
+                public.validate_output_fact(dict(fact, flags=7))
+        with self.assertRaises(ValueError):
+            public.validate_output_fact({'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_PERMISSIONS_7'})
+
+    def test_check001_conjuncts_are_closed_public_values(self):
+        labels = ('ALIGN_MIN', 'ALIGN_POWER_TWO', 'VA_ALIGN', 'PA_ALIGN', 'VA_16K', 'PA_16K', 'PERMISSIONS', 'MEMORY_SIZE')
+        for label in labels:
+            fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_' + label}
+            self.assertEqual(public.validate_output_fact(fact), fact)
+        for code in ('CHECK_001_PRIVATE', 'CHECK_001_PERMISSIONS /private', True, None):
+            with self.assertRaises(ValueError):
+                public.validate_output_fact({'call_boundary': 'VERIFY_OUTPUTS', 'predicate': code})
+        with self.assertRaises(ValueError):
+            public.validate_output_fact({'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_VA_16K', 'address': 1})
+
     def test_new_failure_diagnostic_preserves_all_outcome_failures(self):
         value = self.value(); original = copy.deepcopy(value['kernel_child'])
         for outcome in ('success', 'failure', 'cancelled', 'skipped', ''):
@@ -939,6 +1079,182 @@ class InnerFailurePublicTests(unittest.TestCase):
     def test_unknown_inner_fields_remain_private_and_refused(self):
         value = self.value(); value['kernel_child']['diagnostics']['inner']['baseline']['raw_stderr'] = 'private-secret'
         with self.assertRaises(ValueError): public.project(encoded(value), COMMIT, PIN, 'failure')
+
+
+
+def relocation_fixture():
+    return {'role': 'arm64-image-reference', 'elf_type': 3, 'branch': 'NULL_LINK_RELATIVE',
+        'failed_check': 'INFO_RELATIVE', 'section': {'index': 3, 'type': 4, 'flags': 2,
+        'link': 0, 'info': 0, 'entry_index': 0}, 'offset': 4097, 'info': 1028,
+        'symbol_count': None, 'target_size': None,
+        'allocated': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 1, 'address': 4096, 'size': 32}},
+        'load': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 0, 'address': 4096, 'size': 32}}}
+
+
+class RelocationPublicTests(unittest.TestCase):
+    value = InnerFailurePublicTests.value
+    def test_output_diagnostics_survive_public_projection_without_outcome_upgrade(self):
+        import importlib.util
+        path=HERE.parent/'kernel-native-stage/inner_result.py'
+        spec=importlib.util.spec_from_file_location('relocation_inner_fixture',path)
+        diag=importlib.util.module_from_spec(spec)
+        # Inner runtime is a separate module namespace from this job runtime.
+        import sys,types
+        saved=sys.modules.get('runtime');stub=types.ModuleType('runtime')
+        stub.Cancelled=type('Cancelled',(Exception,),{})
+        try:
+            sys.modules['runtime']=stub;spec.loader.exec_module(diag)
+        finally:
+            if saved is None:sys.modules.pop('runtime',None)
+            else:sys.modules['runtime']=saved
+        binding={'nonce':'a'*32,'action':'baseline','contract_sha256':'b'*64,'worker_sha256':'c'*64}
+        for version in (5, 6, 7, 8, 9, 10):
+            row = diag.initial(binding)
+            diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL'); diag.returned(row, 0)
+            diag.phase(row, 'OUTPUTS')
+            if version == 10:
+                error = UnicodeDecodeError('ascii', b'private-bytes\xff', 13, 14, 'private reason')
+            elif version in (8, 9):
+                error = ValueError('ELF section file geometry invalid')
+                error.section_geometry = {'role': 'module', 'elf_type': 1, 'module_ordinal': 17,
+                    'file_bytes': 1024, 'file_alignment': 32 if version == 8 else 8,
+                    'failed_check': 'FILE_OFFSET_ALIGNMENT',
+                    'section': {'index': 3, 'type': 1, 'flags': 0, 'addr': 0,
+                                'offset': 104 if version == 8 else 105,
+                                'size': 128, 'align': 32, 'name_class': 'OTHER',
+                                'name_sha256': hashlib.sha256(b'.debug_aranges').hexdigest()}}
+                error.rela_table = {'entries': 1, 'types': [[1027, 1, 1, 0]], 'overflow': [0, 0, 0]}
+            elif version == 7:
+                error = ValueError('defined symbol outside allocated section')
+                samples = [
+                    {'symbol_class': 'OTHER', 'symbol_sha256': 'f' * 64, 'binding': 2, 'type': 2,
+                     'value': 2**64 - 1, 'size': 2**64 - 1,
+                     'section': {'index': 8191, 'type': 0xffffffff, 'flags': 2**64 - 2,
+                                 'addr': 2**64 - 8, 'size': 8, 'name_class': 'OTHER'}} for _ in range(2)]
+                error.symbol_range = {'role': 'arm64-image-reference', 'elf_type': 3,
+                                      'section_offset': False, 'failure_count': 2000000,
+                                      'scan_complete': True, 'samples': samples}
+                count = 10000000
+                error.rela_table = {'entries': 9 * count, 'types': [[0xffffffff - i, count, count, count]
+                                    for i in reversed(range(8))], 'overflow': [count, count, count]}
+            else:
+                error = ValueError('ELF relocation index/offset invalid')
+                error.relocation_failure = relocation_fixture()
+            if version == 6:
+                error.relocation_failure['info'] = (1 << 32) | 1027
+                error.rela_table = {'entries': 1, 'types': [[1027, 1, 1, 0]], 'overflow': [0, 0, 0]}
+            diag.failure(row, error)
+            if version == 8:
+                # A retained v8 report uses the historical declared alignment.
+                row.update(schema_version=8, output_failure={
+                    'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_011',
+                    'section_geometry': error.section_geometry, 'rela_table': error.rela_table})
+            elif version == 10:
+                diag.output_fault(row, error, 'MODULE_INFO')
+            else:
+                diag.output_failure(row, error)
+            self.assertEqual(row['schema_version'], version)
+            report = {'action': 'baseline', 'nonce': binding['nonce'], 'status': 'FAIL',
+                      'cancelled': False, 'inner_diagnostic': row}
+            group = diag.capture(json.dumps(report).encode(), binding)
+            value = self.value()
+            value['kernel_child']['diagnostics']['inner']['baseline'] = group
+            for outcome in ('success', 'failure', 'cancelled'):
+                result = public.project(encoded(value), COMMIT, PIN, outcome)
+                self.assertEqual(result['kernel_child']['diagnostics']['inner']['baseline'], group)
+                self.assertEqual((result['status'], result['baseline'], result['candidate']), ('FAIL', 'FAIL', 'NOT RUN'))
+                self.assertNotIn('private reason', json.dumps(result))
+            bad = copy.deepcopy(value)
+            bad['kernel_child']['diagnostics']['inner']['baseline']['diagnostic']['schema_version'] = 4
+            with self.assertRaises(ValueError):
+                public.project(encoded(bad), COMMIT, PIN, 'failure')
+
+
+class AcquisitionFailurePublicTests(unittest.TestCase):
+    def value(self):
+        value=receipt();value.update(schema_version=4,status='FAIL',phase='cleanup',producer='FAIL',kernel_probe='NOT RUN',baseline='NOT RUN',candidate='NOT RUN',cleanup='FAIL',native_compilation='NOT RUN',first_failed_phase='parallel',failure_reason='BOTH_CHILDREN_EXIT',producer_exit=public.exit_record(-15),acquisition_exit=public.exit_record(1),kernel_child=dict(availability='NOT_RUN',exit=dict(kind='NOT_RUN',code=None),diagnostics=None))
+        value['daemon_baseline'].update(producer_mutation='UNCERTAIN',owned_absence='UNVERIFIED')
+        return value
+
+    def record(self):
+        return dict(schema_version=1,purpose='kernel-acquisition-failure',binding_sha256='a'*64,phase='PACKAGE_FETCH',input_ordinal=0,error_kind='DATA_REFUSAL',refusal='HTTP_CHILD')
+
+    def group(self):
+        record=self.record();raw=json.dumps(record,sort_keys=True,separators=(',',':')).encode()+b'\n'
+        return dict(availability='VERIFIED',reason='OBSERVED',sha256=hashlib.sha256(raw).hexdigest(),diagnostic=record)
+
+    def test_bound_diagnostic_roundtrip_cannot_upgrade_outcome_or_cleanup(self):
+        value=self.value();value['acquisition_failure']=self.group()
+        for outcome in ('success','failure','cancelled'):
+            result=public.project(encoded(value),COMMIT,PIN,outcome)
+            self.assertEqual(result['acquisition_failure'],value['acquisition_failure'])
+            self.assertEqual((result['status'],result['cleanup'],result['native_compilation']),('FAIL','FAIL','NOT RUN'))
+            self.assertEqual((result['first_failed_phase'],result['failure_reason']),('parallel','BOTH_CHILDREN_EXIT'))
+        with self.assertRaises(ValueError):public.project(encoded(dict(value,acquisition_exit=public.exit_record(0))),COMMIT,PIN,'failure')
+
+    def test_missing_and_invalid_are_distinct_and_no_native_acceptance(self):
+        for availability,reason in [('UNAVAILABLE','MISSING'),('REFUSED','INVALID')]:
+            value=self.value();value['acquisition_failure']=dict(availability=availability,reason=reason,sha256=None,diagnostic=None)
+            self.assertEqual(public.project(encoded(value),COMMIT,PIN,'failure')['acquisition_failure'],value['acquisition_failure'])
+        value=self.value();value['acquisition_failure']=self.group();value['acquisition_failure']['sha256']='b'*64
+        with self.assertRaises(ValueError):public.project(encoded(value),COMMIT,PIN,'failure')
+
+    def test_phase_ordinal_type_and_private_metadata_matrix(self):
+        for ordinal in range(35):
+            record=self.record();record.update(phase='PACKAGE_FETCH' if ordinal<30 else 'ARCHIVE_FETCH' if ordinal==30 else 'PATCH_FETCH' if ordinal==31 else 'KEY_FETCH',input_ordinal=ordinal)
+            self.assertEqual(public.acquisition_failure_record(record),record)
+        changes=[dict(input_ordinal=True),dict(input_ordinal=30),dict(phase='KEY_FETCH',input_ordinal=31),dict(phase='SOURCE_PINS'),dict(raw_error='/private'),dict(binding_sha256='x'*64),dict(error_kind='IO'),dict(phase='/home/private')]
+        for change in changes:
+            record=dict(self.record(),**change)
+            with self.assertRaises(ValueError):public.acquisition_failure_record(record)
+
+
+class ProducerFailurePublicTests(unittest.TestCase):
+    def fixture(self, first=(1, None)):
+        value = receipt()
+        value.update(schema_version=4, status='FAIL', phase='cleanup', producer='FAIL', kernel_probe='NOT RUN',
+                     baseline='NOT RUN', candidate='NOT RUN', cleanup='FAIL', native_compilation='NOT RUN',
+                     first_failed_phase='parallel', failure_reason='BOTH_CHILDREN_EXIT',
+                     producer_exit=public.exit_record(1), acquisition_exit=public.exit_record(-2),
+                     parallel_first_failure=public.parallel_failure_record(first),
+                     kernel_child=dict(availability='NOT_RUN', exit=dict(kind='NOT_RUN', code=None), diagnostics=None))
+        value['daemon_baseline'].update(producer_mutation='UNCERTAIN', owned_absence='UNVERIFIED')
+        diagnostic = dict(schema_version=1, purpose='kernel-producer-failure', phase='ACQUISITION',
+                          acquisition='FAIL', counts={'pass': 500, 'fail': 1, 'pending': 0},
+                          failure_kinds=dict.fromkeys(public.PRODUCER_FAILURE_KINDS, 0) | {'HTTP_404': 1})
+        value['producer_failure'] = dict(availability='VERIFIED', reason='OBSERVED',
+            sha256=hashlib.sha256(public.producer_failure_bytes(diagnostic)).hexdigest(), diagnostic=diagnostic)
+        return value
+
+    def test_roundtrip_preserves_failure_cleanup_and_no_native_work(self):
+        value = self.fixture()
+        for outcome in ('failure', 'success', 'cancelled'):
+            projected = public.project(encoded(value), COMMIT, PIN, outcome)
+            self.assertEqual(projected['producer_failure'], value['producer_failure'])
+            for key in ('status', 'producer', 'cleanup', 'first_failed_phase', 'failure_reason', 'native_compilation'):
+                self.assertEqual(projected[key], value[key])
+        legacy = dict(value)
+        legacy.pop('producer_failure')
+        self.assertEqual(public.project(encoded(legacy), COMMIT, PIN, 'failure'), legacy)
+
+    def test_refuses_tied_first_unauthenticated_and_grafted_details(self):
+        for first in ((1, -2), (None, -2)):
+            with self.subTest(first=first), self.assertRaises(ValueError):
+                public.project(encoded(self.fixture(first)), COMMIT, PIN, 'failure')
+        value = self.fixture()
+        value.pop('parallel_first_failure')
+        with self.assertRaises(ValueError):
+            public.project(encoded(value), COMMIT, PIN, 'failure')
+        for change in (dict(phase='/home/private'), dict(raw_error='/home/private'),
+                       dict(counts={'pass': 499, 'fail': 1, 'pending': 1}),
+                       dict(failure_kinds={'HTTP_404': True})):
+            diagnostic = self.fixture()['producer_failure']['diagnostic']
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                public.producer_failure_bytes(dict(diagnostic, **change))
+        value = self.fixture()
+        value['producer_failure']['sha256'] = 'b' * 64
+        with self.assertRaises(ValueError):
+            public.project(encoded(value), COMMIT, PIN, 'failure')
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@
   "name": "latest607-gui-runner-context-source",
   "on": {
     "push": {
+      "branches": ["main"],
       "paths": [
         "scripts/ci/latest607-gui-runner-context-source/**",
         ".github/workflows/latest607-gui-runner-context-source.yml"

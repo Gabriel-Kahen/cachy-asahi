@@ -8,6 +8,7 @@ import io
 import shutil
 import os
 from pathlib import Path
+from runpy import run_path
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -91,8 +92,13 @@ class FrozenConfigurationControl(unittest.TestCase):
             initializer=ROOT/'scripts/update/aux_initialize.py',initializer_sha256=value['code_pins']['scripts/update/aux_initialize.py'],
             comparator=ROOT/'scripts/ci/full-development-composition/audio_aux.py')
         read=lane.read
+        fixture=run_path(str(ROOT/'scripts/release/full_root_release_fixture.py'))
+        release=ROOT/fixture['RELEASE']
+        release_source=fixture['frozen_release'](ROOT)
         def projected(path,maximum=1024**2):
             path=Path(path)
+            if path == release:
+                return release_source
             if path.parent==ROOT/'scripts/ci/full-root-failed-update':path=HERE/path.name
             return read(path,maximum)
         with patch.object(lane,'read',side_effect=projected):

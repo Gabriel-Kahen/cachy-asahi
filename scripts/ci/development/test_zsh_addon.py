@@ -237,6 +237,35 @@ class CommandTests(unittest.TestCase):
                     if index not in {create.index('--cidfile'), create.index('--cidfile') + 1}]
         self.assertEqual(restored, ['create', *original[2:]])
 
+    def test_only_held_profile_allows_the_legacy_bind(self):
+        legacy = self.config
+        entry = Path(legacy['entry']).read_bytes()
+        root = Path(__file__).resolve().parents[3]
+        historic = root / 'scripts/ci/maintained-native/native/scripts/build/build.py'
+        current = root / 'scripts/build/build.py'
+        self.assertEqual(zsh.entry_profile(historic.read_bytes(), legacy['entry'], entry),
+                         {'entry': legacy['entry']})
+        old_entry = historic.with_name('container-entry.sh').read_bytes()
+        self.assertEqual(zsh.entry_profile(current.read_bytes(), legacy['entry'], old_entry),
+                         {'entry_script': old_entry.decode('utf-8')})
+        captured = {key: value for key, value in legacy.items() if key != 'entry'}
+        captured.update(zsh.entry_profile(current.read_bytes(), legacy['entry'], entry,
+                                          reviewed={'PKGBUILD': '1' * 64}))
+        argv = list(self.argv)
+        at = argv.index(f'type=bind,src={legacy["entry"]},dst=/builder-entry.sh,readonly')
+        del argv[at - 1:at + 1]
+        argv[-1:] = ['-c', entry.decode('utf-8'), '/builder-entry.sh']
+        item = f"{zsh.RECIPE_INPUTS_ENV}={captured['recipe_inputs_sha256']}"
+        start = argv.index('--mount')
+        argv[start:start] = ['--env', item]
+        self.assertEqual(zsh.exact_run(captured, argv)['original'], argv)
+        self.assertEqual(zsh.exact_run(legacy, self.argv)['original'], self.argv)
+        for config, command in ((captured, self.argv), (legacy, argv),
+                                (captured, [*argv[:start], *argv[start + 2:]]),
+                                (captured, [*argv[:-2], '# changed entry', argv[-1]])):
+            with self.assertRaisesRegex(zsh.Refusal, 'docker-run-refused'):
+                zsh.exact_run(config, command)
+
     def test_privileged_host_network_extra_mount_and_helper_removal_refused(self):
         candidates = (['rm', '-f', self.name], ['docker', *self.argv], ['run', '--privileged', *self.argv[1:]],
                       [x if x != 'none' else 'host' for x in self.argv],
@@ -292,6 +321,27 @@ class ContainerTests(unittest.TestCase):
                                  'Propagation': 'rprivate'} for target, source, readonly in mounts],
                      'State': {'Status': 'created', 'Running': False, 'Paused': False, 'Restarting': False,
                                'Dead': False, 'OOMKilled': False, 'Error': '', 'ExitCode': 0}}
+
+    def test_captured_entry_inspection_binds_exact_script_and_three_mounts(self):
+        config = dict(self.config)
+        entry = Path(config.pop('entry')).read_text()
+        config.update(entry_script=entry, recipe_inputs_sha256='1' * 64)
+        observed = copy.deepcopy(self.info)
+        with self.assertRaisesRegex(zsh.Refusal, 'container-config-refused'):
+            zsh.validate_container(config, observed, self.name, self.cid)
+        observed['Config']['Cmd'] = ['-c', entry, '/builder-entry.sh']
+        with self.assertRaisesRegex(zsh.Refusal, 'container-env-refused'):
+            zsh.validate_container(config, observed, self.name, self.cid)
+        observed['Config']['Env'].append(zsh.RECIPE_INPUTS_ENV + '=' + '1' * 64)
+        with self.assertRaisesRegex(zsh.Refusal, 'container-mount-refused'):
+            zsh.validate_container(config, observed, self.name, self.cid)
+        observed['Mounts'] = [row for row in observed['Mounts'] if row['Destination'] != '/builder-entry.sh']
+        declared = observed['HostConfig']['Mounts']
+        observed['HostConfig']['Mounts'] = [row for row in declared if row['Target'] != '/builder-entry.sh']
+        zsh.validate_container(config, observed, self.name, self.cid)
+        observed['Config']['Cmd'][1] = '# changed entry'
+        with self.assertRaisesRegex(zsh.Refusal, 'container-config-refused'):
+            zsh.validate_container(config, observed, self.name, self.cid)
 
     def test_exact_observed_created_container_accepted_without_actor(self):
         self.assertIsNone(zsh.validate_container(self.config, self.info, self.name, self.cid))

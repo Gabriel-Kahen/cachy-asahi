@@ -1,0 +1,176 @@
+{
+  "baseline": {
+    "input_lock_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+    "packages": 341,
+    "packages_lock_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "recipe_lock_sha256": "56c53699b1c9a493798a071a537ae17d5b892ffa9618ca99a3465985a51fcef8",
+    "reference_commit": "4e5493cbd384feaae027abb476437c90b7c07cba",
+    "reference_run": 45784522085,
+    "references": {
+      "scripts/port/kernel-native-job/packet.lock.json": {
+        "bytes": 24814,
+        "sha256": "3676a36626bf55a925e395128fb32ab6a876642259f2eac2c4221a920db65e18"
+      },
+      "scripts/port/kernel-native-job/packet.py": {
+        "bytes": 12800,
+        "sha256": "3cc6631797d804086686e88ddd2240455561420430bedb4ea6e4ce9eade9c53f"
+      }
+    },
+    "retained_files": 214,
+    "retained_names_sha256": "84fba558c4033f7eb5fef7c511fb13c63d51d40ac0313cc3d7f5aff2eb216ef7",
+    "signatures": 249,
+    "transport_files": 501
+  },
+  "extension": {
+    "reference_commit": "32dea27b8c3ea0b8fc618eb5db9761b5291d428f",
+    "rows": [
+      {
+        "arch": "aarch64",
+        "archive": {
+          "bytes": 23320952,
+          "filename": "cmake-4.4.4-1-aarch64.pkg.tar.xz",
+          "sha256": "d03c7956ca35408d50b3bf72a318386e44a07331bf3ab61e9f598a1c4b33086b"
+        },
+        "conflicts": [],
+        "depends": [
+          "cppdap",
+          "curl",
+          "expat",
+          "glibc",
+          "hicolor-icon-theme",
+          "jsoncpp",
+          "libarchive",
+          "libgcc",
+          "libstdc++",
+          "libuv",
+          "ncurses",
+          "rhash",
+          "zlib"
+        ],
+        "license": [
+          "BSD-3-Clause"
+        ],
+        "name": "cmake",
+        "provides": [],
+        "replaces": [],
+        "signature": {
+          "bytes": 566,
+          "filename": "cmake-4.4.4-1-aarch64.pkg.tar.xz.sig",
+          "sha256": "4f326e1292a9dba67c7e773e2909ef43e10bbd89c87dfd1542a4fa90e64cb1f6"
+        },
+        "version": "4.4.4-1"
+      },
+      {
+        "arch": "aarch64",
+        "archive": {
+          "bytes": 316428,
+          "filename": "cppdap-1.58.0-3-aarch64.pkg.tar.xz",
+          "sha256": "daf4c7990af45016ffa92b9af8f995dd816ef9755e181dc634a6aab15452cdab"
+        },
+        "conflicts": [],
+        "depends": [
+          "glibc",
+          "libgcc",
+          "libstdc++"
+        ],
+        "license": [
+          "Apache-2.0"
+        ],
+        "name": "cppdap",
+        "provides": [],
+        "replaces": [],
+        "signature": {
+          "bytes": 566,
+          "filename": "cppdap-1.58.0-3-aarch64.pkg.tar.xz.sig",
+          "sha256": "d1cc43c39ca388a515833c63eda18833779d38b85e42a31ff732ee26b3ca4b2b"
+        },
+        "version": "1.58.0-3"
+      },
+      {
+        "arch": "aarch64",
+        "archive": {
+          "bytes": 136220,
+          "filename": "jsoncpp-1.9.8-1-aarch64.pkg.tar.xz",
+          "sha256": "d013ab87d21e0cbcf284772523f08c373d14c0a50ad708bdd28e5f727a684395"
+        },
+        "conflicts": [],
+        "depends": [
+          "glibc",
+          "libgcc",
+          "libstdc++"
+        ],
+        "license": [
+          "MIT",
+          "custom:Public_Domain"
+        ],
+        "name": "jsoncpp",
+        "provides": [
+          "libjsoncpp.so=27-64"
+        ],
+        "replaces": [],
+        "signature": {
+          "bytes": 566,
+          "filename": "jsoncpp-1.9.8-1-aarch64.pkg.tar.xz.sig",
+          "sha256": "d9154732b87135f20aff334e7634e10e0f34f31c1edb65bbb16e45c553e46732"
+        },
+        "version": "1.9.8-1"
+      },
+      {
+        "arch": "aarch64",
+        "archive": {
+          "bytes": 252776,
+          "filename": "libuv-1.52.1-2-aarch64.pkg.tar.xz",
+          "sha256": "b7ef4dd7c5dd724a71ad37a28640057cc75988cf8f49b605d3b6b468ef2ee854"
+        },
+        "conflicts": [],
+        "depends": [
+          "glibc",
+          "libnsl"
+        ],
+        "license": [
+          "custom"
+        ],
+        "name": "libuv",
+        "provides": [],
+        "replaces": [],
+        "signature": {
+          "bytes": 566,
+          "filename": "libuv-1.52.1-2-aarch64.pkg.tar.xz.sig",
+          "sha256": "8d77a301695203bc18aa251413a267f88f0f6d3a880218e188b8b20ba4587784"
+        },
+        "version": "1.52.1-2"
+      },
+      {
+        "arch": "aarch64",
+        "archive": {
+          "bytes": 173616,
+          "filename": "rhash-1.4.6-1-aarch64.pkg.tar.xz",
+          "sha256": "ceaaa210a8a222d724971709e928b9a0c1cbb3d7838c94ec8719b14a37280260"
+        },
+        "conflicts": [],
+        "depends": [
+          "glibc"
+        ],
+        "license": [
+          "0BSD"
+        ],
+        "name": "rhash",
+        "provides": [
+          "librhash.so=1-64"
+        ],
+        "replaces": [],
+        "signature": {
+          "bytes": 566,
+          "filename": "rhash-1.4.6-1-aarch64.pkg.tar.xz.sig",
+          "sha256": "02107c03b9eea1d5e0a7efa5c6d8db3ed779d201b8faa8f7299bd6756ce513f5"
+        },
+        "version": "1.4.6-1"
+      }
+    ],
+    "tiff_packages": 346,
+    "tiff_packages_lock_sha256": "6c1d2c33b1d80b1ddfa8eb50327c724ba6ffa13dfb5c8dca19133d4676b1b5bd"
+  },
+  "purpose": "PROJECT_LIBRARIES_622_MAINTAINED",
+  "recipe_tree": "441815470dc9434c9b4f314f57cb2521f19e9520",
+  "schema_version": 1
+}

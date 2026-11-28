@@ -19,6 +19,9 @@ spec=importlib.util.spec_from_file_location('audio_intake_tests',HERE/'intake.py
 a=importlib.util.module_from_spec(spec);spec.loader.exec_module(a)
 PIN='e2ab9b6cc2810bf5d5b6454abdb9bcdeea6567797247c745b0d04541cb99c6c8'
 RAW=(HERE/'native-inputs.json').read_bytes()
+CHECKER='scripts/checks/package_checks.py'
+HELD_CHECKER=(a.ROOT/'scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
+              /'scripts/ci/llhttp-reference-native-source/base/runtime'/CHECKER)
 
 
 class Intake(unittest.TestCase):
@@ -26,9 +29,15 @@ class Intake(unittest.TestCase):
         self.temp=tempfile.TemporaryDirectory(prefix='audio-intake-test-');self.addCleanup(self.temp.cleanup)
         self.root=Path(self.temp.name)
 
-    def test_exact_profile_and_current_project_apis(self):
+    def test_exact_profile_and_pinned_project_apis(self):
         value=a.profile(RAW,PIN)
-        with mock.patch('subprocess.Popen',side_effect=AssertionError('actor forbidden')):
+        for name in value['api_files']:
+            source=HELD_CHECKER if name==CHECKER else a.ROOT/name
+            target=self.root/name
+            target.parent.mkdir(parents=True,exist_ok=True)
+            target.write_bytes(source.read_bytes())
+        with mock.patch.object(a,'ROOT',self.root), \
+             mock.patch('subprocess.Popen',side_effect=AssertionError('actor forbidden')):
             self.assertEqual(set(a.load_api(value).profiles()),set(a.VERSIONS))
         self.assertEqual({k:v['expected_generic_error_count']for k,v in value['packages'].items()},
                          {'alsa-ucm-conf-asahi':54,'asahi-audio':10,'bankstown':0,'speakersafetyd':5,'triforce-lv2':0})

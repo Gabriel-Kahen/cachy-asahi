@@ -1,6 +1,7 @@
 name: repair-selected-note-binding-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/repair-selected-note-binding-source/**
       - .github/workflows/repair-selected-note-binding-source.yml

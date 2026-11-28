@@ -15,8 +15,10 @@ class Controls(unittest.TestCase):
   cls.D=module(cls.root/P.NO/'data.py','minimal206_data');cls.C=module(cls.root/P.NB/'contract.py','minimal206_contract');cls.E=module(cls.root/P.NO/'public_evidence.py','minimal206_public');cls.Q=module(cls.root/P.NO/'source_readonly.py','minimal206_readonly');cls.profile=P.decode(cls.b[P.NB+'profile.json']);cls.policy=P.decode(cls.b[P.NO+'policy.json'])
  @classmethod
  def tearDownClass(cls):cls.temp.cleanup()
- def test_ACTUAL_whole_e947_and95_inputs_and_complete_inverse(self):
+ def test_ACTUAL_whole_maintained_intake_and95_inputs_and_complete_inverse(self):
   self.assertEqual(P.inverse(self.b),self.old);self.assertEqual(len(self.b),96);self.assertLess(sum(map(len,self.b.values())),2*1024**2);self.assertEqual(P.pin(self.native),P.NATIVE);self.assertEqual(P.pin(self.expected),P.EXPECTED);self.assertEqual(len(self.expected.splitlines()),206);self.assertEqual(P.decode(self.native)['rootfs_packages'],P.decode(self.old[P.OB+'runtime/scripts/ci/inputs.lock.json'])['rootfs_packages']);self.D.source(self.root,P.pin(self.b['source-map.json'])['sha256'])
+  marker=P.decode(self.b[P.MARKER]);self.assertEqual(marker['intake_lock'],P.pin((INTAKE/'source.lock.json').read_bytes()));self.assertEqual(marker['intake_revision'],P.INTAKE_REVISION)
+  bad=dict(self.b);bad[P.MARKER]=P.encoded(dict(marker,intake_lock=P.ORIGINAL_INTAKE_LOCK));self.assertRaisesRegex(ValueError,'whole canonical',P.inverse,bad)
  def test_complete_changed_preimages_and_membership_tamper_refuse(self):
   for n in(P.NB+'expected206.lock',P.NB+'runtime/scripts/ci/inputs.lock.json',P.NB+'contract.py',P.NO+'hosted_owner.py',P.NO+'public_evidence.py',P.MARKER):
    bad=dict(self.b);bad[n]+=b'x'

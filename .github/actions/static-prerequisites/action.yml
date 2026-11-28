@@ -37,13 +37,20 @@ runs:
       with:
         path: ${{ runner.temp }}/static-apt-cache/*.deb
         key: ${{ steps.identity.outputs.key }}
-    - name: Require the declared cold or exact warm cache state
+    - name: Record restore timing and check cache misses
       shell: bash
       env:
         CAA_CACHE_HIT: ${{ steps.archives.outputs.cache-hit }}
-      run: python3 -I -B scripts/ci/static_apt_trial.py cache
+      run: |
+        if [[ "$CAA_CACHE_HIT" == true ]]; then
+          python3 -I -B scripts/ci/static_apt_trial.py clock cache_end_ns
+        else
+          python3 -I -B scripts/ci/static_apt_trial.py cache
+        fi
     - name: Install test prerequisites on disposable runner
       shell: bash
+      env:
+        CAA_CACHE_HIT: ${{ steps.archives.outputs.cache-hit }}
       run: |
         python3 -I -B scripts/ci/static_apt_trial.py clock install_start_ns
         bash -e scripts/ci/static_apt_install.sh

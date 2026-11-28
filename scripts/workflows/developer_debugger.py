@@ -115,6 +115,7 @@ class Project:
 
     def inputs(self):
         return dict(source=ordinary_pin(self.source), compiler=file_pin(self.compiler),
+                    compiler_target=str(Path(self.compiler).resolve(strict=True)),
                     debugger=file_pin(self.tools['gdb']), flags=list(FLAGS))
 
     def products(self):
@@ -248,8 +249,12 @@ def run(output, tool_path=os.defpath, timeout=20, total=180):
             if found is None:
                 report['tools'][name] = dict(status='MISSING', workflow='NOT_RUN')
                 continue
-            resolved = str(Path(found).resolve()); tools[name] = resolved
-            raw = commands.run('version-' + name.replace('+', 'p'), [resolved, '--version'], output)
+            resolved = str(Path(found).resolve(strict=True))
+            # Preserve the compiler driver mode selected by the invocation name.
+            tools[name] = found if name in ('cc', 'c++') else resolved
+            raw = commands.run('version-' + name.replace('+', 'p'), [tools[name], '--version'], output)
+            if str(Path(tools[name]).resolve(strict=True)) != resolved:
+                raise Failure('tool invocation changed during version probe: ' + name)
             report['tools'][name] = dict(status='PRESENT', path=found, resolved=resolved,
                                         file=file_pin(resolved), version=raw.decode(errors='replace').splitlines())
         missing = sorted(set(REQUIRED) - tools.keys())
@@ -266,6 +271,11 @@ def run(output, tool_path=os.defpath, timeout=20, total=180):
                     project.value['status'] = 'FAIL'
                     save(output / ('project-' + language + '.json'), project.value)
                     raise
+            for name in ('cc', 'c++'):
+                tool = report['tools'][name]
+                if (str(Path(tools[name]).resolve(strict=True)) != tool['resolved']
+                        or file_pin(tool['resolved']) != tool['file']):
+                    raise Failure('compiler binding changed during workflow: ' + name)
             report['status'] = 'PASS_LOCAL_DEBUGGER_COMPONENT'
     except (OSError, ValueError, KeyboardInterrupt) as error:
         report['error'] = type(error).__name__ + ': ' + str(error)

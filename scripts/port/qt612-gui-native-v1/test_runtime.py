@@ -207,6 +207,21 @@ class ModelRuntimeControls(unittest.TestCase):
             m=Model();m.file('/usr/lib/libMODEL.so.1.0',model_elf('libMODEL.so.1',definitions=rows),'model-native-provider')
             with self.subTest(rows=rows),self.assertRaises(ValueError):R.validate_dependencies(**m.inputs())
 
+    def test_external_provider_requires_structural_16k_load_geometry(self):
+        path = '/usr/lib/libMODEL.so.1.0'
+        for alignment in (4096, 24576, 65536):
+            with self.subTest(alignment=alignment):
+                m = Model()
+                row = m.snapshot['files'][path]
+                body = bytearray(m.retained[row['sha256']])
+                # The MODEL load starts at file offset 0 and virtual address 0x4000.
+                # The first two alignments are too small or invalid. The last
+                # leaves the file offset and address incongruent at p_align.
+                struct.pack_into('<Q', body, 64 + 48, alignment)
+                row.update(m.keep(bytes(body)))
+                with self.assertRaisesRegex(ValueError, 'AARCH64_ELF_16K_LOAD_GEOMETRY'):
+                    R.validate_dependencies(**m.inputs())
+
     def test_actual_package_database_and_elf_summary_are_both_required(self):
         for mutation in ('database','elf'):
             m=Model()

@@ -1,6 +1,7 @@
 name: current606-welcome8-apps9-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/current606-welcome7-gui-source/**
       - .github/workflows/current606-welcome8-apps9-source.yml

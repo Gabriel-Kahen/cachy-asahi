@@ -249,6 +249,7 @@ def replace(path, data, before, owner):
     try:
         with os.fdopen(fd, 'wb') as stream:
             stream.write(data)
+            stream.flush()
             if before:
                 os.fchown(stream.fileno(), before[1][3], before[1][4])
             os.fchmod(stream.fileno(), stat.S_IMODE(before[1][2]) if before else 0o644)
@@ -342,11 +343,17 @@ def execute(root, action, url=None, key=None, fingerprint=None, apply=False):
                         report['config_may_have_changed'] = True
                         replace(selection['main'], selection['main_bytes'].replace(BLOCK, b''), selection['observed'][selection['main']], selection['owner'])
                         changed.append(selection['main'])
+                    else:
+                        # A prior disable may have replaced the selector before its sync failed.
+                        sync(selection['main'].parent)
                     stable(selection, changed)
                     if selection['managed']:
                         report['config_may_have_changed'] = True
                         need(read(selection['include'], selection['owner']) == selection['observed'][selection['include']], 'managed include changed before removal')
-                        selection['include'].unlink(); sync(selection['include'].parent)
+                        selection['include'].unlink()
+                    # Confirm removal even if an earlier attempt already unlinked the include.
+                    sync(selection['include'].parent)
+                    if selection['managed']:
                         changed.append(selection['include'])
                     report['status'] = 'disabled'
             report['config_changed'] = bool(changed)

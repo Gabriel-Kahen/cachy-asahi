@@ -217,6 +217,42 @@ class ReinstallRepair(unittest.TestCase):
         value=object.__new__(C.Adapter);value.payloads=self.payloads;value.policy=dict(candidates={self.app:dict(archive_sha256='b'*64)},source_capabilities={});value.source_check=lambda:(dict(nodes=self.source),{});return value
     def authorize(self):
         value=self.adapter();value.authorize_reinstall(self.plan,self.inventory,self.context,'e'*64);return value
+
+    def test_before_repair_reuses_one_source_validation_for_the_same_observation(self):
+        (self.root/self.path).write_bytes(b'damaged ordinary bytes')
+        expected_nodes=self.nodes()
+        state=dict(scan={},closure=(),aux_bytes=b'model')
+        add={self.app:C.VERSIONS[self.app]}
+        for order,expected_checks in (('selection-first',1),('capture-first',1),('distinct-selection',3)):
+            with self.subTest(order=order):
+                adapter=self.authorize();adapter.limits=T.limits()
+                adapter.comparator=SimpleNamespace(parse=lambda raw:raw)
+                with patch.object(adapter,'source_check',return_value=({'nodes':self.source},state)) as check, \
+                        patch.object(C,'_measure',side_effect=lambda *_:({'nodes':self.nodes()},state)), \
+                        patch.object(C.aux,'checkpoint',return_value=state), \
+                        patch.object(C,'capability_map',return_value={}):
+                    before=adapter.observe(self.root,adapter.limits)
+                    selected=before['nodes'] if order!='distinct-selection' else copy.deepcopy(before['nodes'])
+                    def select():
+                        adapter.selection(add,{},self.inventory,selected)
+                    def capture():
+                        adapter.capture(self.root,before)
+                    for action in ((capture,select) if order=='capture-first' else (select,capture)):
+                        action()
+                    self.assertEqual(check.call_count,expected_checks,'before observation, selection and capture validations')
+                    self.assertEqual(before['nodes'],expected_nodes)
+                    self.assertEqual(adapter.repair_damage,{self.path:expected_nodes[self.path]})
+                    self.assertEqual(adapter.repair_before,
+                                     {name:expected_nodes[name] for name in self.payloads[self.app]})
+                    self.assertEqual(adapter.baseline,state)
+                    self.assertEqual(adapter.baseline_caps,{})
+                    self.assertEqual(adapter.observe(self.root,adapter.limits),before)
+                    self.assertEqual(check.call_count,expected_checks+1,'later recheck must observe the leased source again')
+                    check.side_effect=ValueError('source lease drift')
+                    with self.assertRaisesRegex(ValueError,'source lease drift'):
+                        adapter.observe(self.root,adapter.limits)
+                    self.assertEqual(check.call_count,expected_checks+2)
+
     def test_default_refusal_then_explicit_selected_byte_damage_and_missing_leaf(self):
         adapter=self.authorize();target=self.root/self.path;target.write_bytes(b'damaged ordinary bytes')
         for missing in (False,True):

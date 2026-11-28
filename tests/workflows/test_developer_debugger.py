@@ -265,6 +265,25 @@ class DebuggerTest(unittest.TestCase):
         self.assertEqual(report['missing'], ['gdb'])
         self.assertEqual(report['tools']['gdb'], dict(status='MISSING', workflow='NOT_RUN'))
 
+    def test_discovered_cpp_alias_reaches_debugger_build(self):
+        alias = self.base / 'c++'
+        alias.symlink_to(self.compiler)
+        self.tools['c++'] = str(alias)
+
+        def inspect(project):
+            if project.language == 'cpp':
+                self.assertEqual(project.compiler, str(alias))
+                self.assertEqual(project.inputs()['compiler_target'], str(self.compiler))
+
+        with (mock.patch.object(D.shutil, 'which', side_effect=lambda name, path: self.tools.get(name)),
+              mock.patch.object(D.W.Commands, 'run', return_value=b'unit-version\n'),
+              mock.patch.object(D.Project, 'journey', autospec=True, side_effect=inspect) as journey):
+            report = D.run(self.base / 'alias-output')
+        self.assertEqual(report['status'], 'PASS_LOCAL_DEBUGGER_COMPONENT')
+        self.assertEqual(journey.call_count, 2)
+        self.assertEqual(report['tools']['c++']['path'], str(alias))
+        self.assertEqual(report['tools']['c++']['file'], D.file_pin(self.compiler))
+
     def test_invalid_budgets_or_search_path_refused_before_output(self):
         for kwargs in ({'timeout': float('nan')}, {'total': 601}, {'timeout': 1}, {'timeout': True},
                        {'tool_path': '/usr/bin:'}, {'tool_path': 'relative'}):

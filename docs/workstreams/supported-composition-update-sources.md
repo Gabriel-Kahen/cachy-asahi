@@ -1,13 +1,171 @@
-# Three-update candidate source materials: correspondence held
+# Maintenance recipe custody and source correspondence
 
-November 14, 2026. Exact-version candidate packaging/source materials are now
-retained for Python 3.14.8-1, NetworkManager 1.58.1-2 and Perl 5.42.3-1. **None of
-the retrieved PKGBUILDs matches the signed archive's BUILDINFO recipe hash.**
-The source-to-binary relationship remains **UNBOUND / HOLD**; the
-[626-package maintenance proposal](supported-composition-maintenance.md) remains
-UNAPPROVED. The newly pinned materials can support a future maintained rebuild;
-they cannot retroactively supply accepted corresponding source for the
-[three retained archives](supported-composition-update-inputs.md).
+## Forward recipe custody, November 28, 2026
+
+Fresh detached-signature checks verified both retained AArch64 archives
+against the pinned Arch Linux ARM build key
+`68B3537F39A313B3E574D06777193F152BDBE6A6`. Their extracted BUILDINFO
+records reproduced the two held recipe digests in the
+[November 25 table](#r132-custody-recheck-november-25-2026).
+The exact-version public Git recipes and the documented Plugbuild checksum
+append both differed from the signed AArch64 digests. A fresh local check
+hashed 9,569 named files and 10 workunit recipe bodies without a match.
+The live workunits still served Python `3.14.10-1` and Perl `5.44.0-1`.
+[Python workunit](https://archlinuxarm.org/builder/work/core-python.tgz)
+· [Perl workunit](https://archlinuxarm.org/builder/work/core-perl.tgz)
+
+### Bounded ARMv7 lead
+
+ISCAS returned HTTP 206 for bytes 0–262143 of each inspected archive.
+BUILDINFO was readable from the prefixes. Full ARMv7 archive signature
+verification remains open.
+
+- ARMv7 Python `3.14.8-1` from `xu1` reported the full recipe digest
+  from the signed AArch64 `n1` archive. The `python-tests` split archives
+  agreed on both architectures. Either builder's retained inputs are
+  a lead for the final recipe.
+- ARMv7 Perl `5.42.3-1` from `xu4` reported
+  `6d68cd401a858911b2b72d52c27052b734707a770a320fbef2f747b2a638eea7`.
+  The documented Plugbuild append reproduced this digest from Arch commit
+  `0264e08d302d7ae91c53d8bb78b9a7753c0ab67f` in 10,355 bytes. The signed
+  AArch64 Perl archive from Seattle has the different digest in the
+  November 25 table, so custody still depends on the Seattle build inputs.
+
+[ARMv7 mirror](https://mirror.iscas.ac.cn/archlinuxarm/armv7h/core/)
+· [AArch64 mirror](https://mirror.iscas.ac.cn/archlinuxarm/aarch64/core/)
+
+Both AArch64 recipes remain held. The final build-time PKGBUILDs, or the
+original queued workunits with verbatim `makepkg -g` output, are the
+remaining inputs for the [signed recipe reader](../../scripts/port/supported-composition/README.md#recover-signed-maintenance-recipes).
+The upstream draft at
+`~/.cache/cachy-asahi-r132-plugbuild-custody-20261118/actual/upstream-query.DRAFT.md`
+remains unsent.
+
+### Project replacement candidates remain on hold
+
+The retained candidate archives were rehashed and their BUILDINFO recipe
+digests matched the checked-in project recipes.
+
+| Project candidate | Archive bytes | Archive SHA-256 | BUILDINFO recipe SHA-256 |
+| --- | ---: | --- | --- |
+| [Python 3.14.8-1.1](../../packages/port/python3148-source-candidate/PKGBUILD) | 12,909,216 | `45b1f1791eaf19412c0bb151dc23daa00318d235e5624d433ce4b32ed2209049` | `30c8d332c80dbd2b34ac950ae46a4ead14526005ba90b33cc0efcf9cb03731fd` |
+| [Perl 5.42.3-1.3](../../packages/port/perl5423-repro-candidate/PKGBUILD) | 22,071,176 | `647c5f1d2c6965ec2e26b37e75d29c819fafa344f16002153493e9fc62121c22` | `cf0df8990ac83f48a4c29978c932922108f0e01cb6d052209934da5b01af4068` |
+
+- Python passed one full-profile native AArch64 4 KiB build and a TEST-signed
+  emulated AArch64 16 KiB swap and rollback on the 626 → 628 → 626 inventory.
+  The same compiled consumer ran before and during the swap, and headless Tcl
+  exercised `_tkinter` on the candidate. The 629-package rollback lock has
+  neither Tcl nor Tk. A full-profile trial needs explicit signed Tcl/Tk
+  operands and their reverse removal. The prior trial retained both at
+  `8.6.16-1`. The project package retains the `python3` and
+  `python-externally-managed` provisions and omits the two matching ALARM
+  `replaces` entries. A second clean native Python build remains pending.
+  [Python qualification](../validation/python3148-native-r4-and-asahi628-20261118.md)
+- Perl passed two byte-identical native AArch64 4 KiB builds, a separate
+  TEST-signed native ARM4K swap and rollback, and an emulated ARM16K lifecycle
+  on a separate guest inventory. The project package omits the
+  `detect-old-perl-modules.hook` and its helper script and both
+  `/etc/profile.d/perlbin` scripts for sh and csh. Both ALARM versions carry
+  these files. The archive adds `bzip2` and `zlib` dependencies and changes
+  the `perl-scalar-list-utils` provision from `1.68_01` to `1.69` relative
+  to ALARM `5.42.3-1`. Resolve those differences and verify installed vendor
+  and site XS consumers on Asahi629.
+  [Native pair](../validation/perl5423-native-arm4k-pair-20261115.md)
+  · [Native lifecycle](../validation/perl5423-native-installed-lifecycle-20261115.md)
+  · [Emulated lifecycle](../validation/perl5423-emulated-arm16k-lifecycle-20261117.md)
+
+Both candidates remain **HOLD / UNAPPROVED** and unselected. A separately
+reviewed Asahi629 plan must bind the exact candidate and rollback archives,
+prepare both ALPM transactions, and review dependency, provider, file and
+hook differences. The signed emulated ARM16K trial needs consumer probes
+before the swap, on the candidate and after restoration, with independent
+readback of all 362 protected boot and mount entries and the exact
+629-package rollback lock. The checked lock has SHA-256
+`f335e8430a1d6f8463e95e16524cf78fc224c24fb31cf8717723370490bae9fa`.
+Complete corresponding-source and license review, physical M2 validation
+and release approval remain open.
+[Asahi629 rollback evidence](supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
+
+## R132 custody recheck, November 25, 2026
+
+Four of the six signed maintenance archives have exact PKGBUILD bytes.
+The [offline recipe reader](../../scripts/port/supported-composition/index_maintenance_recipe_history.py)
+matched both NetworkManager builds and the Perl and Python rollback builds.
+The two forward builds still need original build-time inputs.
+
+| Direction | Package version | Signed BUILDINFO recipe SHA-256 | Custody |
+| --- | --- | --- | --- |
+| Forward | NetworkManager 1.58.1-2 | `74938989e5a6eeac41350e05068aaabf4e9d7411116dcfe189d6cfae1b1b72a4` | Exact |
+| Rollback | NetworkManager 1.58.1-1 | `10f0c0bd59e7598dfd34ad1658f90dd9537ce5fb41e5af916fa07214c68560af` | Exact |
+| Forward | Perl 5.42.3-1 | `c2baa2348228937f72de62581cca687039a976ac2cef93928ee3909b18fa6ed7` | Held |
+| Rollback | Perl 5.42.2-2 | `c8eb30f67445159807c70914c492a32326e65a92146c3d406e426bec8d15df41` | Exact |
+| Forward | Python 3.14.8-1 | `b694b720c69f90803d20da64413f0573f61ea8582f20a09865ff91e1350196c0` | Held |
+| Rollback | Python 3.14.7-1 | `24eb77be6752bdcb1a6459fb8177fa0d46becc18f54acf480441f4b6f3ca96b5` | Exact |
+
+Both eight-file custody seals verified. The original archive join still binds
+the six vendor archive and detached signature pairs. Its staged forward
+NetworkManager and Perl archives moved out of the original paths. The replay
+used the retained bytes in
+`~/.cache/cachy-asahi-maintenance-disposable-guest-20261118/transport-r1/forward/`
+after checking both sizes and SHA-256 values against the join. The temporary
+join and configuration copies recorded the two changed archive paths and the
+resulting enclosing reference and digest changes. The recipe reader rechecked
+all six archive and signature pins and reproduced both retained receipts
+byte-for-byte after reversing those path and digest changes. Signature evidence
+for this replay comes from the original pinned archive join.
+
+The fresh configuration copies and receipts are in
+`~/.cache/asahi-r132-relocated-replay-20261125.c88p14rj/`.
+
+| Replay receipt | SHA-256 |
+| --- | --- |
+| `buildtime.ACTUAL.json` | `f3e994a549b69ae9bdf3258aa71124dfaeedf7c94bc331258fc3e95445964356` |
+| `history.ACTUAL.json` | `212fe7712378db915144dfc15b09361452f317bd20b03816fc543d5701d73684` |
+
+The public workunit bodies held in
+`~/.cache/asahi626-buildtime-source-recovery-DATA.lngnrOhm/` contain Python
+3.14.10-1 and Perl 5.44.0-1. Their retained bytes, candidate recipes and checksum
+append projections leave both forward hashes unresolved. Use the original final
+PKGBUILD bytes for the two signed builds, or the original queued workunits with
+the verbatim `makepkg -g` output for replay against the pinned Plugbuild client.
+The unsent request draft and four exact recipe bodies are in
+`~/.cache/cachy-asahi-r132-plugbuild-custody-20261118/actual/`.
+
+A later November 25 search verified the retained recovery pack seals and
+checked both required digests across its 795,235 file/member records.
+Neither digest appeared. Anonymous public reads again returned newer
+workunits, errors on the original builder log routes, no exact Software
+Heritage object, and no Wayback availability at the signed build dates.
+The exact Common Crawl retry returned HTTP 503, so that archive remains
+inconclusive. The signed Perl and Python forward recipe gaps remain open.
+
+On November 26, the October Common Crawl index returned no captures for
+either exact workunit URL. The November query API still returned HTTP 503.
+A bounded lookup of the published November index found neither URL in the
+range covering both keys. The original final PKGBUILDs, or the original
+workunits and verbatim `makepkg -g` output, are still needed.
+[Crawl dates](https://index.commoncrawl.org/collinfo.json)
+· [Published index format](https://commoncrawl.org/cdxj-index)
+
+| Later recovery evidence | SHA-256 |
+| --- | --- |
+| Recovery pack and public archive audit | `0532e40a9f7cdb79922019e147fc56094604019e83e6211384e8351a0e4ffe9f` |
+| Fresh public body and response checks | `4a4b9592f051b92a70c13e13057670e49c2801889b5ad354e1dd677021474bfc` |
+| Exact Common Crawl retry | `222886029858e32bc834fc1f4ce8a5804a3893d320943b8be21f434d180c9f47` |
+
+Complete corresponding source, license review, production trust and support
+approval remain open for the [626-package proposal](supported-composition-maintenance.md).
+The [R132 guest record](../validation/asahi626-maintenance-emulated-arm16k-20261118.md)
+covers the signed lifecycle in the emulated 16 KiB AArch64 environment.
+
+## Candidate source intake, November 14, 2026
+
+The original intake retained exact-version candidate packaging and source
+materials for Python 3.14.8-1, NetworkManager 1.58.1-2 and Perl 5.42.3-1. Each
+retrieved raw PKGBUILD differed from the signed archive's BUILDINFO recipe hash.
+The pinned candidate materials can support a future maintained rebuild. The
+[three archive records](supported-composition-update-inputs.md) describe that
+intake.
 
 ## Recipe identification
 

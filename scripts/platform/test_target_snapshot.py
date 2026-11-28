@@ -151,6 +151,13 @@ class SnapshotTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "reference size/hash"):
             self.run_fixture()
 
+    def test_non_kernel_asset_still_has_32_mib_limit(self):
+        artifact = next(row for row in self.contract["selected_files"] if row["role"] == "system-configuration")
+        artifact["source"] = self.save("too-large-configuration", b"\0" * (32 * s.MIB + 1))
+        with self.assertRaisesRegex(ValueError, "input reference refused"):
+            self.run_fixture()
+        self.assertFalse(self.output.exists())
+
     def test_unselected_user_file_not_collected(self):
         (self.root / "unselected-user-secret").write_bytes(b"not selected")
         self.run_fixture()
@@ -200,6 +207,62 @@ class SnapshotTests(unittest.TestCase):
                 self.run_fixture()
         self.assertTrue((self.output / "INCOMPLETE").exists())
         self.assertFalse((self.output / "snapshot.json").exists())
+
+    def test_descriptor_directory_sync_failure_keeps_incomplete_output(self):
+        directory = self.output / "descriptors"
+        sync = os.fsync
+
+        def fail_descriptor_sync(fd):
+            if directory.is_dir() and os.path.samestat(os.fstat(fd), directory.stat()):
+                self.assertEqual(len(list(directory.iterdir())), len(self.descriptors) + 1)
+                raise OSError("descriptor directory sync failed")
+            sync(fd)
+
+        with patch.object(s.os, "fsync", fail_descriptor_sync):
+            with self.assertRaisesRegex(OSError, "descriptor directory sync failed"):
+                self.run_fixture()
+        self.assertTrue((self.output / "INCOMPLETE").is_file())
+        self.assertFalse((self.output / "snapshot.json").exists())
+
+    def test_output_directory_sync_failure_before_completion_keeps_marker(self):
+        marker = self.output / "INCOMPLETE"
+        sync = os.fsync
+
+        def fail_publication_sync(fd):
+            if (self.output / "snapshot.json").is_file() and os.path.samestat(os.fstat(fd), self.output.stat()):
+                self.assertTrue((self.output / "collection.json").is_file())
+                self.assertTrue(marker.is_file())
+                raise OSError("output directory sync failed")
+            sync(fd)
+
+        with patch.object(s.os, "fsync", fail_publication_sync):
+            with self.assertRaisesRegex(OSError, "output directory sync failed"):
+                self.run_fixture()
+        self.assertTrue(marker.is_file())
+
+    def test_final_sync_failure_refuses_preflight(self):
+        sync = os.fsync
+        for directory in ("output", "parent"):
+            with self.subTest(directory=directory):
+                self.output = self.root / ("failed-" + directory)
+                snapshot = self.output / "snapshot.json"
+                marker = self.output / "INCOMPLETE"
+                target = self.output if directory == "output" else self.root
+
+                def fail_after_unlink(fd):
+                    if (snapshot.is_file() and not marker.exists()
+                            and os.path.samestat(os.fstat(fd), target.stat())):
+                        raise OSError("final snapshot sync failed")
+                    sync(fd)
+
+                with patch.object(s.os, "fsync", fail_after_unlink):
+                    with self.assertRaisesRegex(OSError, "final snapshot sync failed"):
+                        self.run_fixture()
+                contract = json.loads((self.output / "preflight-contract.json").read_bytes())
+                with self.assertRaises(FileNotFoundError):
+                    old.p.run(contract)
+                self.assertTrue(marker.is_file())
+                self.assertFalse(snapshot.exists())
 
     def test_duplicate_name_with_valid_directory_identity_refused(self):
         folder = self.db / "mesa-2-1"

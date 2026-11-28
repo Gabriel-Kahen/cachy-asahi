@@ -75,7 +75,10 @@ def observe(root, endpoint, key, env, expected_current, target, reason):
               and type(current_plan['schema_version']) is int and current_plan['schema_version'] == 1
               and current_plan['purpose'] == 'local-repository-endpoint' and current_plan['signer'] == key,
               'current generation schema/signer differs')
-    current_id = R.valid_name(current_plan['selected_release'])
+    selected_release = current_plan['selected_release']
+    R.require(selected_release is not None,
+              'current endpoint has no selected release. Retained recovery requires an intact selected release')
+    current_id = R.valid_name(selected_release)
     R.require(current_id != target, 'recovery requires a distinct retained predecessor')
     files, aliases = ({name.removeprefix('release/'): value for name, value in current_plan[role].items()
                        if name.startswith('release/')} for role in ('files', 'symlinks'))

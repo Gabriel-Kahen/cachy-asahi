@@ -9,6 +9,7 @@ from pathlib import Path
 import tempfile
 import time
 import unittest
+from unittest.mock import Mock
 
 spec = importlib.util.spec_from_file_location('candidate_host',Path(__file__).with_name('host.py'))
 H = importlib.util.module_from_spec(spec)
@@ -23,7 +24,7 @@ class CleanupTests(unittest.TestCase):
         self.identity = dict(name='cachy-asahi-handoff-test-'+'b'*32,nonce='b'*32,image='sha256:'+'c'*64,
             cidfile=Path(self.temp.name)/'container-id',argv=['TEST'],
             mounts={('/TEST/inputs','/inputs',False),('/TEST/runner','/runner',False),('/TEST/out','/out',True)})
-        self.row = dict(Name='/'+self.identity['name'],Image=self.identity['image'],
+        self.row = dict(Id=CID,Name='/'+self.identity['name'],Image=self.identity['image'],
             Config=dict(Labels={H.OWNER_LABEL:self.identity['nonce']},Cmd=['TEST'],Entrypoint=['/usr/bin/python3']),
             Mounts=[dict(Source=s,Destination=d,RW=w,Type='bind') for s,d,w in self.identity['mounts']])
         self.calls = []
@@ -36,7 +37,7 @@ class CleanupTests(unittest.TestCase):
         if label == 'find-only-owned-name': return (CID+'\n').encode() if self.present else b''
         if label == 'recover-owned-container-identity': return json.dumps([self.row]).encode()
         if label == 'remove-only-owned-container': self.present=False; return (CID+'\n').encode()
-        if label == 'verify-owned-container-absent': return b'' if not self.present else (CID+'\n').encode()
+        if label.startswith('verify-owned-container-'): return b'' if not self.present else (CID+'\n').encode()
         self.fail('unexpected cleanup command')
 
     def test_expired_task_budget_does_not_prevent_independent_cleanup(self):
@@ -72,11 +73,40 @@ class CleanupTests(unittest.TestCase):
         self.assertTrue(self.present)
         self.assertFalse(any(label == 'remove-only-owned-container' for label,_,_ in self.calls))
 
+    def test_malformed_cidfile_refuses_without_container_commands(self):
+        self.identity['cidfile'].write_bytes(b'bad CID')
+        with self.assertRaisesRegex(AssertionError, 'invalid owned cidfile'):
+            H.cleanup_owned(self.command,self.identity)
+        self.assertFalse(self.calls)
+
     def test_absent_owned_name_is_checked_without_removing_other_containers(self):
         self.present=False
         result=H.cleanup_owned(self.command,self.identity,None)
         self.assertTrue(result['container_removed'])
-        self.assertEqual([label for label,_,_ in self.calls],['find-only-owned-name','verify-owned-container-absent'])
+        self.assertEqual([label for label,_,_ in self.calls],
+            ['find-only-owned-name','verify-owned-container-absent','verify-owned-container-label-absent'])
+
+    def test_renamed_container_cannot_pass_absence_by_known_id(self):
+        for from_file in (False, True):
+            with self.subTest(from_file=from_file):
+                if from_file:
+                    self.identity['cidfile'].write_text(CID+'\n')
+                def daemon(label, argv, **kwargs):
+                    self.assertEqual(argv[:3], ['docker','ps','-a'])
+                    operand = argv[argv.index('--filter') + 1]
+                    return (CID+'\n').encode() if operand == 'id='+CID else b''
+                command = Mock(side_effect=daemon)
+                with self.assertRaisesRegex(AssertionError, 'owned container ID remains'):
+                    H.cleanup_owned(command,self.identity,None if from_file else CID)
+                self.assertTrue(any('id='+CID in call.args[1] for call in command.call_args_list))
+
+    def test_owner_label_without_recovered_id_blocks_cleanup(self):
+        def command(label, argv, **kwargs):
+            self.assertEqual(argv[:3], ['docker','ps','-a'])
+            operand = argv[argv.index('--filter') + 1]
+            return (CID+'\n').encode() if operand == 'label='+H.OWNER_LABEL+'='+self.identity['nonce'] else b''
+        with self.assertRaisesRegex(AssertionError, 'ambiguous owned container label remains'):
+            H.cleanup_owned(command,self.identity)
 
     def test_cleanup_receipt_disk_failure_does_not_block_removal(self):
         record = dict(commands=[])

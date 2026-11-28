@@ -30,9 +30,9 @@
       "sha256": "6faece64c1120ef979ee8fab06c46b1cc13159af676db332048c66bcdec0d342"
     },
     "boot.py": {
-      "bytes": 12166,
+      "bytes": 12883,
       "mode": 420,
-      "sha256": "435d2ee1fc96311c9d16d6eeec89b79db14ce50189c5009624bc091686850411"
+      "sha256": "1c5d3b76aad6b709fc8c748a86c5523585dfc8cb72e83ec129994dabab05798b"
     },
     "construct.py": {
       "bytes": 3413,
@@ -310,9 +310,9 @@
       "sha256": "ce16659b0d443b01b3729213c308b4d8cebfad9037bbad6d08478b9aeadef6e7"
     },
     "test_controls.py": {
-      "bytes": 14185,
+      "bytes": 15295,
       "mode": 420,
-      "sha256": "565cfee788818b7d60b3f8dbf208a47c0a2881fdd65298ede7656a940cb36eb2"
+      "sha256": "ee3899dcaebc7ce665bef8f8d116a48876bd3e80afda083fa71e425bc517e3a6"
     },
     "test_dynamic_inputs.py": {
       "bytes": 7247,

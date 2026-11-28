@@ -3,6 +3,7 @@
 """Real fresh TEST signatures and original fixture packages; inspect never installs."""
 import argparse
 from datetime import datetime, timedelta, timezone
+import errno
 import importlib.util
 import json
 import os
@@ -225,6 +226,20 @@ class KitTests(unittest.TestCase):
             self.refused(lambda:k.assemble(self.args))
         self.assertFalse(self.output.exists())
         self.assertFalse(any(p.name.startswith('.offline-kit-') for p in self.f.base.iterdir()))
+
+    def test_copied_release_payload_sync_failure_prevents_publication(self):
+        fsync = os.fsync
+        def fail_payload(fd):
+            path = os.readlink(f'/proc/self/fd/{fd}')
+            if '/.offline-kit-' in path and path.endswith('/kit/release/evidence/integration.lock.json'):
+                raise OSError(errno.EIO, 'TEST copied release payload sync failure')
+            return fsync(fd)
+        with mock.patch.object(os, 'fsync', side_effect=fail_payload):
+            with self.assertRaises(OSError) as error:
+                k.assemble(self.args)
+        self.assertEqual(error.exception.errno, errno.EIO)
+        self.assertFalse(self.output.exists())
+        self.assertFalse(list(self.f.base.glob('.offline-kit-*')))
 
     def test_real_available_source_delivery_retained_without_acceptance(self):
         self.f.release_spec['release_id']='fixture-2'

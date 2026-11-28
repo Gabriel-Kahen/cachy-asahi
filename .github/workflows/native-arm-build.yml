@@ -3,11 +3,24 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Probe, audit, original builds, or frozen development-only integration
+        description: Probe, audit, original builds, frozen integration, or Project Libraries qualification
         required: true
         default: probe
         type: choice
-        options: [probe, audit, build, integration]
+        options:
+          - probe
+          - audit
+          - build
+          - integration
+          - project-libraries-inputs
+          - project-libraries-native
+          - project-libraries-migration
+          - project-libraries-maintained-inputs
+          - project-libraries-maintained-native
+      project_libraries_head:
+        description: Full reviewed SHA for Project Libraries dispatch
+        type: string
+        default: ''
       inputs_sha256:
         description: Reviewed SHA-256 of selected input lock (build uses maintained successor)
         type: string
@@ -28,7 +41,10 @@ concurrency:
   queue: max
 jobs:
   native:
-    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    if: >-
+      github.repository == 'Gabriel-Kahen/cachy-asahi' &&
+      github.event.repository.private == false &&
+      (inputs.mode == 'probe' || inputs.mode == 'audit' || inputs.mode == 'build' || inputs.mode == 'integration')
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 50
     env:
@@ -122,13 +138,17 @@ jobs:
           NATIVE_INPUTS_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/maintained-native/locks/inputs-successor.lock.json' || 'scripts/ci/inputs.lock.json' }}
         run: |
           set -euo pipefail
+          native_driver=scripts/ci/native_arm.py
+          if [[ "$BUILD_MODE" == build ]]; then
+            native_driver=scripts/ci/native_arm_reviewed.py
+          fi
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
             RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
             RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
             GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
             GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            python3 -B scripts/ci/native_arm.py "$BUILD_MODE" \
+            python3 -B "$native_driver" "$BUILD_MODE" \
             --inputs "$NATIVE_INPUTS_PATH" --inputs-sha256 "$INPUTS_SHA256" \
             --recipes "$NATIVE_RECIPES_PATH" --recipes-sha256 "$RECIPES_SHA256" \
             --integration-sha256 "$INTEGRATION_SHA256" \
@@ -153,3 +173,18 @@ jobs:
             fi
           fi
           exit "$evidence_status"
+
+  project-libraries:
+    if: >-
+      (inputs.mode == 'project-libraries-inputs' || inputs.mode == 'project-libraries-native' ||
+       inputs.mode == 'project-libraries-migration' || inputs.mode == 'project-libraries-maintained-inputs' ||
+       inputs.mode == 'project-libraries-maintained-native')
+    uses: ./.github/workflows/native-arm-project-libraries-622.yml
+    with:
+      reviewed_head: ${{ inputs.project_libraries_head }}
+      lane: ${{ inputs.mode == 'project-libraries-maintained-native' && 'maintained-native'
+        || inputs.mode == 'project-libraries-maintained-inputs' && 'maintained-inputs'
+        || inputs.mode == 'project-libraries-migration' && 'native-migration'
+        || inputs.mode == 'project-libraries-native' && 'native' || 'inputs' }}
+    secrets:
+      CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY }}

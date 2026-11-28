@@ -199,6 +199,8 @@ class InputTests(unittest.TestCase):
         f.args.inputs = [dict(kind='file', value=str(self.first))]
         row = f.run_case()
         self.assertEqual(row['status'], 'INPUT_CHANGED')
+        self.assertFalse(row['passed'])
+        self.assertTrue(row['supervisor_passed'])
         self.assertEqual(row['application_status'], 'PASS_EXEC_WORKFLOW')
         self.assertEqual(row['exit'], 0)
         self.assertEqual(row['inputs'][0]['state'], 'CHANGED')

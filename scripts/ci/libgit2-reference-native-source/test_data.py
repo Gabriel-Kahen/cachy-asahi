@@ -72,8 +72,13 @@ class SourceControls(unittest.TestCase):
             self.assertEqual(text.encode(),D.read(HERE/name));self.assertEqual(pin(text.encode()),row['projected'])
 
     def test_unchanged_build_inverse_and_normal_dependencies(self):
-        profile=D.decode(D.read(HERE/'base/profile.json'));row=profile['held_inputs']['runtime/scripts/build/build_v2.py'];raw=D.read(ROOT/row['source_path']);C=P.C
+        profile=D.decode(D.read(HERE/'base/profile.json'));name='runtime/scripts/build/build_v2.py'
+        row=profile['held_inputs'][name];raw=P.held_framework_body(ROOT,name,row);C=P.C
         self.assertEqual(pin(raw),{k:row[k] for k in ('bytes','sha256')});projected=C.projected_build(raw).decode()
+        with self.assertRaisesRegex(ValueError,'exact held framework dependency'):
+            P.held_framework_body(ROOT,name,dict(row,sha256='0'*64))
+        with self.assertRaisesRegex(ValueError,'exact original framework role'):
+            P.held_framework_body(ROOT,name,dict(row,source_path='scripts/build/compare_v2.py'))
         for before,after in reversed(C.BUILD_EDITS):
             self.assertEqual(projected.count(after),1);projected=projected.replace(after,before)
         self.assertEqual(projected.encode(),raw)
@@ -370,9 +375,11 @@ class NativePostconditionControls(unittest.TestCase):
         with self.assertRaises(ValueError):F.elf(bytes(raw))
 
     def test_other_archive_compression_refuses_before_inspection(self):
-        C=P.C;profile=D.decode(D.read(HERE/'base/profile.json'));original=D.read(ROOT/profile['held_inputs']['runtime/scripts/build/compare_v2.py']['source_path']);projected=C.projected_compare(original).decode()
+        C=P.C;rows=D.decode(D.read(HERE/'base/profile.json'))['held_inputs']
+        name='runtime/scripts/build/compare_v2.py';original=P.held_framework_body(ROOT,name,rows[name]);projected=C.projected_compare(original).decode()
         self.assertEqual(projected.replace(C.COMPARE_AFTER,C.COMPARE_BEFORE).encode(),original)
-        builder=D.read(ROOT/profile['held_inputs']['runtime/scripts/build/build_v2.py']['source_path']);tree=ast.parse(C.projected_build(builder).decode());main=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='main');attempt=next(n for n in main.body if isinstance(n,ast.Try));index=next(i for i,n in enumerate(attempt.body) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='paths' for t in n.targets));gate=ast.Module(body=attempt.body[index:index+2],type_ignores=[]);ast.fix_missing_locations(gate)
+        name='runtime/scripts/build/build_v2.py';builder=P.held_framework_body(ROOT,name,rows[name])
+        tree=ast.parse(C.projected_build(builder).decode());main=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='main');attempt=next(n for n in main.body if isinstance(n,ast.Try));index=next(i for i,n in enumerate(attempt.body) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='paths' for t in n.targets));gate=ast.Module(body=attempt.body[index:index+2],type_ignores=[]);ast.fix_missing_locations(gate)
         with tempfile.TemporaryDirectory(prefix='libgit2-format-DATA-',dir='/home/gabe') as name:
             root=Path(name);write(root/'model.pkg.tar.zst',b'MODEL')
             with self.assertRaises(ValueError):exec(compile(gate,'<fixed-XZ-gate>','exec'),dict(artifacts=root))

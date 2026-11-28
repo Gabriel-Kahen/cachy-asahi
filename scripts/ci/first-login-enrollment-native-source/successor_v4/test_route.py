@@ -25,6 +25,7 @@ R=load('fenced_delegated_route',HERE/'route.py')
 # Unmodified maintained pure predicates only, never native build/ALPM executors.
 N=load('fenced_unmodified_native_predicates',HERE.parent/'successor_v2/native.py')
 V=load('fenced_private_static_validator',HERE/'validate_build.py')
+S=load('fenced_static_helpers_fixture',HERE.parent/'successor_v2/source_fixture.py')
 PROFILE=json.loads((HERE.parent/'successor_v2/profile.json').read_bytes())
 
 
@@ -221,18 +222,24 @@ class Controls(unittest.TestCase):
         for event in ('subprocess.Popen','socket.__new__','ctypes.dlopen','fcntl.flock','os.exec'):
             with self.assertRaises(RuntimeError):fence(event,())
     def test_static_validator_exact_import_seam_uses_only_pinned_predicates(self):
-        repo=HERE.parents[3];raw=(repo/'scripts/build/build.py').read_bytes()
+        raw=S.HELD_HELPERS['scripts/build/build.py'].read_bytes()
         projected=V.project_build(raw);self.assertEqual(projected.replace(V.REPLACEMENT,V.SEAM),raw)
         self.assertNotIn(V.SEAM,projected)
         for invalid in (b'NO SEAM',raw+V.SEAM):
             with self.assertRaises(ValueError):V.project_build(invalid)
-        before=list(sys.path);P,B,entry=V.helpers(repo,PROFILE)
+        self.stage_static_helpers()
+        before=list(sys.path);P,B,entry=V.helpers(self.source,PROFILE)
         self.assertEqual(sys.path,before);self.assertIs(B.recipe,P.recipe);self.assertIs(B.metadata,P.metadata)
+        self.assertEqual(Path(P.__file__).read_bytes(),S.HELD_HELPERS[S.CHECKER].read_bytes())
         self.assertEqual(entry,PROFILE['helpers']['scripts/build/container-entry.sh']['sha256'])
+    def stage_static_helpers(self):
+        for name in (S.CHECKER,'scripts/build/build.py','scripts/build/container-entry.sh'):
+            source=S.HELD_HELPERS[name]
+            destination=self.source/name;destination.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copyfile(source,destination);destination.chmod(0o644)
     def validator_fixture(self):
         repo=HERE.parents[3];recipe=PROFILE['packages']['first-login']
-        for name in ('scripts/checks/package_checks.py','scripts/build/build.py','scripts/build/container-entry.sh'):
-            destination=self.source/name;destination.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(repo/name,destination);destination.chmod(0o644)
+        self.stage_static_helpers()
         profile=self.source/(V.FAMILY+'/successor_v2/profile.json');profile.parent.mkdir(parents=True);profile.write_bytes(R.encoded(PROFILE))
         original=self.source/recipe['path'];original.parent.mkdir(parents=True,exist_ok=True);shutil.copytree(repo/recipe['path'],original)
         slot=self.root/'validator-slot';shutil.copytree(original,slot/'inputs');artifacts=slot/'artifacts';artifacts.mkdir()

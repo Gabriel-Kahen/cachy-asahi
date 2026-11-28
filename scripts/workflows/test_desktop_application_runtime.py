@@ -74,6 +74,8 @@ class RuntimeTests(unittest.TestCase):
     def test_natural_close(self):
         row = self.run_case()
         self.assertEqual(row['status'], 'PASS_EXEC_WORKFLOW')
+        self.assertTrue(row['passed'])
+        self.assertTrue(row['supervisor_passed'])
         self.assertEqual(row['exit'], 0)
         self.assertEqual(row['signals'], [])
         self.assertTrue(row['reaped'])
@@ -93,6 +95,13 @@ class RuntimeTests(unittest.TestCase):
         self.entry.write_text(self.entry.read_text().replace('Exec=fixture %f', 'Icon=demo\nExec=fixture %i %u'))
         row = self.run_case()
         self.assertEqual(row['argv'][1:], ['--icon', 'demo'])
+
+    def test_missing_absolute_icon_still_expands_icon_and_launches(self):
+        icon = '/usr/share/pixmaps/unavailable.png'
+        self.entry.write_text(self.entry.read_text().replace('Exec=fixture %f', f'Icon={icon}\nExec=fixture %i'))
+        row = self.run_case()
+        self.assertEqual(row['status'], 'PASS_EXEC_WORKFLOW')
+        self.assertEqual(row['argv'][1:], ['--icon', icon])
 
     def test_missing_tryexec(self):
         self.entry.write_text(self.entry.read_text() + 'TryExec=absent\n')
@@ -178,7 +187,10 @@ class RuntimeTests(unittest.TestCase):
 
     def test_readiness_absent(self):
         self.script('print("not ready")\n')
-        self.assertEqual(self.run_case()['status'], 'READINESS_NOT_OBSERVED')
+        row = self.run_case()
+        self.assertEqual(row['status'], 'READINESS_NOT_OBSERVED')
+        self.assertFalse(row['passed'])
+        self.assertTrue(row['supervisor_passed'])
 
     def test_late_readiness(self):
         self.args.ready_seconds = .05
@@ -253,6 +265,55 @@ class RuntimeTests(unittest.TestCase):
         row = self.run_case()
         self.assertEqual(row['status'], 'PASS_EXEC_WORKFLOW')
         self.assertIn('READY alias', row['output'])
+
+    def test_absolute_executable_alias_uses_staged_target_and_preserves_name(self):
+        script = ('#!' + self.interpreter + '\nfrom pathlib import Path\nimport sys\n'
+                  'p = Path(sys.argv[0])\nprint("READY", p.name, p.resolve(), flush=True)\n')
+        host_twin = self.base / 'host-twin'
+        host_twin.write_text(script)
+        host_twin.chmod(0o755)
+        target = self.write(str(host_twin).lstrip('/'), script, 0o755)
+        alias = self.stage / 'usr/bin/alias'
+        alias.symlink_to(host_twin)
+        self.entry.write_text(self.entry.read_text().replace('Exec=fixture', 'Exec=alias'))
+
+        row = self.run_case()
+        self.assertEqual(row['status'], 'PASS_EXEC_WORKFLOW')
+        self.assertIn(f'READY alias {target}', row['output'])
+        self.assertFalse(Path(row['argv'][0]).exists())
+        self.assertEqual(alias.readlink(), host_twin)
+
+    def test_absolute_executable_directory_alias_without_host_target(self):
+        logical = '/' + self.base.name + '/bin'
+        target = self.write(logical.lstrip('/') + '/fixture',
+                            '#!' + self.interpreter + '\nimport subprocess\n'
+                            'subprocess.run(["child-tool"], check=True)\n', 0o755)
+        self.write(logical.lstrip('/') + '/child-tool',
+                   '#!' + self.interpreter + '\nprint("READY staged child", flush=True)\n', 0o755)
+        (self.stage / 'fixture-bin').symlink_to(logical)
+        self.env['PATH'] = '/fixture-bin:' + self.env['PATH']
+        self.assertFalse(Path(logical).exists())
+
+        row = self.run_case()
+        self.assertEqual(row['status'], 'PASS_EXEC_WORKFLOW')
+        self.assertEqual(row['argv'][0], str(target))
+        self.assertIn('READY staged child', row['output'])
+
+    def test_absolute_desktop_alias_expands_to_a_readable_staged_path(self):
+        self.entry.write_text(self.entry.read_text().replace('Exec=fixture %f', 'Exec=fixture %k'))
+        self.script('from pathlib import Path\nimport sys\n'
+                    'p = Path(sys.argv[1])\nprint("READY", p.name, p.resolve(), flush=True)\n')
+        self.save()
+        logical = '/' + self.base.name + '/original.desktop'
+        target = self.write(logical.lstrip('/'), self.entry.read_text())
+        self.entry.unlink()
+        self.entry.symlink_to(logical)
+        self.assertFalse(Path(logical).exists())
+
+        row = runtime.run(self.args)
+        self.assertEqual(row['status'], 'PASS_EXEC_WORKFLOW')
+        self.assertIn(f'READY fixture.desktop {target}', row['output'])
+        self.assertFalse(Path(row['argv'][1]).exists())
 
     def test_sigchld_prelaunch_refusal(self):
         with mock.patch.object(signal, 'getsignal', return_value=signal.SIG_IGN):

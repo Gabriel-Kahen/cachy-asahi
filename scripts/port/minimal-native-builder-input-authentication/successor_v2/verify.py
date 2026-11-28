@@ -1,6 +1,6 @@
 #!/usr/bin/env -S python3 -I -B
 # SPDX-License-Identifier: MIT
-"""Exact5415 verifier successor: stateless public-key inspection only."""
+"""Pinned verifier successor: stateless public-key inspection only."""
 import ast
 import hashlib
 import os
@@ -9,7 +9,7 @@ import stat
 
 HERE=Path(__file__).resolve().parent
 FROZEN=HERE.parent/'verify.py'
-PIN=dict(bytes=27132,sha256='be6c793d39975f044a5626650f5ed641e0a4df2f809fe0a13524e73499018dc5')
+PIN=dict(bytes=27268,sha256='91abb03ba4db4802014dfe8dbde2565d70bdad2f5c0a8fd2ab8f3960965c5030')
 BEFORE="'--no-default-keyring', '--keyring', '/proc/self/fd/' + str(binary.fd), '--no-auto-check-trustdb'"
 AFTER="'--no-keyring', '--trust-model', 'always', '--no-auto-check-trustdb'"
 OLD_ROOT='ROOT = HERE.parents[2]'
@@ -27,7 +27,7 @@ def frozen():
         before=os.fstat(fd);need(stat.S_ISREG(before.st_mode)and before.st_nlink==1 and before.st_size==PIN['bytes'],'whole ordinary frozen verifier')
         raw=os.read(fd,PIN['bytes']+1)
         identity=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_nlink,s.st_uid,s.st_gid,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
-        need(identity(before)==identity(os.fstat(fd))==identity(FROZEN.lstat())and dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())==PIN,'unchanged whole5415 verifier')
+        need(identity(before)==identity(os.fstat(fd))==identity(FROZEN.lstat())and dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())==PIN,'whole pinned predecessor verifier')
         return raw
     finally:os.close(fd)
 

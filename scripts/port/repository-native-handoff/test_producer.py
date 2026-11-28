@@ -7,6 +7,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import runpy
 import signal
 import sys
 import tempfile
@@ -20,10 +21,17 @@ spec = importlib.util.spec_from_file_location('owned_handoff_producer', Path(__f
 producer = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(producer)
 ROOT = Path(__file__).resolve().parents[3]
+ORIGINAL_RUNNER = 'scripts/integration/repository.py'
 NONCE = 'a' * 32
-# Only these explicitly modeled tests bind the current public fixture bytes.
-FIXTURE_RUNNER = 'f860ff970093c7aac0788571d36ab32f1617e2dc9b2a703e42e16782f10a7641'
-FROZEN_RUNNER = '49c87f41bbb2fe1288251f16019f12aaeabb98d81ff5339387873e88e903b940'
+graph_fixture = runpy.run_path(str(ROOT/'scripts/ci/development/repository_graph_fixture.py'))
+
+
+def stage_historical_runner(directory):
+    raw, mode = graph_fixture['historical_graph_input'](ROOT, ORIGINAL_RUNNER)
+    path = directory/'repository.py'
+    path.write_bytes(raw)
+    path.chmod(mode)
+    return path
 
 
 class ModeledProtocol:
@@ -133,12 +141,11 @@ class ModelTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='MODELED-handoff-producer-'); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        source = (ROOT / 'scripts/integration/repository.py').read_bytes()
-        self.assertEqual(producer.digest(source), FIXTURE_RUNNER)
-        self.assertEqual(producer.SOURCE_SHA256, FROZEN_RUNNER)
-        self.enterContext(mock.patch.object(producer, 'SOURCE_SHA256', FIXTURE_RUNNER))
+        path = stage_historical_runner(self.root)
+        source = path.read_bytes()
+        self.assertEqual(producer.digest(source), producer.SOURCE_SHA256)
         self.original = types.ModuleType('frozen_repository_functions_only')
-        self.original.__file__ = str(ROOT / 'scripts/integration/repository.py')
+        self.original.__file__ = str(path)
         exec(compile(source, self.original.__file__, 'exec'), self.original.__dict__)
         self.protocol = ModeledProtocol()
         self.checkpoints = producer.Checkpoints(self.protocol, NONCE, time.monotonic() + 30)
@@ -345,12 +352,10 @@ class GuardAndReadTests(unittest.TestCase):
         # Replaces only the compiled module's main with an explicit model. No
         # guard-positive frozen worker, GPG, Docker or native actor is executed.
         original_argv = sys.argv
-        self.assertEqual(producer.digest((ROOT/'scripts/integration/repository.py').read_bytes()), FIXTURE_RUNNER)
-        self.assertEqual(producer.SOURCE_SHA256, FROZEN_RUNNER)
-        self.enterContext(mock.patch.object(producer, 'SOURCE_SHA256', FIXTURE_RUNNER))
         for after_write in (False, True):
             with self.subTest(after_write=after_write), tempfile.TemporaryDirectory() as directory:
                 terminal = Path(directory)/'MODELED-private-original-result.json'
+                source = stage_historical_runner(Path(directory))
                 def install_modeled_main(module, checkpoints):
                     def modeled_main():
                         checkpoints.emit({'fixture_scope':'MODELED','part':1})
@@ -362,7 +367,7 @@ class GuardAndReadTests(unittest.TestCase):
                     return module.Integration
                 with mock.patch.object(producer, 'observer_class', side_effect=install_modeled_main):
                     with self.assertRaises(producer.Cancelled):
-                        producer.observe(ROOT/'scripts/integration/repository.py', ModeledProtocol(), nonce=NONCE,
+                        producer.observe(source, ModeledProtocol(), nonce=NONCE,
                                          deadline=time.monotonic()+2, argv=['MODELED-only'])
                 self.assertIs(sys.argv, original_argv)
                 self.assertEqual(terminal.exists(), after_write)
@@ -370,18 +375,23 @@ class GuardAndReadTests(unittest.TestCase):
     def test_real_frozen_main_guard_refuses_before_mutating_worker(self):
         original_argv = sys.argv
         protocol = ModeledProtocol()
-        with mock.patch('subprocess.run', side_effect=AssertionError('no actual actor commands')):
-            with self.assertRaises(Exception):
-                producer.observe(ROOT / 'scripts/integration/repository.py', protocol, nonce=NONCE,
-                    deadline=time.monotonic() + 10, argv=['--inputs', '/not-present-contract', '--inputs-sha256', 'f' * 64])
+        with tempfile.TemporaryDirectory() as directory:
+            source = stage_historical_runner(Path(directory))
+            with mock.patch('subprocess.run', side_effect=AssertionError('no actual actor commands')) as commands:
+                with self.assertRaisesRegex(Exception, 'explicit disposable repository-test contract required'):
+                    producer.observe(source, protocol, nonce=NONCE, deadline=time.monotonic() + 10,
+                        argv=['--inputs', '/not-present-contract', '--inputs-sha256', 'f' * 64])
+        commands.assert_not_called()
         self.assertIs(sys.argv, original_argv);self.assertEqual(protocol.frames, [])
 
     def test_source_pin_refused_before_compile_and_signal_handlers(self):
         with tempfile.TemporaryDirectory() as name:
             path = Path(name) / 'repository.py';path.write_bytes(b'raise AssertionError("must not run")\n')
-            with mock.patch.object(producer, 'cancellation_handlers', side_effect=AssertionError('must not install')):
-                with self.assertRaisesRegex(producer.Refused, 'source-pin'):
-                    producer.observe(path, ModeledProtocol(), nonce=NONCE, deadline=time.monotonic()+10)
+            for candidate in (path, ROOT/ORIGINAL_RUNNER):
+                with self.subTest(candidate=candidate), \
+                     mock.patch.object(producer, 'cancellation_handlers', side_effect=AssertionError('must not install')):
+                    with self.assertRaisesRegex(producer.Refused, 'source-pin'):
+                        producer.observe(candidate, ModeledProtocol(), nonce=NONCE, deadline=time.monotonic()+10)
 
     def test_regular_single_link_stable_nofollow_reads(self):
         with tempfile.TemporaryDirectory() as name:

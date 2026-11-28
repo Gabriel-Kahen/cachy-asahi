@@ -126,17 +126,31 @@ obligation is satisfied. `complete_corresponding_source_accepted` and
 `legal_acceptance` remain false in every bundle.
 
 The retained acquisition receipt and primary tag object identify Speakersafetyd's
-revision as `63a92658a4daec170c6472e38162374206e593fb`. The shared manifest and audio
-README currently contain a `...170f6472...` typo. The profile uses the retained
-receipt's `c` revision, preserving all recipe/archive bytes. Coordinator correction
-of canonical documentation is separate from this adapter.
+revision as `63a92658a4daec170c6472e38162374206e593fb`. The delivery
+profile, package inventory and audio README now agree on that revision.
 
-This lane has 32 host-side controls and real retained-source exports. Package
-binding controls use an explicitly synthetic ALSA archive with exact retained
-payload bytes. Actual produced package-archive binding, native rebuild,
-installation, VM execution, audio runtime, speaker protection, physical M2,
-performance, publication and release admission remain NOT_RUN/NOT_ADMITTED here.
-Existing results elsewhere do not transfer automatically.
+On November 25, all five exact retained package archives passed `pack
+--archive` and independent `verify --archive` against this profile. The static
+association covers package metadata, recipe digest, payload and notices. The
+32 host-side controls also passed. The tested archive versions in this
+profile are newer than those in the R132 lock. The Rust build and license
+obligations above remain open, along with protected-audio behavior and
+installation on both physical M2 Air sizes.
+
+The separate [R132 selection](supported-composition-maintenance.md#november-25-offline-selection-and-custody)
+retains the earlier Asahi audio set. Its exact `asahi-audio 4.1-1`,
+`speakersafetyd 2.0.1-1` and `asahi-desktop-meta 4-10` BUILDINFO digests match
+retained community recipes. The Mesa `1:26.2.4-1` split archives share recipe
+digest `5b1d5aa6de6fc4810e81ed4b26bf8cff6e9af5050e62d87d3d678246c44d0882`.
+Exact native ALARM Mesa recipe and source custody remain open. The available
+community Mesa recipe targets the x86 FEX overlay and `mesa-dummy`.
+Static checks of 74 retained R132 AArch64 ELFs passed 16 KiB load-segment
+alignment and congruence. The exact PipeWire AAC plugin directly needs
+`libfdk-aac.so.2`. These observations belong to the audio and graphics
+archive readback under
+`~/.cache/cachy-asahi-composition-audio-review-xoy60vg2/`. Its receipt
+`r132-audio-graphics.DATA.json` has SHA-256
+`252c9548b739a18a67e993ea08ab1cbfd5870799e3b28ca6727fdd118ba00396`.
 
 ```sh
 python3 -I -B -Werror::ResourceWarning \

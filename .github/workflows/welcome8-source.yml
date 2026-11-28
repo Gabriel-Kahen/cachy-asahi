@@ -1,6 +1,7 @@
 name: welcome8-source
 on:
   push:
+    branches: ['**']
     paths:
       - packages/tools/cachy-asahi-welcome8/**
       - .github/workflows/welcome8-source.yml
@@ -43,7 +44,17 @@ jobs:
            subprocess.run(['xauth','-f',str(auth),'add',':0','MIT-MAGIC-COOKIE-1',cookie],check=True,capture_output=True)
            read,write=os.pipe();log=(D/'xvfb.stderr').open('wb');server=subprocess.Popen(['Xvfb','-displayfd',str(write),'-screen','0','1024x768x24','-nolisten','tcp','-auth',str(auth)],pass_fds=(write,),stdout=subprocess.DEVNULL,stderr=log);os.close(write)
            try:
-            assert select.select([read],[],[],8)[0],'owned Xvfb display startup timeout';display=os.read(read,32).decode().strip();assert display.isdecimal();os.close(read);read=None
+            ready, _, _ = select.select([read], [], [], 20)
+            display = os.read(read, 32).decode('ascii', errors='replace').strip() if ready else ''
+            if not display.isdecimal():
+             with (D/'xvfb.stderr').open('rb') as error_log:
+              error_log.seek(0, os.SEEK_END)
+              error_log.seek(max(0, error_log.tell() - 8192))
+              detail = error_log.read().decode(errors='replace').strip()
+             reason = 'invalid display reply' if ready else 'startup timeout'
+             raise RuntimeError(f'owned Xvfb {reason} (exit={server.poll()}): {detail}')
+            os.close(read)
+            read = None
             subprocess.run(['xauth','-f',str(auth),'add',':'+display,'MIT-MAGIC-COOKIE-1',cookie],check=True,capture_output=True)
             env={k:v for k,v in os.environ.items()if k not in('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','XAUTHORITY','GTK_MODULES','GTK3_MODULES')};env.update(DISPLAY=':'+display,XAUTHORITY=str(auth),XDG_RUNTIME_DIR=str(runtime),GDK_BACKEND='x11',NO_AT_BRIDGE='1',GTK_USE_PORTAL='0',GIO_USE_VFS='local')
             result=subprocess.run(['dbus-run-session','--',str(binary)],env=env,capture_output=True,timeout=35)

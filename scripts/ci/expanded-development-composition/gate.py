@@ -22,6 +22,7 @@ def main():
     for directory,expected in ((args.script_source,policy['script_source']),(args.module_source,policy['bang_source'])):
         C.need(subprocess.check_output(['git','-C',str(directory),'rev-parse','HEAD'],text=True,timeout=15).strip()==expected,
                'fixed input revision differs')
+    bang.held_comparator(args.module_source,policy)
     bundle=args.script_source
     inputs.retained(bundle,C.read(C.checked(bundle,policy['script_index'])),code)
     inputs.combined(args.module_source,policy)

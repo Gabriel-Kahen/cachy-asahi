@@ -21,7 +21,7 @@ BASE = Path(__file__).resolve().parent
 BRIDGE_SHA = '467cbb9562189b79926deb9d15d9b027d7c73d2a27ba07bc01d6740941567227'
 KIND = 'cachy-asahi-pristine-payload-ext4-v1'
 SIGNED_KIND = 'cachy-asahi-policy-signed-payload-ext4-v1'
-SIGNED_SHA = 'fb06597a7ee68e9b3c66209e43a8b058d9d7a472a83434504936c99df2eed0f0'
+SIGNED_SHA = 'b7857ba4d83a7475e173f33fc6430fcb0099c3e51d4a312b5b3afc965c30ac91'
 INPUTS = ('selection', 'authentication', 'tool_pins', 'metadata_pins', 'root_policy')
 HEX = re.compile(r'[0-9a-f]{64}\Z')
 LIMIT = 8 * 1024**3
@@ -319,6 +319,7 @@ def run(recipe_path, recipe_sha256, output, resume_receipt_sha256=None):
             if row['type'] == 'directory':
                 sync_directory(output / relative)
         sync_directory(output)
+        sync_directory(output.parent)
         (output / 'INCOMPLETE.json').unlink()
         os.rename(output / 'receipt.pending.json', output / 'receipt.json')
         sync_directory(output)

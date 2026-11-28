@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Temporary real package archives only; never touch the host ALPM/cache directories."""
 import copy
+import gzip
 import hashlib
 import importlib.util
 import io
@@ -32,9 +33,10 @@ class CacheTests(unittest.TestCase):
             'protected':[{'filename':pin.name, 'name':'demo', 'version':'1.0-1', 'arch':'any',
                           'sha256':hashlib.sha256(pin.read_bytes()).hexdigest()}]}
 
-    def package(self, version, name='demo', suffix='gz', payload=b'package fixture\n', arch='any'):
+    def package(self, version, name='demo', suffix='gz', payload=b'package fixture\n', arch='any',
+                full_version=None):
         path = self.cache/f'{name}-{version}.0-1-{arch}.pkg.tar.{suffix}'
-        raw = f'pkgname = {name}\npkgver = {version}.0-1\narch = {arch}\nlicense = MIT\n'.encode()
+        raw = f'pkgname = {name}\npkgver = {full_version or f'{version}.0-1'}\narch = {arch}\nlicense = MIT\n'.encode()
         with tarfile.open(path,'w:'+suffix) as archive:
             for name,data in {'.PKGINFO':raw,'usr/share/fixture':payload}.items():
                 member = tarfile.TarInfo(name);member.size=len(data);archive.addfile(member,io.BytesIO(data))
@@ -83,6 +85,65 @@ class CacheTests(unittest.TestCase):
         with self.assertRaises(c.ApplyError):self.apply(plan,[self.archives[2].name])
         self.assertEqual(self.archives[2].read_bytes(),raw)
 
+    def test_incomplete_tar_cannot_count_toward_retention_or_be_deleted(self):
+        newest, oldest = self.archives[5], self.archives[2]
+        raw = gzip.decompress(newest.read_bytes())
+        with tarfile.open(fileobj=io.BytesIO(raw), mode='r:') as archive:
+            archive.getmembers()
+            end = archive.offset
+        block = tarfile.BLOCKSIZE
+        bad_tails = {
+            'absent': b'',
+            'single zero block': bytes(block),
+            'partial second block': bytes(2 * block - 1),
+            'unaligned padding': bytes(2 * block + 1),
+            'invalid header': b'x' * block + bytes(2 * block),
+            'trailing bytes within tar buffer': bytes(2 * block) + b'x' + bytes(block - 1),
+        }
+        for kind, tail in bad_tails.items():
+            with self.subTest(kind=kind):
+                newest.write_bytes(gzip.compress(raw[:end] + tail))
+                plan = self.preview()
+                actions = {row['filename']: row['action'] for row in plan['entries']}
+                self.assertEqual(actions[newest.name], 'unknown')
+                self.assertEqual(actions[oldest.name], 'retained')
+                before = self.snapshot()
+                for path in (newest, oldest):
+                    with self.assertRaises(c.ApplyError):
+                        self.apply(plan, [path.name])
+                self.assertEqual(self.snapshot(), before)
+
+        newest.write_bytes(gzip.compress(raw[:end] + bytes(2 * block)))
+        oldest_raw = gzip.decompress(oldest.read_bytes())
+        oldest.write_bytes(gzip.compress(oldest_raw[:end]))
+        plan = self.preview()
+        actions = {row['filename']: row['action'] for row in plan['entries']}
+        self.assertEqual(actions[newest.name], 'retained')
+        self.assertEqual(actions[oldest.name], 'unknown')
+        self.assertEqual(actions[self.duplicate.name], 'candidate')
+        with self.assertRaises(c.ApplyError):
+            self.apply(plan, [oldest.name])
+
+    def test_decoded_bound_counts_compressed_zero_tail(self):
+        path = self.archives[5]
+        raw = gzip.decompress(path.read_bytes())
+        # Exercise the production bound with a small ceiling and real gzip.
+        with mock.patch.object(c, 'MAX_DECODED_ARCHIVE', len(raw)):
+            rows = {row['filename']: row for row in self.preview()['entries']}
+            self.assertEqual(rows[path.name]['action'], 'retained')
+            for extra in (tarfile.BLOCKSIZE, 256 * 1024):
+                with self.subTest(extra=extra):
+                    compressed = gzip.compress(raw + bytes(extra))
+                    self.assertLess(len(compressed), len(raw))
+                    path.write_bytes(compressed)
+                    plan = self.preview()
+                    rows = {row['filename']: row for row in plan['entries']}
+                    self.assertEqual(rows[path.name]['action'], 'unknown')
+                    self.assertEqual(rows[self.archives[2].name]['action'], 'retained')
+                    with self.assertRaises(c.ApplyError):
+                        self.apply(plan, [path.name])
+                    self.assertEqual(path.read_bytes(), compressed)
+
     def test_all_duplicates_of_a_protected_version_are_kept(self):
         duplicate=self.package(1,suffix='xz',payload=b'another copy of rollback version')
         plan=self.preview();row=next(r for r in plan['entries'] if r['filename']==duplicate.name)
@@ -96,6 +157,40 @@ class CacheTests(unittest.TestCase):
         actions={r['filename']:r['action'] for r in self.preview()['entries']}
         self.assertEqual(actions[old.name],'candidate')
         for path in retained:self.assertEqual(actions[path.name],'retained')
+
+    def test_incomplete_version_is_unknown_and_cannot_be_pinned(self):
+        incomplete = self.package(9, full_version='5.0')
+        next_release = self.package(10, full_version='5.0-2')
+        actions = {r['filename']: r['action'] for r in self.preview()['entries']}
+        self.assertEqual(actions[incomplete.name], 'unknown')
+        self.assertEqual(actions[next_release.name], 'retained')
+        self.assertEqual(actions[self.archives[5].name], 'retained')
+        self.assertEqual(actions[self.archives[4].name], 'retained')
+        self.assertEqual(actions[self.archives[3].name], 'candidate')
+        self.policy['protected'][0].update(filename=incomplete.name, version='5.0',
+                                           sha256=c.digest(incomplete.read_bytes()))
+        with self.assertRaisesRegex(c.Error, 'protected archive identity'):
+            self.preview()
+
+    def test_equivalent_labels_share_retention_and_protection(self):
+        protected = self.package(11, full_version='1.00-01')
+        newest = self.package(12, full_version='0:5.00-01')
+        actions = {r['filename']: r['action'] for r in self.preview()['entries']}
+        self.assertEqual(actions[protected.name], 'protected')
+        self.assertEqual(actions[newest.name], 'retained')
+        self.assertEqual(actions[self.archives[3].name], 'retained')
+        self.assertEqual(actions[self.archives[2].name], 'candidate')
+
+    def test_large_retention_and_protection_avoid_pairwise_vercmp(self):
+        for i in range(6, 41):
+            path = self.package(i)
+            self.policy['protected'].append({'filename': path.name, 'name': 'demo', 'arch': 'any',
+                                             'version': f'{i}.0-1', 'sha256': c.digest(path.read_bytes())})
+        self.policy['retain_versions'] = 40
+        with mock.patch.object(c, 'version_compare', wraps=c.version_compare) as compare:
+            plan = self.preview()
+        self.assertTrue(all(row['action'] in {'protected', 'retained'} for row in plan['entries']))
+        self.assertLess(compare.call_count, 40 * 7)
 
     def test_protected_missing_or_changed_refuses_before_deletion(self):
         plan=self.preview();self.archives[1].write_bytes(b'changed rollback archive')
@@ -135,6 +230,33 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(failure.exception.deleted,[]);self.assertIsNone(failure.exception.quarantine)
         self.assertEqual(self.archives[2].read_bytes(),b'foreign replacement')
         self.assertFalse((self.db/'db.lck').exists())
+
+    def test_cancelled_claim_restores_known_leaf_and_preserves_unexpected_sibling(self):
+        candidate = self.archives[2]
+        original = candidate.read_bytes()
+        plan = self.preview()
+        rename = c.os.rename
+
+        def interrupt(source, target, **kwargs):
+            rename(source, target, **kwargs)
+            fd = os.open('unexpected', os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600,
+                         dir_fd=kwargs['dst_dir_fd'])
+            with os.fdopen(fd, 'wb') as stream:
+                stream.write(b'foreign quarantine bytes')
+            raise KeyboardInterrupt('cancelled after claim')
+
+        with mock.patch.object(c.os, 'rename', side_effect=interrupt):
+            with self.assertRaises(c.ApplyError) as failure:
+                self.apply(plan, [candidate.name])
+        self.assertTrue(failure.exception.cancelled)
+        self.assertEqual(failure.exception.deleted, [])
+        self.assertEqual(candidate.read_bytes(), original)
+        self.assertEqual(candidate.stat().st_nlink, 1)
+        self.assertFalse((self.cache / 'unexpected').exists())
+        quarantine = Path(failure.exception.quarantine)
+        self.assertEqual(list(quarantine.iterdir()), [quarantine / 'unexpected'])
+        self.assertEqual((quarantine / 'unexpected').read_bytes(), b'foreign quarantine bytes')
+        self.assertFalse((self.db / 'db.lck').exists())
 
     def test_restore_collision_preserves_both_replacements_and_reports_quarantine(self):
         plan=self.preview();name=self.archives[2].name;original=c.os.rename

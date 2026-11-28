@@ -4,12 +4,13 @@ import copy
 from contextlib import contextmanager, ExitStack
 import hashlib
 import json
+import stat
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
 import types
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 import common
 import worker
@@ -21,23 +22,33 @@ class ProvisionFlow(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name); self.inputs = self.root / 'inputs'; self.inputs.mkdir()
-        self.real_path = Path
-        self.packet = b'archive'; self.sig = b'signature'
-        (self.inputs / 'tool.pkg').write_bytes(self.packet); (self.inputs / 'tool.pkg.sig').write_bytes(self.sig)
-        common.save(self.inputs / 'contract.json', {'base_inventory': 'base 1\n'})
+        self.packet, self.sig, self.key = b'archive', b'signature', b'public-key'
+        self.payloads = {'tool.pkg': self.packet, 'tool.pkg.sig': self.sig, 'archlinuxarm.gpg': self.key}
+        rows = {}
+        for name, data in self.payloads.items():
+            (self.inputs / name).write_bytes(data)
+            rows[name] = {'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)}
+        self.contract_path = self.inputs / 'contract.json'
+        pin = common.save(self.contract_path, {'base_inventory': 'base 1\n', 'inputs': rows})
+        self.contract = common.load(self.contract_path, pin)
         self.signer = '6' * 40
-        self.dependencies = {'packages': [{'name': 'tool', 'filename': 'tool.pkg', 'sha256': hashlib.sha256(self.packet).hexdigest(),
-            'signature_sha256': hashlib.sha256(self.sig).hexdigest()}], 'signer_fingerprint': self.signer,
-            'expected_inventory': 'base 1\ntool 2\n'}
+        self.dependencies = {'packages': [{'name': 'tool', 'filename': 'tool.pkg',
+            'sha256': rows['tool.pkg']['sha256'], 'size': rows['tool.pkg']['bytes'],
+            'signature_sha256': rows['tool.pkg.sig']['sha256'], 'signature_size': rows['tool.pkg.sig']['bytes']}],
+            'signer_fingerprint': self.signer, 'expected_inventory': 'base 1\ntool 2\n'}
+        self.scratch = self.root / 'tmp'; self.scratch.mkdir()
         self.labels = []; self.installed = False
         self.log_dir = self.root / 'logs'; self.log_dir.mkdir()
 
     def path(self, value):
-        if str(value).startswith('/tmp/'):
-            return self.real_path(self.root / str(value).lstrip('/'))
-        if str(value).startswith('/usr/share/') or str(value).startswith('/etc/'):
+        path = Path(value)
+        if path.is_relative_to(self.root):
+            return path
+        if path.is_relative_to('/tmp'):
+            return self.scratch / path.relative_to('/tmp')
+        if path.is_relative_to('/usr/share') or path.is_relative_to('/etc'):
             return self.root / 'nonexistent-hooks'
-        return self.real_path(value)
+        return path
 
     def command_run(self, argv, timeout=0, log=None):
         self.labels.append(log)
@@ -49,12 +60,15 @@ class ProvisionFlow(unittest.TestCase):
         (self.log_dir / log).open('xb').close()
         return subprocess.CompletedProcess(argv, 0, data)
 
+    def provision(self, report, run=None):
+        runner = types.SimpleNamespace(log_dir=self.log_dir, run=run or self.command_run)
+        with (patch.object(worker, 'Path', side_effect=self.path), patch.object(worker, 'INPUTS', self.inputs),
+              patch.object(worker, 'load', side_effect=AssertionError('unexpected contract reread'))):
+            worker.provision(runner, report, self.dependencies, self.contract)
+
     def test_distinct_inventory_logs_allow_complete_provision(self):
-        (self.root / 'tmp').mkdir()
-        runner = type('Runner', (), {'log_dir': self.log_dir, 'run': self.command_run})()
         report = {'commands': []}
-        with patch.object(worker, 'Path', side_effect=self.path), patch.object(worker, 'INPUTS', self.inputs):
-            worker.provision(runner, report, self.dependencies)
+        self.provision(report)
         self.assertIn('inventory-before.log', self.labels)
         self.assertIn('inventory-after.log', self.labels)
         self.assertEqual(len(self.labels), len(set(self.labels)))
@@ -63,12 +77,55 @@ class ProvisionFlow(unittest.TestCase):
         self.assertTrue(self.installed)
 
     def test_wrong_crypto_signer_blocks_install(self):
-        (self.root / 'tmp').mkdir()
         self.dependencies['signer_fingerprint'] = '7' * 40
-        runner = type('Runner', (), {'log_dir': self.log_dir, 'run': self.command_run})()
-        with patch.object(worker, 'Path', side_effect=self.path), patch.object(worker, 'INPUTS', self.inputs):
-            with self.assertRaises(ValueError): worker.provision(runner, {'commands': []}, self.dependencies)
+        with self.assertRaisesRegex(ValueError, 'signature signer/status differs'):
+            self.provision({'commands': []})
         self.assertFalse(self.installed)
+
+    def test_install_uses_verified_private_pair_and_authenticated_inventory_after_source_drift(self):
+        verified = []
+        def run(argv, **kwargs):
+            if '--import' in argv:
+                key = Path(argv[-1])
+                self.assertEqual(key.read_bytes(), self.key)
+                self.assertEqual(key.parent.parent, self.scratch)
+                self.assertEqual(stat.S_IMODE(key.parent.stat().st_mode), 0o700)
+                self.assertEqual(stat.S_IMODE(key.stat().st_mode), 0o600)
+            if '--verify' in argv:
+                sig, archive = map(Path, argv[-2:])
+                self.assertEqual(archive.parent.parent, self.scratch)
+                self.assertEqual(sig, archive.with_name(archive.name + '.sig'))
+                self.assertEqual((archive.read_bytes(), sig.read_bytes()), (self.packet, self.sig))
+                verified.extend((archive, sig))
+                (self.inputs / archive.name).write_bytes(b'inert replacement archive')
+                replacement = self.inputs / 'signature-replacement'
+                replacement.write_bytes(b'inert replacement signature')
+                replacement.replace(self.inputs / sig.name)
+                common.save(self.contract_path, {'base_inventory': 'different 1\n'})
+            if '-U' in argv:
+                archive, sig = verified
+                self.assertEqual(Path(argv[-1]), archive)
+                self.assertEqual((archive.read_bytes(), sig.read_bytes()), (self.packet, self.sig))
+                self.assertIn('--noscriptlet', argv)
+            return self.command_run(argv, **kwargs)
+        report = {'commands': []}
+        self.provision(report, run)
+        self.assertEqual(report['base_inventory']['sha256'], hashlib.sha256(b'base 1\n').hexdigest())
+        self.assertTrue(self.installed)
+        self.assertFalse(verified[0].parent.exists())
+
+    def test_source_drift_before_private_capture_blocks_all_commands(self):
+        for name, data in self.payloads.items():
+            with self.subTest(name=name):
+                source = self.inputs / name
+                source.write_bytes(bytes([data[0] ^ 1]) + data[1:])
+                try:
+                    with self.assertRaisesRegex(ValueError, 'private provision input pin differs'):
+                        self.provision({'commands': []})
+                    self.assertEqual(self.labels, [])
+                    self.assertFalse(list(self.scratch.glob('verified-packages-*')))
+                finally:
+                    source.write_bytes(data)
 
 
 BINDING = {'nonce': 'a'*32, 'action': 'baseline', 'contract_sha256': 'b'*64, 'worker_sha256': 'c'*64}
@@ -197,7 +254,7 @@ class DiagnosticExecute(unittest.TestCase):
         with ExitStack() as stack:
             stack.enter_context(patch.dict(module.os.environ, {'KERNEL_STAGE_ACTION': 'baseline'}))
             for name, value in {'Path': MagicMock(), 'load': MagicMock(side_effect=[contract, {'expected_inventory': 'inert'}]),
-                'code_contract': MagicMock(), 'regular': MagicMock(), 'digest': MagicMock(return_value='d'*64),
+                'code_contract': MagicMock(), 'regular': MagicMock(), 'digest': MagicMock(return_value=hashlib.sha256(b'original').hexdigest()),
                 'Runner': MagicMock(return_value=runner), 'profile': MagicMock(side_effect=lambda *a: trace.append('profile') or {}),
                 'package_map': MagicMock(side_effect=lambda *a: trace.append('inventory') or {}),
                 'tools': MagicMock(side_effect=lambda *a: trace.append('tools') or {}), 'compile_variant': compile_one,
@@ -274,7 +331,7 @@ class DiagnosticExecute(unittest.TestCase):
                 self.assertEqual('KERNEL', row['command']); self.assertEqual('ISSUED', row['attempt'])
                 self.assertEqual('RETURNED' if business is None or type(business) is int else 'UNOBSERVED', row['natural_return']['kind'])
                 group = inner_result.capture(json.dumps(report).encode(), BINDING)
-                self.assertEqual('REFUSED' if business is None or isinstance(business, SystemExit) else 'VERIFIED', group['availability'])
+                self.assertEqual('REFUSED' if business is None else 'VERIFIED', group['availability'])
                 self.assertEqual('PASS' if business is None else 'FAIL', report['status'])
                 self.assertEqual(0 if business is None else None, result['return'])
                 if business is not None: self.assertIsNotNone(result['error'])
@@ -358,6 +415,105 @@ class DiagnosticExecute(unittest.TestCase):
                 self.assertEqual(isinstance(error, (Cancelled, KeyboardInterrupt, SystemExit)), report['cancelled'])
                 self.assertEqual('REFUSED', inner_result.capture(json.dumps(report).encode(), BINDING)['availability'])
 
+
+
+
+def relocation_fixture():
+    return {'role': 'arm64-image-reference', 'elf_type': 3, 'branch': 'NULL_LINK_RELATIVE',
+        'failed_check': 'INFO_RELATIVE', 'section': {'index': 3, 'type': 4, 'flags': 2,
+        'link': 0, 'info': 0, 'entry_index': 0}, 'offset': 4097, 'info': 1028,
+        'symbol_count': None, 'target_size': None,
+        'allocated': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 1, 'address': 4096, 'size': 32}},
+        'load': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 0, 'address': 4096, 'size': 32}}}
+
+
+class RelocationWorkerBoundary(unittest.TestCase):
+    def test_original_verifier_called_once_error_identity_and_cleanup_controls_held(self):
+        for invalid in (False,True):
+            row=inner_result.initial(BINDING);inner_result.phase(row,'KERNEL')
+            inner_result.issued(row,'KERNEL');inner_result.returned(row,0);inner_result.phase(row,'OUTPUTS')
+            report={'inner_diagnostic':row};error=ValueError('ELF relocation index/offset invalid')
+            error.relocation_failure={'private':'secret'} if invalid else relocation_fixture()
+            verifier=MagicMock();verifier.verify_outputs.side_effect=error
+            with self.assertRaises(ValueError) as caught:
+                worker.verify_output_structure(verifier,'build','source','config',report)
+            self.assertIs(caught.exception,error)
+            verifier.verify_outputs.assert_called_once_with('build','source','config',checkpoint=ANY)
+            self.assertEqual(row['first_failure'],{'phase':'OUTPUTS','command':'KERNEL','error_kind':'DATA_REFUSAL'})
+            self.assertEqual(row['natural_return'],{'kind':'RETURNED','code':0})
+            if invalid:
+                self.assertTrue(row['write_failed']);self.assertIsNone(error.__cause__)
+            else:
+                self.assertEqual(row['schema_version'],5);self.assertFalse(row['write_failed'])
+
+
+class OutputFaultWorkerBoundary(unittest.TestCase):
+    def report(self):
+        row = inner_result.initial(BINDING)
+        inner_result.phase(row, 'KERNEL')
+        inner_result.issued(row, 'KERNEL')
+        inner_result.returned(row, 0)
+        inner_result.phase(row, 'OUTPUTS')
+        return {'inner_diagnostic': row}
+
+    def test_decode_fault_uses_the_latest_checkpoint_and_keeps_the_original_exception(self):
+        report = self.report()
+        row = report['inner_diagnostic']
+        original = UnicodeDecodeError('ascii', b'private-data\xff', 12, 13, 'private reason')
+        original.__cause__ = cause = RuntimeError('private cause')
+
+        def verify(build, source, config, *, checkpoint):
+            checkpoint('MODULE_ELF')
+            checkpoint('MODULE_INFO')
+            raise original
+
+        verifier = MagicMock()
+        verifier.verify_outputs.side_effect = verify
+        with self.assertRaises(UnicodeDecodeError) as caught:
+            worker.verify_output_structure(verifier, 'build', 'source', 'config', report)
+        verifier.verify_outputs.assert_called_once_with('build', 'source', 'config', checkpoint=ANY)
+        self.assertIs(caught.exception, original)
+        self.assertIs(caught.exception.__cause__, cause)
+        self.assertEqual(row['first_failure'], {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'OTHER'})
+        self.assertEqual(row['output_failure'],
+                         {'call_boundary': 'VERIFY_OUTPUTS', 'stage': 'MODULE_INFO', 'fault': 'UNREADABLE_TEXT'})
+        self.assertNotIn('private', json.dumps(row))
+
+    def test_default_checkpoint_and_success(self):
+        verifier = MagicMock()
+        report = self.report()
+        row = report['inner_diagnostic']
+        output = object()
+        verifier.verify_outputs.return_value = output
+        self.assertIs(worker.verify_output_structure(verifier, 'build', 'source', 'config', report), output)
+        self.assertIsNone(row['first_failure'])
+        verifier.verify_outputs.side_effect = KeyError('private key')
+        with self.assertRaises(KeyError):
+            worker.verify_output_structure(verifier, 'build', 'source', 'config', report)
+        self.assertEqual(row['output_failure'],
+                         {'call_boundary': 'VERIFY_OUTPUTS', 'stage': 'SOURCE', 'fault': 'LOOKUP'})
+
+    def test_known_errors_controls_and_an_earlier_failure_are_left_to_existing_handling(self):
+        for fault in (OSError('private'), ImportError('private'), Cancelled(15), KeyboardInterrupt(), SystemExit(1)):
+            report = self.report()
+            before = copy.deepcopy(report)
+            verifier = MagicMock()
+            verifier.verify_outputs.side_effect = fault
+            with self.assertRaises(type(fault)) as caught:
+                worker.verify_output_structure(verifier, 'build', 'source', 'config', report)
+            self.assertIs(caught.exception, fault)
+            self.assertEqual(report, before)
+        report = self.report()
+        row = report['inner_diagnostic']
+        inner_result.phase(row, 'KERNEL')
+        inner_result.failure(row, RuntimeError('earlier fault'))
+        inner_result.phase(row, 'OUTPUTS')
+        before = copy.deepcopy(report)
+        verifier = MagicMock()
+        verifier.verify_outputs.side_effect = KeyError('later fault')
+        with self.assertRaises(KeyError):
+            worker.verify_output_structure(verifier, 'build', 'source', 'config', report)
+        self.assertEqual(report, before)
 
 
 if __name__ == '__main__':

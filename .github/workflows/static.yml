@@ -50,9 +50,11 @@ jobs:
         shard: ${{ fromJSON(((github.event_name == 'workflow_dispatch' && inputs.measure-cache) || inputs.setup-phase == 'warm') && '["all"]' || '["foundation","source-data","desktop","composition"]') }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        id: static_checkout
         with:
           persist-credentials: false
       - name: Install verified test prerequisites on disposable runner
+        id: static_prerequisites
         uses: ./.github/actions/static-prerequisites
         with:
           phase: ${{ github.event_name == 'workflow_dispatch' && inputs.measure-cache && 'warm' || inputs.setup-phase || 'normal' }}
@@ -60,6 +62,39 @@ jobs:
       - name: Static prerequisite receipt controls without APT or cache service
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: python3 -I -B -Werror scripts/ci/test_static_apt_trial.py -v
+      - name: Verify reviewed component signatures against the full checkout
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_checkout_signatures.py
+      - name: Check guarded First Login and Setup successor sources
+        if: ${{ !cancelled() && (matrix.shard == 'all' || matrix.shard == 'foundation') && steps.static_checkout.outcome == 'success' && steps.static_prerequisites.outcome == 'success' }}
+        run: |
+          for recipe in packages/tools/cachy-asahi-first-login-v4/PKGBUILD packages/tools/cachy-asahi-setup8-v3/PKGBUILD; do
+            bash -n "$recipe"
+            recipe_dir=${recipe%/*}
+            srcinfo=$(cd "$recipe_dir" && makepkg --printsrcinfo)
+            diff -u "$recipe_dir/.SRCINFO" - <<< "$srcinfo"
+            python3 -I -B scripts/checks/package_checks_v2.py recipe "$recipe"
+          done
+          python3 -I -B -Werror::ResourceWarning scripts/install/first_login_journal_guard/test_journal_guard.py -v
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import shutil
+          import subprocess
+          import tempfile
+          from pathlib import Path
+
+          for name in ('cachy-asahi-first-login-v4', 'cachy-asahi-setup8-v3'):
+              with tempfile.TemporaryDirectory(prefix=name + '-source-check-') as temporary:
+                  sources = Path(temporary) / 'sources'
+                  shutil.copytree(Path('packages/tools') / name, sources)
+                  subprocess.run(
+                      ['bash', '-euc', 'source ./PKGBUILD; startdir=$PWD; srcdir=$PWD; '
+                       'if declare -F prepare >/dev/null; then prepare; fi; check'],
+                      cwd=sources, check=True,
+                  )
+          PY
+      - name: Check residual closure resolver and ownership controls
+        if: ${{ !cancelled() && (matrix.shard == 'all' || matrix.shard == 'foundation') && steps.static_checkout.outcome == 'success' }}
+        run: python3 -I -B -Werror::ResourceWarning scripts/port/platform-residual-closure/test_resolve.py -v
       - name: Copy preparation interruption and owned disposal controls
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         env:
@@ -105,6 +140,26 @@ jobs:
           assert set(metadata['depends']) == {'python>=3.11', 'gnupg', 'pacman'}
           assert len(report['input_sha256']) == 20
           PY
+      - name: Checkout exact reviewed native updater source for static replay
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: 6302e2994ee4a25a3e9ad3aee24f1416375505cb
+          path: .ci-inputs/updater-native-reviewed
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/workflows/native-arm-updater.yml
+            /packages/tools/cachy-asahi-update/
+            /scripts/port/updater-native-stage/
+            /scripts/port/updater-extension/
+            /scripts/build/
+            /scripts/checks/package_checks.py
+            /scripts/ci/inputs.lock.json
+            /scripts/ci/integration_export.py
+            /scripts/ci/native_arm.py
+            /scripts/ci/log_evidence.py
+            /scripts/ci/updater-optional-check/
       - name: Validate tooling and safety boundaries
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         env:
@@ -137,11 +192,47 @@ jobs:
           PY
           bash -n scripts/build/container-entry.sh
           bash -n scripts/build/container-entry-v2.sh
+      - name: Checkout exact sealed kernel packet for source replay
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: c9f11142e061c163e6df4bcf5cf474e608ef711d
+          path: .ci-inputs/kernel-packet-v2
+          persist-credentials: false
+      - name: Check kernel build, output verifier and native job fixtures
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        env:
+          KERNEL_PACKET_V2_REPLAY: ${{ github.workspace }}/.ci-inputs/kernel-packet-v2
+        run: |
+          test "$(git -C "$KERNEL_PACKET_V2_REPLAY" rev-parse HEAD)" = c9f11142e061c163e6df4bcf5cf474e608ef711d
+          /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s "$KERNEL_PACKET_V2_REPLAY/scripts/port/kernel-native-job" -p test_packet_v2.py
+          # Some source-fixture cases need retained private input and report a skip here.
+          for suite in kernel-candidates kernel-native-stage; do
+            /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s "scripts/port/$suite" -p 'test_*.py'
+          done
+          # The sealed packet's acceptance suite ran above. Use the HOLD and Setup
+          # controls for the live checkout, alongside all other current job tests.
+          for test in scripts/port/kernel-native-job/test_*.py; do
+            if [ "${test##*/}" = test_packet_v2.py ]; then continue; fi
+            /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/port/kernel-native-job -p "${test##*/}"
+          done
+          /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/port/kernel-native-job-v2 -p test_current_hold.py
+          /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/port/kernel-native-job-v3 -p 'test_*.py'
+      - name: Check the standalone ARM producer's reviewed recipe handoff
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        run: python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/ci -p test_native_arm_reviewed.py
+      - uses: ./.github/actions/apps-package-source
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        id: apps7-source
+        with:
+          revision: '7'
       - name: Check explicit Apps7 inventory parser candidate
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        env:
+          APPS_PACKAGE_SOURCE: ${{ steps.apps7-source.outputs.path }}
         run: |
-          python3 -I -B packages/tools/cachy-asahi-apps7/check_source.py --repository-source "$PWD" --recipe-root packages/tools/cachy-asahi-apps7
-          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-apps7/test_apps.py --repository-source "$PWD" --app-recipe-root packages/tools/cachy-asahi-apps7 --runtime-recipe-root packages/tools/cachy-asahi-repository-runtime -v
+          python3 -I -B packages/tools/cachy-asahi-apps7/check_source.py --repository-source "$APPS_PACKAGE_SOURCE" --recipe-root packages/tools/cachy-asahi-apps7
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-apps7/test_apps.py --repository-source "$APPS_PACKAGE_SOURCE" --app-recipe-root packages/tools/cachy-asahi-apps7 --runtime-recipe-root packages/tools/cachy-asahi-repository-runtime -v
       - name: Check opt-in installed repository client v2
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
@@ -313,6 +404,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/install/overlay583_trial -p test_fish_upgrade.py
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/integration/fish_config_overlay583 -p test_select_candidate.py
           python3 -I -B -Werror::ResourceWarning scripts/install/asahi_maintenance_trial/test_trial.py LocalControls
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/install/asahi629_trial
           python3 -I -B -Werror::ResourceWarning scripts/ci/llhttp-reference-native-source/test_data.py
       - name: Check offline Qtbase configure rehearsal without an actor
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
@@ -322,7 +414,15 @@ jobs:
           python3 -I -B -Werror::ResourceWarning "$lane/test_prepare.py"
           python3 -I -B -Werror::ResourceWarning "$lane/test_rehearsal.py"
           python3 -I -B -Werror::ResourceWarning scripts/integration/qt612_rootfs_trust_check/test_check.py
-      - name: Check offline Qtbase compile continuation and link preflight
+      - name: Check JBIG and TIFF input and lifecycle controls
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        run: |
+          git fetch --quiet --no-tags --no-recurse-submodules --no-write-fetch-head --depth=1 \
+            origin 4e5493cbd384feaae027abb476437c90b7c07cba
+          lane=scripts/ci/project-libraries-native
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane" -p 'test_build622.py'
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane" -p 'test_maintained_*.py'
+      - name: Check offline Qtbase continuation and full-target preflight
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
           lane=scripts/integration/qt612_md4c_compile
@@ -340,6 +440,29 @@ jobs:
           for test in test_continuation.py test_guest_link.py test_elf_readback.py test_guest_init.py test_actor.py test_site.py test_capsule.py; do
             python3 -I -B -Werror::ResourceWarning "$lane/$test"
           done
+          lane=scripts/integration/qt612_full_16k_preflight
+          for worker in guest-dry-run.sh full-guest-init.sh package-guest-init.sh; do bash -n "$lane/$worker"; done
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane"
+          lane=scripts/integration/qt612_installed_16k_preflight
+          bash -n "$lane/owned-guest-init.sh"
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane"
+          lane=scripts/integration/qt612_vulkan_md4c_successor
+          python3 -I -B -Werror::ResourceWarning -m unittest discover -s "$lane"
+          lane=scripts/integration/qt612_r132_replacement
+          for test in test_prepare.py test_transaction.py test_weston_fixture.py test_weston_run.py \
+                      test_runtime_probes.py test_guest_entry.py test_export.py test_host_stage.py \
+                      test_readback.py test_controller.py test_launch.py test_receipt.py; do
+            python3 -I -B -Werror::ResourceWarning "$lane/$test"
+          done
+      - name: Check offline Asahi629 JBIG and TIFF integration
+        if: ${{ !cancelled() && (matrix.shard == 'all' || matrix.shard == 'foundation') && steps.static_checkout.outcome == 'success' && steps.static_prerequisites.outcome == 'success' }}
+        run: |
+          lane=scripts/integration/jbig_tiff_asahi629
+          for test in test_inputs.py test_jpeg_recipe.py test_runtime.py test_lane.py \
+                      test_reflink.py test_alpm_capture.py test_host_telemetry.py test_clone_rehash.py \
+                      test_refresh_preflight.py; do
+            python3 -I -B -Werror::ResourceWarning "$lane/$test"
+          done
       - name: Check explicit lock and ordered suspend without a desktop session
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
@@ -349,11 +472,28 @@ jobs:
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock011/test_idle.py -v
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-lock011/test_package.py --recipe-root packages/tools/cachy-asahi-session-lock011 -v
           python3 -I -B -Werror::ResourceWarning packages/desktop/cachy-asahi-hyprland-settings011/test_package.py --recipe-root packages/desktop/cachy-asahi-hyprland-settings011 -v
+      - name: Check out the frozen SessionLock 0.1.0 qualification sources
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 565e10bfe7ef00b0528881dfba08e0f0fe50721c
+          path: .ci-inputs/session-lock010
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /packages/desktop/cachy-asahi-hyprland-settings011/
+            /packages/tools/cachy-asahi-session-lock/
+            /scripts/ci/hyprland03-native-source-v1/payload/native/build_tools_alpm_v2.py
+            /scripts/ci/hyprland03-native-source-v1/payload/native/build_tools_reader_v2.py
+            /scripts/ci/session-lock-settings-native-source/
+            /scripts/integration/desktop_session_lock.py
       - name: Check new native source families without native actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
-          python3 -I -B -Werror::ResourceWarning scripts/ci/session-lock-settings-native-source/test_data.py -v
-          python3 -I -B -Werror::ResourceWarning scripts/ci/session-lock-settings-native-source/test_image_lifecycle_data.py -v
+          historical="$GITHUB_WORKSPACE/.ci-inputs/session-lock010/scripts/ci/session-lock-settings-native-source"
+          python3 -I -B -Werror::ResourceWarning "$historical/test_data.py" -v
+          python3 -I -B -Werror::ResourceWarning "$historical/test_image_lifecycle_data.py" -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_pair_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/first-login-enrollment-native-source/test_image_lifecycle_data.py -v
           python3 -I -B -Werror::ResourceWarning scripts/ci/native-build-namespace-preflight/test_preflight_data.py -v
@@ -430,6 +570,61 @@ jobs:
                   result = unittest.TextTestRunner(verbosity=2).run(suite)
                   raise SystemExit(not (result.wasSuccessful() and result.testsRun == 25 and not result.skipped))
           PY
+      - name: Check sealed Build Tools source from a shallow checkout
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'source-data' }}
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          export GIT_NO_LAZY_FETCH=1 GIT_TERMINAL_PROMPT=0
+          parent=97a44c4c7cb206704bf76e9fd1f1afb2266278c2
+          package=78c44877d4966fd85a8112cd33daeee3d80137a0
+          # Fetch only commit/tree metadata first. The package commit contains the full repository.
+          git fetch --quiet --depth=1 --filter=blob:none --no-tags --no-recurse-submodules \
+            --no-auto-maintenance --no-write-fetch-head origin "$parent" "$package"
+          blobs="$RUNNER_TEMP/build-tools-arm4k-fixture-blobs"
+          {
+            git ls-tree --full-tree -r --object-only "$parent"
+            git ls-tree --full-tree -r --object-only "$package" -- \
+              packages/tools/cachy-asahi-build-tools packages/tools/cachy-asahi-build-tools-v2 \
+              scripts/checks/package_checks_v2.py manifests/packages.toml
+          } > "$blobs"
+          test "$(wc -l < "$blobs")" -eq 233
+          # Skip commit negotiation so the server sends blobs omitted by the first fetch.
+          LC_ALL=C sort -u "$blobs" | git -c fetch.negotiationAlgorithm=noop fetch --quiet --stdin \
+            --filter=blob:none --no-tags --no-recurse-submodules --no-auto-maintenance --no-write-fetch-head origin
+          python3 -I -B -Werror::ResourceWarning scripts/ci/build-tools-arm4k-r2/test_source.py
+      - name: Check installer handoff, TEST signatures and Bubblewrap relocation
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'source-data' }}
+        shell: bash
+        env:
+          TMPDIR: /tmp
+        run: |
+          test "$(id -u)" -ne 0
+          bwrap --version
+          namespace=(bwrap --unshare-net --ro-bind / / --proc /proc --dev /dev /usr/bin/true)
+          if ! "${namespace[@]}"; then
+            test "${GITHUB_ACTIONS:-}" = true
+            test "${RUNNER_ENVIRONMENT:-}" = github-hosted
+            userns_previous=$(sysctl -n kernel.apparmor_restrict_unprivileged_userns)
+            test "$userns_previous" = 1
+            trap 'sudo sysctl -w "kernel.apparmor_restrict_unprivileged_userns=$userns_previous"' EXIT
+            trap 'exit 129' HUP
+            trap 'exit 130' INT
+            trap 'exit 143' TERM
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+            "${namespace[@]}"
+          fi
+          python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import unittest
+
+          loader = unittest.TestLoader()
+          for name in ("test_handoff.py", "test_signed_handoff.py", "test_runtime.py"):
+              suite = loader.discover("scripts/install/fresh_handoff", pattern=name)
+              result = unittest.TextTestRunner(verbosity=2).run(suite)
+              if not result.wasSuccessful() or result.skipped or result.testsRun == 0:
+                  raise SystemExit(f"{name}: failures, skips, or empty suite")
+          PY
       - name: Check corresponding-source data tools
         if: ${{ matrix.shard == 'all' || matrix.shard == 'source-data' }}
         run: |
@@ -463,7 +658,6 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-hosted-source/test_reader.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/perl5423-native-hosted-source/test_source.py
           python3 -I -B -Werror::ResourceWarning scripts/compat/python314-consumers/test_probe.py
-          python3 -I -B -Werror::ResourceWarning scripts/install/fresh_handoff/test_handoff.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/install_handoff_candidate/test_contract.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/install_handoff_candidate/test_host.py
           python3 -I -B -Werror::ResourceWarning scripts/integration/networkmanager_candidate/test_journey.py
@@ -610,27 +804,57 @@ jobs:
                                   '--recipe-root', str(recipe), '--srcdir', str(source),
                                   '--hide-checkout', str(Path.cwd())], check=True)
           PY
+      - name: Check out the frozen full-root release fixture
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' || matrix.shard == 'composition' }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 598a3dd77184f74935f71cb07c48c4411b6c44e4
+          path: .ci-inputs/full-root-release
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/release/release.py
       - name: Exercise release and client contracts without skipped tests
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         env:
           PYTHONDONTWRITEBYTECODE: '1'
+          FROZEN_CLIENT_RELEASE_HELPERS: ${{ github.workspace }}/.ci-inputs/apps-package-release
+          FROZEN_FULL_ROOT_RELEASE_HELPER: ${{ github.workspace }}/.ci-inputs/full-root-release/scripts/release/release.py
+          FROZEN_SETUP_RECIPE_SOURCE: ${{ github.workspace }}/.ci-inputs/historical-inventory-input-basis
         run: |
           python3 -B - <<'PY'
+          from contextlib import nullcontext
           import importlib.util, tempfile, unittest
           from pathlib import Path
-          spec = importlib.util.spec_from_file_location('measurement_components', 'scripts/ci/measurement-tools-components-v1.py')
-          measurement = importlib.util.module_from_spec(spec); spec.loader.exec_module(measurement)
+          def load(name, path):
+              spec = importlib.util.spec_from_file_location(name, path)
+              module = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              return module
+          measurement = load('measurement_components', 'scripts/ci/measurement-tools-components-v1.py')
+          support = load('support_source_fixture', 'scripts/release/support_source_delivery_fixture.py')
+          root = Path.cwd()
           for directory in ('scripts/release', 'scripts/release/install_inventory', 'scripts/client', 'scripts/benchmarks'):
-              suite = unittest.TestLoader().discover(directory, pattern='test_*.py')
               with tempfile.TemporaryDirectory(prefix='static-measurement-source-') as temporary:
-                  with measurement.discovered_source_fixture(suite, Path.cwd(), Path(temporary)):
-                      result = unittest.TextTestRunner(verbosity=2).run(suite)
+                  work = Path(temporary)
+                  discovery = (support.discovery_loader(root, work / 'support')
+                               if directory == 'scripts/release' else nullcontext(unittest.TestLoader()))
+                  with discovery as loader:
+                      suite = loader.discover(directory, pattern='test_*.py')
+                      with measurement.discovered_source_fixture(suite, root, work):
+                          result = unittest.TextTestRunner(verbosity=2).run(suite)
               if not result.wasSuccessful() or result.skipped or result.testsRun == 0:
                   raise SystemExit(f'{directory}: failures, skips, or empty suite')
           PY
-      - name: Check offline exact platform and recovery preflight
+      - name: Check offline platform, recovery and Asahi629 updater preflight
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
-        run: python3 -B -Werror::ResourceWarning scripts/platform/test_recovery_preflight.py
+        run: |
+          python3 -B -Werror::ResourceWarning scripts/platform/test_recovery_preflight.py
+          python3 -I -B -Werror::ResourceWarning scripts/update/test_platform_policy.py
+          python3 -I -B -Werror::ResourceWarning scripts/update/test_asahi629_preflight.py
+      - name: Verify live native updater workflow bootstrap pins
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
+        run: python3 -I -B -Werror::ResourceWarning scripts/port/updater-native-stage/test_stage.py WorkflowBootstrapTests -v
       - name: Check read-only exact-target snapshot collection
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: python3 -B -Werror::ResourceWarning scripts/platform/test_target_snapshot.py
@@ -662,6 +886,8 @@ jobs:
       - name: Check isolated ARM experiment packages with pinned source on host ISA
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
+          python3 -B -Werror::ResourceWarning scripts/experiments/test_arm_c01.py CommandTests
+          python3 -I -B -Werror::ResourceWarning scripts/experiments/test_zlib_pgo102.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/test_fetch_zlib_source.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/test_local_zlib_source.py
           c01_source_dir="$(mktemp -d "$RUNNER_TEMP/c01-package-source.XXXXXX")"
@@ -1008,9 +1234,13 @@ jobs:
           python3 -B -m unittest discover -s scripts/update -p test_var_lock_protection.py
       - name: Check controlled complete-root failure and disposal without actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        env:
+          FROZEN_FULL_ROOT_RELEASE_HELPER: ${{ github.workspace }}/.ci-inputs/full-root-release/scripts/release/release.py
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-root-failed-update -p 'test_*.py'
       - name: Check controlled postcommit interruption and disposal without actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        env:
+          FROZEN_FULL_ROOT_RELEASE_HELPER: ${{ github.workspace }}/.ci-inputs/full-root-release/scripts/release/release.py
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-root-postcommit-failure -p 'test_*.py'
       - name: Check Debian-source provider authentication and source boundaries without actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
@@ -1106,6 +1336,24 @@ jobs:
       - name: Check outer Zsh readiness facts with bounded real PTY controls
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci -p test_zsh_substring_readiness_wrapper.py -v
+      - name: Check composed entry, source downloads and repository handoff
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        run: |
+          historical_commit=bcf0cee981ee4b7f7b082f636922c859dc7e0abc
+          git fetch --no-tags --no-recurse-submodules --depth=1 origin "$historical_commit"
+          test "$(git --no-replace-objects rev-parse --verify 'FETCH_HEAD^{commit}')" = "$historical_commit"
+          python3 -B -m unittest discover -s scripts/ci/development -p test_controller.py \
+            -k DirectEntryTests -k EarlyEntryModels -k test_virtual_pins_only_live_during_virtual_call
+          python3 -B -m unittest discover -s scripts/ci/development -p test_base_stages.py -k fetch
+          python3 -B -m unittest discover -s scripts/port/repository-native-handoff
+      - name: Check offline updater guest admission and transaction observations
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        run: |
+          lane=scripts/ci/updater-full-update
+          bash -n "$lane/q3-guest-init.sh"
+          for suite in guest q3_media q3_owner q3_readback; do
+            python3 -I -B -Werror "$lane/test_$suite.py"
+          done
       - name: Check opt-in Zsh substring module without changing user bindings
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         run: |
@@ -1356,6 +1604,13 @@ jobs:
       - name: Check combined shell source guards without interactive shell actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/shell-modules-coexistence -p test_source.py
+      - name: Checkout the frozen expanded composition implementation for passive checks
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 7f52246a1cb956acedb83d31dd2e5dc8265af115
+          path: .ci-inputs/expanded-implementation
+          persist-credentials: false
       - name: Checkout the frozen expanded composition inputs for passive checks
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -1363,10 +1618,19 @@ jobs:
           ref: 7fee76d68e5fd75437d8b49aaaced8376d2215cd
           path: .ci-inputs/expanded-candidates
           persist-credentials: false
-      - name: Check expanded composition contracts without native actors
+      - name: Checkout the frozen expanded composition module source for passive checks
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 22c095c85cb6fd79d5de0f0ee43ca012c32c2aeb
+          path: .ci-inputs/expanded-modules
+          persist-credentials: false
+      - name: Check frozen expanded composition contracts without native actors
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
+        working-directory: ${{ github.workspace }}/.ci-inputs/expanded-implementation
         env:
           EXPANDED_INPUT_PAYLOAD: ${{ github.workspace }}/.ci-inputs/expanded-candidates
+          EXPANDED_MODULE_SOURCE: ${{ github.workspace }}/.ci-inputs/expanded-modules
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded-development-composition -p test_source.py
       - name: Check native tool candidate contracts without container actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
@@ -1588,12 +1852,19 @@ jobs:
       run: ${{ steps.select.outputs.run }}
       matrix: ${{ steps.select.outputs.matrix }}
     steps:
-      - name: Checkout bounded depth-two selector source
+      - name: Check out the selector and its workflow inputs
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
           fetch-depth: 2
           fetch-tags: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/ci/component_selection/
+            /.github/workflows/static.yml
+            /.github/workflows/full-port-workflows.yml
+            /.github/workflows/parallel-development-tools.yml
       - name: Check selector failure and coverage controls
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_select.py
@@ -1604,12 +1875,9 @@ jobs:
         env:
           SELECTION_EVENT: ${{ github.event_name }}
           SELECTION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.event.after }}
           SELECTION_SHA: ${{ github.sha }}
         run: |
-          set -euo pipefail
-          component_diff() {
-            timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
-          }
-          source scripts/ci/component_selection/collect.sh
-          collect_components static
+          python3 -I -B scripts/ci/component_selection/select.py --sparse-paths |
+            timeout --kill-after=5s 45s env GIT_TERMINAL_PROMPT=0 git sparse-checkout add --stdin
+          bash scripts/ci/component_selection/collect.sh static

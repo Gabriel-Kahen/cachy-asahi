@@ -9,12 +9,16 @@ from pathlib import Path
 import resource
 import stat
 import sys
+import tempfile
 import unittest
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 SOURCE = ROOT / 'scripts/port/minimal-native-builder-inputs'
-LOCK_PIN = {'bytes': 2377, 'sha256': '6fac7419f32e2c370840dc9ee587b0cdf9d265f2dc9b57ff38bb945a468d090f'}
+CHECKER = 'scripts/checks/package_checks.py'
+HELD_CHECKER = ('scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source/'
+                'scripts/ci/llhttp-reference-native-source/base/runtime/' + CHECKER)
+LOCK_PIN = {'bytes': 2377, 'sha256': '4730b8f6df4ad17140ec3dddcedbafd78b7012538361ae866757635269ac6bd3'}
 OLD349_PATH = ROOT / 'scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock'
 OLD349_PIN = {'bytes': 6800, 'sha256': '579981195b654d8cdf142e4101dfc2bfffbc3576eed50f23796a06e90cf57453'}
 ATTEMPTS = []
@@ -47,20 +51,32 @@ def module(path, name):
     value = importlib.util.module_from_spec(spec); spec.loader.exec_module(value); return value
 
 
-def verify_source():
-    lock = json.loads(checked(SOURCE / 'source.lock.json', LOCK_PIN))
+def stage_source(output):
+    def stage(member, expected, source=None):
+        raw = checked(ROOT / (source or member), expected)
+        target = output / member
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open('xb') as stream:
+            stream.write(raw)
+        target.chmod(expected.get('mode', 0o644))
+        return raw
+
+    prefix = SOURCE.relative_to(ROOT)
+    lock = json.loads(stage(prefix / 'source.lock.json', LOCK_PIN))
     names = {p.relative_to(SOURCE).as_posix() for p in SOURCE.rglob('*') if p.is_file() or p.is_symlink()}
     need(names == set(lock['files']) | {'source.lock.json'}, 'closed exact author family')
-    for name, row in lock['files'].items(): checked(SOURCE / name, row)
-    profile = json.loads((SOURCE / 'profile.DATA.json').read_bytes())
-    for name, row in profile['engines'].items(): checked(ROOT / name, row)
-    boot = profile['bootstrap_manifest']; checked(ROOT / boot['path'], boot)
-    manifest = json.loads(checked(SOURCE / 'builder.lock.json', profile['builder_lock']))
+    for name, row in lock['files'].items(): stage(prefix / name, row)
+    source = output / prefix
+    profile = json.loads((source / 'profile.DATA.json').read_bytes())
+    for name, row in profile['engines'].items():
+        stage(name, row, HELD_CHECKER if name == CHECKER else name)
+    boot = profile['bootstrap_manifest']; stage(boot['path'], boot)
+    manifest = json.loads(checked(source / 'builder.lock.json', profile['builder_lock']))
     for recipe in manifest['recipe_inputs'].values():
         area = ROOT / recipe['path']
         need({p.relative_to(area).as_posix() for p in area.rglob('*') if p.is_file() or p.is_symlink()} == set(recipe['files']), 'complete original recipe namespace')
-        for name, row in recipe['files'].items(): checked(area / name, row)
-    return manifest
+        for name, row in recipe['files'].items(): stage(Path(recipe['path']) / name, row)
+    return source
 
 
 def verify_catalogs(directory):
@@ -84,13 +100,16 @@ def run():
     resource.setrlimit(resource.RLIMIT_FSIZE, (16 * 1024**2,) * 2)
     resource.setrlimit(resource.RLIMIT_NOFILE, (128,) * 2)
     sys.addaudithook(fence)
-    verify_source(); checked(OLD349_PATH, OLD349_PIN); verify_catalogs(HERE / 'catalogs')
-    author = module(SOURCE / 'test_inputs.py', 'minimal206_original_author_tests')
-    focused = module(HERE / 'test_graph.py', 'minimal206_focused_ci_tests')
-    focused.CI = sys.modules[__name__]
-    suite = unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromModule(author),
-                                unittest.defaultTestLoader.loadTestsFromModule(focused)])
-    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    checked(OLD349_PATH, OLD349_PIN); verify_catalogs(HERE / 'catalogs')
+    with tempfile.TemporaryDirectory(prefix='minimal206-held-source-') as name:
+        source = stage_source(Path(name))
+        author = module(source / 'test_inputs.py', 'minimal206_original_author_tests')
+        focused = module(HERE / 'test_graph.py', 'minimal206_focused_ci_tests')
+        focused.CI = sys.modules[__name__]
+        focused.SOURCE = source
+        suite = unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromModule(author),
+                                    unittest.defaultTestLoader.loadTestsFromModule(focused)])
+        result = unittest.TextTestRunner(verbosity=2).run(suite)
     passed = result.wasSuccessful() and result.testsRun == 17 and not result.skipped and not result.expectedFailures and not result.unexpectedSuccesses and not ATTEMPTS
     print(json.dumps(dict(status='PASS_FIXED206_METADATA_DATA_ONLY' if passed else 'FAIL', tests=result.testsRun,
                          author_controls=11, focused_controls=6, skips=len(result.skipped), actor_attempts=len(ATTEMPTS),

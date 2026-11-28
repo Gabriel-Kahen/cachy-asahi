@@ -4,24 +4,24 @@
     "sha256": "ab8f4568bc57ba474ccc15b1e48bbf83445f35de588d4ee280c3c63e53184bcf"
   },
   "scripts/ci/expanded-development-composition/README.md": {
-    "bytes": 6157,
-    "sha256": "2326c53b278e63289fb24d597b5ff16f33bfafdc1108206dc84490faa2a0b86b"
+    "bytes": 6853,
+    "sha256": "57b7d1d31419603a61724f346e923748b0a929e8698464924c353a1bf03c684f"
   },
   "scripts/ci/expanded-development-composition/bang.py": {
-    "bytes": 4501,
-    "sha256": "3be797a2d6ccbc0d4bcdba94cab77f046c8c3bf06322da834355a98251704073"
+    "bytes": 5353,
+    "sha256": "eb708bf7d99f85c3409dc3bd3c03930b0eb2b3b0939b515e6a531fe93c69be68"
   },
   "scripts/ci/expanded-development-composition/contract.py": {
     "bytes": 14393,
     "sha256": "a4e20557af8a500429fa2276c4a7b283815ec3dda25b1915e7f8c55898aef35c"
   },
   "scripts/ci/expanded-development-composition/gate.py": {
-    "bytes": 1572,
-    "sha256": "7bd14f63fbde4bd8334fb48973567a8517734940bc2095636db073dc975a4dbc"
+    "bytes": 1624,
+    "sha256": "c165cfdbf3d9c7f94192b758859b41b7b0eb043fc0cd0044ab0d311da914081f"
   },
   "scripts/ci/expanded-development-composition/input-policy.json": {
-    "bytes": 25287,
-    "sha256": "9b22286e3bce477671a7fc7ef691458cf1f35781931a225e561590a6847a2679"
+    "bytes": 25913,
+    "sha256": "5d84ff94c8c59968c597653b94f796474d02c2b887ed205867b97dd6295a54f2"
   },
   "scripts/ci/expanded-development-composition/inputs.py": {
     "bytes": 6244,
@@ -40,15 +40,15 @@
     "sha256": "92a9f1b23044f4c151dc86e959cd160436fd8b75644027af4f3399526b266474"
   },
   "scripts/ci/expanded-development-composition/run.py": {
-    "bytes": 14149,
-    "sha256": "4184be9911ca5f906fb207daa0e4522c88c0d01c06af187ecba468acb1d7e16e"
+    "bytes": 14199,
+    "sha256": "f587b5a66a7f2da435e46dc23353c3973e2822a9d21752620a55f46fbd29d10d"
   },
   "scripts/ci/expanded-development-composition/source-pins.json": {
-    "bytes": 2784,
-    "sha256": "876b1124e79a9b2dc777520c215fa5b45f1250d8ba408bb27f8ae9ea847c8fea"
+    "bytes": 2502,
+    "sha256": "bb973bc31a550dea8c9808eb7e621d9708f6ad1b0354ab900e3a6622e2106afc"
   },
   "scripts/ci/expanded-development-composition/test_source.py": {
-    "bytes": 19854,
-    "sha256": "a55d4c49664a5d5068cc1351344cde1e618195c7adc548256ed073806a0c63e3"
+    "bytes": 21062,
+    "sha256": "48228a3f696cd726680582d60e4562e3913bd7cd8771c609e89d695945431349"
   }
 }

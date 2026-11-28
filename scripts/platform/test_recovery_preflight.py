@@ -133,6 +133,15 @@ class PreflightTests(unittest.TestCase):
         self.snapshot["device_tree_compatible"] = self.save("ambiguous", b"apple,j413\0apple,j415\0")
         self.assertIn("target-model-mismatch", self.codes(self.run_fixture()))
 
+    def test_incomplete_or_duplicate_device_tree_identity_blocks(self):
+        for raw in (b"apple,j413\0", b"apple,j413\0apple,t8112\0apple,t8112\0",
+                    b"apple,j413\0apple,t8112\0\0", b"apple,j413\0apple,t8112\0\t\0"):
+            with self.subTest(raw=raw):
+                self.snapshot["device_tree_compatible"] = self.save("bad-compatible", raw)
+                contract = self.contract()
+                contract["recovery_receipts"] = []
+                self.assertIn("target-model-mismatch", self.codes(p.run(contract)))
+
     def test_kernel_version_and_release_mismatch_blocks(self):
         self.snapshot["runtime"]["kernel_package_version"] = "wrong"
         self.snapshot["runtime"]["kernel_release"] = "stale"
@@ -147,6 +156,27 @@ class PreflightTests(unittest.TestCase):
         self.snapshot["configuration_backups"] = []
         report = self.run_fixture()
         self.assertEqual(sum(row["code"] == "retained-asset-missing" for row in report["conditions"]), 6)
+
+    def test_retained_kernel_limit_covers_known_asahi_kernel_size(self):
+        # Match the retained vmlinuz size without importing its actual payload.
+        kernel_path = self.root / "large-kernel"
+        with kernel_path.open("wb") as stream:
+            stream.truncate(35_834_368)
+        with kernel_path.open("rb") as stream:
+            digest = hashlib.file_digest(stream, "sha256").hexdigest()
+        artifact = {"path": str(kernel_path), "size": kernel_path.stat().st_size, "sha256": digest}
+        kernel = next(row for row in self.snapshot["boot_assets"] if row["role"] == "kernel")
+        kernel["artifact"] = artifact
+        contract = self.contract()
+        contract["recovery_receipts"] = []
+        report = p.run(contract)
+        self.assertIn(kernel, report["retained_assets_rehashed"]["boot_assets"])
+
+        firmware = next(row for row in self.snapshot["boot_assets"] if row["role"] == "firmware")
+        firmware["artifact"] = artifact
+        contract["target_snapshot"] = self.save("snapshot.json", self.snapshot)
+        with self.assertRaisesRegex(ValueError, "binary input reference refused"):
+            p.run(contract)
 
     def test_current_catalog_fields_do_not_look_like_platform_change(self):
         for row in self.update["proposed_final_inventory"]:

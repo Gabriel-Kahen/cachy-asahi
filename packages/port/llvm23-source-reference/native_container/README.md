@@ -10,9 +10,11 @@ not establish permission or support for nested bubblewrap/user namespaces.
 This directory exposes a fixed CMake/staging contract for the separate hosted
 LLVM Source worker. It does not select a weaker fallback or authorize a job.
 `contract.py` has no process-launch, extraction or runtime-entry path. It verifies
-frozen `build.sh`, `reference.py` and `inputs.json` hashes, returns the four fixed
-phase commands, and exposes existing static staging checks. The controller and
-fixed native entry must be separately pinned and technically admitted by Root.
+the pinned `build.sh`, `reference.py` and `inputs.json` hashes from the live
+`source_commit`, returns the four fixed phase commands, and exposes the
+selected static staging checks. `frozen_driver_commit` records the origin of
+the identical `build.sh` bytes. The controller and fixed native entry must be
+separately pinned and technically admitted by Root.
 The declaration itself, a status string or passing synthetic tests supplies no
 runtime evidence. There is no new generic supervision or isolation framework.
 

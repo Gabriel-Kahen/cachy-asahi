@@ -18,6 +18,8 @@ sys.path.insert(0, str(ROOT / 'scripts' / 'build'))
 import package_checks as checks
 import dependencies
 import compare
+import compare_v2
+import compare_v3
 import build
 import provision
 
@@ -39,11 +41,11 @@ class ValidationTests(unittest.TestCase):
         self.assertIn(b'--require-bytes', result.stdout)
         self.assertFalse(marker.exists())
 
-    def recipe(self, extra=''):
+    def recipe(self, extra='', package_name='example'):
         directory = self.root / 'packages' / 'desktop' / 'nested' / 'example'
         directory.mkdir(parents=True, exist_ok=True)
         (directory / 'payload').write_text('data')
-        (directory / 'PKGBUILD').write_text("pkgname=example\npkgver=1\npkgrel=1\narch=('any')\nlicense=('MIT')\nsource=('payload')\nsha256sums=('" + checks.digest(directory / 'payload') + "')\n" + extra)
+        (directory / 'PKGBUILD').write_text(f"pkgname={package_name}\npkgver=1\npkgrel=1\narch=('any')\nlicense=('MIT')\nsource=('payload')\nsha256sums=('" + checks.digest(directory / 'payload') + "')\n" + extra)
         return directory / 'PKGBUILD'
 
     def archive(self, name='example.pkg.tar.gz', payload=b'data', extra=None, arch='any'):
@@ -60,14 +62,22 @@ class ValidationTests(unittest.TestCase):
                 archive.addfile(member, io.BytesIO(data))
         return path
 
-    def evidence(self, name, artifact):
+    def evidence(self, name, artifact, reviewed_srcinfo=False, package_name='example'):
         directory = self.root / name
         (directory / 'artifacts').mkdir(parents=True)
-        (directory / 'inputs').mkdir()
+        inputs = directory / 'inputs'
+        shutil.copytree(self.recipe(package_name=package_name).parent, inputs)
         dest = directory / 'artifacts' / artifact.name
         dest.write_bytes(artifact.read_bytes())
-        (directory / 'inputs' / 'PKGBUILD').write_text('reviewed')
-        recipe_hash = checks.digest(directory / 'inputs' / 'PKGBUILD')
+        reviewed = checks.recipe(inputs / 'PKGBUILD')
+        srcinfo = f'pkgbase = {package_name}\n' + ''.join(
+            f'\t{key} = {value}\n' for key, values in reviewed['metadata'].items()
+            if key != 'pkgname' for value in values
+        ) + f'\npkgname = {package_name}\n'
+        if reviewed_srcinfo:
+            (inputs / '.SRCINFO').write_text('# reviewed fixture\n' + srcinfo)
+            reviewed = checks.recipe(inputs / 'PKGBUILD')
+        recipe_hash = reviewed['input_sha256']['PKGBUILD']
         rewritten = dest.with_suffix('.new')
         with tarfile.open(dest) as source, tarfile.open(rewritten, 'w') as target:
             for member in source:
@@ -75,18 +85,23 @@ class ValidationTests(unittest.TestCase):
                 if member.name == '.BUILDINFO':
                     content = content.replace(('a' * 64).encode(), recipe_hash.encode())
                 if member.name == '.PKGINFO':
-                    content += b'pkgbase = example\n'
+                    content += f'pkgbase = {package_name}\n'.encode()
                 member.size = len(content)
                 target.addfile(member, io.BytesIO(content) if member.isfile() else None)
         rewritten.replace(dest)
-        for file_name in ('build.log', 'validation.json', 'expected-packages.lock', 'artifacts/packages.lock',
-                     'artifacts/generated.SRCINFO', 'artifacts/environment.txt', 'artifacts/config.sha256',
-                     'artifacts/makepkg.conf', 'artifacts/pacman.conf'):
+        for file_name in ('build.log', 'artifacts/environment.txt', 'artifacts/config.sha256',
+                          'artifacts/makepkg.conf', 'artifacts/pacman.conf'):
             (directory / file_name).write_text('synthetic fixture')
+        (directory / 'artifacts/generated.SRCINFO').write_text(srcinfo)
+        (directory / 'validation.json').write_text(json.dumps({'artifacts': [checks.package(dest)], 'errors': []}))
+        for file_name in ('expected-packages.lock', 'artifacts/packages.lock'):
+            (directory / file_name).write_text('base-devel 1-1\n')
         record = {'status': 'built-package-static-pass', 'image': 'digest', 'image_id': 'id',
-                  'mode': 'native', 'clean_environment_id': name, 'source_date_epoch': 1, 'recipe_metadata': {'pkgname': ['example'], 'pkgver': ['1'], 'pkgrel': ['1'], 'arch': ['any'], 'license': ['MIT']},
-                  'expected_packages_sha256': 'lock', 'entry_script_sha256': 'entry',
-                  'recipe_inputs': {'PKGBUILD': checks.digest(directory / 'inputs' / 'PKGBUILD')},
+                  'exit_code': 0, 'network': 'none', 'nested_namespaces': None,
+                  'mode': 'emulated', 'clean_environment_id': name, 'source_date_epoch': 1,
+                  'recipe_metadata': reviewed['metadata'],
+                  'expected_packages_sha256': checks.digest(directory / 'expected-packages.lock'), 'entry_script_sha256': 'entry',
+                  'recipe_inputs': reviewed['input_sha256'],
                   'artifacts': {artifact.name: checks.digest(dest)},
                   'files': {str(p.relative_to(directory)): checks.digest(p) for p in directory.rglob('*')
                             if p.is_file() and not p.is_relative_to(directory / 'inputs')}}
@@ -221,6 +236,215 @@ class ValidationTests(unittest.TestCase):
         path.write_text(json.dumps(record))
         with self.assertRaisesRegex(ValueError, 'has not passed'):
             compare.compare(first, second)
+
+    def test_all_comparators_require_successful_exit_and_matching_network(self):
+        artifact = self.archive()
+        first, second = self.evidence('first', artifact), self.evidence('second', artifact)
+        first_path, second_path = (directory / 'provenance.json' for directory in (first, second))
+        original = json.loads(second_path.read_text())
+        for comparator in (compare, compare_v2, compare_v3):
+            with self.subTest(comparator=comparator.__name__):
+                for key, values, error in (
+                    ('exit_code', (1, False, 0.0, '0', None), 'zero build exit code'),
+                    ('network', ('host', None), 'recorded build network'),
+                ):
+                    for value in values:
+                        with self.subTest(key=key, value=value):
+                            bad = dict(original, **{key: value})
+                            if value is None:
+                                bad.pop(key)
+                            second_path.write_text(json.dumps(bad))
+                            with self.assertRaisesRegex(ValueError, error):
+                                comparator.compare(first, second)
+                second_path.write_text(json.dumps(dict(original, network='bridge')))
+                self.assertIn('input mismatch: network', comparator.compare(first, second)['errors'])
+                first_record = json.loads(first_path.read_text())
+                first_path.write_text(json.dumps(dict(first_record, network='bridge')))
+                self.assertEqual(comparator.compare(first, second)['status'], 'contents-reproduced')
+                first_path.write_text(json.dumps(first_record))
+                second_path.write_text(json.dumps(original))
+
+    def test_all_comparators_require_valid_bound_inventory(self):
+        artifact = self.archive()
+        first, second = self.evidence('first', artifact), self.evidence('second', artifact)
+        originals = {directory: json.loads((directory / 'provenance.json').read_text())
+                     for directory in (first, second)}
+        for expected_bytes, observed_bytes, claimed, error in (
+            (b'base-devel 1-1\n', b'base-devel 1-1\n', '0' * 64, 'recorded expected package lock checksum differs'),
+            (b'base-devel 1-1\n', b'base-devel 2-1\n', None, 'observed builder package lock differs'),
+            (b'', b'', None, 'expected package lock is empty'),
+            (b'\n  \n', b'\n  \n', None, 'expected package lock is empty'),
+            (b'not-a-package-inventory\n', b'not-a-package-inventory\n', None, 'invalid pacman -Q inventory row'),
+            (b'base-devel  1-1\n', b'base-devel  1-1\n', None, 'invalid pacman -Q inventory row'),
+            (b'base-devel 1-1', b'base-devel 1-1', None, 'inventory must end with a newline'),
+            (b'base-devel abc\n', b'base-devel abc\n', None, 'invalid pacman -Q inventory row'),
+            (b'base-devel 1-1\nacl 2-1\n', b'base-devel 1-1\nacl 2-1\n', None, 'sorted with unique'),
+            (b'base-devel 1-1\nbase-devel 2-1\n', b'base-devel 1-1\nbase-devel 2-1\n', None, 'sorted with unique'),
+        ):
+            for directory, original in originals.items():
+                expected = directory / 'expected-packages.lock'
+                observed = directory / 'artifacts/packages.lock'
+                expected.write_bytes(expected_bytes)
+                observed.write_bytes(observed_bytes)
+                record = dict(original, expected_packages_sha256=claimed or checks.digest(expected))
+                record['files'] = {
+                    **original['files'],
+                    'expected-packages.lock': checks.digest(expected),
+                    'artifacts/packages.lock': checks.digest(observed),
+                }
+                (directory / 'provenance.json').write_text(json.dumps(record))
+            for comparator in (compare, compare_v2, compare_v3):
+                with self.subTest(comparator=comparator.__name__, error=error, expected=expected_bytes):
+                    with self.assertRaisesRegex(ValueError, error):
+                        comparator.compare(first, second)
+
+    def test_all_comparators_reject_rehashed_generated_metadata(self):
+        path = self.evidence('fixture', self.archive(), reviewed_srcinfo=True)
+        relative = 'artifacts/generated.SRCINFO'
+        generated = path / relative
+        original = generated.read_text()
+        provenance = path / 'provenance.json'
+        record = json.loads(provenance.read_text())
+        for text, reason in (
+            ('synthetic fixture\n', 'invalid metadata line'),
+            (original.partition('\n')[2], 'single nonempty pkgbase'),
+            (original.replace('source = payload', 'source = another'), 'generated metadata differs from reviewed source'),
+            (original.replace('\tpkgver =', '  pkgver ='), 'differs from reviewed .SRCINFO'),
+        ):
+            generated.write_text(text)
+            record['files'][relative] = checks.digest(generated)
+            provenance.write_text(json.dumps(record))
+            for comparator in (compare, compare_v2, compare_v3):
+                with self.subTest(comparator=comparator.__name__, reason=reason):
+                    with self.assertRaisesRegex(ValueError, reason):
+                        comparator.verify(path)
+        # The container's strict comparison permits comments and blank lines.
+        generated.write_text(original + '\n# generated fixture\n')
+        record['files'][relative] = checks.digest(generated)
+        provenance.write_text(json.dumps(record))
+        for comparator in (compare, compare_v2, compare_v3):
+            self.assertEqual(comparator.verify(path)[0], record)
+
+    def test_all_comparators_reject_resealed_recipe_with_bad_local_source(self):
+        archive = self.archive()
+        attempts = [self.evidence(name, archive, reviewed_srcinfo=True) for name in ('first', 'second')]
+        for path in attempts:
+            payload = path / 'inputs/payload'
+            payload.write_text('unexpected local source')
+            provenance = path / 'provenance.json'
+            record = json.loads(provenance.read_text())
+            record['recipe_inputs']['payload'] = checks.digest(payload)
+            provenance.write_text(json.dumps(record))
+            self.assertEqual(checks.recipe(path / 'inputs/PKGBUILD')['errors'],
+                             ['local source checksum mismatch: payload'])
+        for comparator in (compare, compare_v2, compare_v3):
+            with self.subTest(comparator=comparator.__name__):
+                with self.assertRaisesRegex(ValueError, 'local source checksum mismatch: payload'):
+                    comparator.compare(*attempts)
+
+    def test_v1_preserves_scoped_archive_policy_for_protected_package(self):
+        name = 'speakersafetyd'
+        archive = self.archive(extra={
+            '.PKGINFO': f'pkgname = {name}\npkgver = 1-1\narch = any\nlicense = MIT\n'.encode(),
+            '.BUILDINFO': (f'format = 2\npkgname = {name}\npkgver = 1-1\npkgarch = any\n'
+                           f'pkgbuild_sha256sum = {"a" * 64}\n').encode(),
+        })
+        path = self.evidence('scoped', archive, package_name=name)
+        validation = path / 'validation.json'
+        report = checks.package(path / 'artifacts' / archive.name)
+        self.assertEqual(report['errors'], [f'protected platform package name: {name}'])
+        with self.assertRaisesRegex(ValueError, 'artifact validation failed'):
+            compare.verify(path)
+
+        # The scoped audio adapter replaces the v1 archive inspector.
+        scoped_report = dict(report, errors=[], status='artifact-static-pass')
+        validation.write_text(json.dumps({'artifacts': [scoped_report], 'errors': []}))
+        provenance = path / 'provenance.json'
+        record = json.loads(provenance.read_text())
+        record['files']['validation.json'] = checks.digest(validation)
+        provenance.write_text(json.dumps(record))
+        with patch.object(compare, 'package', return_value=scoped_report):
+            self.assertEqual(compare.verify(path)[0], record)
+
+    def test_all_comparators_match_builder_srcinfo_whitespace(self):
+        archive = self.archive()
+        attempts = [self.evidence(name, archive, reviewed_srcinfo=True) for name in ('first', 'second')]
+        generated = (attempts[0] / 'artifacts/generated.SRCINFO').read_text()
+        original = (attempts[0] / 'inputs/.SRCINFO').read_text()
+        for prefix, accepted in (('\u2003# reviewed fixture\n', True),
+                                 ('\u3000\n', True),
+                                 ('\u00a0# no-break space\n', False)):
+            for path in attempts:
+                reviewed = path / 'inputs/.SRCINFO'
+                provenance = path / 'provenance.json'
+                record = json.loads(provenance.read_text())
+                reviewed.write_text(prefix + original)
+                record['recipe_inputs']['.SRCINFO'] = checks.digest(reviewed)
+                provenance.write_text(json.dumps(record))
+                self.assertFalse(checks.recipe(path / 'inputs/PKGBUILD')['errors'])
+            for entry in ('container-entry.sh', 'container-entry-v2.sh'):
+                with self.subTest(entry=entry, prefix=prefix):
+                    producer = self.srcinfo_comparison(prefix + original, generated, entry)
+                    self.assertEqual(producer.returncode == 0, accepted, producer.stdout)
+            for comparator in (compare, compare_v2, compare_v3):
+                with self.subTest(comparator=comparator.__name__, prefix=prefix):
+                    if accepted:
+                        self.assertEqual(comparator.compare(*attempts)['status'], 'contents-reproduced')
+                    else:
+                        with self.assertRaisesRegex(ValueError, 'differs from reviewed .SRCINFO'):
+                            comparator.compare(*attempts)
+
+    def test_all_comparators_reject_rehashed_validation(self):
+        path = self.evidence('fixture', self.archive())
+        validation = path / 'validation.json'
+        original = json.loads(validation.read_text())
+        wrong_payload = json.loads(validation.read_text())
+        wrong_payload['artifacts'][0]['members']['usr/share/example/data']['sha256'] = '0' * 64
+        wrong_type = json.loads(validation.read_text())
+        wrong_type['artifacts'][0]['members']['usr/share/example/data']['uid'] = False
+        provenance = path / 'provenance.json'
+        record = json.loads(provenance.read_text())
+        for text in ('synthetic fixture\n', json.dumps([]), json.dumps(dict(original, artifacts=[])),
+                     json.dumps(dict(original, errors=['claimed failure'])),
+                     json.dumps(wrong_payload), json.dumps(wrong_type)):
+            validation.write_text(text)
+            record['files']['validation.json'] = checks.digest(validation)
+            provenance.write_text(json.dumps(record))
+            for comparator in (compare, compare_v2, compare_v3):
+                with self.subTest(comparator=comparator.__name__, text=text[:64]):
+                    with self.assertRaisesRegex(ValueError, r'validation\.json'):
+                        comparator.verify(path)
+
+    def test_all_comparators_bind_recipe_snapshot_and_archive(self):
+        archive = self.archive()
+        for change, reason in (
+            ('extra input', 'changed recipe snapshot'),
+            ('changed metadata', 'recorded recipe metadata differs from recipe snapshot'),
+            ('unlisted archive', 'artifact missing/changed in evidence closure'),
+            ('second archive', 'single-package recipe must produce exactly one artifact'),
+        ):
+            path = self.evidence(change, archive)
+            provenance = path / 'provenance.json'
+            record = json.loads(provenance.read_text())
+            if change == 'extra input':
+                (path / 'inputs/extra').write_text('unrecorded recipe file')
+            elif change == 'changed metadata':
+                generated = path / 'artifacts/generated.SRCINFO'
+                generated.write_text(generated.read_text().replace('source = payload', 'source = other'))
+                record['recipe_metadata']['source'] = ['other']
+                record['files']['artifacts/generated.SRCINFO'] = checks.digest(generated)
+            elif change == 'unlisted archive':
+                record['files'].pop(f'artifacts/{archive.name}')
+            else:
+                second = path / 'artifacts/second.pkg.tar.gz'
+                second.write_bytes((path / 'artifacts' / archive.name).read_bytes())
+                record['artifacts'][second.name] = checks.digest(second)
+                record['files'][f'artifacts/{second.name}'] = checks.digest(second)
+            provenance.write_text(json.dumps(record))
+            for comparator in (compare, compare_v2, compare_v3):
+                with self.subTest(comparator=comparator.__name__, change=change):
+                    with self.assertRaisesRegex(ValueError, reason):
+                        comparator.verify(path)
 
     def test_unpinned_images_rejected(self):
         for value in ('arm:latest', 'arm@sha256:123', 'image;command'):
@@ -360,6 +584,112 @@ class ValidationTests(unittest.TestCase):
             if scenario == 'timeout':
                 cleanup = [call.args[0] for call in execution.call_args_list if call.args[0][1:3] == ['rm', '-f']]
                 self.assertEqual(cleanup, [['docker', 'rm', '-f', record['clean_environment_id']]])
+
+    def test_docker_handoff_uses_the_recorded_entry_bytes_after_path_changes(self):
+        path = self.recipe()
+        reviewed = self.root / 'reviewed.json'
+        reviewed.write_text(json.dumps(checks.recipe(path)['input_sha256']))
+        lock = self.root / 'packages.lock'
+        lock.write_text('base-devel 1-1\n')
+        image = 'sha256:' + 'c' * 64
+        entry = self.root / 'container-entry.sh'
+        reviewed_entry = ROOT / 'scripts/build/container-entry.sh'
+        original = reviewed_entry.read_bytes()
+
+        for change in ('overwrite', 'replace', 'preauthenticated'):
+            with self.subTest(change=change):
+                if change == 'preauthenticated':
+                    entry.unlink()
+                else:
+                    entry.write_bytes(original)
+                output = self.root / change
+                argv = ['build.py', str(path.parent), '--image', image, '--output', str(output),
+                        '--mode', 'native', '--source-date-epoch', '1', '--expected-packages', str(lock),
+                        '--reviewed-inputs', str(reviewed)]
+
+                def mocked_docker(command, **kwargs):
+                    record = json.loads((output / 'provenance.json').read_text())
+                    self.assertEqual(record['entry_script_sha256'], checks.digest(reviewed_entry))
+                    self.assertEqual(record['command'], command)
+                    replacement = entry.with_suffix('.new') if change == 'replace' else entry
+                    replacement.write_bytes(b'# different inert bytes\n')
+                    if change == 'replace':
+                        replacement.replace(entry)
+                    self.assertFalse(any(',dst=/builder-entry.sh,' in arg for arg in command))
+                    self.assertEqual(command[-6:-2], ['--entrypoint', '/bin/bash', image, '-c'])
+                    self.assertEqual(command[-1], '/builder-entry.sh')
+                    received = command[-2].encode('utf-8')
+                    self.assertEqual(received, original)
+                    return subprocess.CompletedProcess(command, 17)
+
+                with patch.object(sys, 'argv', argv), patch.object(build, '__file__', str(self.root / 'build.py')), \
+                     patch.object(build, 'capture', side_effect=[json.dumps([
+                         dict(Architecture='arm64', Os='linux', Id=image)]), 'aarch64']), \
+                     patch.object(build.subprocess, 'run', side_effect=mocked_docker) as run, \
+                     contextlib.redirect_stderr(io.StringIO()):
+                    entry_script = original if change == 'preauthenticated' else None
+                    self.assertEqual(build.main(entry_script=entry_script), 1)
+                run.assert_called_once()
+                self.assertEqual(json.loads((output / 'provenance.json').read_text())['exit_code'], 17)
+
+    def test_builder_checks_private_recipe_copy_before_makepkg(self):
+        recipe = self.recipe()
+        extra = recipe.parent / 'line\nwith \\ spaces and é'
+        extra.write_bytes(b'input with an unusual name\n')
+        reviewed = self.root / 'reviewed.json'
+        inputs = checks.recipe(recipe)['input_sha256']
+        reviewed.write_text(json.dumps(inputs))
+        lock = self.root / 'packages.lock'
+        lock.write_text('base-devel 1-1\n')
+        image = 'sha256:' + 'c' * 64
+        run_fixture = subprocess.run
+        env_name = 'CACHY_ASAHI_RECIPE_INPUTS_SHA256'
+
+        for change in ('none', 'changed-pkgbuild', 'extra-file', 'removed-file', 'symlink', 'missing-pin'):
+            with self.subTest(change=change):
+                output = self.root / change
+                private = output / 'private-copy'
+                argv = ['build.py', str(recipe.parent), '--image', image, '--output', str(output),
+                        '--mode', 'native', '--source-date-epoch', '1', '--expected-packages', str(lock),
+                        '--reviewed-inputs', str(reviewed)]
+
+                def mocked_docker(command, **kwargs):
+                    record = json.loads((output / 'provenance.json').read_text())
+                    self.assertEqual(record['recipe_inputs'], inputs)
+                    staging = output / 'inputs'
+                    if change == 'changed-pkgbuild':
+                        (staging / 'PKGBUILD').write_text('# different inert recipe\n')
+                    elif change == 'extra-file':
+                        (staging / 'extra').write_text('unreviewed local input\n')
+                    elif change == 'removed-file':
+                        (staging / extra.name).unlink()
+                    elif change == 'symlink':
+                        (staging / 'payload').unlink()
+                        (staging / 'payload').symlink_to(recipe.parent / 'payload')
+                    private.mkdir()
+                    entry = command[-2]
+                    functions = entry[entry.index('compare_srcinfo() {'):entry.index('[[ $' + '{CACHY_ASAHI_CONTAINER')]
+                    start = entry.index('cp -R /inputs/. /tmp/work/')
+                    end = entry.index('\n{\n  uname -a', start)
+                    stage = entry[start:end].replace('cp -R /inputs/. /tmp/work/', 'cp -R "$1/." "$2/"')
+                    stage = stage.replace('cd /tmp/work', 'cd "$2"')
+                    expected = next((arg.split('=', 1)[1] for arg in command if arg.startswith(env_name + '=')), '')
+                    if change == 'missing-pin':
+                        expected = ''
+                    completed = run_fixture(['bash', '-euo', 'pipefail', '-c',
+                        functions + stage + '\nprintf "reached makepkg boundary\\n"\n',
+                        'mocked-container-entry', str(staging), str(private)],
+                        env={**os.environ, 'LC_ALL': 'C.UTF-8', env_name: expected}, capture_output=True, timeout=5)
+                    self.assertEqual(completed.returncode == 0, change == 'none', completed.stderr)
+                    self.assertEqual(b'reached makepkg boundary' in completed.stdout, change == 'none')
+                    return subprocess.CompletedProcess(command, 17)
+
+                with patch.object(sys, 'argv', argv), patch.object(build, 'capture', side_effect=[
+                    json.dumps([dict(Architecture='arm64', Os='linux', Id=image)]), 'aarch64'
+                ]), patch.object(build.subprocess, 'run', side_effect=mocked_docker) as run, \
+                     contextlib.redirect_stderr(io.StringIO()):
+                    self.assertEqual(build.main(), 1)
+                run.assert_called_once()
 
     def test_copied_evidence_does_not_count_as_second_execution(self):
         first = self.evidence('first', self.archive())
@@ -513,10 +843,10 @@ class ValidationTests(unittest.TestCase):
                 self.assertEqual(provision.main(), 1)
             self.assertFalse(output.exists())
 
-    def srcinfo_comparison(self, reviewed, generated):
+    def srcinfo_comparison(self, reviewed, generated, entry='container-entry.sh'):
         # Execute only the trusted read-only comparison function, never the
         # container entry or any recipe body on the host.
-        source = (ROOT / 'scripts/build/container-entry.sh').read_text()
+        source = (ROOT / 'scripts/build' / entry).read_text()
         start = source.index('compare_srcinfo() {')
         end = source.index('\n}', start) + len('\n}')
         self.assertIn('compare_srcinfo .SRCINFO /out/generated.SRCINFO', source)
@@ -525,7 +855,7 @@ class ValidationTests(unittest.TestCase):
         second.write_text(generated)
         function = source[start:end] + '\ncompare_srcinfo "$1" "$2"\n'
         return subprocess.run(['bash', '-c', function, 'comparison-test', str(first), str(second)],
-                              capture_output=True, text=True)
+                              env=dict(os.environ, LC_ALL='C.UTF-8'), capture_output=True, text=True)
 
     def test_srcinfo_introductory_comments_and_blank_lines_are_only_normalization(self):
         generated = 'pkgbase = example\n\tdepends = runtime>=1\n\tsource = source.tar\npkgname = example\n'

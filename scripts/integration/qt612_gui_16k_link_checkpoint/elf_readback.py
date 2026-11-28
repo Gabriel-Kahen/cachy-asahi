@@ -108,8 +108,10 @@ def md_parse_symbol(body, loads, tags):
     need(len(matches) == 1, "One exact dynamic md_parse symbol required")
     symbol = matches[0]
     if 0x6ffffff0 in tags:
-        version = address_offset(loads, tags[0x6ffffff0] + symbol[0] * 2, 2)
-        need(struct.unpack_from("<H", body, version)[0] == 1, "md_parse must be unversioned")
+        offset = address_offset(loads, tags[0x6ffffff0] + symbol[0] * 2, 2)
+        version_index = struct.unpack_from("<H", body, offset)[0]
+        # GNU ld can use version index zero for an unversioned undefined import.
+        need(version_index == 1 or (version_index == 0 and symbol[3] == 0), "md_parse must be unversioned")
     return symbol
 
 

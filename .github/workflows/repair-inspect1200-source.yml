@@ -1,6 +1,7 @@
 name: repair-inspect1200-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/repair-inspect1200-source/**
       - .github/workflows/repair-inspect1200-source.yml

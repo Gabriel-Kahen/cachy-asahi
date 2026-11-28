@@ -2,23 +2,54 @@
 
 The destination is a maintained, independent CachyOS-derived ARM port for Apple Silicon covering all five requirements below. The initial overlay is an intermediate release, not full-goal completion. See [goal.md](../goal.md) for the ambition and [implementation sequence](../outline.md) for dependencies and parallel work.
 
-Milestone acceptance remains open. Hosted AArch64 builds with 4 KiB pages
-produced reproducible packages for Fish config 0.1.0-2, md4c 0.5.3 and the
-Minimal206 llhttp 9.3.1 reference. Offline emulated AArch64 with 16 KiB pages
-now has a TEST-signed Overlay583 lifecycle and a signed 626-package Asahi
-maintenance rehearsal. The Asahi proposal remains unapproved.
+[Overlay Preview 1](release/overlay-preview-1.md) publishes five opt-in packages
+for existing installations, with matching source and tagged checksums. Stable
+overlay acceptance still requires a supported Asahi composition, production
+repository trust, and physical installation and recovery evidence.
+
+Hosted AArch64 builds with 4 KiB pages produced reproducible packages for
+Fish config 0.1.0-2, md4c 0.5.3 and the Minimal206 llhttp 9.3.1 reference.
+Offline emulated AArch64 with 16 KiB pages passed the TEST-signed Overlay583
+lifecycle and the November 27 Asahi629 forward and reversal rehearsal with
+the generic R132 kernel. The forward transaction took the retained Asahi
+Minimal image from 261 to 629 packages. Reversal restored the original
+NetworkManager, Perl and Python versions, retained all five Preview
+packages, and verified all 362 protected boot and mount entries, including
+restoration of the original initramfs. The 60-root composition remains
+unapproved.
 [Native Fish and md4c](validation/native-fish-md4c-reproducibility-20261118.md)
 · [Native llhttp](validation/llhttp-minimal206-native-arm4k-20261118.md)
 · [Overlay583](validation/offline-overlay583-emulated-install-20261117.md)
-· [Asahi maintenance](validation/asahi626-maintenance-emulated-arm16k-20261118.md)
+· [Asahi629 installation and reversal](workstreams/supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
+· [Full-port package coverage](workstreams/full-port-release-coverage.md)
 
-Qtbase passed dependency installation and configure in emulated 16 KiB AArch64.
-The Markdown importer compiled and the QtCore shared library linked.
-Full Qt build validation, selection of the supported Asahi composition,
-installed Asahi kernel boot and recovery, both physical M2 Air sizes and
-production release promotion remain open.
+The Qtbase 6.12.0-2 full build, package assembly and TEST-signed installed
+lifecycle passed independent readback and retirement on the emulated
+AArch64 16 KiB Q3 baseline. A separate TEST-signed trial on the Asahi629
+reversal inventory swapped in the project Qtbase 6.12.0-3 provider, then
+restored the official package and exact inventory. Ordinary-user software
+rendering checks ran before and during replacement with headless
+Weston/Pixman and Lavapipe. Post-restoration runtime remains **NOT RUN**.
+Qtbase 6.12.0-4 passed one offline serial build in emulated AArch64 with
+16 KiB pages. The build passed the offscreen and local Wayland server
+API smoke test. The guest retired cleanly, and independent stopped-disk
+readback verified the archive. Offline ABI checks and TEST signing passed.
+The mixed-version Asahi629 lifecycle and installed provider parity remain
+open.
 [Qtbase validation](validation/qtbase612-emulated-arm16k-configure-20261118.md)
 · [QtCore link](validation/qtbase612-emulated-arm16k-qtcore-link-20261118.md)
+· [QtGui link](validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
+· [Full Qtbase build](../scripts/integration/qt612_full_16k_preflight/README.md)
+· [Installed Qtbase lifecycle](../scripts/integration/qt612_installed_16k_preflight/README.md#corrected-installed-trial-november-26-2026)
+· [Scoped 6.12.0-3 provider swap](../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27)
+· [6.12.0-4 build evidence and parity trial](../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md#verified-build-on-november-28)
+
+An earlier direct boot of the stock Asahi kernel with an auxiliary
+initramfs reached the installed systemd's `basic.target` in emulation.
+Default Asahi boot and recovery and physical validation on both M2 Air
+sizes, including accelerated graphics, remain open. Production publication
+and stable promotion also remain open.
+· [Stock Asahi kernel and installed systemd](validation/asahi626-maintenance-emulated-arm16k-20261118.md#installed-systemd-on-a-disposable-overlay)
 · [Implementation status](implementation-status.md)
 
 ## Five required workstreams
@@ -125,8 +156,13 @@ The milestone requires a declared base, desktop and application set that resolve
 
 ## M9: integrated acceptance and maintained full-port releases (R1–R5)
 
-- Integrate M5–M8 against one release-defined package/platform set. Complete every required acceptance-matrix entry with linked source commits, package checksums, release IDs and exact-machine evidence; an overlay-only release does not satisfy this gate.
-- Publish the full-port release, signed repository, provenance, install/update/recovery guides, performance reports and known optional limits. Required package coverage, user workflows and hardware behavior must pass on both Air sizes.
+The local release CLI's `promote` command verifies the frozen gate envelope,
+signs the promotion record and switches the local `stable/current`
+selection. The promotion record is one input to M9.
+[Local release gate contract](release/interface.md#stable-gate-envelope-version-1)
+
+- Integrate M5–M8 against one shipped full-port package/platform set. Complete A01–A15 with linked source commits, artifact hashes, release IDs, raw evidence and independent review. Bind the physical install, update, recovery and final-system measurements to the exact 13-inch and 15-inch M2 Air and the same release. [Acceptance and signoff](acceptance.md#evidence-and-signoff)
+- Publish the full-port release, signed repository, provenance, install/update/recovery guides, performance reports and known optional limits. Verify production trust bootstrap through the supported endpoint. [Production handoff](release/production-handoff.md)
 - Demonstrate a subsequent stable full-port release through the same build, promotion, installation/upgrade and regression process. Verify maintained package/dependency coverage, platform compatibility, configurations and recovery on both supported sizes.
 - Record named ongoing package, platform, release and support ownership; builder/repository capacity; signing-key custody/rotation; dependency/security monitoring; and incident response. Missing maintenance coverage remains unfinished work.
 - Complete independent contributor onboarding, the reusable ARM component demonstration and actual applicable upstream submissions. Track external merge and affiliation decisions honestly; official recognition is not required to complete an independent port.

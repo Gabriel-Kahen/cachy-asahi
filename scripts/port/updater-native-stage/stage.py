@@ -19,9 +19,12 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 PACKAGE = 'packages/tools/cachy-asahi-update/'
-READY_SHA = '6dc5515b411bcaa9cff7caa844fcc623a7a0dba39cb0c28e1c6859db457438e2'
+INSTALLED_HELPER = 'scripts/ci/updater-optional-check/prepare.py'
+READY_SHA = 'f3ab58f63614625d94e858e893514efede050c27a05ec4a0aebdf07698655789'
 BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_seconds':910,
-          'freeze_seconds':120, 'native_seconds':5400, 'projection_seconds':60,
+          'freeze_seconds':120, 'retained_seed_seconds':90, 'native_seconds':5400,
+          'runtime_intake_seconds':60, 'installed_prepare_seconds':60, 'installed_check_seconds':380,
+          'projection_seconds':60,
           'export_seconds':60, 'cleanup_seconds':180, 'private_bytes':8*1024**3,
           'private_members':200000, 'source_bytes':32*1024**2,
           'minimum_output_free_bytes':10*1024**3, 'minimum_docker_free_bytes':10*1024**3,
@@ -122,16 +125,25 @@ def stage_files(root):
                   if p.is_file() and '__pycache__' not in p.parts and p.name not in ('stage.lock.json','source.lock.json'))
 
 
+def preflight(root, commit, ready, bootstrap_source_sha, bootstrap_stage_sha):
+    """Verify the exact committed source without native host or daemon access."""
+    need(ready == READY_SHA, 'reviewed-checkpoint-required')
+    need(re.fullmatch('[0-9a-f]{64}', bootstrap_stage_sha or '') and
+         digest(regular(HERE / 'stage.py')) == bootstrap_stage_sha, 'bootstrap-stage-pin')
+    need(re.fullmatch('[0-9a-f]{64}', bootstrap_source_sha or ''), 'bootstrap-source-pin')
+    source = module(HERE / 'source.py', bootstrap_source_sha)
+    contract = source.collect(root, commit, stage_files(root), ready)
+    rows = contract['files']
+    need(rows[source.STAGE + 'stage.py']['sha256'] == bootstrap_stage_sha and
+         rows[source.STAGE + 'source.py']['sha256'] == bootstrap_source_sha, 'bootstrap-closure-pin')
+    return contract
+
+
 def freeze(root,commit,ready,output,bootstrap_source_sha=None,bootstrap_stage_sha=None):
     """Data-only freeze on the selected native host after the sources are committed."""
-    need(ready==READY_SHA,'reviewed-checkpoint-required')
-    need(re.fullmatch('[0-9a-f]{64}',bootstrap_stage_sha or '') and
-         digest(regular(HERE/'stage.py'))==bootstrap_stage_sha,'bootstrap-stage-pin')
-    need(re.fullmatch('[0-9a-f]{64}',bootstrap_source_sha or ''),'bootstrap-source-pin')
-    source=module(HERE/'source.py',bootstrap_source_sha)
+    source = preflight(root, commit, ready, bootstrap_source_sha, bootstrap_stage_sha)
     contract={'schema_version':1,'scope':'finite private native updater trial','budget':BUDGET,
-              'host':host(),'docker_endpoint':ENDPOINT,'tools':tools(),
-              'source':source.collect(root,commit,stage_files(root),ready)}
+              'host':host(),'docker_endpoint':ENDPOINT,'tools':tools(),'source':source}
     need(output.is_absolute() and output.is_relative_to('/tmp') and not output.exists()
          and output.parent.resolve(strict=True)==output.parent,'fresh-controller-path')
     save(output,contract)
@@ -246,6 +258,10 @@ def disk_check(root,expected_identity=None):
         raise error
     def mismatch(actual,before):
         return next(name for name,a,b in zip(('DEVICE','INODE','OWNER','MODE'),identity(actual),identity(before)) if a!=b)
+    def same_directory_identity(actual, before, depth):
+        # Copying can change descendant modes. Check each observed mode separately.
+        current, original = identity(actual), identity(before)
+        return current == original if depth == 0 else current[:3] == original[:3]
     def directory(info):
         need(stat.S_ISDIR(info.st_mode) and info.st_uid==os.getuid(),'private-directory-owner')
         need(info.st_mode & 0o500==0o500 and not info.st_mode & 0o7022,'private-directory-permission')
@@ -258,17 +274,18 @@ def disk_check(root,expected_identity=None):
             need(not Path(os.fsdecode(name)).is_relative_to(root),'private-nested-mount')
     def validate(parent,name,fd,before,depth):
         opened=os.fstat(fd);directory(opened)
-        if not identity(opened)==identity(before):
+        if not same_directory_identity(opened,before,depth):
             refuse('OPEN_FD_IDENTITY',depth,lambda:mismatch(opened,before))
         try:current=os.stat(name,dir_fd=parent,follow_symlinks=False)
         except FileNotFoundError:
             if not (depth>0 and opened.st_nlink==0):
                 refuse('ROOT_PATH_MISSING' if depth==0 else 'LINKED_CHILD_PATH_MISSING',depth,'NONE')
             return False
-        matched=identity(current)==identity(before)
+        matched=same_directory_identity(current,before,depth)
         if not (matched and stat.S_ISDIR(current.st_mode)):
             refuse('PATH_IDENTITY' if not matched else 'PATH_NOT_DIRECTORY',depth,
                    (lambda:mismatch(current,before)) if not matched else 'TYPE')
+        directory(current)
         return True
     def walk(parent,name,fd,before,prefix,depth):
         nonlocal count,size
@@ -416,7 +433,7 @@ def ownership_save(output,owner):
 def launches_verified(owner):
     rows=owner['launch_intents'];children=owner['children']
     need(type(rows) is list and len(rows)<=16,'process-intent-count')
-    linked=[]
+    linked={}
     for row in rows:
         need(type(row) is dict and set(row)=={'phase','status','child_index'} and
              type(row['phase']) is str and re.fullmatch('[a-z-]{1,40}',row['phase']) and
@@ -425,9 +442,10 @@ def launches_verified(owner):
         if index is None:need(row['status']=='ABSENT','ambiguous-process-launch')
         else:
             need(type(index) is int and 0<=index<len(children) and index not in linked,'process-intent-index')
-            linked.append(index)
+            linked[index]=row
             if row['status']=='ABSENT':need(children[index]['complete'],'process-absence-mismatch')
     need(set(linked)==set(range(len(children))),'unlinked-process-record')
+    return linked
 
 
 def tracked_process(owner,output,runner,phase,argv,stdout,stderr,deadline,env,cwd,on_tick=None):
@@ -504,7 +522,8 @@ def finish_signals(previous,cancelled,commit,mask):
         commit(True)
 
 
-PROCESS_PHASES=frozenset({'native-daemon','materialize','freeze','native-pair','public-projection',
+PROCESS_PHASES=frozenset({'native-daemon','seed-archives','materialize','freeze','native-pair','public-projection',
+                          'runtime-intake','installed-prepare','installed-check',
                           'public-guard','public-bundle','gpg-cleanup','recovery-gpg'})
 RUNTIME_REASONS=frozenset({'invalid-deadline','timeout','invalid-command','unsafe-log',
                            'nonprivate-log-parent','subreaper-unavailable','signal-state-restore',
@@ -640,6 +659,33 @@ def storage_projection(value):
     return value
 
 
+PREPARE_PHASES = frozenset({'source-closure','directories','pair-comparison','builder-receipt',
+                            'archive-selection','archive-inspection','archive-controller',
+                            'archive-metadata','archive-provenance','archive-copy',
+                            'runtime-inputs','capsule-write'})
+PREPARE_PROBLEMS = frozenset({'missing-input','permission','io-error','invalid-input','unexpected'})
+PREPARE_UNAVAILABLE = {'phase':'unavailable','problem':'unavailable'}
+
+
+def prepare_failure_projection(row):
+    need(type(row) is dict and set(row)=={'phase','problem'}
+         and type(row['phase']) is str and type(row['problem']) is str
+         and (row==PREPARE_UNAVAILABLE
+              or row['phase'] in PREPARE_PHASES and row['problem'] in PREPARE_PROBLEMS),
+         'installed-prepare-diagnostic')
+    return row
+
+
+def prepare_failure(path):
+    try:
+        raw=json.loads(regular(path,1024),object_pairs_hook=unique)
+        need(type(raw) is dict and set(raw)=={'status','phase','problem'} and raw['status']=='FAIL',
+             'installed-prepare-failure-receipt')
+        return prepare_failure_projection({key: raw[key] for key in ('phase','problem')})
+    except (OSError, ValueError):
+        return dict(PREPARE_UNAVAILABLE)
+
+
 def public_summary(receipt):
     """Fixed scalar/hash/typed lifecycle fields; no host paths, argv or raw logs."""
     allowed=('schema_version','status','phase','controller_sha256','ready_sha256','source_commit',
@@ -649,6 +695,18 @@ def public_summary(receipt):
     result={k:receipt[k] for k in allowed if k in receipt}
     result.update(diagnostic_projection(receipt));result.update(cleanup_projection(receipt))
     if 'storage' in receipt:result['storage']=storage_projection(receipt['storage'])
+    if 'installed_check' in receipt:
+        status=receipt['installed_check']
+        need(type(status) is str and status in ('NOT RUN','FAIL','PASS'),'installed-check-status')
+        result['installed_check']=status
+        if status=='PASS':
+            need(type(receipt.get('installed_cases')) is int and receipt['installed_cases']==15,
+                 'installed-check-case-count')
+            result['installed_cases']=receipt['installed_cases']
+    if 'installed_prepare_failure' in receipt:
+        need(receipt.get('installed_check')=='FAIL' and receipt.get('failed_phase')=='installed-prepare',
+             'installed-prepare-diagnostic-context')
+        result['installed_prepare_failure']=prepare_failure_projection(receipt['installed_prepare_failure'])
     return result
 
 
@@ -681,7 +739,8 @@ def stop_record(record,deadline):
         except FileNotFoundError:return {'status':'FAIL','reason_code':'ambiguous-group-leader'}
         os.killpg(record['group'],signal.SIGKILL)
         while exists() and time.monotonic()<min(deadline,grace+3):time.sleep(.05)
-    return {'status':'FAIL' if exists() else 'PASS','group_absent':not exists()}
+    absent=not exists()
+    return {'status':'PASS' if absent else 'FAIL','group_absent':absent}
 
 
 def revoke_terminal(output,prefix='terminal'):
@@ -724,9 +783,19 @@ def owned_cleanup(owner,output,private,contract,runtime,broker,runner,deadline,e
             if not cancelled:cancelled.append(0)
         if phase:failure_diagnostics(receipt,phase,getattr(error,'receipt',None),runtime)
     try:
-        launches_verified(owner)
-        receipt['process_cleanup']=[stop_record(row,deadline) for row in reversed(owner['children'])]
-        receipt['process_cleanup_status']='PASS' if all(row['status']=='PASS' for row in receipt['process_cleanup']) else 'FAIL'
+        intents=launches_verified(owner)
+        children=owner['children']
+        outcomes=[stop_record(child,deadline) for child in reversed(children)]
+        receipt['process_cleanup']=outcomes
+        verified=[row['status']=='PASS' and row.get('group_absent') is True for row in outcomes]
+        changed=False
+        for index,absent in enumerate(reversed(verified)):
+            if absent and not children[index]['complete']:
+                children[index]['complete']=True
+                intents[index]['status']='ABSENT'
+                changed=True
+        if changed:ownership_save(output,owner)
+        receipt['process_cleanup_status']='PASS' if all(verified) else 'FAIL'
         if receipt['process_cleanup_status']=='FAIL':reasons.add('process-group-unverified')
     except BaseException as error:
         receipt['process_cleanup_status']='FAIL';failed(error,'process-ownership-unverified')
@@ -780,7 +849,62 @@ def owned_cleanup(owner,output,private,contract,runtime,broker,runner,deadline,e
     return receipt['cleanup_status']=='PASS'
 
 
-def pipeline(root,controller,controller_sha,output,runner=None):
+def verify_installed_result(raw, prepared, case_exits):
+    need(type(raw) is dict and raw.get('status')=='PASS' and raw.get('phase')=='completed'
+         and raw.get('installation')=='PASS-disposable-container'
+         and raw.get('dependencies')=='PASS-no-waivers' and raw.get('pyalpm')=='PASS-native-import'
+         and raw.get('real_check')=='PASS-installed-Check-signed-local-repository'
+         and raw.get('test_signing_state_removed') is True
+         and raw.get('package_sha256')==prepared['package_sha256']
+         and raw.get('hardware')=='NOT RUN' and raw.get('target_update')=='NOT RUN'
+         and raw.get('publication')=='NOT ACCEPTED', 'installed-check-receipt')
+    nested=raw.get('check_cases')
+    need(type(nested) is dict and nested.get('status')=='PASS'
+         and type(nested.get('installed_packages')) is int and nested['installed_packages']==361
+         and nested.get('pacman_database_preserved')=='PASS'
+         and nested.get('updater_and_apple_policy_payload_preserved')=='PASS'
+         and nested.get('real_update_transaction')=='NOT RUN', 'installed-check-preservation')
+    cases=nested.get('cases')
+    need(type(cases) is dict and len(case_exits)==15 and cases.keys()==case_exits.keys()
+         and all(type(cases[name]) is dict and type(cases[name].get('exit')) is int
+                 and cases[name]['exit']==code for name,code in case_exits.items()),
+         'installed-check-case-results')
+    return len(cases)
+
+
+def installed_trial(private,copied,native,archives,python,command,broker,broker_contract,rows):
+    work=private/'installed';work.mkdir(mode=0o700)
+    cache=work/'runtime-cache';inputs=work/'inputs';logs=private/'logs'
+    helper=copied/INSTALLED_HELPER
+    command('runtime-intake',
+            [python,'-I','-B',str(copied/'scripts/port/updater-native-stage/runtime_intake.py'),
+             '--output',str(cache),'--alarm-keyring',str(archives/'archlinuxarm.gpg')],
+            BUDGET['runtime_intake_seconds'])
+    command('installed-prepare',
+            [python,'-I','-B',str(helper),'--native-output',str(native),'--cache',str(cache),
+             '--output',str(inputs)],BUDGET['installed_prepare_seconds'])
+    prepared=json.loads(regular(logs/'installed-prepare.stdout',4096),object_pairs_hook=unique)
+    need(type(prepared) is dict and set(prepared)=={'source_preflight','private_inputs','native_image',
+                                                  'package_sha256','installation'}
+         and prepared['source_preflight']==prepared['private_inputs']=='PASS'
+         and prepared['installation']=='NOT RUN'
+         and re.fullmatch(r'sha256:[0-9a-f]{64}',prepared['native_image'])
+         and re.fullmatch(r'[0-9a-f]{64}',prepared['package_sha256']), 'installed-prepare-receipt')
+    nonce=os.urandom(16).hex()
+    files={}
+    for path in sorted(inputs.rglob('*')):
+        if path.is_dir():continue
+        files[path.relative_to(inputs).as_posix()]=digest(regular(path,64*1024**2))
+    launch=work/'launch.json'
+    save(launch,{'schema_version':1,'nonce':nonce,'image_id':prepared['native_image'],'files':files})
+    argv=broker.installed_argv(broker_contract,nonce,prepared['native_image'],digest(regular(launch)))
+    command('installed-check',['docker',*argv],BUDGET['installed_check_seconds'])
+    fixture=module(helper,rows[INSTALLED_HELPER]['sha256'])
+    result=json.loads(regular(logs/'installed-check.stdout',fixture.RESULT_LIMIT),object_pairs_hook=unique)
+    return verify_installed_result(result,prepared,fixture.EXPECTED_CASE_EXITS)
+
+
+def pipeline(root,controller,controller_sha,output,runner=None,*,retained_cache=None,installed_check=False):
     contract,source=authenticate(root,controller,controller_sha)
     rows=contract['source']['files'];prefix='scripts/port/updater-native-stage/'
     runtime=module(HERE/'runtime.py',rows[prefix+'runtime.py']['sha256'])
@@ -788,6 +912,8 @@ def pipeline(root,controller,controller_sha,output,runner=None):
     run_process=runner or runtime.run_process
     need(output.is_absolute() and output.is_relative_to('/tmp') and output.parent.resolve(strict=True)==output.parent
          and not output.exists() and not output.is_symlink(),'fresh-stage-output')
+    if retained_cache is not None:
+        need(retained_cache==output.parent/'retained-cache','retained-cache-control-path')
     need(shutil.disk_usage(output.parent).free>=BUDGET['minimum_output_free_bytes'],'output-free-disk')
     output.mkdir(mode=0o700);start=time.monotonic();deadline=start+BUDGET['total_seconds']
     nonce=os.urandom(16).hex();private=None;env=None;failure=None;cancelled=[];broker_contract=None
@@ -796,6 +922,7 @@ def pipeline(root,controller,controller_sha,output,runner=None):
              'ready_sha256':READY_SHA,'source_commit':contract['source']['source_commit'],
              'native_compilation':'NOT RUN','publication':'NOT ACCEPTED','hardware':'NOT RUN',
              'private_data_removed':False,'cleanup_status':'NOT RUN','raw_retention_within_budget':False,'processes':{}}
+    if installed_check:receipt['installed_check']='NOT RUN'
     info=output.stat()
     owner={'schema_version':1,'controller_sha256':controller_sha,'source_commit':receipt['source_commit'],
            'host':contract['host'],'nonce':nonce,'uid':os.getuid(),
@@ -882,6 +1009,11 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                                    _sha256=digest(regular(private/'broker-controller.json')))
             broker.storage_initialize(broker_contract)
             env=environment(private,contract)
+            archives=private/'archives'
+            if retained_cache is not None:
+                command('seed-archives',[python,'-I','-B',str(copied/(prefix+'seed_archives.py')),
+                                         '--source',str(retained_cache),'--target',str(archives)],
+                        BUDGET['retained_seed_seconds'])
             lock_sha=digest(regular(package/'runner-inputs.lock.json'))
             # The unchanged built-in worker inherits our owned session. Its CLI
             # applies the original resource limits; no separate-session supervisor.
@@ -896,13 +1028,24 @@ def pipeline(root,controller,controller_sha,output,runner=None):
             command('freeze',[python,'-I','-B',str(package/'updater-native.py'),'freeze','--source',str(source_archive),
                               '--vendor',str(vendor),'--output',str(candidate)],BUDGET['freeze_seconds'])
             candidate_sha=digest(regular(candidate/'candidate.json'));receipt['candidate_sha256']=candidate_sha
+            pair_seconds=BUDGET['native_seconds']
+            if installed_check:
+                pair_seconds-=sum(BUDGET[key] for key in ('runtime_intake_seconds','installed_prepare_seconds',
+                                                        'installed_check_seconds'))
             command('native-pair',[python,'-I','-B',str(package/'updater-native.py'),'build','--candidate',str(candidate/'candidate.json'),
-                                   '--candidate-sha256',candidate_sha,'--cache',str(private/'archives'),'--output',str(native)],BUDGET['native_seconds'])
+                                   '--candidate-sha256',candidate_sha,'--cache',str(archives),'--output',str(native)],pair_seconds)
             need(load(native/'result.json')['native_pair']=='PASS','native-pair-not-passed')
             source.verify(root,contract['source']);verify_snapshot(copied,contract['source'])
             receipt['native_compilation']='PASS PRIVATE NATIVE PAIR'
+            if installed_check:
+                receipt['installed_check']='FAIL'
+                receipt['installed_cases']=installed_trial(private,copied,native,archives,python,command,
+                                                           broker,broker_contract,rows)
+                receipt['installed_check']='PASS'
         except BaseException as error:
             failure=error;receipt['failure_class']=type(error).__name__
+            if receipt.get('failed_phase')=='installed-prepare':
+                receipt['installed_prepare_failure']=prepare_failure(private/'logs/installed-prepare.stdout')
             if owner['private_record'] is None and getattr(error,'receipt',{}).get('registered'):
                 owner['private_record']=runtime.owned_record(output,'private',nonce);ownership_save(output,owner)
             if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled'):
@@ -1086,26 +1229,47 @@ def recover(root,controller,controller_sha,output,owner_sha):
     return receipt
 
 
-if __name__=='__main__':
+def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode',choices=('freeze','run','cleanup'))
+    parser.add_argument('mode',choices=('preflight','freeze','run','cleanup'))
     parser.add_argument('--root',type=Path,default=ROOT)
     parser.add_argument('--source-commit');parser.add_argument('--ready-sha256',default=READY_SHA)
     parser.add_argument('--bootstrap-source-sha256');parser.add_argument('--bootstrap-stage-sha256')
     parser.add_argument('--controller',type=Path);parser.add_argument('--controller-sha256')
     parser.add_argument('--ownership-sha256')
-    parser.add_argument('--output',type=Path,required=True)
-    args=parser.parse_args()
+    parser.add_argument('--retained-cache',type=Path)
+    parser.add_argument('--installed-check',action='store_true')
+    parser.add_argument('--output',type=Path)
+    args=parser.parse_args(argv)
+    if (args.retained_cache is not None or args.installed_check) and args.mode != 'run':
+        parser.error('--retained-cache and --installed-check require run mode')
+    if args.mode != 'preflight' and args.output is None:
+        parser.error('--output is required')
     try:
-        if args.mode=='freeze':
+        if args.mode == 'preflight':
+            source = preflight(args.root, args.source_commit, args.ready_sha256,
+                               args.bootstrap_source_sha256, args.bootstrap_stage_sha256)
+            print(json.dumps({'source_preflight': 'PASS', 'source_commit': source['source_commit'],
+                              'ready_sha256': source['ready_sha256'], 'source_files': len(source['files']),
+                              'source_bytes': source['total_bytes'], 'native_compilation': 'NOT RUN'}))
+        elif args.mode=='freeze':
             checksum=freeze(args.root,args.source_commit,args.ready_sha256,args.output,
                             args.bootstrap_source_sha256,args.bootstrap_stage_sha256)
             print(json.dumps({'source_freeze':'PASS','controller_sha256':checksum,'native_compilation':'NOT RUN'}))
         elif args.mode=='run':
-            result=pipeline(args.root,args.controller,args.controller_sha256,args.output)
-            print(json.dumps(public_summary(result),sort_keys=True));sys.exit(0 if result['status']=='PASS' else 1)
+            result=pipeline(args.root,args.controller,args.controller_sha256,args.output,
+                            retained_cache=args.retained_cache,installed_check=args.installed_check)
+            print(json.dumps(public_summary(result),sort_keys=True))
+            return 0 if result['status']=='PASS' else 1
         else:
             result=recover(args.root,args.controller,args.controller_sha256,args.output,args.ownership_sha256)
-            print(json.dumps(public_summary(result),sort_keys=True));sys.exit(0 if result['status']=='PASS' else 1)
+            print(json.dumps(public_summary(result),sort_keys=True))
+            return 0 if result['status']=='PASS' else 1
     except BaseException as error:
-        print(json.dumps({'status':'FAIL','failure_class':type(error).__name__}));sys.exit(1)
+        print(json.dumps({'status':'FAIL','failure_class':type(error).__name__}))
+        return 1
+    return 0
+
+
+if __name__=='__main__':
+    sys.exit(main())

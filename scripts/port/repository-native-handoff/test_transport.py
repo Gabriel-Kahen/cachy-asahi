@@ -132,8 +132,11 @@ os.write(1,str(child).encode());os._exit(0)
         self.assertEqual(result['exit_code'],0);self.assertTrue(obs['group_disposal_requested'])
         pid=int(result['stdout'])
         # An adopted zombie is inert; reaping that non-child belongs to its init.
-        try:state=Path(f'/proc/{pid}/stat').read_text().split(') ',1)[1].split()[0]
-        except FileNotFoundError:state=None
+        try:
+            state = Path(f'/proc/{pid}/stat').read_text().split(') ', 1)[1].split()[0]
+        except (FileNotFoundError, ProcessLookupError):
+            # The adopted child may be reaped before open or during the procfs read.
+            state = None
         self.assertIn(state,(None,'Z'));self.assertTrue(obs['direct_child_reaped'])
 
     def test_child_mask_restores_callers_original_state(self):

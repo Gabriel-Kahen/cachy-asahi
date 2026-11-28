@@ -113,6 +113,9 @@ class SourceTests(unittest.TestCase):
             data = ('package ' + str(index)).encode()
             self.put(source.PACKAGE + name, data)
             package[name] = source.digest(data)
+        checkpoint = b'historical package checkpoint'
+        self.put(source.PACKAGE + source.PACKAGE_CHECKPOINT, checkpoint)
+        package[source.PACKAGE_CHECKPOINT] = source.digest(checkpoint)
         root_names = ['scripts/build/build.py', 'scripts/checks/package_checks.py',
                       'scripts/ci/integration_export.py', 'scripts/ci/native_arm.py',
                       'scripts/ci/inputs.lock.json',
@@ -168,8 +171,9 @@ class SourceTests(unittest.TestCase):
 
     def test_full_required_closure_and_modes(self):
         contract = self.collect()
-        self.assertEqual(len(contract['files']), 81)
+        self.assertEqual(len(contract['files']), 92)
         self.assertTrue(source.HELPERS | source.CONTROLLERS <= set(contract['files']))
+        self.assertIn(source.PACKAGE + source.PACKAGE_CHECKPOINT, contract['files'])
         self.assertEqual(contract['files'][source.STAGE + 'stage.py']['git_mode'], '100755')
         self.assertEqual(contract['files'][source.STAGE + 'stage.py']['file_mode'], 0o755)
         source.verify(self.root, contract)
@@ -205,6 +209,16 @@ class SourceTests(unittest.TestCase):
         self.put(source.PACKAGE + 'file-0.txt', b'new committed bytes')
         with self.assertRaisesRegex(ValueError, 'source-reviewed-byte-drift'):
             self.collect()
+
+    def test_historical_checkpoint_and_root_helpers_remain_pinned(self):
+        for name in (source.PACKAGE + source.PACKAGE_CHECKPOINT,
+                     'scripts/checks/package_checks.py', 'scripts/ci/native_arm.py'):
+            with self.subTest(name=name):
+                original = self.committed[name][0]
+                self.put(name, b'new committed bytes')
+                with self.assertRaisesRegex(ValueError, 'source-reviewed-byte-drift'):
+                    self.collect()
+                self.put(name, original)
 
     def test_extra_package_and_omitted_controller_code_refused(self):
         path = self.put(source.PACKAGE + 'extra.py')

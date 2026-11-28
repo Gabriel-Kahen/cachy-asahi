@@ -1,6 +1,7 @@
 name: gui607-observer-progress-source
 on:
   push:
+    branches: [main]
     paths:
       - scripts/ci/gui607-observer-progress-source/**
       - .github/workflows/gui607-observer-progress-source.yml

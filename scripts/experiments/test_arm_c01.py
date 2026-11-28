@@ -379,7 +379,7 @@ class CommandTests(IsolatedTests):
     def test_timeout_records_failure_and_kills_mock_group(self):
         child = Mock(pid=987654)
         child.wait.side_effect = [subprocess.TimeoutExpired(["fixture"], 1), 0, 0, 0]
-        with patch.object(a.subprocess, "Popen", return_value=child), patch.object(a.os, "killpg", side_effect=self.group_gone) as kill, patch.object(a.time, "monotonic", side_effect=[0, 0, 0, 2, 2, 3]):
+        with patch.object(a.subprocess, "Popen", return_value=child), patch.object(a.os, "killpg", side_effect=self.group_gone) as kill, patch.object(a.time, "monotonic", side_effect=[0, 0, 0, 2, 3]):
             runner = a.Commands(self.root, seconds=10)
             with self.assertRaisesRegex(ValueError, "timeout"):
                 runner.run("timeout", ["FIXTURE-never-real-command"], timeout=1)
@@ -387,6 +387,27 @@ class CommandTests(IsolatedTests):
         self.assertIn(unittest.mock.call(987654, signal.SIGKILL), kill.call_args_list)
         row = json.loads((self.root / "commands.json").read_text())[0]
         self.assertEqual((row["status"], row["cleanup"]), ("FAIL", "PASS"))
+
+    def test_zero_exit_at_or_after_command_or_trial_deadline_fails(self):
+        for seconds, timeout, finished in ((10, 1, 1), (10, 1, 2), (1, 10, 2)):
+            with self.subTest(seconds=seconds, timeout=timeout, finished=finished):
+                output = self.root / f"{seconds}-{timeout}-{finished}"
+                output.mkdir()
+                clock = Mock(return_value=0)
+                child = Mock(pid=987654)
+
+                def wait(**_):
+                    clock.return_value = finished
+                    return 0
+
+                child.wait.side_effect = wait
+                with patch.object(a.subprocess, "Popen", return_value=child), \
+                     patch.object(a.os, "killpg", side_effect=self.group_gone), \
+                     patch.object(a.time, "monotonic", clock):
+                    with self.assertRaisesRegex(ValueError, "command timeout"):
+                        a.Commands(output, seconds).run("late-exit", ["FIXTURE-never-real-command"], timeout=timeout)
+                row = json.loads((output / "commands.json").read_text())[0]
+                self.assertEqual((row["status"], row["exit_code"], row["cleanup"]), ("FAIL", 0, "PASS"))
 
     def test_cancellation_still_cleans_attached_group_and_records_failure(self):
         child = Mock(pid=987654); child.wait.side_effect = [a.Cancelled(), 0, 0, 0]

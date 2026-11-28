@@ -16,7 +16,7 @@ HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[3]
 def module(name):
  s=importlib.util.spec_from_file_location('current_'+name,HERE/(name+'.py'));m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
-N=module('native');C=module('prepare');PROFILE=json.loads((HERE/'profile.json').read_bytes());INPUTS=json.loads((HERE/'inputs.TEMPLATE.json').read_bytes());SHA=hashlib.sha256((HERE/'profile.json').read_bytes()).hexdigest()
+N=module('native');C=module('prepare');S=module('source_fixture');PROFILE=json.loads((HERE/'profile.json').read_bytes());INPUTS=json.loads((HERE/'inputs.TEMPLATE.json').read_bytes());SHA=hashlib.sha256((HERE/'profile.json').read_bytes()).hexdigest()
 def fence(event,args):
  if event.startswith(('subprocess.','socket.','ctypes.'))or event in('os.system','os.exec','os.fork','os.posix_spawn','fcntl.flock'):raise RuntimeError('fenced '+event)
 sys.addaudithook(fence)
@@ -44,19 +44,23 @@ class Controls(unittest.TestCase):
   for name,row in PROFILE['prior_factory'].items():
    f=HERE.parent/name;raw=f.read_bytes();self.assertEqual(dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),mode=f.stat().st_mode&0o777),row)
  def test_real_source_staging_and_exact_map(self):
-  H,files,result=C.construct(ROOT,SHA);self.assertEqual(result['files'],59);self.assertEqual(set(json.loads(files['source.lock.json'][0])['files']),set(files)-{'source.lock.json'})
-  for name in ['scripts/build/build.py','scripts/build/container-entry.sh','scripts/build/compare.py']:
-   self.assertEqual(files[name][0],(ROOT/name).read_bytes())
+  with tempfile.TemporaryDirectory(prefix='current-first-login-source-DATA-')as temp:
+   _,files,result=C.construct(S.stage_inputs(Path(temp)/'inputs'),SHA)
+  self.assertEqual(result['files'],59);self.assertEqual(set(json.loads(files['source.lock.json'][0])['files']),set(files)-{'source.lock.json'})
+  self.assertEqual(result['tree'],'17ab19913bd486ea937f5e84df6f3ed989cc85bf')
+  self.assertEqual(result['source_lock']['sha256'],'749f31930c0584f9f06d8ea610cdf95032577b2325bfbc1ae96c88c060e8ae8f')
+  for name,path in S.HELD_HELPERS.items():
+   self.assertEqual(files[name][0],path.read_bytes())
   self.assertTrue(all(v is None for v in result['actual'].values()));self.assertEqual(result['status'],'STAGED_CURRENT_SOURCE_ONLY_NOT_NATIVE_READY')
  def test_external_profile_pin_refuses(self):
   with self.assertRaises(ValueError):C.construct(ROOT,'0'*64)
  def test_source_drift_extra_alias_and_hardlink_refuse(self):
-  H,files,_=C.construct(ROOT,SHA)
   with tempfile.TemporaryDirectory(prefix='current-first-login-source-DATA-')as temp:
-   root=Path(temp)
-   for name,(raw,mode)in files.items():
-    if name.startswith(('packages/','scripts/')):
-     f=root/name;f.parent.mkdir(parents=True,exist_ok=True);f.write_bytes(raw);f.chmod(mode)
+   root=S.stage_inputs(Path(temp)/'inputs')
+   checker=root/S.CHECKER;held=checker.read_bytes();checker.write_bytes(held[:-1]+b'X')
+   with self.assertRaisesRegex(ValueError,'whole maintained offline helper: scripts/checks/package_checks.py'):
+    C.construct(root,SHA)
+   checker.write_bytes(held)
    target=root/PROFILE['packages']['first-login']['path']/'first_login.py';old=target.read_bytes()
    target.write_bytes(old+b'\n')
    with self.assertRaises(ValueError):C.construct(root,SHA)

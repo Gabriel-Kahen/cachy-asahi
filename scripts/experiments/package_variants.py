@@ -15,6 +15,7 @@ from pathlib import Path, PurePosixPath
 import platform
 import pwd
 import re
+import selectors
 import shutil
 import shlex
 import signal
@@ -36,6 +37,9 @@ BASE_FLAGS = '-O2 -g -march=armv8-a -mtune=generic -fstack-protector-strong -D_F
 LINK_FLAGS = '-pie -Wl,-z,relro,-z,now,-z,max-page-size=65536,-z,common-page-size=16384'
 WORK = Path('/tmp/cachy-asahi-zlib-package-build')
 META = {'.PKGINFO', '.BUILDINFO', '.MTREE'}
+STDOUT_LIMIT = 8 * 1024**2
+LOG_LIMIT = 16 * 1024**2
+CANCEL_SIGNALS = (signal.SIGTERM, signal.SIGINT)
 
 
 def need(condition, message):
@@ -238,45 +242,109 @@ class Commands:
     def __init__(self, output, seconds=1200):
         self.output = Path(output); self.deadline = time.monotonic() + seconds
         self.rows = []; self.active = None; self.cancelled = False
+        self.defer_cancel = False
 
     def cancel(self, *_):
         self.cancelled = True
-        raise KeyboardInterrupt()
+        if not self.defer_cancel:
+            raise KeyboardInterrupt()
 
     def run(self, label, argv, *, cwd=None, env=None, data=None, expected=0, timeout=180):
-        need(not self.cancelled and time.monotonic() < self.deadline, 'job cancelled/deadline reached')
-        budget = min(timeout, self.deadline - time.monotonic())
+        started = time.monotonic()
+        end = min(started + timeout, self.deadline)
+        need(not self.cancelled and started < end, 'job cancelled/deadline reached')
         row = {'label': label, 'argv': list(map(str, argv)), 'status': 'FAIL', 'exit': None}
         log = self.output / (f'{len(self.rows):04d}-' + label + '.log')
         row['log'] = log.name; self.rows.append(row)
-        started = time.monotonic()
+        append_stdout = label.startswith(('build-', 'pacman-', 'tool-', 'elf-', 'sections-'))
         try:
-            with log.open('wb') as diagnostic:
-                process = subprocess.Popen(argv, cwd=cwd, env=env, stdin=subprocess.PIPE if data is not None else subprocess.DEVNULL,
-                                           stdout=subprocess.PIPE, stderr=diagnostic, start_new_session=True)
-                self.active = process
-                stdout, _ = process.communicate(data, timeout=budget)
+            with log.open('xb') as diagnostic, selectors.DefaultSelector() as poll:
+                previous = signal.pthread_sigmask(signal.SIG_BLOCK, CANCEL_SIGNALS)
+                try:
+                    process = self.active = subprocess.Popen(
+                        argv, cwd=cwd, env=env, stdin=subprocess.PIPE if data is not None else subprocess.DEVNULL,
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                        start_new_session=True,
+                        # The single-threaded owner defers cancellation until it owns the child.
+                        preexec_fn=lambda: signal.pthread_sigmask(signal.SIG_SETMASK, previous))
+                finally:
+                    signal.pthread_sigmask(signal.SIG_SETMASK, previous)
+                stdout = bytearray()
+                pending = memoryview(data if data is not None else b'')
+                if pending:
+                    os.set_blocking(process.stdin.fileno(), False)
+                    poll.register(process.stdin, selectors.EVENT_WRITE)
+                elif process.stdin is not None:
+                    process.stdin.close()
+                poll.register(process.stdout, selectors.EVENT_READ)
+                poll.register(process.stderr, selectors.EVENT_READ)
+                # Drain both streams while feeding stdin so output limits apply before retaining bytes.
+                while poll.get_map():
+                    remaining = end - time.monotonic()
+                    if remaining <= 0:
+                        raise subprocess.TimeoutExpired(argv, timeout)
+                    for key, _ in poll.select(remaining):
+                        if key.fileobj is process.stdin:
+                            try:
+                                pending = pending[os.write(key.fd, pending):]
+                            except BrokenPipeError:
+                                pending = memoryview(b'')
+                            if not pending:
+                                poll.unregister(process.stdin)
+                                process.stdin.close()
+                            continue
+                        block = os.read(key.fd, 65536)
+                        retained = diagnostic.tell() + (len(stdout) if append_stdout else 0)
+                        if not block:
+                            poll.unregister(key.fileobj)
+                        elif key.fileobj is process.stdout:
+                            need(len(stdout) + len(block) <= STDOUT_LIMIT and
+                                 (not append_stdout or retained + len(block) <= LOG_LIMIT), 'command output bound')
+                            stdout.extend(block)
+                        else:
+                            need(retained + len(block) <= LOG_LIMIT, 'command output bound')
+                            diagnostic.write(block)
+                process.wait(timeout=max(0, end - time.monotonic()))
                 row['exit'] = process.returncode
-                need(len(stdout) <= 8 * 1024**2 and log.stat().st_size <= 16 * 1024**2, 'command output bound')
-                diagnostic.write(stdout if label.startswith(('build-', 'pacman-', 'tool-', 'elf-', 'sections-')) else b'')
+                if time.monotonic() >= end:
+                    raise subprocess.TimeoutExpired(argv, timeout)
+                if append_stdout:
+                    diagnostic.write(stdout)
                 row.update(stdout_sha256=sha(stdout), stdout_bytes=len(stdout))
                 need(process.returncode == expected, 'command failed: ' + label)
-                row['status'] = 'PASS'
-                return stdout
+            row['status'] = 'PASS'
+            return bytes(stdout)
         finally:
-            process = self.active
-            if process is not None:
+            self.defer_cancel = True
+            try:
+                process = self.active
+                if process is not None:
+                    try:
+                        try:
+                            os.killpg(process.pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                        process.wait(timeout=10)
+                    except (OSError, subprocess.SubprocessError):
+                        row['status'] = 'FAIL'
+                        raise
+                    finally:
+                        for stream in (process.stdin, process.stdout, process.stderr):
+                            if stream is not None:
+                                stream.close()
+                        self.active = None
+            finally:
                 try:
-                    os.killpg(process.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-                process.wait(timeout=10)
-                for stream in (process.stdin, process.stdout):
-                    if stream is not None:
-                        stream.close()
-                self.active = None
-            row['elapsed_seconds'] = time.monotonic() - started
-            save(self.output / 'commands.json', self.rows)
+                    row['elapsed_seconds'] = time.monotonic() - started
+                    if not self.cancelled:
+                        save(self.output / 'commands.json', self.rows)
+                    if self.cancelled:
+                        row.update(status='FAIL', cancelled=True)
+                        save(self.output / 'commands.json', self.rows)
+                finally:
+                    self.defer_cancel = False
+            if self.cancelled:
+                raise KeyboardInterrupt()
 
 
 def workload(runner, variants, phase, *, roots=None, installed=True):
@@ -340,7 +408,7 @@ def native_job(context, pin, output):
               'generic16k_execution': 'NOT RUN', 'hardware_validation': 'NOT RUN',
               'performance_acceptance': 'NOT RUN', 'selected_for_release': False,
               'rebuilds': {}, 'phases': []}
-    previous = {sig: signal.signal(sig, runner.cancel) for sig in (signal.SIGTERM, signal.SIGINT)}
+    previous = {sig: signal.signal(sig, runner.cancel) for sig in CANCEL_SIGNALS}
     try:
         initial = inventory(runner, 'initial-inventory')
         need((''.join(k + ' ' + v + '\n' for k, v in sorted(initial.items()))).encode() == read(context / 'packages.lock'),
@@ -459,15 +527,20 @@ def native_job(context, pin, output):
         report.update(error_kind=type(error).__name__, error=str(error)[:2048], cancelled=runner.cancelled)
     finally:
         # A failed lifecycle is not rolled back on the host; the caller removes its owned container.
-        for sig in previous:
-            signal.signal(sig, lambda *_: setattr(runner, 'cancelled', True))
-        if runner.cancelled:
-            report.update(status='FAIL', cancelled=True)
-        report['container_cleanup'] = 'CALLER MUST REMOVE AND VERIFY OWNED CONTAINER'
-        report['job_elapsed_limit_seconds'] = 1200
-        save(output / 'result.json', report)
-        for sig, handler in previous.items():
-            signal.signal(sig, handler)
+        runner.defer_cancel = True
+        try:
+            report['container_cleanup'] = 'CALLER MUST REMOVE AND VERIFY OWNED CONTAINER'
+            report['job_elapsed_limit_seconds'] = 1200
+            if not runner.cancelled:
+                save(output / 'result.json', report)
+            if runner.cancelled:
+                report.update(status='FAIL', cancelled=True)
+                if report['installed_behavior'] == 'PASS':
+                    report['installed_behavior'] = 'FAIL'
+                save(output / 'result.json', report)
+        finally:
+            for sig, handler in previous.items():
+                signal.signal(sig, handler)
     return 0 if report['status'] == 'PASS' else 1
 
 

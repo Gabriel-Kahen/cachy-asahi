@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: MIT
 """Inert input/staging/refusal controls; no native graphics actors or ALPM needed."""
-import ast,hashlib,importlib.util,io,json,os,struct,tarfile,tempfile,unittest
+import ast,hashlib,importlib.util,io,json,os,stat,struct,tarfile,tempfile,unittest
 from pathlib import Path
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 HERE=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('native_graphics_run',HERE/'run.py');R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
+spec=importlib.util.spec_from_file_location('native_graphics_terminal',HERE/'fish_terminal.py');F=importlib.util.module_from_spec(spec);spec.loader.exec_module(F)
 STYLE=b'background-color=#20242c\ntext-color=#eceff4\nborder-color=#88c0d0\nborder-size=2\ndefault-timeout=5000\n'
 
 class Controls(unittest.TestCase):
@@ -29,6 +31,17 @@ class Controls(unittest.TestCase):
  def test_complete_inert_preflight_and_stage_without_actor(self):
   value,pins=self.valid();plan=self.execute_preflight(value,pins);self.assertFalse(plan['work'].exists());R.stage(plan)
   self.assertEqual((plan['work']/'mako.conf').read_bytes(),STYLE);self.assertEqual((plan['work']/'done/usr/share/cachy-asahi/fish-done/done.fish').read_bytes(),b'inert payload');self.assertEqual((plan['work']/'runtime').stat().st_mode&0o777,0o700)
+ def test_archive_uses_the_same_lock_bytes_as_staging(self):
+  value,pins=self.valid();lock=self.root/'done-lock.json';verified=lock.read_bytes()
+  ordinary=R.ordinary
+  def replace_after_verification(path,*args,**kwargs):
+   held=ordinary(path,*args,**kwargs)
+   if Path(path)==lock:lock.write_bytes(b'{}')
+   return held
+  with patch.object(R,'ordinary',side_effect=replace_after_verification):
+   plan=self.execute_preflight(value,pins)
+  self.assertEqual(plan['sources']['done-lock.json'],verified)
+  self.assertEqual(set(plan['payload']),set(json.loads(verified)['payload']))
  def test_wrong_binary_hash_refuses_before_actor_and_work(self):
   value,pins=self.valid();value['tools']['mako']['sha256']='0'*64
   with self.assertRaisesRegex(ValueError,'hash/drift'):self.execute_preflight(value,pins)
@@ -131,5 +144,109 @@ class ReadinessControls(unittest.TestCase):
   self.assertEqual(ready(observer,probe,healthy,clock=clock,sleep=sleep)['attempts'],1)
   source=(HERE/'controller.py').read_text();self.assertEqual(source.count("row['monitor_readiness']=monitor_ready("),1)
   self.assertEqual(source.count("target=W/(stage+'.ppm')"),1);self.assertIn("timeout=2)",source);self.assertIn('time.monotonic()+3.5',source)
+
+
+class TerminalControls(unittest.TestCase):
+    def terminal(self, prompt, reply):
+        terminal = object.__new__(F.Terminal)
+        terminal.process = SimpleNamespace(pid=42, poll=lambda: None)
+        terminal.output = bytearray(prompt)
+        terminal.send = Mock(side_effect=lambda _: terminal.output.extend(reply))
+        terminal.pump = Mock(side_effect=AssertionError('unexpected PTY read from inert transcript'))
+        return terminal
+
+    def test_foreground_continuation_reads_exact_lf_and_crlf_status_lines(self):
+        for status, ending in ((0, b'\n'), (7, b'\r\n')):
+            with self.subTest(status=status):
+                prompt = f'FDM_PROMPT_2_{status}'.encode() + ending
+                reply = ending.join([f'FDM_CONT_{status}'.encode(), b'FDM_PROMPT_3_0', b''])
+                terminal = self.terminal(prompt, reply)
+                result = terminal.continuation(status)
+                self.assertEqual((result['prompt_status'], result['caller_continuation']), (status, status))
+                terminal.send.assert_called_once_with('__fdm_continue $status\n')
+
+    def test_foreground_refuses_70_as_7_in_either_status_line(self):
+        for prompt, reply, reason in (
+                (b'FDM_PROMPT_2_70\r\n', b'FDM_CONT_70\r\n', 'prompt status differs'),
+                (b'FDM_PROMPT_2_7\r\n', b'FDM_CONT_70\r\n', 'caller status differs'),
+                (b'FDM_CONT_7\r\nFDM_PROMPT_2_7\r\n', b'FDM_CONT_70\r\n', 'caller status differs')):
+            with self.subTest(prompt=prompt), self.assertRaisesRegex(ValueError, reason):
+                self.terminal(prompt, reply + b'FDM_PROMPT_3_0\r\n').continuation(7)
+
+    def test_incomplete_prompt_status_waits_for_the_next_chunk(self):
+        terminal = self.terminal(b'FDM_PROMPT_2_7', b'FDM_CONT_7\r\nFDM_PROMPT_3_0\r\n')
+        terminal.pump = Mock(side_effect=lambda: terminal.output.extend(b'0\r\n'))
+        with self.assertRaisesRegex(ValueError, 'prompt status differs'):
+            terminal.continuation(7)
+        terminal.pump.assert_called_once()
+        terminal.send.assert_not_called()
+
+    def test_background_receipt_refuses_status_prefixes(self):
+        child = dict(pid=43, parent_pid=42, process_group=43, start_ticks=4,
+                     executable='/usr/bin/sleep', argv=['sleep', '8'])
+        watch = dict(child=child, registration_status=0, handler_registered=True,
+                     caller_before_completion=True)
+        retired = dict(child=child, handler_absent=True, pid_absent=True, process_group_absent=True)
+        raw = b'FDM_WATCH_43_0\r\nFDM_PROMPT_2_0\r\nFDM_CONT_0\r\nFDM_BG_RETIRED_43\r\n'
+        F.verify_background(watch, 42, raw, retired)
+        for marker in (b'FDM_PROMPT_2_0', b'FDM_CONT_0'):
+            with self.subTest(marker=marker), self.assertRaisesRegex(ValueError, 'order differs'):
+                F.verify_background(watch, 42, raw.replace(marker, marker + b'0'), retired)
+
+
+class FrameControls(unittest.TestCase):
+ def setUp(self):
+  spec=importlib.util.spec_from_file_location('native_graphics_capture',HERE/'capture.py')
+  self.capture=importlib.util.module_from_spec(spec);spec.loader.exec_module(self.capture)
+  tree=ast.parse((HERE/'controller.py').read_text())
+  nodes=[node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name in ('image_roi','read_frame')]
+  self.helpers={'O':R,'capture':self.capture,'os':os,'stat':stat}
+  exec(compile(ast.Module(body=nodes,type_ignores=[]),'<owned-frame>','exec'),self.helpers)
+  temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup)
+  self.path=Path(temp.name)/'original.ppm'
+  self.header=b'P6\n1024 768\n255\n'
+
+ def test_border_tolerance_and_receipt_match_original_frame_scorer(self):
+  colors=self.capture.COLORS
+  border=bytes(channel+offset for channel,offset in zip(colors['border'],(-6,6,-6)))
+  pixels=bytearray(1024*768*3)
+  pixels[:3]=bytes(channel+offset for channel,offset in zip(colors['border'],(0,0,7)))
+  box={'x':879,'y':730,'w':145,'h':38}
+  for y in range(730,768):
+   line=border*145 if y in (730,767) else border*2+bytes(colors['background'])*141+border*2
+   start=(y*1024+879)*3
+   pixels[start:start+len(line)]=line
+  text_start=(735*1024+900)*3
+  pixels[text_start:text_start+90]=bytes(colors['text'])*30
+  self.path.write_bytes(self.header+pixels)
+  raw=self.helpers['read_frame'](self.path)
+  expected=self.capture.notification_pixels(self.path,box)
+  actual=self.helpers['image_roi'](raw,R.sha(raw))
+  self.assertEqual(actual.pop('roi_basis'),'Image-derived bounding rectangle of shipped border color on this private empty output; NOT original Hyprland geometry proof')
+  self.assertEqual(actual,expected)
+  self.assertEqual(actual['status'],'PASS_PIXEL_PRESENCE_PENDING_READABILITY')
+
+ def test_missing_border_and_malformed_frame(self):
+  raw=self.header+bytes(1024*768*3)
+  self.assertEqual(self.helpers['image_roi'](raw,R.sha(raw)),{
+      'status':'FAIL_NOTIFICATION_PIXELS_ABSENT','frame_sha256':R.sha(raw),
+      'roi_basis':'No border pixels in original first image'})
+  with self.assertRaisesRegex(ValueError,'original native PPM shape'):
+   self.helpers['image_roi'](raw[:-1],R.sha(raw[:-1]))
+
+ def test_frame_read_requires_ordinary_bounded_file(self):
+  self.path.symlink_to(self.path.with_name('missing'))
+  with self.assertRaises(OSError):
+   self.helpers['read_frame'](self.path)
+  self.path.unlink()
+  os.mkfifo(self.path)
+  with self.assertRaisesRegex(ValueError,'ordinary original frame'):
+   self.helpers['read_frame'](self.path)
+  self.path.unlink()
+  with self.path.open('wb') as stream:
+   stream.truncate(8*1024**2+1)
+  with self.assertRaisesRegex(ValueError,'bounded original frame'):
+   self.helpers['read_frame'](self.path)
+
 
 if __name__=='__main__':unittest.main()

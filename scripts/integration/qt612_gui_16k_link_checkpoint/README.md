@@ -3,9 +3,10 @@
 The pinned Q3 Ninja graph contains 639 commands for `lib/libQt6Gui.so`,
 including all 321 commands for `lib/libQt6Core.so`. The remaining
 multiset has 318 commands and 294 compiler edges. It includes QtDBus and
-the real QtGui shared-library link against system md4c. A future guest
-dry run measures the actual remaining work against the retained Core
-overlay. [QtCore checkpoint](../qt612_base_16k_link_preflight/README.md)
+the QtGui shared-library link against system md4c. The November 22 guest
+dry run confirmed all 318 remaining steps against the retained Core overlay.
+[QtGui validation](../../../docs/validation/qtbase612-emulated-arm16k-qtgui-link-20261122.md)
+· [QtCore checkpoint](../qt612_base_16k_link_preflight/README.md)
 
 ```sh
 lane=scripts/integration/qt612_gui_16k_link_checkpoint
@@ -126,14 +127,14 @@ python3 -I -B -Werror "$sealed/site.py" --handoff "$handoff" \
 
 The passive preflight checks the sealed source, carrier pins, external
 input documents, and live host capacity without opening Docker or QEMU.
-Once Root separately issues the exact binding, the site can claim one
-attempt in its own user scope. The original Q3, R4, and Core scopes and
-container IDs must each be absent on two checks.
+Once Root separately issues the exact binding to `$issued_entry`, the
+site can claim one attempt in its own user scope. The original Q3, R4,
+and Core scopes and container IDs must each be absent on two checks.
 
 ```sh
 systemd-run --user --scope --unit=cachy-asahi-qtbase16k-qtgui-link.scope \
   /usr/bin/python3 -I -B -Werror "$sealed/site.py" --handoff "$handoff" \
-  --handoff-sha256 "$handoff_sha" run --authority "$root_selection" \
+  --handoff-sha256 "$handoff_sha" run --authority "$issued_entry" \
   --authority-sha256 "$authority_sha"
 ```
 

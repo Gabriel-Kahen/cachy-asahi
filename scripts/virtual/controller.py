@@ -29,6 +29,11 @@ from common import (GIB, IMAGE_SHA, OVERLAYS, SAFE_CAPS, allocated, bounded, dig
 
 LOCK_PIN = 'c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0'
 AUDIT_PIN = 'd3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095'
+# Historical and maintained bases differ only in Vim and Vim Runtime, outside the tooling closure.
+COMPATIBLE_BASE_INPUTS = (
+    '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650',
+    'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f',
+)
 AUDITOR_PIN = '6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc'
 CORE = {
     'common.py': 'aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03',
@@ -92,10 +97,8 @@ def native_guard():
 
 
 def accepted_base_inputs(actual, tooling_base):
-    # Reviewed successor changes only vim/vim-runtime, outside the tooling closure.
     return actual == tooling_base or (
-        tooling_base == '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
-        and actual == 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f')
+        actual in COMPATIBLE_BASE_INPUTS and tooling_base in COMPATIBLE_BASE_INPUTS)
 
 
 def validate_input(c, root):

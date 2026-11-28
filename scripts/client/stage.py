@@ -6,7 +6,8 @@ No image building, downloads, package installation, signing-key export or CI dis
 Only a sanitized receipt leaves the disposable container; no raw test logs do.
 """
 import argparse
-from contextlib import contextmanager, redirect_stderr, redirect_stdout
+from contextlib import contextmanager, redirect_stderr, redirect_stdout, suppress
+import errno
 import hashlib
 import importlib.util
 import json
@@ -96,23 +97,30 @@ TEST_IDS = frozenset({
 
 SIGNALS = {signal.SIGTERM, signal.SIGINT}
 CANCELLED = False
+RECEIPT_COMMITTED = False
 
 
 class Cancelled(KeyboardInterrupt):
     pass
 
 
+class ReceiptRecovery(OSError):
+    pass
+
+
 def interrupt(*_):
     global CANCELLED
-    CANCELLED = True
-    raise Cancelled()
+    if not RECEIPT_COMMITTED:
+        CANCELLED = True
+        raise Cancelled()
 
 
 @contextmanager
 def defer_signals():
     def remember(*_):
         global CANCELLED
-        CANCELLED = True
+        if not RECEIPT_COMMITTED:
+            CANCELLED = True
     previous = {sig: signal.signal(sig, remember) for sig in SIGNALS}
     try:
         yield
@@ -123,14 +131,16 @@ def defer_signals():
 
 @contextmanager
 def cancellation_handlers():
-    global CANCELLED
+    global CANCELLED, RECEIPT_COMMITTED
     CANCELLED = False
+    RECEIPT_COMMITTED = False
     previous = {sig: signal.signal(sig, interrupt) for sig in SIGNALS}
     try:
         yield
     finally:
         for sig, handler in previous.items():
             signal.signal(sig, handler)
+        RECEIPT_COMMITTED = False
 
 
 def need(ok, reason):
@@ -359,27 +369,135 @@ def run_tests(home):
             'status': 'PASS' if result.testsRun == TEST_COUNT and result.wasSuccessful() and not result.skipped else 'FAIL'}
 
 
+@contextmanager
+def receipt_staging(parent):
+    name = '.receipt-' + os.urandom(12).hex()
+    os.mkdir(name, mode=0o700, dir_fd=parent)
+    try:
+        directory = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+        try:
+            yield directory, name
+        finally:
+            try:
+                with suppress(FileNotFoundError):
+                    os.unlink('payload', dir_fd=directory)
+            finally:
+                with suppress(OSError):
+                    os.close(directory)
+    finally:
+        primary = sys.exception()
+        try:
+            os.rmdir(name, dir_fd=parent)
+        except OSError as error:
+            # Empty staging retirement happens after the receipt decision.
+            if error.errno != errno.ENOTEMPTY and primary is not None:
+                primary.add_note('receipt staging retirement uncertainty: ' + type(error).__name__)
+
+
+def retract_receipt(parent, name, original, staging, staging_name):
+    try:
+        current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+    except FileNotFoundError:
+        return False
+    if not os.path.samestat(current, original):
+        return False
+
+    try:
+        os.rename(name, 'recovery', src_dir_fd=parent, dst_dir_fd=staging)
+    except FileNotFoundError:
+        return False
+    # Only the entry actually moved into private staging can authorize deletion.
+    moved = os.stat('recovery', dir_fd=staging, follow_symlinks=False)
+    if os.path.samestat(moved, original):
+        os.unlink('recovery', dir_fd=staging)
+        return True
+
+    import ctypes
+
+    rename = getattr(ctypes.CDLL(None, use_errno=True), 'renameat2', None)
+    error = errno.ENOSYS
+    # Restore any entry type, with no overwrite if the public name filled again.
+    if rename is not None:
+        if rename(staging, b'recovery', parent, os.fsencode(name), 1) == 0:  # RENAME_NOREPLACE
+            return True
+        error = ctypes.get_errno()
+    for directory_fd in (staging, parent):
+        with suppress(OSError):
+            os.fsync(directory_fd)
+    raise ReceiptRecovery(error, 'receipt rollback retained a replacement', staging_name + '/recovery')
+
+
 def finalize_receipt(path, report):
-    """Only structured evidence; a signal during write/fsync cannot leave PASS."""
-    def encode():
-        data = json.dumps(report, indent=2, sort_keys=True).encode() + b'\n'
-        need(len(data) <= LIMIT, 'receipt-byte-bound')
-        return data
+    """Sync evidence privately before publication and retire failed publications."""
+    global RECEIPT_COMMITTED
+    path = Path(path).absolute()
+
     with defer_signals():
-        if CANCELLED:
-            report.update(status='FAIL', cancelled=True)
-        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
-        with os.fdopen(fd, 'wb') as stream:
-            stream.write(encode())
-            stream.flush()
-            os.fsync(stream.fileno())
-            if CANCELLED and (report['status'] != 'FAIL' or report.get('cancelled') is not True):
-                report.update(status='FAIL', cancelled=True)
-                stream.seek(0)
-                stream.truncate()
-                stream.write(encode())
-                stream.flush()
-                os.fsync(stream.fileno())
+        parent = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        complete = False
+        try:
+            parent_info = os.fstat(parent)
+            while True:
+                cancelled = CANCELLED
+                if cancelled:
+                    report.update(status='FAIL', cancelled=True)
+                data = json.dumps(report, indent=2, sort_keys=True).encode() + b'\n'
+                need(len(data) <= LIMIT, 'receipt-byte-bound')
+                with receipt_staging(parent) as (staging, staging_name):
+                    fd = os.open('payload', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=staging)
+                    linked = False
+                    try:
+                        with os.fdopen(fd, 'wb', closefd=False) as stream:
+                            info = os.fstat(fd)
+                            os.fchmod(fd, 0o600)
+                            stream.write(data)
+                            stream.flush()
+                            os.fsync(fd)
+                            if CANCELLED and not cancelled:
+                                continue
+                            os.link('payload', path.name, src_dir_fd=staging, dst_dir_fd=parent, follow_symlinks=False)
+                            linked = True
+                        os.unlink('payload', dir_fd=staging)
+                        published = os.fstat(fd)
+                        os.fsync(parent)
+                        need(os.path.samestat(path.parent.lstat(), parent_info), 'receipt-parent-changed')
+                        need(read(path) == data, 'receipt-file-changed')
+                        visible = path.lstat()
+                        need(os.path.samestat(visible, published) and visible.st_nlink == 1
+                             and visible.st_size == published.st_size and visible.st_mtime_ns == published.st_mtime_ns
+                             and visible.st_ctime_ns == published.st_ctime_ns
+                             and stat.S_IMODE(visible.st_mode) == 0o600, 'receipt-file-changed')
+                        need(os.path.samestat(path.parent.lstat(), parent_info), 'receipt-parent-changed')
+                        # Close the cancellation window before checking the last latched signal.
+                        # The synced, verified receipt is authoritative during descriptor release.
+                        RECEIPT_COMMITTED = True
+                        if CANCELLED and not cancelled:
+                            RECEIPT_COMMITTED = False
+                            continue
+                        complete = True
+                        return
+                    finally:
+                        primary = sys.exception()
+                        try:
+                            if linked and not complete and retract_receipt(parent, path.name, info, staging, staging_name):
+                                with suppress(OSError):
+                                    os.fsync(parent)
+                        except OSError as error:
+                            if primary is None:
+                                raise
+                            if isinstance(error, ReceiptRecovery):
+                                primary.publication_recovery = error.filename
+                            primary.add_note(str(error))
+                        finally:
+                            # Keep the inode pinned until rollback has compared ownership.
+                            with suppress(OSError):
+                                os.close(fd)
+        finally:
+            if complete:
+                with suppress(OSError):
+                    os.close(parent)
+            else:
+                os.close(parent)
 
 
 def worker(args):
@@ -648,8 +766,11 @@ def main():
         print(json.dumps({'status': report['status'], 'native_client_tests': report['native_client_tests'],
                           'container_cleanup': report['container_cleanup']}))
         return 0 if report['status'] == 'PASS' else 1
-    except (ValueError, OSError, KeyError, TypeError, subprocess.SubprocessError, KeyboardInterrupt):
+    except (ValueError, OSError, KeyError, TypeError, subprocess.SubprocessError, KeyboardInterrupt) as error:
         print('FAIL: client stage boundary/input refusal', file=sys.stderr)
+        recovery = error.filename if isinstance(error, ReceiptRecovery) else getattr(error, 'publication_recovery', None)
+        if isinstance(recovery, str) and re.fullmatch(r'\.receipt-[0-9a-f]{24}/recovery', recovery):
+            print(f'Recovery retained in the original output directory at {recovery}', file=sys.stderr)
         return 1
 
 

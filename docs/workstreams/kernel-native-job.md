@@ -1,35 +1,168 @@
 # Standalone hosted native kernel job
 
-The current child-diagnostics correction is source implementation pending
-independent review and coordinator rebind; see
-[the exact diagnostic contract](kernel-child-diagnostics-correction.md).
-Actual run 38270726379 accepted the original producer and acquisition, then
-failed at `kernel/KERNEL_EXIT`. Its schema-3 record retains cleanup FAIL,
-baseline preservation/owned absence UNVERIFIED, and no established child
-compiler invocation. The first child predicate is unknown. This correction
-does not reinterpret that trial or change cleanup timers.
+The kernel trial selects the 341-package inventory derived from the current
+signed input lock and the four recipes in this checkout. Its fifteen signed
+kernel dependency additions produce an exact 356-package inventory. This is a
+development build configuration. Native build-pair acceptance, boot,
+installation, M2 hardware and performance remain open.
 
-The earlier baseline-preservation correction was source implementation pending
-independent review and coordinator rebind. Historical run 38253531983 executed
-commit `dcc170af543f3238f33efc0c623811d6620affaa` with the 115-file packet
-`afdb5a4947acf71e511fe1266921d68149561aedb4ec5b030e841112e827d9e2` and
-failed at `source/DAEMON_OCCUPIED`, before either child ran. The old guard
-short-circuited image inventory and used the same fallback for query failures;
-that evidence does not establish image/container counts or preservation.
-Its resource readings passed the initial guards. Original producer execution
-did not run in that first trial. Both full kernel compilations remain unaccepted;
-kernel execution, installation and M2 validation remain NOT RUN; performance
-remains NOT MEASURED.
-The old 130-test/schema 2/kernel24 e47/job115 afdb evidence remains historical.
-The new six source/test candidates and two guides are not authenticated by those
-old locks. Original producer, platform tuple, recipes, workflow, packet.py,
-locks and Git are unchanged by this correction. See the selected
-[baseline contract](kernel-daemon-baseline-proposal.md) and historical
-[API/start compatibility record](kernel-docker-compatibility.md).
+Run [38690790542](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38690790542)
+recorded baseline build command exit 0 and output verification failure at
+`CHECK_010`. The candidate did not run. Run
+[38712796442](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38712796442)
+later recorded the precise failed check: `INFO_RELATIVE` at entry index 3 in
+a null-linked, allocated Image RELA section, with `r_info = 0` and
+`r_offset = 0`. The pinned ARM64 relocator skips type-zero entries. The
+verifier now accepts that Image RELA no-op, checks all eight bytes of each
+writing RELA or RELR destination, and includes both relocation tables in
+the full ELF-to-Image byte comparison.
+
+Run [45698226968](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45698226968)
+passed hosted SSH intake, producer, dependency acquisition, toolchain probe and
+scoped Docker cleanup. The baseline build command exited zero. Output checking
+stopped at `CHECK_010`, entry 28853 in the null-linked Image `.rela.dyn`.
+Its `r_info` is `0x1c00000401` (symbol index 28, `R_AARCH64_GLOB_DAT`).
+The runtime scan is bounded by `__pi_rela_start` and `__pi_rela_end`.
+The bounded receipt omits those symbol values, so this entry's membership
+in the runtime range is unknown. If the scan reaches it, the pinned ARM64
+relocator skips it because the scan applies only `R_AARCH64_RELATIVE`.
+That verifier revision admitted the observed GLOB_DAT form.
+
+Run [45707773620](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45707773620)
+passed the same intake, provisioning, probe and cleanup gates. Its baseline
+build command returned zero. The verifier passed the prior entry and refused
+the adjacent entry 28854 with `r_info = 0x1b00000101` (symbol index 27,
+`R_AARCH64_ABS64`). The corrected verifier uses the pinned relocator's
+low-32-bit type test for the allocated, null-linked ET_DYN Image table.
+Only `R_AARCH64_RELATIVE` requires a canonical zero symbol index and a fully
+mapped eight-byte destination. Other records remain in the full ELF-to-Image
+byte comparison. The earlier receipts establish compilation command success
+and verifier refusal. The clean native pair and boot remain pending.
+
+Run [45717672590](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45717672590)
+completed the baseline build command and the RELA scan. Its census counted
+28,850 NONE, three ABS64, one GLOB_DAT and three RELATIVE entries, with full
+aligned slots for all seven nonzero-type entries. The output verifier stopped at
+`CHECK_059`, a defined symbol outside its allocated section. The receipt
+omits the symbol name. The candidate did not start and scoped Docker cleanup
+passed with all six preexisting images preserved.
+
+The exact GNU AArch64 linker from the pinned rootfs reproduced the source's
+post-BSS `_end` placement in a local QEMU user-mode linker fixture. It emitted
+a zero-size global `_end` associated with `.bss` at a 64 KiB boundary beyond
+the section and final load segment. The verifier permits this exact ET_DYN
+Image anchor when its value also equals the verified Image entry plus the
+effective Image size. Ordinary exports retain their section bounds. The
+linker fixture establishes the layout behavior. Identifying the rejected
+symbol from the hosted artifact and native pair qualification remain open.
+
+Run [45726872408](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45726872408)
+passed the baseline compile, Image projection, and embedded configuration
+checks. The verifier then refused an ELF section in a relocatable module at
+`CHECK_011`. The receipt does not identify the section. The candidate did not
+start. The pinned GNU linker reproduced allocated module sections whose file
+offsets were eight-byte aligned and whose declared destination alignments were
+32 or 64 bytes. The verifier now separates those constraints for copied module
+sections and keeps raw descriptor, symbol table, and RELA reads aligned.
+
+Run [45757694585](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45757694585)
+completed the baseline build command with exit 0. Output verification reached
+the module dependency check and refused at `CHECK_071`. The candidate did
+not start and the runner preserved all six initial Docker images. The pinned
+Kbuild code writes original provider basenames in `depends` and uses an
+underscored name for the module's `name` field. The verifier now matches the
+original basenames and still refuses ambiguous module names, unknown providers,
+duplicates and self-dependencies. The regression reproduces the mismatch.
+The hosted receipt leaves the first failing module unidentified.
+[Pinned dependency writer](https://github.com/AsahiLinux/linux/blob/94fb23346d522edf53722357c426a3e58030beea/scripts/mod/modpost.c#L1871-L1896)
+
+On November 25, the pinned public mirror returned HTTP 404 for 210 of 501
+producer input files. This included the bubblewrap, jbigkit and libtiff
+archive/signature pairs. Eight extension archive/signature pairs were
+also unavailable: clang, compiler-rt, libgit2, libxslt, lld, llvm, rust and
+rust-src. On November 26, the remaining public route also returned HTTP 404
+for the locked `gtk-update-icon-cache` and `libinput` archive/signature pairs.
+The retained copies match all four original byte and signature checks.
+The SSH route covers 230 files. The other inputs use the original locked
+URLs and must pass the existing byte and signature checks.
+[Kernel dependency pins](../../scripts/port/kernel-native-stage/dependencies.json)
+
+Runs [45765124377](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45765124377)
+and [45765742023](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45765742023)
+both stopped in the producer before either kernel build. The producer exited
+1 first and the acquisition child was cancelled. Both runs verified
+preservation of all six original Docker images. Run-owned absence remained
+unverified, and the published receipts could not identify the producer's
+exact cause.
+
+Run [45766930508](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45766930508)
+passed retained input intake, producer, acquisition, provisioning and the
+compiler probe. The baseline build command returned zero. The verifier refused
+module 150 at `CHECK_011` and the candidate did not start. The section name
+digest matches `.debug_aranges`. The section was an unallocated `ET_REL`
+`SHT_PROGBITS`, with 192 bytes at file offset 1,336 and declared alignment 16.
+The pinned GNU AArch64 linker reproduced that exact geometry with `ld -r`.
+Its relocatable section layout caps file alignment at eight bytes while
+carrying the declared address alignment in the section header. The verifier
+now accepts this exact nonallocated section form and still checks its file
+range and overlaps. The earlier 28,857-entry Image RELA census was retained.
+Cleanup passed and all six original Docker images were preserved.
+[Pinned linker layout](https://gnu.googlesource.com/binutils-gdb/+/155188ea10a7/bfd/elf.c#6888)
+· [ELF section address alignment](https://gabi.xinuos.com/elf/03-sheader.html#section-header-table-entry)
+
+Run [45774638440](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45774638440)
+again passed acquisition, provisioning, the compiler probe and the baseline
+build command. Its output verifier stopped with an unclassified exception.
+The candidate did not start. Cleanup passed and all six initial Docker images
+were preserved. The published receipt does not identify the exception.
+
+The output verifier treated all `.modinfo` text as unformatted ASCII. Enabled
+modules in the pinned source include UTF-8 author text and help strings with
+tabs and line breaks. The verifier now accepts printable UTF-8, tabs and line
+feeds in `author`, `description` and `parm`. It keeps ASCII keys and structural
+metadata, and gives malformed display text a bounded refusal. A new output
+diagnostic reports an unclassified exception's verification stage and a fixed
+fault category.
+[Pinned Apple SIO module](https://github.com/AsahiLinux/linux/blob/94fb23346d522edf53722357c426a3e58030beea/drivers/dma/apple-sio.c#L940)
+
+For private SSH intake, dispatch with `retained_inputs=true` and
+`retained_transport=ssh`. The authenticated intake step shallow-fetches
+three exact refs from the private `Gabriel-Kahen/cachy-asahi-ci-inputs`
+repository. Each ref must resolve to the pinned parentless commit, tree and
+regular-blob inventory.
+
+| Branch | Commit | Tree | Files |
+| --- | --- | --- | --- |
+| `native623-r1` | `b429266444c82238783044301ceb0f8d08bbf3f6` | `a8f1cd41e3aadeee9a25bc3b96e14c823de870aa` | 6 base, 16 extension |
+| `native623-base-r2` | `6d2e0ee29159be52744c1fd8b8109dbce7f09c93` | `af22c8f7619135a3bc6a22f6f7d7e12723cbc1d8` | 26 additional base |
+| `native349-r1` | `9d9e1ab7ce694e33238ec1152bef72270d4bf91f` | `cc6298d8dbbb5b0dd522de76b7140306d83bfe7a` | 182 base, one manifest |
+
+The SSH step pins GitHub's Ed25519 host key and the fingerprint of the existing
+read-only repository deploy key. Only this step receives
+`CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY`. The step removes its key file before
+checking out payload bytes and removes its temporary Git store before returning.
+It leaves `native349-r1` intact and verifies that branch's manifest without
+passing it to either child. The Git/SSH commands share a 210-second deadline
+inside a four-minute workflow step. The native step retains its 346-minute
+budget and the full workflow retains its 360-minute ceiling.
+
+The same step supports `retained_transport=https` with the
+`KERNEL_NATIVE_RETAINED_INPUTS_URL` Actions secret for the original 22
+retained files. It accepts a single direct
+HTTPS response for the 152391680-byte USTAR archive with SHA-256
+`0a3e3661754e2c194895e5ada5e075866c99b3702b9361bb3b3395ae665c81fa`.
+The intake step writes a private directory for this run attempt and exposes
+only its GitHub Actions outcome to the next step. The native job independently
+copies and verifies each file against its original size and SHA-256. The base
+files seed the producer's private `alarm-cache`. Sixteen extension files seed
+the acquisition child's `--reuse-cache`, which is removed when the parallel
+children stop. Both children still enforce their original GPG signature
+verification. Failed intake refuses both children. The final workflow step
+removes the temporary runner handoff and publishes the bounded job status.
 
 The manual [workflow](../../.github/workflows/native-arm-kernel.yml) runs only
 in the public `Gabriel-Kahen/cachy-asahi` repository on `ubuntu-24.04-arm`.
-It grants `contents: read`, uses the existing `native-arm-build` concurrency
+It grants `contents: read`, uses the `native-arm-kernel` concurrency
 group without cancelling prior jobs, pins checkout to
 `3d3c42e5aac5ba805825da76410c181273ba90b1`, and disables persisted credentials.
 There are no artifact/cache upload actions, host package installs, global Docker
@@ -37,30 +170,37 @@ prunes, scheduled runs or hardware acceptance claims.
 
 ## Source and input closure
 
-[packet.py](../../scripts/port/kernel-native-job/packet.py) binds the exact
-71 original recipe files, eight producer/source helpers, the frozen 24-file
-kernel stage and its source lock, original input/recipe locks, and this job's
-Python sources, workflow and guide. Overlap gives 105 fixed existing files;
-new source files are added to the finite closure. The complete map is limited
-to 256 files, 8 MiB per file and 32 MiB total. Directory walks stop at 1,024
-entries/depth 16. Files must be single-link regular files with ordinary directory
-ancestors and mode 0644/0755. Private captured receipts may use mode 0600.
-
-The immutable pins are:
+[packet.py](../../scripts/port/kernel-native-job/packet.py) binds 76 recipe
+files, the producer and its helpers, the 28-file kernel stage, the workflow
+and the job sources. Each source row binds the SHA-256, byte length and
+executable mode. The complete map is limited to 256 files, 8 MiB per file
+and 32 MiB total. Directory walks stop at 1,024 entries and depth 16. Source
+files must be single-link regular files with ordinary directory ancestors
+and mode 0644 or 0755. Private receipts may use mode 0600.
 
 | Input | SHA256 |
 | --- | --- |
-| Original signed inputs | `3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650` |
-| Original four recipes | `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63` |
-| Accepted 341-package inventory | `89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f` |
-| Coordinator-held kernel24 source lock after API/start correction | `e47d873cd1f8ff542ec1ffd3a5de4b51db4d890f28bc6f1dddbc27d989db0d5a` |
-| Separate signed fifteen-package extension | `cf4d6eaa80ab15f1b1359d161b7b07e187f37df6071e5f628e235cb9689a93d6` |
+| Signed builder inputs | `beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f` |
+| Kernel job's four recipes | `56c53699b1c9a493798a071a537ae17d5b892ffa9618ca99a3465985a51fcef8` |
+| 341-package inventory | `fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25` |
+| Fifteen-package extension | `aa5f5580f10256f5749bbc86ec0abc0420981d935f37e84672298fa38d72cfe4` |
 
-The coordinator must rebind and independently review
-`scripts/port/kernel-native-job/packet.lock.json`, commit every included source
-file and register the workflow. The workflow requires the external packet hash
-with no default. The existing `packet.preview(root)` and source fixtures support that proof;
-this correction does not register a new packet, mutate Git or dispatch a job.
+The [kernel recipe lock](../../scripts/port/kernel-native-job/recipes.lock.json)
+tracks the current Hyprland, Setup, Fish and Zsh source. The
+[stage lock](../../scripts/port/kernel-native-stage/stage.lock.json) binds
+the same inputs, recipe lock and inventory. The
+[historical packet](../../scripts/port/kernel-native-job/packet.lock.json)
+and its verifier are retained for the original qualification and the #622
+producer binding. To replay the historical workflow, use its original
+matching checkout, workflow revision and packet SHA-256.
+
+The current workflow uses the
+[v3 successor packet](../../scripts/port/kernel-native-job-v3/packet.lock.json).
+It pins the current builder and comparator and retains the v2 Setup producer
+projection. The [dispatch prerequisites](../../scripts/port/kernel-native-job-v3/README.md)
+describe the matching commit, independent digest review and native authority.
+The [v2 seal](../../scripts/port/kernel-native-job-v2/packet.lock.json) and its
+historical replay remain available at their reviewed revisions.
 
 Before executing repository code, an inline standard-library bootstrap captures
 and authenticates the packet and every source row, compares actual Git blobs and
@@ -71,9 +211,10 @@ validation and copies the source to a new private producer snapshot. Hashing
 and JSON parsing use the same captured bytes; links, duplicate keys, nonfinite
 numbers, mutation races and incomplete closures are refused.
 The inline preflight copies only authenticated source rows into a fresh
-bootstrap snapshot and launches the job there. Python's `-B` does not prevent
-loading existing bytecode, so root checkout caches/extensions are deliberately
-outside the execution tree. The original producer and kernel controller execute
+bootstrap snapshot. The retained and native steps authenticate the committed
+source again, recheck the snapshot and execute the captured entry and local
+module bytes. Filesystem imports use the initial isolated interpreter paths.
+The original producer and kernel controller execute
 from the fresh private producer snapshot; the kernel controller's `--root`
 still names the actual Git checkout for its independent committed-source proof.
 
@@ -89,7 +230,7 @@ a maximum below 1.48, a minimum above 1.48 or a malformed range. It does not
 negotiate a different request version.
 Initial container and image queries run independently with typed bounds.
 Containers must be empty. Existing images are captured as protected borrowed
-baseline B before the unchanged producer starts; failure to observe them is
+baseline B before the producer starts; failure to observe them is
 UNVERIFIED, never an empty population. This is observed preservation on a
 cooperative disposable VM, not enforced isolation against outside writers.
 Require at least 15 GiB reported physical memory, 14 GiB available memory and
@@ -97,21 +238,21 @@ Require at least 15 GiB reported physical memory, 14 GiB available memory and
 Existing Git, GPG, lscpu, zstd, Docker and Python executables are required.
 Missing tools/resources are a visible refusal; no installation fallback runs.
 
-The original producer is executed directly from the verified snapshot:
+The job executes the producer directly from the verified snapshot.
 
 ```text
 /usr/bin/python3 -I -B <snapshot>/scripts/ci/native_arm.py build
   --inputs <snapshot>/scripts/ci/inputs.lock.json
-  --inputs-sha256 <original fixed input hash>
-  --recipes <snapshot>/scripts/ci/recipes.lock.json
-  --recipes-sha256 <original fixed recipe hash>
+  --inputs-sha256 <reviewed input hash>
+  --recipes <snapshot>/scripts/port/kernel-native-job/recipes.lock.json
+  --recipes-sha256 <reviewed recipe hash>
   --cache <private>/alarm-cache --output <private>/producer
 ```
 
 There is no FDK producer override or integration mode. The child has an explicit
 environment, private empty Docker configuration/home, the local endpoint and
-`DOCKER_BUILDKIT=0`. It authenticates the original 501 inputs and builds the
-four original packages twice with byte comparison. The job requires child exit
+`DOCKER_BUILDKIT=0`. It authenticates the 501 pinned inputs and builds the
+four recipes twice with byte comparison. The job requires child exit
 zero and captures the actual bound result/bootstrap/runner/image/inventory/input
 receipts before accepting the base. The original producer's PASS establishes
 those native builds; it does not establish original ARM-C01 experiment lifecycle
@@ -237,14 +378,48 @@ performance stays NOT MEASURED and release selection stays false.
 
 ## Closed failure diagnostics
 
-Historical schema version 3 has exactly 25 top-level keys: the previous 24 fields
-plus `daemon_baseline`. Current schema 4 adds only `kernel_child`, for 26 keys.
-The projector retains the exact schema-3 validation/outcome semantics for
-historical records; schema 4 additionally requires bound verified child
-diagnostics and an actual zero child return for PASS. Versions 1/2 and
-missing/extra fields are refused. Historical evidence is retained unchanged. The
+Historical schema version 3 has exactly 25 top-level keys. Current schema 4
+adds `kernel_child` and permits bounded diagnostic fields for parallel,
+acquisition and producer failures. The projector retains the schema-3
+validation and outcome semantics. Schema 4 requires bound verified child
+diagnostics and an actual zero child return for PASS. Versions 1 and 2 and
+unknown fields are refused. Historical evidence is retained unchanged. The
 16 KiB public-record bound, source/packet binding and actual native-step outcome
 gate are unchanged. Diagnostics grant no execution or hardware acceptance.
+
+For a producer-first exit 1, the diagnostic verifies the terminal result
+against the observed producer command and its final output. It compares
+the private acquisition receipt with all 501 locked inputs and reports
+only the phase, acquisition state and counts for HTTP 404, other HTTP,
+transport and other failures. The first failure and cleanup status retain
+their original meaning.
+
+When the ET_DYN Image RELA table has been scanned and output verification
+fails, worker diagnostic version 6 adds a numeric census. It reports the
+whole table's entry count, up to eight distinct low-32-bit types and a
+combined count for the other types. Each type and the combined count report
+entries, fully mapped eight-byte slots and the aligned subset. The first
+failure remains authoritative, and the census contains no raw table bytes.
+
+For `CHECK_059`, worker diagnostic version 7 records the failing ELF role,
+section-relative or virtual-address coordinate system, count of rejected
+symbols, and up to two bounded symbol records from that ELF's scan. It
+retains the RELA census when available. Only fixed linker anchor names and
+fixed section classes are exposed. Other symbol names are represented by
+SHA-256 digests. A later scan error leaves the first failure intact and
+marks the count incomplete.
+
+For `CHECK_011`, worker diagnostic version 8 records the first failed file
+geometry check and bounded section facts. It includes the module ordinal when
+applicable. It retains the earlier verified Image RELA census on module
+failures, and uses a fixed section label or a name digest. Version 9 uses the
+updated `.debug_aranges` geometry rule. Historical version 8 retains its
+original file-alignment rule.
+
+Worker diagnostic version 10 reports a fixed fault category and verification
+stage for unexpected output-verification exceptions after a successful build
+command. It retains the original first failure. Raw exceptions, source text,
+filenames and traceback details stay outside the public record.
 
 `phase` remains the current lifecycle phase, including cleanup. The separate
 `first_failed_phase` and `failure_reason` describe the first failure observed by
@@ -258,7 +433,7 @@ and other exceptions use the current operation's fixed fallback.
 | --- | --- |
 | `NONE` | `NONE` |
 | `preflight` | `PREFLIGHT_REJECTED`, `HOST_CAPABILITIES`, `HOST_MEMORY_RESERVE`, `HOST_DISK_RESERVE`, `HOST_TOOL_UNAVAILABLE`, `CANCELLED` |
-| `source` | `SOURCE_REJECTED`, `DOCKER_REJECTED`, `DAEMON_OCCUPIED` (historical fallback), `DAEMON_CONTAINERS_PRESENT`, `DAEMON_BASELINE_UNVERIFIED`, `PRODUCER_TIME_RESERVE`, `CANCELLED` |
+| `source` | `SOURCE_REJECTED`, `DOCKER_REJECTED`, `DAEMON_OCCUPIED` (historical fallback), `DAEMON_CONTAINERS_PRESENT`, `DAEMON_BASELINE_UNVERIFIED`, `RETAINED_INPUTS_REJECTED`, `PRODUCER_TIME_RESERVE`, `CANCELLED` |
 | `parallel` | `PRODUCER_EXIT`, `ACQUISITION_EXIT`, `BOTH_CHILDREN_EXIT`, `PARALLEL_TIMEOUT`, `PARALLEL_OUTPUT_BOUND`, `PARALLEL_RUN_FAILED`, `CANCELLED` |
 | `producer` | `PRODUCER_RECEIPT_REJECTED`, `PRODUCER_BASELINE_ID_COLLISION`, `DAEMON_BASELINE_CHANGED`, `DAEMON_BASELINE_UNVERIFIED`, `CANCELLED` |
 | `acquisition` | `ACQUISITION_RECEIPT_REJECTED`, `CANCELLED` |

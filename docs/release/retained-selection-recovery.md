@@ -40,6 +40,11 @@ corrupt metadata store. Corrupt/incomplete target bundles or promotion records,
 expired/revoked/unavailable signer state in the supplied verification home,
 stale selection pins and unsafe storage/input ownership are also refused.
 
+A withdrawal-only generation has no selected release. Once it is the current
+generation, this command refuses retained recovery and leaves the withdrawal
+selected. Keep the withdrawal in effect until the release operator approves a
+compatible replacement through the normal release path.
+
 ## Review, sign and execute
 
 All paths must be canonical absolute paths without symlink components. Source
@@ -83,6 +88,10 @@ fresh content-addressed generation containing the authenticated target release,
 its signed promotion, all latest withdrawals, and the exact signed recovery
 authorization. It retains all earlier generations and source bundles. The plan
 contains no output generation digest, avoiding a circular hash/signature binding.
+
+Verify the resulting concrete generation with the [v2 endpoint recipient](endpoint-client.md#retained-recovery-recipient-v2)
+using the new generation digest and the externally authenticated signer and
+public keyring.
 
 The expected-current pin rejects use after the endpoint changes. It is not a
 permanently consumed nonce or a public anti-replay protocol: restoring precisely

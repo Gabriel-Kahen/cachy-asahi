@@ -30,6 +30,8 @@ atexit.register(_source_cache.cleanup)
 HERE = Path(__file__).resolve().parent
 MIB = 1024**2
 LIMIT = 64 * MIB
+MAX_KERNEL_ASSET_BYTES = 64 * MIB
+MAX_OTHER_ASSET_BYTES = 32 * MIB
 SECONDS = 60
 ROLES = {"boot-chain", "kernel", "kernel-release", "firmware", "user-configuration", "system-configuration"}
 MODELS = {"apple,j413": 13, "apple,j415": 15}
@@ -83,6 +85,10 @@ def identity(info):
 
 def reference(path, data):
     return {"path": str(path), "size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+
+def selected_asset_limit(role):
+    return MAX_KERNEL_ASSET_BYTES if role == "kernel" else MAX_OTHER_ASSET_BYTES
 
 
 class Reader:
@@ -246,6 +252,25 @@ def output_identity(output, parent_fd, output_fd):
             os.close(fresh)
 
 
+def finish_publication(output, parent_fd, output_fd, completion_name):
+    # Make the captured entries durable before removing the refusal marker.
+    os.fsync(output_fd)
+    output_identity(output, parent_fd, output_fd)
+    os.unlink("INCOMPLETE", dir_fd=output_fd)
+    try:
+        os.fsync(output_fd)
+        os.fsync(parent_fd)
+        output_identity(output, parent_fd, output_fd)
+    except BaseException as error:
+        try:
+            # Retain the record for diagnosis while withdrawing its canonical name.
+            os.replace(completion_name, "INCOMPLETE", src_dir_fd=output_fd, dst_dir_fd=output_fd)
+            os.fsync(output_fd)
+        except OSError as rollback_error:
+            error.add_note("publication rollback failed: " + str(rollback_error))
+        raise
+
+
 def run(contract_ref, output, *, retain_inputs=False):
     need(type(retain_inputs) is bool, "retained input mode must be boolean")
     reader = Reader(retain=retain_inputs)
@@ -279,7 +304,7 @@ def run(contract_ref, output, *, retain_inputs=False):
         need(set(item) == {"role", "source"} and item["role"] in ROLES and item["role"] not in roles,
              "duplicate/unknown selected file role")
         roles.add(item["role"])
-        data = reader.bound(item["source"], 32 * MIB)
+        data = reader.bound(item["source"], selected_asset_limit(item["role"]))
         if item["role"] == "kernel-release":
             need(data.decode("ascii").strip() == runtime["kernel_release"], "selected kernel-release artifact mismatch")
         assets.append((item["role"], data, item["source"]))
@@ -304,8 +329,9 @@ def run(contract_ref, output, *, retain_inputs=False):
         os.mkdir(output.name, mode=0o700, dir_fd=parent_fd)
         output_fd = os.open(output.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent_fd)
         output_identity(output, parent_fd, output_fd)
+        save_at(output_fd, "INCOMPLETE", b"Snapshot is incomplete while this marker exists.\n")
+        os.fsync(output_fd)
         os.fsync(parent_fd)
-        save_at(output_fd, "INCOMPLETE", b"Snapshot is incomplete unless snapshot.json and collection.json are both present.\n")
         save_at(output_fd, "compatible.bin", compatible)
         save_at(output_fd, "kernel-files.txt", files)
         save_at(output_fd, "kernel-pkgbase.txt", pkgbase)
@@ -314,6 +340,7 @@ def run(contract_ref, output, *, retain_inputs=False):
         try:
             for name, data in descriptors.items():
                 save_at(desc_fd, name, data)
+            os.fsync(desc_fd)
         finally:
             os.close(desc_fd)
         captured = datetime.now(timezone.utc).isoformat()
@@ -372,10 +399,7 @@ def run(contract_ref, output, *, retain_inputs=False):
         save_at(output_fd, "collection.json", receipt_bytes)
         output_identity(output, parent_fd, output_fd)
         save_at(output_fd, "snapshot.json", snapshot_bytes)
-        output_identity(output, parent_fd, output_fd)
-        os.unlink("INCOMPLETE", dir_fd=output_fd)
-        os.fsync(output_fd)
-        os.fsync(parent_fd)
+        finish_publication(output, parent_fd, output_fd, "snapshot.json")
         return receipt
     finally:
         if output_fd is not None:

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Explicit Root-gated LLVM23 software VM controller; inert on import."""
 import argparse
+from contextlib import ExitStack
 import hashlib
 import importlib.util
 import json
@@ -200,6 +201,22 @@ def finish_status(report, pending):
     if pending or report.get('cleanup_errors') or not report.get('owned_container_absence_verified'):
         report['status'] = 'HOLD_CLEANUP_OR_CANCELLED'
     return report['status']
+
+
+def publish_report(out, report, state):
+    with ExitStack() as files:
+        try:
+            stage = Path(files.enter_context(tempfile.TemporaryDirectory(dir=out))) / 'report.json'
+            finish_status(report, [])
+            stage.write_text(json.dumps(report, sort_keys=True, indent=2) + '\n')
+        finally:
+            state.__exit__()
+        # The deferred handler covered staging. Publish only the settled verdict.
+        if state.pending:
+            report['cancelled_signals'] = list(state.pending)
+            finish_status(report, state.pending)
+            stage.write_text(json.dumps(report, sort_keys=True, indent=2) + '\n')
+        stage.replace(out / 'report.json')
 
 
 def cleanup_owned(scope, report, deadline):
@@ -462,15 +479,12 @@ def run(args, ctx, ops):
             except BaseException as error:
                 report.setdefault('cleanup_errors', []).append(dict(step='quota-observer-retirement', category=type(error).__name__))
             R.LIVE_GUARD = previous_live_guard
-            finish_status(report, state.pending)
             try:
-                (out / 'report.json').write_text(json.dumps(report, sort_keys=True, indent=2) + '\n')
-            finally:
-                try:
-                    if entered:
-                        route.__exit__(None, None, None)
-                finally:
-                    state.__exit__()
+                if entered:
+                    route.__exit__(None, None, None)
+            except BaseException as error:
+                report.setdefault('cleanup_errors', []).append(dict(step='transport', category=type(error).__name__))
+            publish_report(out, report, state)
     return 0 if report['status'] == PASS else 1
 
 

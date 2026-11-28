@@ -223,6 +223,57 @@ class CacheTests(unittest.TestCase):
         finally:
             os.close(pfd); os.close(ofd); os.close(root)
 
+    def test_hard_exit_after_publication_leaves_one_verified_name(self):
+        root = m.sd.directory(self.cache)
+        self.addCleanup(os.close, root)
+        partials = m.open_dir('.partial', root)
+        self.addCleanup(os.close, partials)
+        link, fsync = os.link, os.fsync
+
+        for directory in ('objects', 'receipts'):
+            with self.subTest(directory=directory):
+                target = m.open_dir(directory, root)
+                self.addCleanup(os.close, target)
+                name, fd = m.temporary(partials)
+                try:
+                    m.write_all(fd, self.raw)
+                    os.fsync(fd)
+                finally:
+                    os.close(fd)
+                key = self.row['material']['sha256'] if directory == 'objects' else 'interrupted.json'
+
+                def exit_after_link(*args, **kwargs):
+                    link(*args, **kwargs)
+                    os._exit(47)
+
+                def exit_before_sync(fd):
+                    if fd == target:
+                        os._exit(47)
+                    fsync(fd)
+
+                def interrupted():
+                    with patch.object(m.os, 'link', side_effect=exit_after_link), \
+                         patch.object(m.os, 'fsync', side_effect=exit_before_sync):
+                        m.publish(partials, name, target, key)
+
+                process = multiprocessing.get_context('fork').Process(target=interrupted)
+                process.start()
+                try:
+                    process.join(3)
+                    self.assertEqual(process.exitcode, 47)
+                finally:
+                    if process.is_alive():
+                        process.kill()
+                        process.join()
+                    process.close()
+                self.assertFalse((self.cache / '.partial' / name).exists())
+                self.assertEqual(m.read_entry(target, key, len(self.raw)),
+                                 (len(self.raw), pin(self.raw)['sha256']))
+
+        with patch.object(m, 'transport', side_effect=AssertionError('network attempted')):
+            result = self.run_cache(False)
+        self.assertEqual(result['sources'][0]['status'], 'verified')
+
     def test_real_worker_deadline_and_partial_cleanup(self):
         started = time.monotonic(); children = {child.pid for child in multiprocessing.active_children()}
         with patch.object(m, 'download', stalled):

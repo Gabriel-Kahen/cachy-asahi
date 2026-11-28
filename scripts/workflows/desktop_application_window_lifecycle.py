@@ -32,6 +32,7 @@ managed = runtime.module('_application_window_managed', ROOT / 'scripts/ci/welco
 owned = runtime.owned
 require = runtime.require
 MAX_REPLY = 64 * 1024
+MAX_REQUESTS = 256
 
 
 class LostOwnership(ValueError):
@@ -104,13 +105,14 @@ class PrivateIPC:
         require(stat.S_ISSOCK(info.st_mode) and info.st_uid == os.geteuid(), 'owned private IPC socket required')
         return info.st_dev, info.st_ino, info.st_uid
 
-    def request(self, payload, deadline, check):
+    def request(self, payload, deadline, check, *, after_send=None, cleanup=False):
         require(payload == b'j/clients' or payload.startswith(b'/eval '), 'unsupported application IPC request')
         require(len(payload) <= 128 * 1024, 'IPC request cap')
+        # Keep one request available to clear an attempted binding.
+        require(self.calls < MAX_REQUESTS - (0 if cleanup else 1), 'IPC request count cap')
         self.calls += 1
-        require(self.calls <= 256, 'IPC request count cap')
-        def budget():
-            check()
+        def budget(verify):
+            verify()
             require(self.socket_identity() == self.identity, 'private IPC path replaced')
             row = owned._stat(self.contract['compositor_pid'])
             require(row[4] == self.contract['compositor_start_ticks'] and row[1] not in (b'Z', b'X'), 'compositor identity changed')
@@ -119,14 +121,15 @@ class PrivateIPC:
             return left
         chunks, count = [], 0
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
-            connection.settimeout(min(.1, budget()))
+            connection.settimeout(min(.1, budget(check)))
             connection.connect(str(self.path))
             peer = struct.unpack('3i', connection.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
             require(peer == (self.contract['compositor_pid'], os.geteuid(), os.getegid()), 'private IPC peer differs')
-            connection.settimeout(min(.1, budget()))
+            connection.settimeout(min(.1, budget(check)))
             connection.sendall(payload)
+            verify_reply = check if after_send is None else after_send
             while True:
-                connection.settimeout(min(.1, budget()))
+                connection.settimeout(min(.1, budget(verify_reply)))
                 try:
                     chunk = connection.recv(min(8192, MAX_REPLY + 1 - count))
                 except TimeoutError:
@@ -136,7 +139,7 @@ class PrivateIPC:
                 count += len(chunk)
                 require(count <= MAX_REPLY, 'private IPC reply cap')
                 chunks.append(chunk)
-            budget()
+            budget(verify_reply)
         return b''.join(chunks)
 
     def clients(self, deadline, check):
@@ -144,8 +147,8 @@ class PrivateIPC:
         require(type(value) is list and len(value) <= 256 and all(type(row) is dict for row in value), 'bounded clients array required')
         return value
 
-    def evaluate(self, script, deadline, check):
-        reply = self.request(b'/eval ' + script, deadline, check)
+    def evaluate(self, script, deadline, check, *, after_send=None, cleanup=False):
+        reply = self.request(b'/eval ' + script, deadline, check, after_send=after_send, cleanup=cleanup)
         if b'eval is only supported' in reply or b'unknown request' in reply.lower() or b'unsupported window API' in reply:
             raise runtime.NotRun('required private Lua window IPC unsupported')
         require(reply == b'ok', 'guarded window eval refused: ' + reply.decode('utf-8', errors='replace')[:160])
@@ -228,8 +231,7 @@ def launch(argv, cwd, env, run_seconds, ready_seconds, marker, *, contract_path,
     output, cancelled, identity = bytearray(), [], None
     child = None
     custody = True
-    bound = False
-    cleanup_script = None
+    pending_cleanup = None
     record = dict(status='NOT_MAPPED', mapped=False, close_requested=False, unmapped=False,
                   evidence=ipc.evidence, managed_identity=managed_identity)
     first = None
@@ -238,7 +240,7 @@ def launch(argv, cwd, env, run_seconds, ready_seconds, marker, *, contract_path,
     def cancel(sig, frame):
         if len(cancelled) < 8:
             cancelled.append(signal.Signals(sig).name)
-    def check(alive=True):
+    def check_custody():
         nonlocal identity, custody
         if not custody:
             raise LostOwnership('launch custody unavailable')
@@ -256,6 +258,9 @@ def launch(argv, cwd, env, run_seconds, ready_seconds, marker, *, contract_path,
             custody = False
             raise LostOwnership('reserved launch identity changed')
         identity = current
+        return terminal
+    def check(alive=True):
+        terminal = check_custody()
         if cancelled:
             raise Cancelled('window lifecycle cancelled')
         if alive:
@@ -286,18 +291,17 @@ def launch(argv, cwd, env, run_seconds, ready_seconds, marker, *, contract_path,
             if matches:
                 window = window_identity(matches[0], child.pid)
                 key = 'CAA_WINDOW_' + secrets.token_hex(16)
-                bind_script, close_script, cleanup_script = scripts(window, key)
+                bind_script, close_script, pending_cleanup = scripts(window, key)
                 ipc.evaluate(bind_script, until, check)
-                bound = True
                 record.update(mapped=True, identity=window, mapping_seconds=time.monotonic() - started)
                 break
             time.sleep(min(.02, max(0, until - time.monotonic())))
-        require(bound, 'owned window mapping deadline')
+        require(record['mapped'], 'owned window mapping deadline')
         until = min(run_end, time.monotonic() + close_seconds)
         check();drain()
-        ipc.evaluate(close_script, until, check)
+        ipc.evaluate(close_script, until, check, after_send=lambda: check(False))
         record['close_requested'] = True
-        bound = False  # Successful atomic close also cleared only this nonce.
+        pending_cleanup = None  # Successful atomic close cleared this nonce.
         while time.monotonic() < until:
             check(False);drain()
             clients = ipc.clients(until, lambda: check(False))
@@ -312,9 +316,10 @@ def launch(argv, cwd, env, run_seconds, ready_seconds, marker, *, contract_path,
         record['status'] = 'NOT_RUN' if isinstance(exc, runtime.NotRun) else 'CANCELLED' if isinstance(exc, Cancelled) else 'FAILED'
         record['error'] = type(exc).__name__ + ': ' + str(exc)[:300]
     finally:
-        if bound and custody and cleanup_script is not None:
+        if pending_cleanup is not None and custody:
             try:
-                ipc.evaluate(cleanup_script, min(run_end, time.monotonic() + .2), lambda: check(False))
+                ipc.evaluate(pending_cleanup, time.monotonic() + .2, check_custody, cleanup=True)
+                record['binding_cleanup'] = 'ACKNOWLEDGED'
             except Exception as exc:
                 record['binding_cleanup'] = type(exc).__name__ + ': ' + str(exc)[:160]
         remaining = deadline - time.monotonic()

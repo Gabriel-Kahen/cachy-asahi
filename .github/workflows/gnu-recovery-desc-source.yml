@@ -1,6 +1,7 @@
 name: GNU raw recovery descriptor source factory
 on:
   push:
+    branches: ['**']
     paths: ['scripts/ci/gnu-recovery-desc-source/**', '.github/workflows/gnu-recovery-desc-source.yml']
   pull_request:
     paths: ['scripts/ci/gnu-recovery-desc-source/**', '.github/workflows/gnu-recovery-desc-source.yml']

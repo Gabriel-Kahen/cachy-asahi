@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -142,6 +143,62 @@ except BaseException as error:
         self.assertEqual(self.main.read_bytes(),self.original)
         self.assertFalse((self.target/enrollment.INCLUDE.lstrip('/')).exists())
         self.assertEqual(gpg(self.ring,'--export',self.base_fpr),before)
+
+    def test_replacement_flushes_bytes_before_file_sync(self):
+        owner = self.main.stat().st_uid
+        before = enrollment.read(self.main, owner)
+        desired = b'[options]\nArchitecture = auto\n'
+        sync = os.fsync
+        file_bytes = []
+
+        def observe_sync(fd):
+            info = os.fstat(fd)
+            if stat.S_ISREG(info.st_mode):
+                (staged,) = self.main.parent.glob('.cachy-asahi-*')
+                self.assertTrue(os.path.samestat(info, staged.stat()))
+                file_bytes.append(staged.read_bytes())
+            sync(fd)
+
+        with patch.object(enrollment.os, 'fsync', observe_sync):
+            enrollment.replace(self.main, desired, before, owner)
+        self.assertEqual(file_bytes, [desired])
+        self.assertEqual(self.main.read_bytes(), desired)
+
+    def test_disable_retry_confirms_both_directory_syncs_in_order(self):
+        include = self.target / enrollment.INCLUDE.lstrip('/')
+        sync = enrollment.sync
+        for failed_directory in (self.main.parent, include.parent):
+            with self.subTest(directory=failed_directory):
+                self.main.write_bytes(self.original + enrollment.BLOCK)
+                include.write_bytes(enrollment.config(URL, self.fpr, enrollment.sha(self.public)))
+
+                def fail_sync(directory):
+                    if directory == failed_directory:
+                        raise OSError('injected disable directory sync failure')
+                    sync(directory)
+
+                with patch.object(enrollment.os, 'geteuid', return_value=0):
+                    with patch.object(enrollment, 'sync', fail_sync):
+                        with self.assertRaisesRegex(OSError, 'injected disable directory sync failure') as failed:
+                            enrollment.execute(self.target, 'disable', apply=True)
+                    self.assertEqual(failed.exception.enrollment_result['status'], 'failed')
+                    self.assertEqual(self.main.read_bytes(), self.original)
+                    had_include = failed_directory == self.main.parent
+                    self.assertEqual(include.is_file(), had_include)
+                    events = []
+
+                    def observe_sync(directory):
+                        events.append((directory, include.is_file()))
+                        sync(directory)
+
+                    with patch.object(enrollment, 'sync', observe_sync):
+                        report = enrollment.execute(self.target, 'disable', apply=True)
+
+                self.assertEqual(events, [(self.main.parent, had_include), (include.parent, False)])
+                self.assertEqual(report['status'], 'disabled')
+                self.assertEqual(report['config_changed'], had_include)
+                self.assertFalse(include.exists())
+                self.assertFalse((self.target / 'var/lib/pacman/db.lck').exists())
 
     def test_real_enroll_strict_effective_siglevel_idempotent_disable(self):
         body=self.enable();self.assertTrue(body['keyring_may_have_changed'])

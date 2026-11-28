@@ -10,6 +10,13 @@ from dependencies import resolve
 class TestDependencyInventory(unittest.TestCase):
     def setUp(self):
         self.valid_reports = []
+        self.overlay_provider = {'metadata': {
+            'pkgname': ['project-provider'],
+            'pkgver': ['1'],
+            'pkgrel': ['1'],
+            'provides': ['virtual-provider'],
+            'conflicts': ['virtual-provider'],
+        }}
 
     def test_phantom_provides(self):
         # Test that a string in 'provides' instead of a list causes error
@@ -93,6 +100,34 @@ class TestDependencyInventory(unittest.TestCase):
         }]
         res = resolve(reports, inventory_provides)
         self.assertEqual(len(res['errors']), 0)
+
+    def test_conflict_ignores_own_virtual_provision(self):
+        result = resolve([self.overlay_provider], [])
+        self.assertEqual(result['errors'], [])
+        self.assertEqual(result['build_order'], ['project-provider'])
+
+    def test_conflict_detects_competing_virtual_providers(self):
+        selected = {'metadata': {
+            'pkgname': ['other-provider'],
+            'pkgver': ['1'],
+            'pkgrel': ['1'],
+            'provides': ['virtual-provider'],
+        }}
+        inventory = {
+            'name': 'other-provider',
+            'version': '1-1',
+            'arch': 'aarch64',
+            'provides': ['virtual-provider'],
+        }
+        cases = (
+            ('selected', [self.overlay_provider, selected], []),
+            ('inventory', [self.overlay_provider], [inventory]),
+        )
+        for origin, reports, inventory_rows in cases:
+            with self.subTest(origin=origin):
+                self.assertEqual(resolve(reports, inventory_rows)['errors'], [
+                    'project-provider: conflicts intersects inventory/overlay: virtual-provider',
+                ])
 
     def test_unresolved_provides(self):
         # Test malformed provide string (empty string in list)

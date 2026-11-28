@@ -44,6 +44,11 @@ jobs:
           --inputs-sha256 "$INPUTS_SHA256" --recipes-sha256 "$RECIPES_SHA256"
           --integration-sha256 "$INTEGRATION_SHA256" --development-sha256 "$DEVELOPMENT_SHA256"
           --cache "$RUNNER_TEMP/development-cache" --output "$RUNNER_TEMP/development-evidence"
+      - name: Fetch the pinned original source fixture for tests
+        run: |
+          historical_commit=bcf0cee981ee4b7f7b082f636922c859dc7e0abc
+          git fetch --no-tags --no-recurse-submodules --depth=1 origin "$historical_commit"
+          test "$(git --no-replace-objects rev-parse --verify 'FETCH_HEAD^{commit}')" = "$historical_commit"
       - name: Check the frozen coordinator boundaries
         run: |
           python3 -B -m unittest discover -s scripts/ci -p 'test_*.py' -v

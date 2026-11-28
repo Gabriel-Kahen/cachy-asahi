@@ -1,6 +1,7 @@
 name: fresh607-engine-failure-diagnostic-source
 on:
   push:
+    branches: [main]
     paths:
       - scripts/ci/fresh607-engine-failure-diagnostic-source/**
       - .github/workflows/fresh607-engine-failure-diagnostic-source.yml

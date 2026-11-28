@@ -12,7 +12,7 @@ import sys
 import tempfile
 import threading
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('benchmark_with_metrics', HERE / 'benchmark.py')
@@ -73,6 +73,361 @@ def fixture_sysfs(root):
                         'temp1_enable': '1', 'temp1_fault': '0'}.items():
         (device / name).write_text(value + '\n')
     return root
+
+
+def fixture_clocks(ns):
+    return dict(monotonic_ns=ns, boottime_ns=ns + 900, realtime_ns=ns + 1800)
+
+
+def fixture_supervision():
+    return dict(passed=True, reaped=True, ownership='REAPED', exit=0, timeout=False,
+                signals=[], error=None, output_complete=True, group_census='EMPTY_TWICE', seconds=1e-8)
+
+
+class ReplayTests(unittest.TestCase):
+    """Pinned synthetic receipts exercise the verifier without a workload."""
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.directory = Path(temporary.name)
+        self.raw = self.directory / 'platform-metrics'
+        self.raw.mkdir()
+
+        inventory = dict(schema=m.SCHEMA, sensors=[])
+        samples = [dict(sequence=index, start=fixture_clocks(ns), end=fixture_clocks(ns + 1), readings=[])
+                   for index, ns in enumerate((1, 20, 40))]
+        inventory_data = m.encoded(inventory)
+        samples_data = b''.join(map(m.encoded, samples))
+        (self.raw / 'inventory.json').write_bytes(inventory_data)
+        (self.raw / 'samples.jsonl').write_bytes(samples_data)
+        self.summary = m.summarize(inventory, samples, .25, 10, 30)
+        (self.raw / 'summary.json').write_bytes(m.encoded(self.summary))
+
+        argv = ['/fixture/inert']
+        machine = {'boot_id': 'modeled-fixture'}
+        binding = dict(machine_before=machine, machine_after=machine, start=fixture_clocks(10), end=fixture_clocks(30),
+                       argv_sha256=hashlib.sha256(m.encoded(argv)).hexdigest(), cwd=str(self.directory))
+        pins = dict(adapter_sha256=a.digest(Path(a.__file__)), collector_sha256=a.COLLECTOR_SHA256,
+                    owner_sha256=a.OWNER_SHA256)
+        self.capture = dict(schema=a.SCHEMA, completed=True, machine_before=machine, machine_after=machine,
+                            workload=binding, worker_stopped=True, spawn_timeout=False,
+                            sampling={'error': None, 'bytes': len(samples_data), 'snapshot_seconds': [1e-9] * len(samples)},
+                            interval_seconds_requested=.1, max_gap_seconds=.25, unresolved_wait_pid=None,
+                            supervision=fixture_supervision(),
+                            files={'inventory.json': m.pin_bytes(inventory_data),
+                                   'samples.jsonl': m.pin_bytes(samples_data)}, **pins)
+        self.trial = dict(platform_metrics=dict(schema=a.SCHEMA, binding=binding, source_pins=pins),
+                          argv=argv, cwd=binding['cwd'], monotonic_start_ns=10, monotonic_end_ns=30,
+                          valid=True, error=None, returncode=0, sample_count=1, sampling_status={'workload_reaped': True})
+        self.telemetry = self.directory / 'telemetry.jsonl'
+        self.legacy = a.unavailable_legacy(10)
+        self.telemetry.write_bytes(m.encoded(self.legacy))
+        (self.directory / 'stdout.txt').write_bytes(b'fixture\n')
+        (self.directory / 'stderr.txt').touch()
+        (self.raw / 'started.json').write_bytes(m.encoded({'schema': a.SCHEMA}))
+
+    def verify(self, config=None, *, owned_rss=False):
+        (self.raw / 'capture.json').write_bytes(m.encoded(self.capture))
+        return a.verify_trial(self.directory, self.trial, config, owned_rss=owned_rss)
+
+    def test_natural_retirement_verifies(self):
+        self.assertEqual(self.verify({'interval_seconds': .1}), self.summary)
+
+    def test_snapshot_supplies_all_raw_artifacts_for_replay(self):
+        self.verify()
+        with patch.object(a, 'load_dependencies', side_effect=AssertionError('raw reader loaded an owner')):
+            raw = a.raw_files(self.directory)
+        self.assertEqual(set(raw), {'stdout.txt', 'stderr.txt', 'telemetry.jsonl',
+                         'platform-metrics/started.json', 'platform-metrics/inventory.json',
+                         'platform-metrics/samples.jsonl', 'platform-metrics/capture.json',
+                         'platform-metrics/summary.json'})
+        self.assertEqual(raw['stdout.txt'], b'fixture\n')
+        self.assertEqual(raw['telemetry.jsonl'], m.encoded(self.legacy))
+        for name in raw:
+            (self.directory / name).unlink()
+        self.assertEqual(a.verify_trial(self.directory, self.trial, raw=raw), self.summary)
+        with self.assertRaisesRegex(a.Invalid, 'canonical unavailable legacy sample'):
+            a.verify_trial(self.directory, self.trial, raw=raw | {'telemetry.jsonl': b'{}\n'})
+
+    def test_owner_selection_loads_and_pins_only_the_declared_source(self):
+        for selected, relative, pin in (
+                (False, 'virtual/owned_process.py', a.OWNER_SHA256),
+                (True, 'benchmarks/benchmark_owned_process_v2.py', a.OWNED_RSS_OWNER_SHA256)):
+            path = HERE.parent / relative
+            with self.subTest(owned_rss=selected):
+                self.assertEqual(a.source_paths(owned_rss=selected), [Path(a.__file__), Path(m.__file__), path])
+                _, dependency = a.load_dependencies(owned_rss=selected)
+                self.assertEqual(Path(dependency.__file__), path)
+                self.assertEqual(a.digest(path), pin)
+        with patch.object(a, 'OWNED_RSS_OWNER_SHA256', '0' * 64):
+            self.assertEqual(a.source_paths()[-1], HERE.parent / 'virtual/owned_process.py')
+            with self.assertRaisesRegex(a.Invalid, 'owner differs from reviewed source pin'):
+                a.load_dependencies(owned_rss=True)
+
+    def test_dependencies_compile_the_verified_bytes_after_paths_change(self):
+        scripts = self.directory / 'scripts'
+        benchmarks = scripts / 'benchmarks'
+        legacy = scripts / 'virtual' / 'owned_process.py'
+        versioned = benchmarks / 'benchmark_owned_process_v2.py'
+        sources = {benchmarks / 'platform_metrics.py': 'collector', legacy: 'legacy', versioned: 'versioned'}
+        payloads = {path: f'MARKER = {marker!r}\n'.encode() for path, marker in sources.items()}
+        for path in sources:
+            path.parent.mkdir(parents=True, exist_ok=True)
+
+        module_from_spec = importlib.util.module_from_spec
+
+        def replace_path(spec):
+            Path(spec.origin).write_bytes(b"MARKER = 'replacement'\n")
+            return module_from_spec(spec)
+
+        with (patch.object(a, '__file__', str(benchmarks / 'benchmark_platform_metrics.py')),
+              patch.object(a, 'COLLECTOR_SHA256', hashlib.sha256(payloads[benchmarks / 'platform_metrics.py']).hexdigest()),
+              patch.object(a, 'OWNER_SHA256', hashlib.sha256(payloads[legacy]).hexdigest()),
+              patch.object(a, 'OWNED_RSS_OWNER_SHA256', hashlib.sha256(payloads[versioned]).hexdigest()),
+              patch.object(importlib.util, 'module_from_spec', side_effect=replace_path)):
+            for selected, expected in ((False, 'legacy'), (True, 'versioned')):
+                with self.subTest(owned_rss=selected):
+                    for path, data in payloads.items():
+                        path.write_bytes(data)
+                    collector, dependency = a.load_dependencies(owned_rss=selected)
+                    self.assertEqual((collector.MARKER, dependency.MARKER), ('collector', expected))
+
+    def test_dependency_source_size_bound_applies_even_with_matching_pin(self):
+        path = self.directory / 'module.py'
+        data = b'# inert fixture\n'
+        path.write_bytes(data)
+        with patch.object(a, 'MAX_SOURCE_BYTES', len(data) - 1):
+            with self.assertRaisesRegex(a.Invalid, 'bounded ordinary source required'):
+                a._reviewed_source('fixture', path, hashlib.sha256(data).hexdigest())
+
+    def test_versioned_replay_requires_selected_trial_and_capture_pins(self):
+        with self.assertRaisesRegex(a.Invalid, 'requires an owned RSS trial receipt'):
+            self.verify(owned_rss=True)
+        self.trial['owned_rss'] = {'status': 'complete'}
+        self.capture['supervision'].update(group_census='RESERVED_LEADER_ONLY', rss={'status': 'complete'})
+        with self.assertRaisesRegex(a.Invalid, 'trial platform source mismatch'):
+            self.verify(owned_rss=True)
+        self.trial['platform_metrics']['source_pins']['owner_sha256'] = a.OWNED_RSS_OWNER_SHA256
+        with self.assertRaisesRegex(a.Invalid, 'capture source mismatch'):
+            self.verify(owned_rss=True)
+        self.capture['owner_sha256'] = a.OWNED_RSS_OWNER_SHA256
+        self.assertEqual(self.verify(owned_rss=True), self.summary)
+        with self.assertRaisesRegex(a.Invalid, 'trial platform source mismatch'):
+            self.verify()
+
+    def test_raw_files_refuses_oversized_and_non_regular_artifacts(self):
+        self.verify()
+        path = self.directory / 'stderr.txt'
+        path.write_bytes(b'x')
+        with self.assertRaisesRegex(ValueError, 'input byte bound'):
+            a.raw_files(self.directory)
+        path.unlink()
+        os.mkfifo(path)
+        with self.assertRaisesRegex(ValueError, 'ordinary input file required'):
+            a.raw_files(self.directory)
+        path.unlink()
+        path.symlink_to(self.telemetry)
+        with self.assertRaises(OSError):
+            a.raw_files(self.directory)
+
+    def test_supplied_snapshot_requires_same_file_set_and_bounds(self):
+        self.verify()
+        raw = a.raw_files(self.directory)
+        for supplied in ({name: data for name, data in raw.items() if name != 'stdout.txt'},
+                         raw | {'stderr.txt': b'x'}, raw | {'owned-rss.json': b'{}\n'}):
+            with self.assertRaisesRegex(a.Invalid, 'snapshot file set or byte bounds differ'):
+                a.verify_trial(self.directory, self.trial, raw=supplied)
+
+    def test_valid_trial_refuses_timeout_or_forced_retirement(self):
+        clean = self.capture['supervision']
+        for change in ({'passed': False}, {'timeout': True}, {'signals': ['SIGTERM']},
+                       {'error': 'modeled owner failure'}, {'output_complete': False},
+                       {'group_census': 'PRESENT_OR_REUSED'}, {'group_census': 'RESERVED_LEADER_ONLY'}):
+            self.capture['supervision'] = clean | change
+            with self.subTest(change=change), self.assertRaisesRegex(a.Invalid, 'retirement'):
+                self.verify()
+
+    def test_explicit_failed_trial_retains_replayable_timeout_diagnostics(self):
+        for exit_code in (0, -15):
+            self.capture['supervision'].update(passed=False, timeout=True, signals=['SIGTERM'], exit=exit_code)
+            self.trial.update(valid=False, error='owned workload timeout', returncode=exit_code)
+            with self.subTest(exit_code=exit_code):
+                self.assertEqual(self.verify(), self.summary)
+
+    def test_valid_trial_refuses_contradictory_wait_status(self):
+        for exit_code in (1, False):
+            self.capture['supervision']['exit'] = self.trial['returncode'] = exit_code
+            with self.subTest(exit_code=exit_code), self.assertRaisesRegex(a.Invalid, 'retirement'):
+                self.verify()
+        self.capture['supervision']['exit'] = self.trial['returncode'] = 0
+        self.capture['unresolved_wait_pid'] = 42
+        with self.assertRaisesRegex(a.Invalid, 'retirement'):
+            self.verify()
+
+    def test_owned_rss_uses_reserved_leader_census(self):
+        self.trial['owned_rss'] = {'status': 'complete'}
+        self.capture['supervision'].update(group_census='RESERVED_LEADER_ONLY', rss={'status': 'complete'})
+        self.assertEqual(self.verify(), self.summary)
+        self.telemetry.write_bytes(m.encoded(self.legacy | {'process_group_memory': {'rss_kib': 123}}))
+        with self.assertRaisesRegex(a.Invalid, 'canonical unavailable legacy sample'):
+            self.verify()
+        self.telemetry.write_bytes(m.encoded(self.legacy))
+        self.capture['supervision']['group_census'] = 'EMPTY_TWICE'
+        with self.assertRaisesRegex(a.Invalid, 'retirement'):
+            self.verify()
+
+    def test_owned_rss_metrics_are_projected_from_matching_receipt(self):
+        memory = b.process_group_memory
+        interval = .1
+        member = dict(pid=101, group=101, session=101, state='R', start_ticks=1, rss_kib=128)
+        samples = [dict(group_id=101, status='complete', members=[member], rss_sum_kib=128,
+                        monotonic_start_ns=11, monotonic_end_ns=12, scope=memory.SCOPE)]
+        observation = memory.summarize(samples) | dict(status='complete', leader_sampled_rss_kib=128,
+            leader_observed_rss_kib=128, samples=samples, interval_seconds=interval, sample_budget_seconds=.1,
+            error=None, scope=memory.SCOPE)
+        receipt_source = dict(schema=b.OWNED_RSS_SCHEMA, owner_sha256=b.OWNED_RSS_CORE_SHA256,
+                              interval_seconds=interval)
+        receipt = receipt_source | dict(monotonic_start_ns=10, monotonic_end_ns=30, observation=observation)
+        self.trial['owned_rss'] = receipt_source | dict(status='complete', scope=memory.SCOPE,
+                                                       raw='owned-rss.json', capture_replayable=True)
+        self.capture['supervision'].update(group_census='RESERVED_LEADER_ONLY', rss=observation)
+        path = self.directory / 'owned-rss.json'
+        path.write_bytes(m.encoded(receipt))
+        self.verify()
+        raw = a.raw_files(self.directory, owned_rss=True)
+        self.assertEqual(raw['owned-rss.json'], m.encoded(receipt))
+        self.assertEqual(raw['platform-metrics/capture.json'], m.encoded(self.capture))
+        self.assertEqual(a.verify_trial(self.directory, self.trial, raw=raw), self.summary)
+        config = {'owned_rss': {'interval_seconds': interval}}
+        metrics = b.verify_owned_rss(self.directory, self.trial, config, [self.legacy])
+        self.assertEqual(metrics['root_rss_kib'], 128)
+        self.assertEqual(metrics['process_group_sampled_rss_kib'], 128)
+        self.assertIsNone(b.metrics([self.legacy])['root_rss_kib'])
+        path.write_bytes(m.encoded(receipt | {'observation': observation | {'leader_sampled_rss_kib': 256}}))
+        with self.assertRaisesRegex(b.Invalid, 'capture/source/config/window mismatch'):
+            b.verify_owned_rss(self.directory, self.trial, config, [self.legacy])
+
+    def test_legacy_sample_must_match_producer_bytes_and_count(self):
+        original = m.encoded(self.legacy)
+        for forged in (b'', original * 2, original + b'\n',
+                       m.encoded(self.legacy | {'thermal': [{'path': '/inert', 'value': 1}]}),
+                       m.encoded(self.legacy | {'memory': {'lifecycle': 'live', 'root_rss_kib': 42}}),
+                       m.encoded(self.legacy | {'monotonic_ns': 11})):
+            self.telemetry.write_bytes(forged)
+            with self.subTest(forged=forged), self.assertRaisesRegex(a.Invalid, 'canonical unavailable legacy sample'):
+                self.verify()
+        self.telemetry.write_bytes(original)
+        for count in (True, 0, 2):
+            self.trial['sample_count'] = count
+            with self.subTest(count=count), self.assertRaisesRegex(a.Invalid, 'canonical unavailable legacy sample'):
+                self.verify()
+
+    def test_replay_checks_gap_policy_without_frozen_plan(self):
+        self.assertEqual(self.verify(), self.summary)
+        self.capture['max_gap_seconds'] = 1
+        (self.raw / 'summary.json').write_bytes(m.encoded(self.summary | {'max_gap_seconds': 1}))
+        with self.assertRaisesRegex(a.Invalid, 'gap differs from interval policy'):
+            self.verify()
+
+    def test_sampling_accounting_is_reconstructed_from_raw(self):
+        clean = self.capture['sampling']
+        for change in ({'bytes': clean['bytes'] + 1}, {'snapshot_seconds': [1e-9] * 2},
+                       {'snapshot_seconds': [1e-9, 2e-9, 1e-9]}):
+            self.capture['sampling'] = clean | change
+            with self.subTest(change=change), self.assertRaisesRegex(a.Invalid, 'sampling byte count or snapshot durations'):
+                self.verify()
+
+
+class ExecuteTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.directory = Path(temporary.name)
+        self.argv = ['/fixture/inert']
+        self.inventory = dict(schema=m.SCHEMA, sensors=[])
+        self.config = {'interval_seconds': .1}
+        self.start, self.end = 1_000_000_000, 2_100_000_000
+        self.samples = [dict(sequence=index, start=fixture_clocks(ns), end=fixture_clocks(ns + 1), readings=[])
+                        for index, ns in enumerate((self.start - 10, self.end + 10))]
+        self.child = object()
+        self.owner = Mock()
+        self.owner.supervise.return_value = fixture_supervision() | {'output': b''}
+        self.worker = Mock()
+        self.worker.is_alive.return_value = False
+
+    def execute(self, spawn_seconds, *, rss_interval=None):
+        machine = {'boot_id': 'fixture'}
+        self.load_dependencies = Mock(return_value=(m, self.owner))
+        with (patch.object(a, '_active', None), patch.object(a.os, 'geteuid', return_value=1000),
+              patch.object(a, 'load_dependencies', self.load_dependencies),
+              patch.object(a, 'machine', return_value=machine), patch.object(m, 'discover', return_value=self.inventory),
+              patch.object(m, 'snapshot', side_effect=self.samples), patch.object(a.threading, 'Thread', return_value=self.worker),
+              patch.object(m, 'clocks', side_effect=[fixture_clocks(self.start), fixture_clocks(self.end)]),
+              patch.object(a.subprocess, 'Popen', return_value=self.child),
+              patch.object(a.time, 'monotonic_ns', return_value=self.start + round(spawn_seconds * 1e9))):
+            return a.execute(self.argv, self.directory, {}, self.directory, 1, .02, self.config, b.metrics,
+                             rss_interval=rss_interval)
+
+    def test_supervisor_gets_remaining_budget_after_spawn(self):
+        result = self.execute(.25)
+        self.load_dependencies.assert_called_once_with()
+        self.owner.supervise.assert_called_once_with(self.child, cap=1.25, retirement=.5, grace=.1)
+        self.assertIsNone(result['error'])
+
+    def test_explicit_rss_preserves_completed_capture_with_membership_gap(self):
+        gap = {'kind': 'membership_churn', 'status': 'incomplete', 'reason': 'RSS group membership changed during sample'}
+        observation = {'status': 'partial', 'samples': [gap], 'error': gap['reason']}
+        self.owner.supervise.return_value.update(group_census='RESERVED_LEADER_ONLY', rss=observation)
+        result = self.execute(.25, rss_interval=.1)
+        self.load_dependencies.assert_called_once_with(owned_rss=True)
+        self.owner.supervise.assert_called_once_with(self.child, cap=1.25, retirement=.5, grace=.1, rss_interval=.1)
+        receipt = b.read_json(self.directory / 'platform-metrics/capture.json')
+        started = b.read_json(self.directory / 'platform-metrics/started.json')
+        self.assertEqual(started['owner_sha256'], a.OWNED_RSS_OWNER_SHA256)
+        self.assertEqual(receipt['owner_sha256'], a.OWNED_RSS_OWNER_SHA256)
+        self.assertEqual(result['platform_metrics']['source_pins']['owner_sha256'], a.OWNED_RSS_OWNER_SHA256)
+        self.assertTrue(receipt['completed'])
+        self.assertTrue(receipt['supervision']['reaped'])
+        self.assertEqual(receipt['supervision']['rss'], observation)
+        self.assertIsNone(result['error'])
+        trial = result | {'argv': self.argv, 'cwd': str(self.directory), 'valid': False,
+                          'owned_rss': {'status': observation['status']}, 'error': 'owned RSS incomplete'}
+        a.verify_trial(self.directory, trial, self.config, owned_rss=True)
+
+    def test_invalid_explicit_rss_interval_refused_before_owner_load(self):
+        for interval in (True, .001, float('inf'), float('nan'), 61):
+            with self.subTest(interval=interval), self.assertRaisesRegex(a.Invalid, 'owned RSS interval'):
+                self.execute(.25, rss_interval=interval)
+            self.load_dependencies.assert_not_called()
+        self.owner.prepare.assert_not_called()
+        self.assertFalse((self.directory / 'platform-metrics').exists())
+
+    def test_spawn_exhaustion_retires_child_and_cannot_certify_success(self):
+        result = self.execute(1.05)
+        self.owner.supervise.assert_called_once_with(self.child, cap=.501, retirement=.5, grace=.1)
+        self.assertEqual(result['error'], 'timeout')
+        trial = result | {'argv': self.argv, 'cwd': str(self.directory), 'valid': False}
+        a.verify_trial(self.directory, trial, self.config)
+        with self.assertRaisesRegex(a.Invalid, 'workload retirement'):
+            a.verify_trial(self.directory, trial | {'valid': True, 'error': None}, self.config)
+
+    def test_writer_refuses_summary_over_replay_cap(self):
+        summary = m.summarize(self.inventory, self.samples, .25, self.start, self.end)
+        with patch.object(a, 'MAX_SUMMARY_BYTES', len(m.encoded(summary)) - 1):
+            with self.assertRaisesRegex(a.Invalid, 'summary byte bound'):
+                self.execute(.25)
+        receipt = b.read_json(self.directory / 'platform-metrics/capture.json')
+        self.assertFalse(receipt['completed'])
+        self.assertTrue(receipt['supervision']['reaped'])
+        self.assertFalse((self.directory / 'platform-metrics/summary.json').exists())
+
+    def test_summary_at_replay_cap_is_written_and_replayed(self):
+        summary = m.summarize(self.inventory, self.samples, .25, self.start, self.end)
+        with patch.object(a, 'MAX_SUMMARY_BYTES', len(m.encoded(summary))):
+            result = self.execute(.25)
+            trial = result | {'argv': self.argv, 'cwd': str(self.directory), 'valid': True}
+            self.assertEqual(a.verify_trial(self.directory, trial, self.config), summary)
 
 
 class IntegrationTests(unittest.TestCase):

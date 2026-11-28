@@ -2,14 +2,43 @@
 """Version 3: verify evidence before comparing two independently created build records."""
 import argparse
 import json
+import re
 import sys
 import tarfile
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'checks'))
-from package_checks import digest, package, PACKAGE_METADATA
-from build_v3 import bind_artifact
+from package_checks import digest, metadata, package, recipe, PACKAGE_METADATA
+from build_v3 import bind_artifact, bind_generated
 from nested_userns_v1 import policy as namespace_policy
+
+
+# The container entry writes pacman -Q in C sort order.
+LOCK_ROW = re.compile(r'([A-Za-z0-9_+@][A-Za-z0-9._+@-]*) (?:[0-9]+:)?[^\s:/\x00-\x1f\x7f-]+-[0-9]+(?:\.[0-9]+)?')
+
+
+def verify_inventory(path):
+    lock = path.read_bytes().decode('utf-8')
+    if not lock.strip():
+        raise ValueError(f'{path}: expected package lock is empty')
+    previous = ''
+    for line in lock.removesuffix('\n').split('\n'):
+        match = LOCK_ROW.fullmatch(line)
+        if not match:
+            raise ValueError(f'{path}: invalid pacman -Q inventory row: {line[:100]!r}')
+        name = match[1]
+        if name <= previous:
+            raise ValueError(f'{path}: pacman -Q inventory must be sorted with unique package names')
+        previous = name
+    if not lock.endswith('\n'):
+        raise ValueError(f'{path}: pacman -Q inventory must end with a newline')
+
+
+def srcinfo_lines(path):
+    # glibc C.UTF-8 [[:space:]], as used by the builder's sed filter.
+    space = ' \t\r\v\f\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2008\u2009\u200a\u2028\u2029\u205f\u3000'
+    return [line for line in path.read_bytes().decode('utf-8').split('\n')
+            if (body := line.lstrip(space)) and not body.startswith('#')]
 
 
 def verify(path):
@@ -20,13 +49,17 @@ def verify(path):
     if 'nested_namespaces' not in record:
         raise ValueError('v3 explicit default/custom namespace policy binding missing')
     namespace_policy.verify(path, record['nested_namespaces'])
-    if record['nested_namespaces'] is not None and record.get('files', {}).get('nested-seccomp.json') != record['nested_namespaces']['profile']['sha256']:
-        raise ValueError('retained namespace policy absent from evidence closure')
     if record.get('status') != 'built-package-static-pass':
         raise ValueError(f'{path}: build has not passed')
+    if type(record.get('exit_code')) is not int or record['exit_code'] != 0:
+        raise ValueError(f'{path}: zero build exit code required')
+    if record.get('network') not in ('none', 'bridge'):
+        raise ValueError(f'{path}: recorded build network must be none or bridge')
     for key in ('artifacts', 'files', 'recipe_inputs'):
         if not isinstance(record.get(key), dict) or not record[key]:
             raise ValueError(f'{path}: missing {key} evidence')
+    if record['nested_namespaces'] is not None and record['files'].get('nested-seccomp.json') != record['nested_namespaces']['profile']['sha256']:
+        raise ValueError('retained namespace policy absent from evidence closure')
     required = {'build.log', 'validation.json', 'expected-packages.lock', 'artifacts/packages.lock',
                 'artifacts/generated.SRCINFO', 'artifacts/environment.txt', 'artifacts/config.sha256',
                 'artifacts/makepkg.conf', 'artifacts/pacman.conf'}
@@ -36,29 +69,63 @@ def verify(path):
         item = (path / name).resolve()
         if not item.is_relative_to(path) or digest(item) != checksum:
             raise ValueError(f'{path}: missing/changed evidence {name}')
+    expected_lock = record['files']['expected-packages.lock']
+    if record.get('expected_packages_sha256') != expected_lock:
+        raise ValueError(f'{path}: recorded expected package lock checksum differs')
+    if record['files']['artifacts/packages.lock'] != expected_lock:
+        raise ValueError(f'{path}: observed builder package lock differs from expected lock')
+
+    verify_inventory(path / 'expected-packages.lock')
+
+    inputs = path / 'inputs'
+    if inputs.is_symlink():
+        raise ValueError(f'{path}: recipe snapshot must be a directory within the evidence')
+    snapshot = recipe(inputs / 'PKGBUILD')
+    if snapshot['input_sha256'] != record['recipe_inputs']:
+        raise ValueError(f'{path}: changed recipe snapshot')
+    if snapshot['errors']:
+        raise ValueError(f"{path}: recipe snapshot fails builder preflight: {snapshot['errors']}")
+    if snapshot['metadata'] != record.get('recipe_metadata'):
+        raise ValueError(f'{path}: recorded recipe metadata differs from recipe snapshot')
+    generated_path = path / 'artifacts/generated.SRCINFO'
+    try:
+        generated = metadata(generated_path.read_text())
+        if len(generated.get('pkgbase', [])) != 1 or not generated['pkgbase'][0]:
+            raise ValueError('single nonempty pkgbase required')
+        bind_generated(snapshot['metadata'], generated)
+    except ValueError as error:
+        raise ValueError(f'{generated_path}: {error}') from error
+    if '.SRCINFO' in snapshot['input_sha256'] and srcinfo_lines(inputs / '.SRCINFO') != srcinfo_lines(generated_path):
+        raise ValueError(f'{generated_path}: differs from reviewed .SRCINFO')
+
     actual = {p.name for p in (path / 'artifacts').glob('*.pkg.tar.*') if not p.name.endswith('.sig')}
     if actual != set(record['artifacts']):
         raise ValueError(f'{path}: unexpected/missing artifact set')
-    reports = {}
-    for name, checksum in record['artifacts'].items():
-        if '/' in name or name in ('.', '..'):
-            raise ValueError('invalid artifact basename')
-        item = path / 'artifacts' / name
-        if digest(item) != checksum:
-            raise ValueError(f'{path}: artifact checksum mismatch {name}')
-        report = package(item)
-        if report['errors']:
-            raise ValueError(f'{path}: artifact validation failed {name}')
-        errors = bind_artifact(record['recipe_metadata'], report, record['recipe_inputs']['PKGBUILD'])
-        if errors:
-            raise ValueError(f'{path}: recorded artifact no longer matches reviewed metadata: {errors}')
-        reports[name] = report
-    # Snapshot is retained for review and must match the original input hashes.
-    for name, checksum in record['recipe_inputs'].items():
-        item = (path / 'inputs' / name).resolve()
-        if not item.is_relative_to(path / 'inputs') or digest(item) != checksum:
-            raise ValueError(f'{path}: changed recipe snapshot {name}')
-    return record, reports
+    if len(actual) != 1:
+        raise ValueError(f'{path}: single-package recipe must produce exactly one artifact')
+    name, checksum = next(iter(record['artifacts'].items()))
+    item = path / 'artifacts' / name
+    if record['files'].get(f'artifacts/{name}') != checksum or item.is_symlink():
+        raise ValueError(f'{path}: artifact missing/changed in evidence closure: {name}')
+    report = package(item)
+    if report['sha256'] != checksum:
+        raise ValueError(f'{path}: artifact checksum mismatch {name}')
+    if report['errors']:
+        raise ValueError(f'{path}: artifact validation failed {name}')
+    errors = bind_artifact(snapshot['metadata'], report, snapshot['input_sha256']['PKGBUILD'])
+    if errors:
+        raise ValueError(f'{path}: recorded artifact no longer matches reviewed metadata: {errors}')
+
+    validation_path = path / 'validation.json'
+    try:
+        validation = json.loads(validation_path.read_text())
+    except ValueError as error:
+        raise ValueError(f'{validation_path}: {error}') from error
+    expected = {'artifacts': [report], 'errors': []}
+    # Compare JSON values without Python's bool/int coercion.
+    if json.dumps(validation, sort_keys=True) != json.dumps(expected, sort_keys=True):
+        raise ValueError(f'{validation_path}: recorded validation differs from archive inspection')
+    return record, {name: report}
 
 
 def compare(first, second):
@@ -69,7 +136,7 @@ def compare(first, second):
     mismatches = []
     if not left.get('clean_environment_id') or not right.get('clean_environment_id') or left['clean_environment_id'] == right['clean_environment_id']:
         mismatches.append('different recorded clean container IDs required')
-    for key in ('image', 'image_id', 'mode', 'source_date_epoch', 'recipe_inputs',
+    for key in ('image', 'image_id', 'mode', 'network', 'source_date_epoch', 'recipe_inputs',
                 'recipe_metadata', 'expected_packages_sha256', 'entry_script_sha256', 'nested_namespaces'):
         if key not in left or key not in right or left[key] != right[key]:
             mismatches.append(f'input mismatch: {key}')

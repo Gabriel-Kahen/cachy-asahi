@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -48,6 +49,10 @@ if os.environ.get('COLLECTOR_DIFF_FAILURE')=='partial' and 'diff' in sys.argv[1:
  sys.stdout.buffer.flush()
  raise SystemExit(7)
 options=['-c','core.hooksPath=/dev/null','-c','commit.gpgsign=false','-c','tag.gpgsign=false','-c','protocol.allow=never','-c','protocol.file.allow=always']
+if os.environ.get('COLLECTOR_FETCH_FAILURE')=='after-fetch' and 'fetch' in sys.argv[1:]:
+ import subprocess
+ subprocess.run([os.environ['COLLECTOR_REAL_GIT'],*options,*sys.argv[1:]],check=True)
+ raise SystemExit(7)
 os.execv(os.environ['COLLECTOR_REAL_GIT'],[os.environ['COLLECTOR_REAL_GIT'],*options,*sys.argv[1:]])
 ''')
         shim.chmod(0o755)
@@ -57,20 +62,21 @@ os.execv(os.environ['COLLECTOR_REAL_GIT'],[os.environ['COLLECTOR_REAL_GIT'],*opt
         rows=[json.loads(line)for line in cls.ledger.read_text().splitlines()
               if str(cls.base) in line]
         assert rows and all(Path(row['cwd']).absolute().is_relative_to(cls.base)for row in rows)
-        assert all(not any(arg in ('fetch','clone','push','pull','remote','ls-remote','merge-base')for arg in row['argv'])
+        assert all(not any(arg in ('clone','push','pull','remote','ls-remote','merge-base')for arg in row['argv'])
                    for row in rows if row['caller']=='collector'), 'collector attempted acquisition'
         cls.temporary.cleanup()
 
     def setUp(self):
         self.case = self.base / self._testMethodName; self.case.mkdir()
 
-    def git(self, repo, *args, check=True):
+    def git(self, repo, *args, check=True, data=None):
         self.assertTrue(repo.absolute().is_relative_to(self.base))
         with self.ledger.open('a') as output:
             output.write(json.dumps(dict(caller='fixture', cwd=str(repo),
                                         argv=[*GIT_OPTIONS, *args]), sort_keys=True)+'\n')
         result = subprocess.run([self.git_binary, *GIT_OPTIONS, *args], cwd=repo,
-            env=self.env, stdin=subprocess.DEVNULL, capture_output=True, timeout=30)
+            env=self.env, input=data, stdin=subprocess.DEVNULL if data is None else None,
+            capture_output=True, timeout=30)
         if check:
             self.assertEqual(result.returncode, 0, (args, result.stdout, result.stderr))
         return result
@@ -107,25 +113,37 @@ os.execv(os.environ['COLLECTOR_REAL_GIT'],[os.environ['COLLECTOR_REAL_GIT'],*opt
         merge=self.git(repo,'rev-parse','HEAD').stdout.decode().strip()
         return repo,base,head,merge
 
-    def shallow(self, source, depth, name='checkout'):
-        target=self.case/name
+    def shallow(self, source, depth, *options):
+        target=self.case/'checkout'
         self.git(self.case,'clone','-q','--no-hardlinks','--single-branch','--no-tags',
-                 '--depth',str(depth),'--branch','base',source.as_uri(),str(target))
+                 '--depth',str(depth),'--branch','base',*options,source.as_uri(),str(target))
         self.configure(target)
         self.assertTrue((target/'.git/shallow').is_file())
         return target
 
-    def collect(self, repo, event, base, head, checkout, *, fail=None, name='run'):
+    def collect(self, repo, event, base, head, checkout, *, fail=None, name='run', expect_fetch=False):
         temporary=self.case/name;temporary.mkdir()
         output=temporary/'github-output'
         env=dict(self.env, PATH=str(self.shim_bin)+':'+os.environ['PATH'],
             COLLECTOR_REAL_GIT=self.git_binary,COLLECTOR_GIT_LOG=str(self.ledger),
             SELECTION_EVENT=event,SELECTION_BASE=base,SELECTION_HEAD=head,SELECTION_SHA=checkout,
             RUNNER_TEMP=str(temporary),GITHUB_OUTPUT=str(output))
-        if fail:env['COLLECTOR_DIFF_FAILURE']=fail
+        if fail == 'partial':
+            env['COLLECTOR_DIFF_FAILURE'] = fail
+        elif fail == 'after-fetch':
+            env['COLLECTOR_FETCH_FAILURE'] = fail
+        ledger_offset = self.ledger.stat().st_size
         result=subprocess.run(['bash',str(HERE/'collect.sh'),'static'],cwd=repo,env=env,
-            stdin=subprocess.DEVNULL,capture_output=True,timeout=45)
+            stdin=subprocess.DEVNULL,capture_output=True,timeout=75)
         self.assertEqual(result.returncode,0,(result.stdout,result.stderr))
+        with self.ledger.open('rb') as ledger:
+            ledger.seek(ledger_offset)
+            commands = [json.loads(line)['argv'] for line in ledger]
+        fetches = [command for command in commands if command[0] == 'fetch']
+        expected = [['fetch', '--quiet', '--depth=1', '--filter=blob:none',
+                     '--no-tags', '--no-recurse-submodules', '--no-auto-maintenance',
+                     '--no-write-fetch-head', '--refmap=', 'origin', base]]
+        self.assertEqual(fetches, expected if expect_fetch else [])
         report=json.loads(result.stdout)
         values=dict(line.split('=',1)for line in output.read_text().splitlines())
         self.assertEqual(len(json.loads(values['matrix'])['include']),6 if report['mode']=='full'else report['groups']['static']['selected_rows'])
@@ -168,14 +186,74 @@ os.execv(os.environ['COLLECTOR_REAL_GIT'],[os.environ['COLLECTOR_REAL_GIT'],*opt
         report,_=self.collect(repo,'push',before,head,head)
         self.assertEqual(report['mode'],'narrow');self.assertEqual(report['paths'],sorted([README,NOTICE]))
 
-    def test_multicommit_push_missing_before_in_depth_two_is_full(self):
-        source=self.init();before=self.git(source,'rev-parse','HEAD').stdout.decode().strip()
-        self.write(source,README,'first\n');self.commit(source,'one')
-        self.write(source,NOTICE,'second\n');head=self.commit(source,'two')
-        repo=self.shallow(source,2)
-        self.assertNotEqual(self.git(repo,'cat-file','-e',before,check=False).returncode,0)
-        self.full(self.collect(repo,'push',before,head,head)[0])
-        self.assertNotEqual(self.git(repo,'cat-file','-e',before,check=False).returncode,0)
+    def push_graph(self):
+        source = self.init()
+        self.git(source, 'config', 'uploadpack.allowFilter', 'true')
+        self.write(source, README, 'before\n')
+        self.write(source, NOTICE, 'before notice\n')
+        before = self.commit(source, 'before push')
+        self.write(source, README, 'first\n')
+        self.commit(source, 'one')
+        self.write(source, NOTICE, 'second\n')
+        head = self.commit(source, 'two')
+        repo = self.shallow(source, 2, '--filter=blob:none')
+        local_objects = self.git(repo, 'cat-file', '--batch-all-objects',
+                                 '--batch-check=%(objectname)').stdout.splitlines()
+        self.assertNotIn(before.encode(), local_objects)
+        return source, repo, before, head
+
+    def test_multicommit_push_fetches_only_exact_before_metadata(self):
+        source, repo, before, head = self.push_graph()
+        old_blob = self.git(source, 'rev-parse', f'{before}:{README}').stdout.strip()
+        refs = self.git(repo, 'show-ref').stdout
+        fetch_head = repo / '.git' / 'FETCH_HEAD'
+        fetch_head.write_bytes(b'previous fetch state\n')
+        report, _ = self.collect(repo, 'push', before, head, head, expect_fetch=True)
+        self.assertEqual(report['mode'], 'narrow')
+        self.assertEqual(report['paths'], sorted([README, NOTICE]))
+        self.assertEqual(report['groups']['static']['selected_rows'], 1)
+        self.assertEqual(self.git(repo, 'rev-list', '--count', before).stdout.strip(), b'1')
+        objects = self.git(repo, 'rev-list', '--objects', '--missing=print', before).stdout.splitlines()
+        self.assertIn(b'?' + old_blob, objects)
+        self.assertEqual(self.git(repo, 'show-ref').stdout, refs)
+        self.assertEqual(fetch_head.read_bytes(), b'previous fetch state\n')
+
+    def test_unavailable_push_before_stays_full(self):
+        _, repo, _, head = self.push_graph()
+        report, _ = self.collect(repo, 'push', '1' * 40, head, head, expect_fetch=True)
+        self.full(report)
+        self.assertEqual(report['reason'], 'diff_unavailable_incomplete_or_truncated')
+
+    def test_failed_push_fetch_stays_full_even_when_before_was_written(self):
+        _, repo, before, head = self.push_graph()
+        report, _ = self.collect(repo, 'push', before, head, head, fail='after-fetch', expect_fetch=True)
+        self.full(report)
+        self.assertEqual(self.git(repo, 'cat-file', '-t', before).stdout.strip(), b'commit')
+
+    def test_sparse_add_materializes_reviewed_python_as_literal_paths(self):
+        source = self.init()
+        self.git(source, 'config', 'uploadpack.allowFilter', 'true')
+        reviewed = 'scripts/release/compare_sboms.py'
+        literal = 'scripts/release/reviewed[1]?.py'
+        other = ['scripts/release/reviewed1a.py', 'scripts/unreviewed.py']
+        for number, path in enumerate([reviewed, literal, *other]):
+            self.write(source, path, f'value = {number}\n')
+        self.commit(source, 'sparse source fixture')
+        repo = self.shallow(source, 1, '--filter=blob:none', '--no-checkout')
+        self.git(repo, 'sparse-checkout', 'set', '--no-cone', '--stdin', data=f'/{README}\n'.encode())
+        self.git(repo, 'checkout', '--force', 'base')
+        self.assertFalse((repo / reviewed).exists())
+        policy = json.loads((HERE / 'dependencies.json').read_bytes())
+        policy['paths'][literal] = policy['paths'][reviewed]
+        policy['dependency_signatures'][literal] = policy['dependency_signatures'][reviewed]
+        policy_path = self.case / 'policy.json'
+        policy_path.write_text(json.dumps(policy))
+        patterns = subprocess.check_output(
+            [sys.executable, '-I', '-B', str(HERE / 'select.py'), '--policy', str(policy_path), '--sparse-paths'],
+            timeout=10)
+        self.git(repo, 'sparse-checkout', 'add', '--stdin', data=patterns)
+        self.assertTrue(all((repo / path).is_file() for path in [README, reviewed, literal]))
+        self.assertFalse(any((repo / path).exists() for path in other))
 
     def test_partial_valid_diff_with_nonzero_git_exit_is_full(self):
         repo,base,head,merge=self.merge_graph()
@@ -196,7 +274,9 @@ os.execv(os.environ['COLLECTOR_REAL_GIT'],[os.environ['COLLECTOR_REAL_GIT'],*opt
     def test_manual_missing_or_zero_metadata_is_full(self):
         repo,base,head,merge=self.merge_graph()
         for number,(event,b,h,c) in enumerate((('workflow_dispatch',base,head,merge),
-                ('pull_request','',head,merge),('push','0'*40,merge,merge))):
+                ('pull_request','',head,merge),('push','0'*40,merge,merge),
+                ('push','1'*40,'0'*40,merge),('push','1'*40,head,merge),
+                ('push','1'*40,merge,head))):
             self.full(self.collect(repo,event,b,h,c,name='metadata%d'%number)[0])
 
 

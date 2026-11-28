@@ -1,6 +1,7 @@
 name: core-native-lifecycle-source
 on:
   push:
+    branches: [main]
     paths:
       - scripts/ci/core-native-lifecycle-source/**
       - .github/workflows/core-native-lifecycle-source.yml

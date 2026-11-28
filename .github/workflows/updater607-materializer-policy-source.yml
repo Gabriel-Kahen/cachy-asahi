@@ -1,6 +1,7 @@
 name: updater607-materializer-policy-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/updater607-materializer-policy-source/**
       - .github/workflows/updater607-materializer-policy-source.yml

@@ -190,8 +190,18 @@ def main():
             evidence['exit_code'] = completed.returncode
         except subprocess.TimeoutExpired:
             # Stop only this uniquely named container, never global Docker jobs.
-            subprocess.run(['docker', 'rm', '-f', name], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            raise ValueError('builder timeout; this build container was removed')
+            cleanup = evidence['timeout_cleanup'] = {'status': 'unconfirmed', 'exit_code': None}
+            try:
+                removed = subprocess.run(['docker', 'rm', '-f', name], timeout=30,
+                                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except (OSError, ValueError, subprocess.SubprocessError) as error:
+                cleanup['error'] = type(error).__name__
+            else:
+                cleanup['exit_code'] = removed.returncode
+                if removed.returncode == 0:
+                    cleanup['status'] = 'removed'
+                    raise ValueError('builder timeout; this build container was removed')
+            raise ValueError(f'builder timeout; removal unconfirmed for container {name}')
         if completed.returncode:
             raise ValueError(f'container build exited {completed.returncode}; see build.log')
         required_outputs = ('environment.txt', 'packages.lock', 'config.sha256', 'makepkg.conf',

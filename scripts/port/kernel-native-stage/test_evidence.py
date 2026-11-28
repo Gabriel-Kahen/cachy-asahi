@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 import copy
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -330,6 +331,220 @@ class InnerFailureProjectionTests(unittest.TestCase):
             for validate in (inner_result.validate_group, evidence.validate_inner_group,
                              self.receiver().child_validate_inner_group):
                 with self.assertRaises(ValueError): validate(group)
+
+
+
+def relocation_fixture():
+    return {'role': 'arm64-image-reference', 'elf_type': 3, 'branch': 'NULL_LINK_RELATIVE',
+        'failed_check': 'INFO_RELATIVE', 'section': {'index': 3, 'type': 4, 'flags': 2,
+        'link': 0, 'info': 0, 'entry_index': 0}, 'offset': 4097, 'info': 1028,
+        'symbol_count': None, 'target_size': None,
+        'allocated': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 1, 'address': 4096, 'size': 32}},
+        'load': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 0, 'address': 4096, 'size': 32}}}
+
+
+class RelocationValidatorParity(unittest.TestCase):
+    receiver = ChildEvidenceTests.receiver
+    def test_three_independent_validators_refuse_typed_range_and_branch_forgery(self):
+        import inner_result
+        validators=(inner_result._relocation_fact,evidence.validate_relocation_fact,self.receiver().validate_relocation_fact)
+        original=relocation_fixture()
+        for validate in validators:self.assertEqual(validate(copy.deepcopy(original)),original)
+        mutations=[lambda r:r.update(role='secret'),lambda r:r.update(offset=True),
+            lambda r:r.update(info=2**64),lambda r:r.update(elf_type=1),
+            lambda r:r.update(failed_check='ALLOCATED_RANGE'),lambda r:r.update(raw_stderr='secret'),
+            lambda r:r['section'].update(flags=False),lambda r:r['section'].update(type=9),
+            lambda r:r['allocated'].update(full_count=2),lambda r:r['allocated'].update(start_count=0),
+            lambda r:r['load']['first_start'].update(address=8192),
+            lambda r:r['load']['first_start'].update(size=2**64),
+            lambda r:r['load'].update(start_count=2,full_count=2),
+            lambda r:r['allocated'].update(start_count=2,full_count=2,first_start={'index':8191,'address':4096,'size':32}),
+            lambda r:r['section'].update(flags=7),lambda r:r['section'].update(entry_index=2**40)]
+        for mutate in mutations:
+            row=copy.deepcopy(original);mutate(row)
+            for validate in validators:
+                with self.assertRaises(ValueError):validate(row)
+        for validate in (evidence.validate_output_fact,self.receiver().validate_output_fact):
+            fact={'call_boundary':'VERIFY_OUTPUTS','predicate':'CHECK_010','relocation':original}
+            with self.assertRaises(ValueError):validate(fact)
+            self.assertEqual(validate(fact,5),fact)
+            with self.assertRaises(ValueError):validate(dict(fact,predicate='OTHER'),5)
+
+    def test_summary_is_bounded_and_joined_in_all_three_readers(self):
+        import inner_result
+        validators = (inner_result._output_fact, evidence.validate_output_fact, self.receiver().validate_output_fact)
+        relocation = dict(relocation_fixture(), info=(1 << 32) | 1027)
+        table = {'entries': 4, 'types': [[0, 1, 0, 0], [257, 1, 1, 1],
+                 [1025, 1, 1, 1], [1027, 1, 1, 0]], 'overflow': [0, 0, 0]}
+        fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_010',
+                'relocation': relocation, 'rela_table': table}
+        mutations = (
+            lambda row: row['rela_table'].update(entries=3),
+            lambda row: row['rela_table'].update(types=[[1027, 1, 1, 1]] * 4),
+            lambda row: row['rela_table'].update(types=[[1027, 4, 1, 2]]),
+            lambda row: row['rela_table'].update(types=[[1027, 3, 1, True]]),
+            lambda row: row['rela_table'].update(types=[[1027, 3, 1, 1]], overflow=[1, 1, 1]),
+            lambda row: row['rela_table'].update(raw='private'),
+            lambda row: row['relocation'].update(info=0x1b00000101),
+            lambda row: row['relocation']['section'].update(entry_index=4),
+        )
+        for validate in validators:
+            self.assertEqual(validate(copy.deepcopy(fact), 6), fact)
+            downstream = dict(fact, predicate='CHECK_115', relocation=None)
+            self.assertEqual(validate(downstream, 6), downstream)
+            with self.assertRaises(ValueError):
+                validate(fact, 5)
+            for mutate in mutations:
+                altered = copy.deepcopy(fact)
+                mutate(altered)
+                with self.assertRaises(ValueError):
+                    validate(altered, 6)
+
+    def test_symbol_diagnostics_refuse_forgery_in_all_three_readers(self):
+        import inner_result
+        validators = (inner_result._output_fact, evidence.validate_output_fact, self.receiver().validate_output_fact)
+        sample = {'symbol_class': '_end', 'symbol_sha256': hashlib.sha256(b'_end').hexdigest(),
+                  'binding': 1, 'type': 0, 'value': 0x20000, 'size': 0,
+                  'section': {'index': 3, 'type': 8, 'flags': 3, 'addr': 0x10000,
+                              'size': 0x8000, 'name_class': '.bss'}}
+        fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_059', 'rela_table': None,
+                'symbol_range': {'role': 'arm64-image-reference', 'elf_type': 3, 'section_offset': False,
+                                 'failure_count': 1, 'scan_complete': True, 'samples': [sample]}}
+        mutations = (
+            lambda row: row.update(predicate='OTHER'),
+            lambda row: row['symbol_range'].update(role='module'),
+            lambda row: row['symbol_range'].update(failure_count=2),
+            lambda row: row['symbol_range'].update(scan_complete=1),
+            lambda row: row['symbol_range']['samples'][0].update(value=0x18000),
+            lambda row: row['symbol_range']['samples'][0].update(symbol_class='raw'),
+            lambda row: row['symbol_range']['samples'][0].update(symbol_sha256='0' * 64),
+            lambda row: row['symbol_range']['samples'][0]['section'].update(index=0),
+            lambda row: row['symbol_range']['samples'][0]['section'].update(name_class='raw'),
+        )
+        for validate in validators:
+            self.assertEqual(validate(copy.deepcopy(fact), 7), fact)
+            for mutate in mutations:
+                altered = copy.deepcopy(fact)
+                mutate(altered)
+                with self.assertRaises(ValueError):
+                    validate(altered, 7)
+
+    def test_section_geometry_validates_the_exact_conjunct_in_all_readers(self):
+        import inner_result
+        validators = (inner_result._output_fact, evidence.validate_output_fact, self.receiver().validate_output_fact)
+        name = '.gnu.linkonce.this_module'
+        section = {'name_class': name, 'name_sha256': hashlib.sha256(name.encode()).hexdigest(),
+                   'index': 3, 'type': 1, 'flags': 3, 'addr': 0, 'offset': 105, 'size': 128,
+                   'align': 64}
+        fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_011', 'rela_table': None,
+                'section_geometry': {'role': 'module', 'elf_type': 1, 'module_ordinal': 3,
+                                     'file_bytes': 1024, 'file_alignment': 8, 'section': section,
+                                     'failed_check': 'FILE_OFFSET_ALIGNMENT'}}
+        census = {'entries': 1, 'types': [[1027, 1, 1, 1]], 'overflow': [0, 0, 0]}
+        linked = copy.deepcopy(fact)
+        linked['section_geometry'].update(role='arm64-image-reference', elf_type=3,
+                                          module_ordinal=None, file_alignment=64)
+        mutations = (
+            lambda row: row.update(predicate='OTHER'),
+            lambda row: row['section_geometry'].update(module_ordinal=4096),
+            lambda row: row['section_geometry'].update(file_alignment=64),
+            lambda row: row['section_geometry'].update(file_bytes=100),
+            lambda row: row['section_geometry']['section'].update(offset=104),
+            lambda row: row['section_geometry']['section'].update(align=24),
+            lambda row: row['section_geometry']['section'].update(name_class='OTHER'),
+            lambda row: row['section_geometry']['section'].update(raw_path='private'),
+        )
+        for validate in validators:
+            for version in (8, 9):
+                self.assertEqual(validate(copy.deepcopy(fact), version), fact)
+                self.assertEqual(validate(dict(fact, rela_table=census), version), dict(fact, rela_table=census))
+                self.assertEqual(validate(linked, version), linked)
+                with self.assertRaises(ValueError):
+                    validate(dict(linked, rela_table=census), version)
+                for mutate in mutations:
+                    altered = copy.deepcopy(fact)
+                    mutate(altered)
+                    with self.assertRaises(ValueError):
+                        validate(altered, version)
+
+    def test_debug_aranges_geometry_preserves_v8_and_checks_v9_in_all_readers(self):
+        import inner_result
+        validators = (inner_result._output_fact, evidence.validate_output_fact, self.receiver().validate_output_fact)
+        section = {'name_class': 'OTHER', 'name_sha256': hashlib.sha256(b'.debug_aranges').hexdigest(),
+                   'index': 23, 'type': 1, 'flags': 0, 'addr': 0, 'offset': 1336, 'size': 192, 'align': 16}
+        historic = {'role': 'module', 'elf_type': 1, 'module_ordinal': 17, 'file_bytes': 2048,
+                    'file_alignment': 16, 'section': section, 'failed_check': 'FILE_OFFSET_ALIGNMENT'}
+
+        def output(geometry):
+            return {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_011',
+                    'section_geometry': geometry, 'rela_table': None}
+
+        invalid_offset = dict(section, offset=1337)
+        current = dict(historic, file_alignment=8, section=invalid_offset)
+        smaller = dict(current, file_alignment=4, section=dict(invalid_offset, align=4))
+        range_failure = dict(current, file_bytes=1460, failed_check='FILE_RANGE')
+        header_failure = dict(current, file_bytes=64, section=dict(invalid_offset, offset=63),
+                              failed_check='OFFSET_BEFORE_HEADER')
+        unchanged_alignment = (
+            dict(current, section=dict(invalid_offset, name_sha256=hashlib.sha256(b'.debug_info').hexdigest())),
+            dict(current, section=dict(invalid_offset, type=3)),
+            dict(current, section=dict(invalid_offset, flags=0x800)),
+            dict(current, section=dict(invalid_offset, addr=16)),
+            dict(current, elf_type=3, role='arm64-image-reference', module_ordinal=None),
+        )
+        for validate in validators:
+            self.assertEqual(validate(output(historic), 8), output(historic))
+            with self.assertRaises(ValueError):
+                validate(output(historic), 9)
+            with self.assertRaises(ValueError):
+                validate(output(dict(historic, file_alignment=8)), 9)
+            with self.assertRaises(ValueError):
+                validate(output(current), 8)
+            for accepted in (current, smaller, range_failure, header_failure):
+                self.assertEqual(validate(output(accepted), 9), output(accepted))
+            with self.assertRaises(ValueError):
+                validate(output(dict(range_failure, failed_check='FILE_OFFSET_ALIGNMENT')), 9)
+            for altered in unchanged_alignment:
+                with self.assertRaises(ValueError):
+                    validate(output(altered), 9)
+                corrected = output(dict(altered, file_alignment=16))
+                self.assertEqual(validate(corrected, 9), corrected)
+
+    def test_output_fault_requires_a_closed_shape_and_the_original_boundary(self):
+        import inner_result
+        receiver = self.receiver()
+        expected = {'nonce': 'd' * 32, 'action': 'baseline',
+                    'contract_sha256': '3' * 64, 'worker_sha256': '4' * 64}
+        row = inner_result.initial(expected)
+        inner_result.issued(row, 'KERNEL')
+        inner_result.returned(row, 0)
+        inner_result.phase(row, 'OUTPUTS')
+        error = UnicodeDecodeError('ascii', b'\xff', 0, 1, 'private')
+        inner_result.failure(row, error)
+        inner_result.output_fault(row, error, 'MODULE_INFO')
+        raw = json.dumps({'status': 'FAIL', 'action': 'baseline', 'nonce': expected['nonce'],
+                          'cancelled': False, 'inner_diagnostic': row}).encode()
+        group = inner_result.capture(raw, expected)
+        validators = (inner_result.validate_group, evidence.validate_inner_group, receiver.child_validate_inner_group)
+        mutations = (
+            lambda r: r.update(schema_version=9),
+            lambda r: r['output_failure'].update(call_boundary='CONFIG_DELTA'),
+            lambda r: r['output_failure'].update(stage='MODULE_INFO/private'),
+            lambda r: r['output_failure'].update(stage=['MODULE_INFO']),
+            lambda r: r['output_failure'].update(fault='UnicodeDecodeError'),
+            lambda r: r['output_failure'].update(raw='private'),
+            lambda r: r['output_failure'].pop('stage'),
+            lambda r: r['first_failure'].update(error_kind='DATA_REFUSAL'),
+            lambda r: r['first_failure'].update(phase='SOURCE'),
+            lambda r: r['natural_return'].update(code=1),
+        )
+        for validate in validators:
+            self.assertEqual(validate(group), group)
+            for mutate in mutations:
+                altered = copy.deepcopy(group)
+                mutate(altered['diagnostic'])
+                with self.assertRaises(ValueError):
+                    validate(altered)
 
 
 if __name__ == '__main__': unittest.main()

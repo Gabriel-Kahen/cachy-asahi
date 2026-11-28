@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Versioned legacy-format capture: shared wait owner, PID-free sensor worker."""
+"""Versioned wait owner and PID-free sensor worker for legacy-format capture.
+
+Replay of earlier frozen plans requires their original runner, adapter, and
+owner. A fresh plan binds the benchmark-specific owner and current adapter.
+Membership churn leaves RSS unavailable for the comparison while a clean
+workload can still contribute timing and PID-free telemetry.
+"""
 import hashlib
-import importlib.util
 import json
 import math
 import os
@@ -12,9 +17,10 @@ import stat
 import subprocess
 import threading
 import time
+import types
 
 SCHEMA = 'benchmark-owned-retirement-v2'
-OWNER_SHA256 = '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
+OWNER_SHA256 = 'bd1c18c0c8f05462d3d175fceaeda559f422cc1cfd40dfce6244e71df482d42d'
 MAX_OUTPUT = 512 * 1024
 MAX_LINE = 128 * 1024
 MAX_TELEMETRY = 16 * 1024**2
@@ -37,16 +43,22 @@ def pin(path):
     return dict(path=str(path.resolve()), bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest())
 
 
+def _owner_source():
+    path = Path(__file__).resolve().with_name('benchmark_owned_process_v2.py')
+    raw = ordinary(path, 256 * 1024)
+    need(hashlib.sha256(raw).hexdigest() == OWNER_SHA256, 'owned process source differs from reviewed pin')
+    return path, raw
+
+
 def owner_path():
-    path = Path(__file__).resolve().parents[1] / 'virtual/owned_process.py'
-    need(pin(path)['sha256'] == OWNER_SHA256, 'owned process source differs from reviewed pin')
-    return path
+    return _owner_source()[0]
 
 
 def owner_module():
-    spec = importlib.util.spec_from_file_location('benchmark_v2_wait_owner', owner_path())
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    path, raw = _owner_source()
+    module = types.ModuleType('benchmark_v2_wait_owner')
+    module.__file__ = str(path)
+    exec(compile(raw, str(path), 'exec'), module.__dict__)
     return module
 
 
@@ -209,10 +221,9 @@ def execute(argv, cwd, env, directory, timeout, interval, sensors, summarize, rs
                 owned_retirement=declaration(interval))
 
 
-def verify(directory, trial, interval, samples, summarize, rss_metrics):
+def verify(directory, trial, interval, samples, summarize, rss_metrics, *, raw=None):
     """Offline replay; never probe a numeric child or reinterpret old trials."""
-    directory = Path(directory)
-    files = raw_files(directory)
+    files = raw_files(directory) if raw is None else raw
     raw = json.loads(files['owned-retirement.json'])
     need(trial.get('owned_retirement') == declaration(interval), 'owned retirement trial binding differs')
     need(all(raw.get(key) == value for key, value in declaration(interval).items()), 'owned retirement source/scope/config differs')
@@ -223,12 +234,22 @@ def verify(directory, trial, interval, samples, summarize, rss_metrics):
     need(supervision and supervision['reaped'] is True and supervision['ownership'] == 'REAPED'
          and supervision['exit'] == trial['returncode'], 'owned raw wait truth unavailable/different')
     need(hashlib.sha256(files['stdout.txt']).hexdigest() == raw['output_sha256'], 'owned output scope/byte pin differs')
-    measured = summarize(samples) | rss_metrics(supervision['rss'], trial['monotonic_start_ns'],
+    rss = supervision['rss']
+    measured = summarize(samples) | rss_metrics(rss, trial['monotonic_start_ns'],
                                                trial['monotonic_end_ns'], interval)
     if trial.get('valid') is True:
-        need(supervision['passed'] is True and supervision['timeout'] is False and
+        peaks = measured['root_rss_kib'], measured['process_group_sampled_rss_kib']
+        complete_rss = rss['status'] == 'complete' and all(peak is not None for peak in peaks)
+        gaps = [row for row in rss['samples'] if row['status'] == 'incomplete']
+        churn_only = (bool(gaps) and all(row.get('kind') == 'membership_churn' for row in gaps)
+                      and rss['error'] == gaps[0]['reason'] and peaks == (None, None))
+        sampling = raw['sampling_status']
+        need(type(supervision['exit']) is type(trial['returncode']) is int and supervision['exit'] == 0
+             and trial['error'] is None and sampling['error'] is None and sampling['worker_stopped'] is True
+             and sampling['workload_reaped'] is True and type(sampling['dropped_samples']) is int
+             and sampling['dropped_samples'] == 0
+             and supervision['passed'] is True and supervision['timeout'] is False and
              supervision['signals'] == [] and supervision['error'] is None and
              supervision['output_complete'] is True and supervision['group_census'] == 'RESERVED_LEADER_ONLY'
-             and supervision['rss']['status'] == 'complete' and measured['root_rss_kib'] is not None
-             and measured['process_group_sampled_rss_kib'] is not None, 'valid trial contradicts owned measurement/retirement')
+             and (complete_rss or churn_only), 'valid trial contradicts owned measurement/retirement')
     return measured

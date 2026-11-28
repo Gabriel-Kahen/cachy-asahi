@@ -18,8 +18,9 @@ Create a dedicated, empty endpoint directory owned by the invoking maintainer.
 Use absolute canonical paths with exactly one leading slash and no symlink components. Both managed roots and
 their consumed files/directories must prohibit group/world writes; files have
 one hard link. The GPG home stays outside both roots and the checkout. Source
-and endpoint roots may not overlap. The endpoint reserves only `generations/`
-and `current`; unrelated files or an unmanaged selection are refused.
+and endpoint roots may not overlap. The endpoint uses `generations/`
+and `current` for published data, plus private `.export-*` and `.selection-*`
+workspaces. Unrelated files or an unmanaged selection are refused.
 
 Preview the exact selected release, signer, file hashes, repository aliases and
 previous selection:
@@ -30,9 +31,10 @@ python3 -B scripts/release/export_repository.py \
   --gpg-home /secure/release-verification --key FULL_AUTHENTICATED_FINGERPRINT
 ```
 
-For a stable export that checks the package archive digests against their signed
-build provenance, use `scripts/release/export_repository_v2.py` with the same
-arguments. Both commands produce the same endpoint layout.
+For a stable export that binds the inventory to the verified release and
+promotion record bytes, use `scripts/release/export_repository_v2.py` with the
+same arguments. Both commands produce the same endpoint layout and use the
+shared archive-to-provenance checks.
 
 Add `--apply` to materialize and select that local generation. Preview creates no
 repository or endpoint files. Signature checks use the supplied existing GPG
@@ -55,12 +57,11 @@ repository-endpoint/
 Package/database signatures, normal repo-add aliases and opted-in source-delivery
 sidecars/materials retain their exact bytes. The complete signed bundle includes
 its evidence; the deployment owner selects a release whose payload is intended
-for the endpoint. The normal live repository path is
-`current/release/repo/REPOSITORY.db`. A server and its document root, transport,
-public trust bootstrap, freshness/key lifecycle and recipient update policy
-remain separate integration work. The unsigned export inventory supplies local
-integrity and generation identity, not network authentication or newest-release
-discovery.
+for the endpoint. Inspect the selected repository locally at
+`current/release/repo/REPOSITORY.db`. Hosted enrollment uses a concrete immutable
+generation URL. The unsigned export inventory supplies local integrity and
+generation identity. See the [production handoff](release/production-handoff.md)
+for hosting, trust bootstrap and client update checks.
 
 Every available withdrawal must have a valid signed pair bound to its filename
 and signer. Selecting a withdrawn release refuses export. After the release CLI
@@ -89,9 +90,13 @@ Exit 0 emits JSON with `planned-local-endpoint` or
 `materialized-local-endpoint`, always `network_published: false` and
 `trust_changed: false`. A directory-sync or selection-temp cleanup failure after
 pointer replacement reports materialized state with
-`durability_uncertain: true`; it does not claim an undone commit. Exit 1 reports
-a refusal/error. For interruption at the pointer switch, inspect `current` and
-its hash-bound generation before deciding what is live. The tool uses Linux
+`durability_uncertain: true`. Exit 1 reports a refusal/error. After abrupt process
+termination, rerun preview to inspect `current` and its hash-bound generation.
+Preview and apply can proceed past abandoned private workspaces with the
+exporter's exact name, owner, access permissions and layout. An interrupted copy
+is staged again from the source, and a retained complete generation is verified
+before reuse. Abandoned workspaces are preserved for inspection. The maintainer
+may remove them while no endpoint writer is active. The tool uses Linux
 directory flock/fsync and atomic symlink replacement; cooperating writers and
 operator-controlled storage are assumed. Bounds are 16,384 members and 8 GiB per
 examined tree, with complete exported file/byte checks; rejected input is never
@@ -102,5 +107,7 @@ filesystem and ephemeral TEST-key signatures are real. Positive stable export
 tests explicitly model only the promotion/hardware gate verifier; real bundle,
 signature, dependency and source-delivery checks remain active. A separate case
 uses the unchanged real gate verifier and refuses the synthetic stable fixture.
+The interruption test kills the exporter during a copy and immediately before
+and after pointer replacement, then checks the live generation and retries.
 These tests prove no native ARM execution, supported public release, M2
 installation, recovery, performance or A01–A15 acceptance.

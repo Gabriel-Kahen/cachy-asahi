@@ -23,7 +23,7 @@ require the exact eleven-file V4 join; absence or drift fails, never skips or
 silently substitutes another candidate. Adopt the prerequisite package/CI change
 first, or keep this feature stacked until PR459 merges.
 
-The existing `Native adapter DATA controls` job runs these17 actor-fenced checks
+The existing `Native adapter DATA controls` job runs the actor-fenced checks
 on Python3.12 and3.14 in separate processes. It performs no Docker/Engine probe
 and does not grant namespace or native execution authority.
 
@@ -91,6 +91,8 @@ mount. Its bytes are checked again before argv construction and before a positiv
 build result. The comparator requires the exact retained profile in the evidence
 closure and identical default/custom descriptors across both attempts. It cannot
 mix v2 records, a default attempt and custom attempt, or different profiles.
+The comparator also checks that each retained package lock matches both the
+recorded expected checksum and the builder's observed package inventory.
 
 The inherited builder keeps cap-drop ALL, NNP, read-only root, no Docker socket,
 4CPU/4GiB/512PID and4GiB private tmpfs limits. Offline source checks, ordinary

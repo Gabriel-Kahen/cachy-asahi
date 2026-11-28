@@ -1,0 +1,20 @@
+Original cachy-asahi setup/removal and repository enrollment helper package.
+Copyright (c) 2026 cachy-asahi contributors
+Licensed under MIT; the complete project grant is in LICENSE.
+
+The packaged executables are byte-identical snapshots of original canonical
+scripts/setup/setup.py and scripts/repository/enroll.py. The repository guide
+copies docs/repository-enrollment.md unchanged. source-provenance.json records
+these paths and SHA256 values. check-sync.py must pass for each selected source
+against canonical bytes before building or publishing from this repository.
+
+No third-party template, service, font, compiled binary or platform component is
+bundled. Optional configuration packages retain their separate package ownership.
+Installing or removing this package does not activate/remove user configuration,
+enroll/disable a repository, or import/remove/local-sign a public key. Those
+operations require an explicit operator invocation of the appropriate CLI.
+
+Setup8 successor adds the original MIT configuration migration engine and explicit
+launcher/private setup contract. No third-party module or template is bundled.
+The accepted Setup7 code remains separately pinned and unchanged outside this
+variant; only migration-owned status guidance is corrected in the Setup8 copy.

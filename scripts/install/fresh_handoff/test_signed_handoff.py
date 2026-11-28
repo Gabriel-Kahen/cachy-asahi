@@ -161,6 +161,22 @@ class SignedHandoffTests(unittest.TestCase):
         self.assertEqual(H.K.inventory(self.state), before)
         self.assertEqual(len(list((moved/'recovery/recovery/packages').iterdir())), 16)
 
+    def test_signed_overlay_cannot_replace_matching_protected_base_package(self):
+        role = 'overlap-candidate'
+        candidate, checked = self.fixture.kit(self, role, self.fixture.key, protected_overlay=True)
+        self.assertEqual((candidate/'release/base.json').read_bytes(),
+                         (self.recovery/'predecessor/release/base.json').read_bytes())
+        release = H.C.decode((candidate/'release/release.json').read_bytes())
+        package, = release['packages']
+        self.assertEqual((package['name'], package['version']), (self.fixture.base[0]['name'], '2-1'))
+        self.args.candidate = candidate
+        self.chosen['candidate'].update(kit_sha256=checked['kit_sha256'], release_sha256=checked['release_sha256'],
+                                        namespace='dev.test-'+role)
+        self.save()
+        with self.assertRaisesRegex(H.C.Error, 'signed overlay contains a protected platform package'):
+            H.prepare(self.args)
+        self.assertFalse(self.output.exists())
+
     def test_unknown_predecessor_identity_and_wrong_release_are_named_refusals(self):
         for field, value, message in (('signer', 'C'*40, 'PREDECESSOR_AUTH_REFUSED'),
                                       ('release_sha256', 'f'*64, 'predecessor release differs')):

@@ -306,15 +306,16 @@ class Commands:
         return False
 
     def run(self, name, argv, cwd=None, env=None, source=None, target=None, timeout=180, allowed=(0,)):
-        remaining = min(timeout, self.deadline - time.monotonic())
+        started = time.monotonic()
+        remaining = min(timeout, self.deadline - started)
         need(remaining > 0, 'trial deadline exhausted')
+        end = started + remaining
         row = {'name': name, 'argv': argv, 'cwd': str(cwd) if cwd is not None else None,
                'environment': env, 'stdin': None, 'stdout': None, 'status': 'FAIL',
                'allowed_exit_codes': list(allowed),
                'timeout_seconds': remaining, 'started_unix_seconds': time.time()}
         self.records.append(row)
         log = self.output / (f'{len(self.records):03d}-' + name + '.log')
-        started = time.monotonic()
         try:
             with log.open('xb') as stream:
                 stdin = subprocess.DEVNULL
@@ -335,10 +336,13 @@ class Commands:
                                                       preexec_fn=lambda: signal.pthread_sigmask(signal.SIG_SETMASK, previous))
                     finally:
                         signal.pthread_sigmask(signal.SIG_SETMASK, previous)
-                    end = started + remaining
                     while True:
+                        remaining = end - time.monotonic()
+                        need(remaining > 0, 'command timeout')
                         try:
-                            code = self.child.wait(timeout=min(1, max(0.001, end - time.monotonic())))
+                            code = self.child.wait(timeout=min(1, remaining))
+                            row['exit_code'] = code
+                            need(time.monotonic() < end, 'command timeout')
                             break
                         except subprocess.TimeoutExpired:
                             need(time.monotonic() < end, 'command timeout')

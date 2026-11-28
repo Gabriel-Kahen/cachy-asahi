@@ -13,6 +13,7 @@ on:
       - 'scripts/port/qt612-gui-native-v1/**'
       - 'scripts/ci/qt612-reference-native-source/**'
       - 'scripts/build/**'
+      - 'packages/tools/cachy-asahi-security-maintenance/build_v2.py'
       - 'scripts/ci/inputs.lock.json'
       - 'scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock'
       - '.gitattributes'
@@ -31,6 +32,7 @@ on:
       - 'scripts/port/qt612-gui-native-v1/**'
       - 'scripts/ci/qt612-reference-native-source/**'
       - 'scripts/build/**'
+      - 'packages/tools/cachy-asahi-security-maintenance/build_v2.py'
       - 'scripts/ci/inputs.lock.json'
       - 'scripts/ci/hyprland03-native-source-v1/fixtures/expected349.lock'
       - '.gitattributes'
@@ -68,6 +70,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          export TMPDIR="$RUNNER_TEMP"
           ulimit -c 0
           ulimit -v 524288
           timeout --signal=TERM --kill-after=5s 180s \

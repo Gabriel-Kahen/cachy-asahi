@@ -73,6 +73,120 @@ class SelectionControls(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'configuration changed'): bound.configuration(path,'0'*64)
 
 
+class BoundApplyControls(unittest.TestCase):
+    def setUp(self):
+        temporary = self.enterContext(tempfile.TemporaryDirectory(prefix='bound-update-controls-'))
+        self.workspace = Path(temporary)
+        self.state = self.workspace / 'state'
+        self.state.mkdir(mode=0o700)
+        bundle = self.workspace / 'bundle'
+        repo = bundle / 'repo'
+        repo.mkdir(parents=True)
+        archive = 'fixture-1-2-any.pkg.tar.gz'
+        for filename in (archive, archive + '.sig'):
+            (repo / filename).write_bytes(b'INERT TEST INPUT')
+
+        self.before = {'fixture': '1-1', 'held': '1-1'}
+        self.desired = {'fixture': '1-2'}
+        self.after = dict(self.before, **self.desired)
+        self.baseline = bundle / 'base.json'
+        self.write_baseline(self.before)
+        self.metadata = dict(
+            schema_version=1, type=bound.client.TYPE, scope=bound.client.SCOPE, namespace='dev.fixture',
+            signer='A' * 40, sequence=2, issued_utc='2026-10-16T00:00:00Z',
+            expires_utc='2026-10-17T00:00:00Z', synthetic=True, release_id='fixture', repo_name='fixture',
+            targets={},
+        )
+        self.snapshot = dict(
+            bundle=bundle, metadata=self.metadata, metadata_sha256='1' * 64, release_sha256='2' * 64,
+            release={'packages': [dict(name='fixture', version='1-2', filename=archive)]}, recheck=Mock(),
+        )
+        seed = {'etc/pacman.conf': {'type': 'file'}, 'etc/pacman.d': {'type': 'directory'}}
+        settings = dict(signer=self.metadata['signer'], base_trust_sha256=bound.trust_digest(seed),
+                        minimum_sequence=1, release_id='fixture')
+        self.args = SimpleNamespace(workspace=self.workspace, root=self.workspace / 'root', operation='repository-update',
+                                    settings='fixture', settings_sha256='pin', policy='fixture', policy_sha256='pin',
+                                    state_dir=self.state)
+        self.alpm = Mock()
+        self.alpm.inventory.side_effect = [self.before, self.after]
+        self.alpm.owned_files.return_value = []
+        self.alpm.lib.alpm_pkg_vercmp.return_value = 1
+        self.alpm.alpm_pkg_get_name.return_value = b'fixture'
+        self.alpm.alpm_pkg_get_version.return_value = b'1-2'
+        self.alpm.alpm_pkg_get_arch.return_value = b'any'
+        self.alpm.packages.side_effect = [self.desired, {}]
+        policy = SimpleNamespace(read_policy=Mock(return_value={'protected_units': {}, 'platform_roles': {'kernel': []}}),
+                                 protected_names=Mock(return_value=set()), authorize=Mock())
+
+        @contextmanager
+        def authenticated(*args):
+            yield self.snapshot
+
+        @contextmanager
+        def transaction(*args):
+            yield self.alpm
+
+        self.enterContext(patch.object(bound, 'module', side_effect=[
+            policy, SimpleNamespace(authenticated=authenticated)]))
+        self.enterContext(patch.object(bound, 'guard'))
+        self.enterContext(patch.object(bound, 'configuration', return_value=settings))
+        self.enterContext(patch.object(bound, 'public_keys'))
+        self.enterContext(patch.object(bound, 'transaction', transaction))
+        self.enterContext(patch.object(bound.install, 'tree', return_value=seed))
+        self.enterContext(patch.object(bound.install, 'archive_payload', return_value={}))
+
+    def write_baseline(self, packages):
+        self.baseline.write_bytes(encoded({'packages': [
+            {'name': name, 'version': version} for name, version in packages.items()
+        ]}))
+
+    def apply_at(self, *times):
+        clock = SimpleNamespace(now=Mock(side_effect=map(bound.client.stamp, times)))
+        with patch.object(bound, 'datetime', clock):
+            return bound.apply(self.args)
+
+    def test_checkpoint_reopens_after_clock_steps_behind_issuance_during_commit(self):
+        result = self.apply_at('2026-10-16T00:00:01Z', '2026-10-16T00:00:02Z', '2026-10-15T23:59:59Z')
+        self.assertEqual(result['status'], 'PASS', result)
+        self.assertTrue(result['packages_committed'])
+        with bound.client.state_directory(self.state, False) as fd:
+            checkpoint = bound.client.checkpoint(fd)
+        self.assertEqual(checkpoint['verified_utc'], '2026-10-16T00:00:02Z')
+        bound.client.against_state(checkpoint, self.metadata, self.snapshot['metadata_sha256'],
+                                   bound.client.stamp('2026-10-16T00:00:03Z'), 1)
+
+    def test_clock_behind_previous_checkpoint_before_commit_refuses(self):
+        previous = {key: self.metadata[key] for key in ('schema_version', 'scope', 'namespace', 'signer', 'issued_utc')}
+        previous.update(sequence=1, metadata_sha256='3' * 64, release_sha256='4' * 64,
+                        verified_utc='2026-10-16T00:00:05Z')
+        with bound.client.state_directory(self.state, True) as fd:
+            self.assertTrue(bound.client.commit(fd, previous))
+        result = self.apply_at('2026-10-16T00:00:06Z', '2026-10-16T00:00:04Z', '2026-10-16T00:00:04Z')
+        self.assertEqual(result['status'], 'FAIL', result)
+        self.assertIn('clock moved behind applied checkpoint', result['error'])
+        self.assertFalse(result['commit_started'])
+        self.alpm.alpm_trans_commit.assert_not_called()
+        with bound.client.state_directory(self.state, False) as fd:
+            self.assertEqual(bound.client.checkpoint(fd), previous)
+
+    def test_missing_selected_package_in_signed_baseline_refuses_before_prepare(self):
+        self.alpm.inventory.side_effect = [{'held': '1-1'}, self.after]
+        result = self.apply_at(*(['2026-10-16T00:00:01Z'] * 3))
+        self.assertEqual(result['status'], 'FAIL', result)
+        self.assertIn('selected installed version differs from release baseline', result['error'])
+        self.alpm.alpm_trans_prepare.assert_not_called()
+        self.assertFalse(result['checkpoint_changed'])
+
+    def test_selection_allows_signed_addition_and_already_selected_version(self):
+        self.assertEqual(bound.expected_base(self.snapshot, self.before), self.desired)
+        self.assertEqual(bound.expected_base(self.snapshot, self.after), self.desired)
+        self.write_baseline({'held': '1-1'})
+        self.assertEqual(bound.expected_base(self.snapshot, {'held': '1-1'}), self.desired)
+        self.assertEqual(bound.expected_base(self.snapshot, self.after), self.desired)
+        with self.assertRaisesRegex(ValueError, 'selected installed version differs'):
+            bound.expected_base(self.snapshot, self.before)
+
+
 class AuthenticationControls(unittest.TestCase):
     settings = SelectionControls.settings
     def fixture(self, root, metadata_label=False, spec_label=False):

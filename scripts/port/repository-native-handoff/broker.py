@@ -117,13 +117,16 @@ class Pending:
         capture.need(command == approved, 'create-command-policy')
         return {'name': expected['name'], 'image_id': expected['image'], 'cidfile': str(cidfile)}
     def capture(self, controller, *, selections, output, deadline):
-        capture.check(min(self.deadline, deadline), self.cancelled)
+        deadline = min(self.deadline, deadline)
+        capture.check(deadline, self.cancelled)
         capture.need(self.contract is not None and self.checkpoints is not None
                      and len(self.checkpoints.records) == 2 and not self.checkpoints.failed, 'pending-checkpoints')
         capture.need(controller.image == self.contract['image_id']
                      and controller.commit == self.contract['source_commit'], 'pending-controller-identity')
+        stages = getattr(controller, 'report', {}).get('stages', {})
+        capture.need(stages.get('repository', {}).get('status') == 'PASS', 'pending-repository-stage')
         source = self.root / ('launch-' + self.contract['nonce']) / 'receipt.json'
-        launch_raw = capture.read(source, deadline=min(self.deadline, deadline))
+        launch_raw = capture.read(source, deadline=deadline)
         observed = capture.decode(launch_raw)
         capture.need(observed.get('status') == observed.get('cleanup') == 'PASS'
                      and observed.get('ownership_verified') is True and not observed.get('cancelled'), 'pending-launch')
@@ -132,13 +135,20 @@ class Pending:
                      'payload_sha256': row['payload_sha256']} for row in self.checkpoints.records]
         capture.need(rows == expected, 'pending-checkpoint-launch-binding')
         selections = dict(selections)
+        sidecar_name = 'raw/container-launcher.json'
+        sidecar = controller.work / 'repository-raw' / 'container-launcher.json'
+        selected_sidecar = selections.get(sidecar_name)
+        capture.need(selected_sidecar is not None and Path(selected_sidecar) == sidecar, 'pending-sidecar-selection')
+        sidecar_raw = capture.read(sidecar, 128, deadline=deadline)
+        capture.need(capture.decode(sidecar_raw, 128) == {'status': observed['status']}, 'pending-sidecar-status')
         capture.need('custody/launch.json' not in selections, 'reserved-capture-name')
         selections['custody/launch.json'] = source
         for sequence in (1, 2):
             name = f'custody/checkpoint-{sequence}.json'
             capture.need(name not in selections, 'reserved-capture-name')
             selections[name] = self.root / f'checkpoint-{sequence}.json'
-        self.receipt = capture.capture_files(selections, output, deadline=min(self.deadline, deadline), cancelled=self.cancelled)
+        self.receipt = capture.capture_files(selections, output, deadline=deadline, cancelled=self.cancelled,
+                                             expected_bytes={sidecar_name: sidecar_raw, 'custody/launch.json': launch_raw})
         self.receipt['identity'] = {'source_commit': controller.commit, 'image_id': controller.image,
                                     'nonce': self.contract['nonce']}
         return dict(self.receipt)

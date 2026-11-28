@@ -8,6 +8,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import runpy
 import shutil
 import subprocess
 import sys
@@ -19,6 +20,7 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[3]
 SOURCE = Path(__file__).with_name('repository_authority.py')
+graph_fixture = runpy.run_path(str(SOURCE.with_name('repository_graph_fixture.py')))
 spec = importlib.util.spec_from_file_location('repository_authority_tests_source',SOURCE)
 a = importlib.util.module_from_spec(spec); sys.modules[spec.name] = a; spec.loader.exec_module(a)
 
@@ -38,17 +40,17 @@ def source_gate():
 class GrantFixture:
     def __init__(self, root):
         self.root = root
-        initial = ROOT/'scripts/ci/integration.lock.json'
-        assert a.digest(initial.read_bytes()) == a.INITIAL
-        names = set(json.loads(initial.read_bytes())['source_files']) | {a.OWN,a.HANDOFF,'scripts/ci/integration.lock.json','LICENSE'}
+        original = graph_fixture['original_lock'](ROOT)
+        names = set(original['source_files']) | {a.OWN,a.HANDOFF,graph_fixture['ORIGINAL_LOCK'],'LICENSE'}
         prefixes = {'runtime':a.RUNTIME,'collector':'scripts/port/repository-client-native','phase':a.PHASE}
         for prefix in prefixes.values():
-            names.add(prefix+'/source-map.json')
-            names.update(prefix+'/'+name for name in json.loads((ROOT/prefix/'source-map.json').read_bytes()))
+            path = prefix+'/source-map.json'
+            names.add(path)
+            raw, _ = graph_fixture['historical_graph_input'](ROOT,path)
+            names.update(prefix+'/'+name for name in json.loads(raw))
         self.rows = {}
         for name in sorted(names):
-            source = ROOT/name
-            data = source.read_bytes(); mode = source.stat().st_mode & 0o777
+            data, mode = graph_fixture['historical_graph_input'](ROOT,name)
             target = root/name; target.parent.mkdir(parents=True,exist_ok=True); target.write_bytes(data); target.chmod(mode)
             self.rows[name] = {'sha256':a.digest(data),'mode':mode}
         self.actor = {'cli_sha256':'b'*64,'endpoint_identity':{'fixture':'NO ACTOR'},'env':{}}
@@ -58,19 +60,12 @@ class GrantFixture:
             'source_files':self.rows,'maps':{},'callbacks':{},
             'policy_path':'SYNTHETIC-policy.json',
             'license_path':'LICENSE','actor_contract_sha256':a.digest(a.encoded(self.actor))}
-        original=json.loads(initial.read_bytes())
         self.grant['original_view']={'schema_version':1,'purpose':'original-159-copy-view',
             'full_source_root':str(root),'root':str(root/'output'/'original-view'),
             'integration_lock_sha256':a.INITIAL,'source_rows_sha256':a.digest(a.encoded(original['source_files'])),
             'file_count':160,'argv_mode':'absolute-view-metadata'}
         self.grant['initial_invocation_sha256'] = a.digest(a.encoded({'argv':['integration','SYNTHETIC-NO-ACTOR'],
                                                                     'output':str(root/'output')}))
-        # Test-only coherent runtime ledger follows actual current source bytes.
-        # It is not the coordinator's admitted map and is never executed here.
-        runtime_rows = {name:{'sha256':self.rows[a.RUNTIME+'/'+name]['sha256'],'mode':0o644}
-                        for name in json.loads((root/a.RUNTIME/'source-map.json').read_bytes())}
-        data = a.encoded(runtime_rows); (root/a.RUNTIME/'source-map.json').write_bytes(data)
-        self.rows[a.RUNTIME+'/source-map.json'] = {'sha256':a.digest(data),'mode':0o644}
         policy = {'coordinated_sets':[{'name':'generic-Hyprland-builder','versions':{'aquamarine':'0.15.1-1',
             'hyprgraphics':'0.5.1-4','hyprland':'0.56.2-4','hyprlang':'0.6.8-5','hyprutils':'0.14.2-1'}}],
             'platform_scope':'generic-builder-only','protected_packages':['pacman','glibc','bash','filesystem'],
@@ -155,6 +150,21 @@ class SourceTests(unittest.TestCase):
 
     def test_exact_class_foreign_session_refuses_before_actor(self):
         with self.assertRaises(self.fixture.module.Refused): self.fixture.construct(session=types.SimpleNamespace())
+
+    def test_live_release_refused_by_original_source_admission(self):
+        self.fixture.construct()
+        name = graph_fixture['RELEASE']
+        raw, mode = graph_fixture['checkout_input'](ROOT,name)
+        rebound = {'sha256':a.digest(raw),'mode':mode}
+        self.assertNotEqual(rebound,self.fixture.rows[name])
+        target = self.fixture.root/name
+        target.write_bytes(raw)
+        target.chmod(mode)
+        self.fixture.rows[name] = rebound
+        self.fixture.raw = a.encoded(self.fixture.grant)
+        self.fixture.pin = a.digest(self.fixture.raw)
+        with self.assertRaisesRegex(ValueError,'^source-refused$'):
+            self.fixture.construct()
 
     def test_source_mode_inode_and_bytes_changes_refuse(self):
         callback = self.fixture.construct(); path = self.fixture.root/a.OWN

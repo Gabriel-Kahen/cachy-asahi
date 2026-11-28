@@ -3,14 +3,19 @@
 """Portable stage boundary fixtures only: never runs Docker or native client tests."""
 import argparse
 import ast
+from contextlib import redirect_stderr
 import copy
+import errno
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
 import platform
 import signal
+import stat
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -35,6 +40,34 @@ def receipt():
 
 
 class StageTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        checkout = Path(__file__).resolve().parents[2]
+        release_helpers = ('scripts/release/release.py', 'scripts/release/test_release.py')
+        cls.source = checkout
+        if all(s.digest(s.read(checkout / name)) == s.FROZEN[name] for name in release_helpers):
+            return
+
+        held = os.environ.get('FROZEN_CLIENT_RELEASE_HELPERS')
+        temporary = tempfile.TemporaryDirectory(prefix='client-stage-frozen-source-')
+        cls.addClassCleanup(temporary.cleanup)
+        cls.source = Path(temporary.name)
+        for name in (*s.FROZEN, 'scripts/client/stage.py', 'scripts/ci/source_suites.py',
+                     'scripts/port/refreshed-desktop/proposed-builder-inventory.lock'):
+            if name not in release_helpers:
+                data = s.read(checkout / name)
+            elif held:
+                data = s.checked(Path(held) / name, s.FROZEN[name])
+            else:
+                # Use the last main revision carrying the frozen helper pair.
+                revision = '565e10bfe7ef00b0528881dfba08e0f0fe50721c'
+                data = subprocess.check_output(['git', '-C', str(checkout), 'show', f'{revision}:{name}'], timeout=10)
+            target = cls.source / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+        stage_sha = s.digest(s.read(checkout / 'scripts/client/stage.py'))
+        s.source_pins(cls.source, stage_sha, s.GUARD_SHA)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='client-stage-portable-')
         self.addCleanup(self.temp.cleanup)
@@ -72,7 +105,7 @@ class StageTests(unittest.TestCase):
             with self.assertRaises(ValueError):s.inventory(wrong)
 
     def test_bootstrap_actual_inventory_and_image_binding(self):
-        lock = Path('scripts/port/refreshed-desktop/proposed-builder-inventory.lock').read_bytes()
+        lock = (self.source / 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock').read_bytes()
         value = {'status': 'image-provisioned', 'image_id': IMAGE, 'inputs_sha256': s.INPUTS_SHA,
                  'packages_lock_sha256': s.PACKAGES_SHA}
         self.assertEqual(s.bootstrap(json.dumps(value).encode(), lock, IMAGE), value)
@@ -81,7 +114,7 @@ class StageTests(unittest.TestCase):
             with self.assertRaises(ValueError):s.bootstrap(json.dumps(changed).encode(), lock, IMAGE)
 
     def test_frozen_sources_rechecked_and_guard_is_fixed(self):
-        root = Path(__file__).resolve().parents[2]
+        root = self.source
         files, pins = s.source_pins(root, hashlib.sha256(s.read(root / 'scripts/client/stage.py')).hexdigest(), s.GUARD_SHA)
         self.assertEqual(len(files), 7)
         self.assertEqual({k: pins[k] for k in s.FROZEN}, s.FROZEN)
@@ -89,7 +122,7 @@ class StageTests(unittest.TestCase):
         with self.assertRaises(ValueError):s.source_pins(root, '0' * 64, '0' * 64)
 
     def test_source_delivery_is_required_checked_worker_source(self):
-        root = Path(__file__).resolve().parents[2]
+        root = self.source
         stage_sha = s.digest(s.read(root / 'scripts/client/stage.py'))
         files, pins = s.source_pins(root, stage_sha, s.GUARD_SHA)
         helper = 'scripts/release/source_delivery.py'
@@ -108,7 +141,7 @@ class StageTests(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):s.source_pins(self.root, stage_sha, s.GUARD_SHA)
 
     def test_release_helper_pair_pins_reject_byte_drift(self):
-        root = Path(__file__).resolve().parents[2]
+        root = self.source
         stage_sha = s.digest(s.read(root / 'scripts/client/stage.py'))
         files, pins = s.source_pins(root, stage_sha, s.GUARD_SHA)
         for name, data in files.items():
@@ -279,7 +312,7 @@ class StageTests(unittest.TestCase):
         boot = self.root / 'bootstrap.json'
         boot.write_text(json.dumps({'status': 'image-provisioned', 'image_id': IMAGE,
                         'inputs_sha256': s.INPUTS_SHA, 'packages_lock_sha256': s.PACKAGES_SHA}))
-        source = Path(__file__).resolve().parents[2]
+        source = self.source
         args = argparse.Namespace(image=IMAGE, bootstrap=boot, bootstrap_sha256=s.digest(boot.read_bytes()),
                     packages=source / 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock',
                     packages_sha256=s.PACKAGES_SHA, source=source,
@@ -407,6 +440,277 @@ class StageTests(unittest.TestCase):
             s.finalize_receipt(target, value)
         self.assertEqual(value['status'], 'FAIL')
         self.assertEqual(json.loads(target.read_bytes())['status'], 'FAIL')
+
+    def test_receipt_file_sync_eio_publishes_no_pass(self):
+        target = self.root / 'worker-receipt.json'
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=OSError(errno.EIO, 'fixture')):
+            with self.assertRaises(OSError) as failed:
+                s.finalize_receipt(target, receipt())
+        self.assertEqual(failed.exception.errno, errno.EIO)
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_receipt_directory_sync_eio_rolls_back_owned_publication(self):
+        target = self.root / 'receipt.json'
+        actual_sync = s.os.fsync
+
+        def fail_directory(fd):
+            if stat.S_ISDIR(os.fstat(fd).st_mode):
+                raise OSError(errno.EIO, 'fixture')
+            actual_sync(fd)
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=fail_directory):
+            with self.assertRaises(OSError) as failed:
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertEqual(failed.exception.errno, errno.EIO)
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_receipt_full_filesystem_retracts_without_allocating_another_directory(self):
+        target = self.root / 'receipt.json'
+        parent = self.root.stat()
+        primary = OSError(errno.ENOSPC, 'TEST receipt directory sync is full')
+        actual_sync = s.os.fsync
+        actual_mkdir = s.os.mkdir
+        full = False
+
+        def fail_publication_sync(fd):
+            nonlocal full
+            if os.path.samestat(os.fstat(fd), parent):
+                if not full:
+                    self.assertTrue(target.exists())
+                full = True
+                raise primary
+            actual_sync(fd)
+
+        def refuse_allocation(*args, **kwargs):
+            if full:
+                raise OSError(errno.ENOSPC, 'TEST filesystem is still full')
+            return actual_mkdir(*args, **kwargs)
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=fail_publication_sync), \
+                mock.patch.object(s.os, 'mkdir', side_effect=refuse_allocation):
+            with self.assertRaises(OSError) as failed:
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertIs(failed.exception, primary)
+        self.assertTrue(full)
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_receipt_staging_cleanup_error_after_readback_preserves_success(self):
+        target = self.root / 'receipt.json'
+        actual_rmdir = s.os.rmdir
+        actual_read = s.read
+        readback = failed_once = False
+
+        def record_readback(path):
+            nonlocal readback
+            readback = True
+            return actual_read(path)
+
+        def fail_staging_cleanup(path, **kwargs):
+            nonlocal failed_once
+            actual_rmdir(path, **kwargs)
+            if not failed_once and kwargs.get('dir_fd') is not None and path.startswith('.receipt-'):
+                self.assertTrue(target.exists())
+                self.assertTrue(readback)
+                failed_once = True
+                raise OSError(errno.EIO, 'TEST staging retirement uncertainty')
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'rmdir', side_effect=fail_staging_cleanup), \
+                mock.patch.object(s, 'read', side_effect=record_readback):
+            s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertTrue(failed_once)
+        self.assertEqual(list(self.root.iterdir()), [target])
+        self.assertEqual(json.loads(target.read_bytes()), {'status': 'PASS'})
+
+    def test_receipt_failed_sync_preserves_replaced_publication(self):
+        target = self.root / 'receipt.json'
+        replacement = self.root / 'foreign'
+        replacement.write_bytes(b'foreign data')
+        actual_sync = s.os.fsync
+
+        def replace_during_sync(fd):
+            if stat.S_ISDIR(os.fstat(fd).st_mode) and replacement.exists():
+                replacement.replace(target)
+                raise OSError(errno.EIO, 'fixture')
+            actual_sync(fd)
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=replace_during_sync):
+            with self.assertRaises(OSError) as failed:
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertEqual(failed.exception.errno, errno.EIO)
+        self.assertEqual(list(self.root.iterdir()), [target])
+        self.assertEqual(target.read_bytes(), b'foreign data')
+
+    def test_receipt_rollback_preserves_replacement_after_ownership_stat(self):
+        target = self.root / 'receipt.json'
+        replacement = self.root / 'foreign'
+        replacement.write_bytes(b'foreign data')
+        foreign = replacement.stat()
+        primary = ValueError('TEST receipt readback refusal')
+        actual_stat = s.os.stat
+        rollback = replaced = False
+
+        def refuse_readback(path):
+            nonlocal rollback
+            self.assertEqual(Path(path), target)
+            rollback = True
+            raise primary
+
+        def replace_after_stat(path, *args, **kwargs):
+            nonlocal replaced
+            current = actual_stat(path, *args, **kwargs)
+            if rollback and not replaced and path == target.name and kwargs.get('dir_fd') is not None:
+                replacement.replace(target)
+                replaced = True
+            return current
+
+        with s.cancellation_handlers(), mock.patch.object(s, 'read', side_effect=refuse_readback), \
+                mock.patch.object(s.os, 'stat', side_effect=replace_after_stat):
+            with self.assertRaises(ValueError) as failed:
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertIs(failed.exception, primary)
+        self.assertTrue(replaced)
+        self.assertEqual(list(self.root.iterdir()), [target])
+        self.assertTrue(os.path.samestat(target.stat(), foreign))
+        self.assertEqual(target.read_bytes(), b'foreign data')
+
+    def test_receipt_rollback_retains_displaced_directory_if_name_is_reclaimed(self):
+        target = self.root / 'receipt.json'
+        foreign = self.root / 'foreign'
+        foreign.mkdir()
+        (foreign / 'sentinel').write_bytes(b'displaced data')
+        primary = ValueError('TEST receipt readback refusal')
+        actual_rename = s.os.rename
+
+        def replace_during_retraction(source, dest, **kwargs):
+            if source == target.name and dest == 'recovery':
+                target.unlink()
+                actual_rename(foreign, target)
+                actual_rename(source, dest, **kwargs)
+                target.write_bytes(b'new owner')
+            else:
+                actual_rename(source, dest, **kwargs)
+
+        with s.cancellation_handlers(), mock.patch.object(s, 'read', side_effect=primary), \
+                mock.patch.object(s.os, 'rename', side_effect=replace_during_retraction):
+            with self.assertRaises(ValueError) as failed:
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertIs(failed.exception, primary)
+        staging, = self.root.glob('.receipt-*')
+        self.assertEqual(list(staging.iterdir()), [staging / 'recovery'])
+        self.assertEqual((staging / 'recovery' / 'sentinel').read_bytes(), b'displaced data')
+        self.assertEqual(target.read_bytes(), b'new owner')
+        recovery = staging.name + '/recovery'
+        self.assertIn(recovery, failed.exception.__notes__[0])
+        stderr = io.StringIO()
+        with redirect_stderr(stderr), mock.patch.object(s, 'run_stage', side_effect=primary), \
+                mock.patch.object(s.argparse.ArgumentParser, 'parse_args', return_value=argparse.Namespace(command='run')):
+            self.assertEqual(s.main(), 1)
+        self.assertEqual(stderr.getvalue().splitlines(), [
+            'FAIL: client stage boundary/input refusal',
+            f'Recovery retained in the original output directory at {recovery}',
+        ])
+
+    def test_receipt_parent_replacement_after_directory_sync_refuses_success(self):
+        parent = self.root / 'out'
+        parent.mkdir(mode=0o700)
+        target = parent / 'receipt.json'
+        detached = self.root / 'detached'
+        actual_sync = s.os.fsync
+
+        def replace_after_sync(fd):
+            actual_sync(fd)
+            if stat.S_ISDIR(os.fstat(fd).st_mode) and not detached.exists():
+                parent.rename(detached)
+                parent.mkdir(mode=0o700)
+                (parent / 'sentinel').write_bytes(b'foreign data')
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=replace_after_sync):
+            with self.assertRaisesRegex(ValueError, 'receipt-parent-changed'):
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertFalse(target.exists())
+        self.assertEqual(list(detached.iterdir()), [])
+        self.assertEqual((parent / 'sentinel').read_bytes(), b'foreign data')
+
+    def test_receipt_same_length_edit_after_directory_sync_refuses_success(self):
+        target = self.root / 'receipt.json'
+        actual_sync = s.os.fsync
+
+        def edit_after_sync(fd):
+            actual_sync(fd)
+            if stat.S_ISDIR(os.fstat(fd).st_mode) and target.exists():
+                target.write_bytes(target.read_bytes().replace(b'PASS', b'FAIL'))
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=edit_after_sync):
+            with self.assertRaisesRegex(ValueError, 'receipt-file-changed'):
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_receipt_signal_while_closing_committed_directory_keeps_success(self):
+        target = self.root / 'receipt.json'
+        value = {'status': 'PASS'}
+        actual_close = s.os.close
+        parent = self.root.stat()
+        delivered = []
+
+        def cancel_on_close(fd):
+            is_parent = os.path.samestat(os.fstat(fd), parent)
+            actual_close(fd)
+            if is_parent and target.exists():
+                delivered.append(signal.SIGTERM)
+                signal.raise_signal(signal.SIGTERM)
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'close', side_effect=cancel_on_close):
+            s.finalize_receipt(target, value)
+            self.assertFalse(s.CANCELLED)
+        self.assertEqual(delivered, [signal.SIGTERM])
+        self.assertEqual(value, {'status': 'PASS'})
+        self.assertEqual(json.loads(target.read_bytes()), value)
+
+    def test_receipt_signal_during_visible_readback_publishes_fail(self):
+        target = self.root / 'receipt.json'
+        value = {'status': 'PASS'}
+        actual_read = s.read
+        delivered = []
+
+        def cancel_during_read(path):
+            data = actual_read(path)
+            if not delivered:
+                delivered.append(signal.SIGTERM)
+                signal.raise_signal(signal.SIGTERM)
+            return data
+
+        with s.cancellation_handlers(), mock.patch.object(s, 'read', side_effect=cancel_during_read):
+            s.finalize_receipt(target, value)
+            self.assertTrue(s.CANCELLED)
+        self.assertEqual(delivered, [signal.SIGTERM])
+        self.assertEqual(value, {'status': 'FAIL', 'cancelled': True})
+        self.assertEqual(json.loads(target.read_bytes()), value)
+
+    def test_receipt_publish_refuses_existing_output(self):
+        target = self.root / 'receipt.json'
+        target.write_bytes(b'foreign data')
+        with s.cancellation_handlers(), self.assertRaises(FileExistsError):
+            s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertEqual(list(self.root.iterdir()), [target])
+        self.assertEqual(target.read_bytes(), b'foreign data')
+
+    def test_receipt_cancellation_during_directory_sync_publishes_fail(self):
+        target = self.root / 'receipt.json'
+        actual_sync = s.os.fsync
+        cancelled = False
+
+        def cancel_on_directory(fd):
+            nonlocal cancelled
+            if stat.S_ISDIR(os.fstat(fd).st_mode) and not cancelled:
+                cancelled = True
+                signal.raise_signal(signal.SIGTERM)
+            actual_sync(fd)
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=cancel_on_directory):
+            s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertTrue(cancelled)
+        self.assertEqual(list(self.root.iterdir()), [target])
+        self.assertEqual(json.loads(target.read_bytes()), {'status': 'FAIL', 'cancelled': True})
 
     def test_inspection_handles_reported_tmpfs_without_accepting_extra_mount(self):
         value = self.container()

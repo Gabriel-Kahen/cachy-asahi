@@ -12,11 +12,21 @@ S_PATH=ROOT/'scripts/ci/orphans-full574-native/supervise.py'
 S=load('original_job_retirement',S_PATH)
 IDENTITY=dict(source_sha='a'*40,trial='full574-signed-repair',proof_sha256='b'*64,consumer_token='c'*32,producer_token='d'*16,case='repair-bytes')
 PINS={'manifest':D.pin(b'inert-control-manifest'),'files':{'scripts/ci/orphans-full574-native/supervise.py':D.pin(S_PATH.read_bytes())}}
-CHILD='import os,signal,subprocess,sys,time\nfrom pathlib import Path\nr=Path(sys.argv[1]);mode=sys.argv[2];received=[]\ndef leave(n,f):received.append(n)\nfor n in (signal.SIGINT,signal.SIGTERM):signal.signal(n,signal.SIG_IGN if mode==\'ignore\' else leave)\nif mode==\'tree\':\n code="""import os,signal,time\nfrom pathlib import Path\nr=Path("""+repr(str(r))+""");received=[]\ndef leave(n,f):received.append(n)\nfor n in (signal.SIGINT,signal.SIGTERM):signal.signal(n,leave)\n(r/\'grand-ready\').write_text(str(os.getpid()))\nwhile not received:time.sleep(.01)\nsignal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM})\n(r/\'grand-signal\').write_text(str(received[0]))\n"""\n grand=subprocess.Popen([sys.executable,\'-c\',code]);end=time.monotonic()+2\n while not (r/\'grand-ready\').exists() and time.monotonic()<end:time.sleep(.01)\n(r/\'ready\').write_text(str(os.getpid()))\nwhile not received:time.sleep(.02)\n# No wait or I/O in a Python signal handler: a second cancellation must not\n# reenter Popen.wait while its non-reentrant waitpid lock is already held.\nsignal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM})\n(r/\'forwarded\').write_text(str(received[0]))\nif mode==\'tree\':grand.wait(timeout=1)\nraise SystemExit(0)\n'
+CHILD='import os,signal,subprocess,sys,time\nfrom pathlib import Path\nr=Path(sys.argv[1]);mode=sys.argv[2];received=[]\ndef leave(n,f):received.append(n)\nfor n in (signal.SIGINT,signal.SIGTERM):signal.signal(n,signal.SIG_IGN if mode==\'ignore\' else leave)\nif mode==\'tree\':\n code="""import os,signal,time\nfrom pathlib import Path\nr=Path("""+repr(str(r))+""");received=[]\ndef leave(n,f):received.append(n)\nfor n in (signal.SIGINT,signal.SIGTERM):signal.signal(n,leave)\n(r/\'grand-ready\').write_text(str(os.getpid()))\nwhile not received:time.sleep(.01)\nsignal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM})\n(r/\'grand-signal\').write_text(str(received[0]))\n"""\n grand=subprocess.Popen([sys.executable,\'-c\',code]);end=time.monotonic()+2\n while not (r/\'grand-ready\').exists() and time.monotonic()<end:time.sleep(.01)\n(r/\'ready-new\').write_text(str(os.getpid()))\n(r/\'ready-new\').rename(r/\'ready\')\nwhile not received:time.sleep(.02)\n# No wait or I/O in a Python signal handler: a second cancellation must not\n# reenter Popen.wait while its non-reentrant waitpid lock is already held.\nsignal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM})\n(r/\'forwarded\').write_text(str(received[0]))\nif mode==\'tree\':grand.wait(timeout=1)\nraise SystemExit(0)\n'
 LAUNCH="""import importlib.util,json,sys
 from pathlib import Path
 spec=importlib.util.spec_from_file_location('S',sys.argv[1]);S=importlib.util.module_from_spec(spec);spec.loader.exec_module(S)
-v=S.handoff([sys.executable,'-c',sys.argv[2],sys.argv[3],sys.argv[4]],Path(sys.argv[3])/'handoff.json',json.loads(sys.argv[5]));raise SystemExit(128+v['cancellation_signal'] if v['cancellation_signal'] else v['exit_code'])
+work=Path(sys.argv[3])
+real_fsync=S.os.fsync
+completed_saves=0
+# The second save persists the child identity before cancellation can be timed.
+def observe_fsync(fd):
+ global completed_saves
+ real_fsync(fd)
+ completed_saves+=1
+ if completed_saves==2:(work/'armed').touch(exist_ok=False)
+S.os.fsync=observe_fsync
+v=S.handoff([sys.executable,'-c',sys.argv[2],sys.argv[3],sys.argv[4]],work/'handoff.json',json.loads(sys.argv[5]));raise SystemExit(128+v['cancellation_signal'] if v['cancellation_signal'] else v['exit_code'])
 """
 class Retention(unittest.TestCase):
  def setUp(self):self.tmp=tempfile.TemporaryDirectory(prefix='job-retirement-control-');self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name);self.path=self.root/'handoff.json'
@@ -80,14 +90,25 @@ class Retention(unittest.TestCase):
   self.assertEqual(CHILD.count(seam),1)
   with patch.dict(globals(),CHILD=CHILD.replace(seam,replacement)):
    self.run_owned('tree',signal.SIGINT,True)
+ def owned_directory(self):
+  try:
+   return tempfile.TemporaryDirectory(prefix='job-retirement-owned-',dir=Path('/dev/shm').resolve(strict=True))
+  except OSError:
+   return tempfile.TemporaryDirectory(dir=self.root)
  def run_owned(self,mode,number,whole_tree):
-  with tempfile.TemporaryDirectory(dir=self.root) as td:
+  with self.owned_directory() as td:
    work=Path(td);p=subprocess.Popen([sys.executable,'-I','-B','-c',LAUNCH,str(S_PATH),CHILD,str(work),mode,json.dumps(IDENTITY)],start_new_session=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
    child_pid=None
    try:
     end=time.monotonic()+3
-    while not (work/'ready').exists() and p.poll() is None and time.monotonic()<end:time.sleep(.01)
-    self.assertTrue((work/'ready').exists());child_pid=int((work/'ready').read_text());start=time.monotonic()
+    # The child can be ready while the supervisor is persisting its job identity.
+    while p.poll() is None and time.monotonic()<end:
+     if child_pid is None and (work/'ready').exists():child_pid=int((work/'ready').read_text())
+     if child_pid is not None and (work/'armed').exists():break
+     time.sleep(.01)
+    self.assertIsNotNone(child_pid,'child did not finish preparing its signal handlers')
+    self.assertTrue((work/'armed').exists(),'supervisor did not finish syncing the job identity')
+    start=time.monotonic()
     if whole_tree:os.killpg(child_pid,number)
     os.kill(p.pid,number);out,err=p.communicate(timeout=7);self.assertFalse(err,err.decode());self.assertEqual(p.returncode,128+number)
     elapsed=time.monotonic()-start;receipt=work/'handoff.json'
@@ -101,13 +122,22 @@ class Retention(unittest.TestCase):
     summary=dict(mode=mode,signal=int(number),whole_tree=whole_tree,seconds=round(time.monotonic()-start,6),actual_wait_returncode=p.returncode,original=v['public'],host_only=True)
     print('OWNED_PROCESS_CONTROL '+json.dumps(summary,sort_keys=True),flush=True)
    finally:
+    failure=sys.exception()
+    cleanup_error=None
     if p.poll() is None:
      for pid in (child_pid,p.pid):
       if pid:
        try:os.killpg(pid,signal.SIGKILL)
        except ProcessLookupError:pass
-     p.wait(timeout=1)
-    p.stdout.close();p.stderr.close()
+       except OSError as error:cleanup_error=cleanup_error or error
+     try:p.wait(timeout=1)
+     except (OSError,subprocess.TimeoutExpired) as error:cleanup_error=cleanup_error or error
+    for pipe in (p.stdout,p.stderr):
+     try:pipe.close()
+     except OSError as error:cleanup_error=cleanup_error or error
+    if cleanup_error is not None:
+     if failure is None:raise cleanup_error
+     failure.add_note(f'Owned fixture cleanup also failed ({type(cleanup_error).__name__}).')
 class Source(unittest.TestCase):
  def test_original_supervisor_hash_and_no_actor_authority(self):
   self.assertEqual(D.pin(S_PATH.read_bytes()),dict(bytes=8227,sha256='524118fb285107def1453bc7c4e9db505223611186ed952adf9fdfdd0e794171'))

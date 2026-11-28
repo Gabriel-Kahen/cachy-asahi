@@ -8,12 +8,12 @@ from common import decode, digest, encoded, need, pinned, read, snapshot, load_s
 
 ROOT = Path(__file__).resolve().parents[3]
 HELD = {
-    'adapter.py': '69ad53b4bc041d37536ad15a4ced7efa4cb2d61bcd6cb4a62fdfce8a7dbd52ab',
+    'adapter.py': 'af04eed3f1b8ca4c6bce29f5e75b7cee5247ef7bf10c7282b644ffc68ceab2ea',
     'gate.py': 'fa39cfd6b5c1a3718f888d3f9fdb51f5bb8e38a7e57a98d1c4c8c570ea70af1e',
 }
 DEPENDENCIES = {
-    'scripts/release/release.py': '418c850e8a44ae71517e074f86f46f5999f5fe7433ca6798de945f318191a918',
-    'scripts/client/client.py': '3025aa0e167c836e31c949e0915d4ee82a1007dc0fada598b4895240c82f5f97',
+    'scripts/release/release.py': '68ffb4b9af09204d56fe12a400b41994a027618adb98314745ecc2a5835ed45c',
+    'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7',
 }
 
 

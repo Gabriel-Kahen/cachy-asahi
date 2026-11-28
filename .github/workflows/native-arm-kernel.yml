@@ -3,9 +3,18 @@ on:
   workflow_dispatch:
     inputs:
       packet_sha256:
-        description: Externally reviewed SHA-256 of the complete kernel native job packet.lock.json
+        description: Externally reviewed SHA-256 of scripts/port/kernel-native-job-v3/packet.lock.json
         required: true
         type: string
+      retained_inputs:
+        description: Use the configured private handoff for pinned retained inputs
+        type: boolean
+        default: false
+      retained_transport:
+        description: Private handoff transport when retained_inputs is enabled
+        type: choice
+        options: [https, ssh]
+        default: https
 permissions:
   contents: read
 concurrency:
@@ -20,32 +29,44 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       KERNEL_JOB_PACKET_SHA256: ${{ inputs.packet_sha256 }}
     steps:
-      # 5 + 5 + 346 + 3 minutes, with one minute reserved for runner overhead.
+      # 4 + 2 + 4 + 346 + 3 minutes, with one minute reserved for runner overhead.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, reviewed native-arm-build pin
-        timeout-minutes: 5
+        timeout-minutes: 4
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
       - name: Authenticate committed packet and refuse unavailable native prerequisites
-        timeout-minutes: 5
+        id: preflight
+        timeout-minutes: 2
         env:
           KERNEL_BOOTSTRAP_MODE: preflight
         shell: bash
         run: &trusted-bootstrap |
+          if [[ "$KERNEL_BOOTSTRAP_MODE" == retained || "$KERNEL_BOOTSTRAP_MODE" == native ]]; then
+            exec >/dev/null 2>&1
+          fi
           /usr/bin/python3 -I -B - <<'PY'
           import hashlib, json, os, platform, re, shutil, stat, subprocess, sys
+          from importlib.machinery import BuiltinImporter, FrozenImporter, ModuleSpec, PathFinder
           from pathlib import Path
 
           WORKFLOW = '.github/workflows/native-arm-kernel.yml'
-          PACKET = 'scripts/port/kernel-native-job/packet.lock.json'
+          PACKET = 'scripts/port/kernel-native-job-v3/packet.lock.json'
           JOB = 'scripts/port/kernel-native-job/job.py'
+          INTAKE = 'scripts/port/kernel-native-job/intake.py'
           PUBLIC = 'scripts/port/kernel-native-job/public.py'
-          REQUIRED = {WORKFLOW, JOB, PUBLIC, 'scripts/ci/native_arm.py',
-                      'scripts/port/kernel-native-job/packet.py',
-                      'scripts/port/kernel-native-job/runtime.py',
-                      'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
+          MODULES = {name: 'scripts/port/kernel-native-job/' + name + '.py'
+                     for name in ('child_launch', 'intake', 'packet', 'packet_v2', 'packet_v3', 'public', 'runtime')}
+          REQUIRED = {WORKFLOW, JOB, *MODULES.values(), 'scripts/ci/native_arm.py',
+                      'scripts/checks/package_checks.py',
+                      'scripts/ci/native349-pinned-input-carrier/expected-files.json',
+                      'scripts/port/kernel-native-job-v2/setup-producer-source.json',
+                      'scripts/build/build.py', 'scripts/build/compare.py',
+                      'scripts/build/container-entry.sh',
+                      'scripts/ci/inputs.lock.json',
+                      'scripts/port/kernel-native-job/recipes.lock.json',
                       'scripts/port/kernel-native-stage/stage.py',
-                      'scripts/port/kernel-native-stage/stage.lock.json'}
+                      'scripts/port/kernel-native-job-v3/stage.lock.json'}
 
           def need(ok):
               if not ok:
@@ -86,7 +107,7 @@ jobs:
           def git(root, *args):
               env = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'HOME': os.environ['RUNNER_TEMP'],
                      'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': '/dev/null'}
-              result = subprocess.run(['/usr/bin/git', '--literal-pathspecs', '-c', 'core.hooksPath=/dev/null',
+              result = subprocess.run(['/usr/bin/git', '--no-replace-objects', '--literal-pathspecs', '-c', 'core.hooksPath=/dev/null',
                                        '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C', str(root), *args],
                                       env=env, capture_output=True, timeout=10, check=True)
               need(len(result.stdout) <= 8 * 1024**2 and len(result.stderr) <= 4096)
@@ -167,10 +188,48 @@ jobs:
                   need(read(destination, 8 * 1024**2, modes[name]) == data)
               return target
 
+          def launch(snapshot, captured, modes, entry, args):
+              need(entry in (INTAKE, JOB) and {entry, *MODULES.values()} <= captured.keys()
+                   and captured.keys() == modes.keys() and not (MODULES.keys() & sys.modules.keys()))
+              # Recheck the staged copy but take instructions only from the
+              # authenticated bytes held at this launch.
+              for name, body in captured.items():
+                  need(read(snapshot / name, len(body), modes[name]) == body)
+
+              paths, meta_path, argv = sys.path[:], sys.meta_path, sys.argv
+
+              class CapturedModules:
+                  def find_spec(self, name, path=None, target=None):
+                      if name in MODULES:
+                          return ModuleSpec(name, self, origin=str(snapshot / MODULES[name]))
+                      # The entry scripts add their directory to sys.path for
+                      # standalone use. Ignore it for filesystem imports here.
+                      return PathFinder.find_spec(name, paths if path is None else path)
+
+                  def create_module(self, spec):
+                      return None
+
+                  def exec_module(self, module):
+                      name = MODULES[module.__name__]
+                      module.__file__ = str(snapshot / name)
+                      exec(compile(captured[name], module.__file__, 'exec'), vars(module))
+
+              filename = str(snapshot / entry)
+              try:
+                  sys.meta_path = [BuiltinImporter, FrozenImporter, CapturedModules()]
+                  sys.argv = [filename, *args]
+                  exec(compile(captured[entry], filename, 'exec'),
+                       {'__name__': '__main__', '__file__': filename})
+              finally:
+                  sys.argv, sys.meta_path = argv, meta_path
+                  sys.path[:] = paths
+                  for name in MODULES:
+                      sys.modules.pop(name, None)
+
           def main():
               need(sys.version_info >= (3, 11))
               mode = os.environ.get('KERNEL_BOOTSTRAP_MODE')
-              need(mode in ('preflight', 'public'))
+              need(mode in ('preflight', 'retained', 'native', 'public'))
               root, temporary = Path(os.environ['GITHUB_WORKSPACE']), Path(os.environ['RUNNER_TEMP'])
               need(root.is_absolute() and root == root.resolve() and temporary.is_absolute() and temporary == temporary.resolve())
               need(all(stat.S_ISDIR(p.lstat().st_mode) for p in (temporary, *temporary.parents)))
@@ -180,7 +239,26 @@ jobs:
               run, attempt = os.environ['GITHUB_RUN_ID'], os.environ['GITHUB_RUN_ATTEMPT']
               need(re.fullmatch('[0-9]{1,20}', run) and re.fullmatch('[0-9]{1,10}', attempt))
               output = root / 'artifacts/kernel-native-job' / ('job-' + run + '-' + attempt)
+              snapshot = output.parent / ('bootstrap-' + run + '-' + attempt) / 'source'
+              if mode == 'retained':
+                  launch(snapshot, captured, modes, INTAKE, [])
+                  return
+              if mode == 'native':
+                  docker_pin = os.environ['KERNEL_DOCKER_SHA256']
+                  need(re.fullmatch('[0-9a-f]{64}', docker_pin))
+                  launch(snapshot, captured, modes, JOB, [
+                      '--execute-native', '--source-root', str(root), '--source-commit', commit,
+                      '--packet', str(root / PACKET), '--packet-sha256', pin, '--output', str(output),
+                      '--docker-binary', '/usr/bin/docker', '--docker-sha256', docker_pin,
+                      '--docker-endpoint', 'unix:///run/docker.sock', '--deadline', '20760'])
+                  return
               if mode == 'public':
+                  retained = temporary / ('kernel623-retained-' + run + '-' + attempt)
+                  if retained.exists() or retained.is_symlink():
+                      info = retained.lstat()
+                      need(stat.S_ISDIR(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o700 and
+                           info.st_uid == os.getuid() and shutil.rmtree.avoids_symlink_attacks)
+                      shutil.rmtree(retained)
                   sys.argv = [PUBLIC, '--status', str(output / 'public/status.json'),
                               '--source-commit', commit, '--packet-sha256', pin,
                               '--native-outcome', os.environ.get('KERNEL_NATIVE_OUTCOME', '')]
@@ -202,11 +280,9 @@ jobs:
               need(socket == socket.resolve() and stat.S_ISSOCK(socket.lstat().st_mode) and socket.lstat().st_uid == 0)
               need(shutil.disk_usage(root).free >= 8 * 1024**3)
               need(not output.exists() and not output.is_symlink())
-              snapshot = clean_snapshot(root, run, attempt, captured, modes)
-              need('\n' not in str(snapshot) and '\r' not in str(snapshot))
+              need(clean_snapshot(root, run, attempt, captured, modes) == snapshot)
               with open(os.environ['GITHUB_ENV'], 'a') as stream:
                   stream.write('KERNEL_DOCKER_SHA256=' + docker_pin + '\n')
-                  stream.write('KERNEL_JOB_BOOTSTRAP_SOURCE=' + str(snapshot) + '\n')
               print('KERNEL_PREFLIGHT_PASS')
 
           if __name__ == '__main__':
@@ -216,18 +292,28 @@ jobs:
                   print('KERNEL_BOOTSTRAP_REFUSED')
                   sys.exit(1)
           PY
-      - name: Execute finite original producer, signed extension and kernel build pair
-        id: native
-        timeout-minutes: 346
+      - name: Stage exact retained inputs in a private runner directory
+        id: retained
+        if: inputs.retained_inputs
+        timeout-minutes: 4
+        env:
+          KERNEL_BOOTSTRAP_MODE: retained
+          KERNEL_RETAINED_TRANSPORT: ${{ inputs.retained_transport }}
+          CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY: ${{ inputs.retained_transport == 'ssh' && secrets.CACHY_NATIVE349_INPUTS_SSH_PRIVATE_KEY || '' }}
+          KERNEL_NATIVE_RETAINED_INPUTS_URL: ${{ inputs.retained_transport == 'https' && secrets.KERNEL_NATIVE_RETAINED_INPUTS_URL || '' }}
         shell: bash
-        run: |
-          /usr/bin/python3 -I -B "$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/job.py" --execute-native \
-            --source-root "$GITHUB_WORKSPACE" --source-commit "$GITHUB_SHA" \
-            --packet "$GITHUB_WORKSPACE/scripts/port/kernel-native-job/packet.lock.json" \
-            --packet-sha256 "$KERNEL_JOB_PACKET_SHA256" \
-            --output "$GITHUB_WORKSPACE/artifacts/kernel-native-job/job-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
-            --docker-binary /usr/bin/docker --docker-sha256 "$KERNEL_DOCKER_SHA256" \
-            --docker-endpoint unix:///run/docker.sock --deadline 20760 >/dev/null 2>&1
+        run: *trusted-bootstrap
+      - name: Execute finite producer, signed extension and kernel build pair
+        id: native
+        if: ${{ !cancelled() && steps.preflight.outcome == 'success' }}
+        timeout-minutes: 346
+        env:
+          KERNEL_BOOTSTRAP_MODE: native
+          KERNEL_RETAINED_INPUTS: ${{ inputs.retained_inputs && '1' || '' }}
+          KERNEL_RETAINED_INPUTS_OUTCOME: ${{ steps.retained.outcome }}
+          KERNEL_RETAINED_TRANSPORT: ${{ inputs.retained_transport }}
+        shell: bash
+        run: *trusted-bootstrap
       - name: Publish only authenticated bounded status, including execution failure
         if: always()
         timeout-minutes: 3

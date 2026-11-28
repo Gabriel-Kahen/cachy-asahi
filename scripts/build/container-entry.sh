@@ -9,6 +9,15 @@ compare_srcinfo() {
   generated=$(sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$2") || return
   diff -u <(printf '%s\n' "$reviewed") <(printf '%s\n' "$generated")
 }
+verify_recipe_inputs() {
+  local expected=$1 irregular actual
+  [[ $expected =~ ^[0-9a-f]{64}$ ]] || return 1
+  irregular=$(find . ! -type d ! -type f -print -quit) || return 1
+  [[ -z $irregular ]] || return 1
+  # Preserve exact filenames, including whitespace, across the inventory.
+  actual=$(find . -type f -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum --zero -- | sha256sum) || return 1
+  [[ ${actual%% *} == "$expected" ]]
+}
 [[ ${CACHY_ASAHI_CONTAINER:-} == 1 && -f /inputs/PKGBUILD && -d /out ]] || {
   echo 'Missing isolated-builder contract' >&2; exit 2;
 }
@@ -18,6 +27,10 @@ export HOME=/tmp/build-home LC_ALL=C.UTF-8 TZ=UTC
 mkdir -p "$HOME" /tmp/work
 cp -R /inputs/. /tmp/work/
 cd /tmp/work
+verify_recipe_inputs "${CACHY_ASAHI_RECIPE_INPUTS_SHA256:-}" || {
+  echo 'Private recipe copy differs from reviewed inputs' >&2; exit 2;
+}
+unset CACHY_ASAHI_RECIPE_INPUTS_SHA256
 {
   uname -a
   getconf PAGESIZE

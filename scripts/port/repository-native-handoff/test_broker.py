@@ -37,6 +37,70 @@ class BrokerTests(unittest.TestCase):
                                       for row in self.checkpoints]
     def validate(self):
         return b.validate_terminal(self.records, self.job, self.launched, self.checkpoints, native_exit=0)
+    def test_pending_capture_requires_repository_pass_and_bound_launcher_receipts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            deadline = time.monotonic() + 20
+            pending = b.Pending(root, b'MODELED producer', c.digest(b'MODELED producer'), job_deadline=deadline)
+            pending.contract = self.job
+            pending.checkpoints = SimpleNamespace(records=self.checkpoints, failed=False)
+            controller = SimpleNamespace(work=root, image=self.job['image_id'], commit=self.job['source_commit'],
+                                         report={'stages': {}})
+            receipt = root / ('launch-' + self.job['nonce']) / 'receipt.json'
+            sidecar = root / 'repository-raw' / 'container-launcher.json'
+            for path in (receipt, sidecar):
+                path.parent.mkdir()
+            for sequence in (1, 2):
+                (root / f'checkpoint-{sequence}.json').write_bytes(c.encoded({'sequence': sequence}))
+            sidecar_name = 'raw/container-launcher.json'
+            selections = {sidecar_name: sidecar}
+            def take(label, selected=selections):
+                return pending.capture(controller, selections=selected, output=root / label, deadline=deadline)
+            launch_pass = c.encoded(self.launched)
+            launch_fail = c.encoded(dict(self.launched, status='FAIL'))
+            sidecar_pass = c.encoded({'status': 'PASS'})
+            sidecar_fail = c.encoded({'status': 'FAIL'})
+            cases = [
+                ('missing-stage', {}, sidecar_pass, launch_pass, 'pending-repository-stage'),
+                ('failed-stage', {'repository': {'status': 'FAIL'}}, sidecar_pass, launch_pass,
+                 'pending-repository-stage'),
+                ('sidecar-fail', {'repository': {'status': 'PASS'}}, sidecar_fail, launch_pass,
+                 'pending-sidecar-status'),
+                ('receipt-fail', {'repository': {'status': 'PASS'}}, sidecar_pass, launch_fail, 'pending-launch'),
+            ]
+            for label, stages, public, private, reason in cases:
+                with self.subTest(label=label):
+                    controller.report['stages'] = stages
+                    receipt.write_bytes(private)
+                    sidecar.write_bytes(public)
+                    with self.assertRaisesRegex(c.Refused, reason):
+                        take(label)
+                    self.assertFalse((root / label).exists())
+            receipt.write_bytes(launch_pass)
+            foreign = root / 'foreign-sidecar.json'
+            foreign.write_bytes(sidecar_pass)
+            with self.assertRaisesRegex(c.Refused, 'pending-sidecar-selection'):
+                take('foreign-sidecar', {sidecar_name: foreign})
+            with self.assertRaisesRegex(c.Refused, 'pending-sidecar-selection'):
+                take('missing-sidecar', {})
+            read = c.read
+            for path, replacement in ((sidecar, sidecar_fail), (receipt, launch_fail)):
+                label = 'drift-' + path.name
+                def replace_after_check(source, *args, **kwargs):
+                    data = read(source, *args, **kwargs)
+                    if source == path and data != replacement:
+                        path.write_bytes(replacement)
+                    return data
+                with self.subTest(path=path.name), mock.patch.object(c, 'read', side_effect=replace_after_check):
+                    with self.assertRaisesRegex(c.Refused, 'capture-expected-bytes'):
+                        take(label)
+                    self.assertFalse((root / label / 'capture.json').exists())
+                receipt.write_bytes(launch_pass)
+                sidecar.write_bytes(sidecar_pass)
+            self.assertIsNone(pending.receipt)
+            self.assertEqual(take('pass')['status'], 'PENDING')
+            self.assertEqual((root / 'pass' / sidecar_name).read_bytes(), sidecar_pass)
+            self.assertEqual((root / 'pass' / 'custody/launch.json').read_bytes(), launch_pass)
     def test_modeled_terminal_is_only_prerequisite(self):
         self.assertEqual(self.validate()['status'], 'PASS-terminal-prerequisites')
         self.assertEqual(self.validate()['native_admission'], 'NOT RUN')
@@ -234,12 +298,10 @@ class BrokerTests(unittest.TestCase):
             put(controller.native_out / 'inputs.lock.json', c.encoded({'snapshot_id': 'foreign-snapshot'}))
             with self.assertRaises(c.Refused): assemble()
     def test_create_approval_binds_only_exact_original_transformation(self):
-        from test_launch import LaunchTests, FIXTURE_RUNNER, FROZEN_RUNNER
+        from test_launch import LaunchTests
         case = LaunchTests()
         try:
             case.setUp()
-            self.assertEqual(b.launch.ORIGINAL_PIN, FROZEN_RUNNER)
-            self.enterContext(mock.patch.object(b.launch, 'ORIGINAL_PIN', FIXTURE_RUNNER))
             end = time.monotonic() + 20
             pending = b.Pending(case.private, b'# MODELED observer\n', c.digest(b'# MODELED observer\n'), job_deadline=end)
             bindings = []; pending.transport = SimpleNamespace(bind=lambda *args: bindings.append(args))

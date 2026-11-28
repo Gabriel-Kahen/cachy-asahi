@@ -73,13 +73,35 @@ class Controls(unittest.TestCase):
             R.reconstruct(repo=HERE.parents[2],output=out)
         self.assertEqual(sentinel.read_bytes(),b'KEEP')
 
+    def read_held_source72_role(self, member):
+        repo = HERE.parents[2]
+        lock = R.json.loads(R.read(HERE/'inputs.lock.json', R.LOCK_PIN))
+        reference = lock['source72_map']
+        mapping = R.json.loads(R.read(repo/reference['member'],
+                                     {k:reference[k] for k in ('bytes','sha256')}))
+        row = mapping['files'][member]
+        expected = {k:row[k] for k in ('bytes','sha256')}
+        return R.read(repo/R.HELD_SOURCE72_MEMBERS[member], expected, row['mode']), row
+
+    def test_retained_checker_matches_original_source72_role(self):
+        body, row = self.read_held_source72_role('scripts/checks/package_checks.py')
+        drift = self.root/'checker.py'
+        R.write(drift, body[:-1] + b'X')
+        with self.assertRaisesRegex(ValueError,'STABLE_WHOLE_INPUT_PIN'):
+            R.read(drift, {k:row[k] for k in ('bytes','sha256')}, row['mode'])
+
+    def test_retained_build_helpers_match_original_source72_roles(self):
+        for member in ('scripts/build/build.py', 'scripts/build/container-entry.sh'):
+            with self.subTest(member=member):
+                self.read_held_source72_role(member)
+
     def test_both_automatic_events_watch_every_pinned_operand(self):
         repo=HERE.parents[2]
         lock=R.json.loads(R.read(HERE/'inputs.lock.json',R.LOCK_PIN))
         mapping=R.json.loads((repo/lock['source72_map']['member']).read_bytes())
         virtual={'inputs/catalog333.DATA.json','inputs/prospective477.expected.DATA.lock',
-                 'inputs/stages/baseline349.expected.lock'}
-        operands=(set(mapping['files'])-virtual)|set(lock['helpers'])|{
+                 'inputs/stages/baseline349.expected.lock', *R.HELD_SOURCE72_MEMBERS}
+        operands=(set(mapping['files'])-virtual)|set(lock['helpers'])|set(R.HELD_SOURCE72_MEMBERS.values())|{
             lock['source72_map']['member'],lock['baseline_alias']['member'],
             'scripts/ci/bankstown-qt3-source79-local-data/inputs/catalog333.DATA.json.gz',
             '.github/workflows/native-arm-bankstown-qt3-hosted-v1.yml'}

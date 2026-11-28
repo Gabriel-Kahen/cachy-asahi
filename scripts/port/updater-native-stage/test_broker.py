@@ -136,8 +136,143 @@ class BrokerTests(unittest.TestCase):
             args += ['--mount', f'type=bind,src={source},dst={target}' + (',readonly' if target != '/out' else '')]
         return args + ['--entrypoint=/usr/bin/python', IMAGE, '/builder-entry.sh']
 
+    def installed(self):
+        nonce = 'd' * 32
+        base = self.root / 'installed'
+        inputs = base / 'inputs'
+        index = {}
+        for folder, files in b.INSTALLED_MEMBERS.items():
+            directory = inputs / folder
+            directory.mkdir(mode=0o700, parents=True)
+            for file in files:
+                path = directory / file
+                path.write_text('Inert capsule file: ' + file)
+                index[path.relative_to(inputs).as_posix()] = b.sha(path.read_bytes())
+        native = self.root / 'native'
+        b.save(native / 'result.json', {'native_pair': 'PASS', 'image_id': IMAGE})
+        for attempt in (1, 2):
+            build = native / f'build-{attempt}'
+            build.mkdir()
+            b.save(build / 'provenance.json', {
+                'native_compilation': 'PASS-private-native-package-static-checks',
+                'package_sha256': index['updater.pkg.tar.xz'],
+                'image_id': IMAGE,
+            })
+        scripts = mock.patch.object(b, 'INSTALLED_SCRIPT_PINS',
+                                    {name:index[name] for name in b.INSTALLED_SCRIPT_PINS})
+        scripts.start()
+        self.addCleanup(scripts.stop)
+        launch = base / 'launch.json'
+        b.save(launch, {'schema_version': 1, 'nonce': nonce, 'image_id': IMAGE, 'files': index})
+        return b.installed_argv(self.c, nonce, IMAGE, b.sha(launch.read_bytes()))
+
     def cleanup(self):
         return b.cleanup(self.root, NONCE, self.docker_file, self.c['docker_endpoint'], time.monotonic() + 120)
+
+    def test_installed_capsule_run_has_only_expected_mount_and_owned_custody(self):
+        self.build()
+        args = self.installed()
+        self.assertEqual(b.invoke(self.c, args), 0)
+        name = args[2]
+        plan, options = next((call.args[1], call.kwargs) for call in b.execute.call_args_list
+                             if call.args[1][0] == 'run')
+        self.assertEqual(plan, ['run', '--label', b.LABEL + '=' + NONCE, *args[1:]])
+        self.assertEqual(options['seconds'], 360)
+        self.assertEqual(plan.count('--mount'), 1)
+        self.assertEqual(plan[plan.index('--mount') + 1],
+                         f'type=bind,src={self.root}/installed/inputs,dst=/inputs,readonly')
+        self.assertNotIn('--rm', plan)
+        result = self.cleanup()
+        self.assertEqual(result['status'], 'PASS')
+        self.assertEqual(result['containers_absent'], 1)
+        self.assertIn(['rm', '--force', name], self.docker.calls)
+
+    def test_installed_variants_refuse_before_docker_or_registry_intent(self):
+        self.build()
+        args = self.installed()
+        count = len(self.docker.calls)
+        controls = (
+            ('--network=none', '--network=host'),
+            ('--ipc=private', '--ipc=host'),
+            ('--cap-add=SETFCAP', '--privileged'),
+            ('--user=0:0', '--user=1:1'),
+            ('--entrypoint=/usr/bin/python3', '--entrypoint=/bin/bash'),
+            ('/inputs/inside.py', '/bin/sh'),
+            (args[2], args[2].replace(NONCE, 'e' * 32)),
+        )
+        for before, after in controls:
+            altered = [after if item == before else item for item in args]
+            with self.subTest(after=after), self.assertRaises(b.BrokerError):
+                b.invoke(self.c, altered)
+        for extra in ('--rm', '--device=/dev/kvm', '--mount=type=bind,src=/,dst=/host'):
+            with self.subTest(extra=extra), self.assertRaises(b.BrokerError):
+                b.invoke(self.c, [*args[:3], extra, *args[3:]])
+        self.assertEqual(len(self.docker.calls), count)
+
+    def test_installed_capsule_accepts_bounded_retained_source_provenance(self):
+        self.build()
+        args = self.installed()
+        outputs = {f'linux-source-closure/vendor/fixture-1.0.0/src/module-{i}.rs': 'c' * 64
+                   for i in range(9000)}
+        for attempt in (1, 2):
+            path = self.root / f'native/build-{attempt}/provenance.json'
+            receipt = b.load(path.read_bytes())
+            receipt['outputs_sha256'] = outputs
+            b.save(path, receipt)
+            self.assertGreater(path.stat().st_size, b.QUERY_BYTES)
+        original = path.read_bytes()
+        path.write_bytes(original + b' ' * (4 * 1024**2))
+        with self.assertRaisesRegex(b.BrokerError, 'bounded-regular-file'):
+            b.invoke(self.c, args)
+        path.write_bytes(original)
+        self.assertEqual(b.invoke(self.c, args), 0)
+
+    def test_installed_requires_exact_manifest_pair_and_member_bytes(self):
+        self.build()
+        args = self.installed()
+        count = len(self.docker.calls)
+        launch = self.root / 'installed/launch.json'
+        raw = launch.read_bytes()
+        launch.write_bytes(raw + b' ')
+        with self.assertRaisesRegex(b.BrokerError, 'installed-launch-pin'):
+            b.invoke(self.c, args)
+        launch.write_bytes(raw)
+        path = self.root / 'installed/inputs/inside.py'
+        body = path.read_bytes()
+        path.write_bytes(body + b' ')
+        with self.assertRaisesRegex(b.BrokerError, 'installed-member-pin'):
+            b.invoke(self.c, args)
+        path.write_bytes(body)
+        extra = self.root / 'installed/inputs/extra'
+        extra.touch()
+        with self.assertRaisesRegex(b.BrokerError, 'installed-members'):
+            b.invoke(self.c, args)
+        extra.unlink()
+        path.unlink()
+        path.symlink_to(self.root / 'installed/inputs/runtime.json')
+        with self.assertRaisesRegex(b.BrokerError, 'unsafe-owned-path'):
+            b.invoke(self.c, args)
+        path.unlink()
+        path.write_bytes(body)
+        b.save(self.root / 'native/build-2/provenance.json',
+               {'native_compilation': 'PASS-private-native-package-static-checks',
+                'package_sha256': '1' * 64, 'image_id': IMAGE})
+        with self.assertRaisesRegex(b.BrokerError, 'installed-package-binding'):
+            b.invoke(self.c, args)
+        self.assertEqual(len(self.docker.calls), count)
+
+    def test_self_consistent_unreviewed_installed_script_refuses(self):
+        self.build()
+        args = self.installed()
+        launch = self.root / 'installed/launch.json'
+        script = self.root / 'installed/inputs/inside.py'
+        script.write_bytes(b'inert unreviewed substitute')
+        data = b.load(launch.read_bytes())
+        data['files']['inside.py'] = b.sha(script.read_bytes())
+        b.save(launch, data)
+        args = b.installed_argv(self.c, data['nonce'], IMAGE, b.sha(launch.read_bytes()))
+        with self.assertRaisesRegex(b.BrokerError, 'installed-script-pin'):
+            b.invoke(self.c, args)
 
     def test_worker_private_ipc_is_forwarded_without_changing_ownership(self):
         self.build(); args = self.worker()

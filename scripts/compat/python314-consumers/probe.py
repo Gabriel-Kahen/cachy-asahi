@@ -75,6 +75,70 @@ def limits():
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
 
 
+def child_terminal(pid):
+    return os.waitid(os.P_PID, pid, os.WEXITED | os.WNOWAIT | os.WNOHANG) is not None
+
+
+def wait_terminal(pid, deadline):
+    while (remaining := deadline - time.monotonic()) > 0:
+        if child_terminal(pid):
+            return True
+        time.sleep(min(0.01, remaining))
+    return False
+
+
+def group_has_peers(pid, deadline):
+    # The wait-owned terminal leader itself would keep killpg(0) successful.
+    with os.scandir('/proc') as entries:
+        for count, entry in enumerate(entries, 1):
+            require(count <= 32768 and time.monotonic() < deadline, 'owned process group census bound exceeded')
+            if entry.name.isascii() and entry.name.isdecimal() and int(entry.name) != pid:
+                try:
+                    if os.getpgid(int(entry.name)) == pid:
+                        return True
+                except ProcessLookupError:
+                    continue
+    return False
+
+
+def retire_group(child, abort):
+    """Retain wait ownership through the last signal, then prove group absence."""
+    pid, deadline = child.pid, time.monotonic() + 2
+    peers, failure = False, None
+    if not abort:
+        try:
+            peers = group_has_peers(pid, deadline)
+        except (Refusal, OSError) as error:
+            failure = error
+    if abort or peers or failure is not None:
+        child_terminal(pid)  # ECHILD prevents signaling a reused numeric identity.
+        try:
+            os.killpg(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        except OSError as error:
+            failure = failure or error
+    require(wait_terminal(pid, deadline) or child_terminal(pid), 'owned process group leader did not retire')
+    reaped, status = os.waitpid(pid, os.WNOHANG)
+    require(reaped == pid, 'owned process group leader reap unverified')
+    child.returncode = os.waitstatus_to_exitcode(status)
+    # After reaping, only a read-only group probe is safe. Presence can mean reuse.
+    while (remaining := deadline - time.monotonic()) > 0:
+        try:
+            os.killpg(pid, 0)
+        except ProcessLookupError:
+            break
+        except OSError as error:
+            raise Refusal('owned process group absence unverified') from error
+        time.sleep(min(0.01, remaining))
+    else:
+        raise Refusal('owned process group absence unverified')
+    if failure is not None:
+        raise Refusal('owned process group cleanup unverified') from failure
+    require(not peers, 'command left descendants in its owned process group')
+    return child.returncode
+
+
 class Runner:
     def __init__(self, output):
         self.output, self.commands = output, []
@@ -90,21 +154,41 @@ class Runner:
     def run(self, argv, prefix=None, allowed=(0,)):
         remaining = self.deadline - time.monotonic()
         require(remaining > 0, 'probe deadline exceeded')
+        require(signal.getsignal(signal.SIGCHLD) == signal.SIG_DFL, 'exclusive child wait ownership required')
         env = dict(self.env)
         if prefix:
             env['LD_LIBRARY_PATH'] = str(prefix / 'lib')
         argv = list(map(str, argv))
         log = self.output / 'logs' / f'{len(self.commands):02d}.txt'
+        timeout = min(60, remaining)
+        deadline = time.monotonic() + timeout
+        delayed = {signal.SIGINT, signal.SIGTERM, signal.SIGALRM}
         with log.open('wb') as stream:
-            child = subprocess.Popen(argv, cwd=self.output, env=env, stdin=subprocess.DEVNULL,
-                                     stdout=stream, stderr=subprocess.STDOUT,
-                                     start_new_session=True, preexec_fn=limits)
+            child, complete = None, False
+            previous = signal.pthread_sigmask(signal.SIG_BLOCK, delayed)
+
+            def child_setup():
+                limits()
+                signal.pthread_sigmask(signal.SIG_SETMASK, previous)
+
             try:
-                code = child.wait(timeout=min(60, remaining))
-            except BaseException:
-                os.killpg(child.pid, signal.SIGKILL)
-                child.wait()
-                raise
+                try:
+                    child = subprocess.Popen(argv, cwd=self.output, env=env, stdin=subprocess.DEVNULL,
+                                             stdout=stream, stderr=subprocess.STDOUT,
+                                             start_new_session=True, preexec_fn=child_setup)
+                finally:
+                    signal.pthread_sigmask(signal.SIG_SETMASK, previous)
+                if not wait_terminal(child.pid, deadline):
+                    raise subprocess.TimeoutExpired(argv, timeout)
+                complete = True
+            finally:
+                if child is not None:
+                    previous = signal.pthread_sigmask(signal.SIG_BLOCK, delayed)
+                    try:
+                        code = retire_group(child, abort=not complete)
+                    finally:
+                        signal.pthread_sigmask(signal.SIG_SETMASK, previous)
+        require(time.monotonic() < self.deadline, 'probe deadline exceeded')
         record = {'argv': argv, 'exit': code, 'log': str(log), 'sha256': sha(log)}
         self.commands.append(record)
         require(log.stat().st_size <= 1024**2, 'command output bound exceeded')

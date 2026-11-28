@@ -3,6 +3,7 @@ import hashlib
 import ast
 import builtins
 import json
+import ntpath
 import os
 from pathlib import Path
 import subprocess
@@ -317,8 +318,8 @@ class EntryTests(unittest.TestCase):
 
 class DependencyGraphTests(unittest.TestCase):
     """Load actual copied, pinned sources; never invoke a package/native actor."""
-    PINS = {'collector': '26eeddc56574c5475df67841c1ac8120900deabe1478f6d1fa7cd290f64f63a9',
-            'phase': '5718ca6cda60d7f6c02952cba7e92ff46666e20f8252ce7c1cdf722825ec2e43'}
+    PINS = {'collector': 'c35c2946579e08a803e2522340eac7d559f0aee8b95bd617e301ed2e959678cc',
+            'phase': '22f97cb051428d02b145522788a1fe22729f17d1ccb167b868bd53dde99a863d'}
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
@@ -335,36 +336,6 @@ class DependencyGraphTests(unittest.TestCase):
             for name in [prefix + '/source-map.json', *names]: self.copy(name)
         for name in e.PREDECESSORS:
             self.copy(name); self.files.append(name)
-        self.bind_current_fixture_predecessors()
-    def bind_current_fixture_predecessors(self):
-        """Synthetic fixture pins only; never rebase an accepted runtime graph."""
-        self.PINS = dict(self.PINS)
-        fixed = ('scripts/release/release.py', 'scripts/client/client.py')
-        orchestrator = self.root/e.COLLECTOR_ROOT/'orchestrator.py'
-        declarations = e.literals(orchestrator.read_bytes(), ('HELD', 'DEPENDENCIES'))
-        self.assertEqual(set(declarations['DEPENDENCIES']), set(fixed))
-        pairs = [(declarations['DEPENDENCIES'][name], hashlib.sha256((self.root/name).read_bytes()).hexdigest()) for name in fixed]
-        historical = self.root/'scripts/port/repository-client-stage/adapter.py'
-        phase_adapter = self.root/e.PHASE_ROOT/'adapter.py'
-        dependency = self.root/e.PHASE_ROOT/'dependencies.py'
-        def replace(path, replacements):
-            raw = path.read_bytes()
-            for old, new in replacements:
-                self.assertEqual(raw.count(old.encode()), 1, (path.name, old))
-                raw = raw.replace(old.encode(), new.encode())
-            path.write_bytes(raw)
-        old_adapter = declarations['HELD']['adapter.py']
-        self.assertEqual(hashlib.sha256(historical.read_bytes()).hexdigest(), old_adapter)
-        replace(historical, pairs);new_adapter = hashlib.sha256(historical.read_bytes()).hexdigest()
-        old_orchestrator = self.manifests['collector']['orchestrator.py']['sha256']
-        replace(orchestrator, [*pairs, (old_adapter, new_adapter)])
-        new_orchestrator = hashlib.sha256(orchestrator.read_bytes()).hexdigest()
-        self.PINS['collector'] = self.repin('collector', 'orchestrator.py')
-        replace(phase_adapter, pairs)
-        replace(dependency, [*pairs, (old_adapter, new_adapter), (old_orchestrator, new_orchestrator),
-                             (type(self).PINS['collector'], self.PINS['collector'])])
-        self.repin('phase', 'adapter.py')
-        self.PINS['phase'] = self.repin('phase', 'dependencies.py')
     def copy(self, name):
         source, target = self.repo / name, self.root / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -491,11 +462,30 @@ class DependencyGraphTests(unittest.TestCase):
         with patch.dict(sys.modules, {'fractions': fake}):
             e.LANGUAGE['exec'](e.LANGUAGE['compile'](Path(e.__file__).read_bytes(), e.__file__, 'exec'), loaded.__dict__)
             calls = []
-            def foreign(*args, **kwargs): calls.append(args); raise AssertionError('foreign builtin executed')
-            with patch.object(builtins, '__import__', foreign), patch.object(builtins, 'compile', foreign), patch.object(builtins, 'exec', foreign):
+            def foreign(*args, **kwargs):
+                calls.append(args)
+                raise AssertionError('foreign builtin executed')
+
+            pathlib_globals = vars(loaded.BOOTSTRAP['pathlib'])
+
+            def fixture_import(name, globals=None, locals=None, fromlist=(), level=0):
+                # Ubuntu's Python 3.12 pathlib lazily requests ntpath while
+                # constructing trusted bootstrap paths before the graph loads.
+                if (sys.version_info[:2] == (3, 12) and name == 'ntpath' and
+                        globals is pathlib_globals and not fromlist and level == 0):
+                    return ntpath
+                return foreign(name, globals, locals, fromlist, level)
+
+            with (
+                patch.object(builtins, '__import__', fixture_import),
+                patch.object(builtins, 'compile', foreign),
+                patch.object(builtins, 'exec', foreign),
+            ):
                 collector, _ = self.load('collector', pin=pin, module=loaded)
                 self.assertEqual(str(collector['provenance'].OBSERVED_FRACTION), '1/2')
-                self.assertIs(builtins.__import__, foreign)
+                self.assertIs(builtins.__import__, fixture_import)
+                self.assertIs(builtins.compile, foreign)
+                self.assertIs(builtins.exec, foreign)
             self.assertEqual(calls, []); self.assertIs(sys.modules['fractions'], fake)
     def test_foreign_import_finders_hooks_and_cache_never_run_and_restore_exactly(self):
         pin = self.fraction_fixture(); calls = []

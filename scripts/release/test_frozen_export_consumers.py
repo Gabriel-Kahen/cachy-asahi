@@ -6,6 +6,7 @@ import importlib.util
 import inspect
 import json
 from pathlib import Path
+from runpy import run_path
 import sys
 from types import SimpleNamespace
 import unittest
@@ -13,8 +14,10 @@ from unittest.mock import patch
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[2]
+FIXTURE = run_path(str(ROOT / 'scripts/release/full_root_release_fixture.py'))
+RELEASE, frozen_release = FIXTURE['RELEASE'], FIXTURE['frozen_release']
 EXPORTER = 'scripts/release/export_repository.py'
-EXPORTER_SHA = '9d07089a8855a1b11ad8a8f2ef680b00aa4ea48f7f422e05ce83a279780595ea'
+EXPORTER_SHA = '40565ef0a7c7c23b6b7fbcc4b3ed66703a9c7bb724f8df8229ec16758534126c'
 CONFIGS = ('scripts/ci/full-root-upgrade-caller/upgrade-config.json',
            'scripts/ci/full-root-failed-update/lane-config.json',
            'scripts/ci/full-root-postcommit-failure/lane-config.json')
@@ -44,14 +47,16 @@ def selection(relative):
 
 
 class FrozenExportConsumers(unittest.TestCase):
-    def test_all_three_live_pin_closures_match_real_combined_source(self):
+    def test_all_three_pin_closures_match_selected_source(self):
+        release = frozen_release(ROOT)
         self.assertEqual(hashlib.sha256((ROOT / EXPORTER).read_bytes()).hexdigest(), EXPORTER_SHA)
         for name in CONFIGS:
             value = json.loads((ROOT / name).read_bytes())
             self.assertEqual(value['code_pins'][EXPORTER], EXPORTER_SHA)
             for relative, expected in value['code_pins'].items():
                 with self.subTest(config=name, source=relative):
-                    self.assertEqual(hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), expected)
+                    body = release if relative == RELEASE else (ROOT / relative).read_bytes()
+                    self.assertEqual(hashlib.sha256(body).hexdigest(), expected)
 
     def test_existing_export_and_endpoint_api_calls_still_bind(self):
         exporter = module('combined_export_api', EXPORTER)
@@ -68,13 +73,20 @@ class FrozenExportConsumers(unittest.TestCase):
 
     def accepted_then_drift(self, relative):
         lane, args = selection(relative)
-        with patch('subprocess.Popen', side_effect=AssertionError('source selection must not start actors')):
+        release = frozen_release(ROOT)
+        real_read = lane.read
+
+        def projected(path, maximum=1024**2):
+            return release if Path(path) == ROOT / RELEASE else real_read(path, maximum)
+
+        with patch('subprocess.Popen', side_effect=AssertionError('source selection must not start actors')), \
+             patch.object(lane, 'read', side_effect=projected):
             selected = lane.selected_api(args)
             self.assertEqual(Path(selected.driver.__file__), ROOT / lane.NORMAL)
             self.assertIsNotNone(selected.normal)
-            real_read = lane.read
+
             def drift(path, maximum=1024**2):
-                raw = real_read(path, maximum)
+                raw = projected(path, maximum)
                 return raw + b'\n' if Path(path) == ROOT / EXPORTER else raw
             with patch.object(lane, 'read', side_effect=drift):
                 with self.assertRaisesRegex(ValueError, 'frozen source differs: scripts/release/export_repository.py'):

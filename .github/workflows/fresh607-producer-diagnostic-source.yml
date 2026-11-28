@@ -1,6 +1,7 @@
 name: fresh607-producer-diagnostic-source
 on:
   push:
+    branches: ['**']
     paths:
       - scripts/ci/fresh607-producer-diagnostic-source/**
       - .github/workflows/fresh607-producer-diagnostic-source.yml

@@ -14,7 +14,7 @@ import tempfile
 import types
 
 HERE = Path(__file__).resolve().parent
-LOCK_SHA256 = '83ee503f04e0e13311c38a3b3a8f7fd1742ac1cbf29ecc6a9fca6057bd6afb7e'
+LOCK_SHA256 = 'dc35d873e3a29c07a12c119a6c836948698a17470d9357694f7798b9d4d309c7'
 PINS_SHA256 = 'd7a926b22338ab56ed246fbf17a0023b973ba741887d4ebe9dd956d0672d4afe'
 PYTHONS = ((3, 12, 13), (3, 14, 6))
 
@@ -54,12 +54,27 @@ def load(name, path, digest=None):
     return module
 
 
-def verify(workspace, selected, pins):
+def verify(workspace, selected, pins, support_sources):
     results = {name: pins.verify_family(workspace / row['path'], row['files'])
                for name, row in selected['families'].items()}
     for name, row in {**selected['support_files'], **selected['local_files']}.items():
-        pins.member(name); read(workspace / name, expected=row)
+        pins.member(name)
+        read(workspace / pins.member(support_sources.get(name, name)), expected=row)
     return results
+
+
+def project_sources(workspace, destination, files, support_sources):
+    for name, row in files.items():
+        target = destination / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if row['kind'] == 'symlink':
+            # The frozen family check already verified this exact passive license link.
+            target.symlink_to(row['target'])
+        else:
+            raw = read(workspace / support_sources.get(name, name), expected=row)
+            with target.open('xb') as stream:
+                stream.write(raw)
+            target.chmod(row['mode'])
 
 
 def aliases(selected, baseline_lock, catalog):
@@ -92,13 +107,15 @@ def run(workspace):
     workspace = pins.ordinary(workspace)
     selected = json.loads(read(HERE / 'inputs.lock.json', digest=LOCK_SHA256))
     catalog = json.loads(read(HERE / 'suite_catalog.json', digest=selected['catalog_sha256']))
-    before = verify(workspace, selected, pins)
+    support_sources = {name: row['source'] for name, row in selected['historical_support'].items()}
+    need(support_sources.keys() <= selected['support_files'].keys(), 'historical routes must name pinned support files')
+    before = verify(workspace, selected, pins, support_sources)
     baseline = load('frozen_qt612_ci', workspace / 'scripts/ci/qt612-source-controls/ci.py')
     baseline_lock = baseline.lock(); baseline_before = baseline.verify(workspace, baseline_lock)
     alias = aliases(selected, baseline_lock, catalog)
-    allowed = set(selected['support_files']) | set(selected['local_files'])
+    source_files = selected['support_files'] | selected['local_files']
     for row in [*selected['families'].values(), *baseline_lock['families'].values()]:
-        allowed.update(row['path'] + '/' + name for name in row['files'])
+        source_files.update({row['path'] + '/' + name: descriptor for name, descriptor in row['files'].items()})
     suites, baseline_result = [], None
     with tempfile.TemporaryDirectory(prefix='qt612-ci-v2-MODEL-') as temporary:
         scratch = Path(temporary); owned = scratch / 'baseline'; owned.mkdir()
@@ -109,29 +126,34 @@ def run(workspace):
         baseline_result = json.loads(baseline_report.read_bytes())
         need(observed['tests'] == 140 and observed['skips'] == 0 and baseline_result['tests'] == 140
              and baseline_result['status'] == 'PASS_QT612_SOURCE_CONTROLS_ONLY', 'frozen baseline140 must pass exactly once')
+        projected = pins.ordinary(scratch / 'source')
+        project_sources(workspace, projected, source_files, support_sources)
+        runner = projected / 'scripts/ci/qt612-source-controls-v2/runner.py'
         for index, row in enumerate(catalog['suites']):
             if row['path'] == catalog['coverage_alias']['producer_test_path']: continue
             owned = scratch / str(index); owned.mkdir()
             policy = owned / 'policy.json'
-            policy.write_text(json.dumps({'workspace': str(workspace), 'scratch': str(owned), 'allowed_files': sorted(allowed)}))
+            policy.write_text(json.dumps({'workspace': str(projected), 'scratch': str(owned), 'allowed_files': sorted(source_files)}))
             env = {'PATH': '/usr/bin:/bin', 'HOME': str(owned), 'TMPDIR': str(owned), 'LANG': 'C.UTF-8', 'TZ': 'UTC'}
-            result = call([sys.executable, '-I', '-B', '-Werror::ResourceWarning', str(HERE / 'runner.py'),
-                           '--test', str(workspace / row['path']), '--expected', str(row['tests']), '--fence', row['fence'],
+            result = call([sys.executable, '-I', '-B', '-Werror::ResourceWarning', str(runner),
+                           '--test', str(projected / row['path']), '--expected', str(row['tests']), '--fence', row['fence'],
                            '--policy', str(policy)], env, owned, 40)
             need(result['status'] == 'PASS_ACTOR_FENCED_DATA_ONLY' and result['tests'] == row['tests']
                  and result['expected'] == row['tests'] and result['skips'] == result['failures'] == result['errors'] == 0
-                 and result['native_acceptance'] is False and set(result['workspace_reads']) <= allowed,
+                 and result['native_acceptance'] is False and set(result['workspace_reads']) <= source_files.keys(),
                  'complete zero-skip DATA suite receipt required')
             suites.append(dict(result, family=row['family'], path=row['path']))
-    need(before == verify(workspace, selected, pins) and baseline_before == baseline.verify(workspace, baseline_lock),
+        need(before == verify(projected, selected, pins, {}) and baseline_before == baseline.verify(projected, baseline_lock),
+             'projected source changed during successor controls')
+    need(before == verify(workspace, selected, pins, support_sources) and baseline_before == baseline.verify(workspace, baseline_lock),
          'frozen source changed during successor controls')
     totals = {name: sum(s['tests'] for s in suites if s['family'] == name) for name in ('gui-adapter', 'producer')}
-    need(totals == {'gui-adapter': 117, 'producer': 86}, 'exact new frozen suite coverage required')
+    need(totals == {'gui-adapter': 118, 'producer': 86}, 'exact selected suite coverage required')
     return {'status': 'PASS_QT612_SOURCE_CONTROLS_V2_ONLY', 'python': '.'.join(map(str, sys.version_info[:3])),
             'baseline': baseline_result, 'families': before, 'alias': alias, 'suites': suites,
             'tests': 140 + sum(row['tests'] for row in suites), 'skips': 0,
             'isolation_boundary_tests': 1, 'isolation_boundary_subcases': 10,
-            'producer_logical_coverage': 114, 'lock_sha256': LOCK_SHA256,
+            'producer_logical_coverage': 114, 'lock_sha256': LOCK_SHA256, 'historical_support': selected['historical_support'],
             'private_material_readback': 'DENIED', 'native_compilation': 'NOT RUN', 'external_uploads': 'NOT RUN',
             'native_acceptance': False, 'Root_acceptance': None}
 

@@ -3,6 +3,7 @@
 """Same-job signed kernel builder extension and finite native compilation pair."""
 import argparse
 import hashlib
+import json
 import os
 from pathlib import Path
 import platform
@@ -13,15 +14,17 @@ import stat
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import BASE_SHA, INPUTS_SHA, PREFIX, SOURCE, code_contract, digest, inventory, load, module, need, regular, save
+from common import (BASE_SHA, EPOCH, INPUTS_SHA, PREFIX, RECIPES_SHA, SOURCE,
+                    code_contract, digest, inventory, load, need, regular, save, unique)
 from runtime import Cancelled, Runner, cancellation_handlers, defer_signals
 from broker import Broker
 import image
 import evidence as child_evidence
 import inner_result
 
-HELPERS = ('scripts/ci/native_arm.py', 'scripts/ci/commit_image.py', 'scripts/port/fdk-native-stage/evidence.py')
+HELPERS = ('scripts/ci/native_arm.py', 'scripts/ci/commit_image.py')
 HELD = ('harness.py', 'verify_build.py', 'candidate.json')
+STAGE_LOCKS = (PREFIX + 'stage.lock.json', 'scripts/port/kernel-native-job-v3/stage.lock.json')
 MAX_STAGE_SECONDS = 5 * 3600
 
 
@@ -71,15 +74,17 @@ def source_files(root):
 
 def freeze(root, output):
     need(root.is_absolute() and root == root.resolve() and output.is_absolute() and output == output.resolve() and
-         not output.exists() and (output == root / (PREFIX + 'stage.lock.json') or
+         not output.exists() and (output in {root / name for name in STAGE_LOCKS} or
          output.is_relative_to(root / 'artifacts/kernel-native-stage')), 'canonical owned source/new freeze required')
     rows = {}
     for name in sorted(source_files(root)):
         path = root / name; regular(path)
-        mode = stat.S_IMODE(path.stat().st_mode); need(mode in (0o644, 0o755), 'source mode differs')
-        rows[name] = {'sha256': digest(path), 'mode': mode}
-    save(output, {'schema_version': 1, 'purpose': 'KERNEL-NATIVE-C01', 'development_only': True,
-                 'base_inventory_sha256': BASE_SHA, 'base_inputs_sha256': INPUTS_SHA, 'files': rows})
+        info = path.stat()
+        mode = stat.S_IMODE(info.st_mode); need(mode in (0o644, 0o755), 'source mode differs')
+        rows[name] = {'sha256': digest(path), 'mode': mode, 'bytes': info.st_size}
+    save(output, {'schema_version': 2, 'purpose': 'KERNEL-NATIVE-C01', 'development_only': True,
+                 'base_inventory_sha256': BASE_SHA, 'base_inputs_sha256': INPUTS_SHA,
+                 'recipes_sha256': RECIPES_SHA, 'files': rows})
     return digest(output)
 
 
@@ -95,19 +100,49 @@ def snapshot(args, lock, output, runner):
     need(set(lock['files']) == source_files(args.root), 'exact stage source closure differs')
     target = output / 'code'; target.mkdir(mode=0o700)
     code_contract(args.root, lock['files'])
+    git = ['/usr/bin/git', '--no-replace-objects', '-c', 'core.hooksPath=/dev/null',
+           '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C', str(args.root)]
     for name, row in lock['files'].items():
-        result = runner.run(['/usr/bin/git', '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false',
-            '--no-optional-locks', '-C', str(args.root), 'show', args.source_commit + ':' + name], timeout=15)
+        result = runner.run(git + ['show', args.source_commit + ':' + name], timeout=15)
         regular(args.root / name)
         data = (args.root / name).read_bytes()
-        need(result.returncode == 0 and result.stdout == data and hashlib.sha256(data).hexdigest() == row['sha256'], 'committed source bytes differ: ' + name)
-        mode = runner.run(['/usr/bin/git', '--no-optional-locks', '-C', str(args.root), 'ls-tree',
-            '--format=%(objectmode)', args.source_commit, '--', name], timeout=10)
+        need(result.returncode == 0 and result.stdout == data and len(data) == row['bytes'] and
+             hashlib.sha256(data).hexdigest() == row['sha256'], 'committed source bytes differ: ' + name)
+        mode = runner.run(git + ['ls-tree', '--format=%(objectmode)', args.source_commit, '--', name], timeout=10)
         need(mode.returncode == 0 and mode.stdout == ('100' + oct(row['mode'])[2:] + '\n').encode(), 'committed mode differs')
         path = target / name; path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data); path.chmod(row['mode'])
     code_contract(target, lock['files']); code_contract(args.root, lock['files'])
     return target
+
+
+def accepted_base(args, lock):
+    bootstrap = load(args.bootstrap, args.bootstrap_sha256)
+    result = load(args.accepted_result, args.accepted_result_sha256)
+    regular(args.inputs)
+    regular(args.base_packages, 1024**2)
+    input_bytes = args.inputs.read_bytes()
+    base = args.base_packages.read_bytes()
+    need(hashlib.sha256(input_bytes).hexdigest() == INPUTS_SHA and
+         hashlib.sha256(base).hexdigest() == BASE_SHA, 'base input or inventory pin differs')
+    inputs = json.loads(input_bytes, object_pairs_hook=unique)
+    expected = {row['name'][0]: row['version'][0] for row in inputs['rootfs_packages']}
+    expected.update({row['name']: row['version'] for row in inputs['packages']})
+    need(inputs['source_date_epoch'] == EPOCH and len(expected) == 341 and
+         inventory(base) == expected, 'base inventory differs from pinned inputs')
+    need(re.fullmatch(r'sha256:[0-9a-f]{64}', args.image) and
+         bootstrap.get('status') == 'image-provisioned' and bootstrap.get('image_id') == args.image and
+         bootstrap.get('packages_lock_sha256') == BASE_SHA and bootstrap.get('inputs_sha256') == INPUTS_SHA,
+         'producer bootstrap binding differs')
+    need(result.get('mode') == 'build' and result.get('status') == 'native-builds-and-byte-comparison-pass' and
+         result.get('native_build') == 'PASS' and result.get('hardware_validation') == 'NOT RUN' and
+         result.get('verified_signed_packages') == len(inputs['packages']) == 248 and
+         result.get('reviewed_inputs_sha256') == INPUTS_SHA and result.get('reviewed_recipes_sha256') == RECIPES_SHA and
+         result.get('bootstrap_script_sha256') == lock['files']['scripts/ci/native_arm.py']['sha256'],
+         'accepted kernel builder result differs')
+    return {'status': 'PASS', 'image_id': args.image, 'source_commit': args.source_commit,
+            'package_count': 341, 'packages_sha256': BASE_SHA, 'inputs_sha256': INPUTS_SHA,
+            'original_lifecycle_acceptance': 'NOT INFERRED'}
 
 
 def copy_pin(source, target, pin, limit):
@@ -207,7 +242,10 @@ def execute(args):
          args.output.is_relative_to(args.root / 'artifacts/kernel-native-stage'), 'new owned ignored output required')
     need(shutil.disk_usage(args.root).free >= 8 * 1024**3, '8GiB host storage headroom required')
     lock = load(args.lock, args.lock_sha256)
-    need(lock['purpose'] == 'KERNEL-NATIVE-C01' and lock['base_inventory_sha256'] == BASE_SHA, 'kernel stage lock differs')
+    need(lock['schema_version'] == 2 and lock['purpose'] == 'KERNEL-NATIVE-C01' and
+         lock['development_only'] is True and lock['base_inventory_sha256'] == BASE_SHA and
+         lock['base_inputs_sha256'] == INPUTS_SHA and lock['recipes_sha256'] == RECIPES_SHA,
+         'kernel stage lock differs')
     args.output.mkdir(parents=True, mode=0o700)
     private = args.output / 'private'; private.mkdir(mode=0o700)
     (args.output / 'public').mkdir(mode=0o700)
@@ -242,12 +280,7 @@ def execute(args):
     try:
         code = snapshot(args, lock, private, runner)
         checkpoint('ACCEPTED_BASE')
-        base_helper = module('kernel_accepted_base', code / HELPERS[2])
-        bootstrap = load(args.bootstrap, args.bootstrap_sha256)
-        result = load(args.accepted_result, args.accepted_result_sha256)
-        regular(args.inputs)
-        report['accepted_base'] = base_helper.accepted_base(bootstrap, args.base_packages.read_bytes(), args.inputs.read_bytes(),
-            result, args.image, args.source_commit, lock['files']['scripts/ci/native_arm.py']['sha256'])
+        report['accepted_base'] = accepted_base(args, lock)
         checkpoint('DEPENDENCY_PACKET')
         inputs, contract, dependencies = packet(args, code, private, lock, nonce)
         save(inputs / 'contract.json', contract)
@@ -260,9 +293,9 @@ def execute(args):
             out = private / ('output-' + action); out.mkdir(mode=0o700)
             mounts = {'/inputs': str(inputs), '/code': str(code), '/out': str(out)}
             broker.expected_mounts = mounts
-            save(inputs / 'contract.json', contract)
+            contract_sha = save(inputs / 'contract.json', contract)
             worker_env = {'PATH': '/usr/bin:/bin', 'HOME': '/tmp/home', 'LC_ALL': 'C', 'KERNEL_STAGE_NONCE': nonce,
-                          'KERNEL_STAGE_ACTION': action, 'KERNEL_STAGE_CONTRACT_SHA256': digest(inputs / 'contract.json')}
+                          'KERNEL_STAGE_ACTION': action, 'KERNEL_STAGE_CONTRACT_SHA256': contract_sha}
             report['diagnostics']['commands'][action] = {'kind': 'UNOBSERVED', 'code': None}
             checkpoint(action.upper() + '_COMMAND')
             command_result = broker.launch(action, mounts, worker_env, 7800 if action in ('baseline', 'candidate') else 900,

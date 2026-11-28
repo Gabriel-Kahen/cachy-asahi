@@ -15,9 +15,15 @@ import signal
 import subprocess
 import tempfile
 
-spec = importlib.util.spec_from_file_location('repository_enrollment', Path(__file__).resolve().with_name('enroll.py'))
+enrollment_path = Path(__file__).resolve().with_name('enroll.py')
+spec = importlib.util.spec_from_file_location('repository_enrollment', enrollment_path)
 E = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(E)
+# A caller that authenticates the source can supply its captured bytes.
+enrollment_source = globals().pop('_enrollment_source', None)
+if enrollment_source is None:
+    enrollment_source = enrollment_path.read_bytes()
+exec(compile(enrollment_source, str(enrollment_path), 'exec'), vars(E))
+del enrollment_source
 
 
 def gpg(home, *args):

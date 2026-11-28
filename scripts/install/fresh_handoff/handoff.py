@@ -145,18 +145,21 @@ def inspect_inputs(candidate, recovery, chosen, states):
     versions = {name: {key: rows[name][key] for key in ('version', 'arch')} for name in protected}
     need(versions == recovery_selection['protected_versions'],
          'candidate/predecessor protected platform differs; coordinated platform change held')
+    release = C.decode(R.pinned(candidate / 'release/release.json', checked['release_sha256']))
+    need(set(protected).isdisjoint(package['name'] for package in release['packages']),
+         'candidate signed overlay contains a protected platform package')
     return checked, prior
 
 
 def actions(chosen):
     """No shell interpolation, implicit apply, invented live installer or actor entry."""
     return [
-        dict(step=1, state='HELD', action='Start in macOS; retain backups and establish the supported Asahi base using its maintained installer.',
-             hold='Independent macOS-to-Asahi journey, disk/boot prerequisites and recovery access on each exact M2 Air are NOT RUN.'),
-        dict(step=2, state='OFFLINE_CHECK', action='Verify this handoff from the authenticated finite operator runtime or matching trusted checkout with external selection/receipt/runtime pins and receiver state.',
+        dict(step=1, state='OFFLINE_CHECK', action='Verify this handoff from the authenticated finite operator runtime or matching trusted checkout with external selection/receipt/runtime pins and receiver state.',
              hold='Successful byte/signature checks authorize no installation or production trust.'),
-        dict(step=3, state='RETAIN', action='Keep recovery/ and a separate externally pinned copy reachable outside the target before any target mutation.',
+        dict(step=2, state='RETAIN', action='Keep recovery/ and a separate externally pinned copy reachable outside the target before any target mutation.',
              hold='Offline predecessor archives are retained data; boot/session restoration is NOT RUN.'),
+        dict(step=3, state='HELD', action='After offline verification and recovery retention, start in macOS with verified backups and use the maintained installer for the selected Asahi base.',
+             hold='Installer and base image authentication, disk/boot prerequisites, recovery access and the independent macOS-to-Asahi journey on each exact M2 Air remain open.'),
         dict(step=4, state='HELD', action='Obtain the coordinator-admitted native preflight and full selected Asahi transaction for this exact candidate.',
              tool='scripts/install/native_preflight.py; scripts/install/local_transaction.py',
              hold='Native preflight is an in-process admitted actor, not a general CLI. The transaction worker accepts explicit disposable fixtures only; do not point it at the live root.'),

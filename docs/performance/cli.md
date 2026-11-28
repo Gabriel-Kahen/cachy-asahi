@@ -27,11 +27,13 @@ python3 scripts/benchmarks/benchmark_v2.py prepare-plan \
 
 These paths are caller-created examples, not existing target measurements. Keep
 the frozen plan and both states at their retained paths; loading a plan rechecks
-both state hashes, as well as all pinned inputs. Modifications invalidate bindings.
+both state hashes, rebuilds the variant identities from the checked capture bytes,
+and checks all declared input pins. Modifications invalidate bindings.
 Pins retain the declared access path, resolved target and content hash. Retargeting
 a symlink is refused even if its new target has identical bytes. Keep inputs and
 aliases stable throughout the run; validation is not a filesystem sandbox against
-concurrent writers.
+concurrent writers. Relative input and evidence paths are bound to the directory
+where the plan was prepared.
 
 The config has these fields:
 
@@ -41,6 +43,7 @@ The config has these fields:
 | `execution_context` | `physical`, `virtual`, `emulated` or `unknown`; nonphysical runs are nonacceptance |
 | `change` | Nonempty strings `variable`, `baseline`, `candidate`, `rationale`; reference/candidate values differ |
 | `argv` | String array; first item is absolute executable path; no shell interpolation |
+| `argv_file_operands` | Optional list of unique zero-based `argv` indexes after the executable that name pinned file operands |
 | `inputs` | File paths including the executable, workload driver, source/data manifests and other necessary inputs, pinned by SHA-256 |
 | `env` | Explicit string-to-string environment overrides; inherited environment is also fingerprinted per trial |
 | `variant_env` | Optional object with `baseline` and `candidate` mappings; each changes exactly the sole `change.environment_key` to its declared `change.baseline` or `change.candidate` string |
@@ -62,6 +65,16 @@ files automatically. Pin all required executable/data files, or a reviewed
 immutable artifact containing them. The baseline file records versions but does
 not capture installed file contents or configuration changes by itself.
 
+When `argv_file_operands` is present, only the listed arguments are bound to
+file paths. Each index identifies a whole operand such as `input.dat` or the
+value inside an argument such as `--input=input.dat`. The path must match an
+entry in `inputs` or `variant_inputs`. Relative operands resolve from the plan's
+declaration directory. For an argument vector with three tokens after the
+executable, `"driver.py"`, `"--input=input.dat"`, and `"--mode=fast"`, use
+`[1, 2]` to bind the driver and input while preserving `--mode=fast`. An
+explicit empty list preserves every argument as written. Declarations that
+omit the field continue to bind relative arguments by matching pinned paths.
+
 A fixed pinned driver can consume one declared `CFLAGS` value, or one `CC` value
 pointing to an immutable compiler per variant. The driver, common argv and inputs
 remain identical; pin variant artifact files with `variant_inputs` and retain
@@ -78,7 +91,10 @@ ranges are illustrations, not calibrated M2 budgets or observations. It cannot
 be frozen unchanged because its placeholder files do not exist. No fabricated
 physical gate record is supplied.
 
-Physical plans also require the exact M2 record and package inventory. The
+Physical plans require two `capture-baseline.py --require-m2-air` records for
+the same target. Both must record AArch64, 16 KiB pages, `apple,t8112`, exactly
+the intended Air ID (`apple,j413` or `apple,j415`), and successful, nonempty
+`pacman -Q` inventories with one row per package. The
 `hardware_gate_evidence` JSON must contain matching `machine_id` and `base_id`,
 `baseline_functional` and `recovery` both equal to `PASS`, and nonempty `evidence`
 and `reviewer`. Populate these from executed checks with linked raw records;
@@ -169,6 +185,10 @@ It summarizes median/min/max/MAD/range, useful elapsed improvement and declared
 guardrails. Rejected comparisons exit nonzero; required missing guardrail
 telemetry is INCOMPLETE. A threshold breach is FAIL. Successful CLI exit means
 `MEETS_TIMING_RULE_ONLY`, with `optimization_acceptance` always `NOT RUN`.
+
+Paired zlib plans use the paired runner for execution. Comparison replays the
+validated workload report from raw stdout and requires every measured slot
+from the same session. See [paired zlib](paired-zlib.md).
 
 Optional guardrails are `root_rss_kib_pct` (increase in median sampled root RSS),
 `thermal_raw_mC` (increase in median per-trial sampled maximum for every thermal

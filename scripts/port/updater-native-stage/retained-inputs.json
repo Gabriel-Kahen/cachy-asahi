@@ -1,0 +1,929 @@
+{
+  "profiles": {
+    "native-updater-442-r1": {
+      "commit": "dd3647c78ece17207f605b9275eddf3314e2d8b1",
+      "selected": {
+        "packages/git-2.56.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 8650624,
+          "sha256": "b152a20edb215e98cada4b2dfbd02a9e925bda0b2de6ac1441e9e60b6698d3b5"
+        },
+        "packages/git-2.56.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "a94f8074a7c20a8ad8327a8dfaac724069989f9aabf62c4ec0322533642c59ca"
+        },
+        "packages/parallel-20260922-1-any.pkg.tar.xz": {
+          "bytes": 369204,
+          "sha256": "abd4a16e9348cc1bb0f39b7affb92a18c81efae1e791dee30c548b170a7ba4ec"
+        },
+        "packages/parallel-20260922-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "9f6f122076bee134ca13bf08dfe5a66a76f88a63e5bc1f636e4ab948db9e9f60"
+        },
+        "packages/perl-error-0.17030-3-any.pkg.tar.xz": {
+          "bytes": 21280,
+          "sha256": "45e48cf1eac8c7ee4f78656e3eec0df2aae9fa75aa924367abc20c2270ec54db"
+        },
+        "packages/perl-error-0.17030-3-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "b6e561ae65c2e858cb05b20007b8996595eb3c2dec15a4436d4fb7d8d8bbf16c"
+        }
+      },
+      "tree": "11048ce3fffdbab0037d9c5c3c4a8108763ce462",
+      "tree_files": 6
+    },
+    "native349-r1": {
+      "commit": "9d9e1ab7ce694e33238ec1152bef72270d4bf91f",
+      "selected": {
+        "packages/aquamarine-0.15.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 396652,
+          "sha256": "49dc8acbad78f97698bcefaba742c231eb108db41e6afaa3b89bac078eb22b7d"
+        },
+        "packages/aquamarine-0.15.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "a9b3653f4ef9080f6104b4a1f9b079d6c1198df107b12b3b15dce181e1de05dd"
+        },
+        "packages/automake-1.19-1-any.pkg.tar.xz": {
+          "bytes": 653408,
+          "sha256": "8617b421ac17d0a8c35aa5a788a1bf36f0a9f934016a57b542b3efb45064d57d"
+        },
+        "packages/automake-1.19-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "92845534d0412ad4160e7d79b0a2bf8aaee95cc7b1a04fc44efcdb0f178d5693"
+        },
+        "packages/avahi-1:0.9rc5-1-aarch64.pkg.tar.xz": {
+          "bytes": 413888,
+          "sha256": "cc5397663792b8a6aeeb8879d44020e21f7dc8f3889e4bcab25cb976b0033481"
+        },
+        "packages/avahi-1:0.9rc5-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "764a6b9ba1ac7ea6c72b6515645115e60b27b1029ac8205cfebfaeeb135f2612"
+        },
+        "packages/benchmark-1.9.5-2-aarch64.pkg.tar.xz": {
+          "bytes": 222384,
+          "sha256": "710ab192abd501f2783bfb665377d0c3324a7619763a8b2afda0d69bc8798b96"
+        },
+        "packages/benchmark-1.9.5-2-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "19836d4c54a9eba85ba1dfccfb843b218b93d7b92a1d5f189e5aa2272965aecb"
+        },
+        "packages/boost-libs-1.92.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 5800604,
+          "sha256": "0a0e6f37821cfd34b077658e6e5ba6a73c648e2094ccd74eb489180ba455fead"
+        },
+        "packages/boost-libs-1.92.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "5d66f5656f6eb76bc8ddbdcb28c28562d854cb6297d14f5fae01c508a850b0b4"
+        },
+        "packages/ca-certificates-mozilla-3.131-1-aarch64.pkg.tar.xz": {
+          "bytes": 380492,
+          "sha256": "9703baef3672ee4c44edca301c4e2524414bef82e81ac30345e2f1751ae5672d"
+        },
+        "packages/ca-certificates-mozilla-3.131-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "9f751d2b54b949b270fc2d3e41d0f5423df2ff81f23da3724da2d52b313425bd"
+        },
+        "packages/coreutils-9.12-2-aarch64.pkg.tar.xz": {
+          "bytes": 2854560,
+          "sha256": "855b6439cc94fe5d0a3b1428e63ca785c0fa83135e0c0d59277d704d8f4dd647"
+        },
+        "packages/coreutils-9.12-2-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "f1e348bfb3c5dfc01681ecfc43df3c2a984bc9cd33cc0ea5d83e4b32ea05ee61"
+        },
+        "packages/cryptsetup-2.8.8-1-aarch64.pkg.tar.xz": {
+          "bytes": 806768,
+          "sha256": "e335839706dfc90e99bec38d104382f06ae82bc32b6a098b00b67e535ccf0e95"
+        },
+        "packages/cryptsetup-2.8.8-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "215c83fc37dfd22fd86af5875da34e4a0ab9cdc9f0f77c0bb4255e06d8064397"
+        },
+        "packages/curl-8.22.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 1281188,
+          "sha256": "5461bb97fca88b237d17db833622789eedca390634a6d2fb2e3b71287e52acb2"
+        },
+        "packages/curl-8.22.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "2523ff1b88dfc1ed910ad90d44c04387a86c397bf8043b518cad1c33dd9524e8"
+        },
+        "packages/debugedit-5.3-2-aarch64.pkg.tar.xz": {
+          "bytes": 50624,
+          "sha256": "c7c2d3c8231c388c882fc27cf93c6c1d34a698b01a282f648cae65216fdeba59"
+        },
+        "packages/debugedit-5.3-2-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "0f0c73fa12ba0c58ea3108f7a2ce66c082199851eb135a9ca5fc159870da46aa"
+        },
+        "packages/desktop-file-utils-0.28-1-aarch64.pkg.tar.xz": {
+          "bytes": 44376,
+          "sha256": "89d97b1e9e0c265da1bf9120f39fb78122f4eb221dd1e5956b8d64326cf72eca"
+        },
+        "packages/desktop-file-utils-0.28-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "ad0f0d679412d445172d1fb2b023ba6e8aa8670f284378a88307790c5d5732e9"
+        },
+        "packages/device-mapper-2.03.43-2-aarch64.pkg.tar.xz": {
+          "bytes": 283800,
+          "sha256": "8f61e0fbd02a36f73380e1429fe1f33ef5090645ab2c85d16dfa17f0c084226f"
+        },
+        "packages/device-mapper-2.03.43-2-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "90c6efc81d37cfe3070e37d7868bddd6ddcc8d41012d98ed5ddcb38c74751088"
+        },
+        "packages/dhcpcd-10.5.2-1-aarch64.pkg.tar.xz": {
+          "bytes": 194608,
+          "sha256": "8ebc266d7b3798d92fc4f0924384aa793baaa567178761d4229b4c42cdad34b2"
+        },
+        "packages/dhcpcd-10.5.2-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "b8e3b2347fbef1bade019679da7f7f38f0f4e8d5e18f780eb41b5ed5d0ee8ff7"
+        },
+        "packages/elfutils-0.196-1-aarch64.pkg.tar.xz": {
+          "bytes": 671272,
+          "sha256": "83951aac632b10ae3f814c9b0bc51e4b10045e40c7e89664fce2f9176299204c"
+        },
+        "packages/elfutils-0.196-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "9f0c26ec5759118517f889bc6f8d73f08d3c3e160afec9929442bd0225e30c70"
+        },
+        "packages/expat-2.9.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 119344,
+          "sha256": "c2bc1dd56d595b24f561e9514f0e82eaee1da5e7b1e0d46126868b9defe4e06a"
+        },
+        "packages/expat-2.9.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "002126e43e5583ed1773868eb7ad8054299c630c6db079df76c8619382bc2bed"
+        },
+        "packages/fakeroot-1:1.37.2-3-aarch64.pkg.tar.xz": {
+          "bytes": 77456,
+          "sha256": "ae7a1e0df8abd196f5d54f8206db363e3f9ad0b7157fca026729698ccf866ad0"
+        },
+        "packages/fakeroot-1:1.37.2-3-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "dab0e61acff72e3db0e7fcf6d5678ecd9d99683b61d5299c501fa025838df71e"
+        },
+        "packages/flex-2.6.4-6-aarch64.pkg.tar.xz": {
+          "bytes": 293964,
+          "sha256": "b640fd86f5334e1e56e102a4ae4ad1080e8971d12caf46fef5279a35fc3a9d76"
+        },
+        "packages/flex-2.6.4-6-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "dc49266e45aa699b79e73e282d235e4511c4020337c47919fd4b7c1d06b48792"
+        },
+        "packages/freetype2-2.14.3-1-aarch64.pkg.tar.xz": {
+          "bytes": 487400,
+          "sha256": "080b6aa7827298e5b92800229d76689e0dbff08cd96690ae75e8feedf6a9ae5d"
+        },
+        "packages/freetype2-2.14.3-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "2b7e1428b25300e635cfa8d6a58695f1c4c3f36feb2ddebd7e27a912aab2d7f2"
+        },
+        "packages/fribidi-1.0.17-1-aarch64.pkg.tar.xz": {
+          "bytes": 73788,
+          "sha256": "44f00133167fba3debb1afae29ccb23e9abbada84c32b3580dbc33b2e3b53f09"
+        },
+        "packages/fribidi-1.0.17-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "6a0f2b697d770031edafc5a4be9697dcad528d947cef6a0f02df292e11ac24a4"
+        },
+        "packages/glib-networking-1:2.90.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 141660,
+          "sha256": "601d60c1be70361d70cd7d6e700b996c0593fd0a66b77fbec4afd991a9946dec"
+        },
+        "packages/glib-networking-1:2.90.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "b57b244a776005b58db7867b52e53a7e1c2793722a1b391c3973d4033e75f618"
+        },
+        "packages/glycin-2.2.2-1-aarch64.pkg.tar.xz": {
+          "bytes": 3718772,
+          "sha256": "6d8739db5a24a0319b170912ff04b5e000ff5b7e9cf3561c4fcee977c6362dc2"
+        },
+        "packages/glycin-2.2.2-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "66f23d924d7d88f195dd0accab839efada2cd9d5512da5da5582f61fa4fc71e2"
+        },
+        "packages/gnupg-2.4.9-3-aarch64.pkg.tar.xz": {
+          "bytes": 2763600,
+          "sha256": "3f26513fb04d1670ca202551988f5766ef5713533b27846831e834243f52cbfa"
+        },
+        "packages/gnupg-2.4.9-3-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "0cf4a712716a4e6ad2c5c63be6222d8a7e4a22ef5217495a2892b32504a023fc"
+        },
+        "packages/gperftools-2.18.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 469944,
+          "sha256": "3cc5b9b683c6c783694759b2de1c618d7c20c3a36e9d8cb29eeeb0ca20fe8bbc"
+        },
+        "packages/gperftools-2.18.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "b1a8632353e0e38e13b052a129d2861fa0bb68fdc7e51a90f649a5f41e16791c"
+        },
+        "packages/harfbuzz-14.6.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 1346752,
+          "sha256": "b3103d1da7a997ac0592ae4d689dc627cb07c8fa050f29dddec567661482c507"
+        },
+        "packages/harfbuzz-14.6.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "1b7578067c5e43621a28908ac6d9904ddff727073446b4e03c4975927d2cdeba"
+        },
+        "packages/hyprcursor-0.1.13-7-aarch64.pkg.tar.xz": {
+          "bytes": 204804,
+          "sha256": "c30d748c7942abb8f20c212c7e17f86199007f6ef4e20f07d95c3e47db6f63de"
+        },
+        "packages/hyprcursor-0.1.13-7-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "5d040fbf9087b3627f773b2f52185e30d9627f3382a4862fa56386c1a9f421d2"
+        },
+        "packages/hyprgraphics-0.5.1-4-aarch64.pkg.tar.xz": {
+          "bytes": 79400,
+          "sha256": "f084a115374a913909f1a95db9f7e028a2b6a6b4ac3ac6da3e836ef5a0947a3c"
+        },
+        "packages/hyprgraphics-0.5.1-4-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "bcb17461d68e4c8708da2869dd165b5ca6900cf01783ffdb8a8e82d5e90316ec"
+        },
+        "packages/hyprland-0.56.2-4-aarch64.pkg.tar.xz": {
+          "bytes": 49886060,
+          "sha256": "4183f5212200625c278eefbbf70c912f1e8803df7ed99a8a2988beb4f4c74e04"
+        },
+        "packages/hyprland-0.56.2-4-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "29f404a67bed43b44a4209c4eac07e72b51034cad4a925d124ba19704c830f34"
+        },
+        "packages/hyprland-guiutils-0.2.2-4-aarch64.pkg.tar.xz": {
+          "bytes": 134444,
+          "sha256": "cd0aae46488b7948d7d4fb10adca67b00987f93279a0fad3131de01e3c550362"
+        },
+        "packages/hyprland-guiutils-0.2.2-4-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "6e021d6aacdef9cbd1aa1789ad4b47f9d0f34cbf75e10794ecbbeffa92de777e"
+        },
+        "packages/hyprtoolkit-0.6.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 480708,
+          "sha256": "5f947de83b1f8d1ca5a19c6a5eace0b0e943f19d4c488282fc1f270cde8f1964"
+        },
+        "packages/hyprtoolkit-0.6.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "485192d4d13b0279a2f7833ecef76c95301078c1eb58cf0e9e5d40ca82de2f70"
+        },
+        "packages/hyprutils-0.14.2-1-aarch64.pkg.tar.xz": {
+          "bytes": 197828,
+          "sha256": "a48f017818b0b6900d6bc0d2de890477e9d8abef3d416089f36635d168b12280"
+        },
+        "packages/hyprutils-0.14.2-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "d2176dd44b150f651e515584650a285b05154141dd820598267b7d644ffc1b06"
+        },
+        "packages/iproute2-7.2.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 1149324,
+          "sha256": "37a789f1b62f329e17868f7a2e8e232ed12700e93fbe1504d9f59de5aec80e8a"
+        },
+        "packages/iproute2-7.2.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "4dde21af54cf09473058c57bbd39b2349bd30a3bedabd48218add503e4979cc8"
+        },
+        "packages/lcms2-2.19.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 205460,
+          "sha256": "5f93d01820b4e1a463f3cb11e19916bb3761b4faca20d4e1f0854329ba3f46f8"
+        },
+        "packages/lcms2-2.19.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "3e35d43d7cd15dc360e2c250b32610f97330b239ba30d2917d6998c1d337dd5c"
+        },
+        "packages/libcloudproviders-0.4.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 44368,
+          "sha256": "83dfe6750ccad57d0e453cd6df7dd4263ec3cd3362ae26db126a820ff829fd3f"
+        },
+        "packages/libcloudproviders-0.4.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "82dc44da6ccc2370f23f6d50425baa58816a099b3ddce67ac67b286548c99369"
+        },
+        "packages/libcolord-1.4.8-1-aarch64.pkg.tar.xz": {
+          "bytes": 169748,
+          "sha256": "79b5775b226ec0974454621e527094f0d59e7e5017b2c31c07871354de8fda0f"
+        },
+        "packages/libcolord-1.4.8-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "db3ec2b86c8727ed215866e3ca4a5c1f0de2257fb76fa4a7f0758930c4c841d6"
+        },
+        "packages/libei-1.6.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 107216,
+          "sha256": "a09e6322764d03ed4dd9bc968d8fd22f9833ab859ce9316eeb496522ac0edb45"
+        },
+        "packages/libei-1.6.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "dfd60023ab72534f1f4b423c3fc9c7c5ae7435ed37dcdf7e112c48a7bda2abe4"
+        },
+        "packages/libelf-0.196-1-aarch64.pkg.tar.xz": {
+          "bytes": 577236,
+          "sha256": "a8f417d24a297384b27935381a0a4f892b121956066c09a3c9cd1e3a47c6d214"
+        },
+        "packages/libelf-0.196-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "c8f2b924f3156afdb845ef83bfab9176b883b475c17f199e66deac8064acfafe"
+        },
+        "packages/libgudev-238-3-aarch64.pkg.tar.xz": {
+          "bytes": 42040,
+          "sha256": "54ad35f53e669683ef336aec62c9173b343b51efd4b6a7d3eb022708c1dc3c7e"
+        },
+        "packages/libgudev-238-3-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "0f296e7194ed47ed9c48fa9836417792984beb97a20a9ce3853fcd4b074846f5"
+        },
+        "packages/libjpeg-turbo-3.2.0-2-aarch64.pkg.tar.xz": {
+          "bytes": 503296,
+          "sha256": "fd1cd460ef3a4bbeb1a660f9f4bbacd09d6dd817a10f0300891a6a552fddb5ec"
+        },
+        "packages/libjpeg-turbo-3.2.0-2-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "98fc688c700aabea1a1cf125d0bfa221e195324bb2ca5e60a8dc8a0841fcad78"
+        },
+        "packages/libldap-2.7.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 263796,
+          "sha256": "09423337d9311f65e2cdd298ff7a2bbfbfdd7f5cbccfc21e42d8b82de669c737"
+        },
+        "packages/libldap-2.7.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "24a5a0bb5f5ce2a47f13ecdd676c5c6935c2fe3a7a39557acf9ce994b8eca823"
+        },
+        "packages/libp11-kit-0.26.5-1-aarch64.pkg.tar.xz": {
+          "bytes": 416988,
+          "sha256": "0d8da62f6e0fb213858619d928b4b25afb9e783b8285dfdfbef54339584b35ef"
+        },
+        "packages/libp11-kit-0.26.5-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "615bb78eeac92f3526cebb5626fb6954abb109330acd0cd11569a7e1d109f1fc"
+        },
+        "packages/libpipewire-1:1.6.9-1-aarch64.pkg.tar.xz": {
+          "bytes": 1366556,
+          "sha256": "21e81a38ea0217e0b0675b00c1c98bb547098f00d689201a27c34824e442d66e"
+        },
+        "packages/libpipewire-1:1.6.9-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "b3e6293de37f24955bf5a1ac0dd140a4356252e28068a31a876753cdf3e43328"
+        },
+        "packages/librsvg-2:2.63.2-1-aarch64.pkg.tar.xz": {
+          "bytes": 2020292,
+          "sha256": "4081d59650b742c5eb370561c6619ac1de1179be4be5c5e6d894549f3f4f84c8"
+        },
+        "packages/librsvg-2:2.63.2-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "d71c40d60ce7e9609baec246d8b1a098fbf12e51d390aa07ddebed0ea2c4965c"
+        },
+        "packages/libsoup3-3.8.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 392992,
+          "sha256": "64de7da632474a9b45e473731c9098e11379c5dc441e7ca1af91546dc0eabe7b"
+        },
+        "packages/libsoup3-3.8.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "c7cb940a538e22bffe3f3c32479417ae57570d0861355f21414b75b45e00f678"
+        },
+        "packages/libstemmer-3.1.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 125172,
+          "sha256": "c5ab5687f090d94c15b7a4b7288a58e5bf826921ad9cffa8d85bad1ce31284ba"
+        },
+        "packages/libstemmer-3.1.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "6819029f59f619a44144c6c10868f5039c6469db3c7a907d05d184e024f40445"
+        },
+        "packages/libwireplumber-0.5.18-1-aarch64.pkg.tar.xz": {
+          "bytes": 284324,
+          "sha256": "9fc7aedc4079fadbef1fd7079076b781bee45431d9e534b7c45b82c39ad17d9c"
+        },
+        "packages/libwireplumber-0.5.18-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "1844ceaeee6846d6e6661025421159c6461b88252134f3e51b1d55205ba4d35e"
+        },
+        "packages/libx11-1.8.13-2-aarch64.pkg.tar.xz": {
+          "bytes": 2009768,
+          "sha256": "b391fdf1927ec6f8de2f3e5998c927df5fe1b13d9338e56ade48154af460a234"
+        },
+        "packages/libx11-1.8.13-2-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "7ac4bf3d7fcac7160797bdcf23a2cd7904c96ee938089dd40164aecb7fb5936f"
+        },
+        "packages/libxi-1.8.3-1-aarch64.pkg.tar.xz": {
+          "bytes": 151764,
+          "sha256": "379cea947498145d31decca7a1beacec268cb24fb622a59f6dc49c23be793a22"
+        },
+        "packages/libxi-1.8.3-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "a9222bebc44be41ba8f0504459d4a009f353b2254db897e8962eb753c5cefd79"
+        },
+        "packages/libxrender-0.9.12-1-aarch64.pkg.tar.xz": {
+          "bytes": 27784,
+          "sha256": "f5f344d116ff42b379c50ef595e7e9a3a6f7ed09357f8cd3acab90a3d11c9960"
+        },
+        "packages/libxrender-0.9.12-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 565,
+          "sha256": "5964f40f20cc60188d1e14e89363d68c57500b03cb0d08c991aa6feb68dd321d"
+        },
+        "packages/libxtst-1.2.5-1-aarch64.pkg.tar.xz": {
+          "bytes": 28736,
+          "sha256": "3ca6270ff04330650205339e2726c23616b31468a493642ba3df74af050ae888"
+        },
+        "packages/libxtst-1.2.5-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "2f26dbe9d2a4aa42639e97e4f11b0270c2ba2247c6513890a2d517bd6d0465c2"
+        },
+        "packages/libzip-1.11.4-1-aarch64.pkg.tar.xz": {
+          "bytes": 258420,
+          "sha256": "6f108f41399e25a1c20c4deb0b4c89d41d568f810c78104d20628fb7eb241f83"
+        },
+        "packages/libzip-1.11.4-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "97736ba70622baaedbb47b53cadd40e33b9110c188da69ac901f0e568b5e84ff"
+        },
+        "packages/linux-aarch64-7.2.10-1-aarch64.pkg.tar.xz": {
+          "bytes": 68687880,
+          "sha256": "9172d7677d3c1c4b4b72b50b7931b5ccc19a4552d68e4a029ca7e9663e1ebcb7"
+        },
+        "packages/linux-aarch64-7.2.10-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "9e258a5301a67e61bb46f6714287dd077d216ab583529fb80b4e90daaddedd6f"
+        },
+        "packages/linux-api-headers-7.2-1-aarch64.pkg.tar.xz": {
+          "bytes": 1509724,
+          "sha256": "e03baabe6bbf49b65b394eb24629978bbb2094cd17b3fecd892a011041f9c24a"
+        },
+        "packages/linux-api-headers-7.2-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "9c6974b7625ed33396a3f896af1689449614573c86496b914af67fa476984fad"
+        },
+        "packages/linux-firmware-20260916-1-any.pkg.tar.xz": {
+          "bytes": 2588,
+          "sha256": "117147a72bb15e20c94d1e3c9af0ed3fb77b7caf2448f99e95390b8aa6808c83"
+        },
+        "packages/linux-firmware-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "29d87540f6f88e7602c6ffb4f83923b49b0db051963dfe7cfd01ebda5dc72957"
+        },
+        "packages/linux-firmware-amd-20260916-1-any.pkg.tar.xz": {
+          "bytes": 490596,
+          "sha256": "a00e7a18744c40580fdbb781fcf2f51b84c57af1ca27cf05b5a28f8e068586a3"
+        },
+        "packages/linux-firmware-amd-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "edb15673fb5c306e57de409507d03873f8bcc39e5cfffb2aa3577f125080cab6"
+        },
+        "packages/linux-firmware-amdgpu-20260916-1-any.pkg.tar.xz": {
+          "bytes": 15995644,
+          "sha256": "a16035a7fedcb0dedd2b41d45a38ef9002f0857c802f6f1d7b8f253121ccf88d"
+        },
+        "packages/linux-firmware-amdgpu-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "63b9c206d65899f4917587bed074e283ae81d96e56f12e868a50c92c7b0ebece"
+        },
+        "packages/linux-firmware-atheros-20260916-1-any.pkg.tar.xz": {
+          "bytes": 43599864,
+          "sha256": "3585438c34b7014dd156d814104c8d2f60ea11d642a4a31354239e8602418708"
+        },
+        "packages/linux-firmware-atheros-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "ba58830b5e352d715e57373e3da3723ba10a3e084070d9fcc9d53ac0b36aa0fe"
+        },
+        "packages/linux-firmware-broadcom-20260916-1-any.pkg.tar.xz": {
+          "bytes": 7790268,
+          "sha256": "92986151fa0765edf364d9536aa6b76210445c60c808e852aa586085891fe0d9"
+        },
+        "packages/linux-firmware-broadcom-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "ba2b090ee025adbf258fdc45e66ffa204359c6aa02f3bc92fdf30151e7ef8ce0"
+        },
+        "packages/linux-firmware-cirrus-20260916-1-any.pkg.tar.xz": {
+          "bytes": 465188,
+          "sha256": "7ff462e21e34239c4d1add91ddd38f8537f79b79acc23aa976b6d1ddc040553e"
+        },
+        "packages/linux-firmware-cirrus-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "93fb9e99d024fedb870ff129310a0090022f9f2f5c3c66f6c96c965d0bceb6c1"
+        },
+        "packages/linux-firmware-intel-20260916-1-any.pkg.tar.xz": {
+          "bytes": 56053544,
+          "sha256": "5bb579c535c44d9dc3bd4a0d3bb9fa675776e03488a78e3ae09c60c8de7181b7"
+        },
+        "packages/linux-firmware-intel-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "e442d87a34d24c9a4160cd3e0f13cc48c381baf1842022653a776c642505a2b8"
+        },
+        "packages/linux-firmware-mediatek-20260916-1-any.pkg.tar.xz": {
+          "bytes": 34714404,
+          "sha256": "0b9a3876db35b50f0cdc898a4e5570ef1d6e153a7ec6ae6216ee03eaa9305b73"
+        },
+        "packages/linux-firmware-mediatek-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "a2613a694171607d8b754360bfff199b0ffbcd7a8c85c2eb9c8322344dbb9705"
+        },
+        "packages/linux-firmware-nvidia-20260916-1-any.pkg.tar.xz": {
+          "bytes": 104330276,
+          "sha256": "9a88f0af44ff0d0c9894935ef3ddd018337392584fb927da4e620121106562f2"
+        },
+        "packages/linux-firmware-nvidia-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "20567f0621f1ff7e708bbd3a749dac00d951683f7784ffec599d0cf5703b1959"
+        },
+        "packages/linux-firmware-other-20260916-1-any.pkg.tar.xz": {
+          "bytes": 12566012,
+          "sha256": "047e55539d830123a0e86d4d5be3f7f1cdb18b41822dbe06ec6562020c50beb3"
+        },
+        "packages/linux-firmware-other-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "b17669753694815c7e77af24f797740a68a83a8d34890f69ce59d81d1dd8c1c2"
+        },
+        "packages/linux-firmware-radeon-20260916-1-any.pkg.tar.xz": {
+          "bytes": 841780,
+          "sha256": "3f7788bcba04df8917e5549d1c00c82e32d96a7e0b8032df9198df1b2331ca8e"
+        },
+        "packages/linux-firmware-radeon-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "f202a78bdaa083b02fecc1e4fc24d7d49c2ec46f69676b7453d73f12fd70ca5a"
+        },
+        "packages/linux-firmware-realtek-20260916-1-any.pkg.tar.xz": {
+          "bytes": 3940848,
+          "sha256": "5f7f940945e7b6e8a968435d7eba4e61a75f606fd680f95efc4fd0c433f1c15f"
+        },
+        "packages/linux-firmware-realtek-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "2f9dcb95b9a0038372ef433d44d9e30a2f948bba880e9215ad050536afe106e5"
+        },
+        "packages/linux-firmware-ti-20260916-1-any.pkg.tar.xz": {
+          "bytes": 2201060,
+          "sha256": "71ae3063e56ec52fd45b2c117443b250bd754a989412a7b42ffe319712b5900d"
+        },
+        "packages/linux-firmware-ti-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "7d0b0090232d583da7f6b5fe3e6d9226cdcc5adfe883bd861601db66806eb3f6"
+        },
+        "packages/linux-firmware-whence-20260916-1-any.pkg.tar.xz": {
+          "bytes": 43144,
+          "sha256": "52671ff7275c0a62029150ef700778da7e448f36b381e73da964751e8862bdbc"
+        },
+        "packages/linux-firmware-whence-20260916-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "e1f33d9f53b4c27910d7ca43cb5c4d9722e6b09f92f8acbf8e4140efb65bd2e5"
+        },
+        "packages/llvm-libs-23.1.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 37588856,
+          "sha256": "d890dc562274f6e2ec59d5b2ceb21ddeabee89c0563ead27a550ee11810cdff4"
+        },
+        "packages/llvm-libs-23.1.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "b06b35cb4e524be09461b4ae825c2a00d92733c59d4a4364c2a59d3060c4ece8"
+        },
+        "packages/mesa-1:26.2.4-1-aarch64.pkg.tar.xz": {
+          "bytes": 12639708,
+          "sha256": "b03b498ba04ef5217299a81a1ef4c1c3582a250fab74848a443b85ba4a352fbd"
+        },
+        "packages/mesa-1:26.2.4-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "70b68b0ad743f13cb4e1a3d53e8c7a041a13ab3f387ef830d0735c0883e0cb03"
+        },
+        "packages/nano-9.2-1-aarch64.pkg.tar.xz": {
+          "bytes": 620456,
+          "sha256": "b7de7c6cf2e4859c141f978bd7f1e9467118266c1ea83fcae07c2921dae3f3d3"
+        },
+        "packages/nano-9.2-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "2fda31bc521a43e3e65941fcc80f1baa423d770797b86a4cfd7c2934fa0832cd"
+        },
+        "packages/openssh-10.6p1-1-aarch64.pkg.tar.xz": {
+          "bytes": 1228712,
+          "sha256": "28522c0cb098994889b8186315f7629bf1d75931487f16a237dd3e93bbdbaa10"
+        },
+        "packages/openssh-10.6p1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "2b6ebf8553f7b10ba22f768adc7dbcbd00ce983364a0000f85ed13d11cb44ac1"
+        },
+        "packages/openssl-3.6.5-1-aarch64.pkg.tar.xz": {
+          "bytes": 5895660,
+          "sha256": "f60b3c69329784d1218ba098a46b092bb42ecc68f0424f01ce2873353a667c20"
+        },
+        "packages/openssl-3.6.5-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "de6c9c6fc49a0f8d1ef87baab5ccc3acd481652b4b8244119f54a818e80c6354"
+        },
+        "packages/p11-kit-0.26.5-1-aarch64.pkg.tar.xz": {
+          "bytes": 249124,
+          "sha256": "7e5c2facac3abd9b51709e081e8720dc7ccc0f27d6c9b49bcb3d188fa91e75f1"
+        },
+        "packages/p11-kit-0.26.5-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "1cb5b9640a044a32be18c730033bd50f9922374e7c27101471549765676c5b8b"
+        },
+        "packages/patch-2.8-1-aarch64.pkg.tar.xz": {
+          "bytes": 83988,
+          "sha256": "a62862b3dc3c82c3f8892707ec118a56fb0230480c017445d795fc0989e32f67"
+        },
+        "packages/patch-2.8-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "bd57f9d4db65366308ce84e59f761d2b5857f9e74507dc2f273236ef118f4c59"
+        },
+        "packages/perl-5.42.3-1-aarch64.pkg.tar.xz": {
+          "bytes": 16017184,
+          "sha256": "f0e47c42ec91985898af2ce7355ef4eead50457108706add1f8c1650bca19b8f"
+        },
+        "packages/perl-5.42.3-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "f40e70ac18f61c8b706c7642bac2cfef7b4fcb9d96bd30da3fc41c48a6667dca"
+        },
+        "packages/pipewire-1:1.6.9-1-aarch64.pkg.tar.xz": {
+          "bytes": 264148,
+          "sha256": "d711f2ba44cf9be3800b168f1d68d7791e2838c2bbefde26deff56a26eaccae2"
+        },
+        "packages/pipewire-1:1.6.9-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "128286cc9966ac4fb0152d53af7e5b304b693c097d4becb3cef76ccd58c640b1"
+        },
+        "packages/pkgconf-3.0.7-1-aarch64.pkg.tar.xz": {
+          "bytes": 114348,
+          "sha256": "92275199f2f7b8907032e96a40187fef60a30dc7aaaeba1e4c5a03177365858a"
+        },
+        "packages/pkgconf-3.0.7-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "bc72c375df7b8b20f6f43562b447d0dcb0e91343428c3341ac8b59db2a733981"
+        },
+        "packages/python-3.14.8-1-aarch64.pkg.tar.xz": {
+          "bytes": 13588352,
+          "sha256": "5e00dbb30ab55fd160d64205e1f3418c8bcf5b295ff07bf9af7ad4ab85bc6984"
+        },
+        "packages/python-3.14.8-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "ee28ca566685118f6048b859691802ddc6a1c0772581371a7d9cab2d3405c2f0"
+        },
+        "packages/sudo-1.9.17.p2-6-aarch64.pkg.tar.xz": {
+          "bytes": 1774712,
+          "sha256": "3e90ee7aa3b5526a155396f3baa6305e37eed317db674cc077312cc386d5b0bd"
+        },
+        "packages/sudo-1.9.17.p2-6-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "24f1c52f52ccd28105a25fd5a6d10d8fe9dba3e57200e655240ac10d783f7b05"
+        },
+        "packages/systemd-262-1-aarch64.pkg.tar.xz": {
+          "bytes": 9737940,
+          "sha256": "dd26469e35547b68793f5ef3e9ba343179704652425349a36d231f34ec6e0546"
+        },
+        "packages/systemd-262-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "de5b2b5b2c485613e7c854d049578c6c0a9bf9c680132c9e3c4076fffb5dc89b"
+        },
+        "packages/systemd-libs-262-1-aarch64.pkg.tar.xz": {
+          "bytes": 1303288,
+          "sha256": "8e697c8f2db7c82dfcdcdc63540f7ad265d8e10fc7aab656c60229d858fca901"
+        },
+        "packages/systemd-libs-262-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "1188b1b93ba1f79069a36c8d33555713b41746c981d246f5e3ffc726c4633de7"
+        },
+        "packages/systemd-resolvconf-262-1-aarch64.pkg.tar.xz": {
+          "bytes": 3420,
+          "sha256": "2c65f94c06ecca704afe9a95b7eed2de11a82447fecc3fac26e6d46da424fba3"
+        },
+        "packages/systemd-resolvconf-262-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "ed7bbb6e5123ea5874853fa56745cfc9256be96d82a5026f5c8115e366825c27"
+        },
+        "packages/systemd-sysvcompat-262-1-aarch64.pkg.tar.xz": {
+          "bytes": 6692,
+          "sha256": "17ad08c06f3d759bb9d6eabc8881481b5b5dae02ef1ab591b6571bf4d675cc79"
+        },
+        "packages/systemd-sysvcompat-262-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "a4196339ef70bec487b46ce875122bc7d1acecf9560b49f06110215f9d19f359"
+        },
+        "packages/texinfo-7.3-1-aarch64.pkg.tar.xz": {
+          "bytes": 2070900,
+          "sha256": "796e5577b93b495b953473af8eb5f27dd7fe7ddb07ccf8a49720449e5a194067"
+        },
+        "packages/texinfo-7.3-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "3a536c65fb5f3ad39c5e9c1013f89d29bf2891df07d76d9f4956b98a6ff6da76"
+        },
+        "packages/tomlplusplus-3.4.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 164828,
+          "sha256": "79fb3aaffdb83b811096032183d34960ec7ae136a28217bf626c9a45ad750422"
+        },
+        "packages/tomlplusplus-3.4.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "67854ceaa2dfc82ae4c1b9585c5983b231d495f8017e568492bc2ab3fe84202f"
+        },
+        "packages/tpm2-tss-4.2.0-2-aarch64.pkg.tar.xz": {
+          "bytes": 877720,
+          "sha256": "90f527d90d490e1436c696a81df7b0c6da5fa18dfdb87fb92813f35ac86c7c1b"
+        },
+        "packages/tpm2-tss-4.2.0-2-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "cc50e53810afe468d2e351b5d8bbe20485fe9c8853fd4a8e41c765cecc5d5705"
+        },
+        "packages/tzdata-2026e-1-aarch64.pkg.tar.xz": {
+          "bytes": 293780,
+          "sha256": "d7d3c754efda7194c0b931c457436f5215e1ca51835cbfac228e70c46112f22f"
+        },
+        "packages/tzdata-2026e-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "6625904c3bccff17143fa2c978582fd2cc1175629517c8cd0f635ab30e5ff2b5"
+        },
+        "packages/wayland-protocols-1.49-1-any.pkg.tar.xz": {
+          "bytes": 139436,
+          "sha256": "9678c0d371ecfb5041b1b1d8a7986977bd82b7233984dbe25b33a54da0dbee27"
+        },
+        "packages/wayland-protocols-1.49-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "d731754509b526be5f65900e4d645641bec9ac3b7ad6f7c59d821b8690bb920e"
+        },
+        "packages/wireplumber-0.5.18-1-aarch64.pkg.tar.xz": {
+          "bytes": 289536,
+          "sha256": "2410813c8b3eba26598b90b260171ac884af59f8dc1441112eee80f1873b628b"
+        },
+        "packages/wireplumber-0.5.18-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "f061b3156e88502e0fcca2b1742c9d4e6687a23a2b92d804a664abecbd52cd04"
+        },
+        "packages/xkeyboard-config-2.48-1-any.pkg.tar.xz": {
+          "bytes": 843224,
+          "sha256": "6ee5de46d25850dee96be9c28f9870ea2ae0b19ac8fb3c2194d31b9649b03ecd"
+        },
+        "packages/xkeyboard-config-2.48-1-any.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "aaeeab21217c1f307f1c75165443c2274f215df788c456b21276bc670e41e95c"
+        },
+        "packages/xorg-server-common-21.1.25-1-aarch64.pkg.tar.xz": {
+          "bytes": 27344,
+          "sha256": "6cc9149138662041aa13c6ec027c074c67ee411848e38c349232acd9d97fca98"
+        },
+        "packages/xorg-server-common-21.1.25-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "cb12e8a377cd9a8f4718faa270f7b5ca0834e7b72b70c073338f57bfea31b4d3"
+        },
+        "packages/xorg-xwayland-24.1.14-1-aarch64.pkg.tar.xz": {
+          "bytes": 851344,
+          "sha256": "6affc1b822583d80040e1be9598dfdb7bedc235d2c29283af7a878100fc069c1"
+        },
+        "packages/xorg-xwayland-24.1.14-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "e1fe05949dd62873ac7a197a146d9fab4b7693727d8d8a07a2c2a353a16d4559"
+        }
+      },
+      "tree": "cc6298d8dbbb5b0dd522de76b7140306d83bfe7a",
+      "tree_files": 183
+    },
+    "native623-base-r1": {
+      "commit": "3ac0b845b13b9a8f1da4fc9ec90ac627a6f0da0c",
+      "selected": {
+        "alarm-cache/at-spi2-core-2.62.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 547452,
+          "sha256": "71efadc123171229c74281323db4b04c594c5e31ee0d7dfcb680bf5d8d98c74b"
+        },
+        "alarm-cache/at-spi2-core-2.62.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "3386365fb23b962a5ce9612f8f5349c7cec9abee430bee2668334465e9ffd9c3"
+        },
+        "alarm-cache/dav1d-1.5.4-1-aarch64.pkg.tar.xz": {
+          "bytes": 343120,
+          "sha256": "1bacfe3c1125b7fe32d9fd9cce8fa48fd93aa0daf43608c2f92e6c1418ab9aeb"
+        },
+        "alarm-cache/dav1d-1.5.4-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "f9a5772b73799e45b1c23e07b3e80e9f11a74f298fe1328509ca9ac5e4ac6bdf"
+        },
+        "alarm-cache/fontconfig-2:2.18.3-2-aarch64.pkg.tar.xz": {
+          "bytes": 385820,
+          "sha256": "8f3bf0609eb73b15526179357e139441bf1a9a502c3b948f0925e9b1b586129a"
+        },
+        "alarm-cache/fontconfig-2:2.18.3-2-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "4ddb76ba55a1afcf23593d75fd061f1a5f8a85f3440c62726067b20103399120"
+        },
+        "alarm-cache/gdb-18.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 7865476,
+          "sha256": "189c02d39b130db5e17f28e3c26f2eb21785c9cbc51974410f2ef82e9993582c"
+        },
+        "alarm-cache/gdb-18.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "4b607a40a0b445bb71a413c505a7487f1ebacff25b2f6d4b14fcc70cbdb0ea3a"
+        },
+        "alarm-cache/gdb-common-18.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 118312,
+          "sha256": "da47f5e168fd5476e167042f1f33a6f9c2ae7197957939936d4acf3e537fb10f"
+        },
+        "alarm-cache/gdb-common-18.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "a143df7ecb956454a2f0debdd5deae7f8b426dc0abdf2583ff96f7fe05cc5434"
+        },
+        "alarm-cache/gnutls-3.8.13-3-aarch64.pkg.tar.xz": {
+          "bytes": 1727672,
+          "sha256": "aa74e78dc3f954e2b5399e1da8f89e926190aa64ffd57cf30006b3c1e2e037b1"
+        },
+        "alarm-cache/gnutls-3.8.13-3-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "c729036267d65111cb7ae759046198bfd8b23ca89164011312bf2a5a33ee182e"
+        },
+        "alarm-cache/gpgme-2.2.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 313456,
+          "sha256": "7e7f7277f8ddc618499cfeb105f67d3f7be1caa32aec561c744b2a3b5063785f"
+        },
+        "alarm-cache/gpgme-2.2.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "8f1df49226e609b2ae0008063f93dc96c9aa0460c8e07ce28a3d1572764beb7d"
+        },
+        "alarm-cache/libffi-3.8.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 51464,
+          "sha256": "dfece459e053d53a5a7fdfbb2caf1b0fa662470220f86615a7789eba8571c0ff"
+        },
+        "alarm-cache/libffi-3.8.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "3772033208e24a494fa9602f66d063978ecbccd4f4f99132048e2213f91355b8"
+        },
+        "alarm-cache/libfontenc-1.1.9-1-aarch64.pkg.tar.xz": {
+          "bytes": 14732,
+          "sha256": "e42320161bec71bafa2243ff203fa8a3306b0a0f91e90dd89291b093340ab1fc"
+        },
+        "alarm-cache/libfontenc-1.1.9-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "ff73800e38c686202f6b902f325b8e36dea5a744f59738cc212015ce5339fff9"
+        },
+        "alarm-cache/libjxl-0.12.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 1243932,
+          "sha256": "fb4a1fdfb0fe1e8434578abcd6c6e84d4e89a9bdb2ed44334f0a1a7a94306c45"
+        },
+        "alarm-cache/libjxl-0.12.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "64928972e86202c068931162fee9907c2edd945ada388691f38e3a68b8d7c263"
+        },
+        "alarm-cache/libxfont2-2.0.9-1-aarch64.pkg.tar.xz": {
+          "bytes": 88360,
+          "sha256": "cc74f8a2d3377f068b5f3c35619e333c1a331254298625666eac84a533b30347"
+        },
+        "alarm-cache/libxfont2-2.0.9-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "78cf09ad9b6b20cefa086f9fb4e61b4ab989415a0645fb2e4fc97a2586a5e5de"
+        }
+      },
+      "tree": "e3f619a2bb8a287cd0aaa7d1975d8d392cb8786e",
+      "tree_files": 22
+    },
+    "native623-r1": {
+      "commit": "b429266444c82238783044301ceb0f8d08bbf3f6",
+      "selected": {
+        "alarm-cache/bubblewrap-0.13.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 40428,
+          "sha256": "4866e25c5a7c33c3ded9f221058b5f4136cdbd991f3dc77a2f7a740368c95a61"
+        },
+        "alarm-cache/bubblewrap-0.13.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "dc7ad4f478d7b196b5189e670e2d80f3e68ad28aa869b0bee697d2c5309064fa"
+        },
+        "alarm-cache/jbigkit-2.1-8-aarch64.pkg.tar.xz": {
+          "bytes": 48816,
+          "sha256": "ecaddb099f4a1f1bcbc1497fd0f3dc98581552b9eacaa17c5568211c38bec1db"
+        },
+        "alarm-cache/jbigkit-2.1-8-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "f00be593f9ab5855f9e450d054e6cacd319ec834ef7fc97c51bcf3be3ebfdb1f"
+        },
+        "alarm-cache/libtiff-4.7.2-1-aarch64.pkg.tar.xz": {
+          "bytes": 354480,
+          "sha256": "02a5d2d74019b39befd6cf63d9bde95a2d16f91b4d0d56939498375e0e491ffd"
+        },
+        "alarm-cache/libtiff-4.7.2-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "8dae1efda531e3ac7db09512cfe0c619eaae6787cc16fdea1315588b4fc340fa"
+        },
+        "extension/compiler-rt-23.1.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 2906236,
+          "sha256": "7bb647047b1c7cc3e6f7f15626b03e748b177b8ea5fcab117e6641b5b6ea4093"
+        },
+        "extension/compiler-rt-23.1.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "1a92715f8a987c82c90949be0bcf60ca7a29b37d1d5b02439ae167883fc2775a"
+        },
+        "extension/libgit2-1:1.9.7-1-aarch64.pkg.tar.xz": {
+          "bytes": 768812,
+          "sha256": "cacbf38f50e09c1fa4a8a94bb5dae5d7719dc4b7a4262a8a8e94f9d001bc0842"
+        },
+        "extension/libgit2-1:1.9.7-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "2d4e15982858794428446596475c285c54aa1d3fc7cccb27b57d5e310153729b"
+        },
+        "extension/lld-23.1.1-1-aarch64.pkg.tar.xz": {
+          "bytes": 1923368,
+          "sha256": "8caa2b84af777a4e719b59696d181dd63e7d953b8bd17b7b2b6b56d93ea4f8bf"
+        },
+        "extension/lld-23.1.1-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "e92fc9f8173beef5666385d40ed15cf37345fb0147bfd92c8f6c87f31551e302"
+        },
+        "extension/rust-1:1.99.0-1-aarch64.pkg.tar.xz": {
+          "bytes": 59807260,
+          "sha256": "337e715182a8f81bfd6df844793c5d1cb2697ff9e94ddb496dd850ba901c31d4"
+        },
+        "extension/rust-1:1.99.0-1-aarch64.pkg.tar.xz.sig": {
+          "bytes": 566,
+          "sha256": "d7dcf2f24bca366570446a6c7228048524e1632122fa36200685a0fbe638735e"
+        }
+      },
+      "tree": "a8f1cd41e3aadeee9a25bc3b96e14c823de870aa",
+      "tree_files": 22
+    }
+  },
+  "schema_version": 1
+}

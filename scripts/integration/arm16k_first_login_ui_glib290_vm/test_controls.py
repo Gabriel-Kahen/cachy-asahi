@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Modeled Source/refusal controls only. No Gtk, guest, image or actor is run."""
-import argparse,ast,contextlib,copy,hashlib,importlib.util,io,json,os,re,shutil,struct,subprocess,sys,tarfile,tempfile,types,unittest
+import argparse,ast,contextlib,copy,hashlib,importlib.util,io,json,os,py_compile,re,shutil,signal,struct,subprocess,sys,tarfile,tempfile,types,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -193,6 +193,74 @@ class Controls(Fenced):
   with patch.object(K.shutil,'disk_usage',return_value=shutil._ntuple_diskusage(10*1024**3,0,2*1024**3)):
    with self.assertRaises(AssertionError):K.output_path(self.work/'new')
 
+class TerminalPublicationControls(Fenced):
+ def setUp(self):
+  super().setUp()
+  self.boot=load('boot')
+  self.cancel=self.boot.load('terminal_custody',HERE.parent/'arm16k_virtio_seat_vm/frozen/reference_controller.py').Cancellation
+  self.report=dict(status=self.boot.PASS,ui_status=self.boot.PASS,seat={'modeled':True},
+                   ui_journey={'modeled':True},owned_container_absence_verified=True)
+  self.memory={stage:{'actual_numeric_cgroup':{'status':'OBSERVED'}} for stage in ('before-vm','at-qemu-exit','final')}
+  self.disk={name:{'actual':{'overlay':{'within_budget':True}}} for name in
+             ('actor-file-limits.json','qemu-file-limits.json','overlay-at-qemu-exit.json')}
+
+ def publish(self,out):
+  state=self.cancel();state.cleaning=True
+  with patch.object(self.boot,'memory_evidence',return_value=self.memory),patch.object(self.boot,'disk_evidence',return_value=self.disk):
+   state.__enter__()
+   self.boot.publish_report(out,self.report,state,N)
+  self.assertEqual(json.loads((out/'report.json').read_bytes()),self.report)
+
+ def test_complete_gates_publish_both_receipts(self):
+  with tempfile.TemporaryDirectory() as d:
+   out=Path(d);self.publish(out)
+   self.assertEqual(self.report['status'],self.boot.PASS)
+   self.assertEqual(json.loads((out/'journey.json').read_bytes()),
+                    dict(status=self.boot.PASS,foundation=self.report['seat'],ui_journey=self.report['ui_journey']))
+   self.assertEqual(set(out.iterdir()),{out/'journey.json',out/'report.json'})
+
+ def test_staged_journey_counts_towards_final_output_budget(self):
+  with tempfile.TemporaryDirectory() as d,patch.dict(self.boot.K.DISK_BUDGETS,boot_nonoverlay_bytes=512*1024):
+   out=Path(d);self.publish(out)
+   self.assertGreater(self.report['allocated_nonoverlay_output_bytes'],0)
+   self.assertEqual(self.report['status'],'HOLD_CLEANUP')
+   self.assertEqual(list(out.iterdir()),[out/'report.json'])
+
+ def test_failed_final_disk_or_memory_gate_leaves_only_hold_report(self):
+  for receipts,key in ((self.disk,'overlay-at-qemu-exit.json'),(self.memory,'final')):
+   with self.subTest(missing=key),tempfile.TemporaryDirectory() as d:
+    previous=receipts.pop(key);original=copy.deepcopy(self.report)
+    out=Path(d);self.publish(out)
+    self.assertEqual(self.report['status'],'HOLD_CLEANUP')
+    self.assertNotIn('ui_status',self.report)
+    self.assertEqual(list(out.iterdir()),[out/'report.json'])
+    receipts[key]=previous;self.report=original
+
+ def test_term_during_terminal_report_write_withholds_journey(self):
+  original=Path.write_bytes
+  with tempfile.TemporaryDirectory() as d:
+   out=Path(d)
+   def write(path,body):
+    self.assertFalse((out/'journey.json').exists())
+    self.assertFalse((out/'report.json').exists())
+    if json.loads(body)['status']==self.boot.PASS:signal.raise_signal(signal.SIGTERM)
+    return original(path,body)
+   with patch.object(Path,'write_bytes',write):self.publish(out)
+   self.assertEqual(self.report['status'],'HOLD_CANCELLED')
+   self.assertEqual(self.report['cancelled_signals'],[signal.SIGTERM])
+   self.assertNotIn('ui_status',self.report)
+   self.assertEqual(list(out.iterdir()),[out/'report.json'])
+
+ def test_failed_report_rename_retires_companion_journey(self):
+  original=Path.replace
+  with tempfile.TemporaryDirectory() as d:
+   out=Path(d)
+   def replace(path,target):
+    if target==out/'report.json':raise OSError('modeled publication failure')
+    return original(path,target)
+   with patch.object(Path,'replace',replace),self.assertRaisesRegex(OSError,'modeled publication failure'):self.publish(out)
+   self.assertEqual(list(out.iterdir()),[])
+
 class BootMemoryControls(Fenced):
  def setUp(self):
   super().setUp();self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.work=Path(self.tmp.name);self.cg=self.work/'cgroup';self.cg.mkdir();self.out=self.work/'out';self.out.mkdir()
@@ -302,9 +370,35 @@ class NamespaceControls(Fenced):
   payload={'usr/bin/x':{'type':'0','mode':0o644,'uid':0,'gid':0}}
   with self.assertRaises(AssertionError):K.executable(payload,'usr/bin/x')
  def test_secret_packet_is_rejected_without_any_GPG_process(self):
-  module=K.load('UI_inert_public_packet_control',K.ROOT/'scripts/repository/revoke.py')
-  with patch.object(subprocess,'run',side_effect=AssertionError('no process')):
-   with self.assertRaises(ValueError):module.packets(b'\xc5\x01\x00')
+  refs, *_ = K.references()
+  module = K.public_packet_reader(refs)
+  self.assertEqual(module.packets(b'\xc6\x01\x00')[0][:2], (6, b'\x00'))
+  with self.assertRaises(ValueError):
+   module.packets(b'\xc5\x01\x00')
+
+ def test_public_packet_reader_executes_pinned_source_and_refuses_drift(self):
+  work = Path(self.enterContext(tempfile.TemporaryDirectory()))
+  parser = work / 'revoke.py'
+  dependency = work / 'enroll.py'
+  shutil.copyfile(K.ROOT / 'scripts/repository/enroll.py', dependency)
+  source = (K.ROOT / 'scripts/repository/revoke.py').read_bytes()
+  parser.write_bytes(source + b'\nSOURCE_REVISION = "old"\n')
+  timestamp = parser.stat()
+  py_compile.compile(str(parser), doraise=True, invalidation_mode=py_compile.PycInvalidationMode.TIMESTAMP)
+  parser.write_bytes(source + b'\nSOURCE_REVISION = "new"\n')
+  os.utime(parser, ns=(timestamp.st_atime_ns, timestamp.st_mtime_ns))
+  refs = {
+   'public_packets': {'path': str(parser), **K.pin(parser)},
+   'public_packets_dependency': {'path': str(dependency), **K.pin(dependency)},
+  }
+  self.assertEqual(K.public_packet_reader(refs).SOURCE_REVISION, 'new')
+  for path in (parser, dependency):
+   raw = path.read_bytes()
+   with self.subTest(path=path.name):
+    path.write_bytes(b' ' + raw[1:])
+    with self.assertRaisesRegex(ValueError, 'exact finite .*pin required'):
+     K.public_packet_reader(refs)
+    path.write_bytes(raw)
 
 class GLibSuccessorControls(Fenced):
  def fixtures(self):
@@ -634,5 +728,36 @@ class OverlayBudgetControls(Fenced):
   source=(HERE/'ui_glib_actor.py').read_text();self.assertIn("except BaseException as error:actor_error=",source);self.assertLess(source.index('actor_error='),source.index('result=O.supervise'))
   tail=source[source.index('result=O.supervise'):];self.assertNotIn('os.kill(',tail);self.assertNotIn('os.waitid(',tail)
   boot=(HERE/'boot.py').read_text();self.assertIn("'guest_shutdown':'NOT ESTABLISHED'",boot);self.assertIn("retirement['actor_signals']==[]",boot);self.assertIn("preexec_fn=limit_command_log",boot)
+
+ def test_public_packet_reader_keeps_authenticated_dependency_after_replacement(self):
+  work = Path(self.enterContext(tempfile.TemporaryDirectory()))
+  parser = work / 'revoke.py'
+  shutil.copyfile(K.ROOT / 'scripts/repository/revoke.py', parser)
+  dependency = work / 'enroll.py'
+  approved = b'SOURCE_REVISION = "reviewed"\n'
+  dependency.write_bytes(approved)
+  replacement = work / 'replacement.py'
+  replacement.write_bytes(b'SOURCE_REVISION = "replacement"\n')
+  refs = {
+   'public_packets': {'path': str(parser), **K.pin(parser)},
+   'public_packets_dependency': {'path': str(dependency), **K.pin(dependency)},
+  }
+
+  def file_digest(stream, algorithm):
+   digest = hashlib.file_digest(stream, algorithm)
+   if Path(stream.name) == dependency:
+    replacement.replace(dependency)
+   return digest
+
+  def sha256(raw):
+   digest = hashlib.sha256(raw)
+   if raw == approved:
+    replacement.replace(dependency)
+   return digest
+
+  with patch.object(K, 'hashlib', types.SimpleNamespace(file_digest=file_digest, sha256=sha256)):
+   module = K.public_packet_reader(refs)
+  self.assertFalse(replacement.exists())
+  self.assertEqual(module.E.SOURCE_REVISION, 'reviewed')
 
 if __name__=='__main__':unittest.main()
