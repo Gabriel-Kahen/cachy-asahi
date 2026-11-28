@@ -40,7 +40,22 @@ class WorkflowPathsTests(unittest.TestCase):
 class RealGitReplayTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.packet_raw = (ROOT / PACKET).read_bytes()
+        temporary = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(temporary.cleanup)
+        cls.checkout = Path(temporary.name) / 'checkout'
+        env = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
+        env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null',
+                   GIT_LFS_SKIP_SMUDGE='1', GIT_TERMINAL_PROMPT='0')
+        git = ['git', '--no-replace-objects', '-C', str(ROOT), '-c', 'core.hooksPath=/dev/null',
+               '-c', 'submodule.recurse=false']
+        head = subprocess.check_output([*git, 'rev-parse', '--verify', 'HEAD^{commit}'],
+                                       env=env, text=True, timeout=15).strip()
+        # Replay the committed tree without inheriting the caller's ignored files.
+        subprocess.run([*git, 'worktree', 'add', '--quiet', '--detach', str(cls.checkout), head],
+                       env=env, check=True, timeout=30)
+        cls.addClassCleanup(subprocess.run, [*git, 'worktree', 'remove', str(cls.checkout)],
+                            env=env, check=True, timeout=30)
+        cls.packet_raw = (cls.checkout / PACKET).read_bytes()
         cls.packet = legacy.decode(cls.packet_raw)
         cls.issuer = load('source_replay_clock_issuer', 'development-clock-issuer.py')
         cls.issuer_pin = legacy.digest((HERE / 'development-clock-issuer.py').read_bytes())
@@ -48,8 +63,6 @@ class RealGitReplayTests(unittest.TestCase):
         lock_raw, _ = fixture['historical_input'](ROOT, legacy.INITIAL)
         cls.lock, rows, cls.invocation = bootstrap.historical_specs(legacy, lock_raw)
         captures = {name: fixture['historical_input'](ROOT, name) for name in rows}
-        temporary = tempfile.TemporaryDirectory()
-        cls.addClassCleanup(temporary.cleanup)
         cls.original = Path(temporary.name) / 'historical'
         owned = legacy.Owned()
         cls.addClassCleanup(owned.dispose)
@@ -58,13 +71,13 @@ class RealGitReplayTests(unittest.TestCase):
     def replay(self, source_commit):
         with tempfile.TemporaryDirectory() as temporary:
             scratch = Path(temporary)
-            layout = {'workspace': ROOT, 'original': self.original, 'output': scratch / 'evidence',
+            layout = {'workspace': self.checkout, 'original': self.original, 'output': scratch / 'evidence',
                       'cache': scratch / 'cache'}
             env_file = scratch / 'fixture.env'
             env_file.touch(mode=0o600)
             environment = {
                 'PATH': os.defpath, 'LC_ALL': 'C', 'TMPDIR': str(scratch), 'RUNNER_TEMP': str(scratch),
-                'GITHUB_WORKSPACE': str(ROOT), 'GITHUB_ENV': str(env_file), 'GITHUB_SHA': source_commit,
+                'GITHUB_WORKSPACE': str(self.checkout), 'GITHUB_ENV': str(env_file), 'GITHUB_SHA': source_commit,
                 'GITHUB_WORKFLOW_SHA': source_commit, 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1',
             }
             selection = {
@@ -87,9 +100,9 @@ class RealGitReplayTests(unittest.TestCase):
                 references.append((str(path), legacy.digest(raw)))
             bindings = self.issuer.issue(environment, self.issuer_pin, *references)
             argv = [
-                sys.executable, '-E', '-s', '-B', str(ROOT / 'scripts/ci/development/controller.py'),
+                sys.executable, '-E', '-s', '-B', str(self.checkout / 'scripts/ci/development/controller.py'),
                 '--composition', 'repository-svg', '--check-only',
-                '--development-sha256', legacy.digest(self.packet_raw), '--packet', str(ROOT / PACKET),
+                '--development-sha256', legacy.digest(self.packet_raw), '--packet', str(self.checkout / PACKET),
                 '--original-source-root', str(self.original),
                 '--cache', str(layout['cache']), '--output', str(layout['output']),
             ]
@@ -98,7 +111,7 @@ class RealGitReplayTests(unittest.TestCase):
             for name in ('clock', 'execution-grant', 'runtime-contract'):
                 key = 'DEVELOPMENT_' + name.upper().replace('-', '_')
                 argv.extend(('--' + name, bindings[key + '_PATH'], '--' + name + '-sha256', bindings[key + '_SHA256']))
-            result = subprocess.run(argv, cwd=ROOT, env={**environment, **bindings}, stdin=subprocess.DEVNULL,
+            result = subprocess.run(argv, cwd=self.checkout, env={**environment, **bindings}, stdin=subprocess.DEVNULL,
                                     capture_output=True, text=True, timeout=30)
             for name in ('output', 'cache'):
                 self.assertFalse(os.path.lexists(layout[name]), f'{name} allocated during check-only')
@@ -116,6 +129,17 @@ class RealGitReplayTests(unittest.TestCase):
         report = legacy.decode(result.stdout.encode())
         self.assertEqual((report['status'], report['execution']), ('FAIL', 'NOT RUN'))
         self.assertEqual(result.stderr, 'FAIL: development boundary/source refusal\n')
+
+    def test_check_only_still_refuses_cache_in_the_selected_checkout(self):
+        cache = self.checkout / 'scripts/benchmarks/__pycache__'
+        cache.mkdir()
+        try:
+            result = self.replay(os.environ['GITHUB_SHA'])
+        finally:
+            cache.rmdir()
+        self.assertEqual(result.returncode, 1, (result.stdout, result.stderr))
+        report = legacy.decode(result.stdout.encode())
+        self.assertEqual((report['status'], report['execution']), ('FAIL', 'NOT RUN'))
 
 
 if __name__ == '__main__':
