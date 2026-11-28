@@ -211,9 +211,10 @@ validation and copies the source to a new private producer snapshot. Hashing
 and JSON parsing use the same captured bytes; links, duplicate keys, nonfinite
 numbers, mutation races and incomplete closures are refused.
 The inline preflight copies only authenticated source rows into a fresh
-bootstrap snapshot and launches the job there. Python's `-B` does not prevent
-loading existing bytecode, so root checkout caches/extensions are deliberately
-outside the execution tree. The original producer and kernel controller execute
+bootstrap snapshot. The retained and native steps authenticate the committed
+source again, recheck the snapshot and execute the captured entry and local
+module bytes. Filesystem imports use the initial isolated interpreter paths.
+The original producer and kernel controller execute
 from the fresh private producer snapshot; the kernel controller's `--root`
 still names the actual Git checkout for its independent committed-source proof.
 

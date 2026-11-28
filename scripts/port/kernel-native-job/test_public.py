@@ -14,10 +14,11 @@ from pathlib import Path
 import re
 import stat
 import subprocess
+import sys
 import tempfile
 import textwrap
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
@@ -789,7 +790,7 @@ class BootstrapTests(unittest.TestCase):
         text = WORKFLOW.read_text()
         for expected in ('workflow_dispatch:', "github.repository == 'Gabriel-Kahen/cachy-asahi'", 'github.event.repository.private == false',
                          'runs-on: ubuntu-24.04-arm', 'contents: read', 'group: native-arm-kernel', 'cancel-in-progress: false',
-                         'persist-credentials: false', '--deadline 20760', 'if: always()', 'run: *trusted-bootstrap',
+                         'persist-credentials: false', "'--deadline', '20760'", 'if: always()', 'run: *trusted-bootstrap',
                          'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'):
             self.assertIn(expected, text)
         for forbidden in ('upload-artifact', 'actions/cache', 'sudo', 'apt-get', 'docker system prune', 'schedule:', 'pull_request:', 'push:'):
@@ -806,13 +807,100 @@ class BootstrapTests(unittest.TestCase):
             self.assertIn(f"inputs.retained_transport == '{transport}' && secrets.{secret} || ''", retained)
         self.assertIn('!cancelled() && steps.preflight.outcome', after)
         self.assertIn('steps.retained.outcome', after)
-        self.assertIn('"$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/intake.py"', retained)
+        self.assertIn('KERNEL_BOOTSTRAP_MODE: retained', retained)
+        self.assertIn('KERNEL_BOOTSTRAP_MODE: native', after)
+        self.assertIn('run: *trusted-bootstrap', retained)
+        self.assertIn('run: *trusted-bootstrap', after.split('      - name: Publish only', 1)[0])
         self.assertIn("exec(compile(captured[PUBLIC]", text)
-        self.assertIn('"$KERNEL_JOB_BOOTSTRAP_SOURCE/scripts/port/kernel-native-job/job.py"', text)
-        self.assertIn("stream.write('KERNEL_JOB_BOOTSTRAP_SOURCE='", text)
-        self.assertIn("stream.write('KERNEL_JOB_PACKET_PATH=' + str(root / PACKET)", text)
-        self.assertIn('--packet "$KERNEL_JOB_PACKET_PATH"', text)
+        self.assertNotIn('KERNEL_JOB_BOOTSTRAP_SOURCE', text)
+        self.assertNotIn('KERNEL_JOB_PACKET_PATH', text)
 
+
+class LaunchCustodyTests(unittest.TestCase):
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory(prefix='kernel-launch-')
+        self.addCleanup(temp.cleanup)
+        self.root = Path(temp.name)
+        self.ns = bootstrap()
+        self.entry = self.ns['JOB']
+        self.helper = self.ns['MODULES']['packet_v3']
+        self.captured = dict.fromkeys(self.ns['MODULES'].values(), b'# fixture\n')
+        self.captured[self.entry] = b'import packet_v3\nraise SystemExit(packet_v3.RESULT)\n'
+        self.captured[self.helper] = b'RESULT = 73\n'
+        self.modes = dict.fromkeys(self.captured, 0o644)
+        self.modes[self.entry] = 0o755
+        modules = patch.dict(sys.modules)
+        modules.start()
+        self.addCleanup(modules.stop)
+        for name in self.ns['MODULES']:
+            sys.modules.pop(name, None)
+
+    def snapshot(self, attempt='1'):
+        return self.ns['clean_snapshot'](self.root, '1', attempt, self.captured, self.modes)
+
+    def test_launch_refuses_changes_to_the_copied_entry_or_import(self):
+        for attempt, name in enumerate((self.entry, self.helper), 1):
+            with self.subTest(name=name):
+                source = self.snapshot(str(attempt))
+                (source / name).write_bytes(b'# changed fixture bytes\n')
+                with self.assertRaisesRegex(ValueError, '^boundary$'):
+                    self.ns['launch'](source, self.captured, self.modes, self.entry, [])
+
+    def test_launch_executes_captured_bytes_after_copy_recheck(self):
+        source = self.snapshot()
+        read = self.ns['read']
+        replaced = set()
+
+        def read_then_replace(path, *args):
+            body = read(path, *args)
+            if path in (source / self.entry, source / self.helper):
+                path.write_bytes(b'# changed fixture bytes\n')
+                replaced.add(path.relative_to(source).as_posix())
+            return body
+
+        with patch.dict(self.ns, read=read_then_replace), self.assertRaises(SystemExit) as exit_:
+            self.ns['launch'](source, self.captured, self.modes, self.entry, [])
+        self.assertEqual(exit_.exception.code, 73)
+        self.assertEqual(replaced, {self.entry, self.helper})
+
+    def test_entry_path_insertion_does_not_enable_unlisted_imports(self):
+        name = 'kernel_launch_fixture_module'
+        self.captured[self.entry] = (
+            b'import sys\nfrom pathlib import Path\n'
+            b'sys.path.insert(0, str(Path(__file__).parent))\n'
+            b'import kernel_launch_fixture_module\n'
+        )
+        source = self.snapshot()
+        (source / self.entry).with_name(name + '.py').write_bytes(b'VALUE = 1\n')
+        with self.assertRaises(ModuleNotFoundError) as failure:
+            self.ns['launch'](source, self.captured, self.modes, self.entry, [])
+        self.assertEqual(failure.exception.name, name)
+
+    def test_retained_and_native_modes_recapture_before_launch(self):
+        snapshot = self.root / 'artifacts/kernel-native-job/bootstrap-1-2/source'
+        for mode, entry in (('retained', self.ns['INTAKE']), ('native', self.entry)):
+            with self.subTest(mode=mode):
+                environment = {'KERNEL_BOOTSTRAP_MODE': mode, 'GITHUB_WORKSPACE': str(self.root),
+                               'RUNNER_TEMP': str(self.root), 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '2',
+                               'GITHUB_SHA': COMMIT, 'KERNEL_JOB_PACKET_SHA256': PIN,
+                               'KERNEL_DOCKER_SHA256': 'c' * 64}
+                calls = Mock()
+
+                def source(root, commit, pin, modes):
+                    self.assertEqual((root, commit, pin), (self.root, COMMIT, PIN))
+                    modes.update(self.modes)
+                    calls.capture()
+                    return self.captured
+
+                with patch.dict(self.ns, source=source, launch=calls.launch), patch.dict(os.environ, environment):
+                    self.ns['main']()
+                self.assertEqual([item[0] for item in calls.mock_calls], ['capture', 'launch'])
+                root, captured, modes, selected, args = calls.launch.call_args.args
+                self.assertEqual((root, captured, modes, selected), (snapshot, self.captured, self.modes, entry))
+                if mode == 'native':
+                    self.assertEqual(args[args.index('--packet') + 1], str(self.root / self.ns['PACKET']))
+                else:
+                    self.assertEqual(args, [])
 
 
 class Schema4ChildTests(unittest.TestCase):

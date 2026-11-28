@@ -13,6 +13,7 @@ import packet_v2
 
 
 MANIFEST = 'scripts/port/kernel-native-job-v3/packet.lock.json'
+MANIFEST_LIMIT = 1024**2
 PARENT_SHA = '4d69abec079102b2f0ad1566961dd3e663a19ca5668cb5d68215f97bbdced68e'
 BUILD_HELPERS = {
     'scripts/build/build.py': ('bb1d506ee443102073b4265d848b505afa18a5176af10780de487731529a137f', 0o644),
@@ -40,16 +41,33 @@ def verify(root, manifest_path, manifest_sha, commit, runner, output):
     packet.need(type(commit) is str and re.fullmatch(r'[0-9a-f]{40}', commit)
                 and os.environ.get('GITHUB_SHA') == commit
                 and os.environ.get('GITHUB_WORKFLOW_SHA') == commit, 'packet-workflow-commit')
-    body, mode = packet.capture(manifest_path, 1024**2)
+    held = packet.capture(manifest_path, MANIFEST_LIMIT)
+    body, mode = held
     packet.need(mode == 0o644 and packet.sha(body) == manifest_sha, 'packet-pin')
     git = ['/usr/bin/git', '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false',
            '--no-optional-locks', '-C', str(root)]
-    blob = runner.run(git + ['show', commit + ':' + MANIFEST], timeout=10, limit=1024**2)
+    blob = runner.run(git + ['show', commit + ':' + MANIFEST], timeout=10, limit=MANIFEST_LIMIT)
     tree = runner.run(git + ['ls-tree', '--format=%(objectmode)', commit, '--', MANIFEST],
                       timeout=10, limit=4096)
     packet.need(blob.returncode == tree.returncode == 0 and blob.stdout == body
                 and tree.stdout == b'100644\n', 'packet-v3-manifest-Git-binding')
-    return _policy().verify(root, manifest_path, manifest_sha, commit, runner, output)
+    policy = _policy()
+    original_load = policy.load
+
+    def recheck():
+        packet.need(packet.capture(manifest_path, MANIFEST_LIMIT) == held, 'packet-v3-manifest-race')
+
+    def load(path, pin=None):
+        if path != manifest_path:
+            return original_load(path, pin)
+        packet.need(pin == manifest_sha, 'packet-pin')
+        recheck()
+        return packet.decode(body)
+
+    policy.load = load
+    verified = policy.verify(root, manifest_path, manifest_sha, commit, runner, output)
+    recheck()
+    return verified
 
 
 if __name__ == '__main__':

@@ -20,7 +20,8 @@ LEGACY = ROOT / packet.PREFIX / 'packet.lock.json'
 LEGACY_SHA = '3676a36626bf55a925e395128fb32ab6a876642259f2eac2c4221a920db65e18'
 MANIFEST = ROOT / packet_v2.MANIFEST
 SUCCESSOR_POLICY = packet.PREFIX + 'packet_v3.py'
-SUCCESSOR_CHANGES = {*packet_v3.BUILD_HELPERS, packet.WORKFLOW, packet.DOCUMENT, packet.PREFIX + 'job.py'}
+SUCCESSOR_CHANGES = {*packet_v3.BUILD_HELPERS, packet.WORKFLOW, packet.DOCUMENT,
+                     packet.PREFIX + 'job.py', packet.PREFIX + 'test_public.py'}
 
 
 class CurrentPacketTests(unittest.TestCase):

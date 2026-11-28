@@ -20,6 +20,50 @@ import packet_v3
 from test_public import bootstrap
 
 
+class ManifestCustodyTests(unittest.TestCase):
+    def test_v3_refuses_manifest_drift_after_its_first_capture(self):
+        commit = 'a' * 40
+        body = b'{"schema_version": 1, "files": {}}\n'
+        cases = (('show', 'mode'), ('rev-parse', 'mode'), ('rev-parse', 'bytes'))
+        for phase, change in cases:
+            with (self.subTest(phase=phase, change=change),
+                  TemporaryDirectory(prefix='kernel-v3-manifest-') as temporary,
+                  patch.dict(os.environ, {'GITHUB_SHA': commit, 'GITHUB_WORKFLOW_SHA': commit})):
+                root = Path(temporary)
+                manifest = root / packet_v3.MANIFEST
+                manifest.parent.mkdir(parents=True)
+                manifest.write_bytes(body)
+                manifest.chmod(0o644)
+                output = root / 'artifacts/kernel-native-job/source'
+                output.parent.mkdir(parents=True)
+
+                policy = packet_v3._policy()
+                # Use the inherited verifier and real file capture with no
+                # package rows or subprocesses in this custody fixture.
+                policy.closure = lambda root: (set(), {}, {})
+                policy.frozen = lambda *args: None
+                mutations = []
+
+                def run(argv, *, timeout, limit):
+                    verb = argv[argv.index('-C') + 2]
+                    if verb == phase:
+                        if change == 'mode':
+                            manifest.chmod(0o755)
+                        else:
+                            manifest.write_bytes(body + b'\n')
+                        mutations.append(verb)
+                    stdout = {'show': body, 'ls-tree': b'100644\n',
+                              'rev-parse': (commit + '\n').encode()}[verb]
+                    return SimpleNamespace(returncode=0, stdout=stdout)
+
+                with (patch.object(packet_v3, '_policy', return_value=policy),
+                      self.assertRaisesRegex(ValueError, '^packet-v3-manifest-race$')):
+                    packet_v3.verify(root, manifest, packet.sha(body), commit, SimpleNamespace(run=run), output)
+                self.assertEqual(mutations, [phase])
+                if phase == 'show':
+                    self.assertFalse(output.exists())
+
+
 class CurrentPacketTests(unittest.TestCase):
     def setUp(self):
         temporary = TemporaryDirectory(prefix='kernel-packet-v3-')

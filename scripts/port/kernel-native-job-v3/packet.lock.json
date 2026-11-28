@@ -1,9 +1,9 @@
 {
   "files": {
     ".github/workflows/native-arm-kernel.yml": {
-      "bytes": 15757,
+      "bytes": 17915,
       "mode": 420,
-      "sha256": "03cb3adcbfcc265b040622393776d296db6ca084e74cf61ad5970203948d2b87"
+      "sha256": "15e5915acd5b13e0d19e4516f059d2bb3fc6165205baa113cf236c4c537cfd06"
     },
     "AGENTS.md": {
       "bytes": 1334,
@@ -21,9 +21,9 @@
       "sha256": "67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4"
     },
     "docs/workstreams/kernel-native-job.md": {
-      "bytes": 32918,
+      "bytes": 32963,
       "mode": 420,
-      "sha256": "e78d8f80213d1a58b242d1dcb98b2acfc79f6458d7386a81ba191674b4f25a3b"
+      "sha256": "9ba1daf1a618fe9d9562121f9d6836b94c7b4dcfbbd88d59eca3bfab86bd2860"
     },
     "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "bytes": 1811,
@@ -486,9 +486,9 @@
       "sha256": "4d69abec079102b2f0ad1566961dd3e663a19ca5668cb5d68215f97bbdced68e"
     },
     "scripts/port/kernel-native-job/packet_v3.py": {
-      "bytes": 2646,
+      "bytes": 3154,
       "mode": 420,
-      "sha256": "2e40522c14b69220dc1966752ee58826a9ff14a93aa1e9c4cbd48177bba993d3"
+      "sha256": "c6c00e47193fc34c754ae865c28f732b4a9d20cfac35d02828a7643f69ad9e8d"
     },
     "scripts/port/kernel-native-job/public.py": {
       "bytes": 58959,
@@ -526,9 +526,9 @@
       "sha256": "e1fa4964d16e7eedb77fcf00de2da7263e9f52970a163fcede9d15c8920317d8"
     },
     "scripts/port/kernel-native-job/test_public.py": {
-      "bytes": 74865,
+      "bytes": 79302,
       "mode": 420,
-      "sha256": "480363036bab0455b074647ab89d1f9317d41e1739fbc62f31bf52ad06c59357"
+      "sha256": "cdcdbc5b598fa668ad476b5b099ad96b3ada2503f5a2fdc8dee3ee9b42308690"
     },
     "scripts/port/kernel-native-job/test_runtime.py": {
       "bytes": 13019,
