@@ -13,12 +13,14 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'scripts/port/kernel-native-job'))
 import packet
 import packet_v2
+import packet_v3
 from test_public import bootstrap
 
 LEGACY = ROOT / packet.PREFIX / 'packet.lock.json'
 LEGACY_SHA = '3676a36626bf55a925e395128fb32ab6a876642259f2eac2c4221a920db65e18'
 MANIFEST = ROOT / packet_v2.MANIFEST
-BUILD_HELPERS = {'scripts/build/build.py', 'scripts/build/compare.py'}
+SUCCESSOR_POLICY = packet.PREFIX + 'packet_v3.py'
+SUCCESSOR_CHANGES = {*packet_v3.BUILD_HELPERS, packet.WORKFLOW, packet.DOCUMENT, packet.PREFIX + 'job.py'}
 
 
 class CurrentPacketTests(unittest.TestCase):
@@ -27,7 +29,8 @@ class CurrentPacketTests(unittest.TestCase):
         successor = packet.load(MANIFEST)
         policy = packet_v2._policy()
         names, kernel, recipes = policy.closure(ROOT)
-        self.assertEqual(set(successor['files']), names)
+        self.assertEqual(names - set(successor['files']), {SUCCESSOR_POLICY})
+        self.assertFalse(set(successor['files']) - names)
         policy.frozen(successor['files'], kernel, recipes)
         self.assertEqual(legacy['files'][packet.PREFIX + 'packet.py']['sha256'], packet_v2.PARENT_SHA)
         historical_pin = packet.HELPERS[packet_v2.CHECKER]
@@ -77,9 +80,9 @@ class CurrentPacketTests(unittest.TestCase):
                     packet_v2.verify(ROOT, ROOT / packet_v2.MANIFEST, pin, 'a' * 40, runner, ROOT / 'unused')
         runner.run.assert_not_called()
 
-    def test_both_verifiers_hold_current_checkout_at_the_committed_lock(self):
+    def test_current_verifiers_refuse_the_v2_seal(self):
         inline = bootstrap()
-        self.assertEqual(inline['PACKET'], packet_v2.MANIFEST)
+        self.assertEqual(inline['PACKET'], packet_v3.MANIFEST)
         with TemporaryDirectory(prefix='kernel-packet-v2-') as temporary, patch.dict(
                 os.environ, {'RUNNER_TEMP': temporary}):
             env = {'PATH': '/usr/bin:/bin', 'HOME': temporary, 'GIT_CONFIG_NOSYSTEM': '1',
@@ -98,10 +101,9 @@ class CurrentPacketTests(unittest.TestCase):
             rows = packet.decode(committed)['files']
             live = {name: packet.row(*packet.capture(ROOT / name)) for name in rows}
             changed = {name for name, row in rows.items() if live[name] != row}
-            self.assertEqual(changed, BUILD_HELPERS)
+            self.assertEqual(changed, SUCCESSOR_CHANGES)
             for name in changed:
                 self.assertEqual(live[name]['mode'], rows[name]['mode'])
-            first = next(name for name in rows if name in changed)
             output = Path(temporary) / 'source'
             runner = SimpleNamespace(run=run_git)
             with patch.dict(os.environ, {'GITHUB_SHA': commit, 'GITHUB_WORKFLOW_SHA': commit}):
@@ -114,9 +116,9 @@ class CurrentPacketTests(unittest.TestCase):
                                 committed=Mock(wraps=inline['committed'])):
                     with self.assertRaisesRegex(ValueError, '^boundary$'):
                         inline['source'](ROOT, commit, pin)
-                    self.assertEqual(inline['read'].call_args.args[0], ROOT / first)
-                    self.assertNotIn(first, [call.args[2] for call in inline['committed'].call_args_list])
-                with self.assertRaisesRegex(ValueError, '^packet-byte-mode-pin$'):
+                    self.assertEqual(inline['read'].call_args.args[0], ROOT / packet_v3.MANIFEST)
+                    inline['committed'].assert_not_called()
+                with self.assertRaisesRegex(ValueError, '^packet-complete-set$'):
                     packet_v2.verify(ROOT, MANIFEST, pin, commit, runner, output)
             for name in changed:
                 self.assertFalse((output / name).exists())

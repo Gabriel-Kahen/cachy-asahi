@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       packet_sha256:
-        description: Externally reviewed SHA-256 of scripts/port/kernel-native-job-v2/packet.lock.json
+        description: Externally reviewed SHA-256 of scripts/port/kernel-native-job-v3/packet.lock.json
         required: true
         type: string
       retained_inputs:
@@ -47,7 +47,7 @@ jobs:
           from pathlib import Path
 
           WORKFLOW = '.github/workflows/native-arm-kernel.yml'
-          PACKET = 'scripts/port/kernel-native-job-v2/packet.lock.json'
+          PACKET = 'scripts/port/kernel-native-job-v3/packet.lock.json'
           JOB = 'scripts/port/kernel-native-job/job.py'
           PUBLIC = 'scripts/port/kernel-native-job/public.py'
           REQUIRED = {WORKFLOW, JOB, PUBLIC, 'scripts/ci/native_arm.py',
@@ -56,7 +56,10 @@ jobs:
                       'scripts/port/kernel-native-job/intake.py',
                       'scripts/port/kernel-native-job/packet.py',
                       'scripts/port/kernel-native-job/packet_v2.py',
+                      'scripts/port/kernel-native-job/packet_v3.py',
                       'scripts/port/kernel-native-job/runtime.py',
+                      'scripts/port/kernel-native-job-v2/setup-producer-source.json',
+                      'scripts/build/build.py', 'scripts/build/compare.py',
                       'scripts/ci/inputs.lock.json',
                       'scripts/port/kernel-native-job/recipes.lock.json',
                       'scripts/port/kernel-native-stage/stage.py',

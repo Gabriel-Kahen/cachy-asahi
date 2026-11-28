@@ -771,11 +771,15 @@ def work(args, terminal, start):
         context = ('source', 'SOURCE_REJECTED')
         snapshot = private / 'source'
         import packet_v2
-        current_packet = args.packet == root / packet_v2.MANIFEST
-        verify = packet_v2.verify if current_packet else packet.verify
+        import packet_v3
+        current_verify = {
+            root / packet_v2.MANIFEST: packet_v2.verify,
+            root / packet_v3.MANIFEST: packet_v3.verify,
+        }.get(args.packet)
+        verify = current_verify if current_verify is not None else packet.verify
         evidence['source'] = verify(root, args.packet, args.packet_sha256, args.source_commit, setup, snapshot)
         producer_source = snapshot
-        if current_packet:
+        if current_verify is not None:
             producer_source = packet_v2.producer_snapshot(snapshot, private / 'producer-source',
                                                          evidence['source']['files_map'])
         context = ('source', 'DOCKER_REJECTED')

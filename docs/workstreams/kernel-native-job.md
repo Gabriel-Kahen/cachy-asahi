@@ -195,13 +195,12 @@ producer binding. To replay the historical workflow, use its original
 matching checkout, workflow revision and packet SHA-256.
 
 The current workflow uses the
-[successor packet](../../scripts/port/kernel-native-job-v2/packet.lock.json).
-`packet_v2.preview(root)` reproduces its source map for review. It uses the
-historical policy with the exact current package checker pinned independently.
-The workflow and runtime both require the successor packet path. For a new
-dispatch, independently review the successor SHA-256 and pass it as
-`packet_sha256` on the matching committed workflow revision. The successor
-source check does not establish a native result.
+[v3 successor packet](../../scripts/port/kernel-native-job-v3/packet.lock.json).
+It pins the current builder and comparator and retains the v2 Setup producer
+projection. The [dispatch prerequisites](../../scripts/port/kernel-native-job-v3/README.md)
+describe the matching commit, independent digest review and native authority.
+The [v2 seal](../../scripts/port/kernel-native-job-v2/packet.lock.json) and its
+historical replay remain available at their reviewed revisions.
 
 Before executing repository code, an inline standard-library bootstrap captures
 and authenticates the packet and every source row, compares actual Git blobs and

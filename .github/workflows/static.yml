@@ -217,6 +217,7 @@ jobs:
             /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/port/kernel-native-job -p "${test##*/}"
           done
           /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/port/kernel-native-job-v2 -p test_current_hold.py
+          /usr/bin/python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/port/kernel-native-job-v3 -p test_current_packet.py
       - uses: ./.github/actions/apps-package-source
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         id: apps7-source
