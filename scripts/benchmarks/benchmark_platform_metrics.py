@@ -4,6 +4,7 @@
 
 No child PID is passed to the sensor thread. Legacy RSS stays unavailable.
 """
+from collections.abc import Mapping
 import hashlib
 import importlib.util
 import json
@@ -19,7 +20,9 @@ import time
 COLLECTOR_SHA256 = '5975d376fa7b1b7321d4b663f1aea030539e4fdd073c671f5c2cfcf3e86ca2b3'
 OWNER_SHA256 = '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
 SCHEMA = 'benchmark-platform-metrics-v1'
+MAX_OUTPUT_BYTES = 512 * 1024
 MAX_SUMMARY_BYTES = 4 * 1024**2
+MAX_OWNED_RSS_BYTES = 16 * 1024**2
 RETIREMENT_SECONDS = .5
 _active = None
 _unresolved = None
@@ -263,14 +266,44 @@ def execute(argv, cwd, env, directory, timeout, legacy_interval, config, summari
                                  'optimization_acceptance': 'NOT RUN'}}
 
 
-def verify_trial(directory, trial, config=None):
+def _raw_caps(collector, owned_rss):
+    caps = {'stdout.txt': MAX_OUTPUT_BYTES, 'stderr.txt': 0, 'telemetry.jsonl': collector.MAX_LINE,
+            'platform-metrics/started.json': collector.MAX_LINE,
+            'platform-metrics/inventory.json': 2 * 1024**2,
+            'platform-metrics/samples.jsonl': collector.MAX_BYTES,
+            'platform-metrics/capture.json': collector.MAX_LINE,
+            'platform-metrics/summary.json': MAX_SUMMARY_BYTES}
+    if owned_rss:
+        caps['owned-rss.json'] = MAX_OWNED_RSS_BYTES
+    return caps
+
+
+def raw_files(directory, *, owned_rss=False):
+    """Read the platform trial's raw-hash artifacts once as bounded regular files."""
     collector, _ = load_dependencies()
     directory = Path(directory)
+    return {name: collector.ordinary(directory / name, cap)
+            for name, cap in _raw_caps(collector, owned_rss).items()}
+
+
+def verify_trial(directory, trial, config=None, *, raw=None):
+    """Replay the platform summary, optionally using the caller's raw_files snapshot."""
+    collector, _ = load_dependencies()
+    directory = Path(directory)
+    owned_rss = 'owned_rss' in trial
+    caps = _raw_caps(collector, owned_rss)
+    if raw is not None:
+        need(isinstance(raw, Mapping) and raw.keys() == caps.keys() and
+             all(type(raw[name]) is bytes and len(raw[name]) <= cap for name, cap in caps.items()),
+             'platform raw snapshot file set or byte bounds differ')
+
+    def read(name):
+        return raw[name] if raw is not None else collector.ordinary(directory / name, caps[name])
+
     need(trial.get('platform_metrics', {}).get('schema') == SCHEMA, 'trial lacks declared platform capture')
     need(trial['platform_metrics']['source_pins'] == {'collector_sha256': COLLECTOR_SHA256,
          'owner_sha256': OWNER_SHA256, 'adapter_sha256': digest(Path(__file__))}, 'trial platform source mismatch')
-    raw = directory / 'platform-metrics'
-    capture = json.loads(collector.ordinary(raw / 'capture.json', collector.MAX_LINE))
+    capture = json.loads(read('platform-metrics/capture.json'))
     need(capture['adapter_sha256'] == digest(Path(__file__)), 'capture adapter source mismatch')
     need(capture['worker_stopped'] is True and capture['sampling']['error'] is None, 'capture worker incomplete')
     supervision = capture['supervision']
@@ -278,7 +311,6 @@ def verify_trial(directory, trial, config=None):
          supervision['exit'] == trial['returncode'] and trial['sampling_status']['workload_reaped'] is True,
          'trial/capture wait result mismatch')
     if trial.get('valid') is True:
-        owned_rss = 'owned_rss' in trial
         census = 'RESERVED_LEADER_ONLY' if owned_rss else 'EMPTY_TWICE'
         need(type(supervision['exit']) is type(trial['returncode']) is int and supervision['exit'] == 0 and
              supervision['passed'] is True and supervision['timeout'] is False and supervision['signals'] == [] and
@@ -294,8 +326,8 @@ def verify_trial(directory, trial, config=None):
     if config is not None:
         validate_config(config, 1)
         need(interval == config['interval_seconds'], 'capture sampling differs from frozen plan')
-    inventory_data = collector.ordinary(raw / 'inventory.json', 2 * 1024**2)
-    samples_data = collector.ordinary(raw / 'samples.jsonl')
+    inventory_data = read('platform-metrics/inventory.json')
+    samples_data = read('platform-metrics/samples.jsonl')
     need(capture['files'] == {'inventory.json': collector.pin_bytes(inventory_data),
                             'samples.jsonl': collector.pin_bytes(samples_data)}, 'platform capture pin mismatch')
     lines = samples_data.splitlines()
@@ -315,8 +347,8 @@ def verify_trial(directory, trial, config=None):
     legacy = unavailable_legacy(start)
     sample_count = trial.get('sample_count')
     need(type(sample_count) is int and sample_count == 1 and
-         collector.ordinary(directory / 'telemetry.jsonl', collector.MAX_LINE) == collector.encoded(legacy),
+         read('telemetry.jsonl') == collector.encoded(legacy),
          'platform trial requires exactly one canonical unavailable legacy sample')
     expected = collector.summarize(json.loads(inventory_data), samples, max_gap, start, end)
-    need(json.loads(collector.ordinary(raw / 'summary.json', MAX_SUMMARY_BYTES)) == expected, 'platform derived summary mismatch')
+    need(json.loads(read('platform-metrics/summary.json')) == expected, 'platform derived summary mismatch')
     return expected

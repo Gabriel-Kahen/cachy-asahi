@@ -7,14 +7,11 @@ same-boot monotonic window. It starts no collector subprocess, changes no system
 settings and makes no optimization or M2 acceptance decision.
 
 This mode requires the exact reviewed `scripts/benchmarks/platform_metrics.py`
-SHA256 `bf3d80c3e5a7d8e8a67c393e2cabf19c2a45945fd023628bdb5dcb5b03b2b4f2` and
+SHA256 `5975d376fa7b1b7321d4b663f1aea030539e4fdd073c671f5c2cfcf3e86ca2b3` and
 `scripts/virtual/owned_process.py` SHA256
-`80547f753dc7d13819d727783c669d10a56b7bf832dc05084b5c4b5302cb79d9`.
-The first collector packet and shared owned-process packet remain separate,
-unchanged inputs. Only the explicit mode imports these modules; ordinary
-benchmark and paired_zlib APIs retain their existing dispatch and behavior.
-New plans pin the modified harness source, as before; old source-bound plans
-must be redeclared rather than bypassing their source checks.
+`83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f`.
+Frozen plans pin the harness and platform sources. Redeclare plans frozen against
+earlier source revisions before running them with this revision.
 
 ## Declare, freeze, run, compare
 

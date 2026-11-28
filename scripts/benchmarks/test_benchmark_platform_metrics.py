@@ -123,6 +123,9 @@ class ReplayTests(unittest.TestCase):
         self.telemetry = self.directory / 'telemetry.jsonl'
         self.legacy = a.unavailable_legacy(10)
         self.telemetry.write_bytes(m.encoded(self.legacy))
+        (self.directory / 'stdout.txt').write_bytes(b'fixture\n')
+        (self.directory / 'stderr.txt').touch()
+        (self.raw / 'started.json').write_bytes(m.encoded({'schema': a.SCHEMA}))
 
     def verify(self, config=None):
         (self.raw / 'capture.json').write_bytes(m.encoded(self.capture))
@@ -130,6 +133,44 @@ class ReplayTests(unittest.TestCase):
 
     def test_natural_retirement_verifies(self):
         self.assertEqual(self.verify({'interval_seconds': .1}), self.summary)
+
+    def test_snapshot_supplies_all_raw_artifacts_for_replay(self):
+        self.verify()
+        raw = a.raw_files(self.directory)
+        self.assertEqual(set(raw), {'stdout.txt', 'stderr.txt', 'telemetry.jsonl',
+                         'platform-metrics/started.json', 'platform-metrics/inventory.json',
+                         'platform-metrics/samples.jsonl', 'platform-metrics/capture.json',
+                         'platform-metrics/summary.json'})
+        self.assertEqual(raw['stdout.txt'], b'fixture\n')
+        self.assertEqual(raw['telemetry.jsonl'], m.encoded(self.legacy))
+        for name in raw:
+            (self.directory / name).unlink()
+        self.assertEqual(a.verify_trial(self.directory, self.trial, raw=raw), self.summary)
+        with self.assertRaisesRegex(a.Invalid, 'canonical unavailable legacy sample'):
+            a.verify_trial(self.directory, self.trial, raw=raw | {'telemetry.jsonl': b'{}\n'})
+
+    def test_raw_files_refuses_oversized_and_non_regular_artifacts(self):
+        self.verify()
+        path = self.directory / 'stderr.txt'
+        path.write_bytes(b'x')
+        with self.assertRaisesRegex(ValueError, 'input byte bound'):
+            a.raw_files(self.directory)
+        path.unlink()
+        os.mkfifo(path)
+        with self.assertRaisesRegex(ValueError, 'ordinary input file required'):
+            a.raw_files(self.directory)
+        path.unlink()
+        path.symlink_to(self.telemetry)
+        with self.assertRaises(OSError):
+            a.raw_files(self.directory)
+
+    def test_supplied_snapshot_requires_same_file_set_and_bounds(self):
+        self.verify()
+        raw = a.raw_files(self.directory)
+        for supplied in ({name: data for name, data in raw.items() if name != 'stdout.txt'},
+                         raw | {'stderr.txt': b'x'}, raw | {'owned-rss.json': b'{}\n'}):
+            with self.assertRaisesRegex(a.Invalid, 'snapshot file set or byte bounds differ'):
+                a.verify_trial(self.directory, self.trial, raw=supplied)
 
     def test_valid_trial_refuses_timeout_or_forced_retirement(self):
         clean = self.capture['supervision']
@@ -187,6 +228,10 @@ class ReplayTests(unittest.TestCase):
         path = self.directory / 'owned-rss.json'
         path.write_bytes(m.encoded(receipt))
         self.verify()
+        raw = a.raw_files(self.directory, owned_rss=True)
+        self.assertEqual(raw['owned-rss.json'], m.encoded(receipt))
+        self.assertEqual(raw['platform-metrics/capture.json'], m.encoded(self.capture))
+        self.assertEqual(a.verify_trial(self.directory, self.trial, raw=raw), self.summary)
         config = {'owned_rss': {'interval_seconds': interval}}
         metrics = b.verify_owned_rss(self.directory, self.trial, config, [self.legacy])
         self.assertEqual(metrics['root_rss_kib'], 128)
