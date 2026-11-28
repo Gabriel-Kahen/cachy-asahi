@@ -42,6 +42,10 @@ class Error(Exception):
     pass
 
 
+class EnvelopeRecovery(OSError):
+    pass
+
+
 def need(condition, message):
     if not condition:
         raise Error(message)
@@ -565,14 +569,16 @@ def envelope_staging(parent):
                 with contextlib.suppress(OSError):
                     os.close(staging)
     finally:
+        primary = sys.exception()
         try:
             os.rmdir(name, dir_fd=parent)
         except OSError as error:
-            if error.errno != errno.ENOTEMPTY:
-                raise
+            # Empty staging retirement happens after the envelope decision.
+            if error.errno != errno.ENOTEMPTY and primary is not None:
+                primary.add_note('envelope staging retirement uncertainty: ' + type(error).__name__)
 
 
-def retract_envelope(parent, name, original):
+def retract_envelope(parent, name, original, staging, staging_name):
     try:
         current = os.stat(name, dir_fd=parent, follow_symlinks=False)
     except FileNotFoundError:
@@ -580,30 +586,29 @@ def retract_envelope(parent, name, original):
     if not os.path.samestat(current, original):
         return False
 
-    with envelope_staging(parent) as (staging, staging_name):
-        try:
-            os.rename(name, 'recovery', src_dir_fd=parent, dst_dir_fd=staging)
-        except FileNotFoundError:
-            return False
-        # Only the entry actually moved into private staging can authorize deletion.
-        moved = os.stat('recovery', dir_fd=staging, follow_symlinks=False)
-        if os.path.samestat(moved, original):
-            os.unlink('recovery', dir_fd=staging)
+    try:
+        os.rename(name, 'recovery', src_dir_fd=parent, dst_dir_fd=staging)
+    except FileNotFoundError:
+        return False
+    # Only the entry actually moved into private staging can authorize deletion.
+    moved = os.stat('recovery', dir_fd=staging, follow_symlinks=False)
+    if os.path.samestat(moved, original):
+        os.unlink('recovery', dir_fd=staging)
+        return True
+
+    import ctypes
+
+    rename = getattr(ctypes.CDLL(None, use_errno=True), 'renameat2', None)
+    error = errno.ENOSYS
+    # Restore any entry type, with no overwrite if the public name filled again.
+    if rename is not None:
+        if rename(staging, b'recovery', parent, os.fsencode(name), 1) == 0:  # RENAME_NOREPLACE
             return True
-
-        import ctypes
-
-        rename = getattr(ctypes.CDLL(None, use_errno=True), 'renameat2', None)
-        error = errno.ENOSYS
-        # Restore any entry type, with no overwrite if the public name filled again.
-        if rename is not None:
-            if rename(staging, b'recovery', parent, os.fsencode(name), 1) == 0:  # RENAME_NOREPLACE
-                return True
-            error = ctypes.get_errno()
-        for directory_fd in (staging, parent):
-            with contextlib.suppress(OSError):
-                os.fsync(directory_fd)
-        raise OSError(error, 'envelope rollback retained a replacement', staging_name + '/recovery')
+        error = ctypes.get_errno()
+    for directory_fd in (staging, parent):
+        with contextlib.suppress(OSError):
+            os.fsync(directory_fd)
+    raise EnvelopeRecovery(error, 'envelope rollback retained a replacement', staging_name + '/recovery')
 
 
 def build(args):
@@ -622,52 +627,56 @@ def build(args):
     need(not output.is_relative_to(bundle), 'envelope output must be outside the unchanged release bundle')
     raw = encoded(value)
     parent = directory(output.parent)
-    fd = created = None
     try:
         info = os.fstat(parent)
         need(info.st_uid == os.geteuid() and not (stat.S_IMODE(info.st_mode) & 0o022), 'output parent must be caller-owned and not group/world writable')
-        with envelope_staging(parent) as (staging, _):
+        with envelope_staging(parent) as (staging, staging_name):
             fd = os.open('payload', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=staging)
-            with os.fdopen(fd, 'wb', closefd=False) as stream:
-                created = os.fstat(fd)
-                os.fchmod(fd, 0o600)
-                stream.write(raw)
-                stream.flush()
-                os.fsync(fd)
-                os.link('payload', output.name, src_dir_fd=staging, dst_dir_fd=parent, follow_symlinks=False)
-        published = os.fstat(fd)
-        os.fsync(parent)
-        try:
-            selected = directory(output.parent)
-        except OSError as error:
-            raise Error('output parent path changed during envelope build') from error
-        try:
-            current = os.fstat(selected)
-            need(os.path.samestat(info, current), 'output parent path changed during envelope build')
-            need(current.st_uid == os.geteuid() and not current.st_mode & 0o022,
-                 'output parent owner/mode changed during envelope build')
-            visible = os.stat(output.name, dir_fd=selected, follow_symlinks=False)
-            need(os.path.samestat(visible, published), 'output file changed during envelope build')
-            need(read_member(selected, output.name, len(raw), private=True) == raw,
-                 'output file changed during envelope build')
-        finally:
-            os.close(selected)
-        visible = output.lstat()
-        need(identity(visible) == identity(published) and visible.st_nlink == 1,
-             'output file changed during envelope build')
-        need(os.path.samestat(info, output.parent.lstat()), 'output parent path changed during envelope build')
-    except BaseException as error:
-        try:
-            if created is not None and retract_envelope(parent, output.name, created):
+            created = None
+            try:
+                with os.fdopen(fd, 'wb', closefd=False) as stream:
+                    created = os.fstat(fd)
+                    os.fchmod(fd, 0o600)
+                    stream.write(raw)
+                    stream.flush()
+                    os.fsync(fd)
+                    os.link('payload', output.name, src_dir_fd=staging, dst_dir_fd=parent, follow_symlinks=False)
+                os.unlink('payload', dir_fd=staging)
+                published = os.fstat(fd)
                 os.fsync(parent)
-        except OSError as cleanup_error:
-            error.add_note(str(cleanup_error))
-        raise
+                try:
+                    selected = directory(output.parent)
+                except OSError as error:
+                    raise Error('output parent path changed during envelope build') from error
+                try:
+                    current = os.fstat(selected)
+                    need(os.path.samestat(info, current), 'output parent path changed during envelope build')
+                    need(current.st_uid == os.geteuid() and not current.st_mode & 0o022,
+                         'output parent owner/mode changed during envelope build')
+                    visible = os.stat(output.name, dir_fd=selected, follow_symlinks=False)
+                    need(os.path.samestat(visible, published), 'output file changed during envelope build')
+                    need(read_member(selected, output.name, len(raw), private=True) == raw,
+                         'output file changed during envelope build')
+                finally:
+                    os.close(selected)
+                visible = output.lstat()
+                need(identity(visible) == identity(published) and visible.st_nlink == 1,
+                     'output file changed during envelope build')
+                need(os.path.samestat(info, output.parent.lstat()), 'output parent path changed during envelope build')
+            except BaseException as error:
+                try:
+                    if created is not None and retract_envelope(parent, output.name, created, staging, staging_name):
+                        os.fsync(parent)
+                except OSError as cleanup_error:
+                    if isinstance(cleanup_error, EnvelopeRecovery):
+                        error.publication_recovery = cleanup_error.filename
+                    error.add_note(str(cleanup_error))
+                raise
+            finally:
+                # Keep the inode pinned until rollback has compared ownership.
+                with contextlib.suppress(OSError):
+                    os.close(fd)
     finally:
-        if fd is not None:
-            # Keep the inode pinned until rollback has compared ownership.
-            with contextlib.suppress(OSError):
-                os.close(fd)
         os.close(parent)
     return {'status': 'unsigned-development-envelope', 'signature_created': False, 'path': str(output), 'sha256': digest(raw)}
 
@@ -699,9 +708,17 @@ def main():
     print(json.dumps(operation(args), sort_keys=True))
 
 
-if __name__ == '__main__':
+def cli():
     try:
         main()
     except (Error, OSError, ValueError, TypeError, KeyError, OverflowError, subprocess.SubprocessError) as error:
         print('offline development client refused: ' + str(error), file=sys.stderr)
-        sys.exit(1)
+        recovery = getattr(error, 'publication_recovery', None)
+        if isinstance(recovery, str) and re.fullmatch(r'\.envelope-[0-9a-f]{32}/recovery', recovery):
+            print(f'Recovery retained in the original output directory at {recovery}', file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(cli())

@@ -2,6 +2,7 @@
 import argparse,contextlib,hashlib,json,os,stat,subprocess,sys,tempfile,types,unittest
 import ctypes
 import errno
+import io
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -266,6 +267,36 @@ class Controls(unittest.TestCase):
   self.assertTrue(failed_once)
   self.assertEqual(list(parent.iterdir()), [])
 
+ def test_build_full_filesystem_retracts_without_allocating_another_directory(self):
+  parent, output, args = self.build_output_fixture()
+  parent_info = parent.stat()
+  primary = OSError(errno.ENOSPC, 'TEST envelope directory sync is full')
+  sync = os.fsync
+  mkdir = os.mkdir
+  full = False
+
+  def fail_publication_sync(fd):
+   nonlocal full
+   if os.path.samestat(os.fstat(fd), parent_info):
+    if not full:
+     self.assertTrue(output.exists())
+    full = True
+    raise primary
+   sync(fd)
+
+  def refuse_allocation(*args, **kwargs):
+   if full:
+    raise OSError(errno.ENOSPC, 'TEST filesystem is still full')
+   return mkdir(*args, **kwargs)
+
+  with patch.object(c, 'describe', return_value=(self.actual, {'signer': self.key}, b'')), \
+       patch.object(c.os, 'fsync', fail_publication_sync), patch.object(c.os, 'mkdir', refuse_allocation):
+   with self.assertRaises(OSError) as failed:
+    c.build(args)
+  self.assertIs(failed.exception, primary)
+  self.assertTrue(full)
+  self.assertEqual(list(parent.iterdir()), [])
+
  def test_build_rollback_preserves_replacement_after_ownership_stat(self):
   parent, output, args = self.build_output_fixture()
   replacement = self.base / 'foreign'
@@ -324,7 +355,15 @@ class Controls(unittest.TestCase):
   self.assertEqual(list(staging.iterdir()), [staging / 'recovery'])
   self.assertEqual(os.readlink(staging / 'recovery'), 'external-target')
   self.assertEqual(output.read_bytes(), b'new owner')
-  self.assertIn(staging.name + '/recovery', failed.exception.__notes__[0])
+  recovery = staging.name + '/recovery'
+  self.assertIn(recovery, failed.exception.__notes__[0])
+  stderr = io.StringIO()
+  with contextlib.redirect_stderr(stderr), patch.object(c, 'main', side_effect=primary):
+   self.assertEqual(c.cli(), 1)
+  self.assertEqual(stderr.getvalue().splitlines(), [
+   'offline development client refused: TEST envelope readback refusal',
+   f'Recovery retained in the original output directory at {recovery}',
+  ])
 
  def test_each_bundle_signature_and_target_is_retired_before_the_next(self):
   scratch = self.base / 'verification'

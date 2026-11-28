@@ -3,10 +3,12 @@
 """Portable stage boundary fixtures only: never runs Docker or native client tests."""
 import argparse
 import ast
+from contextlib import redirect_stderr
 import copy
 import errno
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -462,26 +464,62 @@ class StageTests(unittest.TestCase):
         self.assertEqual(failed.exception.errno, errno.EIO)
         self.assertEqual(list(self.root.iterdir()), [])
 
-    def test_receipt_staging_cleanup_error_before_commit_retracts_owned_output(self):
+    def test_receipt_full_filesystem_retracts_without_allocating_another_directory(self):
         target = self.root / 'receipt.json'
-        primary = OSError(errno.EIO, 'TEST staging retirement uncertainty')
+        parent = self.root.stat()
+        primary = OSError(errno.ENOSPC, 'TEST receipt directory sync is full')
+        actual_sync = s.os.fsync
+        actual_mkdir = s.os.mkdir
+        full = False
+
+        def fail_publication_sync(fd):
+            nonlocal full
+            if os.path.samestat(os.fstat(fd), parent):
+                if not full:
+                    self.assertTrue(target.exists())
+                full = True
+                raise primary
+            actual_sync(fd)
+
+        def refuse_allocation(*args, **kwargs):
+            if full:
+                raise OSError(errno.ENOSPC, 'TEST filesystem is still full')
+            return actual_mkdir(*args, **kwargs)
+
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'fsync', side_effect=fail_publication_sync), \
+                mock.patch.object(s.os, 'mkdir', side_effect=refuse_allocation):
+            with self.assertRaises(OSError) as failed:
+                s.finalize_receipt(target, {'status': 'PASS'})
+        self.assertIs(failed.exception, primary)
+        self.assertTrue(full)
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_receipt_staging_cleanup_error_after_readback_preserves_success(self):
+        target = self.root / 'receipt.json'
         actual_rmdir = s.os.rmdir
-        failed_once = False
+        actual_read = s.read
+        readback = failed_once = False
+
+        def record_readback(path):
+            nonlocal readback
+            readback = True
+            return actual_read(path)
 
         def fail_staging_cleanup(path, **kwargs):
             nonlocal failed_once
             actual_rmdir(path, **kwargs)
             if not failed_once and kwargs.get('dir_fd') is not None and path.startswith('.receipt-'):
                 self.assertTrue(target.exists())
+                self.assertTrue(readback)
                 failed_once = True
-                raise primary
+                raise OSError(errno.EIO, 'TEST staging retirement uncertainty')
 
-        with s.cancellation_handlers(), mock.patch.object(s.os, 'rmdir', side_effect=fail_staging_cleanup):
-            with self.assertRaises(OSError) as failed:
-                s.finalize_receipt(target, {'status': 'PASS'})
-        self.assertIs(failed.exception, primary)
+        with s.cancellation_handlers(), mock.patch.object(s.os, 'rmdir', side_effect=fail_staging_cleanup), \
+                mock.patch.object(s, 'read', side_effect=record_readback):
+            s.finalize_receipt(target, {'status': 'PASS'})
         self.assertTrue(failed_once)
-        self.assertEqual(list(self.root.iterdir()), [])
+        self.assertEqual(list(self.root.iterdir()), [target])
+        self.assertEqual(json.loads(target.read_bytes()), {'status': 'PASS'})
 
     def test_receipt_failed_sync_preserves_replaced_publication(self):
         target = self.root / 'receipt.json'
@@ -561,7 +599,16 @@ class StageTests(unittest.TestCase):
         self.assertEqual(list(staging.iterdir()), [staging / 'recovery'])
         self.assertEqual((staging / 'recovery' / 'sentinel').read_bytes(), b'displaced data')
         self.assertEqual(target.read_bytes(), b'new owner')
-        self.assertIn(staging.name + '/recovery', failed.exception.__notes__[0])
+        recovery = staging.name + '/recovery'
+        self.assertIn(recovery, failed.exception.__notes__[0])
+        stderr = io.StringIO()
+        with redirect_stderr(stderr), mock.patch.object(s, 'run_stage', side_effect=primary), \
+                mock.patch.object(s.argparse.ArgumentParser, 'parse_args', return_value=argparse.Namespace(command='run')):
+            self.assertEqual(s.main(), 1)
+        self.assertEqual(stderr.getvalue().splitlines(), [
+            'FAIL: client stage boundary/input refusal',
+            f'Recovery retained in the original output directory at {recovery}',
+        ])
 
     def test_receipt_parent_replacement_after_directory_sync_refuses_success(self):
         parent = self.root / 'out'
