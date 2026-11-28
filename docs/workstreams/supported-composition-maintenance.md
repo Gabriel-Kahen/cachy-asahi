@@ -307,3 +307,31 @@ original initramfs lacks the VirtIO modules used by the R132 QEMU boot path.
 Default boot with the stock initramfs, the Apple firmware path, and
 physical M2 recovery remain open.
 [R132 generic guest and stock boot evidence](../validation/asahi626-maintenance-emulated-arm16k-20261118.md)
+
+### November 28 renewed-input transaction evidence
+
+The TEST-signed Asahi629 forward and rollback commands both exited 0 with
+renewed Preview inputs in an offline emulated AArch64 guest with 16 KiB
+pages. The stopped export contained the exact 261 → 629 → 629 locks and
+the same 362 protected paths at all three checkpoints. The rollback
+inventory query and ALPM restoration check also exited 0.
+
+The enclosing JBIG/TIFF trial held at its baseline runtime probe. The
+installed GTK 4.24.1 SDK requires GIO 2.89.3 or newer, and the restored
+inventory provides GIO 2.88.3. The retained GTK archive also requires
+`g_markup_parse_context_get_attribute_position` and
+`g_timeout_source_new_ns` through strong AArch64 relocations. The
+authenticated GLib 2.88.3 archive lacks both exports. A compatible
+GTK/GLib pair is required for full consumer qualification. Both scoped
+provider transactions remain unrun. QEMU powered off normally and both
+retirement scans were empty.
+[JBIG/TIFF trial](../../scripts/integration/jbig_tiff_asahi629/README.md)
+· [GLib markup API](https://docs.gtk.org/glib/method.MarkupParseContext.get_attribute_position.html)
+· [GLib timeout API](https://docs.gtk.org/glib/func.timeout_source_new_ns.html)
+
+| Retained evidence | SHA-256 |
+| --- | --- |
+| Exported guest result | `8eeb276879462a8a1d76f270d047ff8342fbf587639322b0a1cfecd8bff8c5e7` |
+| Restored 629-package lock | `f335e8430a1d6f8463e95e16524cf78fc224c24fb31cf8717723370490bae9fa` |
+| Three protected-path snapshots | `b80e21324a84d747471f685887fba782d7c2effb5db3dcdcfff79b6988930ed2` |
+| Outer HOLD receipt | `5ba27edeb4eeb3e219fd8b05e1ea2b198da42b6e2b41fee2dcdf703c9803af93` |

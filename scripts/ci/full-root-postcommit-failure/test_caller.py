@@ -8,7 +8,7 @@ import io
 import shutil
 import os
 from pathlib import Path
-import subprocess
+from runpy import run_path
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -94,11 +94,9 @@ class FrozenConfigurationControl(unittest.TestCase):
             initializer=ROOT/'scripts/update/aux_initialize.py',initializer_sha256=value['code_pins']['scripts/update/aux_initialize.py'],
             comparator=ROOT/'scripts/ci/full-development-composition/audio_aux.py')
         read=lane.read
-        release=ROOT/'scripts/release/release.py'
-        frozen=os.environ.get('FROZEN_FULL_ROOT_RELEASE_HELPER')
-        release_source=(read(Path(frozen)) if frozen else subprocess.check_output(
-            ['git','-C',str(ROOT),'show','598a3dd77184f74935f71cb07c48c4411b6c44e4:scripts/release/release.py'],
-            timeout=10))
+        fixture=run_path(str(ROOT/'scripts/release/full_root_release_fixture.py'))
+        release=ROOT/fixture['RELEASE']
+        release_source=fixture['frozen_release'](ROOT)
         def projected(path,maximum=1024**2):
             path=Path(path)
             if path == release:

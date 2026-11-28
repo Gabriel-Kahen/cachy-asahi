@@ -804,11 +804,22 @@ jobs:
                                   '--recipe-root', str(recipe), '--srcdir', str(source),
                                   '--hide-checkout', str(Path.cwd())], check=True)
           PY
+      - name: Check out the frozen full-root release fixture
+        if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' || matrix.shard == 'composition' }}
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 598a3dd77184f74935f71cb07c48c4411b6c44e4
+          path: .ci-inputs/full-root-release
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: /scripts/release/release.py
       - name: Exercise release and client contracts without skipped tests
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         env:
           PYTHONDONTWRITEBYTECODE: '1'
           FROZEN_CLIENT_RELEASE_HELPERS: ${{ github.workspace }}/.ci-inputs/apps-package-release
+          FROZEN_FULL_ROOT_RELEASE_HELPER: ${{ github.workspace }}/.ci-inputs/full-root-release/scripts/release/release.py
           FROZEN_SETUP_RECIPE_SOURCE: ${{ github.workspace }}/.ci-inputs/historical-inventory-input-basis
         run: |
           python3 -B - <<'PY'
@@ -1221,16 +1232,6 @@ jobs:
           python3 -B -m unittest discover -s scripts/ci/full-root-upgrade -p 'test_*.py'
           python3 -B -m unittest discover -s scripts/update -p test_snapshot_selection.py
           python3 -B -m unittest discover -s scripts/update -p test_var_lock_protection.py
-      - name: Check out the frozen release helper for full-root failure controls
-        if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-        with:
-          repository: Gabriel-Kahen/cachy-asahi
-          ref: 598a3dd77184f74935f71cb07c48c4411b6c44e4
-          path: .ci-inputs/full-root-release
-          persist-credentials: false
-          sparse-checkout-cone-mode: false
-          sparse-checkout: /scripts/release/release.py
       - name: Check controlled complete-root failure and disposal without actors
         if: ${{ matrix.shard == 'all' || matrix.shard == 'composition' }}
         env:

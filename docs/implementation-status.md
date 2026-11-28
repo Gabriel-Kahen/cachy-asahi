@@ -55,10 +55,16 @@ signature and an unknown signer.
 installation and reversal (261 → 629 → 629) in an emulated AArch64 guest
 with 16 KiB pages and the generic R132 kernel. A separate, renewed Preview
 TEST transport passed independent signature and payload verification.
-Guest installation and rollback with the renewed inputs are **NOT RUN**.
-The separate Asahi629 JBIG/TIFF package swap is also **NOT RUN**.
 [Earlier installation and reversal](workstreams/supported-composition-maintenance.md#november-27-offline-installation-and-reversal)
-· [JBIG/TIFF trial status](workstreams/remaining-development-audit-20261127.md#next-engineering-work)
+
+**November 28, 2026.** With the renewed inputs, both Asahi629 package
+transactions completed in the disposable AArch64 16 KiB guest. The
+exported rollback lock had 629 matching rows and all 362 protected paths
+matched. The surrounding JBIG/TIFF trial held before provider replacement
+when GTK SDK metadata required a newer GIO than the restored image supplies.
+An archive audit separately found two required GTK relocations unavailable
+in the retained GLib package.
+[Renewed-input transaction evidence](workstreams/supported-composition-maintenance.md#november-28-renewed-input-transaction-evidence)
 
 The scoped Qtbase 6.12.0-3 TEST-signed swap on the earlier Asahi629 rollback
 inventory passed replacement, software rendering probes before and during
