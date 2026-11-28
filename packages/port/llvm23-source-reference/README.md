@@ -18,7 +18,11 @@ Fixed consumer contract:
   `profiler=true`. This is not a full compiler-rt distribution.
 - Tools/DSOs request `$ORIGIN/../lib;$ORIGIN` install RPATH and 16K maximum-page
   linker geometry. Static ELF inspection refuses other architectures or unsuitable
-  PT_LOADs. That check does not prove native16K behavior or M2 compatibility.
+  PT_LOADs. Required tools must have a file-backed executable entry point. An
+  `ET_DYN` tool must also declare an interpreter or `DF_1_PIE`. The required
+  shared libraries must be `ET_DYN` and have neither marker. This policy covers
+  the expected LLVM and libunwind outputs. Actual loading, native 16K behavior
+  and M2 compatibility require separate execution evidence.
 
 Root owns the Rust consumer join. It must select this llvm-config and LLD by
 absolute path, explicitly link and load from this private `lib`, retain the exact

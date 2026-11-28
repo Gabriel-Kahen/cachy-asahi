@@ -62,7 +62,7 @@
   "files": {
     "LICENSE.packaging": "b8f5f697f7e16eb59a3fb83868aad10d19c918e212aa196d1716c3df21ee20db",
     "build.sh": "6e9bc3fb515d7f39648fe530d96be8dc4347b29693f78e54c29aa3cdfebb5a65",
-    "reference.py": "b4e2debc329f3ee1837a811b385a080a20b8a9b67494ba927b1c97b385244466",
+    "reference.py": "1e3e39b5ac42d60e24b160789a05a6dc272b6a9573bcee4e62bc138ecaa41ca3",
     "rust-consumer-metadata.json": "08ce0717a2c9f0bb1d19d7cb8fa0ac17e9f8dde7d59b1968197132fdccb2331e",
     "upstream-metadata.json": "2f6a65970b4b3faff3c6572e60429737950bd0431cdef99d1077206d7622984e"
   },

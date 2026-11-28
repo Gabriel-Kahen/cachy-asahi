@@ -19,25 +19,41 @@ r = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(r)
 
 
-def small_elf(path, machine=183, alignment=16384, *, kind=3, filesz=120, memsz=120, vaddr=0):
+def small_elf(path, machine=183, alignment=16384, *, kind=3, filesz=None, memsz=None, vaddr=0,
+              interpreter=None, pie=False, entry=64):
     path.parent.mkdir(parents=True, exist_ok=True)
     header = bytearray(64)
     header[:7] = b'\x7fELF\x02\x01\x01'
     struct.pack_into('<HHI', header, 16, kind, machine, 1)
     struct.pack_into('<H', header, 52, 64)
-    row = b''
+    rows, payload = [], b''
     if kind != 1:
+        count = 1 + (interpreter is not None) + pie
+        data_offset = 64 + 56*count
+        struct.pack_into('<Q', header, 24, entry)
         struct.pack_into('<Q', header, 32, 64)
-        struct.pack_into('<HH', header, 54, 56, 1)
-        row = struct.pack('<IIQQQQQQ', 1, 5, 0, vaddr, 0, filesz, memsz, alignment)
-    path.write_bytes(header+row)
+        struct.pack_into('<HH', header, 54, 56, count)
+        if interpreter is not None:
+            size = len(interpreter)
+            rows.append((3, 4, data_offset, data_offset, 0, size, size, 1))
+            payload = interpreter
+        if pie:
+            offset = data_offset + len(payload)
+            size = 64
+            rows.append((2, 4, offset, offset, 0, size, size, 8))
+            pairs = [(0x6ffffffb, 0x08000000), (5, offset+size), (10, 1), (0, 0)]
+            payload += b''.join(struct.pack('<qQ', *pair) for pair in pairs) + b'\0'
+        filesz = data_offset + len(payload) if filesz is None else filesz
+        memsz = filesz if memsz is None else memsz
+        rows.insert(0, (1, 5, 0, vaddr, 0, filesz, memsz, alignment))
+    path.write_bytes(header+b''.join(struct.pack('<IIQQQQQQ', *row) for row in rows)+payload)
     path.chmod(0o755)
 
 
 def stage(root):
     prefix = root/r.PREFIX.relative_to('/')
     for name in ('llvm-config','clang','clang++','ld.lld','llvm-ar','llvm-ranlib'):
-        small_elf(prefix/'bin'/name)
+        small_elf(prefix/'bin'/name, kind=2)
     for name in ('libLLVM.so.23.1', 'libunwind.so.1'):
         small_elf(prefix/'lib'/name)
     for name in ('lib/libunwind.a','lib/clang/23/lib/linux/libclang_rt.builtins-aarch64.a','lib/clang/23/lib/linux/libclang_rt.profile-aarch64.a'):
@@ -252,7 +268,7 @@ class ReferenceTests(unittest.TestCase):
             binary.write_text('not a native executable')
             with self.assertRaisesRegex(ValueError, 'native executable'):
                 r.check_stage(root)
-            small_elf(binary)
+            small_elf(binary, kind=2)
             (prefix/'lib/libunwind.a').unlink()
             with self.assertRaisesRegex(ValueError, 'component missing'):
                 r.check_stage(root)
@@ -271,12 +287,10 @@ class ReferenceTests(unittest.TestCase):
             small_elf(library, alignment=32768, memsz=4096)
             small_elf(clang, kind=2)
             r.check_stage(root)
-            small_elf(clang, kind=3)
-            r.check_stage(root)
             small_elf(clang, kind=1)
             with self.assertRaisesRegex(ValueError, 'native executable'):
                 r.check_stage(root)
-            small_elf(clang)
+            small_elf(clang, kind=2)
             for kind in (1, 2):
                 with self.subTest(library_type=kind):
                     small_elf(library, kind=kind)
@@ -298,6 +312,35 @@ class ReferenceTests(unittest.TestCase):
                     small_elf(library, **fields)
                     with self.assertRaisesRegex(ValueError, error):
                         r.check_stage(root)
+
+    def test_stage_distinguishes_pie_and_shared_et_dyn_bytes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            prefix = stage(root)
+            clang = prefix/'bin/clang'
+            library = prefix/'lib/libLLVM.so.23.1'
+            shared = library.read_bytes()
+            clang.write_bytes(shared)
+            with self.assertRaisesRegex(ValueError, 'native executable'):
+                r.check_stage(root)
+            for markers in (
+                dict(interpreter=b'/lib/ld-linux-aarch64.so.1\0'),
+                dict(pie=True),
+            ):
+                with self.subTest(markers=markers):
+                    library.write_bytes(shared)
+                    small_elf(clang, **markers)
+                    r.check_stage(root)
+                    library.write_bytes(clang.read_bytes())
+                    with self.assertRaisesRegex(ValueError, 'native shared library'):
+                        r.check_stage(root)
+            library.write_bytes(shared)
+            small_elf(clang, interpreter=b'ld.so\0')
+            with self.assertRaisesRegex(ValueError, 'interpreter path'):
+                r.check_stage(root)
+            small_elf(clang, pie=True, entry=0)
+            with self.assertRaisesRegex(ValueError, 'entry outside executable'):
+                r.check_stage(root)
 
     def test_prepare_accepts_makepkg_source_links_without_overwriting(self):
         with tempfile.TemporaryDirectory() as tmp:
