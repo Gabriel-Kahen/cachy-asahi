@@ -445,6 +445,15 @@ class FixtureTests(unittest.TestCase):
         report = self.run_audit()
         self.assertEqual(report['applications'][0]['icon']['file']['path'], '/home/fixture/.local/share/icons/hicolor/48x48@2/apps/fixture.png')
 
+    def test_missing_absolute_icon_is_reported_as_an_asset_issue(self):
+        path = '/usr/share/pixmaps/missing.png'
+        self.desktop(extra=f'Icon={path}\n')
+        report = self.run_audit()
+        row = report['applications'][0]
+        self.assertNotIn('error', row)
+        self.assertEqual(row['icon'], {'status': 'MISSING', 'name': path, 'file': None})
+        self.assertEqual([(issue['code'], issue['detail']) for issue in report['issues']], [('icon_missing', path)])
+
     def test_absolute_icon_symlink_escape_fails(self):
         self.desktop(extra='Icon=/usr/share/pixmaps/fixture.png\n')
         target = self.root / 'usr/share/pixmaps/fixture.png'

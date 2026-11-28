@@ -580,7 +580,10 @@ class Audit:
         if not name:
             return {'status': 'UNSPECIFIED'}
         if name.startswith('/'):
-            _, record = self.stage.read(name, FILE_CAP)
+            try:
+                _, record = self.stage.read(name, FILE_CAP)
+            except FileNotFoundError:
+                return {'status': 'MISSING', 'name': name, 'file': None}
             return {'status': 'FOUND_ABSOLUTE', 'file': record}
         if '/' in name:
             raise ValueError('icon name must be basename or absolute path')

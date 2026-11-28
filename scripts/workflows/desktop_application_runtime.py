@@ -7,6 +7,7 @@ activation is used. Output readiness does not establish mapped-window readiness.
 """
 import argparse
 import configparser
+from contextlib import ExitStack
 import hashlib
 import importlib.util
 import json
@@ -21,6 +22,7 @@ import stat
 import subprocess
 import struct
 import sys
+import tempfile
 import threading
 import time
 
@@ -132,9 +134,19 @@ def context(value):
     return mode, work, env
 
 
-def runtime_file(record, prefix):
-    """Compare the actual execution namespace to the staged audit record."""
+def runtime_path(record, prefix, fixture_alias=None):
     path = Path(prefix) / record['path'].lstrip('/')
+    if fixture_alias is None or not any(link['target'].startswith('/') for link in record['symlinks']):
+        return path
+    # The audit already resolved absolute links relative to the fixture root.
+    # The host kernel would follow those links from the live root.
+    target = Path(prefix) / record['resolved'].lstrip('/')
+    return target if target.name == path.name else fixture_alias(path.name, target)
+
+
+def runtime_file(record, prefix, fixture_alias=None):
+    """Compare the actual execution namespace to the staged audit record."""
+    path = runtime_path(record, prefix, fixture_alias)
     raw = read_file(path, desktop.FILE_CAP)
     require(len(raw) <= desktop.FILE_CAP and desktop.pin(raw) == {key: record[key] for key in ('bytes', 'sha256')},
             'runtime bytes differ from staged audit: ' + str(path))
@@ -145,21 +157,33 @@ def runtime_file(record, prefix):
     return str(path)
 
 
+def search_paths(value, prefix, stage):
+    for item in value.split(':'):
+        if stage is not None:
+            try:
+                fd, directory = stage.open(item, directory=True)
+            except (FileNotFoundError, NotADirectoryError):
+                continue
+            os.close(fd)
+            item = directory['resolved']
+        yield str(Path(prefix) / item.lstrip('/'))
+
+
 def check_launcher(resolution):
     require(desktop.command_ok(resolution), 'audited executable unavailable')
     require(all(Path(resolution['file'][key]).name not in ('env', 'sh', 'bash', 'zsh', 'fish')
                 for key in ('path', 'resolved')), 'direct env/shell launcher unsupported')
 
 
-def command_files(resolution, prefix, fixture):
+def command_files(resolution, prefix, fixture_alias):
     require(desktop.command_ok(resolution), 'audited executable unavailable')
-    result = [runtime_file(resolution['file'], prefix)]
+    result = [runtime_file(resolution['file'], prefix, fixture_alias)]
     # Kernel shebang/PT_INTERP absolute paths are in the running namespace even
     # when a fixture application's primary executable lives below a staged root.
     if 'interpreter' in resolution:
-        result += command_files(resolution['interpreter'], '/' if fixture else prefix, fixture)
+        result += command_files(resolution['interpreter'], '/', None)
     if 'env_target' in resolution:
-        result += command_files(resolution['env_target'], prefix, fixture)
+        result += command_files(resolution['env_target'], prefix, fixture_alias)
     return result
 
 
@@ -260,7 +284,17 @@ def run(args, launcher=None):
             'bounded nonempty readiness output marker required')
     mode, work, env = context(data(args.context))
     audit = desktop.Audit(args.root, data(args.environment))
-    try:
+    with ExitStack() as resources:
+        resources.callback(audit.stage.close)
+
+        def alias(name, target):
+            directory = resources.enter_context(tempfile.TemporaryDirectory(prefix='desktop-alias-', dir=work))
+            path = Path(directory) / name
+            path.symlink_to(target)
+            return path
+
+        stage = audit.stage if mode == 'fixture' else None
+        fixture_alias = alias if stage is not None else None
         app = audit.entry(args.select)
         require('error' not in app and not app.get('hidden') and app.get('desktop_eligible'),
                 'selected desktop entry unavailable: ' + str(app.get('error', app.get('visibility'))))
@@ -268,18 +302,18 @@ def run(args, launcher=None):
         require('exec' in app, 'explicit Exec fallback missing')
         require(not app['dbus_activatable'] or args.exec_fallback, 'DBusActivatable requires explicit --exec-fallback')
         require('try_exec' not in app or desktop.command_ok(app['try_exec']), 'TryExec unavailable')
-        prefix = audit.stage.root if mode == 'fixture' else '/'
-        entry_path = str(Path(prefix) / app['path'].lstrip('/'))
-        require(hashlib.sha256(read_file(entry_path, desktop.TEXT_CAP)).hexdigest() == args.entry_sha256, 'runtime desktop entry differs')
-        raw, _ = audit.stage.read(app['path'])
+        prefix = stage.root if stage is not None else '/'
+        entry_path = str(runtime_path(app['file'], prefix, fixture_alias))
+        raw = read_file(entry_path, desktop.TEXT_CAP)
+        require(hashlib.sha256(raw).hexdigest() == args.entry_sha256, 'runtime desktop entry differs')
         entry = desktop.ini(raw)['Desktop Entry']
         selected_inputs = inputs.prepare(getattr(args, 'inputs', None) or (), getattr(args, 'allow_uri_scheme', ()))
         argv = inputs.expand(entry['Exec'], app['name'], desktop.unescape(entry.get('Icon', '')), entry_path, selected_inputs)
         check_launcher(app['exec']['resolution'])
-        files = command_files(app['exec']['resolution'], prefix, mode == 'fixture')
+        files = command_files(app['exec']['resolution'], prefix, fixture_alias)
         argv[0] = files[0]
         if 'try_exec' in app:
-            files += command_files(app['try_exec'], prefix, mode == 'fixture')
+            files += command_files(app['try_exec'], prefix, fixture_alias)
         if app['terminal']:
             terminal = audit.env['terminal_argv']
             if not terminal:
@@ -287,13 +321,15 @@ def run(args, launcher=None):
             require(terminal[-1] in ('--', '-e'), 'terminal argv must end with reviewed -- or -e separator')
             terminal = list(terminal)
             check_launcher(app['terminal_command'])
-            term_files = command_files(app['terminal_command'], prefix, mode == 'fixture')
+            term_files = command_files(app['terminal_command'], prefix, fixture_alias)
             terminal[0] = term_files[0]
             files += term_files
             argv = terminal + argv
-        env['PATH'] = ':'.join(str(Path(prefix) / item.lstrip('/')) for item in audit.env['PATH'].split(':'))
-        env['XDG_DATA_DIRS'] = ':'.join(str(Path(prefix) / item.lstrip('/')) for item in audit.env['XDG_DATA_DIRS'].split(':'))
-        env['XDG_CONFIG_DIRS'] = ':'.join(str(Path(prefix) / item.lstrip('/')) for item in audit.env['XDG_CONFIG_DIRS'].split(':'))
+        for key in ('PATH', 'XDG_DATA_DIRS', 'XDG_CONFIG_DIRS'):
+            # Keep explicit empty search lists in the fixture, avoiding cwd or
+            # default host directory fallbacks in consumers of these variables.
+            env[key] = ':'.join(search_paths(audit.env[key], prefix, stage)) or resources.enter_context(
+                tempfile.TemporaryDirectory(prefix='desktop-empty-search-', dir=work))
         env['XDG_CURRENT_DESKTOP'] = audit.env['XDG_CURRENT_DESKTOP']
         cwd = work
         if 'working_directory' in app:
@@ -313,8 +349,6 @@ def run(args, launcher=None):
                       gui=result.get('gui', 'NOT_RUN (output marker does not prove window mapping)'), native_arm='NOT_RUN' if mode == 'fixture' else platform.machine(),
                       m2='NOT_RUN', performance='NOT_MEASURED', release='NOT_ADMITTED')
         return result
-    finally:
-        audit.stage.close()
 
 
 def main(argv=None):
