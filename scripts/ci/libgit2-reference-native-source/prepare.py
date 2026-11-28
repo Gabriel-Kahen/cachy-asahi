@@ -18,6 +18,8 @@ OWNER=PREFIX+'owner/'
 FROZEN_FRAMEWORK = Path('scripts/ci/llhttp-minimal-native-source-data/fixtures/Source95/held-source'
                         '/scripts/ci/llhttp-reference-native-source/base')
 FROZEN_FRAMEWORK_INPUTS = (
+    'runtime/scripts/build/build_v2.py',
+    'runtime/scripts/build/compare_v2.py',
     'runtime/scripts/checks/package_checks.py',
     'runtime/scripts/maintenance/source_cache.py',
 )
