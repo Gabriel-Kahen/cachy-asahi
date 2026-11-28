@@ -23,6 +23,7 @@ import time
 import types
 
 FILE_LIMIT, TOTAL_LIMIT = 8 * 1024**2, 64 * 1024**2
+BASE_OWNERSHIP_LIMIT = 200_000
 INITIAL = 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31'
 POLICY = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
 LICENSE = '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
@@ -1006,13 +1007,28 @@ def authority_state(sources,callback,deadline):
             need(type(concrete) is type and issubclass(concrete,base),'callback-refused')
             path_types.add(concrete)
     # No injected executable attributes can substitute a fake verification result.
-    seen = set();count = 0
-    def inspect_state(value,depth=0):
-        nonlocal count
+    # The 341-package base can have more installed files than the structural bound.
+    # Only the flat installed path lists have a separate budget (None selects list entries).
+    base_files_path = ('components','base','packages',None,'files')
+    seen = set();count = ownership_count = 0
+    def inspect_state(value,depth=0,ownership_path=None):
+        nonlocal count, ownership_count
         check(deadline);count += 1
         need(depth <= 32 and count <= 20000,'callback-refused')
-        if id(value) in seen:return
-        seen.add(id(value))
+        if ownership_path == ():
+            need(type(value) is list and (not value or depth < 32),'callback-refused')
+            ownership_count += len(value)
+            need(ownership_count <= BASE_OWNERSHIP_LIMIT,'callback-refused')
+            for item in value:
+                check(deadline)
+                need(type(item) is str,'callback-refused')
+            return
+        if ownership_path is None:
+            if id(value) in seen:return
+            seen.add(id(value))
+        else:
+            # Check every occurrence on this fixed route, independent of generic alias deduplication.
+            need(type(value) is (list if ownership_path[0] is None else dict),'callback-refused')
         if isinstance(value,(types.FunctionType,types.MethodType)):raise Refused('callback-refused')
         if isinstance(value,types.ModuleType):
             origin = getattr(value,'__file__',None)
@@ -1023,9 +1039,12 @@ def authority_state(sources,callback,deadline):
                 if isinstance(member,types.FunctionType):sources.global_function(member)
         elif type(value) is dict:
             for key,item in value.items():
-                need(type(key) is str,'callback-refused');inspect_state(item,depth+1)
+                need(type(key) is str,'callback-refused')
+                child_path = ownership_path[1:] if ownership_path and key == ownership_path[0] else None
+                inspect_state(item,depth+1,child_path)
         elif type(value) in (list,tuple):
-            for item in value:inspect_state(item,depth+1)
+            child_path = ownership_path[1:] if ownership_path else None
+            for item in value:inspect_state(item,depth+1,child_path)
         elif value is None or type(value) in (str,bytes,int,bool) or type(value) in path_types:pass
         elif type(value) is float:need(math.isfinite(value),'callback-refused')
         elif value is session and session is not None:
@@ -1046,7 +1065,8 @@ def authority_state(sources,callback,deadline):
                 if name == 'cancelled' and item is not None:
                     need(type(item) is types.FunctionType,'callback-refused');sources.global_function(item)
                     need(not item.__closure__,'callback-refused');continue
-                inspect_state(item,depth+1)
+                child_path = base_files_path if name == 'collected' and item is not None else None
+                inspect_state(item,depth+1,child_path)
         elif value is sources:
             owner = sys.modules.get(type(value).__module__)
             source_state = sources.class_state(value,'scripts/ci/development/repository_handoff.py',owner)

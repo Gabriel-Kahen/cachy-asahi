@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import subprocess
 import tempfile
 import time
 import types
@@ -12,6 +13,7 @@ import unittest
 from unittest.mock import patch
 
 HERE=Path(__file__).resolve().parent
+RUNTIME_FIXTURE_REVISION='bcf0cee981ee4b7f7b082f636922c859dc7e0abc'
 
 def loaded():
     p=HERE/'native_arm_trial.py';m=types.ModuleType('native_receiver_fixture');m.__file__=str(p);exec(compile(p.read_bytes(),str(p),'exec'),m.__dict__);return m
@@ -23,7 +25,13 @@ class ReceiverTests(unittest.TestCase):
     def selection(self):
         sources={}
         for n in self.m.SOURCE_PATHS:
-            source=HERE.parents[1]/n;p=self.root/n;p.parent.mkdir(parents=True,exist_ok=True);b=source.read_bytes();
+            project=HERE.parents[1]
+            p=self.root/n;p.parent.mkdir(parents=True,exist_ok=True);b=(project/n).read_bytes()
+            if n==self.m.SOURCE_PATHS[-1] and self.m.sha(b)!=self.m.RUNTIME_SHA:
+                # The receiver selects a frozen runtime, independent of the rolling kernel job.
+                b=subprocess.run(['git','-C',str(project),'show',RUNTIME_FIXTURE_REVISION+':'+n],
+                                 check=True,capture_output=True,timeout=10).stdout
+                self.assertEqual(self.m.sha(b),self.m.RUNTIME_SHA)
             if p.exists():p.chmod(0o600)
             p.write_bytes(b);p.chmod(0o400)
             sources[n]={'size':len(b),'sha256':self.m.sha(b)}
