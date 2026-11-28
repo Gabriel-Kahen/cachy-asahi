@@ -367,29 +367,32 @@ class ValidationTests(unittest.TestCase):
             self.assertEqual(compare.verify(path)[0], record)
 
     def test_all_comparators_match_builder_srcinfo_whitespace(self):
-        path = self.evidence('fixture', self.archive(), reviewed_srcinfo=True)
-        generated = (path / 'artifacts/generated.SRCINFO').read_text()
-        reviewed = path / 'inputs/.SRCINFO'
-        provenance = path / 'provenance.json'
-        record = json.loads(provenance.read_text())
-        for comment, accepted in (('\u2003# em space\n\u3000\n', True),
-                                  ('\u00a0# no-break space\n', False)):
-            text = comment + generated
-            reviewed.write_text(text)
-            record['recipe_inputs']['.SRCINFO'] = checks.digest(reviewed)
-            provenance.write_text(json.dumps(record))
-            self.assertFalse(checks.recipe(path / 'inputs/PKGBUILD')['errors'])
+        archive = self.archive()
+        attempts = [self.evidence(name, archive, reviewed_srcinfo=True) for name in ('first', 'second')]
+        generated = (attempts[0] / 'artifacts/generated.SRCINFO').read_text()
+        original = (attempts[0] / 'inputs/.SRCINFO').read_text()
+        for prefix, accepted in (('\u2003# reviewed fixture\n', True),
+                                 ('\u3000\n', True),
+                                 ('\u00a0# no-break space\n', False)):
+            for path in attempts:
+                reviewed = path / 'inputs/.SRCINFO'
+                provenance = path / 'provenance.json'
+                record = json.loads(provenance.read_text())
+                reviewed.write_text(prefix + original)
+                record['recipe_inputs']['.SRCINFO'] = checks.digest(reviewed)
+                provenance.write_text(json.dumps(record))
+                self.assertFalse(checks.recipe(path / 'inputs/PKGBUILD')['errors'])
             for entry in ('container-entry.sh', 'container-entry-v2.sh'):
-                with self.subTest(entry=entry, comment=comment):
-                    producer = self.srcinfo_comparison(text, generated, entry)
+                with self.subTest(entry=entry, prefix=prefix):
+                    producer = self.srcinfo_comparison(prefix + original, generated, entry)
                     self.assertEqual(producer.returncode == 0, accepted, producer.stdout)
             for comparator in (compare, compare_v2, compare_v3):
-                with self.subTest(comparator=comparator.__name__, comment=comment):
+                with self.subTest(comparator=comparator.__name__, prefix=prefix):
                     if accepted:
-                        self.assertEqual(comparator.verify(path)[0], record)
+                        self.assertEqual(comparator.compare(*attempts)['status'], 'contents-reproduced')
                     else:
                         with self.assertRaisesRegex(ValueError, 'differs from reviewed .SRCINFO'):
-                            comparator.verify(path)
+                            comparator.compare(*attempts)
 
     def test_all_comparators_reject_rehashed_validation(self):
         path = self.evidence('fixture', self.archive())
