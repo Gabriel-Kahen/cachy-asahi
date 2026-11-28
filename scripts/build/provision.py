@@ -65,7 +65,8 @@ def main():
                       'COPY offline-pacman.conf /tmp/offline-pacman.conf\n'
                       f'RUN pacman --config /tmp/offline-pacman.conf -U --noconfirm {package_arguments} '
                       '&& rm -rf /tmp/deps /tmp/offline-pacman.conf '
-                      '&& pacman -Q | LC_ALL=C sort > /builder-packages.lock\n'
+                      '&& inventory="$(pacman -Q)" && test -n "$inventory" '
+                      '&& printf \'%s\\n\' "$inventory" | LC_ALL=C sort > /builder-packages.lock\n'
                       'USER 1000:1000\nWORKDIR /tmp\n')
         (out / 'Dockerfile').write_text(dockerfile)
         record['cache_sha256'] = expected
@@ -89,6 +90,8 @@ def main():
             lock = capture(['docker', 'run', '--rm', '--pull=never', '--network=none',
                             '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only',
                             '--entrypoint=/bin/cat', image_id, '/builder-packages.lock'])
+            if not lock.strip():
+                raise ValueError('empty builder package inventory')
             (out / 'packages.lock').write_text(lock + '\n')
             record.update({'status': 'image-provisioned', 'image_id': image_id,
                            'packages_lock_sha256': digest(out / 'packages.lock')})
