@@ -18,6 +18,12 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    [Exact-head run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46055216134)
    · [Earlier full-matrix run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/45936750153)
    · [Selector](../../scripts/ci/component_selection/select.py)
+
+   Follow-up: the exact-head PR at `265ca64c97bc50982cba0b76b6babf3f73c981d8`
+   passed all 51 Full Port jobs, including the signed Ubuntu prerequisite
+   paths under both Python versions. The whole PR reported 302 passing checks
+   and one expected skipped cache-seed job. The queued APT verification is
+   closed. [Full Port run](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/46088594451)
 2. **Finish the signed Qt provider replacement on the exact Asahi629 rollback
    inventory.** The project Qtbase 6.12.0-3 archive was recovered and verified
    from the retired ARM16K build. The build guest recorded HOLD during its final
@@ -47,6 +53,15 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    still needs a real portal and accessibility check; physical M2 GPU and
    DRM/KMS remain **NOT RUN**.
    [Scoped result](../../scripts/integration/qt612_r132_replacement/README.md#corrected-scoped-guest-trial-november-27)
+
+   The parity follow-up has source-prepared Qt 6.12.0-4 controls for AT-SPI,
+   CUPS and XWayland EGL. A cold AArch64/16 KiB build stopped at Ninja step 50
+   because its original plan lacked the later mandatory source seal; it is a
+   diagnostic HOLD. A fresh, explicitly sealed parity build started, but its
+   archive and mixed-version replacement trial have **not** passed. The
+   original 6.12.0-3 scoped PASS remains the only installed Qt result.
+   [Parity recipe](../../scripts/integration/qt612_vulkan_md4c_successor/PARITY.md)
+   · [Trial contract](../../scripts/integration/qt612_r132_replacement/PARITY-TRIAL.md)
 3. **Fix two independently reproduced package preflight defects.** These are
    source work and can proceed alongside the hosted and guest jobs.
    - `recipe-check` returned exit 0 and `static-pass` from a directory with a
@@ -123,6 +138,36 @@ at `db7acf84f8e3205b5812c101480d9d3bcafcd544` against the [roadmap](../roadmap.m
    5.42.3-1 PKGBUILD hashes in their signed `.BUILDINFO` still differ from the
    public exact-version recipes; the current ALARM workunit URLs now serve
    newer versions. Exact original recipe bytes remain unrecovered.
+
+   A corrected project TIFF 4.7.2-1.2 unsigned AArch64 archive passed a
+   Minimal206 QEMU user-mode build, three package tests and independent
+   archive audit. It restores `libjpeg.so=8-64` and matches the retained TIFF
+   shared libraries. Its 861,952-byte SHA-256 is
+   `f6df34ab9ddd3496407a9dd4707abd44a2270a3abbd3fe6e27862db4dda59e4f`.
+   A distinct TEST-signed two-package Asahi629 packet passed independent
+   signature and prepare-only ALPM readback. Its first issued actor stopped
+   **before QEMU boot** when host memory PSI exceeded its 3% guard; no guest
+   package transaction ran. The scoped retry source requires copy-on-write
+   reflinks for its two disposable image clones and records cache/writeback
+   telemetry. A resealed, fresh-nonce packet passed independent admission and
+   signature review. Both reflinks succeeded and its AArch64/16 KiB guest
+   booted, but candidate validation raised `IndexError: 2` because
+   `jpeg_recipe.py` assumed a repository parent absent at `/trial-code`.
+   The guest reported **HOLD_ASAHI629_JBIG_TIFF_ENTRY** before the pair's ALPM
+   transaction. Independent stopped-disk readback found the exact original
+   629-package lock and all 362 protected paths; the 627 unchanged rows were
+   only projected, not installed. The actor retired with zero swap and no OOM
+   events, while the host pressure guard stopped controller readback after
+   QEMU exited. The path fix and fresh trial remain open.
+   [Trial runbook](../../scripts/integration/jbig_tiff_asahi629/README.md)
+
+   A lock-to-manifest reconciliation found four of the 14
+   development-selected project packages in Asahi629, plus First Login
+   0.1.0-3. The other ten were outside this bounded Preview composition;
+   updater integration and the project FDK provider still need their own
+   selected trials. The manifest now records the exact First Login v3 and
+   Zsh installation evidence while keeping First Login outside the
+   development selection until its graphical journey is checked.
 
 ## Qualification already recorded
 
