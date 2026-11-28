@@ -3,7 +3,7 @@
 This MIT-licensed recipe uses the Setup8 0.3.1-1 inputs from
 `b3fe26873aaf05acf3471601dc6931bcc686f5aa`. It applies the inherited
 `fish-quoting.patch` and then `journal-guard.patch`, based on
-`f5ca858cf41da49cb434f6d3ce9bb11505f6ed3e` with the affected shell template
+`04041b5ae3955f0a32e5da3466af5848db14e1b7` with the affected shell template
 check added after review. The recipe verifies the resulting Setup and
 migration module digests.
 
