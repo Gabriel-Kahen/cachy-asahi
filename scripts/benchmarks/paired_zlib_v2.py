@@ -62,7 +62,10 @@ def ordinary(path, cap=2 * 1024**2):
 
 
 def pin(path):
-    raw = ordinary(path)
+    return captured_pin(path, ordinary(path))
+
+
+def captured_pin(path, raw):
     return dict(path=str(path), bytes=len(raw), sha256=Z.sha(raw))
 
 
@@ -207,8 +210,9 @@ def wait_for_observation(path, config, step, requested_at, deadline):
 def run(args):
     need(os.getuid() == os.geteuid() > 0, 'ordinary nonroot measurement only')
     plan_path = args.plan.absolute()
-    ordinary(plan_path)
-    plan = B.load_plan(plan_path)
+    plan_raw = ordinary(plan_path)
+    plan_pin = captured_pin(plan_path, plan_raw)
+    plan = B.load_plan(plan_path, raw=plan_raw)
     validate(plan, args.control_only)
     c = plan['config']
     mode = args.conditions_mode
@@ -231,8 +235,8 @@ def run(args):
             conditions[step['name']] = dict(path=str(path), bytes=len(raw), sha256=Z.sha(raw))
     need(signal.getitimer(signal.ITIMER_REAL) == (0.0, 0.0), 'session requires its own inactive deadline timer')
     output.mkdir(mode=0o700)
-    (output / 'plan.json').write_bytes(ordinary(plan_path))
-    session = dict(schema_version=1, session_id=uuid4().hex, status='RUNNING', plan=pin(plan_path), started_at=B.now(),
+    (output / 'plan.json').write_bytes(plan_raw)
+    session = dict(schema_version=1, session_id=uuid4().hex, status='RUNNING', plan=plan_pin, started_at=B.now(),
                    conditions_mode=mode, session_seconds=args.session_seconds,
                    scope='CONTROL_ONLY' if args.control_only else 'EXACT_ARM_PAIRED_MEASUREMENT_PENDING_REVIEW',
                    schedule=steps, completed=[], warmups_excluded=True, environment_sha256=B.canonical(dict(os.environ)),
@@ -253,6 +257,7 @@ def run(args):
     session['environment'] = pin(output / 'environment.json')
     save_session(output, session)
     started, measured = time.monotonic(), []
+    measured_pins = {}
     launch_deadline = started + args.session_seconds - c['timeout_seconds'] - 2
     previous_alarm = signal.getsignal(signal.SIGALRM)
     def expired(*_):
@@ -283,21 +288,28 @@ def run(args):
             need(time.monotonic() <= launch_deadline,
                  'session deadline: insufficient time to start ' + step['name'])
             status = B.run(plan_path, step['slot'], state, condition, work, raw,
-                           paired=binding_step, check_workload=check_workload, conditions_receipt=receipt)
+                           paired=binding_step, check_workload=check_workload, conditions_receipt=receipt,
+                           expected_plan_sha256=plan_pin['sha256'])
             trial_path = raw / 'trial.json'
-            trial = json.loads(ordinary(trial_path))
+            trial_raw = ordinary(trial_path)
+            trial = json.loads(trial_raw)
+            trial_pin = captured_pin(trial_path, trial_raw)
             need(status == 0, 'failed workload: ' + step['name'] + ': ' + (trial.get('error') or 'invalid trial'))
             report = trial['paired_zlib']['report']
             session.pop('awaiting_conditions', None)
-            session['completed'].append(dict(**step, conditions=binding, trial=pin(trial_path), workload=report))
+            session['completed'].append(dict(**step, conditions=binding, trial=trial_pin, workload=report))
             if step['phase'] == 'measured':
                 measured.append(raw)
+                measured_pins[step['slot']] = trial_pin['sha256']
             save_session(output, session)
-        comparison_code = B.compare(plan_path, measured, output / 'comparison.json')
-        session['preliminary_result'] = B.read_json(output / 'comparison.json')['preliminary_result']
+        comparison_code = B.compare(plan_path, measured, output / 'comparison.json',
+                                    expected_plan_sha256=plan_pin['sha256'], expected_trials=measured_pins)
+        comparison_path = output / 'comparison.json'
+        comparison_raw = ordinary(comparison_path)
+        session['preliminary_result'] = json.loads(comparison_raw)['preliminary_result']
         session['comparison_exit_code'] = comparison_code
         session.update(status='COMPLETE_CONTROL_ONLY' if args.control_only else 'COMPLETE_PAIRED_MEASUREMENT_PENDING_REVIEW',
-                       comparison=pin(output / 'comparison.json'), finished_at=B.now())
+                       comparison=captured_pin(comparison_path, comparison_raw), finished_at=B.now())
     except BaseException as error:
         session.update(status='FAIL', error_type=type(error).__name__, error=str(error)[:512], finished_at=B.now())
     finally:

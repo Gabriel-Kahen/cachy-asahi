@@ -314,7 +314,8 @@ class V2SourceTests(unittest.TestCase):
                   'payload_sha256': P2.Z.sha(payload), 'payload_bytes': len(payload), 'iterations': 1}
         bad_report = report | {'payload_sha256': '0' * 64}
 
-        def slot_runner(plan, slot, state, condition, work, raw, *, paired, check_workload, conditions_receipt):
+        def slot_runner(plan, slot, state, condition, work, raw, *, paired, check_workload,
+                        conditions_receipt, expected_plan_sha256):
             raw.mkdir()
             try:
                 checked = check_workload(b'modeled stdout', config['order'][slot])
@@ -426,7 +427,8 @@ class V2AdmissionTests(unittest.TestCase):
                     returncode=0, error=None, sample_count=1, metrics=self.runner.metrics([row]),
                     sampling_status=dict(worker_stopped=True, workload_reaped=True, error=None, dropped_samples=0))
 
-    def modeled_verify(self, directory, trial, interval, samples, summarize, rss_metrics):
+    def modeled_verify(self, directory, trial, interval, samples, summarize, rss_metrics, *, raw):
+        self.assertEqual(raw['owned-retirement.json'], b'')
         return summarize(samples)
 
     def replace_trial(self, directory, trial):
@@ -469,6 +471,43 @@ class V2AdmissionTests(unittest.TestCase):
         self.replace_trial(last_dir, edited)
         with self.assertRaisesRegex(ValueError, 'complete per-iteration correctness report required'):
             self.runner.compare(self.plan, self.measurements, self.root / 'rebound.json')
+
+    def test_comparison_binds_only_the_plan_and_trial_bytes_it_verified(self):
+        result = P2.run(self.args)
+        self.assertEqual(result['status'], 'COMPLETE_CONTROL_ONLY', result.get('error'))
+        plan_digest = self.runner.digest(self.plan)
+        first_trial = self.measurements[0] / 'trial.json'
+        first_digest = self.runner.digest(first_trial)
+
+        def change_after_read(directory, trial, *args, **kwargs):
+            if trial['slot'] == 0:
+                for path in (self.plan, first_trial):
+                    with path.open('ab') as stream:
+                        stream.write(b'\n')
+            return self.modeled_verify(directory, trial, *args, **kwargs)
+
+        with patch.object(self.runner.retirement_adapter(), 'verify', side_effect=change_after_read):
+            self.assertEqual(self.runner.compare(self.plan, self.measurements, self.output), 0)
+        record = self.runner.read_json(self.output)
+        self.assertEqual(record['plan_sha256'], plan_digest)
+        self.assertEqual(record['trial_bindings'][0]['sha256'], first_digest)
+        self.assertNotEqual(self.runner.digest(self.plan), plan_digest)
+        self.assertNotEqual(self.runner.digest(first_trial), first_digest)
+
+    def test_session_refuses_a_trial_changed_before_comparison(self):
+        compare = self.runner.compare
+
+        def changed(*args, **kwargs):
+            trial = self.measurements[0] / 'trial.json'
+            with trial.open('ab') as stream:
+                stream.write(b'\n')
+            return compare(*args, **kwargs)
+
+        with patch.object(self.runner, 'compare', side_effect=changed):
+            result = P2.run(self.args)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertIn('trial changed since session admission', result['error'])
+        self.assertFalse((self.args.output / 'comparison.json').exists())
 
     def test_comparison_refuses_warmup_and_other_session(self):
         result = P2.run(self.args)
@@ -587,6 +626,25 @@ class V2AdmissionTests(unittest.TestCase):
         self.assertEqual(result['status'], 'FAIL')
         self.assertIn('conditions timestamps', result['error'])
         self.assertEqual(result['awaiting_conditions']['name'], 'correctness-00')
+        self.runner.execute.assert_not_called()
+
+    def test_plan_changed_while_waiting_for_conditions_stops_before_workload(self):
+        self.args.conditions_mode = 'observed'
+        wait = P2.wait_for_observation
+
+        def changed(*args, **kwargs):
+            receipt = wait(*args, **kwargs)
+            with self.plan.open('ab') as stream:
+                stream.write(b'\n')
+            return receipt
+
+        with self.observe_after_request(), patch.object(P2, 'wait_for_observation', side_effect=changed):
+            result = P2.run(self.args)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertIn('frozen plan changed', result['error'])
+        copied_plan = self.args.output / 'plan.json'
+        self.assertEqual(self.runner.digest(copied_plan), result['plan']['sha256'])
+        self.assertNotEqual(self.runner.digest(self.plan), result['plan']['sha256'])
         self.runner.execute.assert_not_called()
 
     def test_observation_ages_out_at_launch(self):

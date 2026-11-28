@@ -221,10 +221,9 @@ def execute(argv, cwd, env, directory, timeout, interval, sensors, summarize, rs
                 owned_retirement=declaration(interval))
 
 
-def verify(directory, trial, interval, samples, summarize, rss_metrics):
+def verify(directory, trial, interval, samples, summarize, rss_metrics, *, raw=None):
     """Offline replay; never probe a numeric child or reinterpret old trials."""
-    directory = Path(directory)
-    files = raw_files(directory)
+    files = raw_files(directory) if raw is None else raw
     raw = json.loads(files['owned-retirement.json'])
     need(trial.get('owned_retirement') == declaration(interval), 'owned retirement trial binding differs')
     need(all(raw.get(key) == value for key, value in declaration(interval).items()), 'owned retirement source/scope/config differs')

@@ -34,12 +34,13 @@ CLEANUP_SECONDS = 0.25
 _active_sampler = None
 _platform_adapter = None
 _retirement_adapter = None
-OWNED_RETIREMENT_ADAPTER_SHA256 = '418892c3c108549610234645dd80d49ec692ab7dc0708e530974667ba6d568ce'
+OWNED_RETIREMENT_ADAPTER_SHA256 = 'b28777c2e2119e4c5bd59f4bad8f084431a3ee9d5d9f866171f339f4ca522345'
 EXECUTION_LAYER = "benchmark-owned-retirement-v2"
 CAPTURE_SOURCE = Path(__file__).resolve().parents[1] / "hardware/capture-baseline.py"
 PAIRED_ZLIB_SOURCE = Path(__file__).resolve().with_name("paired_zlib_v2.py")
 OBSERVED_CONDITIONS_MAX_AGE = 30
 OBSERVED_CONDITIONS_MAX_BYTES = 64 * 1024
+EVIDENCE_MAX_BYTES = 16 * 1024**2
 
 
 class Invalid(ValueError):
@@ -438,8 +439,12 @@ def freeze(config_path, baseline_path, candidate_path, output):
     write_json(output, plan)
 
 
-def load_plan(path):
-    plan = read_json(path)
+def read_plan(path):
+    return retirement_adapter().ordinary(Path(path).resolve(strict=True), EVIDENCE_MAX_BYTES)
+
+
+def load_plan(path, *, raw=None):
+    plan = json.loads(read_plan(path) if raw is None else raw)
     if plan.get("schema_version") != 2 or plan.get("record_type") != "frozen-experiment-plan-v2":
         raise Invalid("not a supported v2 frozen plan; historical plans must be redeclared")
     binding = execution_binding()
@@ -465,6 +470,14 @@ def load_plan(path):
     if "argv_file_operands" in config:
         workload_argv(plan)
     return plan
+
+
+def capture_plan(path, expected_sha256):
+    raw = read_plan(path)
+    sha256 = hashlib.sha256(raw).hexdigest()
+    if expected_sha256 is not None and expected_sha256 != sha256:
+        raise Invalid("frozen plan changed within session")
+    return load_plan(path, raw=raw), sha256
 
 
 def validate_conditions(config, conditions):
@@ -799,10 +812,10 @@ def verify_paired_conditions(directory, trial, proof, step, *, required):
 
 
 def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_metrics=False,
-        paired=None, check_workload=None, conditions_receipt=None):
+        paired=None, check_workload=None, conditions_receipt=None, expected_plan_sha256=None):
     if os.geteuid() == 0:
         raise Invalid("root workload execution is refused")
-    plan = load_plan(plan_path)
+    plan, plan_sha256 = capture_plan(plan_path, expected_plan_sha256)
     config = plan["config"]
     if type(platform_metrics) is not bool or platform_metrics != ("platform_metrics" in config):
         raise Invalid("platform metrics flag must match the frozen instrumentation declaration")
@@ -840,7 +853,7 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_m
     comparable_env = environment.copy()
     if config.get("variant_env"):
         comparable_env.pop(config["change"]["environment_key"], None)
-    record = {"schema_version": 1, "record_type": "benchmark-trial", "plan_sha256": digest(plan_path),
+    record = {"schema_version": 1, "record_type": "benchmark-trial", "plan_sha256": plan_sha256,
               "slot": slot, "variant": variant, "started_at": now(), "hostname": platform.node(),
               "machine_id": config["machine_id"], "base_id": config["base_id"],
               "workload_id": config["workload_id"], "state": plan["states"][variant],
@@ -914,26 +927,31 @@ def sensor_identity(sample):
                                 ("power", ("path", "chip_name", "channel_label", "device", "unit")))}
 
 
-def compare(plan_path, directories, output):
-    plan = load_plan(plan_path)
+def compare(plan_path, directories, output, *, expected_plan_sha256=None, expected_trials=None):
+    plan, plan_sha256 = capture_plan(plan_path, expected_plan_sha256)
     config = plan["config"]
     argv = workload_argv(plan)
     platform_reader = platform_adapter() if 'platform_metrics' in config else None
-    trials, sensor_ids = [], None
+    retirement = retirement_adapter()
+    trials, trial_bindings, sensor_ids = [], [], None
     check_workload = paired_replay(plan) if "paired_zlib" in config else None
     session_id = None
     for directory in directories:
-        directory = Path(directory)
-        trial = read_json(directory / "trial.json")
+        directory = Path(directory).resolve(strict=True)
+        trial_raw = retirement.ordinary(directory / "trial.json", EVIDENCE_MAX_BYTES)
+        trial_sha256 = hashlib.sha256(trial_raw).hexdigest()
+        trial = json.loads(trial_raw)
         if ("owned_rss" in config) != ("owned_rss" in trial):
             raise Invalid("owned RSS instrumentation differs from frozen plan")
         if ("platform_metrics" in config) != ("platform_metrics" in trial):
             raise Invalid("trial instrumentation differs from frozen plan")
-        if trial.get("record_type") != "benchmark-trial" or trial.get("plan_sha256") != digest(plan_path):
+        if trial.get("record_type") != "benchmark-trial" or trial.get("plan_sha256") != plan_sha256:
             raise Invalid("differing plan/base/machine/workload binding")
         slot = trial.get("slot")
         if isinstance(slot, bool) or not isinstance(slot, int) or not 0 <= slot < len(config["order"]):
             raise Invalid("invalid trial slot")
+        if expected_trials is not None and expected_trials.get(slot) != trial_sha256:
+            raise Invalid("trial changed since session admission")
         variant = config["order"][slot]
         for key in ("machine_id", "base_id", "workload_id"):
             if trial.get(key) != config[key]:
@@ -975,7 +993,7 @@ def compare(plan_path, directories, output):
         if set(trial.get("raw_sha256", {})) != expected_raw:
             raise Invalid("missing raw outputs")
         bounded_raw = (platform_reader.raw_files(directory, owned_rss='owned_rss' in config)
-                       if platform_reader is not None else retirement_adapter().raw_files(directory))
+                       if platform_reader is not None else retirement.raw_files(directory))
         for name, expected in trial["raw_sha256"].items():
             observed = hashlib.sha256(bounded_raw[name]).hexdigest()
             if observed != expected:
@@ -1003,8 +1021,8 @@ def compare(plan_path, directories, output):
         if times != sorted(times):
             raise Invalid("telemetry timestamps are out of order")
         if platform_reader is None:
-            measured = retirement_adapter().verify(directory, trial, config['sample_seconds'], samples,
-                                                    metrics, owned_rss_metrics)
+            measured = retirement.verify(directory, trial, config['sample_seconds'], samples,
+                                         metrics, owned_rss_metrics, raw=bounded_raw)
         else:
             measured = (verify_owned_rss(directory, trial, config, samples, raw_files=bounded_raw)
                         if 'owned_rss' in config else metrics(samples))
@@ -1016,6 +1034,7 @@ def compare(plan_path, directories, output):
                 raise Invalid("sensor source/chip/channel/device/unit changed within or between trials")
             sensor_ids = identity
         trials.append(trial)
+        trial_bindings.append({"slot": slot, "directory": str(directory), "sha256": trial_sha256})
     trials.sort(key=lambda t: t["slot"])
     if [t["slot"] for t in trials] != list(range(len(config["order"]))):
         raise Invalid("inadequate, duplicate or missing trials; complete predeclared order required")
@@ -1061,7 +1080,7 @@ def compare(plan_path, directories, output):
                                            "regression": regression, "budget": budget}
             if regression > budget:
                 failures.append(f"guardrail exceeded: {name}:{key}")
-    result = {"schema_version": 1, "record_type": "preliminary-comparison", "plan_sha256": digest(plan_path),
+    result = {"schema_version": 1, "record_type": "preliminary-comparison", "plan_sha256": plan_sha256,
               "summary_seconds": summary, "median_elapsed_improvement_pct": improvement,
               "guardrails": guardrails, "failures": failures, "missing_guardrail_telemetry": missing,
               "preliminary_result": "FAIL" if failures else "INCOMPLETE" if missing else "MEETS_TIMING_RULE_ONLY",
@@ -1069,9 +1088,7 @@ def compare(plan_path, directories, output):
               "limitations": ["No confidence interval or population/performance claim is inferred from medians.",
                               "Operator controls and state-change scope require independent review.",
                               "Frame/interactive latency, power/battery, suspend, sustained thermals, functional and recovery gates require separate physical evidence."],
-              "trial_bindings": [{"slot": t["slot"], "directory": str(Path(d).resolve()),
-                                  "sha256": digest(Path(d) / "trial.json")}
-                                 for d in directories for t in [read_json(Path(d) / "trial.json")]]}
+              "trial_bindings": sorted(trial_bindings, key=lambda binding: binding["slot"])}
     write_json(output, result)
     return 2 if failures or missing else 0
 
