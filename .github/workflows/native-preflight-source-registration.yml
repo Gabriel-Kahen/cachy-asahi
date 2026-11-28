@@ -1,0 +1,80 @@
+name: Native preflight source registration
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/native-preflight-source-registration.yml'
+      - 'scripts/install/native_preflight_registration/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    defaults:
+      run:
+        shell: bash
+    env:
+      SOURCE_COMMIT: a113f522e6f17ac86daf82193442485e88b69316
+      PACKET_SHA256: 6892cec93380a9773ecd8b4905227fa5aefb4b3796f68271025166d7a6d5d7e3
+    steps:
+      - name: Check out the canonical installer source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: ${{ env.SOURCE_COMMIT }}
+          path: .ci-inputs/native-preflight-source
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Verify the canonical Git source and packet
+        id: verify
+        working-directory: .ci-inputs/native-preflight-source
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          printf '%s  %s\n' \
+            "$PACKET_SHA256" scripts/ci/development/packet.lock.json \
+            25cbd7fe4a1a5a5047e4299114ef55da3749805802571d2779250447b0901edb scripts/ci/development/packet.py \
+            59f4d6eccb7f62f75f5241d0f3eceb996bd3e0c93dec161d8d22f02a9ea648f0 scripts/ci/development/packet-installer-preflight.lock.json \
+            | sha256sum --check
+          python -I -B - <<'PY'
+          import os
+          from pathlib import Path
+          import runpy
+
+          root = Path.cwd()
+          packet = runpy.run_path(str(root / "scripts/ci/development/packet.py"))
+          verified = packet["preflight_composed"](
+              root, root / packet["LOCK"], os.environ["PACKET_SHA256"], os.environ["SOURCE_COMMIT"],
+              composition=packet["INSTALLER_COMPOSITION"],
+          )
+          print(f"Verified {len(verified['source_files'])} source rows against the canonical Git commit.")
+          PY
+      - name: Run the 11 cleanup models
+        id: cleanup
+        working-directory: .ci-inputs/native-preflight-source
+        run: python -I -B -Werror::ResourceWarning scripts/install/test_native_preflight.py PipelineModels
+      - name: Run the 37 receiver controls
+        id: receiver
+        if: ${{ !cancelled() && steps.verify.outcome == 'success' }}
+        working-directory: .ci-inputs/native-preflight-source
+        run: python -I -B -Werror::ResourceWarning scripts/install/test_native_arm_trial.py
+      - name: Record source-only evidence
+        if: ${{ always() }}
+        env:
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+          CLEANUP_OUTCOME: ${{ steps.cleanup.outcome }}
+          RECEIVER_OUTCOME: ${{ steps.receiver.outcome }}
+        run: |
+          {
+            printf '### Native preflight source-only evidence\n\n'
+            printf -- '- Source commit `%s`\n' "$SOURCE_COMMIT"
+            printf -- '- Canonical packet SHA-256 `%s`\n' "$PACKET_SHA256"
+            printf -- '- Git and packet verification — %s\n' "$VERIFY_OUTCOME"
+            printf -- '- Cleanup models (11 selected) — %s\n' "$CLEANUP_OUTCOME"
+            printf -- '- Receiver controls (37 selected) — %s\n\n' "$RECEIVER_OUTCOME"
+            printf 'Scope is source verification and inert models. Docker, guest, native ABI, installation, and hardware runs were outside this job.\n'
+          } >> "$GITHUB_STEP_SUMMARY"
