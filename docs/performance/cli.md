@@ -175,6 +175,10 @@ guardrails. Rejected comparisons exit nonzero; required missing guardrail
 telemetry is INCOMPLETE. A threshold breach is FAIL. Successful CLI exit means
 `MEETS_TIMING_RULE_ONLY`, with `optimization_acceptance` always `NOT RUN`.
 
+Paired zlib plans use the paired runner for execution. Comparison replays the
+validated workload report from raw stdout and requires every measured slot
+from the same session. See [paired zlib](paired-zlib.md).
+
 Optional guardrails are `root_rss_kib_pct` (increase in median sampled root RSS),
 `thermal_raw_mC` (increase in median per-trial sampled maximum for every thermal
 path) and `power_raw_uW_pct` (increase in median per-trial sampled median for

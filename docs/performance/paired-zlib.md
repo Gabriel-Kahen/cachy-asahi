@@ -32,7 +32,7 @@ python3 -B scripts/benchmarks/paired_zlib_v2.py prepare \
   --payload-bytes 33554432 --iterations 8 --output /absolute/new-plan
 ```
 
-These paths describe future operator inputs, not supplied hardware evidence. Preparation invokes the original exact-artifact config adapter, pins the paired wrapper as an additional source input, then freezes the plan through the existing hardware/state gate checks. It runs no workload. The original config is retained next to the augmented config and plan.
+These paths describe future operator inputs, not supplied hardware evidence. Preparation invokes the original exact-artifact config adapter, pins the paired wrapper as an additional source input, and freezes the plan with `paired_zlib: "exact-arm"` through the existing hardware/state gate checks. It runs no workload. The original config is retained next to the augmented config and plan.
 
 ## Run and interpret
 
@@ -44,8 +44,12 @@ python3 -B scripts/benchmarks/paired_zlib_v2.py run \
   --warmup-blocks 1 --session-seconds 7200 --output /absolute/new-session
 ```
 
-Default execution refuses nonphysical or non-aarch64 plans before actors. `--control-only` permits explicit nonphysical fixture plans and requires control-only workload output. It cannot satisfy target acceptance or bypass original ARM artifact checks in physical mode. Neither branch invokes emulation or substitutes an ISA; loader/emulation environment overrides are refused.
+Default execution refuses nonphysical or non-aarch64 plans before actors. `--control-only` requires a nonphysical plan frozen with `paired_zlib: "control-only"` and explicitly labeled fixture output. Control-only records carry no target acceptance. Both modes refuse loader/emulation overrides.
 
-The session retains a copied plan, exact actual schedule, workload reports, condition/trial bindings, environment identity (CPU fields, affinity, kernel, Python, page size), raw output, elapsed boundaries and telemetry. The v2 comparator receives only measured directories; correctness and warmup samples are excluded. Root RSS is the actual live leader's sampled RSS; the original-group sum remains separate. Missing or partial data stays unavailable. No whole-system memory, CPU-time or energy claim follows from these samples. V2 keeps the shared owner's bounded combined output in `stdout.txt`, with `stderr.txt` empty and the scope declared in the raw receipt. The trusted zlib driver must still produce a complete valid JSON report; diagnostic contamination fails validation. Working payload and per-artifact stderr files remain in each owned work directory; allow disk space for one payload per invocation (18 payloads with the default schedule).
+The session retains a copied plan, exact actual schedule, workload reports, condition/trial bindings, environment identity (CPU fields, affinity, kernel, Python, page size), raw output, elapsed boundaries and telemetry. A valid `trial.json` is published atomically after the complete stdout report passes artifact, payload and iteration checks. A refused report leaves an invalid trial and raw evidence. An interruption before publication leaves raw evidence without an admissible trial.
+
+Offline `benchmark_v2.py compare` revalidates the retained stdout and checks the trial's report against it. Supply all measured directories from one session. Correctness and warmup directories, mixed session IDs and missing or failed slots are refused. Retain the plan and its pinned input paths for replay.
+
+Root RSS is the actual live leader's sampled RSS. The original-group sum remains separate. Missing or partial data stays unavailable. V2 keeps the shared owner's bounded combined output in `stdout.txt`, with `stderr.txt` empty and the scope declared in the raw receipt. The trusted zlib driver must produce a complete valid JSON report. Diagnostic contamination fails validation. Working payload and per-artifact stderr files remain in each owned work directory. Allow disk space for one payload per invocation (18 payloads with the default schedule).
 
 `COMPLETE_PAIRED_MEASUREMENT_PENDING_REVIEW` means the execution flow completed, including a legitimate negative or incomplete timing comparison. Read `preliminary_result`, `comparison_exit_code` and `comparison.json`. A `FAIL` timing result is never promoted to an improvement. Optimization acceptance, hardware acceptance and release remain NOT RUN/NOT ADMITTED even if a preliminary timing rule is met. Independent repeat sessions, exact model-specific latency/power/battery/thermal/recovery evidence and final-system measurements remain required by [the methodology](README.md).

@@ -16,10 +16,12 @@ import os
 from pathlib import Path
 import platform
 import queue
+import re
 import signal
 import statistics
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from types import ModuleType
@@ -35,6 +37,7 @@ _retirement_adapter = None
 OWNED_RETIREMENT_ADAPTER_SHA256 = '0d682260c424abf4207b90cc92607528ae1b17656ebd3093d4e9d3919463748c'
 EXECUTION_LAYER = "benchmark-owned-retirement-v2"
 CAPTURE_SOURCE = Path(__file__).resolve().parents[1] / "hardware/capture-baseline.py"
+PAIRED_ZLIB_SOURCE = Path(__file__).resolve().with_name("paired_zlib_v2.py")
 
 
 class Invalid(ValueError):
@@ -57,6 +60,13 @@ def write_json(path, data):
     with Path(path).open("x") as output:
         json.dump(data, output, indent=2, allow_nan=False)
         output.write("\n")
+
+
+def publish_paired_trial(path, data):
+    with tempfile.TemporaryDirectory(prefix=".trial-", dir=path.parent) as staging:
+        temporary = Path(staging) / path.name
+        write_json(temporary, data)
+        os.link(temporary, path)
 
 
 def now():
@@ -154,6 +164,13 @@ def validate_config(config):
             raise Invalid(f"{key}: nonempty identifier required")
     if config.get("execution_context") not in ("physical", "virtual", "emulated", "unknown"):
         raise Invalid("execution_context required")
+    if "paired_zlib" in config:
+        scope = "exact-arm" if config["execution_context"] == "physical" else "control-only"
+        if (config["paired_zlib"] != scope or not isinstance(config.get("inputs"), list)
+                or str(PAIRED_ZLIB_SOURCE) not in config["inputs"]):
+            raise Invalid("paired zlib requires its matching scope and pinned verifier source")
+        if "platform_metrics" in config:
+            raise Invalid("paired zlib requires the ordinary owned-retirement runner")
     change = config.get("change", {})
     for key in ("variable", "baseline", "candidate", "rationale"):
         if not isinstance(change.get(key), str) or not change[key].strip():
@@ -700,7 +717,28 @@ def verify_owned_rss(directory, trial, config, legacy):
     return metrics(legacy) | projected
 
 
-def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_metrics=False):
+def paired_step(step, slot, *, measured_only=False):
+    if (type(step) is not dict or set(step) != {"session_id", "phase", "index"}
+            or not isinstance(step["session_id"], str) or not re.fullmatch(r"[0-9a-f]{32}", step["session_id"])
+            or type(step["index"]) is not int or step["index"] < 0
+            or step["phase"] not in ("correctness", "warmup", "measured")
+            or (step["phase"] == "measured" and step["index"] != slot)
+            or (measured_only and step["phase"] != "measured")):
+        raise Invalid("invalid paired zlib trial session, phase or slot")
+    return step
+
+
+def paired_replay(plan):
+    pin = next(pin for pin in plan["inputs"] if pin["path"] == str(PAIRED_ZLIB_SOURCE))
+    module = ModuleType("benchmark_paired_zlib_replay")
+    module.__file__ = str(PAIRED_ZLIB_SOURCE)
+    exec(compile(check_pin(pin, "paired zlib verifier"), module.__file__, "exec"), vars(module))
+    module.validate(plan, plan["config"]["paired_zlib"] == "control-only", replay=True)
+    return module.workload_check(plan)
+
+
+def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_metrics=False,
+        paired=None, check_workload=None):
     if os.geteuid() == 0:
         raise Invalid("root workload execution is refused")
     plan = load_plan(plan_path)
@@ -709,6 +747,12 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_m
         raise Invalid("platform metrics flag must match the frozen instrumentation declaration")
     if slot < 0 or slot >= len(config["order"]):
         raise Invalid("slot outside declared order")
+    if "paired_zlib" in config:
+        if not callable(check_workload):
+            raise Invalid("paired zlib trials must run through paired_zlib_v2.py")
+        paired_step(paired, slot)
+    elif paired is not None or check_workload is not None:
+        raise Invalid("paired zlib execution requires a matching frozen plan")
     variant = config["order"][slot]
     if digest(state_path) != plan[f"{variant}_binding"]["sha256"]:
         raise Invalid("state record does not match frozen variant binding")
@@ -739,6 +783,8 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_m
               "execution_label": "M2 physical measurement pending review" if config["execution_context"] == "physical"
               else f"{platform.machine()}/{config['execution_context']} nonacceptance smoke",
               "optimization_acceptance": "NOT RUN"}
+    if paired is not None:
+        record["paired_zlib"] = {"step": paired}
     write_json(output / "started.json", record)
     if platform_metrics and "owned_rss" in config:
         result = execute_owned_rss(config, argv, cwd, environment, output)
@@ -757,7 +803,23 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_m
     record["state_after"] = live_identity(config["execution_context"])
     record["valid"] = (result["error"] is None and result["returncode"] == 0
                        and record["state_after"] == record["state"])
-    write_json(output / "trial.json", record)
+    if paired is not None:
+        if record["valid"]:
+            try:
+                adapter = retirement_adapter()
+                stdout = adapter.ordinary(output / "stdout.txt", adapter.MAX_OUTPUT)
+                if hashlib.sha256(stdout).hexdigest() != record["raw_sha256"]["stdout.txt"]:
+                    raise Invalid("paired stdout changed before workload verification")
+                report = check_workload(stdout, variant)
+                if type(report) is not dict:
+                    raise Invalid("paired workload verification did not return a report")
+                record["paired_zlib"]["report"] = report
+            except (OSError, ValueError, KeyError, TypeError) as error:
+                record["valid"] = False
+                record["error"] = f"paired workload verification failed: {str(error)[:400]}"
+        publish_paired_trial(output / "trial.json", record)
+    else:
+        write_json(output / "trial.json", record)
     return 0 if record["valid"] else 2
 
 
@@ -780,6 +842,8 @@ def compare(plan_path, directories, output):
     config = plan["config"]
     argv = workload_argv(plan)
     trials, sensor_ids = [], None
+    check_workload = paired_replay(plan) if "paired_zlib" in config else None
+    session_id = None
     for directory in directories:
         directory = Path(directory)
         trial = read_json(directory / "trial.json")
@@ -806,6 +870,8 @@ def compare(plan_path, directories, output):
         validate_conditions(config, trial["conditions"])
         if trial.get("valid") is not True or trial.get("returncode") != 0 or trial.get("error") is not None:
             raise Invalid("failed/interrupted workload; retain evidence and declare a new complete block")
+        if (check_workload is not None) != ("paired_zlib" in trial):
+            raise Invalid("paired zlib trial admission differs from frozen plan")
         sampling = trial.get("sampling_status", {})
         if (sampling.get("worker_stopped") is not True or sampling.get("workload_reaped") is not True
                 or sampling.get("error") is not None or sampling.get("dropped_samples") != 0):
@@ -837,6 +903,14 @@ def compare(plan_path, directories, output):
             observed = hashlib.sha256(bounded_raw[name]).hexdigest() if bounded_raw is not None else digest(directory / name)
             if observed != expected:
                 raise Invalid(f"raw output changed: {name}")
+        if check_workload is not None:
+            proof = trial["paired_zlib"]
+            step = paired_step(proof["step"], slot, measured_only=True)
+            if session_id is not None and step["session_id"] != session_id:
+                raise Invalid("paired zlib measurements belong to different sessions")
+            session_id = step["session_id"]
+            if proof.get("report") != check_workload(bounded_raw["stdout.txt"], variant):
+                raise Invalid("paired workload report differs from verified stdout")
         telemetry_bytes = bounded_raw['telemetry.jsonl'] if bounded_raw is not None else (directory / "telemetry.jsonl").read_bytes()
         samples = [json.loads(line) for line in telemetry_bytes.splitlines()]
         if not samples or trial.get("sample_count", len(samples)) != len(samples):
