@@ -184,17 +184,18 @@ class Composition(unittest.TestCase):
         args = (f.output, f.source, f.d, H.pin(f.profile.read_bytes()), result['artifact'], result['commands'], time.monotonic() + 10)
         trusted = self.root / 'trusted-MODEL'
         for name in B.HELD:
-            source = F.HELD_CHECKER if name == F.CHECKER else Q.MAIN / name
+            source = F.HELD_FIXTURES.get(name, Q.MAIN / name)
             target = trusted / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(source.read_bytes())
         with patch.object(Q, 'MAIN', trusted):
             self.assertEqual(Q.static_artifacts(*args), result['artifact'])
             checker = trusted / F.CHECKER
-            checker.write_bytes(F.HELD_CHECKER.read_bytes() + b'\n')
+            checker_body = checker.read_bytes()
+            checker.write_bytes(checker_body + b'\n')
             with self.assertRaisesRegex(ValueError, 'TRUSTED_MAIN_STATIC_HELPER_DIFFERS'):
                 Q.static_artifacts(*args)
-            checker.write_bytes(F.HELD_CHECKER.read_bytes())
+            checker.write_bytes(checker_body)
             (f.output / 'artifacts/generated.SRCINFO').write_bytes(b'pkgname = stale\n')
             with self.assertRaises(ValueError): Q.static_artifacts(*args)
 
