@@ -6,6 +6,7 @@ from pathlib import Path
 from runpy import run_path
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 
 OWNER = run_path(str(Path(__file__).with_name("runner.py")))
@@ -93,6 +94,42 @@ class ReflinkTests(unittest.TestCase):
         self.assertEqual(self.controller.calls, [
             ("clone-asahi-target", "cp", ["--sparse=auto", "--reflink=always", *paths], 300, self.deadline),
         ])
+
+
+class CaptureAdmissionTests(unittest.TestCase):
+    def test_capture_flag_and_separate_authority_must_agree(self):
+        run = OWNER["run"]
+        legacy = SimpleNamespace(T=SimpleNamespace(need=need), KIND="base")
+        nonce = "1" * 32
+        authority = Path("/inputs/authority")
+        selection = Path("/inputs/selection")
+        original = dict(issuer="Root", approval_status="UNAPPROVED", nonce=nonce, kind=legacy.KIND)
+        for capture, wrong_kind in ((False, OWNER["CAPTURE_KIND"]), (True, OWNER["KIND"])):
+            issued = dict(issuer="Root", approval_status="UNAPPROVED", nonce=nonce, kind=wrong_kind,
+                          authority={"sha256": "a" * 64}, stage={"sha256": "b" * 64})
+
+            def canonical(_T, path, digest, _cap):
+                return (issued if path == selection else original), {"sha256": digest}
+
+            with self.subTest(capture=capture), patch.dict(run.__globals__, canonical=canonical):
+                with self.assertRaisesRegex(ValueError, "Exact separately issued pair authority"):
+                    run(legacy, authority=authority, authority_sha256="a" * 64, stage=Path("/inputs/stage"),
+                        selection=selection, selection_sha256="c" * 64, capture_alpm_db=capture)
+
+    def test_capture_refuses_an_incomplete_original_transaction(self):
+        capture = OWNER["capture_restored_db"]
+        legacy = SimpleNamespace(G=SimpleNamespace(PASS="complete"), T=SimpleNamespace(
+            need=need, decode=lambda body: body, read=lambda *_args, **_kwargs: [{"role": "apply-forward", "exit": 0}]))
+        with self.assertRaisesRegex(ValueError, "completed original Asahi629 install and rollback"):
+            capture(legacy, Path("/out/asahi629"), {"status": "complete", "files": {"commands.json": {}}},
+                    {"sha256": "d" * 64}, {"sha256": "e" * 64})
+
+    def test_capture_refuses_an_ambiguous_scoped_transaction_before_opening_evidence(self):
+        capture = OWNER["capture_restored_db"]
+        legacy = SimpleNamespace(G=SimpleNamespace(PASS="complete"), T=SimpleNamespace(need=need))
+        receipt = {"status": "held", "jbig_tiff_checkpoint": {"status": "HOLD_ASAHI629_JBIG_TIFF_DISCARD_CLONE"}}
+        with self.assertRaisesRegex(ValueError, "untouched pair baseline or complete scoped restoration"):
+            capture(legacy, Path("/out/asahi629"), receipt, {"sha256": "d" * 64}, {"sha256": "e" * 64})
 
 
 if __name__ == "__main__":
