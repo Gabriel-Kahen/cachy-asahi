@@ -838,6 +838,8 @@ jobs:
       - name: Check isolated ARM experiment packages with pinned source on host ISA
         if: ${{ matrix.shard == 'all' || matrix.shard == 'foundation' }}
         run: |
+          python3 -B -Werror::ResourceWarning scripts/experiments/test_arm_c01.py CommandTests
+          python3 -I -B -Werror::ResourceWarning scripts/experiments/test_zlib_pgo102.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/test_fetch_zlib_source.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/test_local_zlib_source.py
           c01_source_dir="$(mktemp -d "$RUNNER_TEMP/c01-package-source.XXXXXX")"

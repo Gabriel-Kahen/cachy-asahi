@@ -232,7 +232,7 @@
       "bytes": 14253,
       "mode": 420,
       "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3",
-      "source": "scripts/maintenance/source_cache.py"
+      "source": "scripts/experiments/zlib_pgo102-view/scripts/maintenance/source_cache.py"
     },
     "scripts/release/source_delivery.py": {
       "bytes": 16456,

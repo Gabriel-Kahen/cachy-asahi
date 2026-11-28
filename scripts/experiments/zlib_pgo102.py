@@ -11,7 +11,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 PROFILE = 'scripts/experiments/zlib_pgo102-profile.json'
-PROFILE_SHA256 = 'aabc68e9c92c2eae18dd9a7319c96ffac587f3941117ea1cb23674d3d385ba76'
+PROFILE_SHA256 = 'eed1a6cf4b23f1420988040aff927f34be6a6cb233bdb1493284f912883a638e'
 RECIPE = 'packages/experiments/cachy-asahi-zlib-pgo-v1'
 MAX_FILE, MAX_TOTAL = 8 * 1024**2, 16 * 1024**2
 

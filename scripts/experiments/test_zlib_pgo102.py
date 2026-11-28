@@ -77,6 +77,22 @@ class AdoptionControls(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'pinned canonical source differs'):
             P.checked(self.root)
 
+    def test_export_uses_frozen_source_cache_helper(self):
+        name = 'scripts/maintenance/source_cache.py'
+        retained = self.root / self.profile['files'][name]['source']
+        active = self.root / name
+        active.parent.mkdir(parents=True)
+        active.write_text('# active cache helper revision\n')
+        P.export(self.output, self.root)
+        self.assertEqual(P.digest((self.output / name).read_bytes()),
+                         '3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3')
+        self.assertEqual(P.digest((self.output / 'PGO-SOURCE.json').read_bytes()),
+                         '4733aecfa53b40ba4ed78eee2408978c3523ff5e45f9c55287d295cddb3dfc84')
+
+        retained.write_text('# changed retained cache helper\n')
+        with self.assertRaisesRegex(ValueError, 'pinned canonical source differs: ' + name):
+            P.checked(self.root)
+
     def test_alias_hardlink_fifo_and_mode_changes_refuse(self):
         target = self.root/P.RECIPE/'pipeline.py'; original = target.read_bytes()
         target.chmod(0o600)
